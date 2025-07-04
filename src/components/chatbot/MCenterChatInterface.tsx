@@ -267,12 +267,12 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
               <img
                 src={getSessionLeaderImage()}
-                alt="AI센터장 이후경"
+                alt="AI교장 이후경"
                 className="w-full h-full object-cover"
               />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">이후경 AI 교육센터장</h3>
+              <h3 className="font-semibold text-lg">이후경 AI 교육교장</h3>
               <div className="flex items-center space-x-1 text-sm text-blue-100">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>28년 경험 상담 중</span>
@@ -326,7 +326,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
                       ) : (
                         <img
                           src={getSessionLeaderImage()}
-                          alt="AI센터장"
+                          alt="AI교장"
                           className="w-full h-full object-cover"
                         />
                       )}
@@ -386,7 +386,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 text-white flex items-center justify-center overflow-hidden">
                       <img
                         src={getSessionLeaderImage()}
-                        alt="AI센터장"
+                        alt="AI교장"
                         className="w-full h-full object-cover animate-pulse"
                       />
                     </div>
@@ -418,7 +418,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="이후경 AI 교육센터장에게 상담 문의하세요... (28년 경험)"
+                    placeholder="이후경 AI 교육교장에게 상담 문의하세요... (28년 경험)"
                     className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
                     disabled={isLoading}
                   />

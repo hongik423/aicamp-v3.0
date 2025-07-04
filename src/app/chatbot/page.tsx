@@ -25,7 +25,7 @@ export default function ChatbotPage() {
   useEffect(() => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      content: `🎯 안녕하세요! **AICAMP** AI센터장입니다!
+      content: `🎯 안녕하세요! **AICAMP** AI교장입니다!
 
 28년간 500개 이상 기업의 성장을 함께해온 **이후경 경영지도사**를 대표하여 상담해드리겠습니다.
 
@@ -200,7 +200,7 @@ export default function ChatbotPage() {
             
             <h1 className="text-hero text-gray-900 mb-6 animate-slide-in">
               <Sparkles className="inline-block w-16 h-16 mr-4 text-yellow-500" />
-              M센터장과 채팅
+              M교장과 채팅
             </h1>
             
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in mb-8"

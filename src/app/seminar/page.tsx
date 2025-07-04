@@ -64,14 +64,14 @@ interface SeminarVideo {
 const seminarVideos: SeminarVideo[] = [
   {
     id: '1',
-    title: 'BM ZEN 프레임워크로 사업 혁신하기',
-    description: '25년 경험의 전문가가 직접 공개하는 BM ZEN 프레임워크를 활용한 사업혁신 비법! 📺 실제 YouTube 영상으로 연결됩니다.',
+    title: 'BM ZEN 프레임워크 완벽 가이드',
+    description: '28년 경험의 전문가가 직접 알려주는 사업분석 핵심 방법론',
     thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
     videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
     youtubeId: 'SWkmuibSQ4E',
-    duration: '영상 확인',
+    duration: '45:32',
     publishDate: '2024-01-15',
-    views: 12500,
+    views: 12450,
     likes: 348,
     category: 'business-analysis',
     level: 'intermediate',
@@ -79,7 +79,7 @@ const seminarVideos: SeminarVideo[] = [
     isNew: true,
     instructor: {
       name: '이후경',
-      title: 'M-CENTER 센터장',
+      title: 'AICAMP 교장',
       avatar: 'https://picsum.photos/100/100?random=10'
     }
   },
@@ -99,7 +99,7 @@ const seminarVideos: SeminarVideo[] = [
     tags: ['AI', '생산성', 'ChatGPT', '자동화'],
     instructor: {
       name: '이후경',
-      title: 'M-CENTER 센터장',
+      title: 'AICAMP 교장',
       avatar: 'https://picsum.photos/100/100?random=10'
     }
   },
@@ -119,7 +119,7 @@ const seminarVideos: SeminarVideo[] = [
     tags: ['공장구매', '경매', '부동산', '투자'],
     instructor: {
       name: '이후경',
-      title: 'M-CENTER 센터장',
+      title: 'AICAMP 교장',
       avatar: 'https://picsum.photos/100/100?random=10'
     }
   },
@@ -140,7 +140,7 @@ const seminarVideos: SeminarVideo[] = [
     isLive: true,
     instructor: {
       name: '이후경',
-      title: 'M-CENTER 센터장',
+      title: 'AICAMP 교장',
       avatar: 'https://picsum.photos/100/100?random=10'
     }
   },
@@ -160,7 +160,7 @@ const seminarVideos: SeminarVideo[] = [
     tags: ['벤처인증', '세제혜택', 'ISO', 'ESG'],
     instructor: {
       name: '이후경',
-      title: 'M-CENTER 센터장',
+      title: 'AICAMP 교장',
       avatar: 'https://picsum.photos/100/100?random=10'
     }
   },
@@ -180,7 +180,7 @@ const seminarVideos: SeminarVideo[] = [
     tags: ['디지털마케팅', '웹사이트', '매출증대', 'SEO'],
     instructor: {
       name: '이후경',
-      title: 'M-CENTER 센터장',
+      title: 'AICAMP 교장',
       avatar: 'https://picsum.photos/100/100?random=10'
     }
   }

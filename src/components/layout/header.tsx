@@ -97,7 +97,7 @@ const Header = () => {
     { href: '/services/certification', label: '인증지원', icon: Shield },
     { href: '/diagnosis', label: '무료진단', icon: Stethoscope },
     { href: '/cases', label: '성공사례', icon: Trophy },
-    { href: '/center-leader', label: '센터장', icon: User },
+    { href: '/center-leader', label: '교장', icon: User },
     { href: '/seminar', label: '세미나', icon: Video },
     { href: '/support', label: '고객지원', icon: Headphones }
   ];
@@ -407,7 +407,7 @@ const Header = () => {
                         }`}>
                           {item.label === '무료진단' && '5분 간편 진단'}
                           {item.label === '성공사례' && '실제 성공 스토리'}
-                          {item.label === '센터장' && '이후경 전문가'}
+                          {item.label === '교장' && '이후경 전문가'}
                           {item.label === '세미나' && '온라인 영상'}
                           {item.label === '고객지원' && '24시간 지원'}
                         </div>

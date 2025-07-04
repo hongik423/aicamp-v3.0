@@ -263,7 +263,7 @@ export default function Home() {
   const handleChatbotConnect = () => {
     setIsConnecting(true);
     
-    // "M센터장 챗봇과 연결하기...." 메시지 표시
+            // "M교장 챗봇과 연결하기...." 메시지 표시
     setTimeout(() => {
       setIsConnecting(false);
       setIsChatOpen(true);
@@ -343,7 +343,7 @@ export default function Home() {
             
             <h2 className="apple-subtitle apple-animation-slideUp mobile-centered">
               <span className="text-4xl mr-3">🤖</span>
-              <span className="text-overflow-safe">M센터장과 바로 대화하기</span>
+                              <span className="text-overflow-safe">M교장과 바로 대화하기</span>
             </h2>
             
             <p className="apple-body max-w-4xl mx-auto mobile-text">
@@ -397,7 +397,7 @@ export default function Home() {
                       {isConnecting ? (
                         <>
                           <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          M센터장 챗봇과 연결하기...
+                          M교장 챗봇과 연결하기...
                         </>
                       ) : (
                         <>
@@ -444,7 +444,7 @@ export default function Home() {
                             {/* 실시간 대화 시뮬레이션 */}
                             <div className="space-y-3 max-w-md">
                               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
-                                <p className="text-sm text-white/90">안녕하세요! M-CENTER M센터장입니다.</p>
+                                <p className="text-sm text-white/90">안녕하세요! M-CENTER M교장입니다.</p>
                               </div>
                               <div className="bg-blue-500/80 backdrop-blur-sm rounded-2xl p-4 text-right ml-8">
                                 <p className="text-sm text-white">우리 회사 매출 증대 방법을 알고 싶어요</p>
@@ -515,7 +515,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900">전문가 연결 및 후속 상담</h3>
                     <p className="text-gray-600 leading-relaxed">
-                      필요시 이후경 M센터장 직접 상담 (010-9251-9743)
+                      필요시 이후경 M교장 직접 상담 (010-9251-9743)
                     </p>
                   </div>
                 </div>
@@ -670,7 +670,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      💬 M센터장에게 바로 문의하기
+                      💬 M교장에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
@@ -992,7 +992,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* M센터장 챗봇 인터페이스 */}
+              {/* M교장 챗봇 인터페이스 */}
       <MCenterChatInterface
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
@@ -1006,7 +1006,7 @@ export default function Home() {
             <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <Bot className="w-8 h-8 text-white animate-pulse" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">M센터장 챗봇과 연결하기...</h3>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">M교장 챗봇과 연결하기...</h3>
             <p className="text-gray-600 mb-4">잠시만 기다려 주세요</p>
             <div className="flex justify-center space-x-1">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>

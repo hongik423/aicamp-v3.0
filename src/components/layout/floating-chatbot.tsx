@@ -39,7 +39,7 @@ export default function FloatingChatbot() {
     if (isOpen && messages.length === 0) {
       const welcomeMessage: Message = {
         id: Date.now().toString(),
-        content: `안녕하세요! AICAMP AI센터장 이후경입니다!
+        content: `안녕하세요! AICAMP AI교장 이후경입니다!
 
 28년간 500개 이상 기업의 성장을 함께해온 경험을 바탕으로 상담해드리겠습니다.
 
@@ -391,10 +391,10 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
         }}
         data-floating-chatbot="true"
       >
-        {/* AI센터장 사진 */}
+        {/* AI교장 사진 */}
         <img
           src={getSessionLeaderImage()}
-          alt="AI센터장 이후경"
+          alt="AI교장 이후경"
           style={{
             width: isMobile ? '50px' : '60px',
             height: isMobile ? '50px' : '60px',
@@ -517,7 +517,7 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <img
                 src={getSessionLeaderImage()}
-                alt="AI센터장"
+                alt="AI교장"
                 style={{
                   width: '35px',
                   height: '35px',
@@ -527,7 +527,7 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
               />
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                  AI센터장
+                  AI교장
                 </div>
                 <div style={{ fontSize: '12px', opacity: 0.9 }}>
                   이후경 • 28년 경험

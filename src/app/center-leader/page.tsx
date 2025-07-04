@@ -48,7 +48,7 @@ export default function CenterLeaderPage() {
                 <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mr-4 backdrop-blur-sm border border-white/30 overflow-hidden">
                   <img 
                     src={getSessionLeaderImage()} 
-                    alt="이후경 AI 교육센터장 프로필 사진"
+                    alt="이후경 AI 교육교장 프로필 사진"
                     className="w-full h-full object-cover rounded-full"
                     onError={(e) => {
                       // 이미지 로드 실패 시 기본 아이콘으로 대체
@@ -61,7 +61,7 @@ export default function CenterLeaderPage() {
                 <div>
                   <Badge className="bg-yellow-500 text-black mb-2">28년 검증된 전문가</Badge>
                   <h1 className="text-4xl lg:text-5xl font-bold mb-2">이후경 경영지도사</h1>
-                  <p className="text-xl text-blue-100">AICAMP AI 교육센터장</p>
+                  <p className="text-xl text-blue-100">AICAMP AI 교육교장</p>
                 </div>
               </div>
               
@@ -230,7 +230,7 @@ export default function CenterLeaderPage() {
               <CardContent>
                 <div className="space-y-3">
                   {[
-                    'AICAMP AI 교육센터장',
+                    'AICAMP AI 교육교장',
                     '아이엔제이컨설팅 책임컨설턴트',
                     '월드클래스코리아 HRD실장',
                     'ESG인증원 책임컨설턴트',
@@ -365,7 +365,7 @@ export default function CenterLeaderPage() {
                     </CardHeader>
                     <CardContent className="mt-4">
                       <ul className="space-y-2 text-sm">
-                        <li>• AICAMP AI 교육센터장</li>
+                        <li>• AICAMP AI 교육교장</li>
                         <li>• 아이엔제이컨설팅 책임컨설턴트</li>
                         <li>• 고용노동부 일터혁신 수행기관 컨설턴트</li>
                         <li>• 200개사 이상 조직/인사 컨설팅 수행</li>

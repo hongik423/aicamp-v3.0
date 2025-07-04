@@ -143,7 +143,7 @@ export const LEGACY_MAPPING = {
   // 기존 담당자 -> 새 담당자
   '이후경 책임컨설턴트': CONSULTANT_INFO.name,
   '이후경 경영지도사': CONSULTANT_INFO.name,
-  '경영지도센터장': CONSULTANT_INFO.title,
+      'AICAMP교장': CONSULTANT_INFO.title,
   
   // 기존 이메일 -> 새 이메일
   'mcenter@example.com': CONTACT_INFO.email,
