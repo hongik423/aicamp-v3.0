@@ -1,6 +1,6 @@
 # 🚀 Vercel 자동 배포 가이드
 
-M-CENTER 랜딩페이지를 Vercel에 자동 배포하는 완전한 가이드입니다.
+AICAMP v3.0을 Vercel에 자동 배포하는 완전한 가이드입니다.
 
 ## 📋 **배포 전 체크리스트**
 
@@ -38,7 +38,7 @@ NEXT_PUBLIC_GOOGLE_SCRIPT_URL=your_google_apps_script_url
 
 # 기본 설정
 NEXT_PUBLIC_BASE_URL=https://your-vercel-domain.vercel.app
-NEXT_PUBLIC_APP_NAME=M-CENTER 경영지도센터
+NEXT_PUBLIC_APP_NAME=AICAMP AI 교육센터
 NEXT_PUBLIC_APP_DESCRIPTION=Business Model Zen 프레임워크 기반 기업 성장 솔루션
 
 # 이메일 서비스 (EmailJS)
@@ -200,7 +200,7 @@ vercel logs
 
 ## 🎉 **축하합니다!**
 
-M-CENTER 랜딩페이지가 성공적으로 Vercel에 배포되었습니다!
+AICAMP v3.0이 성공적으로 Vercel에 배포되었습니다!
 
 이제 GitHub에 코드를 push할 때마다 자동으로 배포되며, 
 전 세계 사용자들이 빠르고 안정적으로 서비스를 이용할 수 있습니다.
