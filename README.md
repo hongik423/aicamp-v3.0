@@ -1,171 +1,155 @@
-# 🏢 M-CENTER 기업 진단 및 컨설팅 플랫폼
+# 🚀 AICAMP v3.0 - AI 교육센터
 
-> **Google Apps Script 통합 완료** ✅  
-> EmailJS 제거 및 단일 시스템 통합으로 안정성 향상
+## 📖 프로젝트 소개
 
-## 📋 시스템 개요
+AICAMP는 AI 기반 교육과 컨설팅을 제공하는 혁신적인 플랫폼입니다. 기업과 개인의 AI 역량 강화를 위한 종합 솔루션을 제공합니다.
 
-M-CENTER는 중소기업 대상 AI 기반 무료 진단 및 전문 컨설팅 서비스를 제공하는 Next.js 기반 웹 플랫폼입니다.
+### ✨ 주요 특징
 
-### 🎯 주요 기능
-- **AI 무료 진단**: 20개 항목 객관식 + AI 분석
-- **전문가 상담**: 진단 결과 기반 맞춤형 상담
-- **6대 전문 서비스**: 사업분석, AI생산성, 공장경매, 기술창업, 인증지원, 웹사이트구축
-- **실시간 데이터 연동**: Google Apps Script 기반 통합 시스템
+- 🤖 **AI 기반 무료 진단**: 5분 만에 완료되는 간편한 AI 역량 진단
+- 📚 **AI 교육 프로그램**: ChatGPT 활용법부터 전문 AI 기술까지
+- 💡 **AI 생산성 컨설팅**: 업무 효율성 향상을 위한 맞춤형 솔루션
+- 🎯 **맞춤형 추천**: AI 기반 개인화된 학습 경로 제안
+- 🌙 **다크모드/라이트모드**: 사용자 환경에 맞는 테마 선택
+- 📱 **PWA 지원**: 모바일 앱처럼 설치하여 사용 가능
 
-## 🚀 시스템 아키텍처
+### 🛠 기술 스택
 
-### 핵심 기술 스택
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: TailwindCSS, Shadcn/ui
-- **AI**: Google Gemini API
-- **데이터**: Google Sheets + Apps Script
-- **배포**: Vercel
+- **Frontend**: Next.js 14 (App Router), React 18, TypeScript
+- **Styling**: Tailwind CSS, Shadcn/ui
+- **상태관리**: Zustand, React Query
+- **PWA**: Service Worker, Web App Manifest
+- **배포**: Vercel, GitHub Actions
 
-### 🔗 통합 이메일 시스템 (Google Apps Script)
+### 🎨 디자인 시스템
+
+AICAMP 전용 컬러 팔레트:
+- Navy Dark: `#001c40`
+- Navy: `#002552` 
+- Forest: `#001733`
+- Purple: `#6f5a9c`
+- Teal: `#63b085`
+- Orange: `#c76d36`
+
+### 🚀 빠른 시작
+
+1. **프로젝트 클론**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/aicamp_v3.0.git
+   cd aicamp_v3.0
+   ```
+
+2. **의존성 설치**
+   ```bash
+   npm install
+   ```
+
+3. **환경변수 설정**
+   ```bash
+   cp env.local.example .env.local
+   # .env.local 파일을 편집하여 필요한 API 키들을 추가하세요
+   ```
+
+4. **개발 서버 실행**
+   ```bash
+   npm run dev
+   ```
+
+5. **브라우저에서 확인**
+   ```
+   http://localhost:3000
+   ```
+
+### 📂 프로젝트 구조
+
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   웹 신청폼     │───▶│ Google Apps      │───▶│   구글시트      │
-│                 │    │ Script           │    │   자동저장      │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                               │
-                               ▼
-                       ┌──────────────────┐
-                       │   자동 이메일    │
-                       │ • 관리자 알림    │
-                       │ • 신청자 확인    │
-                       └──────────────────┘
+aicamp_v3.0/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── ui/             # 공통 UI 컴포넌트
+│   │   ├── layout/         # 레이아웃 컴포넌트
+│   │   └── diagnosis/      # 진단 관련 컴포넌트
+│   ├── lib/                # 유틸리티 함수
+│   ├── contexts/           # React Context
+│   └── types/              # TypeScript 타입 정의
+├── public/                 # 정적 파일
+├── docs/                   # 문서화
+└── scripts/                # 스크립트 파일
 ```
 
-## 🛠️ 설치 및 설정
+### 🔧 주요 기능
 
-### 1. 프로젝트 설정
-```bash
-# 저장소 클론
-git clone https://github.com/hongik423/m_center_landingpage.git
-cd m_center_landingpage
+#### 1. AI 진단 시스템
+- 5점 척도 간편 진단
+- 실시간 결과 분석
+- 맞춤형 솔루션 추천
 
-# 의존성 설치
-npm install
+#### 2. 교육 프로그램
+- AI 생산성 향상
+- 기술 창업 지원
+- 인증 및 자격증 취득
 
-# 환경변수 설정
-cp env.local.example .env.local
-```
+#### 3. 컨설팅 서비스
+- 사업 분석 (BM ZEN 프레임워크)
+- 공장 구매 컨설팅
+- 디지털 혁신 지원
 
-### 2. 환경변수 설정 (.env.local)
-```bash
-# 🔧 Google Apps Script 연동 (필수)
-NEXT_PUBLIC_GOOGLE_SHEETS_ID=your_google_sheets_id
-NEXT_PUBLIC_GOOGLE_SCRIPT_URL=your_google_script_url
+### 🌐 배포
 
-# 🤖 AI API 키 (운영환경 필수)
+#### Vercel 배포
+1. GitHub 리포지토리를 Vercel에 연결
+2. 환경변수 설정
+3. 자동 배포 완료
+
+#### 환경변수 설정
+```env
+NEXT_PUBLIC_BASE_URL=https://your-domain.vercel.app
 GEMINI_API_KEY=your_gemini_api_key
-
-# 🚀 기본 URL
-NEXT_PUBLIC_BASE_URL=https://your-domain.com
+NEXT_PUBLIC_GOOGLE_SHEETS_ID=your_sheets_id
+NEXT_PUBLIC_GOOGLE_SCRIPT_URL=your_script_url
 ```
 
-### 3. Google Apps Script 설정
+### 📱 PWA 기능
 
-#### 필수 단계:
-1. **구글시트 생성**: [템플릿 시트](https://docs.google.com/spreadsheets/d/1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug/copy) 복사
-2. **Apps Script 배포**: `M-CENTER_구글시트_Apps_Script_완성본.js` 파일 사용
-3. **웹앱 배포**: 실행 권한(나), 액세스 권한(모든 사용자)
-4. **URL 복사**: 배포된 웹앱 URL을 환경변수에 설정
-
-## 🚀 실행
-
-```bash
-# 개발 서버 실행
-npm run dev
-
-# 빌드 및 배포
-npm run build
-npm start
-
-# Vercel 배포
-vercel --prod
-```
-
-## 📊 서비스 구성
-
-### 🎯 AI 진단 시스템
-- **20개 객관식 문항**: 5개 카테고리별 역량 평가
-- **AI 분석 엔진**: Gemini API 기반 종합 분석
-- **맞춤형 보고서**: PDF 다운로드 지원
-- **서비스 추천**: 진단 결과 기반 자동 매칭
-
-### 💼 6대 전문 서비스
-1. **BM ZEN 사업분석**: 비즈니스 모델 혁신
-2. **AI 생산성향상**: 업무 자동화 및 효율성
-3. **경매활용 공장구매**: 부동산 투자 컨설팅
-4. **기술사업화/창업**: 기술 상용화 지원
-5. **인증지원**: 각종 기업 인증 획득
-6. **웹사이트 구축**: 디지털 전환 지원
-
-## 🔧 시스템 특징
-
-### ✅ 안정성
-- **단일 시스템**: Google Apps Script 통합으로 복잡성 제거
-- **오프라인 백업**: 네트워크 장애 시 로컬 백업
-- **에러 핸들링**: 단계별 fallback 처리
-
-### 📈 확장성
-- **모듈화**: 기능별 독립적 컴포넌트
-- **타입 안전성**: TypeScript 전면 적용
-- **성능 최적화**: Next.js 15 + React 19
+- **오프라인 지원**: 인터넷 연결 없이도 기본 기능 사용 가능
+- **모바일 설치**: 홈 화면에 앱 아이콘 추가
+- **푸시 알림**: 중요 업데이트 및 알림 받기
+- **빠른 로딩**: 캐시된 리소스로 빠른 페이지 로딩
 
 ### 🔒 보안
-- **환경변수 분리**: 민감 정보 보호
-- **CORS 설정**: 안전한 API 통신
-- **데이터 검증**: Zod 스키마 검증
 
-## 📋 API 엔드포인트
+- **환경변수 보안**: 민감한 정보는 서버 사이드에서만 접근
+- **API 보호**: 적절한 인증 및 권한 검사
+- **HTTPS 강제**: 모든 통신을 암호화
+- **보안 헤더**: CSP, HSTS 등 보안 헤더 적용
 
-```
-GET  /                          # 메인 페이지
-GET  /diagnosis                 # AI 진단 페이지
-POST /api/simplified-diagnosis  # 진단 신청 처리
-POST /api/consultation          # 상담 신청 처리
-GET  /test-email               # 시스템 연결 테스트
-```
+### 🤝 기여하기
 
-## 🔍 테스트 및 모니터링
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### 시스템 상태 확인
-```bash
-# Google Apps Script 연결 테스트
-curl https://your-domain.com/test-email
+### 📄 라이선스
 
-# API 상태 확인
-curl https://your-domain.com/api/consultation
-```
+이 프로젝트는 [MIT License](LICENSE)에 따라 라이선스가 부여됩니다.
 
-### 개발 도구
-- **타입 체크**: `npm run type-check`
-- **린트**: `npm run lint`
-- **보안 감사**: `npm run security-audit`
+### 📞 문의
 
-## 📞 문의 및 지원
+- **웹사이트**: [AICAMP 공식 사이트](https://your-domain.vercel.app)
+- **이메일**: aicamp@example.com
+- **GitHub**: [GitHub 리포지토리](https://github.com/YOUR_USERNAME/aicamp_v3.0)
 
-- **관리자**: 이후경 경영지도사
-- **연락처**: 010-9251-9743
-- **이메일**: hongik423@gmail.com
-- **GitHub**: [hongik423/m_center_landingpage](https://github.com/hongik423/m_center_landingpage)
+### 🎯 로드맵
 
-## 📈 버전 히스토리
-
-### v2.0.0 (2025.01.XX) - Google Apps Script 통합
-- ✅ EmailJS 완전 제거
-- ✅ Google Apps Script 단일 시스템 통합
-- ✅ 안정성 및 성능 향상
-- ✅ 환경변수 단순화
-
-### v1.0.0 (2024.12.XX) - 초기 버전
-- 기본 AI 진단 시스템
-- EmailJS 기반 이메일 시스템
-- 6대 서비스 소개 페이지
+- [ ] AI 모델 고도화
+- [ ] 모바일 앱 개발
+- [ ] 다국어 지원
+- [ ] 고급 분석 대시보드
+- [ ] 팀 협업 기능
+- [ ] API 플랫폼 구축
 
 ---
 
-💡 **M-CENTER**: 중소기업 성장과 혁신을 위한 AI 기반 통합 컨설팅 플랫폼
+**AICAMP v3.0** - AI로 더 스마트한 미래를 만들어갑니다! 🚀
