@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, MessageCircle, X, Bot, User } from 'lucide-react';
-import { getImagePath } from '@/lib/utils';
+import { getImagePath, getSessionLeaderImage } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -43,7 +43,7 @@ export default function FloatingChatbot() {
 
 28년간 500개 이상 기업의 성장을 함께해온 경험을 바탕으로 상담해드리겠습니다.
 
-저희 M-CENTER에서 전문적으로 상담해드리는 분야들이에요.
+저희 AICAMP에서 전문적으로 상담해드리는 분야들이에요.
 
 BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성한 케이스들이 많아요. AI 생산성향상은 20-99인 기업이라면 정부에서 100% 지원해주니까 완전 무료로 받으실 수 있어요.
 
@@ -322,7 +322,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
 
 지금 AI 시스템에 일시적인 문제가 있지만, 괜찮아요. 제가 현장에서 직접 쌓은 노하우로 도와드릴 수 있거든요.
 
-저희 M-CENTER에서 검증된 솔루션들이 있어요. BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성한 케이스들이 많아요. 
+저희 AICAMP에서 검증된 솔루션들이 있어요. BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성한 케이스들이 많아요. 
 
 AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 정부에서 100% 지원해주거든요. 기업 입장에서는 완전 무료로 받을 수 있어요.
 
@@ -391,10 +391,10 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
         }}
         data-floating-chatbot="true"
       >
-        {/* M센터장 사진 */}
+        {/* AI센터장 사진 */}
         <img
-          src={getImagePath('/images/M-Center-leader.png')}
-          alt="M센터장 이후경 경영지도사"
+          src={getSessionLeaderImage()}
+          alt="AI센터장 이후경"
           style={{
             width: isMobile ? '50px' : '60px',
             height: isMobile ? '50px' : '60px',
@@ -516,8 +516,8 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <img
-                src={getImagePath('/star-counselor-icon.svg')}
-                alt="M센터장"
+                src={getSessionLeaderImage()}
+                alt="AI센터장"
                 style={{
                   width: '35px',
                   height: '35px',
@@ -527,10 +527,10 @@ AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 
               />
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                  M센터장 AI
+                  AI센터장
                 </div>
                 <div style={{ fontSize: '12px', opacity: 0.9 }}>
-                  이후경 경영지도사 • 25년 경험
+                  이후경 • 28년 경험
                 </div>
               </div>
             </div>

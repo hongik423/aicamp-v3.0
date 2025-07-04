@@ -139,12 +139,10 @@ export const validateNumberInput = (
 };
 
 // 🔧 GitHub Pages 호환 이미지 경로 처리
-export function getImagePath(imageName: string): string {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-  // 이미지명이 '/'로 시작하는 경우 제거
-  const cleanImageName = imageName.startsWith('/') ? imageName.slice(1) : imageName;
-  // basePath가 있으면 추가, 없으면 루트에서 접근
-  return basePath ? `${basePath}/${cleanImageName}` : `/${cleanImageName}`;
+export function getImagePath(path: string): string {
+  // 개발 환경에서는 상대 경로, 배포 환경에서는 절대 경로 사용
+  const basePath = process.env.NODE_ENV === 'production' ? '' : '';
+  return `${basePath}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
 /**
@@ -152,4 +150,63 @@ export function getImagePath(imageName: string): string {
  */
 export function getLogoPath(): string {
   return getImagePath('/images/AICAMP로고.png');
+}
+
+/**
+ * AICAMP 센터장 이미지 랜덤 선택 함수
+ * aicamp_leader.png와 aicamp_leader2.jpg 중 랜덤하게 선택
+ */
+export function getRandomLeaderImage(): string {
+  const images = [
+    '/images/aicamp_leader.png',
+    '/images/aicamp_leader2.jpg'
+  ];
+  
+  // 현재 시간을 기반으로 한 간단한 랜덤 선택
+  // 페이지 로드마다 다른 이미지가 나올 수 있도록
+  const randomIndex = Math.floor(Math.random() * images.length);
+  return getImagePath(images[randomIndex]);
+}
+
+/**
+ * 세션 기반 고정 이미지 선택 (한 세션 동안 동일한 이미지 유지)
+ */
+export function getSessionLeaderImage(): string {
+  const images = [
+    '/images/aicamp_leader.png',
+    '/images/aicamp_leader2.jpg'
+  ];
+  
+  // localStorage를 사용하여 세션 동안 동일한 이미지 유지
+  if (typeof window !== 'undefined') {
+    let selectedImage = localStorage.getItem('aicamp-leader-image');
+    
+    if (!selectedImage || !images.includes(selectedImage)) {
+      const randomIndex = Math.floor(Math.random() * images.length);
+      selectedImage = images[randomIndex];
+      localStorage.setItem('aicamp-leader-image', selectedImage);
+    }
+    
+    return getImagePath(selectedImage);
+  }
+  
+  // 서버 사이드에서는 첫 번째 이미지 사용
+  return getImagePath(images[0]);
+}
+
+/**
+ * 날짜 기반 이미지 선택 (하루마다 다른 이미지)
+ */
+export function getDailyLeaderImage(): string {
+  const images = [
+    '/images/aicamp_leader.png',
+    '/images/aicamp_leader2.jpg'
+  ];
+  
+  // 오늘 날짜를 기반으로 이미지 선택
+  const today = new Date();
+  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+  const imageIndex = dayOfYear % images.length;
+  
+  return getImagePath(images[imageIndex]);
 }

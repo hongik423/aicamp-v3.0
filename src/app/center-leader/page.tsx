@@ -27,6 +27,7 @@ import {
   Send
 } from 'lucide-react';
 import Header from '@/components/layout/header';
+import { getSessionLeaderImage } from '@/lib/utils';
 
 export default function CenterLeaderPage() {
   const [selectedTab, setSelectedTab] = useState('overview');
@@ -46,8 +47,8 @@ export default function CenterLeaderPage() {
               <div className="flex items-center mb-6">
                 <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mr-4 backdrop-blur-sm border border-white/30 overflow-hidden">
                   <img 
-                    src="/M-Center-leader.png" 
-                    alt="이후경 경영지도사 프로필 사진"
+                    src={getSessionLeaderImage()} 
+                    alt="이후경 AI 교육센터장 프로필 사진"
                     className="w-full h-full object-cover rounded-full"
                     onError={(e) => {
                       // 이미지 로드 실패 시 기본 아이콘으로 대체

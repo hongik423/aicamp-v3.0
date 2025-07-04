@@ -143,7 +143,7 @@ bundlestats.html
 # 이전 M-CENTER 관련 파일들 무시
 images/LOGO.JPG
 images/LOGO.svg
-public/M-Center-leader.png
+# public/M-Center-leader.png # 기존 이미지 (더 이상 사용하지 않음)
 public/company-logo-new.svg
 public/company-star-logo.svg
 public/easynext.png

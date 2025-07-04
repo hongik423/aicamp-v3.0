@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { getSessionLeaderImage } from '@/lib/utils';
 import { 
   Send, 
   X, 
@@ -173,7 +174,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
 
 AI를 통해 관련 정보를 검색하고 분석한 결과를 바탕으로 말씀드리겠습니다.
 
-M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어요.
+AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어요.
 
 첫 번째는 BM ZEN 사업분석이에요. 제가 직접 개발한 5단계 전략 프레임워크로 매출을 20-40% 증대시켜드려요. 재무, 마케팅, 운영을 통합적으로 분석하고 AI 기반으로 시장 트렌드도 예측해드리고요.
 
@@ -265,16 +266,16 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
               <img
-                src="/images/M-Center-leader.png"
-                alt="M센터장 이후경 경영지도사"
+                src={getSessionLeaderImage()}
+                alt="AI센터장 이후경"
                 className="w-full h-full object-cover"
               />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">이후경 경영지도사</h3>
+              <h3 className="font-semibold text-lg">이후경 AI 교육센터장</h3>
               <div className="flex items-center space-x-1 text-sm text-blue-100">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>25년 경험 상담 중</span>
+                <span>28년 경험 상담 중</span>
                 <CheckCircle className="w-3 h-3 ml-1" />
               </div>
             </div>
@@ -324,8 +325,8 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                         <User className="w-4 h-4" />
                       ) : (
                         <img
-                          src="/images/M-Center-leader.png"
-                          alt="M센터장"
+                          src={getSessionLeaderImage()}
+                          alt="AI센터장"
                           className="w-full h-full object-cover"
                         />
                       )}
@@ -384,8 +385,8 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                   <div className="flex items-start space-x-2 max-w-[80%]">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 text-white flex items-center justify-center overflow-hidden">
                       <img
-                        src="/images/M-Center-leader.png"
-                        alt="M센터장"
+                        src={getSessionLeaderImage()}
+                        alt="AI센터장"
                         className="w-full h-full object-cover animate-pulse"
                       />
                     </div>
@@ -417,7 +418,7 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="이후경 경영지도사에게 상담 문의하세요... (25년 경험)"
+                    placeholder="이후경 AI 교육센터장에게 상담 문의하세요... (28년 경험)"
                     className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
                     disabled={isLoading}
                   />
@@ -460,7 +461,7 @@ M-CENTER에서는 6가지 핵심서비스로 기업들을 도와드리고 있어
               {/* 🌟 세계최고 이후경경영지도사 AI 상태 표시 */}
               <div className="flex items-center justify-center mt-2 text-xs text-gray-500">
                 <Brain className="w-3 h-3 mr-1 text-purple-500 animate-pulse" />
-                <span>세계최고 이후경경영지도사 AI • 25년 경험 + 고도화 분석 시스템</span>
+                <span>AICAMP 이후경 AI • 28년 경험 + 고도화 분석 시스템</span>
               </div>
             </div>
           </>
