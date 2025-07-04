@@ -1,6 +1,6 @@
 /**
- * 🏢 M-CENTER 통합 이메일 서비스
- * Google Apps Script 기반 이메일 시스템 (EmailJS 제거됨)
+ * 🏢 AICAMP 통합 이메일 서비스
+ * Google Apps Script 기반 이메일 발송 시스템
  * 
  * ✅ 주요 기능:
  * 1. Google Apps Script 자동 이메일 발송 (관리자 + 신청자)

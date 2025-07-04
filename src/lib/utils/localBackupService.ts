@@ -215,7 +215,7 @@ export class LocalBackupService {
 
       const emailData = {
         to_email: 'hongik423@gmail.com',
-        subject: `[M-CENTER] ${type === 'diagnosis' ? '진단' : '상담'} 신청 백업 알림`,
+        subject: `[AICAMP] ${type === 'diagnosis' ? '진단' : '상담'} 신청 백업 알림`,
         message: `
 🚨 Google Apps Script 연결 실패로 로컬 백업이 생성되었습니다.
 

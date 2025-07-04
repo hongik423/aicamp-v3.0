@@ -204,7 +204,7 @@ const generatePdfFromHtml = (htmlContent: string, filename: string) => {
     <body>
       ${htmlContent}
       <div class="footer">
-        © 2025 M-CENTER 경영지도센터. All rights reserved. | Tel: 010-9251-9743 | Email: hongik423@gmail.com
+        © 2025 AICAMP AI 교육센터. All rights reserved. | Tel: 010-9251-9743 | Email: hongik423@gmail.com
       </div>
     </body>
     </html>
@@ -228,15 +228,15 @@ const generatePdfFromHtml = (htmlContent: string, filename: string) => {
 export const generateServiceGuideBook = () => {
   const htmlContent = `
     <div class="header">
-      <h1>🏢 M-CENTER 서비스 가이드북</h1>
-      <div class="company">M-CENTER 경영지도센터</div>
+      <h1>🏢 AICAMP 서비스 가이드북</h1>
+        <div class="company">AICAMP AI 교육센터</div>
       <div class="contact">Tel: 010-9251-9743 | Email: hongik423@gmail.com</div>
     </div>
 
     <div class="toc">
       <h3>📋 목차</h3>
       <ul>
-        <li>1. M-CENTER 소개</li>
+        <li>1. AICAMP 소개</li>
         <li>2. 6대 핵심 서비스</li>
         <li>3. 기업 성장 4단계 프레임워크</li>
         <li>4. 서비스 신청 방법</li>
@@ -246,9 +246,9 @@ export const generateServiceGuideBook = () => {
     </div>
 
     <div class="section">
-      <h2 class="section-title">1. 🚀 M-CENTER 소개</h2>
+      <h2 class="section-title">1. 🚀 AICAMP 소개</h2>
       <div class="content">
-        <p><strong>M-CENTER 경영지도센터</strong>는 Business Model Zen 프레임워크를 기반으로 기업의 성장 단계별 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다.</p>
+        <p><strong>AICAMP AI 교육센터</strong>는 AI 기반 교육과 컨설팅을 제공하는 혁신적인 플랫폼으로, 기업과 개인의 AI 역량 강화를 위한 종합 솔루션을 제공합니다.</p>
         
         <div class="highlight">
           <h4>🎯 우리의 강점</h4>
@@ -391,7 +391,7 @@ export const generateServiceGuideBook = () => {
           <h4>🔥 즉시 상담 가능</h4>
           <p><strong>전화:</strong> 010-9251-9743</p>
           <p><strong>이메일:</strong> hongik423@gmail.com</p>
-          <p><strong>웹사이트:</strong> https://m-center-landingpage.vercel.app</p>
+          <p><strong>웹사이트:</strong> https://aicamp-v3-0.vercel.app</p>
           <p><strong>상담시간:</strong> 평일 09:00-18:00 (긴급상담 24시간)</p>
         </div>
         
@@ -403,7 +403,7 @@ export const generateServiceGuideBook = () => {
     </div>
   `;
   
-  generatePdfFromHtml(htmlContent, 'M-CENTER_서비스가이드북');
+  generatePdfFromHtml(htmlContent, 'AICAMP_서비스가이드북');
 };
 
 // 2. AI 활용 매뉴얼 PDF 생성

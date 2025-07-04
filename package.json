@@ -1,6 +1,6 @@
 {
-  "name": "m_center_landingpage",
-  "version": "2.0.0",
+  "name": "aicamp_v3.0",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "npx next dev",

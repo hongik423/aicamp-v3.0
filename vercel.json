@@ -6,8 +6,8 @@
   "installCommand": "npm ci",
   "public": false,
   "env": {
-    "NEXT_PUBLIC_APP_NAME": "M-CENTER 경영지도센터",
-    "NEXT_PUBLIC_APP_DESCRIPTION": "Business Model Zen 프레임워크 기반 기업 성장 솔루션",
+    "NEXT_PUBLIC_APP_NAME": "AICAMP AI 교육센터",
+    "NEXT_PUBLIC_APP_DESCRIPTION": "AI 기반 교육 및 전문 컨설팅 서비스",
     "NODE_ENV": "production"
   },
   "build": {

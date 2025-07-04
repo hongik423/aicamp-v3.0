@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 
-// 🔧 **실제 M-CENTER 구글시트 정보**
+// 🔧 **실제 AICAMP 구글시트 정보**
 const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec';
 const GOOGLE_SHEETS_ID = '1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug';
 
@@ -49,7 +49,7 @@ export function getServerEnv(): EnvConfig {
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
-      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
+      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp-v3-0.vercel.app',
       NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
       VERCEL_URL: process.env.VERCEL_URL,
     };
@@ -63,7 +63,7 @@ export function getClientEnv() {
   return {
     googleSheetsId: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
     googleScriptUrl: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
-    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp-v3-0.vercel.app',
     nodeEnv: process.env.NODE_ENV || 'production',
   };
 }
@@ -82,13 +82,13 @@ export const appConfig = {
   
   // 회사 정보
   company: {
-    name: 'M-CENTER',
-    email: 'hongik423@gmail.com', // 관리자 이메일
+    name: 'AICAMP',
+    email: 'aicamp@example.com', // 관리자 이메일
     phone: '010-9251-9743',
   },
   
   // 기본 URL
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp-v3-0.vercel.app',
 };
 
 /**
