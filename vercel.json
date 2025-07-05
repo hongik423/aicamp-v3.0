@@ -6,8 +6,8 @@
   "installCommand": "npm ci",
   "public": false,
   "env": {
-    "NEXT_PUBLIC_APP_NAME": "AICAMP AI 교육센터",
-    "NEXT_PUBLIC_APP_DESCRIPTION": "AI 기반 교육 및 전문 컨설팅 서비스",
+    "NEXT_PUBLIC_APP_NAME": "AICAMP v3.0",
+    "NEXT_PUBLIC_APP_DESCRIPTION": "AI 기반 기업 진단 및 전문 컨설팅 서비스",
     "NODE_ENV": "production"
   },
   "build": {
