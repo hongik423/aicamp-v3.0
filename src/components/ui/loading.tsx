@@ -27,7 +27,7 @@ export function Loading({
     <div className={`flex flex-col items-center justify-center space-y-2 ${className}`}>
       <Loader2 className={`${sizeClasses[size]} animate-spin text-blue-600`} />
       {text && (
-        <p className="text-sm text-gray-600 animate-pulse">
+        <p className="text-sm text-gray-600 dark:text-gray-300 animate-pulse">
           {text}
         </p>
       )}

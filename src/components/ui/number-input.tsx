@@ -336,7 +336,7 @@ export function NumberInput({
       {/* 🔴 개선된 입력 필드 */}
       <div className="relative group">
         {prefix && (
-          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm z-10">
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm z-10">
             {prefix}
           </span>
         )}
@@ -365,28 +365,23 @@ export function NumberInput({
           aria-required={required}
           aria-invalid={hasError}
           className={`
-            ${hasError ? 'border-red-500 bg-red-50 focus:border-red-500' :
-              hasWarning ? 'border-orange-500 bg-orange-50 focus:border-orange-500' :
-              isRequiredAndEmpty ? 'border-red-400 border-2 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' :
-              required && isCompleted ? 'border-green-500 bg-green-50 focus:border-green-500' :
-              isCompleted ? 'border-blue-300 bg-blue-50' : 'border-gray-300'}
-            ${prefix ? 'pl-8' : ''}
-            ${finalSuffix ? 'pr-12' : ''}
-            text-right font-mono transition-all duration-200
-            
-            ${isHovered && !disabled ? 'shadow-md scale-[1.01]' : ''}
-            ${isFocused ? 'ring-2 ring-blue-200 shadow-lg scale-[1.01]' : ''}
-            ${isClicked ? 'scale-[0.99]' : ''}
-            ${hasRecentChange ? 'animate-pulse border-green-400' : ''}
-            
-            transform hover:scale-[1.01] focus:scale-[1.01] active:scale-[0.99]
-            hover:shadow-md focus:shadow-lg
+            w-full px-4 py-3 text-base border-2 rounded-xl
+            transition-all duration-200 ease-in-out
+            ${disabled 
+              ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed' 
+              : hasError 
+                ? 'border-red-500 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500/20' 
+                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-blue-500 focus:ring-blue-500/20'
+            }
+            ${prefix ? 'pl-16' : ''}
+            ${suffix ? 'pr-16' : ''}
+            text-gray-700 dark:text-gray-200
           `}
         />
         
         {finalSuffix && (
           <span className={`
-            absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm z-10
+            absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm z-10
             transition-colors duration-200
             ${isFocused ? 'text-blue-600' : ''}
           `}>
@@ -475,14 +470,19 @@ export function NumberInput({
 
       {/* 도움말 */}
       {finalHelpText && !dynamicMessage && !finalError && (
-        <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
-          💡 {finalHelpText}
+        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded border">
+          <p className="font-medium">숫자 입력 도움말:</p>
+          <ul className="mt-1 space-y-1">
+            <li>• 숫자만 입력 가능</li>
+            <li>• 자동 천단위 구분</li>
+            <li>• 최대 {max}자리까지 입력</li>
+          </ul>
         </div>
       )}
 
       {/* 포커스 시 사용법 안내 */}
       {isFocused && !finalError && (
-        <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded border">
           💡 숫자만 입력하세요. 천단위 쉼표는 포커스 해제 시 자동으로 표시됩니다.
           {min !== undefined && ` (최소: ${min.toLocaleString()})`}
           {finalMax !== undefined && ` (최대: ${finalMax.toLocaleString()})`}

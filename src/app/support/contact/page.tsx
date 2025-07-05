@@ -134,7 +134,7 @@ export default function ContactPage() {
                   <h3 className="font-semibold text-gray-900 mb-4">본사 주소</h3>
                   <p className="text-gray-600 mb-4">
                     서울특별시 강남구 테헤란로 123<br />
-                    M-CENTER 빌딩 10층
+                                          AI-CAMP 빌딩 10층
                   </p>
                   <h3 className="font-semibold text-gray-900 mb-4">교통편</h3>
                   <div className="space-y-2 text-gray-600">

@@ -69,12 +69,12 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
             
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              앗! 문제가 발생했습니다
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              앗! 오류가 발생했습니다
             </h1>
             
-            <p className="text-gray-600 mb-6">
-              예상치 못한 오류가 발생했습니다. 페이지를 새로고침하거나 홈으로 돌아가세요.
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              예상치 못한 오류가 발생했습니다. 페이지를 새로고침하거나 잠시 후 다시 시도해주세요.
             </p>
             
             <div className="space-y-3">
@@ -106,19 +106,14 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             </div>
             
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mt-6 text-left">
-                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                  개발자 정보 (클릭하여 보기)
+              <details className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <summary className="cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                  오류 상세 정보 보기
                 </summary>
-                <div className="mt-2 p-3 bg-gray-100 rounded text-xs text-gray-700 overflow-auto">
-                  <div className="font-semibold mb-2">Error:</div>
-                  <div className="mb-2">{this.state.error.toString()}</div>
-                  {this.state.errorInfo && (
-                    <>
-                      <div className="font-semibold mb-2">Component Stack:</div>
-                      <pre className="whitespace-pre-wrap">{this.state.errorInfo.componentStack}</pre>
-                    </>
-                  )}
+                <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded text-xs text-gray-700 dark:text-gray-300 overflow-auto">
+                  <pre className="whitespace-pre-wrap">
+                    {this.state.error.stack}
+                  </pre>
                 </div>
               </details>
             )}

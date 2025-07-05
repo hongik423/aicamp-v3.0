@@ -15,17 +15,33 @@ export function InstallPrompt() {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    // iOS 감지
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    setIsIOS(ios);
+    // 클라이언트 사이드에서만 실행
+    setIsClient(true);
+    
+    if (typeof window !== 'undefined') {
+      // iOS 감지
+      const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      setIsIOS(ios);
 
-    // Standalone 모드 감지 (이미 설치된 상태)
-    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
-                     (window.navigator as any).standalone ||
-                     document.referrer.includes('android-app://');
-    setIsStandalone(standalone);
+      // Standalone 모드 감지 (이미 설치된 상태)
+      const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       (window.navigator as any).standalone ||
+                       document.referrer.includes('android-app://');
+      setIsStandalone(standalone);
+
+      // localStorage에서 dismiss 상태 확인 (클라이언트 사이드에서만)
+      try {
+        const dismissed = localStorage.getItem('aicamp-install-dismissed');
+        setIsDismissed(dismissed === 'true');
+      } catch (error) {
+        console.warn('localStorage access failed:', error);
+        setIsDismissed(false);
+      }
+    }
 
     // PWA 설치 프롬프트 이벤트 리스너
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -33,9 +49,14 @@ export function InstallPrompt() {
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
       // 사용자가 이전에 닫았는지 확인
-      const dismissed = localStorage.getItem('aicamp-install-dismissed');
-      if (!dismissed && !standalone) {
-        setShowInstallPrompt(true);
+      if (typeof window !== 'undefined') {
+        const currentStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                                 (window.navigator as any).standalone ||
+                                 document.referrer.includes('android-app://');
+        
+        if (!isDismissed && !currentStandalone) {
+          setShowInstallPrompt(true);
+        }
       }
     };
 
@@ -44,7 +65,16 @@ export function InstallPrompt() {
       console.log('AICAMP PWA was installed');
       setShowInstallPrompt(false);
       setDeferredPrompt(null);
-      localStorage.removeItem('aicamp-install-dismissed');
+      setIsDismissed(false);
+      
+      // localStorage 정리 (클라이언트 사이드에서만)
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('aicamp-install-dismissed');
+        } catch (error) {
+          console.warn('localStorage cleanup failed:', error);
+        }
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -54,7 +84,7 @@ export function InstallPrompt() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [isDismissed]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
@@ -78,11 +108,20 @@ export function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowInstallPrompt(false);
-    localStorage.setItem('aicamp-install-dismissed', 'true');
+    setIsDismissed(true);
+    
+    // localStorage에 저장 (클라이언트 사이드에서만)
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('aicamp-install-dismissed', 'true');
+      } catch (error) {
+        console.warn('localStorage save failed:', error);
+      }
+    }
   };
 
-  // 이미 설치되었거나 standalone 모드라면 표시하지 않음
-  if (isStandalone || (!showInstallPrompt && !isIOS)) {
+  // 클라이언트 사이드가 아니거나 이미 설치되었거나 standalone 모드라면 표시하지 않음
+  if (!isClient || isStandalone || isDismissed || (!showInstallPrompt && !isIOS)) {
     return null;
   }
 
@@ -110,7 +149,7 @@ export function InstallPrompt() {
           
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
             aria-label="닫기"
           >
             <X className="w-4 h-4" />
@@ -130,10 +169,10 @@ export function InstallPrompt() {
         
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
-            AICAMP 앱 설치
+            앱 설치 가능
           </h3>
           <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
-            바탕화면에서 빠르게 접근하고 오프라인에서도 사용하세요.
+            홈화면에 추가하여 빠르게 접근하세요
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -157,7 +196,7 @@ export function InstallPrompt() {
         
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
           aria-label="닫기"
         >
           <X className="w-4 h-4" />

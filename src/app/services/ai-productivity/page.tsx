@@ -26,10 +26,64 @@ import {
   Rocket,
   Settings
 } from 'lucide-react';
+import HeroSection from '@/components/ui/hero-section';
 
 export default function AIProductivityPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // 히어로 섹션 데이터
+  const heroData = {
+    badge: {
+      icon: Zap,
+      text: "고용노동부 노사발전재단 주관"
+    },
+    title: "확실하게 뒷받침",
+    subtitle: "AI 활용 생산성향상을",
+    description: "Apple Store 수준의 사용자 경험과 100% 무료 지원의 정부 프로그램으로 업무 효율성 40% 향상을 실현하는 전문 맞춤형 컨설팅",
+    stats: [
+      {
+        value: "100%",
+        label: "정부 무료 지원",
+        description: "20~99인 기업 완전 무료",
+        icon: Award,
+        color: "text-green-600",
+        trend: "NEW"
+      },
+      {
+        value: "40%",
+        label: "업무 효율성 향상",
+        description: "AI 기술 융합 혁신 달성",
+        icon: TrendingUp,
+        color: "text-blue-600",
+        trend: "+40%"
+      },
+      {
+        value: "20주",
+        label: "단계별 프로그램",
+        description: "심화형 10~20주 과정",
+        icon: Clock,
+        color: "text-purple-600",
+        trend: "체계적"
+      },
+      {
+        value: "5단계",
+        label: "AI 혁신 과정",
+        description: "근로시간~조직문화 개선",
+        icon: Settings,
+        color: "text-orange-600",
+        trend: "완성형"
+      }
+    ],
+    primaryCTA: {
+      text: "지금 신청하기",
+      href: "/consultation"
+    },
+    secondaryCTA: {
+      text: "적합성 진단받기",
+      href: "/diagnosis"
+    }
+  };
 
   const features = [
     {
@@ -113,137 +167,27 @@ export default function AIProductivityPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Hero Section */}
-      <section className="py-12 md:py-20">
+      {/* 통일된 히어로 섹션 */}
+      <HeroSection {...heroData} />
+
+      {/* Breadcrumb */}
+      <section className="bg-white py-4 border-b">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-              {/* 🔥 개선된 뒤로가기 버튼 */}
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => router.push('/services')}
-                className="p-0 h-auto font-normal transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-2 py-1 rounded-md hover:bg-purple-50 relative overflow-hidden group"
-              >
-                <span className="absolute inset-0 bg-purple-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                <span className="relative flex items-center">
-                  <ArrowLeft className="w-4 h-4 mr-1 group-hover:translate-x-[-2px] transition-transform duration-200" />
-                  서비스 목록
-                </span>
-              </Button>
-              <span>/</span>
-              <span className="text-purple-600 font-medium">AI 활용 생산성향상</span>
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-blue-100 px-4 py-2 rounded-full mb-6">
-                  <Zap className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-800">고용노동부 노사발전재단 주관</span>
-                </div>
-                
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                  <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    2025년 일터혁신 상생컨설팅
-                  </span>
-                  <br />
-                  <span className="text-xl md:text-2xl lg:text-3xl text-gray-700">
-                    AI 활용 생산성향상
-                  </span>
-                </h1>
-                
-                <p className="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
-                  <strong>정부 100% 지원</strong>으로 AI 기술 융합 일터혁신을 실현하고 
-                  업무 효율성을 <strong>40% 향상</strong>시키는 전문 맞춤형 컨설팅 프로그램
-                </p>
-
-                <div className="flex flex-wrap gap-3 mb-8">
-                  <Badge variant="outline" className="px-4 py-2 bg-green-50 text-green-700 border-green-200">
-                    <Award className="w-4 h-4 mr-2" />
-                    20~99인 기업 100% 무료
-                  </Badge>
-                  <Badge variant="outline" className="px-4 py-2 bg-blue-50 text-blue-700 border-blue-200">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    업무 효율성 40% 향상
-                  </Badge>
-                  <Badge variant="outline" className="px-4 py-2 bg-purple-50 text-purple-700 border-purple-200">
-                    <Clock className="w-4 h-4 mr-2" />
-                    10~20주 단계별 프로그램
-                  </Badge>
-                  <Badge variant="outline" className="px-4 py-2 bg-orange-50 text-orange-700 border-orange-200">
-                    <Shield className="w-4 h-4 mr-2" />
-                    노사발전재단 공식 인증
-                  </Badge>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {/* 🔥 개선된 지금 신청하기 버튼 */}
-                  <Button 
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
-                    onClick={() => router.push('/consultation')}
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-purple-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    <span className="relative flex items-center">
-                      지금 신청하기
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-                    </span>
-                  </Button>
-                  
-                  {/* 🔥 개선된 적합성 진단받기 버튼 */}
-                  <Button 
-                    variant="outline"
-                    size="lg"
-                    className="px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-gray-300 hover:border-purple-600 text-gray-700 hover:text-purple-600 hover:shadow-md relative overflow-hidden group"
-                    onClick={() => router.push('/diagnosis')}
-                  >
-                    <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    <span className="relative">
-                      적합성 진단받기
-                    </span>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">프로그램 개요</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">주관 기관</span>
-                      <span className="font-semibold text-blue-600">고용노동부</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">시행 기관</span>
-                      <span className="font-semibold">노사발전재단</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">진행 기간</span>
-                      <span className="font-semibold">10주~20주</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">지원 대상</span>
-                      <span className="font-semibold text-purple-600">20인 이상 사업장</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">20~99인 기업</span>
-                      <span className="font-semibold text-green-600">100% 정부지원</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2">
-                      <span className="text-gray-600">참가 비용</span>
-                      <span className="font-semibold text-red-600">무료*</span>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      * 기업 규모별 자부담율 상이 (20~99인 기업 완전무료)
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => router.push('/services')}
+              className="p-0 h-auto font-normal hover:text-purple-600"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              서비스 목록
+            </Button>
+            <span>/</span>
+            <span className="text-purple-600 font-medium">AI 활용 생산성향상</span>
           </div>
         </div>
       </section>

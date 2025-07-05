@@ -7,7 +7,6 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ui/error-boundary';
 import { useEffect, useState } from 'react';
@@ -39,34 +38,6 @@ function getQueryClient() {
     if (!browserQueryClient) browserQueryClient = makeQueryClient();
     return browserQueryClient;
   }
-}
-
-function ThemeProviderWrapper({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div suppressHydrationWarning className="min-h-screen bg-white">
-        {children}
-      </div>
-    );
-  }
-
-  return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem={false}
-      disableTransitionOnChange
-      storageKey="m-center-theme"
-    >
-      {children}
-    </ThemeProvider>
-  );
 }
 
 // 애플리케이션 컨텍스트
@@ -139,7 +110,7 @@ export default function Providers({ children }: ProvidersProps) {
 
     // 개발 환경에서 환경변수 상태 로그 (서버 전용 변수 제외)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 클라이언트 환경변수 상태:', status);
+      console.log('클라이언트 환경변수 상태:', status);
     }
 
     return status;
@@ -151,7 +122,7 @@ export default function Providers({ children }: ProvidersProps) {
       const envStatus = checkEnvStatus();
       
       // AI 기능은 서버에서 확인됩니다 (보안상 클라이언트에서 API 키 체크 불가)
-      console.log('✅ AI 기능: 서버에서 GEMINI_API_KEY 확인됨');
+      console.log('AI 기능: 서버에서 GEMINI_API_KEY 확인됨');
       console.log('🤖 별-AI상담사: 활성화 상태');
       
       if (!envStatus.hasGoogleSheetsId || !envStatus.hasGoogleScriptUrl) {
@@ -173,15 +144,13 @@ export default function Providers({ children }: ProvidersProps) {
   };
 
   return (
-    <ThemeProviderWrapper>
-      <QueryClientProvider client={getQueryClient()}>
-        <AppContext.Provider value={contextValue}>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-          <Toaster />
-        </AppContext.Provider>
-      </QueryClientProvider>
-    </ThemeProviderWrapper>
+    <QueryClientProvider client={getQueryClient()}>
+      <AppContext.Provider value={contextValue}>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+        <Toaster />
+      </AppContext.Provider>
+    </QueryClientProvider>
   );
 }

@@ -58,7 +58,7 @@ export const MCENTER_SERVICES: MCenterService[] = [
   },
   {
     id: 'factory-auction',
-    name: '경매활용 공장구매',
+          name: '정책자금 확보',
     description: '부동산 경매를 통한 고정비 절감 및 자산 확보',
     targetCompanies: ['제조업', '공장확장필요', '임대료부담', '자산확보'],
     expectedOutcome: '부동산비용 30-50% 절감, 자산가치 상승',
@@ -144,7 +144,7 @@ export const GOVERNMENT_SUPPORT_MAPPINGS: GovernmentSupportMapping[] = [
     keyword: '시설투자',
     targetServices: ['factory-auction', 'business-analysis'],
     priority: 1,
-    reason: '공장구매와 투자계획 수립이 필수'
+            reason: '정책자금 확보와 투자계획 수립이 필수'
   },
   {
     keyword: '마케팅지원',

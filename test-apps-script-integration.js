@@ -13,7 +13,7 @@
 
 // 환경 설정
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
-const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug/edit';
+const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00/edit';
 
 // ================================================================================
 // 🧪 테스트 데이터 정의

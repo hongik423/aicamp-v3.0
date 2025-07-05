@@ -67,7 +67,7 @@ export class OptimizedReportGenerator {
     const serviceNames: { [key: string]: string } = {
       'business-analysis': 'BM ZEN 사업분석',
       'ai-productivity': 'AI 활용 생산성향상',
-      'factory-auction': '경매활용 공장구매',
+      'factory-auction': '정책자금 확보',
       'tech-startup': '기술사업화/기술창업',
       'certification': '인증지원',
       'website': '웹사이트 구축'

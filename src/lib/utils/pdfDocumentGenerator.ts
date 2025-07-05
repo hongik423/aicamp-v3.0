@@ -285,7 +285,7 @@ export const generateServiceGuideBook = () => {
         </div>
 
         <div class="service-card">
-          <div class="service-title">🏭 경매활용 공장구매</div>
+                          <div class="service-title">💰 정책자금 확보</div>
           <ul>
             <li>시장가 대비 <strong>40% 절약</strong></li>
             <li><strong>전문가 동행</strong> 서비스</li>

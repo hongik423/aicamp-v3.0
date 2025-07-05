@@ -105,8 +105,8 @@ const seminarVideos: SeminarVideo[] = [
   },
   {
     id: '3',
-    title: '공장구매 경매 실전 노하우',
-    description: '시장가 대비 40% 절약하는 공장구매 전략과 경매 성공 사례',
+    title: '정책자금 확보 실전 노하우',
+    description: '정부지원 5억원 확보하는 정책자금 전략과 성공 사례',
     thumbnailUrl: 'https://img.youtube.com/vi/SWkmuibSQ4E/maxresdefault.jpg',
     videoUrl: 'https://www.youtube.com/watch?v=SWkmuibSQ4E',
     youtubeId: 'SWkmuibSQ4E',
@@ -116,7 +116,7 @@ const seminarVideos: SeminarVideo[] = [
     likes: 189,
     category: 'factory-auction',
     level: 'advanced',
-    tags: ['공장구매', '경매', '부동산', '투자'],
+    tags: ['정책자금', '정부지원', '자금조달', '투자'],
     instructor: {
       name: '이후경',
       title: 'AICAMP 교장',
@@ -191,7 +191,7 @@ const categories = [
   { id: 'all', name: '전체', icon: Globe },
   { id: 'business-analysis', name: '사업분석', icon: Target },
   { id: 'ai-productivity', name: 'AI생산성', icon: Zap },
-  { id: 'factory-auction', name: '공장구매', icon: Award },
+  { id: 'factory-auction', name: '정책자금', icon: Award },
   { id: 'tech-startup', name: '기술창업', icon: TrendingUp },
   { id: 'certification', name: '인증지원', icon: CheckCircle },
   { id: 'digital-marketing', name: '디지털마케팅', icon: Lightbulb }
@@ -255,15 +255,15 @@ export default function SeminarPage() {
             {/* 메인 타이틀 */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                M-CENTER
+                AI-CAMP
               </span>
               <br />
-              <span className="text-3xl md:text-4xl font-light">세미나 영상</span>
+              <span className="text-3xl md:text-4xl font-light text-white">세미나 영상</span>
             </h1>
             
             {/* 서브 타이틀 */}
             <p className="text-xl md:text-2xl font-light max-w-3xl mx-auto mb-12 leading-relaxed">
-              25년 경험의 전문가와 함께하는
+              <span className="text-white">25년 경험의 전문가와 함께하는</span>
               <br />
               <span className="font-semibold text-yellow-300">실무 중심 온라인 교육</span>
             </p>
@@ -535,7 +535,7 @@ export default function SeminarPage() {
           <div className="mb-8">
             <Youtube className="w-20 h-20 mx-auto mb-6 text-red-300" />
             <h2 className="text-4xl font-bold mb-4">
-              M-CENTER 유튜브 채널 구독하기
+                              AI-CAMP 유튜브 채널 구독하기
             </h2>
             <p className="text-xl opacity-90 mb-8">
               새로운 세미나 영상과 실무 팁을 가장 빠르게 받아보세요

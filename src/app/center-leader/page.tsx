@@ -59,35 +59,35 @@ export default function CenterLeaderPage() {
                   <User className="w-10 h-10 text-white hidden" />
                 </div>
                 <div>
-                  <Badge className="bg-yellow-500 text-black mb-2">28년 검증된 전문가</Badge>
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-2">이후경 경영지도사</h1>
-                  <p className="text-xl text-blue-100">AICAMP AI 교육교장</p>
+                  <Badge className="bg-yellow-500 text-black font-bold mb-2">28년 검증된 전문가</Badge>
+                  <h1 className="text-4xl lg:text-5xl font-bold mb-2 text-white">이후경 경영지도사</h1>
+                  <p className="text-xl text-yellow-200 font-semibold">AI-CAMP 교장</p>
                 </div>
               </div>
               
-              <div className="text-2xl mb-6 text-blue-100">
-                <span className="text-white font-bold">"기업의 성장은 사람으로부터 시작됩니다"</span>
+              <div className="text-2xl mb-6 text-white">
+                <span className="font-bold text-yellow-200 text-shadow-lg">"기업의 성장은 사람으로부터 시작됩니다"</span>
               </div>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
                   <div className="text-3xl font-bold text-yellow-300">28년</div>
-                  <div className="text-sm text-blue-100">총 경력</div>
+                  <div className="text-sm text-white font-semibold">총 경력</div>
                   <div className="text-xs text-blue-200">경영지도사 10년 + 대기업 18년</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
                   <div className="text-3xl font-bold text-yellow-300">200+</div>
-                  <div className="text-sm text-blue-100">지원 기업</div>
+                  <div className="text-sm text-white font-semibold">지원 기업</div>
                   <div className="text-xs text-blue-200">중소기업부터 대기업까지</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
                   <div className="text-3xl font-bold text-yellow-300">98%</div>
-                  <div className="text-sm text-blue-100">고객 만족도</div>
+                  <div className="text-sm text-white font-semibold">고객 만족도</div>
                   <div className="text-xs text-blue-200">재계약률 85%</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
                   <div className="text-3xl font-bold text-yellow-300">정부지원</div>
-                  <div className="text-sm text-blue-100">일터혁신</div>
+                  <div className="text-sm text-white font-semibold">일터혁신</div>
                   <div className="text-xs text-blue-200">공식 수행기관</div>
                 </div>
               </div>
@@ -108,6 +108,15 @@ export default function CenterLeaderPage() {
                   variant="outline" 
                   size="lg" 
                   className="border-white text-white hover:bg-white/10 font-semibold px-8 py-3 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-lg relative overflow-hidden group"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = '/이후경이력서(2501).pdf';
+                    link.download = '이후경이력서(2501).pdf';
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
                 >
                   <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center">
@@ -128,7 +137,7 @@ export default function CenterLeaderPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>현대그룹, 삼성생명 출신의 검증된 실무 경험</p>
+                  <p className="text-white font-medium">현대그룹, 삼성생명 출신의 검증된 실무 경험</p>
                 </CardContent>
               </Card>
               
@@ -140,7 +149,7 @@ export default function CenterLeaderPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>경영지도사 자격 + 28년 현장 노하우</p>
+                  <p className="text-white font-medium">경영지도사 자격 + 28년 현장 노하우</p>
                 </CardContent>
               </Card>
               
@@ -152,7 +161,7 @@ export default function CenterLeaderPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>정부지원사업 연계로 비용 효율적 컨설팅</p>
+                  <p className="text-white font-medium">정부지원사업 연계로 비용 효율적 컨설팅</p>
                 </CardContent>
               </Card>
               
@@ -164,7 +173,7 @@ export default function CenterLeaderPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>프로젝트 완료 후 지속적 사후관리</p>
+                  <p className="text-white font-medium">프로젝트 완료 후 지속적 사후관리</p>
                 </CardContent>
               </Card>
             </div>
@@ -184,7 +193,7 @@ export default function CenterLeaderPage() {
             {/* 기본 정보 카드 */}
             <Card className="shadow-xl border-0 bg-gradient-to-br from-blue-50 to-purple-50">
               <CardHeader>
-                <CardTitle className="flex items-center text-xl">
+                <CardTitle className="flex items-center text-xl text-gray-900">
                   <User className="w-6 h-6 mr-3 text-blue-600" />
                   전문가 정보
                 </CardTitle>
@@ -192,28 +201,28 @@ export default function CenterLeaderPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="flex items-center">
-                    <span className="font-semibold w-24">성명</span>
-                    <span>이후경 경영지도사</span>
+                    <span className="font-semibold w-24 text-gray-700">성명</span>
+                    <span className="text-gray-900 font-medium">이후경 경영지도사</span>
                   </div>
                   <div className="flex items-center">
                     <Phone className="w-4 h-4 mr-2 text-green-600" />
-                    <span className="font-semibold w-24">연락처</span>
+                    <span className="font-semibold w-24 text-gray-700">연락처</span>
                     <span className="text-blue-600 font-semibold">010-9251-9743</span>
                   </div>
                   <div className="flex items-center">
                     <Mail className="w-4 h-4 mr-2 text-red-600" />
-                    <span className="font-semibold w-24">이메일</span>
-                    <span className="text-blue-600">hongik423@gmail.com</span>
+                    <span className="font-semibold w-24 text-gray-700">이메일</span>
+                    <span className="text-blue-600 font-medium">hongik423@gmail.com</span>
                   </div>
                   <div className="flex items-center">
                     <Award className="w-4 h-4 mr-2 text-yellow-600" />
-                    <span className="font-semibold w-24">학력</span>
-                    <span>대전대학교 기술경영 석사</span>
+                    <span className="font-semibold w-24 text-gray-700">학력</span>
+                    <span className="text-gray-900 font-medium">대전대학교 기술경영 석사</span>
                   </div>
                   <div className="flex items-center">
                     <Shield className="w-4 h-4 mr-2 text-purple-600" />
-                    <span className="font-semibold w-24">자격</span>
-                    <span>경영지도사(인적자원) / 온실가스관리기사</span>
+                    <span className="font-semibold w-24 text-gray-700">자격</span>
+                    <span className="text-gray-900 font-medium">경영지도사(인적자원) / 온실가스관리기사</span>
                   </div>
                 </div>
               </CardContent>
@@ -222,7 +231,7 @@ export default function CenterLeaderPage() {
             {/* 현재 주요 직책 */}
             <Card className="shadow-xl border-0 bg-gradient-to-br from-green-50 to-blue-50">
               <CardHeader>
-                <CardTitle className="flex items-center text-xl">
+                <CardTitle className="flex items-center text-xl text-gray-900">
                   <Building className="w-6 h-6 mr-3 text-green-600" />
                   현재 주요 직책
                 </CardTitle>
@@ -230,7 +239,7 @@ export default function CenterLeaderPage() {
               <CardContent>
                 <div className="space-y-3">
                   {[
-                    'AICAMP AI 교육교장',
+                    'AI-CAMP 교장',
                     '아이엔제이컨설팅 책임컨설턴트',
                     '월드클래스코리아 HRD실장',
                     'ESG인증원 책임컨설턴트',
@@ -239,7 +248,7 @@ export default function CenterLeaderPage() {
                   ].map((position, index) => (
                     <div key={index} className="flex items-center">
                       <CheckCircle className="w-4 h-4 mr-3 text-green-500 flex-shrink-0" />
-                      <span>{position}</span>
+                      <span className="text-gray-900 font-medium">{position}</span>
                     </div>
                   ))}
                 </div>
@@ -352,46 +361,46 @@ export default function CenterLeaderPage() {
           
           <div className="relative">
             {/* 타임라인 선 */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-blue-200"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
             
-            <div className="space-y-12">
+            <div className="space-y-16">
               {/* 2014년~현재 */}
               <div className="relative flex items-center">
                 <div className="flex-1 text-right pr-8">
-                  <Card className="inline-block max-w-md shadow-lg">
-                    <CardHeader className="bg-blue-600 text-white">
-                      <CardTitle className="text-lg">2014년~현재 (10년)</CardTitle>
-                      <CardDescription className="text-blue-100">경영지도사 / 전문 컨설턴트</CardDescription>
+                  <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+                    <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                      <CardTitle className="text-lg font-bold">2014년~현재 (10년)</CardTitle>
+                      <CardDescription className="text-blue-100 font-semibold">경영지도사 / 전문 컨설턴트</CardDescription>
                     </CardHeader>
                     <CardContent className="mt-4">
-                      <ul className="space-y-2 text-sm">
-                        <li>• AICAMP AI 교육교장</li>
-                        <li>• 아이엔제이컨설팅 책임컨설턴트</li>
-                        <li>• 고용노동부 일터혁신 수행기관 컨설턴트</li>
-                        <li>• 200개사 이상 조직/인사 컨설팅 수행</li>
+                      <ul className="space-y-2 text-sm text-gray-800">
+                        <li className="font-semibold">• AI-CAMP 교장</li>
+                        <li className="font-semibold">• 아이엔제이컨설팅 책임컨설턴트</li>
+                        <li className="font-semibold">• 고용노동부 일터혁신 수행기관 컨설턴트</li>
+                        <li className="font-semibold">• 200개사 이상 조직/인사 컨설팅 수행</li>
                       </ul>
                     </CardContent>
                   </Card>
                 </div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-blue-600 rounded-full border-4 border-white shadow-lg"></div>
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-blue-600 rounded-full border-4 border-white shadow-lg"></div>
                 <div className="flex-1 pl-8"></div>
               </div>
               
               {/* 2010년~2014년 */}
               <div className="relative flex items-center">
                 <div className="flex-1 pr-8"></div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-green-600 rounded-full border-4 border-white shadow-lg"></div>
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-green-600 rounded-full border-4 border-white shadow-lg"></div>
                 <div className="flex-1 pl-8">
-                  <Card className="inline-block max-w-md shadow-lg">
-                    <CardHeader className="bg-green-600 text-white">
-                      <CardTitle className="text-lg">2010년~2014년</CardTitle>
-                      <CardDescription className="text-green-100">엠오티랩 대표 컨설턴트</CardDescription>
+                  <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-green-50 to-green-100">
+                    <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+                      <CardTitle className="text-lg font-bold">2010년~2014년</CardTitle>
+                      <CardDescription className="text-green-100 font-semibold">엠오티랩 대표 컨설턴트</CardDescription>
                     </CardHeader>
                     <CardContent className="mt-4">
-                      <ul className="space-y-2 text-sm">
-                        <li>• 공장생산관리</li>
-                        <li>• 재무관리</li>
-                        <li>• ABC원가관리</li>
+                      <ul className="space-y-2 text-sm text-gray-800">
+                        <li className="font-semibold">• 공장생산관리</li>
+                        <li className="font-semibold">• 재무관리</li>
+                        <li className="font-semibold">• ABC원가관리</li>
                       </ul>
                     </CardContent>
                   </Card>
@@ -401,39 +410,39 @@ export default function CenterLeaderPage() {
               {/* 2000년~2010년 */}
               <div className="relative flex items-center">
                 <div className="flex-1 text-right pr-8">
-                  <Card className="inline-block max-w-md shadow-lg">
-                    <CardHeader className="bg-purple-600 text-white">
-                      <CardTitle className="text-lg">2000년부터 2010년까지</CardTitle>
-                      <CardDescription className="text-purple-100">영업조직 관리</CardDescription>
+                  <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+                    <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+                      <CardTitle className="text-lg font-bold">2000년부터 2010년까지</CardTitle>
+                      <CardDescription className="text-purple-100 font-semibold">영업조직 관리</CardDescription>
                     </CardHeader>
                     <CardContent className="mt-4">
-                      <ul className="space-y-2 text-sm">
-                        <li>• 지점장 역임</li>
-                        <li>• 영업조직 관리 및 성과관리 경험</li>
-                        <li>• 팀 리더십 및 조직운영 노하우 축적</li>
+                      <ul className="space-y-2 text-sm text-gray-800">
+                        <li className="font-semibold">• 지점장 역임</li>
+                        <li className="font-semibold">• 영업조직 관리 및 성과관리 경험</li>
+                        <li className="font-semibold">• 팀 리더십 및 조직운영 노하우 축적</li>
                       </ul>
                     </CardContent>
                   </Card>
                 </div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-purple-600 rounded-full border-4 border-white shadow-lg"></div>
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-purple-600 rounded-full border-4 border-white shadow-lg"></div>
                 <div className="flex-1 pl-8"></div>
               </div>
               
               {/* 1993년~2000년 */}
               <div className="relative flex items-center">
                 <div className="flex-1 pr-8"></div>
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-orange-600 rounded-full border-4 border-white shadow-lg"></div>
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-orange-600 rounded-full border-4 border-white shadow-lg"></div>
                 <div className="flex-1 pl-8">
-                  <Card className="inline-block max-w-md shadow-lg">
-                    <CardHeader className="bg-orange-600 text-white">
-                      <CardTitle className="text-lg">1993년~2000년 (8년)</CardTitle>
-                      <CardDescription className="text-orange-100">현대그룹 고려산업개발</CardDescription>
+                  <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-orange-50 to-orange-100">
+                    <CardHeader className="bg-gradient-to-r from-orange-600 to-orange-700 text-white">
+                      <CardTitle className="text-lg font-bold">1993년~2000년 (8년)</CardTitle>
+                      <CardDescription className="text-orange-100 font-semibold">현대그룹 고려산업개발</CardDescription>
                     </CardHeader>
                     <CardContent className="mt-4">
-                      <ul className="space-y-2 text-sm">
-                        <li>• 인사노무담당 실무진</li>
-                        <li>• 대기업 인사제도 설계 및 운영 경험</li>
-                        <li>• 조직관리 및 노무관리 전문성 구축</li>
+                      <ul className="space-y-2 text-sm text-gray-800">
+                        <li className="font-semibold">• 인사노무담당 실무진</li>
+                        <li className="font-semibold">• 대기업 인사제도 설계 및 운영 경험</li>
+                        <li className="font-semibold">• 조직관리 및 노무관리 전문성 구축</li>
                       </ul>
                     </CardContent>
                   </Card>

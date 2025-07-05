@@ -21,7 +21,7 @@ const siteMapData = [
     links: [
       { title: 'BM ZEN 사업분석', url: '/services/business-analysis' },
       { title: 'AI 활용 생산성향상', url: '/services/ai-productivity' },
-      { title: '경매활용 공장구매', url: '/services/factory-auction' },
+      { title: '정책자금 확보', url: '/services/factory-auction' },
       { title: '기술사업화/기술창업', url: '/services/tech-startup' },
       { title: '인증지원', url: '/services/certification' },
       { title: '웹사이트 구축', url: '/services/website' },
@@ -70,7 +70,7 @@ export default function SitemapPage() {
               사이트맵
             </h1>
             <p className="text-xl text-gray-600">
-              M-CENTER 웹사이트의 전체 구조를 한눈에 확인하세요.
+              AI-CAMP 웹사이트의 전체 구조를 한눈에 확인하세요.
             </p>
           </div>
 

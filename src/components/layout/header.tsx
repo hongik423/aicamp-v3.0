@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { 
   Menu, 
   X,
@@ -14,7 +13,7 @@ import {
   Factory,
   Rocket,
   Shield,
-  Stethoscope,
+  Building,
   Trophy,
   User,
   Video,
@@ -31,6 +30,7 @@ import {
   Crown
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -51,18 +51,31 @@ const Header = () => {
 
   // 페이지 이동 핸들러
   const handleNavigation = (path: string) => {
-    router.push(path);
-    setIsMenuOpen(false);
-    setExpandedTaxMenu(false);
+    try {
+      console.log('네비게이션 이동:', path);
+      router.push(path);
+      setIsMenuOpen(false);
+      setExpandedTaxMenu(false);
+    } catch (error) {
+      console.error('네비게이션 오류:', error);
+      // 오류 발생시 window.location으로 대체
+      window.location.href = path;
+    }
   };
 
   // 세금계산기 선택 핸들러
   const handleTaxCalculatorSelect = (calculatorId: string) => {
-    // URL 파라미터로 특정 계산기 선택
-    const url = `/tax-calculator?calculator=${calculatorId}`;
-    router.push(url);
-    setIsMenuOpen(false);
-    setExpandedTaxMenu(false);
+    try {
+      const url = `/tax-calculator?calculator=${calculatorId}`;
+      console.log('세금계산기 선택:', url);
+      router.push(url);
+      setIsMenuOpen(false);
+      setExpandedTaxMenu(false);
+    } catch (error) {
+      console.error('세금계산기 네비게이션 오류:', error);
+      // 오류 발생시 window.location으로 대체
+      window.location.href = `/tax-calculator?calculator=${calculatorId}`;
+    }
   };
 
   // 모바일 메뉴 닫기 (Esc 키 지원)
@@ -76,7 +89,7 @@ const Header = () => {
 
     if (isMenuOpen) {
       document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+      document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
@@ -92,10 +105,10 @@ const Header = () => {
     { href: '/', label: '홈', icon: Home },
     { href: '/services/business-analysis', label: '사업분석', icon: BarChart3 },
     { href: '/services/ai-productivity', label: 'AI생산성', icon: Zap },
-    { href: '/services/factory-auction', label: '공장구매', icon: Factory },
+    { href: '/services/policy-funding', label: '정책자금', icon: Building2 },
     { href: '/services/tech-startup', label: '기술창업', icon: Rocket },
     { href: '/services/certification', label: '인증지원', icon: Shield },
-    { href: '/diagnosis', label: '무료진단', icon: Stethoscope },
+    { href: '/services/website', label: '웹페이지', icon: Building },
     { href: '/cases', label: '성공사례', icon: Trophy },
     { href: '/center-leader', label: '교장', icon: User },
     { href: '/seminar', label: '세미나', icon: Video },
@@ -177,7 +190,7 @@ const Header = () => {
   ];
 
   const actionButtons = [
-    { href: '/diagnosis', label: '무료진단', color: 'blue', icon: Stethoscope },
+    { href: '/diagnosis', label: '무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '상담신청', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산', color: 'purple', icon: Calculator }
   ];
@@ -193,7 +206,7 @@ const Header = () => {
         <div className="max-w-screen-2xl mx-auto">
           <nav className="flex items-center justify-between h-11 px-4 lg:px-6">
             
-            {/* 애플 로고 스타일 - 왼쪽 */}
+            {/* 로고 - 왼쪽 */}
             <Link 
               href="/"
               className="flex items-center hover:opacity-70 transition-opacity duration-200"
@@ -208,7 +221,7 @@ const Header = () => {
               </div>
             </Link>
 
-            {/* 애플스토어 스타일 메인 네비게이션 - 가운데 */}
+            {/* 메인 네비게이션 - 가운데 */}
             <div className="hidden lg:flex items-center space-x-1.5">
               {navigationItems.map((item) => (
                 <Link
@@ -225,349 +238,114 @@ const Header = () => {
               ))}
             </div>
 
-            {/* 애플스토어 스타일 액션 버튼들 - 오른쪽 */}
+            {/* 액션 버튼들 - 오른쪽 */}
             <div className="hidden lg:flex items-center space-x-2">
               {actionButtons.map((button) => (
-                <button
+                <Link
                   key={button.href}
-                  className={`px-3 py-1.5 text-sm rounded-full transition-all duration-200 font-medium ${
+                  href={button.href}
+                  className={`inline-block px-3 py-1.5 text-sm rounded-full transition-all duration-200 font-medium ${
                     button.color === 'blue' 
-                      ? 'text-aicamp-navy hover:text-white hover:bg-aicamp-navy bg-aicamp-navy/10 dark:text-aicamp-teal dark:hover:bg-aicamp-teal dark:bg-aicamp-teal/10'
+                      ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
                       : button.color === 'green'
-                      ? 'text-aicamp-teal hover:text-white hover:bg-aicamp-teal bg-aicamp-teal/10 dark:text-aicamp-teal dark:hover:bg-aicamp-teal dark:bg-aicamp-teal/10'
-                      : 'text-aicamp-purple hover:text-white hover:bg-aicamp-purple bg-aicamp-purple/10 dark:text-aicamp-purple dark:hover:bg-aicamp-purple dark:bg-aicamp-purple/10'
+                      ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
+                      : 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
                   }`}
-                  onClick={() => handleNavigation(button.href)}
                   aria-label={button.label}
                 >
                   {button.label}
-                </button>
+                </Link>
               ))}
-              
-              {/* 테마 토글 버튼 */}
-              <ThemeToggle size="sm" />
             </div>
 
-            {/* 모바일 오른쪽 버튼들 */}
-            <div className="lg:hidden flex items-center space-x-2">
-              {/* 테마 토글 버튼 */}
-              <ThemeToggle size="sm" />
-              
-              {/* 햄버거 메뉴 버튼 */}
+            {/* 모바일 햄버거 메뉴 */}
+            <div className="lg:hidden">
               <button
-                className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-aicamp-navy/20 rounded-lg transition-colors duration-200"
+                className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors duration-200"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
               >
-                <Menu className="w-4 h-4 text-gray-800 dark:text-aicamp-purple" />
+                <Menu className="w-4 h-4 text-gray-800" />
               </button>
             </div>
           </nav>
         </div>
       </header>
 
-      {/* 🔥 개선된 모바일 풀스크린 메뉴 */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          {/* 반투명 배경 */}
-          <div 
-            className="absolute inset-0 bg-black/20 backdrop-blur-sm" 
-            onClick={() => {
-              setIsMenuOpen(false);
-              setExpandedTaxMenu(false);
-            }}
-            aria-hidden="true"
-          />
-          
-          {/* 메뉴 콘텐츠 */}
-          <div className="relative h-full flex flex-col bg-white shadow-2xl">
-            
-            {/* 🎯 개선된 헤더 */}
-            <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 bg-gray-50">
-              <Link 
-                href="/"
-                className="flex items-center gap-3"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setExpandedTaxMenu(false);
-                }}
-                aria-label="AICAMP 홈페이지로 이동"
-              >
-                <div className="w-8 h-8 flex items-center justify-center bg-blue-600 rounded-lg">
-                  <img 
-                    src={getImagePath('/images/AICAMP로고.png')}
-                    alt="AICAMP" 
-                    className="w-6 h-6 object-contain brightness-0 invert"
-                  />
-                </div>
-                <div>
-                  <div className="font-bold text-gray-900">AICAMP</div>
-                  <div className="text-xs text-gray-600">모바일 메뉴</div>
-                </div>
-              </Link>
-              
-              <button
-                className="w-10 h-10 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors duration-200"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setExpandedTaxMenu(false);
-                }}
-                aria-label="메뉴 닫기"
-              >
-                <X className="w-5 h-5 text-gray-800" />
-              </button>
-            </div>
-            
-            {/* 🔥 카테고리별 메뉴 리스트 */}
-            <div className="flex-1 overflow-y-auto">
-              
-              {/* 📱 주요 서비스 섹션 */}
-              <div className="px-6 py-6">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                  🚀 주요 서비스
-                </div>
-                <div className="space-y-2">
-                  {navigationItems.slice(0, 6).map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] ${
-                        pathname === item.href
-                          ? 'bg-blue-600 text-white shadow-lg'
-                          : 'bg-gray-50 text-gray-800 hover:bg-blue-50 hover:text-blue-700'
-                      }`}
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setExpandedTaxMenu(false);
-                      }}
-                    >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        pathname === item.href
-                          ? 'bg-white/20'
-                          : 'bg-white shadow-sm'
-                      }`}>
-                        <item.icon className={`w-5 h-5 ${
-                          pathname === item.href ? 'text-white' : 'text-gray-600'
-                        }`} />
-                      </div>
+      {/* 모바일 풀스크린 메뉴 */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 lg:hidden bg-white border-t border-gray-200 overflow-hidden"
+          >
+            <div className="px-4 py-6 space-y-4">
+              {[
+                { href: '/', label: '홈', icon: Home, description: '메인페이지' },
+                { href: '/services/business-analysis', label: '사업분석', icon: BarChart3, description: '비즈니스 컨설팅' },
+                { href: '/services/ai-productivity', label: 'AI생산성', icon: Zap, description: 'AI 업무 자동화' },
+                { href: '/services/policy-funding', label: '정책자금', icon: Building2, description: '듀얼브레인 정책자금 컨설팅' },
+                { href: '/services/tech-startup', label: '기술창업', icon: Rocket, description: '스타트업 지원' },
+                { href: '/services/certification', label: '인증지원', icon: Shield, description: '각종 인증 획득' },
+                { href: '/services/website', label: '웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
+                { href: '/center-leader', label: '교장소개', icon: User, description: '이후경 경영지도사' },
+                { href: '/seminar', label: '세미나', icon: Video, description: '교육 프로그램' },
+                { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' },
+                { href: '/consultation', label: '상담신청', icon: Phone, description: '무료 상담 예약' }
+              ].map((item) => (
+                <motion.div key={item.href} whileHover={{ x: 8 }} className="group">
+                  <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
+                    <div className="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-all duration-200 group">
+                      <item.icon className="w-6 h-6 mr-4 text-blue-600 group-hover:text-blue-700" />
                       <div className="flex-1">
-                        <div className="font-semibold">{item.label}</div>
-                        <div className={`text-xs ${
-                          pathname === item.href ? 'text-white/80' : 'text-gray-500'
-                        }`}>
-                          {item.label === '사업분석' && 'BM ZEN 프레임워크'}
-                          {item.label === 'AI생산성' && 'ChatGPT 활용법'}
-                          {item.label === '공장구매' && '경매 전문 컨설팅'}
-                          {item.label === '기술창업' && 'R&D 정부지원'}
-                          {item.label === '인증지원' && '벤처/ISO/ESG'}
-                          {item.label === '홈' && '메인 페이지'}
+                        <div className="font-semibold text-gray-900 group-hover:text-blue-700">
+                          {item.label}
+                        </div>
+                        <div className="text-sm text-gray-500 group-hover:text-blue-600">
+                          {item.description}
                         </div>
                       </div>
-                      <ChevronRight className={`w-4 h-4 ${
-                        pathname === item.href ? 'text-white' : 'text-gray-400'
-                      }`} />
-                    </Link>
-                  ))}
-                </div>
-              </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
 
-              {/* 🎯 진단 & 정보 섹션 */}
-              <div className="px-6 py-4 border-t border-gray-100">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                  📊 진단 & 정보
-                </div>
-                <div className="space-y-2">
-                  {navigationItems.slice(6).map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] ${
-                        pathname === item.href
-                          ? 'bg-green-600 text-white shadow-lg'
-                          : 'bg-gray-50 text-gray-800 hover:bg-green-50 hover:text-green-700'
-                      }`}
+              {/* 모바일 세금계산기 섹션 */}
+              <div className="pt-4 border-t border-gray-200">
+                <div className="text-sm font-semibold text-gray-700 mb-3 px-3">세금계산기</div>
+                {taxCalculators.map((calc) => (
+                  <motion.div key={calc.id} whileHover={{ x: 8 }} className="group mb-2">
+                    <button
                       onClick={() => {
+                        handleTaxCalculatorSelect(calc.id);
                         setIsMenuOpen(false);
-                        setExpandedTaxMenu(false);
                       }}
+                      className="w-full text-left"
                     >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        pathname === item.href
-                          ? 'bg-white/20'
-                          : 'bg-white shadow-sm'
-                      }`}>
-                        <item.icon className={`w-5 h-5 ${
-                          pathname === item.href ? 'text-white' : 'text-gray-600'
-                        }`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold">{item.label}</div>
-                        <div className={`text-xs ${
-                          pathname === item.href ? 'text-white/80' : 'text-gray-500'
-                        }`}>
-                          {item.label === '무료진단' && '5분 간편 진단'}
-                          {item.label === '성공사례' && '실제 성공 스토리'}
-                          {item.label === '교장' && '이후경 전문가'}
-                          {item.label === '세미나' && '온라인 영상'}
-                          {item.label === '고객지원' && '24시간 지원'}
-                        </div>
-                      </div>
-                      <ChevronRight className={`w-4 h-4 ${
-                        pathname === item.href ? 'text-white' : 'text-gray-400'
-                      }`} />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* 🔥 NEW: 세금계산기 전용 섹션 */}
-              <div className="px-6 py-4 border-t border-gray-100">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                  🧮 세금계산기
-                </div>
-                
-                {/* 세금계산기 메인 버튼 */}
-                <div className="mb-4">
-                  <button
-                    className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-300 ${
-                      pathname === '/tax-calculator'
-                        ? 'bg-purple-600 text-white shadow-lg'
-                        : 'bg-gray-50 text-gray-800 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
-                    onClick={() => setExpandedTaxMenu(!expandedTaxMenu)}
-                  >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      pathname === '/tax-calculator'
-                        ? 'bg-white/20'
-                        : 'bg-white shadow-sm'
-                    }`}>
-                      <Calculator className={`w-5 h-5 ${
-                        pathname === '/tax-calculator' ? 'text-white' : 'text-gray-600'
-                      }`} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold">세금계산기</div>
-                      <div className={`text-xs ${
-                        pathname === '/tax-calculator' ? 'text-white/80' : 'text-gray-500'
-                      }`}>
-                        10가지 전문 세금계산기
-                      </div>
-                    </div>
-                    <div className="transition-transform duration-200">
-                      {expandedTaxMenu ? (
-                        <ChevronDown className={`w-4 h-4 ${
-                          pathname === '/tax-calculator' ? 'text-white' : 'text-gray-400'
-                        }`} />
-                      ) : (
-                        <ChevronRight className={`w-4 h-4 ${
-                          pathname === '/tax-calculator' ? 'text-white' : 'text-gray-400'
-                        }`} />
-                      )}
-                    </div>
-                  </button>
-                </div>
-
-                {/* 🔥 세금계산기 서브메뉴 */}
-                {expandedTaxMenu && (
-                  <div className="space-y-1 ml-4 pl-4 border-l-2 border-purple-200">
-                    {taxCalculators.map((calc) => (
-                      <button
-                        key={calc.id}
-                        className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-sm hover:bg-purple-50 hover:text-purple-700 border ${
-                          pathname === `/tax-calculator?calculator=${calc.id}`
-                            ? 'bg-purple-100 text-purple-700 border-purple-200'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-purple-200'
-                        }`}
-                        onClick={() => handleTaxCalculatorSelect(calc.id)}
-                      >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                          pathname === `/tax-calculator?calculator=${calc.id}`
-                            ? 'bg-purple-200'
-                            : 'bg-gray-100'
-                        }`}>
-                          <calc.icon className={`w-4 h-4 ${
-                            pathname === `/tax-calculator?calculator=${calc.id}`
-                              ? 'text-purple-600'
-                              : 'text-gray-600'
-                          }`} />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="font-medium">{calc.title}</div>
-                          <div className={`text-xs ${
-                            pathname === `/tax-calculator?calculator=${calc.id}`
-                              ? 'text-purple-600/80'
-                              : 'text-gray-500'
-                          }`}>
+                      <div className="flex items-center p-3 rounded-xl hover:bg-green-50 transition-all duration-200 group">
+                        <calc.icon className="w-5 h-5 mr-4 text-green-600 group-hover:text-green-700" />
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 group-hover:text-green-700 text-sm">
+                            {calc.title}
+                          </div>
+                          <div className="text-xs text-gray-500 group-hover:text-green-600">
                             {calc.description}
                           </div>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 🎯 바로가기 액션 버튼들 */}
-              <div className="px-6 py-6 border-t border-gray-100 bg-gray-50">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                  ⚡ 바로가기
-                </div>
-                <div className="space-y-3">
-                  {actionButtons.slice(0, 2).map((button) => (
-                    <Link
-                      key={button.href}
-                      href={button.href}
-                      className={`flex items-center gap-4 px-6 py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-sm font-semibold ${
-                        button.color === 'blue' 
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-green-600 text-white hover:bg-green-700'
-                      }`}
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setExpandedTaxMenu(false);
-                      }}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                        <button.icon className="w-4 h-4 text-white" />
+                        <Calculator className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
                       </div>
-                      <div className="flex-1">
-                        <div className="font-bold">{button.label}</div>
-                        <div className="text-xs text-white/80">
-                          {button.label === '무료진단' && '지금 바로 시작'}
-                          {button.label === '상담신청' && '전문가 상담'}
-                        </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-white/80" />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* 📞 연락처 정보 */}
-              <div className="px-6 py-6 border-t border-gray-200 bg-white">
-                <div className="text-center">
-                  <div className="text-sm font-semibold text-gray-800 mb-2">📞 전화 상담</div>
-                  <Link 
-                    href="tel:010-9251-9743"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      setExpandedTaxMenu(false);
-                    }}
-                  >
-                    <Phone className="w-4 h-4 text-green-600" />
-                    <span className="font-mono font-bold text-gray-800">010-9251-9743</span>
-                  </Link>
-                  <div className="text-xs text-gray-500 mt-2">평일 09:00-18:00</div>
-                </div>
+                    </button>
+                  </motion.div>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
-      )}
-      
-      {/* 헤더 공간 확보 */}
-      <div className="h-11" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

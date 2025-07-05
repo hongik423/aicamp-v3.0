@@ -43,10 +43,64 @@ import {
   MapPin,
   MessageSquare
 } from 'lucide-react';
+import HeroSection from '@/components/ui/hero-section';
 
 export default function TechStartupPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // 히어로 섹션 데이터
+  const heroData = {
+    badge: {
+      icon: Rocket,
+      text: "평균 5억원 자금 확보로 기술창업 성공률 95% 달성"
+    },
+    title: "확실하게 뒷받침",
+    subtitle: "기술사업화/기술창업을",
+    description: "Apple Store 수준의 사용자 경험과 Business Model Zen 프레임워크 기반 기술사업화 전주기 지원으로 평균 5억원 자금을 확보하고 성공적인 기술창업을 실현하세요",
+    stats: [
+      {
+        value: "95%",
+        label: "창업 성공률",
+        description: "체계적 준비로 성공률 극대화",
+        icon: Target,
+        color: "text-green-600",
+        trend: "+15%"
+      },
+      {
+        value: "5억원",
+        label: "평균 자금 확보",
+        description: "정부지원 3억 + 민간투자 2억",
+        icon: DollarSign,
+        color: "text-blue-600",
+        trend: "↑"
+      },
+      {
+        value: "4.2건",
+        label: "특허 출원",
+        description: "핵심 기술 IP 포트폴리오 구축",
+        icon: Shield,
+        color: "text-purple-600",
+        trend: "+3"
+      },
+      {
+        value: "40%",
+        label: "세액공제 최대",
+        description: "연구개발비 세제 혜택 활용",
+        icon: Award,
+        color: "text-orange-600",
+        trend: "MAX"
+      }
+    ],
+    primaryCTA: {
+      text: "무료 상담 신청",
+      href: "/consultation"
+    },
+    secondaryCTA: {
+      text: "기술사업화 적합성 진단",
+      href: "/diagnosis"
+    }
+  };
 
   // 핵심 가치 제안
   const coreValues = [
@@ -295,137 +349,27 @@ export default function TechStartupPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Hero Section */}
-      <section className="py-12 md:py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-6xl mx-auto">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => router.push('/services')}
-                className="p-0 h-auto font-normal hover:text-blue-600"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                서비스 목록
-              </Button>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-blue-600 font-medium">기술사업화/기술창업</span>
-            </div>
+      {/* 통일된 히어로 섹션 */}
+      <HeroSection {...heroData} />
 
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-6">
-                  <Rocket className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">평균 5억원 자금 확보로 기술창업 성공률 95% 달성</span>
-                </div>
-                
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    기술사업화/기술창업
-                  </span>
-                  <br />
-                  <span className="text-2xl md:text-3xl lg:text-4xl text-gray-700">
-                    컨설팅
-                  </span>
-                </h1>
-                
-                <p className="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
-                  <strong className="text-blue-600">Business Model Zen 프레임워크</strong> 기반 기술사업화 전주기 지원으로 
-                  평균 5억원 자금을 확보하고 성공적인 기술창업을 실현하세요.
-                </p>
-
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
-                    <div className="text-2xl font-bold text-blue-600">95%</div>
-                    <div className="text-sm text-gray-600">창업 성공률</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100">
-                    <div className="text-2xl font-bold text-purple-600">5억원</div>
-                    <div className="text-sm text-gray-600">평균 자금 확보</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-green-100">
-                    <div className="text-2xl font-bold text-green-600">3-5건</div>
-                    <div className="text-sm text-gray-600">특허 출원</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-orange-100">
-                    <div className="text-2xl font-bold text-orange-600">40%</div>
-                    <div className="text-sm text-gray-600">세액공제 최대</div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {/* 개선된 무료 상담 신청 버튼 */}
-                  <Button 
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
-                    onClick={() => router.push('/consultation')}
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    <span className="relative flex items-center">
-                      <Rocket className="w-5 h-5 mr-2 group-hover:animate-bounce transition-transform duration-200" />
-                      무료 상담 신청
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-                    </span>
-                  </Button>
-                  
-                  {/* 개선된 기술사업화 적합성 진단 버튼 */}
-                  <Button 
-                    variant="outline"
-                    size="lg"
-                    className="px-8 py-4 border-2 border-blue-200 hover:border-blue-600 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
-                    onClick={() => router.push('/diagnosis')}
-                  >
-                    <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    <span className="relative flex items-center">
-                      <Brain className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
-                      기술사업화 적합성 진단
-                    </span>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 border border-blue-100">
-                  <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mr-4">
-                      <Award className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">전문가 수준의 서비스</h3>
-                      <p className="text-sm text-gray-600">세무사 전문가를 위한 탁월한 서비스</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">진행 기간</span>
-                      <span className="font-semibold">6개월 (24주)</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">평균 자금 확보</span>
-                      <span className="font-semibold text-blue-600">5억원</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">창업 성공률</span>
-                      <span className="font-semibold text-green-600">95%</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">특허 출원</span>
-                      <span className="font-semibold text-purple-600">3-5건</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2">
-                      <span className="text-gray-600">사후 관리</span>
-                      <span className="font-semibold">6개월 무상</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Breadcrumb */}
+      <section className="bg-white py-4 border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => router.push('/services')}
+              className="p-0 h-auto font-normal hover:text-blue-600"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              서비스 목록
+            </Button>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-blue-600 font-medium">기술사업화/기술창업</span>
           </div>
         </div>
       </section>

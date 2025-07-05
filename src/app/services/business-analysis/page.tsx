@@ -52,10 +52,64 @@ import {
   Activity,
   Briefcase
 } from 'lucide-react';
+import HeroSection from '@/components/ui/hero-section';
 
 export default function BusinessAnalysisPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // 히어로 섹션 데이터
+  const heroData = {
+    badge: {
+      icon: Brain,
+      text: "실제 기업 검증 완료 · ROI 375% 달성"
+    },
+    title: "확실하게 뒷받침",
+    subtitle: "중소기업 성장 동력을",
+    description: "Apple Store 수준의 사용자 경험과 95% 성공률의 전문성을 결합한 토털 솔루션으로 정책자금 확보의 새로운 기준을 제시합니다",
+    stats: [
+      {
+        value: "95%",
+        label: "정책자금 선정 성공률",
+        description: "업계 평균 30% 대비 3배 성과",
+        icon: Target,
+        color: "text-green-600",
+        trend: "+12%"
+      },
+      {
+        value: "25일",
+        label: "평균 처리기간",
+        description: "업계 최단 처리시간 달성",
+        icon: Clock,
+        color: "text-blue-600",
+        trend: "-60%"
+      },
+      {
+        value: "4.2억원",
+        label: "평균 확보 금액",
+        description: "최대 150억원까지 확보",
+        icon: DollarSign,
+        color: "text-purple-600",
+        trend: "+8%"
+      },
+      {
+        value: "800+",
+        label: "누적 성공 사례",
+        description: "검증된 전문성과 신뢰도",
+        icon: Award,
+        color: "text-orange-600",
+        trend: "+156"
+      }
+    ],
+    primaryCTA: {
+      text: "무료 상담 신청하기",
+      href: "/consultation"
+    },
+    secondaryCTA: {
+      text: "성공사례 보기",
+      href: "/cases"
+    }
+  };
 
   const features = [
     {
@@ -183,184 +237,27 @@ export default function BusinessAnalysisPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Hero Section */}
-      <section className="py-12 md:py-20">
+      {/* 통일된 히어로 섹션 */}
+      <HeroSection {...heroData} />
+
+      {/* Breadcrumb */}
+      <section className="bg-white py-4 border-b">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => router.push('/services')}
-                className="p-0 h-auto font-normal transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] px-2 py-1 rounded-md hover:bg-blue-50 relative overflow-hidden group"
-              >
-                <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                <span className="relative flex items-center">
-                  <ArrowLeft className="w-4 h-4 mr-1 group-hover:translate-x-[-2px] transition-transform duration-200" />
-                  서비스 목록
-                </span>
-              </Button>
-              <span>/</span>
-              <span className="text-blue-600 font-medium">BM ZEN 사업분석</span>
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-6">
-                  <Brain className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">실제 기업 검증 완료 · ROI 375% 달성</span>
-                </div>
-                
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    BM Zen 프레임워크 기반<br />
-                    AI 성장전략 컨설팅
-                  </span>
-                </h1>
-                
-                <p className="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
-                  <strong>AI와 BM Zen으로 기업의 숨겨진 성장 동력을 발굴하고, 측정 가능한 성과를 만들어내는 실행 중심 컨설팅</strong>
-                </p>
-
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-6 border border-amber-200">
-                  <div className="flex items-center mb-4">
-                    <Award className="w-8 h-8 text-amber-600 mr-3" />
-                    <h3 className="text-xl font-bold text-gray-900">핵심 차별점</h3>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      <span>실제 기업 데이터 기반 진단</span>
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      <span>AI 도구 직접 구현</span>
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      <span>30일 내 가시적 결과</span>
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      <span>실행 중심 접근</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6 border border-blue-100">
-                  <div className="flex items-center mb-4">
-                    <Factory className="w-8 h-8 text-blue-600 mr-3" />
-                    <h3 className="text-xl font-bold text-gray-900">㈜한국정밀기계 실제 적용 사례</h3>
-                  </div>
-                  <div className="text-sm text-gray-600 mb-4">
-                    자동차 부품 제조업 · 직원 45명 · 연매출 120억원 · 성장 단계 Step 2
-                  </div>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="text-center bg-white rounded-lg p-4">
-                      <div className="text-2xl font-bold text-blue-600">42%</div>
-                      <div className="text-sm text-gray-600">생산성 향상</div>
-                      <div className="text-xs text-gray-500">100개 → 142개/일</div>
-                    </div>
-                    <div className="text-center bg-white rounded-lg p-4">
-                      <div className="text-2xl font-bold text-green-600">290%</div>
-                      <div className="text-sm text-gray-600">6개월 ROI</div>
-                      <div className="text-xs text-gray-500">8천만원 투자</div>
-                    </div>
-                    <div className="text-center bg-white rounded-lg p-4">
-                      <div className="text-2xl font-bold text-red-600">-78%</div>
-                      <div className="text-sm text-gray-600">품질 불량률</div>
-                      <div className="text-xs text-gray-500">3.2% → 0.7%</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-3 mb-8">
-                  <Badge variant="outline" className="px-4 py-2">
-                    <Cpu className="w-4 h-4 mr-2" />
-                    AI 기반 진단 시스템
-                  </Badge>
-                  <Badge variant="outline" className="px-4 py-2">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    30일 내 가시적 결과
-                  </Badge>
-                  <Badge variant="outline" className="px-4 py-2">
-                    <Shield className="w-4 h-4 mr-2" />
-                    ROI 300% 달성 보장
-                  </Badge>
-                  <Badge variant="outline" className="px-4 py-2">
-                    <Award className="w-4 h-4 mr-2" />
-                    실제 기업 검증 완료
-                  </Badge>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
-                    onClick={() => router.push('/consultation')}
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    <span className="relative flex items-center">
-                      맞춤형 상담 신청 (차별성 확인)
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-                    </span>
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    size="lg"
-                    className="px-8 py-4 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 hover:shadow-md relative overflow-hidden group"
-                    onClick={() => router.push('/diagnosis')}
-                  >
-                    <span className="absolute inset-0 bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    <span className="relative">
-                      무료 진단 받기
-                    </span>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">서비스 개요</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">진행 기간</span>
-                      <span className="font-semibold">16-24주</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">적용 대상</span>
-                      <span className="font-semibold text-blue-600">Step 1-4 기업</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">6개월 ROI</span>
-                      <span className="font-semibold text-green-600">290-680%</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">생산성 향상</span>
-                      <span className="font-semibold text-purple-600">40-60%</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2">
-                      <span className="text-gray-600">차별화 요소</span>
-                      <span className="font-semibold text-blue-600">5단계 독자 프레임워크</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                    <div className="flex items-center mb-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                      <span className="font-bold text-green-800">성과 보장</span>
-                    </div>
-                    <p className="text-sm text-green-700">
-                      목표 미달 시 서비스 비용 50% 환불
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => router.push('/services')}
+              className="p-0 h-auto font-normal hover:text-blue-600"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              서비스 목록
+            </Button>
+            <span>/</span>
+            <span className="text-blue-600 font-medium">BM ZEN 사업분석</span>
           </div>
         </div>
       </section>

@@ -5,18 +5,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Eye, Shield, Lock, FileText } from 'lucide-react';
+import { Eye, Shield, Lock, FileText, Clock } from 'lucide-react';
 
 interface PrivacyConsentProps {
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
   required?: boolean;
   className?: string;
 }
 
 export default function PrivacyConsent({ 
-  checked, 
-  onCheckedChange, 
+  checked = false, 
+  onCheckedChange = () => {}, 
   required = true,
   className = ""
 }: PrivacyConsentProps) {
@@ -24,7 +24,9 @@ export default function PrivacyConsent({
 
   const handleConsentChange = (newChecked: boolean) => {
     console.log('개인정보 동의 상태 변경:', newChecked);
-    onCheckedChange(newChecked);
+    if (onCheckedChange && typeof onCheckedChange === 'function') {
+      onCheckedChange(newChecked);
+    }
   };
 
   const privacyPolicy = {
@@ -83,63 +85,64 @@ export default function PrivacyConsent({
   };
 
   return (
-    <div className={`bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200/50 rounded-3xl p-8 ${className}`}>
+    <div className={`relative z-50 bg-white border-3 border-blue-500 rounded-2xl p-8 shadow-lg ${className}`}>
       <div className="flex items-start gap-6">
         <div className="flex items-center">
           <Checkbox
             id="privacy-consent-checkbox"
             checked={checked}
             onCheckedChange={handleConsentChange}
-            className="w-6 h-6 border-2 border-blue-400 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 rounded-lg transition-all duration-200"
+            className="w-7 h-7 border-3 border-blue-500 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded-lg transition-all duration-200 shadow-md"
             required={required}
           />
         </div>
         <div className="flex-1">
           <label 
             htmlFor="privacy-consent-checkbox" 
-            className="text-base text-gray-700 cursor-pointer leading-relaxed block"
+            className="text-lg text-gray-900 cursor-pointer leading-relaxed block font-medium"
           >
-            {required && <span className="text-red-500 font-bold">* </span>}
-            <span className="font-bold text-gray-900">개인정보 수집 및 이용에 동의합니다.</span>
-            <br />
-            <span className="text-gray-600 text-sm">
-              M-CENTER는 상담 서비스 제공을 위해 필요한 최소한의 개인정보만을 수집합니다.
+            {required && <span className="text-red-600 font-bold text-xl">* </span>}
+            <div className="flex items-start gap-3">
+              <span className="font-bold text-gray-900 text-lg">개인정보 수집 및 이용에 동의합니다.</span>
+            </div>
+            <span className="text-gray-700 text-base font-medium mt-2 block">
+              (필수) 서비스 이용을 위해 개인정보 수집에 동의해주세요.
             </span>
           </label>
           
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-6 flex items-center gap-4">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="text-xs px-3 py-1 h-8 border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg"
+                  className="text-sm px-4 py-2 h-10 border-2 border-blue-500 text-blue-700 hover:bg-blue-50 hover:border-blue-600 rounded-lg font-semibold shadow-sm transition-all duration-200"
                 >
-                  <Eye className="w-3 h-3 mr-1" />
+                  <Eye className="w-4 h-4 mr-2" />
                   상세 내용 보기
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] p-0">
-                <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
-                  <DialogTitle className="flex items-center gap-3 text-xl">
-                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                      <Shield className="w-4 h-4 text-white" />
+              <DialogContent className="max-w-3xl max-h-[85vh] p-0 z-[100]">
+                <DialogHeader className="px-8 py-6 border-b bg-white">
+                  <DialogTitle className="flex items-center gap-3 text-2xl font-bold text-gray-900">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                      <Shield className="w-5 h-5 text-white" />
                     </div>
                     {privacyPolicy.title}
                   </DialogTitle>
                 </DialogHeader>
-                <ScrollArea className="px-6 py-4 h-96">
-                  <div className="space-y-6">
+                <ScrollArea className="px-8 py-6 h-96 bg-white">
+                  <div className="space-y-8">
                     {privacyPolicy.sections.map((section, index) => (
-                      <div key={index} className="space-y-3">
-                        <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-blue-500" />
+                      <div key={index} className="space-y-4">
+                        <h3 className="font-bold text-gray-900 text-xl flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-blue-600" />
                           {section.title}
                         </h3>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {section.content.map((item, itemIndex) => (
-                            <p key={itemIndex} className="text-gray-700 text-sm leading-relaxed pl-4">
+                            <p key={itemIndex} className="text-gray-800 text-base leading-relaxed pl-6 font-medium">
                               {item}
                             </p>
                           ))}
@@ -147,12 +150,12 @@ export default function PrivacyConsent({
                       </div>
                     ))}
                     
-                    <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <div className="flex items-start gap-3">
-                        <Lock className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <div className="space-y-2">
+                    <div className="mt-10 p-6 bg-amber-50 border-2 border-amber-300 rounded-xl">
+                      <div className="flex items-start gap-4">
+                        <Lock className="w-6 h-6 text-amber-700 mt-1 flex-shrink-0" />
+                        <div className="space-y-3">
                           {privacyPolicy.footer.map((item, index) => (
-                            <p key={index} className="text-amber-800 text-sm leading-relaxed">
+                            <p key={index} className="text-amber-900 text-base leading-relaxed font-medium">
                               {item}
                             </p>
                           ))}
@@ -161,20 +164,22 @@ export default function PrivacyConsent({
                     </div>
                   </div>
                 </ScrollArea>
-                <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
+                <div className="px-8 py-6 border-t bg-gray-50 flex justify-end gap-4">
                   <Button
                     variant="outline"
                     onClick={() => setIsDialogOpen(false)}
-                    className="px-6"
+                    className="px-8 py-3 text-base font-semibold border-2 border-gray-300 hover:border-gray-400"
                   >
                     닫기
                   </Button>
                   <Button
                     onClick={() => {
-                      handleConsentChange(true);
+                      if (onCheckedChange && typeof onCheckedChange === 'function') {
+                        onCheckedChange(true);
+                      }
                       setIsDialogOpen(false);
                     }}
-                    className="px-6 bg-blue-600 hover:bg-blue-700"
+                    className="px-8 py-3 text-base font-semibold bg-blue-600 hover:bg-blue-700 shadow-md"
                   >
                     동의하고 닫기
                   </Button>
@@ -182,8 +187,8 @@ export default function PrivacyConsent({
               </DialogContent>
             </Dialog>
             
-            <div className="text-xs text-gray-500 flex items-center gap-1">
-              <Shield className="w-3 h-3" />
+            <div className="text-sm text-gray-700 flex items-center gap-2 font-medium">
+              <Shield className="w-4 h-4 text-blue-600" />
               개인정보보호법 준수
             </div>
           </div>
@@ -192,13 +197,13 @@ export default function PrivacyConsent({
       
       {/* 동의 상태 표시 */}
       {checked && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
-          <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mt-6 p-4 bg-green-50 border-2 border-green-300 rounded-xl flex items-center gap-4">
+          <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </div>
-          <span className="text-green-800 text-sm font-medium">
+          <span className="text-green-800 text-base font-semibold">
             개인정보 수집 및 이용에 동의하셨습니다.
           </span>
         </div>

@@ -44,7 +44,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/business-analysis',
     benefits: ['95% 성공률 보장', '매출 4배 증가', '5단계 전략 프레임워크'],
-    badge: '⭐ 추천',
+    badge: '추천',
     featured: true
   },
   {
@@ -58,20 +58,20 @@ const services = [
     textColor: 'text-white',
     href: '/services/ai-productivity',
     benefits: ['정부 100% 지원', '20주 집중 프로그램', '업무 효율성 40% 향상'],
-    badge: '🎯 정부지원'
+    badge: '정부지원'
   },
   {
-    id: 'factory-auction',
-    title: '스마트 공장투자',
-    subtitle: '시장가 대비 40% 절약',
-    description: '경매 활용 지능형 투자 전략',
+    id: 'policy-funding',
+    title: '정책자금 컨설팅',
+    subtitle: '98% 성공률, 20일 완성',
+    description: '듀얼브레인 방법론 기반 혁신 컨설팅',
     icon: Factory,
     color: 'bg-orange-100 text-orange-600',
     bgColor: 'from-orange-50 to-red-50',
     textColor: 'text-white',
-    href: '/services/factory-auction',
-    benefits: ['투자비 40% 절약', '전문가 동행', '완전 위탁 진행'],
-    badge: '💰 절약'
+    href: '/services/policy-funding',
+    benefits: ['98% 선정 성공률', '20일 완성', '5.8억원 평균 확보'],
+    badge: '정책자금'
   },
   {
     id: 'tech-startup',
@@ -84,7 +84,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/tech-startup',
     benefits: ['평균 5억원 확보', '성공률 85%', '3년 사후관리'],
-    badge: '🚀 성장'
+    badge: '성장'
   },
   {
     id: 'certification',
@@ -97,7 +97,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/certification',
     benefits: ['5천만원 세제혜택', '통합 인증 관리', '100% 취득 보장'],
-    badge: '🏆 인증'
+    badge: '인증'
   },
   {
     id: 'website',
@@ -110,7 +110,7 @@ const services = [
     textColor: 'text-white',
     href: '/services/website',
     benefits: ['매출 30% 증대', '지능형 최적화', '무료 1년 관리'],
-    badge: '🌐 디지털'
+    badge: '디지털'
   }
 ];
 
@@ -180,7 +180,7 @@ const testimonials = [
     name: '이창업',
     title: '대표이사',
     company: '스마트제조(주)',
-    content: '공장구매 컨설팅으로 40% 이상 투자비를 절약했습니다. 전문가의 체계적인 지원이 정말 도움이 되었습니다.',
+              content: '정책자금 컨설팅으로 5억원 정부지원을 확보했습니다. 전문가의 체계적인 지원이 정말 도움이 되었습니다.',
     rating: 5,
     avatar: 'L'
   },
@@ -239,9 +239,9 @@ function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
     : count.toLocaleString();
 
   return (
-    <div className="apple-card apple-animation-scale touch-target">
+    <div className="bg-white rounded-3xl shadow-lg border-0 p-6 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
       <div className="text-center">
-        <div className={`apple-icon-large bg-gradient-to-br from-blue-100 to-purple-100 mx-auto mb-4 
+        <div className={`w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 mx-auto mb-4 rounded-2xl flex items-center justify-center
                         group-hover:scale-110 transition-transform duration-300`}>
           <metric.icon className={`w-8 h-8 ${metric.color}`} />
         </div>
@@ -249,7 +249,7 @@ function MetricCard({ metric }: { metric: typeof performanceMetrics[0] }) {
           <span className="text-overflow-safe">{displayValue}</span>
           <span className="text-lg ml-1 text-gray-500">{metric.suffix}</span>
         </div>
-        <p className="apple-caption text-overflow-safe">{metric.label}</p>
+        <p className="text-gray-600 text-overflow-safe">{metric.label}</p>
       </div>
     </div>
   );
@@ -263,7 +263,7 @@ export default function Home() {
   const handleChatbotConnect = () => {
     setIsConnecting(true);
     
-            // "M교장 챗봇과 연결하기...." 메시지 표시
+                            // "AI-CAMP 교장 챗봇과 연결하기...." 메시지 표시
     setTimeout(() => {
       setIsConnecting(false);
       setIsChatOpen(true);
@@ -272,8 +272,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 🍎 애플스토어 스타일 Hero Section */}
-      <section className="apple-section bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
+      {/* 애플스토어 스타일 Hero Section */}
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
         {/* 배경 패턴 */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400 rounded-full blur-xl"></div>
@@ -281,72 +281,65 @@ export default function Home() {
           <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-green-400 rounded-full blur-xl"></div>
         </div>
         
-        <div className="mobile-container relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* 상단 배지 */}
-            <div className="apple-badge-primary mb-8 apple-animation-fadeIn">
-              <Sparkles className="w-4 h-4 mr-2" />
-              <span className="font-semibold text-overflow-safe">프리미엄 비즈니스 혁신 프레임워크</span>
+            <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-xl rounded-full border border-gray-200/50 shadow-sm mb-8">
+              <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
+              <span className="font-semibold text-gray-800">프리미엄 비즈니스 혁신 프레임워크</span>
             </div>
             
-            <h1 className="apple-title apple-animation-slideUp mobile-centered">
-              <span className="block text-overflow-safe">기업 성장의 새로운 차원을</span>
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-overflow-safe">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold leading-tight tracking-tight mb-6">
+              <span className="block text-gray-900">기업 성장의 새로운 차원을</span>
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 경험하세요
               </span>
             </h1>
             
-            <p className="apple-body max-w-3xl mx-auto apple-animation-slideUp mobile-text" 
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed" 
                style={{ animationDelay: '0.2s' }}>
               <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 
               6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
             </p>
             
-            <div className="apple-spacing-xs apple-animation-slideUp"
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center"
                  style={{ animationDelay: '0.4s' }}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/services">
-                  <button className="apple-button-primary mobile-full-width">
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">프리미엄 사업분석 시작하기</span>
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </button>
-                </Link>
-                
-                <Link href="/diagnosis">
-                  <button className="apple-button-secondary mobile-full-width">
-                    <Zap className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">무료 전문가 진단</span>
-                  </button>
-                </Link>
-                
-                <Link href="/consultation">
-                  <button className="apple-button-outline mobile-full-width">
-                    <Users className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">전문가 상담 신청</span>
-                  </button>
-                </Link>
-              </div>
+              <Link href="/services">
+                <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                  사업분석 시작하기
+                </button>
+              </Link>
+              
+              <Link href="/diagnosis">
+                <button className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                  무료 전문가 진단
+                </button>
+              </Link>
+              
+              <Link href="/consultation">
+                <button className="px-8 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                  전문가 상담 신청
+                </button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 🍎 애플스토어 스타일 AI 상담사 섹션 */}
-      <section className="apple-section bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-        <div className="mobile-container">
+      {/* 애플스토어 스타일 AI 상담사 섹션 */}
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="apple-badge-primary mb-8 apple-animation-fadeIn">
-              <Cpu className="w-5 h-5 mr-2" />
-              <span className="font-semibold text-overflow-safe">차세대 지능형 상담 시스템</span>
+            <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-xl rounded-full border border-gray-200/50 shadow-sm mb-8">
+              <Cpu className="w-5 h-5 mr-2 text-indigo-600" />
+              <span className="font-semibold text-gray-800">차세대 지능형 상담 시스템</span>
             </div>
             
-            <h2 className="apple-subtitle apple-animation-slideUp mobile-centered">
-              <span className="text-4xl mr-3">🤖</span>
-                              <span className="text-overflow-safe">M교장과 바로 대화하기</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight mb-6">
+              <span className="text-gray-900">AI-CAMP 교장과 바로 대화하기</span>
             </h2>
             
-            <p className="apple-body max-w-4xl mx-auto mobile-text">
+            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
               <strong className="text-blue-600">최첨단 AI 기술</strong>로 무장한 전문 상담사가 24시간 대기 중입니다.<br />
               기업 성장에 관한 모든 궁금증을 지금 바로 해결해보세요!
             </p>
@@ -397,7 +390,7 @@ export default function Home() {
                       {isConnecting ? (
                         <>
                           <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          M교장 챗봇과 연결하기...
+                          AI-CAMP 교장 챗봇과 연결하기...
                         </>
                       ) : (
                         <>
@@ -422,14 +415,14 @@ export default function Home() {
                       <div className="w-full h-full bg-gradient-to-br from-blue-900 to-purple-900 relative">
                         
                         {/* 상단 메뉴바 */}
-                        <div className="absolute top-0 left-0 right-0 h-8 bg-gray-800/50 backdrop-blur-sm flex items-center px-4">
+                        <div className="absolute top-0 left-0 right-0 h-8 bg-gray-800/50 dark:bg-aicamp-navy/50 backdrop-blur-sm flex items-center px-4">
                           <div className="flex space-x-2">
                             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                           </div>
                           <div className="flex-1 text-center">
-                            <span className="text-white/70 text-xs">M-CENTER AI 상담 시스템</span>
+                            <span className="text-white/70 text-xs">AI-CAMP AI 상담 시스템</span>
                           </div>
                         </div>
                         
@@ -437,45 +430,45 @@ export default function Home() {
                         <div className="absolute inset-0 top-8 flex items-center justify-center p-8">
                           <div className="text-center text-white space-y-6">
                             {/* AI 아이콘 */}
-                            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center shadow-xl">
+                            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-purple-500 dark:from-aicamp-purple dark:to-aicamp-teal rounded-full flex items-center justify-center shadow-xl">
                               <Cpu className="w-10 h-10 text-white" />
                             </div>
                             
                             {/* 실시간 대화 시뮬레이션 */}
                             <div className="space-y-3 max-w-md">
-                              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
-                                <p className="text-sm text-white/90">안녕하세요! M-CENTER M교장입니다.</p>
+                              <div className="bg-white/10 dark:bg-aicamp-navy/30 backdrop-blur-sm rounded-2xl p-4 text-left">
+                                <p className="text-sm text-white/90">안녕하세요! AI-CAMP 교장입니다.</p>
                               </div>
-                              <div className="bg-blue-500/80 backdrop-blur-sm rounded-2xl p-4 text-right ml-8">
+                              <div className="bg-blue-500/80 dark:bg-aicamp-teal/80 backdrop-blur-sm rounded-2xl p-4 text-right ml-8">
                                 <p className="text-sm text-white">우리 회사 매출 증대 방법을 알고 싶어요</p>
                               </div>
-                              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-left">
+                              <div className="bg-white/10 dark:bg-aicamp-navy/30 backdrop-blur-sm rounded-2xl p-4 text-left">
                                 <p className="text-sm text-white/90">BM ZEN 사업분석으로 20-40% 매출 성장이 가능합니다!</p>
                               </div>
                             </div>
                             
                             {/* 기능 배지들 */}
                             <div className="flex flex-wrap gap-2 justify-center">
-                              <span className="px-3 py-1 bg-blue-500/30 backdrop-blur-sm rounded-full text-xs text-white/90">Advanced AI</span>
-                              <span className="px-3 py-1 bg-green-500/30 backdrop-blur-sm rounded-full text-xs text-white/90">24시간</span>
-                              <span className="px-3 py-1 bg-purple-500/30 backdrop-blur-sm rounded-full text-xs text-white/90">즉시응답</span>
+                              <span className="px-3 py-1 bg-blue-500/30 dark:bg-aicamp-purple/30 backdrop-blur-sm rounded-full text-xs text-white/90">Advanced AI</span>
+                              <span className="px-3 py-1 bg-green-500/30 dark:bg-aicamp-teal/30 backdrop-blur-sm rounded-full text-xs text-white/90">24시간</span>
+                              <span className="px-3 py-1 bg-purple-500/30 dark:bg-aicamp-orange/30 backdrop-blur-sm rounded-full text-xs text-white/90">즉시응답</span>
                             </div>
                           </div>
                         </div>
                         
                         {/* 하단 상태바 */}
-                        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gray-800/30 backdrop-blur-sm flex items-center justify-center">
-                          <span className="text-white/50 text-xs">🟢 온라인 • 즉시 상담 가능</span>
+                        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gray-800/30 dark:bg-aicamp-navy/30 backdrop-blur-sm flex items-center justify-center">
+                          <span className="text-white/50 text-xs">●온라인 • 즉시 상담 가능</span>
                         </div>
                       </div>
                     </div>
                     
                     {/* 플로팅 엘리먼트들 */}
-                    <div className="absolute top-20 right-8 w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-bounce">
-                      <span className="text-2xl">💡</span>
+                    <div className="absolute top-20 right-8 w-16 h-16 bg-white/20 dark:bg-aicamp-navy/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-bounce">
+                      <span className="text-2xl">AI</span>
                     </div>
-                    <div className="absolute bottom-20 left-8 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-pulse">
-                      <span className="text-xl">⚡</span>
+                    <div className="absolute bottom-20 left-8 w-12 h-12 bg-white/20 dark:bg-aicamp-navy/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-pulse">
+                      <span className="text-xl">24H</span>
                     </div>
                   </div>
                 </div>
@@ -484,38 +477,38 @@ export default function Home() {
                   
             
             {/* 애플스토어 스타일 하단 섹션 - 간단한 특징들 */}
-            <div className="mt-24 pt-16 border-t border-gray-200">
+            <div className="mt-24 pt-16 border-t border-gray-200 dark:border-gray-700">
               <div className="max-w-4xl mx-auto text-center space-y-16">
                 
                 {/* 핵심 특징들 - 애플 스타일 */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                   <div className="space-y-4">
-                    <div className="w-16 h-16 mx-auto bg-blue-100 rounded-2xl flex items-center justify-center">
-                      <CheckCircle2 className="w-8 h-8 text-blue-600" />
+                    <div className="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center">
+                      <CheckCircle2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">전문 분야별 맞춤 상담</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      사업분석, AI혁신, 공장구매, 기술창업, 인증, 웹사이트 등 6개 전문 분야
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">전문 분야별 맞춤 상담</h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      사업분석, AI혁신, 정책자금, 기술창업, 인증, 웹사이트 등 6개 전문 분야
                     </p>
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="w-16 h-16 mx-auto bg-green-100 rounded-2xl flex items-center justify-center">
-                      <Zap className="w-8 h-8 text-green-600" />
+                    <div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/50 rounded-2xl flex items-center justify-center">
+                      <Zap className="w-8 h-8 text-green-600 dark:text-green-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">즉시 응답 및 정확한 분석</h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">즉시 응답 및 정확한 분석</h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                       25년 전문가 경험과 차세대 AI 기술의 완벽한 융합
                     </p>
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="w-16 h-16 mx-auto bg-orange-100 rounded-2xl flex items-center justify-center">
-                      <Phone className="w-8 h-8 text-orange-600" />
+                    <div className="w-16 h-16 mx-auto bg-orange-100 dark:bg-orange-900/50 rounded-2xl flex items-center justify-center">
+                      <Phone className="w-8 h-8 text-orange-600 dark:text-orange-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">전문가 연결 및 후속 상담</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      필요시 이후경 M교장 직접 상담 (010-9251-9743)
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">전문가 연결 및 후속 상담</h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      필요시 이후경 AI-CAMP 교장 직접 상담 (010-9251-9743)
                     </p>
                   </div>
                 </div>
@@ -557,41 +550,41 @@ export default function Home() {
       </section>
 
       {/* 6대 핵심서비스 - 사용자 중심 개선 */}
-      <section className="section-padding bg-white relative">
+      <section className="py-20 lg:py-32 bg-white relative">
         {/* 배경 패턴 */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-40 h-40 bg-blue-400 rounded-full blur-2xl"></div>
           <div className="absolute bottom-20 right-10 w-48 h-48 bg-purple-400 rounded-full blur-2xl"></div>
         </div>
         
-        <div className="mobile-container relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <div className="badge-primary mb-6 animate-bounce-gentle">
-              <Star className="w-5 h-5 mr-2" />
-              <span className="font-semibold text-overflow-safe">기업 성장 솔루션</span>
+            <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-xl rounded-full border border-gray-200/50 shadow-sm mb-8">
+              <Star className="w-5 h-5 mr-2 text-blue-600" />
+              <span className="font-semibold text-gray-800">기업 성장 솔루션</span>
             </div>
             
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
-              <span className="text-overflow-safe">6대 핵심서비스</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-gray-900 mb-4">
+              <span>6대 핵심서비스</span>
             </h2>
-            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
+            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto">
               기업 단계별 맞춤 솔루션으로 <strong className="text-blue-600">확실한 성과</strong>를 경험하세요<br />
               25년 전문가 경험 + 최신 AI 기술 = <strong className="text-purple-600">검증된 결과</strong>
             </p>
           </div>
           
-          {/* 🔥 사용자 중심 서비스 그리드 - 우선순위 기반 */}
+          {/* 사용자 중심 서비스 그리드 - 우선순위 기반 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => (
               <div
                 key={service.id}
-                className={`service-card-mobile group relative overflow-hidden cursor-pointer
+                className={`bg-white rounded-3xl shadow-lg group relative overflow-hidden cursor-pointer border-0
                            ${service.featured ? 'ring-2 ring-blue-400 ring-opacity-50 scale-[1.02] md:scale-105' : ''} 
-                           bg-gradient-to-br ${service.bgColor} hover:shadow-2xl hover:-translate-y-3 
-                           transition-all duration-300 animate-scale-in gpu-accelerated`}
+                           hover:shadow-2xl hover:-translate-y-3 
+                           transition-all duration-300`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                {/* 🌟 특별 추천 배지 */}
+                {/* 특별 추천 배지 */}
                 {service.featured && (
                   <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
@@ -602,7 +595,7 @@ export default function Home() {
                 )}
                 
                 <CardContent className="p-6 h-full flex flex-col">
-                  {/* 🎯 서비스 헤더 - 간소화 */}
+                  {/* 서비스 헤더 - 간소화 */}
                   <div className="flex items-center justify-between mb-4">
                     <div className={`p-3 rounded-2xl ${service.color} shadow-lg 
                                     group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
@@ -613,52 +606,52 @@ export default function Home() {
                     </Badge>
                   </div>
                   
-                  {/* 📝 서비스 정보 - 핵심만 */}
+                  {/* 서비스 정보 */}
                   <div className="mb-6 flex-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 
-                                   transition-colors mobile-centered leading-tight">
-                      <span className="text-overflow-safe">{service.title}</span>
+                                   transition-colors leading-tight">
+                      <span>{service.title}</span>
                     </h3>
                     
-                    <div className="text-sm font-semibold text-blue-600 mb-3 mobile-text">
-                      <span className="text-overflow-safe">{service.subtitle}</span>
+                    <div className="text-sm font-semibold text-blue-600 mb-3">
+                      <span>{service.subtitle}</span>
                     </div>
                     
-                    <p className="text-gray-600 mb-4 mobile-text leading-relaxed">
+                    <p className="text-gray-600 mb-4 leading-relaxed">
                       {service.description}
                     </p>
                     
-                    {/* 🎁 핵심 혜택 - 3개만 표시 */}
+                    {/* 핵심 혜택 */}
                     <div className="space-y-2">
                       {service.benefits.slice(0, 3).map((benefit, benefitIndex) => (
                         <div key={benefitIndex} className="flex items-center gap-3">
                           <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-700 mobile-text font-medium">{benefit}</span>
+                          <span className="text-sm text-gray-700 font-medium">{benefit}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   
-                  {/* 🚀 액션 버튼 - 명확한 CTA */}
+                  {/* 액션 버튼 */}
                   <div className="space-y-3">
                     <Link href={service.href}>
                       <Button 
-                        className={`mobile-button w-full font-semibold py-3 transition-all duration-300 
+                        className={`w-full font-semibold py-3 transition-all duration-300 
                                    shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]
                                    ${service.featured 
                                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white' 
                                      : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-blue-400'
-                                   } touch-feedback`}
+                                   }`}
                       >
-                        <span className="text-overflow-safe">자세히 보기</span>
+                        <span>자세히 보기</span>
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>
                     
-                    {/* 💬 빠른 상담 버튼 */}
+                    {/* 빠른 상담 버튼 */}
                     <button 
                       className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium 
-                                py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200 touch-feedback"
+                                py-2 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                       onClick={() => {
                         if (typeof window !== 'undefined') {
                           const chatbot = document.querySelector('[data-floating-chatbot]') as HTMLElement;
@@ -670,7 +663,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      💬 M교장에게 바로 문의하기
+                      AI-CAMP 교장에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
@@ -678,33 +671,31 @@ export default function Home() {
             ))}
           </div>
 
-          {/* 🎯 빠른 액션 섹션 */}
+          {/* 빠른 액션 섹션 */}
           <div className="mt-16 text-center">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-3xl border border-blue-200">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4 mobile-centered">
-                <span className="text-overflow-safe">어떤 서비스가 필요한지 모르겠다면?</span>
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-3xl border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                <span>어떤 서비스가 필요한지 모르겠다면?</span>
               </h3>
-              <p className="text-gray-600 mb-6 mobile-text">
+              <p className="text-gray-600 mb-6">
                 AI 진단으로 맞춤형 솔루션을 추천받으세요 (소요시간: 3분)
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
                 <Link href="/diagnosis">
                   <Button 
-                    className="mobile-button btn-hero bg-gradient-to-r from-green-500 to-emerald-600 
-                              hover:from-green-600 hover:to-emerald-700 text-white shadow-xl w-full sm:w-auto"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 
+                              hover:from-green-600 hover:to-emerald-700 text-white shadow-xl w-full sm:w-auto px-6 py-3 rounded-lg font-medium"
                   >
-                    <Zap className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">3분 무료 AI 진단</span>
+                    3분 무료 AI 진단
                   </Button>
                 </Link>
                 
                 <Link href="/consultation">
                   <Button 
-                    className="mobile-button btn-secondary w-full sm:w-auto"
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-medium w-full sm:w-auto"
                   >
-                    <Users className="w-5 h-5 mr-2" />
-                    <span className="text-overflow-safe">전문가 직접 상담</span>
+                    전문가 직접 상담
                   </Button>
                 </Link>
               </div>
@@ -729,21 +720,21 @@ export default function Home() {
       </section>
 
       {/* 성장 단계별 가이드 - 프리미엄 표현 */}
-      <section className="section-padding gradient-bg-primary">
-        <div className="container-custom">
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-gray-900 mb-4">
               기업 성장 4단계 혁신 프레임워크
             </h2>
-            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
               기업의 성장 단계에 맞는 맞춤형 지원으로 지속 가능한 성장을 실현하세요
             </p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {growthStages.map((stage, index) => (
-              <Card key={index} className={`card-hover border-2 transition-all duration-300 
-                                          hover:shadow-xl ${stage.color} group`}>
+              <Card key={index} className={`rounded-2xl border-0 shadow-md transition-all duration-300 
+                                          hover:shadow-xl hover:-translate-y-2 ${stage.color} group`}>
                 <CardContent className="p-8 text-center">
                   <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {stage.icon}
@@ -753,10 +744,10 @@ export default function Home() {
                     <div className="text-2xl font-bold text-gray-800 mb-2">
                       {stage.step}
                     </div>
-                    <div className="text-sm text-gray-600 mb-3 badge-primary">
+                    <div className="text-sm text-gray-600 mb-3 bg-white/80 px-3 py-1 rounded-full inline-block">
                       {stage.period}
                     </div>
-                    <h3 className="text-h4 text-gray-900 mb-3">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
                       {stage.title}
                     </h3>
                     <p className="text-gray-700 text-sm">
@@ -780,14 +771,14 @@ export default function Home() {
       </section>
 
       {/* 실시간 성과 지표 - 토스 스타일 */}
-      <section className="section-padding bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="mobile-container">
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
-              <span className="text-overflow-safe">실시간 성과 지표</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-gray-900 mb-4">
+              <span>실시간 성과 지표</span>
             </h2>
-            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
-              M-CENTER와 함께한 기업들의 실제 성과를 확인하세요
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
+              AI-CAMP와 함께한 기업들의 실제 성과를 확인하세요
             </p>
           </div>
           
@@ -800,20 +791,20 @@ export default function Home() {
       </section>
 
       {/* 고객 추천 후기 - 토스 스타일 */}
-      <section className="section-padding bg-white">
-        <div className="mobile-container">
+      <section className="py-20 lg:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
-              <span className="text-overflow-safe">고객 성공 스토리</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-gray-900 mb-4">
+              <span>고객 성공 스토리</span>
             </h2>
-            <p className="text-body-lg text-gray-600 max-w-3xl mx-auto mobile-text">
-              M-CENTER를 선택한 기업들의 진솔한 경험담을 들어보세요
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
+              AI-CAMP를 선택한 기업들의 진솔한 경험담을 들어보세요
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="service-card-mobile bg-gradient-to-br from-white to-gray-50 hover:shadow-lg transition-all duration-300">
+              <Card key={index} className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg border-0 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 
@@ -821,9 +812,9 @@ export default function Home() {
                       {testimonial.avatar}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-gray-900 text-overflow-safe">{testimonial.name}</h4>
-                      <p className="text-sm text-gray-600 text-overflow-safe">{testimonial.title}</p>
-                      <p className="text-xs text-blue-600 font-medium text-overflow-safe">{testimonial.company}</p>
+                      <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                      <p className="text-sm text-gray-600">{testimonial.title}</p>
+                      <p className="text-xs text-blue-600 font-medium">{testimonial.company}</p>
                     </div>
                   </div>
                   
@@ -834,7 +825,7 @@ export default function Home() {
                   </div>
                   
                   <Quote className="w-8 h-8 text-blue-200 mb-4" />
-                  <p className="text-gray-700 italic leading-relaxed mobile-text">
+                  <p className="text-gray-700 italic leading-relaxed">
                     {testimonial.content}
                   </p>
                 </CardContent>
@@ -845,34 +836,34 @@ export default function Home() {
       </section>
 
       {/* 기업 성장 단계별 맞춤 전략 */}
-      <section className="section-padding bg-gradient-to-br from-gray-50 to-blue-50">
-        <div className="mobile-container">
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-h1 text-gray-900 mb-4 mobile-centered">
-              <span className="text-overflow-safe">기업 성장 단계별 맞춤 전략</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-gray-900 mb-4">
+              <span>기업 성장 단계별 맞춤 전략</span>
             </h2>
-            <p className="text-body-lg text-gray-600 max-w-4xl mx-auto mobile-text">
+            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto">
               창업부터 지속가능한 혁신까지, 각 단계에 최적화된 솔루션을 제공합니다
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {growthStages.map((stage, index) => (
-              <Card key={index} className={`service-card-mobile text-center ${stage.color} hover:shadow-lg transition-all duration-300`}>
+              <Card key={index} className={`bg-white rounded-3xl shadow-lg border-0 text-center ${stage.color} hover:shadow-xl hover:-translate-y-2 transition-all duration-300`}>
                 <CardContent className="p-6">
                   <div className="text-4xl mb-4">{stage.icon}</div>
                   <div className="bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 mb-4 inline-block">
-                    <span className="text-sm font-bold text-gray-700 text-overflow-safe">{stage.step}</span>
+                    <span className="text-sm font-bold text-gray-700">{stage.step}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 text-overflow-safe">{stage.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4 mobile-text">{stage.description}</p>
-                  <div className="text-xs text-blue-600 font-medium mb-4 text-overflow-safe">{stage.period}</div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{stage.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{stage.description}</p>
+                  <div className="text-xs text-blue-600 font-medium mb-4">{stage.period}</div>
                   
                   <div className="space-y-2">
                     {stage.features.map((feature, idx) => (
                       <div key={idx} className="flex items-center text-sm text-gray-700 justify-center">
                         <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                        <span className="text-overflow-safe">{feature}</span>
+                        <span>{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -882,21 +873,20 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-lg border border-blue-200 max-w-4xl mx-auto">
-              <h3 className="text-h3 text-gray-900 mb-4 mobile-centered">
-                <span className="text-overflow-safe">단계별 맞춤 전략 설계</span>
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-lg border-0 max-w-4xl mx-auto hover:shadow-xl transition-all duration-300">
+              <h3 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">
+                <span>단계별 맞춤 전략 설계</span>
               </h3>
-              <p className="text-gray-600 mb-6 mobile-text">
-                귀하의 기업이 현재 어느 단계에 있든, M-CENTER는 다음 성장을 위한 
+              <p className="text-gray-600 mb-6">
+                귀하의 기업이 현재 어느 단계에 있든, AI-CAMP는 다음 성장을 위한 
                 최적의 로드맵을 제시합니다
               </p>
               <Link href="/diagnosis">
-                {/* 🔥 개선된 우리 기업 성장 단계 진단받기 버튼 */}
-                <Button className="mobile-button btn-hero bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group">
+                <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl text-white px-8 py-4 rounded-full font-medium relative overflow-hidden group">
                   <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center">
                     <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-200" />
-                    <span className="text-overflow-safe">우리 기업 성장 단계 진단받기</span>
+                    <span>우리 기업 성장 단계 진단받기</span>
                   </span>
                 </Button>
               </Link>
@@ -906,20 +896,19 @@ export default function Home() {
       </section>
 
       {/* 무료 전문가 진단 섹션 - 프리미엄 표현 */}
-      <section id="ai-diagnosis" className="section-padding bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white">
-        <div className="container-custom">
+      <section id="ai-diagnosis" className="py-20 lg:py-32 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
               <Cpu className="w-5 h-5" />
               <span className="font-semibold">차세대 지능형 진단 시스템</span>
             </div>
             
-            <h2 className="text-h1 mb-6">
-              <Zap className="inline-block w-12 h-12 mr-4 text-yellow-400" />
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6">
               무료 전문가 진단 신청
             </h2>
             
-            <p className="text-body-lg max-w-4xl mx-auto text-blue-100">
+            <p className="text-xl md:text-2xl max-w-4xl mx-auto text-blue-100">
               복잡한 20여개 입력 항목을 <strong className="text-white">8개 핵심 정보</strong>로 혁신적 간소화!<br />
               2-3주 처리 시간을 <strong className="text-white">2-3분</strong>으로 혁명적 단축
             </p>
@@ -929,11 +918,11 @@ export default function Home() {
             {/* 개선 효과 비교 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               {[
-                { icon: Clock, title: '⚡ 처리 속도', before: '기존: 2-3주', after: '신규: 2-3분', improvement: '99.9% 단축', color: 'from-green-400 to-emerald-500' },
-                { icon: BarChart3, title: '📝 입력 항목', before: '기존: 20+ 항목', after: '신규: 8개 항목', improvement: '60% 간소화', color: 'from-blue-400 to-cyan-500' },
+                { icon: Clock, title: '처리 속도', before: '기존: 2-3주', after: '신규: 2-3분', improvement: '99.9% 단축', color: 'from-green-400 to-emerald-500' },
+                { icon: BarChart3, title: '입력 항목', before: '기존: 20+ 항목', after: '신규: 8개 항목', improvement: '60% 간소화', color: 'from-blue-400 to-cyan-500' },
                 { icon: FileText, title: '보고서', before: '기존: 5000자+', after: '신규: 전문가 진단보고서', improvement: '핵심 정보 집중', color: 'from-purple-400 to-pink-500' }
               ].map((item, index) => (
-                <Card key={index} className={`text-center p-6 bg-gradient-to-br ${item.color} text-white border-0`}>
+                                  <Card key={index} className={`text-center p-6 bg-gradient-to-br ${item.color} text-white border-0 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}>
                   <CardContent className="p-0">
                     <item.icon className="w-12 h-12 mx-auto mb-4" />
                     <h3 className="text-xl font-bold mb-3">{item.title}</h3>
@@ -950,9 +939,9 @@ export default function Home() {
             </div>
 
             {/* CTA 섹션 */}
-            <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
+            <Card className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
               <CardContent className="p-8 text-center">
-                <h3 className="text-h2 mb-4">
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-4 text-white">
                   지금 바로 무료 전문가 진단을 신청하세요!
                 </h3>
                 <p className="text-blue-100 mb-8 text-lg">
@@ -961,13 +950,12 @@ export default function Home() {
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
                   <Link href="/diagnosis">
-                    {/* 🔥 개선된 무료 전문가 진단 신청하기 버튼 */}
+                    {/* 개선된 무료 전문가 진단 신청하기 버튼 */}
                     <Button 
                       className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                     >
                       <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                       <span className="relative flex items-center">
-                        <Cpu className="w-5 h-5 mr-2 group-hover:animate-pulse transition-transform duration-200" />
                         무료 전문가 진단 신청하기
                       </span>
                     </Button>
@@ -992,7 +980,7 @@ export default function Home() {
         </div>
       </section>
 
-              {/* M교장 챗봇 인터페이스 */}
+              {/* AI-CAMP 교장 챗봇 인터페이스 */}
       <MCenterChatInterface
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
@@ -1006,7 +994,7 @@ export default function Home() {
             <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <Bot className="w-8 h-8 text-white animate-pulse" />
             </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">M교장 챗봇과 연결하기...</h3>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">AI-CAMP 교장 챗봇과 연결하기...</h3>
             <p className="text-gray-600 mb-4">잠시만 기다려 주세요</p>
             <div className="flex justify-center space-x-1">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>

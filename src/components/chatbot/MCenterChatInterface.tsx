@@ -73,7 +73,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
     }
   }, [isOpen, isMinimized]);
 
-  // 🌟 세계최고 이후경경영지도사 AI 상담 시스템 API 호출 함수
+      // 세계최고 이후경경영지도사 AI 상담 시스템 API 호출 함수
   const callMCenterAPI = async (userQuery: string): Promise<{ response: string; buttons?: Array<{ text: string; url: string; style: string; icon: string }> }> => {
     try {
       console.log('🧠 세계최고 이후경경영지도사 AI 호출 시작:', { 
@@ -81,7 +81,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
         messageLength: userQuery.length 
       });
       
-      // 🎯 새로운 고도화된 이후경경영지도사 AI API 호출
+      // 새로운 고도화된 이후경경영지도사 AI API 호출
       const response = await fetch('/api/chat-lee-hukyung', {
         method: 'POST',
         headers: {
@@ -106,7 +106,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
 
       const data = await response.json();
       
-      console.log('✅ 이후경경영지도사 AI 응답 성공:', { 
+      console.log('이후경경영지도사 AI 응답 성공:', { 
         complexity: data.complexity,
         responseLength: data.responseLength || data.response?.length || 0,
         hasButtons: !!data.buttons,
@@ -211,7 +211,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
     setIsLoading(true);
 
     try {
-      // 🔥 이후경 경영지도사 직접 응답 API 호출
+      // 이후경 경영지도사 직접 응답 API 호출
       const aiResponseData = await callMCenterAPI(currentInput);
       
       const aiMessage: Message = {
@@ -224,7 +224,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error('M-CENTER Response Error:', error);
+              console.error('AI-CAMP Response Error:', error);
       // 에러 발생시 폴백 응답
       const fallbackMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -349,7 +349,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
                         </p>
                       </div>
                       
-                      {/* 🔥 상담신청 버튼들 렌더링 */}
+                      {/* 상담신청 버튼들 렌더링 */}
                       {message.sender === 'ai' && message.buttons && message.buttons.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">
                           {message.buttons.map((button, index) => (
@@ -458,7 +458,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
                 ))}
               </div>
               
-              {/* 🌟 세계최고 이후경경영지도사 AI 상태 표시 */}
+              {/* 세계최고 이후경경영지도사 AI 상태 표시 */}
               <div className="flex items-center justify-center mt-2 text-xs text-gray-500">
                 <Brain className="w-3 h-3 mr-1 text-purple-500 animate-pulse" />
                 <span>AICAMP 이후경 AI • 28년 경험 + 고도화 분석 시스템</span>

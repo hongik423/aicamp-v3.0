@@ -187,7 +187,7 @@ export default function ChatbotPage() {
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 
                             rounded-3xl mb-8 shadow-xl animate-bounce-gentle">
               <img 
-                src={getImagePath('/star-counselor-icon.svg')}
+                src={getImagePath('/counselor-icon.svg')}
                 alt="별 AI 상담사" 
                 className="w-12 h-12"
               />
@@ -200,7 +200,7 @@ export default function ChatbotPage() {
             
             <h1 className="text-hero text-gray-900 mb-6 animate-slide-in">
               <Sparkles className="inline-block w-16 h-16 mr-4 text-yellow-500" />
-              M교장과 채팅
+              AI-CAMP 교장과 채팅
             </h1>
             
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in mb-8"
@@ -238,7 +238,7 @@ export default function ChatbotPage() {
                   <Bot className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xl font-bold">M-CENTER AI 상담센터</span>
+                  <span className="text-xl font-bold">AI-CAMP AI 상담센터</span>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-sm bg-white/20 px-2 py-1 rounded-full">25년 전문 노하우</span>
                     <span className="text-sm bg-green-500 px-2 py-1 rounded-full">● 온라인</span>
@@ -354,7 +354,7 @@ export default function ChatbotPage() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-400">
-                    💡 **팁**: "매출 증대", "AI 활용", "공장구매", "기술창업" 등에 대해 물어보세요!
+                    💡 **팁**: "매출 증대", "AI 활용", "정책자금", "기술창업" 등에 대해 물어보세요!
                   </p>
                 </div>
               </div>
@@ -414,7 +414,7 @@ export default function ChatbotPage() {
                     },
                     {
                       icon: '🏭',
-                      title: '공장구매 컨설팅',
+                      title: '정책자금 컨설팅',
                       features: ['투자비 40% 절약', '전문가 동행', '리스크 관리'],
                       color: 'bg-gradient-to-br from-orange-50 to-red-50'
                     },

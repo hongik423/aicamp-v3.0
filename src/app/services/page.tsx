@@ -90,7 +90,7 @@ const services = [
   },
   {
     id: 'factory-auction',
-    title: '경매활용 공장구매',
+    title: '정책자금 확보',
     subtitle: '시장가 대비 40% 절약',
     description: '경매 활용 스마트 투자 전략',
     icon: Factory,
@@ -273,21 +273,21 @@ export default function ServicesPage() {
     : services.filter(service => service.id.includes(selectedCategory));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 smooth-scroll">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:bg-gray-900 smooth-scroll">
       <Header />
       
       {/* 히어로 섹션 - 모바일 최적화 */}
       <section className="mobile-container py-16 lg:py-24 safe-area-top">
         <div className="text-center mb-12 lg:mb-16">
-          <h1 className="text-mobile-3xl lg:text-6xl font-bold text-gray-900 mb-6 mobile-centered">
+          <h1 className="text-mobile-3xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 mobile-centered">
             <span className="text-overflow-safe">AICAMP</span>
             <br />
-            <span className="text-overflow-safe bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-overflow-safe bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
               프리미엄 컨설팅 서비스
             </span>
           </h1>
           
-          <p className="text-mobile-lg lg:text-xl text-gray-600 mb-8 max-w-4xl mx-auto mobile-text">
+          <p className="text-mobile-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto mobile-text">
             25년 전문가 경험과 최신 AI 기술로 기업의 성장 잠재력을 최대화합니다.<br />
             매출 증대부터 디지털 혁신까지, 맞춤형 솔루션을 제공합니다.
           </p>
@@ -319,12 +319,12 @@ export default function ServicesPage() {
               { number: '25년', label: '전문가 경험', icon: Award },
               { number: '300%', label: '평균 매출 증대', icon: TrendingUp }
             ].map((stat, index) => (
-              <div key={index} className="mobile-card bg-white text-center">
-                <stat.icon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <div className="text-mobile-2xl font-bold text-gray-900 mb-1 text-overflow-safe">
+              <div key={index} className="mobile-card bg-white dark:bg-gray-800 text-center">
+                <stat.icon className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+                <div className="text-mobile-2xl font-bold text-gray-900 dark:text-white mb-1 text-overflow-safe">
                   {stat.number}
                 </div>
-                <p className="text-mobile-sm text-gray-600 mobile-text">{stat.label}</p>
+                <p className="text-mobile-sm text-gray-600 dark:text-gray-300 mobile-text">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -334,18 +334,18 @@ export default function ServicesPage() {
       {/* 서비스 카드 섹션 - 사용자 중심 완전 개선 */}
       <section className="mobile-container py-16 lg:py-24">
         <div className="text-center mb-12 lg:mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 
-                          text-blue-700 rounded-full font-semibold text-sm mb-6 animate-bounce-gentle">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50
+                          text-blue-700 dark:text-blue-400 rounded-full font-semibold text-sm mb-6 animate-bounce-gentle">
             <Star className="w-4 h-4" />
             <span className="text-overflow-safe">검증된 성과 보장</span>
           </div>
           
-          <h2 className="text-mobile-2xl lg:text-4xl font-bold text-gray-900 mb-6 mobile-centered">
+          <h2 className="text-mobile-2xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6 mobile-centered">
             <span className="text-overflow-safe">6대 핵심 서비스</span>
           </h2>
-          <p className="text-mobile-base lg:text-lg text-gray-600 max-w-4xl mx-auto mobile-text">
-            <strong className="text-blue-600">25년 전문가 경험</strong>과 <strong className="text-purple-600">최신 AI 기술</strong>로<br />
-            기업별 맞춤 솔루션 제공 → <strong className="text-green-600">확실한 성과 보장</strong>
+          <p className="text-mobile-base lg:text-lg text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mobile-text">
+            <strong className="text-blue-600 dark:text-blue-400">25년 전문가 경험</strong>과 <strong className="text-purple-600 dark:text-blue-300">최신 AI 기술</strong>로<br />
+            기업별 맞춤 솔루션 제공 → <strong className="text-green-600 dark:text-green-400">확실한 성과 보장</strong>
           </p>
         </div>
         

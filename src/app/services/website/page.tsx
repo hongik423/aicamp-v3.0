@@ -50,10 +50,64 @@ import {
   BookOpen,
   Headphones
 } from 'lucide-react';
+import HeroSection from '@/components/ui/hero-section';
 
 export default function WebsitePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // 히어로 섹션 데이터
+  const heroData = {
+    badge: {
+      icon: Bot,
+      text: "AI 챗봇 임베디드 포함 - 세무사 고객을 위한 디지털 혁신 솔루션"
+    },
+    title: "확실하게 뒷받침",
+    subtitle: "매출증대 웹사이트를",
+    description: "고객사의 온라인 매출 30-50% 증대로 세무사의 수수료 수익도 함께 성장합니다. 24시간 365일 AI 챗봇 자동 응대 시스템으로 디지털 혁신을 실현하세요",
+    stats: [
+      {
+        value: "30-50%",
+        label: "온라인 매출 증대",
+        description: "AI 챗봇 임베디드 효과",
+        icon: TrendingUp,
+        color: "text-green-600",
+        trend: "상승"
+      },
+      {
+        value: "12-18개월",
+        label: "투자 회수 기간",
+        description: "기존 3-5년 → 단축",
+        icon: Clock,
+        color: "text-blue-600",
+        trend: "단축"
+      },
+      {
+        value: "95%",
+        label: "AI 챗봇 응답률",
+        description: "24시간 365일 자동 응대",
+        icon: Bot,
+        color: "text-purple-600",
+        trend: "고성능"
+      },
+      {
+        value: "실시간",
+        label: "세무 연동 시스템",
+        description: "매출 데이터 세무사 연동",
+        icon: Building2,
+        color: "text-orange-600",
+        trend: "통합"
+      }
+    ],
+    primaryCTA: {
+      text: "무료 상담 신청",
+      href: "/consultation"
+    },
+    secondaryCTA: {
+      text: "38단계 디지털 성숙도 진단",
+      href: "/diagnosis"
+    }
+  };
 
   // 핵심 가치 제안 - 세무사 고객을 위한 디지털 혁신 솔루션
   const coreValues = [
@@ -300,136 +354,27 @@ export default function WebsitePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Hero Section */}
-      <section className="py-12 md:py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-indigo-600/10"></div>
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-6xl mx-auto">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => router.push('/services')}
-                className="p-0 h-auto font-normal hover:text-purple-600"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                서비스 목록
-              </Button>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-purple-600 font-medium">매출증대 웹사이트 구축</span>
-            </div>
+      {/* 통일된 히어로 섹션 */}
+      <HeroSection {...heroData} />
 
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 px-4 py-2 rounded-full mb-6">
-                  <Bot className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-800">AI 챗봇 임베디드 포함 - 세무사 고객을 위한 디지털 혁신 솔루션</span>
-                </div>
-                
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-                  <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                    매출증대 웹사이트 구축
-                  </span>
-                  <br />
-                  <span className="text-2xl md:text-3xl lg:text-4xl text-gray-700">
-                    AI 챗봇 임베디드
-                  </span>
-                </h1>
-                
-                <p className="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
-                  <strong className="text-purple-600">"고객사의 온라인 매출 30-50% 증대로 세무사의 수수료 수익도 함께 성장합니다"</strong>
-                  <br />24시간 365일 AI 챗봇 자동 응대 시스템으로 디지털 혁신을 실현하세요.
-                </p>
-
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100">
-                    <div className="text-2xl font-bold text-purple-600">30-50%</div>
-                    <div className="text-sm text-gray-600">온라인 매출 증대</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-indigo-100">
-                    <div className="text-2xl font-bold text-indigo-600">12-18개월</div>
-                    <div className="text-sm text-gray-600">투자 회수 기간</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-green-100">
-                    <div className="text-2xl font-bold text-green-600">95%</div>
-                    <div className="text-sm text-gray-600">AI 챗봇 응답률</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-orange-100">
-                    <div className="text-2xl font-bold text-orange-600">실시간</div>
-                    <div className="text-sm text-gray-600">세무 연동 시스템</div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-                    onClick={() => router.push('/consultation')}
-                  >
-                    <Bot className="w-5 h-5 mr-2" />
-                    무료 상담 신청
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    size="lg"
-                    className="px-8 py-4 border-2 border-purple-200 hover:bg-purple-50"
-                    onClick={() => router.push('/diagnosis')}
-                  >
-                    <Search className="w-5 h-5 mr-2" />
-                    38단계 디지털 성숙도 진단
-                  </Button>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 border border-purple-100">
-                  <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center mr-4">
-                      <Globe className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">AI 챗봇 임베디드 시스템</h3>
-                      <p className="text-sm text-gray-600">세무사 고객을 위한 디지털 혁신 솔루션</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <div className="text-lg font-bold text-purple-600">기존 웹사이트</div>
-                      <div className="text-xs text-gray-600 mt-1">브로셔 수준 역할</div>
-                    </div>
-                    <div className="text-center p-3 bg-indigo-50 rounded-lg">
-                      <div className="text-lg font-bold text-indigo-600">AI 임베디드</div>
-                      <div className="text-xs text-gray-600 mt-1">직접적인 매출 창출</div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">고객 응대</span>
-                      <span className="font-semibold text-purple-600">24시간 365일</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">매출 기여</span>
-                      <span className="font-semibold text-green-600">직접적 창출</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">세무 연계</span>
-                      <span className="font-semibold text-indigo-600">완전 통합</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2">
-                      <span className="text-gray-600">투자 회수</span>
-                      <span className="font-semibold text-orange-600">12-18개월</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Breadcrumb */}
+      <section className="bg-white py-4 border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => router.push('/services')}
+              className="p-0 h-auto font-normal hover:text-purple-600"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              서비스 목록
+            </Button>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-purple-600 font-medium">매출증대 웹사이트 구축</span>
           </div>
         </div>
       </section>

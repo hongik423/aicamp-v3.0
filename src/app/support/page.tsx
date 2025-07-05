@@ -333,7 +333,7 @@ export default function SupportPage() {
                     </div>
                     
                     <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
-                      M-CENTER 세미나 영상
+                      AI-CAMP 세미나 영상
                     </h3>
                     
                     <p className="text-lg text-gray-600 mb-6 leading-relaxed">

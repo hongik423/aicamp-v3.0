@@ -491,7 +491,7 @@ export default function ConsultationPage() {
                         <SelectContent className="rounded-2xl border-gray-200 shadow-2xl bg-white/95 backdrop-blur-sm">
                           <SelectItem value="business-analysis">📊 BM ZEN 사업분석</SelectItem>
                           <SelectItem value="ai-productivity">🤖 AI실무활용 생산성향상</SelectItem>
-                          <SelectItem value="factory-auction">🏭 경매활용 공장구매</SelectItem>
+                          <SelectItem value="factory-auction">💰 정책자금 확보</SelectItem>
                           <SelectItem value="tech-startup">🚀 기술사업화/기술창업</SelectItem>
                           <SelectItem value="certification">🏆 인증지원</SelectItem>
                           <SelectItem value="website">🌐 웹사이트 구축</SelectItem>
@@ -655,7 +655,7 @@ export default function ConsultationPage() {
                   <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
                     <User className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="font-bold text-xl text-gray-900 mb-1">이후경 M교장</h3>
+                  <h3 className="font-bold text-xl text-gray-900 mb-1">이후경 AI-CAMP 교장</h3>
                   <p className="text-gray-600 font-medium">25년 경험 전문가</p>
                 </div>
 
@@ -682,7 +682,7 @@ export default function ConsultationPage() {
                   {[
                     { title: 'BM ZEN 사업분석', desc: '혁신 프레임워크', color: 'text-blue-600', link: '/services/business-analysis' },
                     { title: 'AI 생산성 향상', desc: '정부 100% 지원', color: 'text-purple-600', link: '/services/ai-productivity' },
-                    { title: '공장구매 절약', desc: '40% 비용절감', color: 'text-orange-600', link: '/services/factory-auction' },
+                    { title: '정책자금 확보', desc: '5억원 지원', color: 'text-orange-600', link: '/services/factory-auction' },
                     { title: '기술창업 지원', desc: '5억원 자금확보', color: 'text-green-600', link: '/services/tech-startup' }
                   ].map((service, index) => (
                     <a 

@@ -5,7 +5,6 @@ import Providers from './providers';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { InstallPrompt } from '@/components/ui/install-prompt';
 import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvider';
 
@@ -15,7 +14,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === 'production' 
-    ? process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app'
+            ? process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app'
     : 'http://localhost:3000'
   ),
   title: {
@@ -45,14 +44,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
-    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app',
-    title: 'M-CENTER | AI 기업진단 및 경영컨설팅',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app',
+    title: 'AI-CAMP | AI 기업진단 및 경영컨설팅',
     description: 'AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
-    siteName: 'M-CENTER',
+    siteName: 'AI-CAMP',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'M-CENTER | AI 기업진단 및 경영컨설팅',
+          title: 'AI-CAMP | AI 기업진단 및 경영컨설팅',
     description: 'AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
   },
   verification: {
@@ -66,7 +65,7 @@ function RootLayoutContent({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-aicamp-navy-dark transition-colors duration-300" suppressHydrationWarning>
+    <div className="min-h-screen flex flex-col bg-white" suppressHydrationWarning>
       <ServiceWorkerProvider />
       <Header />
       <main className="flex-1" suppressHydrationWarning>
@@ -87,15 +86,15 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* 🔧 UTF-8 인코딩 명시적 설정 - GitHub Pages 한글 깨짐 방지 */}
+        {/* UTF-8 인코딩 명시적 설정 - GitHub Pages 한글 깨짐 방지 */}
         <meta charSet="UTF-8" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta httpEquiv="Content-Language" content="ko" />
         
-        {/* 🔧 모바일 뷰포트 최적화 */}
+                  {/* 모바일 뷰포트 최적화 */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         
-        {/* 🔧 최적화된 캐시 설정 */}
+                  {/* 최적화된 캐시 설정 */}
         <meta name="version" content="2.0" />
         
         {/* 🔧 한글 폰트 최적화 - Pretendard만 사용 */}
@@ -109,7 +108,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//generativelanguage.googleapis.com" />
         
         {/* PWA 메타 태그 */}
-        <meta name="theme-color" content="#001c40" />
+        <meta name="theme-color" content="#ffffff" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -123,18 +122,16 @@ export default function RootLayout({
         <link rel="apple-touch-startup-image" href="/images/AICAMP로고.png" />
         
         {/* Vercel 배포 최적화 설정 */}
-        <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://m-center-landingpage.vercel.app'} />
+        <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app'} />
         
 
       </head>
-      <body className={`${inter.className} bg-white dark:bg-aicamp-navy-dark transition-colors duration-300`} suppressHydrationWarning>        
-        <ThemeProvider defaultTheme="dark">
-          <Providers>
-            <RootLayoutContent>
-              {children}
-            </RootLayoutContent>
-          </Providers>
-        </ThemeProvider>
+      <body className={`${inter.className} bg-white`} suppressHydrationWarning>        
+        <Providers>
+          <RootLayoutContent>
+            {children}
+          </RootLayoutContent>
+        </Providers>
       </body>
     </html>
   );

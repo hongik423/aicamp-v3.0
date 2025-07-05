@@ -141,9 +141,9 @@ export function PhoneInput({
       {label && (
         <Label 
           htmlFor={label?.replace(/\s/g, '')}
-          className="flex items-center gap-2 text-sm font-medium text-gray-700"
+          className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200"
         >
-          <Phone className="w-4 h-4 text-green-500" />
+          <Phone className="w-4 h-4" />
           {label}
           {required && <span className="text-red-500">*</span>}
         </Label>
@@ -242,8 +242,13 @@ export function PhoneInput({
 
       {/* 포커스 시 사용법 안내 */}
       {isFocused && !error && (
-        <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded border">
-          💡 숫자만 입력하세요. 하이픈(-)은 자동으로 추가됩니다.
+        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded border">
+          <p className="font-medium">전화번호 입력 형식:</p>
+          <ul className="mt-1 space-y-1">
+            <li>• 휴대폰: 010-1234-5678</li>
+            <li>• 일반전화: 010-9251-9743</li>
+            <li>• 지역번호 포함 필수</li>
+          </ul>
         </div>
       )}
     </div>

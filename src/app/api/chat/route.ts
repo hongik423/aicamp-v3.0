@@ -95,7 +95,7 @@ const LEE_HUKYUNG_RESPONSES = {
 
   'factory-auction': {
     responses: [
-      `경매를 통한 공장구매에 관심이 있으시군요. 
+      `정책자금 확보에 관심이 있으시군요. 
 
       25년간 부동산 경매 분야에서 쌓은 노하우로 많은 기업들이 큰 절약 효과를 보고 있습니다.
       
@@ -327,7 +327,7 @@ function identifyQuestionType(message: string): string {
     return 'business-analysis';
   }
   
-  if (/경매|공장구매|부동산|공장|임대료|자가|투자|부동산비용/i.test(lowerMessage)) {
+      if (/정책자금|정부지원|자금조달|경매|부동산|공장|임대료|자가|투자|부동산비용/i.test(lowerMessage)) {
     return 'factory-auction';
   }
   
@@ -409,7 +409,7 @@ function generateDirectResponse(message: string): { response: string; buttons?: 
       🎯 전문 상담 분야:
       • BM ZEN 사업분석 (신규사업 성공률 95%)
       • AI 생산성향상 (20-99인 기업 100% 무료)
-      • 경매활용 공장구매 (30-50% 절감)
+      • 정책자금 확보 (5억원 지원)
       • 기술사업화/창업 (평균 5억원 지원)
       • 인증지원 (연간 5천만원 세제혜택)
       • 웹사이트 구축 (매출 300-500% 증대)
@@ -473,7 +473,7 @@ function generateDirectResponse(message: string): { response: string; buttons?: 
       🎯 M-CENTER 주요 서비스:
       • BM ZEN 사업분석 (신규사업 성공률 95%)
       • AI 생산성향상 (20-99인 기업 100% 무료)
-      • 경매활용 공장구매 (30-50% 절감)
+      • 정책자금 확보 (5억원 지원)
       • 기술사업화/창업 (평균 5억원 지원)
       • 인증지원 (연간 5천만원 세제혜택)
       • 웹사이트 구축 (매출 300-500% 증대)
@@ -593,7 +593,7 @@ export async function GET(request: NextRequest) {
       services: [
         'BM ZEN 사업분석',
         'AI 생산성향상', 
-        '경매활용 공장구매',
+        '정책자금 확보',
         '기술사업화/창업',
         '인증지원',
         '웹사이트 구축',

@@ -24,7 +24,8 @@ import {
   Clock,
   User,
   Zap,
-  ArrowRight
+  ArrowRight,
+  MessageCircle
 } from 'lucide-react';
 
 // 전역 타입 정의
@@ -484,8 +485,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
               </Button>
               
               <div className="text-center lg:text-right">
-                <p className="text-xs text-gray-600 font-medium">
-                  클릭 한 번으로 간편 신고! 👆
+                <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+                  피드백을 통해 더 나은 서비스를 만들어갑니다
                 </p>
                 <p className="text-xs text-red-600 font-bold animate-pulse">
                   ⚡ 즉시 개발팀 알림
@@ -583,8 +584,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 🔴 Step 1: 이메일 주소 */}
           <div className="space-y-3">
-            <Label htmlFor="userEmail" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Mail className="w-4 h-4" />
+            <Label htmlFor="userEmail" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+              <User className="w-4 h-4" />
               <span>이메일 주소</span>
               <Badge variant="destructive" className="text-xs h-5">필수</Badge>
             </Label>
@@ -610,14 +611,14 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
                 {validationState.userEmail.message}
               </p>
             )}
-            <p className="text-xs text-gray-600 bg-blue-50 p-2 rounded-lg border-l-4 border-blue-400">
-              💌 피드백에 대한 답변을 받으실 이메일 주소입니다. 개인정보는 안전하게 보호됩니다.
+            <p className="text-xs text-gray-600 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border-l-4 border-blue-400">
+              답변을 받고 싶으시면 이메일 주소를 입력해주세요
             </p>
           </div>
 
           {/* 🔴 Step 2: 피드백 유형 선택 */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            <Label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
               <MessageSquare className="w-4 h-4" />
               <span>피드백 유형</span>
               <Badge variant="destructive" className="text-xs h-5">필수</Badge>
@@ -650,8 +651,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
                   </div>
                   
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium text-gray-900">{type.label}</span>
-                    <span className="text-xs text-gray-600">{type.description}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{type.label}</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-300">{type.description}</span>
                   </div>
                 </label>
               ))}
@@ -668,9 +669,9 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
 
                      {/* 🔴 Step 3: 문제 설명 */}
            <div className="space-y-3">
-             <Label htmlFor="issueDescription" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-               <AlertTriangle className="w-4 h-4" />
-               <span>문제 설명</span>
+             <Label htmlFor="issueDescription" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+               <MessageSquare className="w-4 h-4" />
+               <span>상세 설명</span>
                <Badge variant="destructive" className="text-xs h-5">필수</Badge>
              </Label>
             <div className="relative">
@@ -687,8 +688,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
                 className={`${getFieldStyles('issueDescription')} transition-all resize-none`}
                 required
               />
-              <div className="absolute bottom-2 right-2 text-xs text-gray-400">
-                {formData.issueDescription.length}/1000
+              <div className="absolute bottom-2 right-2 text-xs text-gray-400 dark:text-gray-500">
+                {formData.issueDescription.length}/500
               </div>
             </div>
             {validationState.issueDescription.message && (
@@ -711,8 +712,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="expectedBehavior" className="text-sm font-medium text-gray-700">
-                    기대한 동작
+                  <Label htmlFor="expectedBehavior" className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    기대했던 동작
                   </Label>
                   <Textarea
                     id="expectedBehavior"
@@ -724,8 +725,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="actualBehavior" className="text-sm font-medium text-gray-700">
-                    실제 동작
+                  <Label htmlFor="actualBehavior" className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    실제 발생한 동작
                   </Label>
                   <Textarea
                     id="actualBehavior"
@@ -739,8 +740,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="stepsToReproduce" className="text-sm font-medium text-gray-700">
-                  재현 단계
+                <Label htmlFor="stepsToReproduce" className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  문제 재현 단계
                 </Label>
                 <Textarea
                   id="stepsToReproduce"
@@ -758,8 +759,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
 
               {/* 심각도 선택 */}
               <div className="space-y-3">
-                <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Zap className="w-4 h-4" />
+                <Label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+                  <AlertTriangle className="w-4 h-4" />
                   <span>심각도</span>
                   <Badge variant="destructive" className="text-xs h-5">필수</Badge>
                 </Label>
@@ -789,7 +790,7 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
                       )}
                       
                       <span className="font-medium text-sm">{severity.label}</span>
-                      <span className="text-xs text-gray-600 text-center">{severity.description}</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-300 text-center">{severity.description}</span>
                     </label>
                   ))}
                 </div>
@@ -807,8 +808,8 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
 
           {/* 추가 의견 */}
           <div className="space-y-3">
-            <Label htmlFor="additionalComments" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Lightbulb className="w-4 h-4" />
+            <Label htmlFor="additionalComments" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+              <MessageCircle className="w-4 h-4" />
               <span>추가 의견</span>
               <Badge variant="secondary" className="text-xs h-5">선택사항</Badge>
             </Label>
@@ -864,7 +865,7 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
           {/* 제출 버튼 */}
           <div className="bg-gray-50 p-4 rounded-xl border">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="text-xs text-gray-600 space-y-1">
+              <div className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                 <div className="flex items-center gap-2">
                   <User className="w-3 h-3" />
                   <span>담당자: 이후경 경영지도사 (hongik423@gmail.com)</span>

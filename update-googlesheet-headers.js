@@ -13,7 +13,7 @@ function updateDiagnosisSheetHeaders() {
     console.log('🔄 진단시트 헤더 업데이트 시작...');
     
     // 스프레드시트 열기
-    const SPREADSHEET_ID = '1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug';
+    const SPREADSHEET_ID = '1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00';
     const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
     const diagnosisSheet = spreadsheet.getSheetByName('AI_진단신청');
     

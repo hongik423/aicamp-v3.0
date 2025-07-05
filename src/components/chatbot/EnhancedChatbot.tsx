@@ -196,11 +196,11 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `안녕하세요! M-CENTER의 전문상담사입니다.
+              content: `안녕하세요! AI-CAMP의 전문상담사입니다.
 
-        저는 28년간 수많은 기업과 함께 성장해온 이후경 M교장의 노하우를 바탕으로 상담해드리고 있어요.
+저는 28년간 수많은 기업과 함께 성장해온 이후경 AI-CAMP 교장의 노하우를 바탕으로 상담해드리고 있어요.
 
-실제 검증된 성과로 증명하는 M-CENTER
+실제 검증된 성과로 증명하는 AI-CAMP
 
 한국정밀기계 고객사와 함께 이뤄낸 놀라운 변화:
 - 생산성 42% 향상 (하루 100개 → 142개 생산)
@@ -212,7 +212,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 1. BM ZEN 5단계 프레임워크 - 실제 검증된 혁신 방법론
 2. 일터혁신 상생컨설팅 - 고용노동부 20-99인 기업 100% 무료 지원
 3. AI 기반 스마트 생산시스템 - 96.8% 정확도 보장
-4. 경매활용 공장구매 - 25년 노하우로 30-50% 비용 절감
+      4. 정책자금 확보 - 25년 노하우로 평균 5억원 정부지원
 5. 전문 세금계산기 11종 - 2024년 최신 세법 완벽 반영
 
 28년간 현장에서 쌓아온 경험과 노하우로 고객사들의 성공을 함께 만들어가고 있습니다.
@@ -420,14 +420,14 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                           <CardTitle className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
-                    src={getImagePath('/star-counselor-icon.svg')} 
+                    src={getImagePath('/counselor-icon.svg')} 
                     alt="전문상담사" 
                     className="w-10 h-10 rounded-full"
                   />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">M-CENTER 전문상담사</h2>
-                  <p className="text-sm text-gray-600">⭐ 이후경 M교장 28년 노하우</p>
+                                      <h2 className="text-xl font-bold">AI-CAMP 전문상담사</h2>
+                  <p className="text-sm text-gray-600">⭐ 이후경 AI-CAMP 교장 28년 노하우</p>
                 </div>
               <div className="ml-auto flex items-center gap-2">
                 <Badge 
@@ -453,7 +453,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 {message.sender === 'bot' && (
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ backgroundColor: '#4285F4' }}>
                     <img 
-                      src={getImagePath('/star-counselor-icon.svg')} 
+                      src={getImagePath('/counselor-icon.svg')} 
                       alt="전문상담사" 
                       className="w-8 h-8 rounded-full"
                     />
@@ -540,8 +540,8 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
-                    src={getImagePath('/star-counselor-icon.svg')} 
-                    alt="M교장" 
+                    src={getImagePath('/counselor-icon.svg')} 
+                    alt="AI-CAMP 교장" 
                     className="w-8 h-8 rounded-full"
                   />
                 </div>
@@ -618,7 +618,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputValue)}
-                placeholder="M-CENTER AI 상담사에게 질문해보세요..."
+                                  placeholder="AI-CAMP AI 상담사에게 질문해보세요..."
                 className="pr-12"
                 disabled={isTyping || connectionStatus === 'error'}
               />

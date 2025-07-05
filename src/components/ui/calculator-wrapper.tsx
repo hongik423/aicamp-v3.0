@@ -104,8 +104,8 @@ export function CalculatorWrapper({
               <Icon className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              <p className="text-gray-600">{description}</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
+              <p className="text-gray-600 dark:text-gray-300">{description}</p>
             </div>
           </div>
         </div>
@@ -146,8 +146,8 @@ export function CalculatorWrapper({
                   1
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">정확한 정보 입력</h4>
-                  <p className="text-sm text-gray-600">필수 입력값을 정확히 입력하세요</p>
+                  <h4 className="font-medium text-gray-900 dark:text-white">정확한 정보 입력</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">필수 입력값을 정확히 입력하세요</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -155,8 +155,8 @@ export function CalculatorWrapper({
                   2
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">단계별 진행</h4>
-                  <p className="text-sm text-gray-600">각 단계를 순서대로 완료하세요</p>
+                  <h4 className="font-medium text-gray-900 dark:text-white">단계별 진행</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">각 단계를 순서대로 완료하세요</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -164,8 +164,8 @@ export function CalculatorWrapper({
                   3
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">결과 확인</h4>
-                  <p className="text-sm text-gray-600">계산 결과와 절세 방법을 확인하세요</p>
+                  <h4 className="font-medium text-gray-900 dark:text-white">결과 확인</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">계산 결과와 절세 방법을 확인하세요</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -173,8 +173,8 @@ export function CalculatorWrapper({
                   4
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">보고서 출력</h4>
-                  <p className="text-sm text-gray-600">필요시 계산 보고서를 출력하세요</p>
+                  <h4 className="font-medium text-gray-900 dark:text-white">보고서 출력</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">필요시 계산 보고서를 출력하세요</p>
                 </div>
               </div>
             </div>

@@ -153,8 +153,8 @@ export function getLogoPath(): string {
 }
 
 /**
- * AICAMP 센터장 이미지 랜덤 선택 함수
- * aicamp_leader.png와 aicamp_leader2.jpg 중 랜덤하게 선택
+ * AICAMP 센터장 이미지 선택 함수
+ * aicamp_leader.png와 aicamp_leader2.jpg 중 시간 기반으로 선택
  */
 export function getRandomLeaderImage(): string {
   const images = [
@@ -162,10 +162,12 @@ export function getRandomLeaderImage(): string {
     '/images/aicamp_leader2.jpg'
   ];
   
-  // 현재 시간을 기반으로 한 간단한 랜덤 선택
-  // 페이지 로드마다 다른 이미지가 나올 수 있도록
-  const randomIndex = Math.floor(Math.random() * images.length);
-  return getImagePath(images[randomIndex]);
+  // Hydration 오류를 방지하기 위해 시간 기반 선택 (서버와 클라이언트에서 동일)
+  // 시간대별로 다른 이미지 표시 (12시간마다 변경)
+  const hours = new Date().getHours();
+  const imageIndex = Math.floor(hours / 12) % images.length;
+  
+  return getImagePath(images[imageIndex]);
 }
 
 /**
@@ -177,21 +179,13 @@ export function getSessionLeaderImage(): string {
     '/images/aicamp_leader2.jpg'
   ];
   
-  // localStorage를 사용하여 세션 동안 동일한 이미지 유지
-  if (typeof window !== 'undefined') {
-    let selectedImage = localStorage.getItem('aicamp-leader-image');
-    
-    if (!selectedImage || !images.includes(selectedImage)) {
-      const randomIndex = Math.floor(Math.random() * images.length);
-      selectedImage = images[randomIndex];
-      localStorage.setItem('aicamp-leader-image', selectedImage);
-    }
-    
-    return getImagePath(selectedImage);
-  }
+  // Hydration 오류를 방지하기 위해 서버와 클라이언트 모두에서 동일한 이미지 사용
+  // 날짜 기반으로 일관된 이미지 선택
+  const today = new Date();
+  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+  const imageIndex = dayOfYear % images.length;
   
-  // 서버 사이드에서는 첫 번째 이미지 사용
-  return getImagePath(images[0]);
+  return getImagePath(images[imageIndex]);
 }
 
 /**

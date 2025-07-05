@@ -452,7 +452,7 @@ const mCenterServices = {
     successRate: '98%'
   },
   'factory-auction': {
-    name: '경매활용 공장구매',
+          name: '정책자금 확보',
     description: '부동산 경매를 통한 고정비 절감',
     expectedEffect: '부동산비용 30-50% 절감',
     duration: '3-6개월',
@@ -516,8 +516,8 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
     }
   }
   
-  // 고민사항 분석 가산점
-  const concerns = data.mainConcerns.toLowerCase();
+  // 고민사항 분석 가산점 (안전한 접근)
+  const concerns = (data.mainConcerns || '').toLowerCase();
   if (concerns.includes('수익') || concerns.includes('매출')) businessModelScore += 8;
   if (concerns.includes('비즈니스') || concerns.includes('모델')) businessModelScore += 5;
   
@@ -607,8 +607,8 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
     }
   }
   
-  // 예상혜택 분석
-  const benefits = data.expectedBenefits.toLowerCase();
+  // 예상혜택 분석 (안전한 접근)
+  const benefits = (data.expectedBenefits || '').toLowerCase();
   if (benefits.includes('성장') || benefits.includes('확장')) growthPotentialScore += 10;
   if (benefits.includes('혁신') || benefits.includes('개선')) growthPotentialScore += 7;
   
@@ -706,10 +706,10 @@ function calculateDetailedScore(data: SimplifiedDiagnosisRequest): {
   // 신뢰도 계산 (데이터 품질, 응답 완성도 등)
   let reliabilityScore = 75; // 기본 신뢰도
   
-  // 응답 품질에 따른 신뢰도 조정
-  if (data.mainConcerns.length > 100) reliabilityScore += 10;
-  if (data.expectedBenefits.length > 50) reliabilityScore += 5;
-  if (data.contactManager.length > 5) reliabilityScore += 5;
+  // 응답 품질에 따른 신뢰도 조정 (안전한 접근)
+  if ((data.mainConcerns || '').length > 100) reliabilityScore += 10;
+  if ((data.expectedBenefits || '').length > 50) reliabilityScore += 5;
+  if ((data.contactManager || '').length > 5) reliabilityScore += 5;
   
   // 세부 업종 선택 시 신뢰도 보너스
   if (detailedInfo) reliabilityScore += 5;
@@ -752,8 +752,20 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
   const scoreResult = calculateDetailedScore(data);
   const finalScore = scoreResult.totalScore;
 
-  // 고민사항 기반 서비스 추천 (세부 업종별 최적화)
-  const concerns = data.mainConcerns.toLowerCase();
+  // 고민사항 기반 서비스 추천 (세부 업종별 최적화) (안전한 접근)
+  const concerns = (data.mainConcerns || '').toLowerCase();
+  
+  // 🔥 5점 척도 점수 기반 고민사항 유추 (새로운 로직)
+  let inferredConcerns = '';
+  if (data.marketing_planning && data.marketing_planning <= 2) inferredConcerns += '마케팅 ';
+  if (data.customer_service && data.customer_service <= 2) inferredConcerns += '고객서비스 ';
+  if (data.planning_level && data.planning_level <= 2) inferredConcerns += '기획 전략 ';
+  if (data.online_marketing && data.online_marketing <= 2) inferredConcerns += '온라인 디지털 ';
+  if (data.purchase_management && data.purchase_management <= 2) inferredConcerns += '구매관리 효율성 ';
+  
+  // 기존 concerns와 유추된 concerns 결합
+  const combinedConcerns = concerns + ' ' + inferredConcerns.toLowerCase();
+  
   let recommendedServices = [...industryData.primaryServices];
   
   // 🔧 세부 업종별 맞춤 서비스 추가
@@ -773,18 +785,24 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
     recommendedServices.push('website');
   }
   
-  // 기존 로직 유지
-  if (concerns.includes('매출') || concerns.includes('수익')) {
+  // 기존 로직 유지 (결합된 concerns 사용)
+  if (combinedConcerns.includes('매출') || combinedConcerns.includes('수익') || combinedConcerns.includes('기획')) {
     recommendedServices.unshift('business-analysis');
   }
-  if (concerns.includes('생산성') || concerns.includes('효율')) {
+  if (combinedConcerns.includes('생산성') || combinedConcerns.includes('효율') || combinedConcerns.includes('구매관리')) {
     recommendedServices.unshift('ai-productivity');
   }
-  if (concerns.includes('웹사이트') || concerns.includes('온라인')) {
+  if (combinedConcerns.includes('웹사이트') || combinedConcerns.includes('온라인') || combinedConcerns.includes('디지털')) {
     recommendedServices.push('website');
   }
-  if (concerns.includes('인증') || concerns.includes('iso')) {
+  if (combinedConcerns.includes('인증') || combinedConcerns.includes('iso')) {
     recommendedServices.push('certification');
+  }
+  if (combinedConcerns.includes('마케팅')) {
+    recommendedServices.push('business-analysis');
+  }
+  if (combinedConcerns.includes('고객서비스')) {
+    recommendedServices.push('business-analysis');
   }
 
   // 중복 제거 및 상위 3개 선택
@@ -810,8 +828,8 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
 
   // 현안상황예측 생성 (세부 업종별 맞춤화)
   function generateCurrentSituationForecast(data: SimplifiedDiagnosisRequest, industryData: any, detailedInfo: any): string {
-    const concerns = data.mainConcerns.toLowerCase();
-    const benefits = data.expectedBenefits.toLowerCase();
+    const concerns = (data.mainConcerns || '').toLowerCase();
+    const benefits = (data.expectedBenefits || '').toLowerCase();
     const industry = data.industry;
     const employeeCount = data.employeeCount;
     const growthStage = data.growthStage;

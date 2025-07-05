@@ -31,8 +31,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Play,
-  ExternalLink
+  ExternalLink,
+  ArrowLeft
 } from 'lucide-react';
+import HeroSection from '@/components/ui/hero-section';
 
 // Apple Store 스타일 인증 서비스 데이터
 const certificationServices = [
@@ -200,64 +202,81 @@ const roiData = [
 ];
 
 export default function CertificationPage() {
+  // 히어로 섹션 데이터
+  const heroData = {
+    badge: {
+      icon: Award,
+      text: "ISO/ESG인증·연구소설립·벤처확인 통합 컨설팅"
+    },
+    title: "확실하게 뒷받침",
+    subtitle: "전략적 인증을",
+    description: "Apple Store 수준의 사용자 경험과 5대 핵심 인증을 통해 연간 5천만원 이상의 세제혜택과 정부지원을 확보하고, 기업의 지속가능한 성장을 실현하세요",
+    stats: [
+      {
+        value: "500+",
+        label: "누적 인증 기업",
+        description: "검증된 전문성과 신뢰도",
+        icon: Building,
+        color: "text-green-600",
+        trend: "+156"
+      },
+      {
+        value: "5천만원",
+        label: "평균 세제 혜택",
+        description: "연간 세제혜택 및 정부지원",
+        icon: DollarSign,
+        color: "text-blue-600",
+        trend: "연간"
+      },
+      {
+        value: "98%",
+        label: "인증 성공률",
+        description: "체계적 준비로 성공률 극대화",
+        icon: Target,
+        color: "text-purple-600",
+        trend: "+2%"
+      },
+      {
+        value: "96%",
+        label: "고객 만족도",
+        description: "전문가 수준의 서비스 품질",
+        icon: Star,
+        color: "text-orange-600",
+        trend: "만족"
+      }
+    ],
+    primaryCTA: {
+      text: "무료 진단 시작하기",
+      href: "/diagnosis"
+    },
+    secondaryCTA: {
+      text: "서비스 둘러보기",
+      href: "#services"
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Apple Store 스타일 Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-6 py-3 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-8">
-              <Award className="w-4 h-4 mr-2" />
-              ISO/ESG인증·연구소설립·벤처확인 통합 컨설팅
-            </div>
-            
-            <h1 className="text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
-              기업 성장을 위한
-              <br />
-              <span className="text-blue-600">전략적 인증</span>
-            </h1>
-            
-            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              5대 핵심 인증을 통해 연간 5천만원 이상의 세제혜택과 정부지원을 확보하고, 
-              기업의 지속가능한 성장을 실현하세요.
-            </p>
+      {/* 통일된 히어로 섹션 */}
+      <HeroSection {...heroData} />
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Link href="/diagnosis">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
-                  무료 진단 시작하기
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
-              <Link href="#services">
-                <Button variant="outline" className="border-2 border-gray-300 hover:border-gray-400 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200">
-                  <Play className="w-5 h-5 mr-2" />
-                  서비스 둘러보기
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* 실시간 성과 지표 - Apple 스타일 */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            {[
-              { label: '누적 인증 기업', value: '500+', icon: Building },
-              { label: '평균 세제 혜택', value: '5천만원', icon: DollarSign },
-              { label: '인증 성공률', value: '98%', icon: Target },
-              { label: '고객 만족도', value: '96%', icon: Star }
-            ].map((metric, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <metric.icon className="w-8 h-8 text-blue-600" />
-                </div>
-                <div className="text-3xl font-black text-gray-900 mb-2">
-                  {metric.value}
-                </div>
-                <p className="text-sm text-gray-600 font-medium">{metric.label}</p>
-              </div>
-            ))}
+      {/* Breadcrumb */}
+      <section className="bg-white py-4 border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => window.location.href = '/services'}
+              className="p-0 h-auto font-normal hover:text-blue-600"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              서비스 목록
+            </Button>
+            <span>/</span>
+            <span className="text-blue-600 font-medium">인증지원</span>
           </div>
         </div>
       </section>

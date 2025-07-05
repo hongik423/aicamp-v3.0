@@ -43,7 +43,7 @@ export default function FallbackError({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
             {message}
           </p>
           

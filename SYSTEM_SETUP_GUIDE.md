@@ -16,11 +16,12 @@
 ### 1.1 시트 생성 및 구조
 ```bash
 # 구글시트 ID
-1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug
+1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00
 
 # 시트 구조:
-📊 AI_진단신청 시트 (18개 컬럼)
-📋 상담신청 시트 (15개 컬럼)
+📊 AI_진단신청 시트 (58개 컬럼)
+📋 상담신청 시트 (19개 컬럼)
+📋 베타피드백 시트 (14개 컬럼)
 ```
 
 ### 1.2 Apps Script 배포
@@ -28,7 +29,7 @@
 1. 구글시트 → 확장 → Apps Script
 2. docs/M-CENTER_최종_통합_Apps_Script_2025.js 코드 복사
 3. 환경변수 수정:
-   const SPREADSHEET_ID = '실제_시트_ID';
+   const SPREADSHEET_ID = '1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00';
    const ADMIN_EMAIL = 'hongik423@gmail.com';
 4. 배포 → 웹 앱 → "모든 사용자" 권한
 5. 웹앱 URL 복사
@@ -80,7 +81,7 @@ NEXT_PUBLIC_EMAILJS_TEMPLATE_DIAGNOSIS=template_diagnosis_conf
 NEXT_PUBLIC_EMAILJS_TEMPLATE_CONSULTATION=template_consultation_conf
 
 # 🔧 Google Sheets (공개 가능)
-NEXT_PUBLIC_GOOGLE_SHEETS_ID=1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug
+NEXT_PUBLIC_GOOGLE_SHEETS_ID=1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00
 NEXT_PUBLIC_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec
 
 # 🔧 사이트 설정
@@ -96,7 +97,7 @@ GEMINI_API_KEY=실제-Gemini-키
 # 🌐 Non-sensitive (공개)
 NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_qd9eycz
 NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=268NPLwN54rPvEias
-NEXT_PUBLIC_GOOGLE_SHEETS_ID=1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug
+NEXT_PUBLIC_GOOGLE_SHEETS_ID=1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00
 NEXT_PUBLIC_GOOGLE_SCRIPT_URL=웹앱-URL
 ```
 
@@ -146,7 +147,7 @@ http://localhost:3000/services/diagnosis
 http://localhost:3000/consultation
 
 # 3. 구글시트 확인
-https://docs.google.com/spreadsheets/d/1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug/edit
+https://docs.google.com/spreadsheets/d/1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00/edit
 
 # 4. 이메일 수신 확인
 hongik423@gmail.com 받은편지함 확인
@@ -227,7 +228,7 @@ Apps Script (M-CENTER_최종_통합_Apps_Script_2025.js)
 ### 관리자 입장
 ```bash
 1. 구글시트에서 실시간 신청 데이터 확인
-   → https://docs.google.com/spreadsheets/d/1bAbxAWBWy5dvxBSFf1Mtdt0UiP9hNaFKyjTTlLq_Pug/edit
+   → https://docs.google.com/spreadsheets/d/1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00/edit
 
 2. hongik423@gmail.com에서 알림 이메일 수신
    → 신규 진단신청/상담신청 즉시 알림
