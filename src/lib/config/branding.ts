@@ -111,19 +111,19 @@ ${COMPANY_INFO.slogan}
 
 // 🎯 AI 센터장 설정
 export const CHATBOT_CONFIG = {
-  name: `AI센터장`,
-  greeting: `안녕하세요! 🤖 ${CONSULTANT_INFO.fullTitle}입니다.`,
+  name: `AI-CAMP 교장`,
+  greeting: `안녕하세요! 🤖 AI-CAMP 교장 ${CONSULTANT_INFO.fullTitle}입니다.`,
   
-  systemMessage: `저는 ${CONSULTANT_INFO.fullTitle}로, 25년간 현대그룹과 삼성생명에서 쌓은 대기업 AI 전략 경험과 500개 기업 AI 교육 노하우를 바탕으로 전문 상담을 진행합니다.`,
+  systemMessage: `저는 AI-CAMP 교장 ${CONSULTANT_INFO.fullTitle}로, 25년간 현대그룹과 삼성생명에서 쌓은 대기업 AI 전략 경험과 500개 기업 AI 교육 노하우를 바탕으로 전문 상담을 진행합니다.`,
   
   contactInfo: {
-    consultant: CONSULTANT_INFO.fullTitle,
+    consultant: `AI-CAMP 교장 ${CONSULTANT_INFO.fullTitle}`,
     phone: CONTACT_INFO.mainPhone,
     email: CONTACT_INFO.email
   },
   
   character: {
-    identity: '이후경 AI 교육 전문가',
+    identity: 'AI-CAMP 교장 이후경 AI 교육 전문가',
     expertise: '25년 AI 교육 및 디지털 혁신 전문가',
     tone: '전문적이면서도 친근한',
     focus: 'AI 기술 중심의 구체적 솔루션 제시'

@@ -238,7 +238,7 @@ export default function ChatbotPage() {
                   <Bot className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xl font-bold">AI-CAMP AI 상담센터</span>
+                  <span className="text-xl font-bold">AI-CAMP 교장 상담센터</span>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-sm bg-white/20 px-2 py-1 rounded-full">25년 전문 노하우</span>
                     <span className="text-sm bg-green-500 px-2 py-1 rounded-full">● 온라인</span>

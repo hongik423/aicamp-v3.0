@@ -196,7 +196,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-              content: `안녕하세요! AI-CAMP의 전문상담사입니다.
+      content: `안녕하세요! AI-CAMP 교장입니다.
 
 저는 28년간 수많은 기업과 함께 성장해온 이후경 AI-CAMP 교장의 노하우를 바탕으로 상담해드리고 있어요.
 
@@ -212,7 +212,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 1. BM ZEN 5단계 프레임워크 - 실제 검증된 혁신 방법론
 2. 일터혁신 상생컨설팅 - 고용노동부 20-99인 기업 100% 무료 지원
 3. AI 기반 스마트 생산시스템 - 96.8% 정확도 보장
-      4. 정책자금 확보 - 25년 노하우로 평균 5억원 정부지원
+4. 정책자금 확보 - 25년 노하우로 평균 5억원 정부지원
 5. 전문 세금계산기 11종 - 2024년 최신 세법 완벽 반영
 
 28년간 현장에서 쌓아온 경험과 노하우로 고객사들의 성공을 함께 만들어가고 있습니다.
