@@ -1636,7 +1636,7 @@ function getAdvantageDescription(itemName: string, score: number): string {
   return descriptions[itemName] || '우수한 역량';
 }
 
-// 📝 **300자 미만 핵심요약 보고서 생성** (구글시트 전송용)
+// 📝 **300자 미만 핵심요약 보고서 생성** (서버 전송용)
 function generateCoreReportSummary(data: SimplifiedDiagnosisRequest, diagnosisData: any, fullReport: string): string {
   const totalScore = diagnosisData.totalScore || 0;
   const grade = getGradeFromScore(totalScore);
@@ -1915,7 +1915,7 @@ export async function POST(request: NextRequest) {
     };
 
     try {
-      console.log('🔄 통합 데이터 처리 시작 (구글시트 + 이메일)...');
+      console.log('🔄 통합 데이터 처리 시작 (서버 + 이메일)...');
       
               // 📊 **Enhanced 결과를 Google Apps Script 형식으로 변환**
         const detailedScores: any = {};
@@ -1974,7 +1974,7 @@ export async function POST(request: NextRequest) {
         privacyConsent: data.privacyConsent,
         submitDate: new Date().toLocaleString('ko-KR'),
         
-        // 🔧 진단 결과 정보 추가 (구글시트 저장용)
+        // 🔧 진단 결과 정보 추가 (서버 저장용)
         diagnosisScore: data.diagnosisResults?.totalScore || diagnosisResult.totalScore,
         recommendedServices: (() => {
           if (data.diagnosisResults?.recommendedServices && Array.isArray(data.diagnosisResults.recommendedServices)) {

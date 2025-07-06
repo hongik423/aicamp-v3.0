@@ -120,12 +120,12 @@ function validateEnvironment(): { isValid: boolean; error?: string } {
   return { isValid: true };
 }
 
-// 🔧 **실제 M-CENTER 구글시트 Apps Script URL**
-const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzdAtSkiojTTRrAgWmooma757nfeVhoCyHIIWtjXG30oMWSmf-oVu7A7B1D8EGStNv/exec';
-const GOOGLE_SHEETS_ID = '1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00';
+// 🔧 **서버 전용 Apps Script URL - 클라이언트 노출 방지**
+const DEFAULT_GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL || '';
+const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
 /**
- * AI 진단 데이터를 구글시트에 저장
+ * AI 진단 데이터를 서버에 저장
  */
 export async function saveDiagnosisToGoogleSheets(
   data: DiagnosisFormData,
@@ -219,7 +219,7 @@ export async function saveDiagnosisToGoogleSheets(
       uniqueKey: `diagnosis_${data.contactEmail || data.이메일}_${Date.now()}`
     };
 
-    console.log('📋 AI 진단 데이터 구글시트 저장 시작:', {
+    console.log('📋 AI 진단 데이터 서버 저장 시작:', {
       company: sheetData.회사명,
       email: sheetData.이메일,
       formType: formType,
@@ -274,10 +274,10 @@ export async function saveDiagnosisToGoogleSheets(
       }
 
       if (result.success) {
-        console.log('✅ AI 진단 데이터 구글시트 저장 성공');
+        console.log('✅ AI 진단 데이터 서버 저장 성공');
         return {
           success: true,
-          message: '진단 데이터가 구글시트에 성공적으로 저장되었습니다.',
+          message: '진단 데이터가 서버에 성공적으로 저장되었습니다.',
           sheetName: 'AI_진단신청',
           timestamp: currentDateTime,
           platform: result.platform || 'Standard',

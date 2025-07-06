@@ -309,8 +309,12 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               <Button onClick={() => window.location.href = '/services/diagnosis'}>
                 새로운 진단 시작하기
               </Button>
-              <Button variant="outline" onClick={() => window.location.href = '/consultation'}>
-                전문가 상담 신청하기
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/consultation'}
+                className="text-white font-bold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-none transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                <span className="text-white font-bold">전문가 상담신청</span>
               </Button>
             </div>
           </CardContent>
@@ -753,7 +757,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         <!-- 보고서 헤더 -->
         <div class="header">
             <div class="company-title">${data.companyInfo.name}</div>
-            <div class="report-subtitle">🤖 AI 기반 종합 경영진단 결과</div>
+            <div class="report-subtitle" style="color: white; font-weight: bold;">🤖 AI 기반 종합 경영진단 결과</div>
             <div class="meta-info">
                 <div class="meta-item">📅 ${currentDate}</div>
                 <div class="meta-item">⏰ ${currentTime}</div>
@@ -990,7 +994,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 🤖 AI 기반 종합 경영진단 시스템 | 📅 생성일: ${currentDate} ${currentTime}
             </div>
             <div style="font-size: 0.9rem; opacity: 0.7; line-height: 1.6;">
-                            📧 hongik423@gmail.com | 📞 010-9251-9743 | 🌐 https://ai-camp.co.kr<br>
+                            📧 hongik423@gmail.com | 📞 010-9251-9743<br>
             "중소기업의 성장 파트너, AI-CAMP와 함께 성공하세요!"
             </div>
             <div style="margin-top: 20px; font-size: 0.8rem; opacity: 0.6;">
@@ -1876,7 +1880,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               <Button 
                 onClick={handleDownload}
                 disabled={isLoading}
-                className="text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                className="text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 style={{ backgroundColor: '#4285F4' }}
                 onMouseEnter={(e) => {
                   if (!e.currentTarget.disabled) {
@@ -1892,12 +1896,12 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                    보고서 생성 중...
+                    <span className="text-white font-bold">보고서 생성 중...</span>
                   </>
                 ) : (
                   <>
                     <Download className="w-4 h-4 mr-2" />
-                    결과보고서다운로드
+                    <span className="text-white font-bold">고급진단완료하기</span>
                   </>
                 )}
               </Button>
@@ -1923,10 +1927,10 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Button 
           onClick={handleConsultationRequest}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg"
         >
           <Star className="w-4 h-4 mr-2" />
-          전문가 상담 신청
+          <span className="text-white font-bold">무료상담 신청</span>
         </Button>
         <Button variant="outline" onClick={() => window.location.href = '/'}>
           홈으로 돌아가기

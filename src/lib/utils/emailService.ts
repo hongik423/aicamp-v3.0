@@ -127,7 +127,7 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
           service: 'google-apps-script',
           method: 'post_success',
           features: [
-            '✅ 구글시트 자동 저장 (확장된 48개 컬럼)',
+            '✅ 데이터 자동 저장 (확장된 48개 컬럼)',
             '✅ 문항별 상세 점수 저장 (20개 항목)',
             '✅ 진단결과보고서 전문 저장',
             '✅ 관리자 알림 이메일 발송',
@@ -170,7 +170,7 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
           service: 'google-apps-script',
           method: 'get_fallback',
           features: [
-            '✅ 구글시트 자동 저장 (GET 방식, 확장된 48개 컬럼)',
+            '✅ 데이터 자동 저장 (GET 방식, 확장된 48개 컬럼)',
             '✅ 문항별 상세 점수 저장 (20개 항목)',
             '✅ 진단결과보고서 전문 저장',
             '✅ 관리자 알림 이메일 발송',
@@ -305,7 +305,7 @@ export async function submitConsultationToGoogle(consultationData: any) {
           service: 'google-apps-script',
           method: 'post_success',
           features: [
-            '✅ 구글시트 자동 저장',
+            '✅ 데이터 자동 저장',
             '✅ 관리자 알림 이메일 발송',
             '✅ 신청자 확인 이메일 발송',
           ]
@@ -346,7 +346,7 @@ export async function submitConsultationToGoogle(consultationData: any) {
           service: 'google-apps-script',
           method: 'get_fallback',
           features: [
-            '✅ 구글시트 자동 저장 (GET)',
+            '✅ 데이터 자동 저장 (GET)',
             '✅ 관리자 알림 이메일 발송',
             '✅ 신청자 확인 이메일 발송',
           ]
@@ -531,7 +531,7 @@ export async function submitBetaFeedbackToGoogle(feedbackData: any) {
       data: result,
       service: 'google-apps-script',
       features: [
-        '✅ 구글시트 자동 저장',
+        '✅ 데이터 자동 저장',
         '✅ 관리자 알림 이메일 발송',
         '✅ 피드백 제출자 접수 확인 이메일 발송',
         '✅ 베타테스트 피드백 전용 처리',
@@ -663,7 +663,7 @@ export function getEmailServiceConfig() {
   return {
     provider: 'Google Apps Script',
     features: [
-      '구글시트 자동 저장',
+              '데이터 자동 저장',
       '관리자 알림 이메일',
       '신청자 확인 이메일',
       '실시간 데이터 동기화',

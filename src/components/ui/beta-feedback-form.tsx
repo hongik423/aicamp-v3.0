@@ -841,7 +841,7 @@ export function BetaFeedbackForm({ calculatorName, calculatorType, className }: 
                       <div className="font-medium text-green-800 mb-2">처리 완료 사항:</div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span>구글시트에 피드백 데이터 저장 완료</span>
+                        <span>서버에 피드백 데이터 저장 완료</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-green-600" />
