@@ -111,33 +111,29 @@ export default function FreeDiagnosisPage() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-6">
               <Brain className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">무료 AI진단 신청 시스템</span>
+              <span className="text-sm font-medium text-blue-800">AI 기반 기업 진단 시스템</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              무료 AI진단 신청
+              기업 성장의
               <br />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                8개 정보로 완성하는 AI진단 보고서
+                새로운 시작
               </span>
             </h1>
             
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              복잡한 절차 없이 <strong>8개 핵심 정보</strong>만 입력하면 
-              <strong> 2-3분 내</strong>에 맞춤형 AI진단 보고서를 받아볼 수 있습니다.
+              8개 핵심 질문으로 2분 만에<br />
+              전문가 수준의 맞춤형 진단을 받아보세요
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Badge variant="outline" className="text-sm px-4 py-2">
                 <Clock className="w-4 h-4 mr-2" />
-                2-3분 소요
+                2분 소요
               </Badge>
               <Badge variant="outline" className="text-sm px-4 py-2">
-                <FileText className="w-4 h-4 mr-2" />
-                전문가급 진단
-              </Badge>
-              <Badge variant="outline" className="text-sm px-4 py-2">
-                <Star className="w-4 h-4 mr-2" />
+                <CheckCircle className="w-4 h-4 mr-2" />
                 100% 무료
               </Badge>
             </div>
@@ -146,145 +142,179 @@ export default function FreeDiagnosisPage() {
               onClick={handleStartDiagnosis}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto"
             >
-              <Brain className="w-5 h-5 mr-2" />
-              무료 AI진단 신청하기
+              무료 진단 시작하기
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>
 
-          {/* 새로운 시스템 특징 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <Card className="border-blue-200 bg-blue-50">
+          {/* 진단 개념 설명 */}
+          <div className="mb-12">
+            <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
               <CardHeader className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Zap className="w-6 h-6 text-blue-600" />
-                </div>
-                <CardTitle className="text-lg">간소화된 입력</CardTitle>
+                <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
+                  무료진단이란?
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-sm text-gray-600">
-                  기존 20개 이상 → <strong>8개 핵심 정보</strong>만 입력하면 
-                  정확한 AI진단이 가능합니다.
+              <CardContent className="text-center max-w-4xl mx-auto">
+                <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                  기업의 현재 상태를 객관적으로 분석하여 <strong>성장 가능성</strong>과 <strong>개선 방향</strong>을 제시하는 
+                  AI 기반 진단 서비스입니다. 복잡한 경영 환경에서 우선순위를 명확히 하고, 
+                  실행 가능한 솔루션을 찾아드립니다.
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-green-200 bg-green-50">
-              <CardHeader className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Clock className="w-6 h-6 text-green-600" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Brain className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h4 className="font-semibold text-lg mb-2">현상 분석</h4>
+                    <p className="text-sm text-gray-600">
+                      기업의 현재 상황을<br />
+                      객관적으로 파악
+                    </p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Target className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h4 className="font-semibold text-lg mb-2">문제 진단</h4>
+                    <p className="text-sm text-gray-600">
+                      핵심 문제점과<br />
+                      개선 기회 발견
+                    </p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <TrendingUp className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <h4 className="font-semibold text-lg mb-2">해결 방안</h4>
+                    <p className="text-sm text-gray-600">
+                      맞춤형 솔루션과<br />
+                      실행 계획 제시
+                    </p>
+                  </div>
                 </div>
-                <CardTitle className="text-lg">즉시 처리</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-sm text-gray-600">
-                  기존 2-3주 → <strong>2-3분</strong> 내에 
-                  맞춤형 AI진단 보고서를 받아보세요.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-purple-200 bg-purple-50">
-              <CardHeader className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <FileText className="w-6 h-6 text-purple-600" />
-                </div>
-                <CardTitle className="text-lg">핵심 요약</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-sm text-gray-600">
-                  긴 보고서 대신 <strong>종합 분석</strong>으로 
-                  핵심만 빠르게 파악할 수 있습니다.
-                </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* 진단 과정 */}
+          {/* 진단 설문 작성 방법 */}
           <Card className="mb-12">
             <CardHeader>
               <CardTitle className="text-center flex items-center justify-center gap-2">
-                <Target className="w-6 h-6 text-blue-600" />
-                무료 AI진단 신청 과정
+                <FileText className="w-6 h-6 text-blue-600" />
+                진단 설문 작성 방법
               </CardTitle>
               <CardDescription className="text-center">
-                3단계로 완성되는 AI진단 신청 시스템
+                정확한 진단을 위한 8개 질문 답변 가이드
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-blue-600">1</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="border-l-4 border-blue-500 pl-4">
+                    <h4 className="font-semibold text-lg mb-2 text-blue-700">기본 정보 (4개)</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-medium text-gray-800">1. 회사명</p>
+                        <p className="text-sm text-gray-600">정확한 회사명을 입력해주세요</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">2. 업종</p>
+                        <p className="text-sm text-gray-600">주력 사업 분야를 선택해주세요</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">3. 담당자 정보</p>
+                        <p className="text-sm text-gray-600">이름, 연락처, 이메일을 입력해주세요</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">4. 직원수</p>
+                        <p className="text-sm text-gray-600">현재 정규직 기준으로 선택해주세요</p>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="font-semibold text-lg mb-2">8개 정보 입력</h4>
-                  <ul className="text-sm text-gray-600 space-y-1 text-left max-w-xs mx-auto">
-                    <li>• 회사명</li>
-                    <li>• 업종</li>
-                    <li>• 담당자 정보</li>
-                    <li>• 직원수</li>
-                    <li>• 성장단계</li>
-                    <li>• 주요 고민사항</li>
-                    <li>• 예상 혜택</li>
-                    <li>• 기대 효과</li>
-                  </ul>
                 </div>
 
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-green-600">2</span>
+                <div className="space-y-6">
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <h4 className="font-semibold text-lg mb-2 text-green-700">현황 분석 (4개)</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-medium text-gray-800">5. 성장단계</p>
+                        <p className="text-sm text-gray-600">창업기, 성장기, 성숙기 중 선택</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">6. 주요 고민사항</p>
+                        <p className="text-sm text-gray-600">현재 가장 큰 경영 과제를 구체적으로 기술</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">7. 예상 혜택</p>
+                        <p className="text-sm text-gray-600">진단을 통해 얻고 싶은 결과를 명시</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">8. 기대 효과</p>
+                        <p className="text-sm text-gray-600">개선 후 목표하는 성과를 기술</p>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="font-semibold text-lg mb-2">AI 분석 수행</h4>
-                  <ul className="text-sm text-gray-600 space-y-1 text-left max-w-xs mx-auto">
-                    <li>• SWOT 자동 분석</li>
-                    <li>• 현안상황 예측</li>
-                    <li>• 6개 서비스 매칭</li>
-                    <li>• 성과 예측 분석</li>
-                  </ul>
                 </div>
+              </div>
 
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-purple-600">3</span>
-                  </div>
-                  <h4 className="font-semibold text-lg mb-2">AI진단 보고서</h4>
-                  <ul className="text-sm text-gray-600 space-y-1 text-left max-w-xs mx-auto">
-                    <li>• 종합 평가 및 점수</li>
-                    <li>• 핵심 강점/기회</li>
-                    <li>• 맞춤 서비스 추천</li>
-                    <li>• 전문가 상담 안내</li>
-                  </ul>
-                </div>
+              <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h5 className="font-semibold text-yellow-800 mb-3 flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  답변 작성 시 주의사항
+                </h5>
+                <ul className="text-sm text-yellow-700 space-y-2">
+                  <li>• <strong>구체적으로 작성</strong>: 추상적인 답변보다는 구체적인 상황을 기술해주세요</li>
+                  <li>• <strong>현실적으로 작성</strong>: 과장하지 말고 현재 상황을 솔직하게 기술해주세요</li>
+                  <li>• <strong>완전하게 작성</strong>: 모든 항목을 빠짐없이 작성해야 정확한 진단이 가능합니다</li>
+                  <li>• <strong>개인정보 보호</strong>: 입력하신 정보는 진단 목적으로만 사용되며 안전하게 보호됩니다</li>
+                </ul>
               </div>
             </CardContent>
           </Card>
 
-          {/* 기대 효과 */}
+          {/* 진단 기준 및 평가 방법 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <Card className="border-orange-200 bg-orange-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-6 h-6 text-orange-600" />
-                  즉시 확인 가능한 결과
+                  <Award className="w-6 h-6 text-orange-600" />
+                  진단 평가 기준
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>100점 만점 종합 진단 점수</span>
+                <ul className="space-y-3 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>사업 모델 분석</strong>
+                      <p className="text-xs text-gray-600">수익 구조, 고객 세분화, 경쟁 우위 평가</p>
+                    </div>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>업계 내 시장 위치 및 성장률</span>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>운영 효율성</strong>
+                      <p className="text-xs text-gray-600">업무 프로세스, 자원 활용도, 생산성 측정</p>
+                    </div>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>SWOT 기반 핵심 분석</span>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>성장 잠재력</strong>
+                      <p className="text-xs text-gray-600">시장 기회, 확장 가능성, 혁신 역량</p>
+                    </div>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>6개 서비스 중 최적 매칭</span>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>위험 요소</strong>
+                      <p className="text-xs text-gray-600">경영 리스크, 재무 안정성, 시장 변화 대응</p>
+                    </div>
                   </li>
                 </ul>
               </CardContent>
@@ -293,27 +323,39 @@ export default function FreeDiagnosisPage() {
             <Card className="border-indigo-200 bg-indigo-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Award className="w-6 h-6 text-indigo-600" />
-                  전문가 수준의 분석
+                  <TrendingUp className="w-6 h-6 text-indigo-600" />
+                  진단 결과 활용법
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>매출 25-40% 증대 예측</span>
+                <ul className="space-y-3 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>우선순위 설정</strong>
+                      <p className="text-xs text-gray-600">가장 시급한 개선 과제 식별</p>
+                    </div>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>업무 효율성 30-50% 향상</span>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>실행 계획 수립</strong>
+                      <p className="text-xs text-gray-600">단계별 개선 방안 및 일정 계획</p>
+                    </div>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>3-6개월 내 가시적 성과</span>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>전문가 상담</strong>
+                      <p className="text-xs text-gray-600">세부 솔루션 및 맞춤형 지원 방안</p>
+                    </div>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>즉시 실행 가능한 액션 플랜</span>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>성과 모니터링</strong>
+                      <p className="text-xs text-gray-600">개선 효과 측정 및 지속적 관리</p>
+                    </div>
                   </li>
                 </ul>
               </CardContent>
@@ -324,18 +366,17 @@ export default function FreeDiagnosisPage() {
           <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
             <CardContent className="p-8 text-center">
               <h3 className="text-2xl font-bold mb-4">
-                지금 바로 무료 AI진단을 신청하세요!
+                지금 바로 무료진단을 시작하세요
               </h3>
               <p className="text-blue-100 mb-6 text-lg">
-                8개 정보만 입력하면 2-3분 내에 전문가 수준의 AI진단 보고서를 받아볼 수 있습니다.
+                8개 질문에 답하면 2분 내에 맞춤형 진단 결과를 확인할 수 있습니다
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button 
                   onClick={handleStartDiagnosis}
                   className="bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-auto"
                 >
-                  <Brain className="w-5 h-5 mr-2" />
-                  무료 AI진단 신청하기
+                  무료 진단 시작하기
                 </Button>
                 <div className="flex items-center gap-4 text-sm text-blue-100">
                   <div className="flex items-center gap-1">
@@ -344,7 +385,7 @@ export default function FreeDiagnosisPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>2-3분 소요</span>
+                    <span>2분 소요</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
