@@ -193,7 +193,8 @@ const Header = () => {
     { href: '/diagnosis', label: '무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '상담신청', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
-    { href: '/services/policy-funding', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp }
+    { href: '/services/policy-funding', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp },
+    { href: '/support/contact', label: '오류신고', color: 'red', icon: MessageSquare }
   ];
 
   return (
@@ -252,7 +253,9 @@ const Header = () => {
                       ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
                       : button.color === 'purple'
                       ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
-                      : 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
+                      : button.color === 'orange'
+                      ? 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
+                      : 'text-red-600 hover:text-white hover:bg-red-600 bg-red-100'
                   }`}
                   aria-label={button.label}
                 >
@@ -275,144 +278,173 @@ const Header = () => {
         </div>
       </header>
 
-      {/* 모바일 풀스크린 메뉴 */}
+      {/* 모바일 풀스크린 메뉴 - 스크롤 가능 */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 lg:hidden bg-white border-t border-gray-200 overflow-hidden"
+            className="fixed inset-0 z-50 lg:hidden bg-white"
           >
-            <div className="px-4 py-6 space-y-4">
-              {/* 최상단 주요 액션 버튼들 */}
-              <div className="pb-4 border-b border-gray-200">
-                <div className="text-sm font-semibold text-gray-700 mb-3 px-3">주요 서비스</div>
-                <div className="grid grid-cols-1 gap-2">
-                  {actionButtons.map((button) => (
-                    <motion.div key={button.href} whileHover={{ x: 8 }} className="group">
-                      <Link href={button.href} onClick={() => setIsMenuOpen(false)}>
-                        <div className={`flex items-center p-4 rounded-xl transition-all duration-200 group ${
-                          button.color === 'blue' 
-                            ? 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200'
-                            : button.color === 'green'
-                            ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
-                            : button.color === 'purple'
-                            ? 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200'
-                            : 'bg-orange-50 hover:bg-orange-100 border-2 border-orange-200'
-                        }`}>
-                          <button.icon className={`w-7 h-7 mr-4 ${
+            {/* 헤더 고정 영역 */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">AICAMP 서비스</h2>
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                aria-label="메뉴 닫기"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* 스크롤 가능한 메뉴 영역 */}
+            <div className="overflow-y-auto h-full pb-20">
+              <div className="px-4 py-6 space-y-6">
+                {/* 최상단 주요 액션 버튼들 */}
+                <div className="pb-4 border-b border-gray-200">
+                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">⭐ 주요 서비스</div>
+                  <div className="grid grid-cols-1 gap-3">
+                    {actionButtons.map((button) => (
+                      <motion.div key={button.href} whileHover={{ x: 8 }} className="group">
+                        <Link href={button.href} onClick={() => setIsMenuOpen(false)}>
+                          <div className={`flex items-center p-4 rounded-xl transition-all duration-200 group ${
                             button.color === 'blue' 
-                              ? 'text-blue-600 group-hover:text-blue-700'
+                              ? 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200'
                               : button.color === 'green'
-                              ? 'text-green-600 group-hover:text-green-700'
+                              ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
                               : button.color === 'purple'
-                              ? 'text-purple-600 group-hover:text-purple-700'
-                              : 'text-orange-600 group-hover:text-orange-700'
-                          }`} />
-                          <div className="flex-1">
-                            <div className={`font-bold text-lg ${
-                              button.color === 'blue' 
-                                ? 'text-blue-900 group-hover:text-blue-800'
-                                : button.color === 'green'
-                                ? 'text-green-900 group-hover:text-green-800'
-                                : button.color === 'purple'
-                                ? 'text-purple-900 group-hover:text-purple-800'
-                                : 'text-orange-900 group-hover:text-orange-800'
-                            }`}>
-                              {button.label}
-                            </div>
-                            <div className={`text-sm ${
+                              ? 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200'
+                              : button.color === 'orange'
+                              ? 'bg-orange-50 hover:bg-orange-100 border-2 border-orange-200'
+                              : 'bg-red-50 hover:bg-red-100 border-2 border-red-200'
+                          }`}>
+                            <button.icon className={`w-7 h-7 mr-4 ${
                               button.color === 'blue' 
                                 ? 'text-blue-600 group-hover:text-blue-700'
                                 : button.color === 'green'
                                 ? 'text-green-600 group-hover:text-green-700'
                                 : button.color === 'purple'
                                 ? 'text-purple-600 group-hover:text-purple-700'
-                                : 'text-orange-600 group-hover:text-orange-700'
-                            }`}>
-                              {button.label === '무료진단' ? 'AI 기반 기업 진단' : 
-                               button.label === '상담신청' ? '전문가 무료 상담' : 
-                               button.label === '세금계산기' ? '10가지 세금 계산기' :
-                               'NPV/IRR 투자분석'}
+                                : button.color === 'orange'
+                                ? 'text-orange-600 group-hover:text-orange-700'
+                                : 'text-red-600 group-hover:text-red-700'
+                            }`} />
+                            <div className="flex-1">
+                              <div className={`font-bold text-lg ${
+                                button.color === 'blue' 
+                                  ? 'text-blue-900 group-hover:text-blue-800'
+                                  : button.color === 'green'
+                                  ? 'text-green-900 group-hover:text-green-800'
+                                  : button.color === 'purple'
+                                  ? 'text-purple-900 group-hover:text-purple-800'
+                                  : button.color === 'orange'
+                                  ? 'text-orange-900 group-hover:text-orange-800'
+                                  : 'text-red-900 group-hover:text-red-800'
+                              }`}>
+                                {button.label}
+                              </div>
+                              <div className={`text-sm ${
+                                button.color === 'blue' 
+                                  ? 'text-blue-600 group-hover:text-blue-700'
+                                  : button.color === 'green'
+                                  ? 'text-green-600 group-hover:text-green-700'
+                                  : button.color === 'purple'
+                                  ? 'text-purple-600 group-hover:text-purple-700'
+                                  : button.color === 'orange'
+                                  ? 'text-orange-600 group-hover:text-orange-700'
+                                  : 'text-red-600 group-hover:text-red-700'
+                              }`}>
+                                {button.label === '무료진단' ? 'AI 기반 기업 진단' : 
+                                 button.label === '상담신청' ? '전문가 무료 상담' : 
+                                 button.label === '세금계산기' ? '10가지 세금 계산기' :
+                                 button.label === '투자재무타당성분석기' ? 'NPV/IRR 투자분석' :
+                                 '버그 및 개선사항 신고'}
+                              </div>
+                            </div>
+                            <ChevronRight className={`w-6 h-6 ${
+                              button.color === 'blue' 
+                                ? 'text-blue-400 group-hover:text-blue-600'
+                                : button.color === 'green'
+                                ? 'text-green-400 group-hover:text-green-600'
+                                : button.color === 'purple'
+                                ? 'text-purple-400 group-hover:text-purple-600'
+                                : button.color === 'orange'
+                                ? 'text-orange-400 group-hover:text-orange-600'
+                                : 'text-red-400 group-hover:text-red-600'
+                            }`} />
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 전체 서비스 메뉴 - 요청된 순서대로 배치 */}
+                <div className="pb-4">
+                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">📋 전체 서비스</div>
+                  {[
+                    { href: '/', label: '홈', icon: Home, description: '메인페이지' },
+                    { href: '/services/business-analysis', label: '사업분석', icon: BarChart3, description: '비즈니스 컨설팅' },
+                    { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap, description: 'AI 업무 자동화' },
+                    { href: '/services/website', label: '매출증대웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
+                    { href: '/services/policy-funding', label: '정책자금', icon: Building2, description: '듀얼브레인 정책자금 컨설팅' },
+                    { href: '/services/tech-startup', label: '기술창업', icon: Rocket, description: '스타트업 지원' },
+                    { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield, description: '각종 인증 획득' },
+                    { href: '/cases', label: '성공사례', icon: Trophy, description: '고객 성공 스토리' },
+                    { href: '/center-leader', label: '교장', icon: User, description: '이후경 경영지도사' },
+                    { href: '/seminar', label: '세미나', icon: Video, description: '교육 프로그램' },
+                    { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' }
+                  ].map((item) => (
+                    <motion.div key={item.href} whileHover={{ x: 8 }} className="group mb-2">
+                      <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
+                        <div className="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-all duration-200 group">
+                          <item.icon className="w-6 h-6 mr-4 text-blue-600 group-hover:text-blue-700" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900 group-hover:text-blue-700">
+                              {item.label}
+                            </div>
+                            <div className="text-sm text-gray-500 group-hover:text-blue-600">
+                              {item.description}
                             </div>
                           </div>
-                          <ChevronRight className={`w-6 h-6 ${
-                            button.color === 'blue' 
-                              ? 'text-blue-400 group-hover:text-blue-600'
-                              : button.color === 'green'
-                              ? 'text-green-400 group-hover:text-green-600'
-                              : button.color === 'purple'
-                              ? 'text-purple-400 group-hover:text-purple-600'
-                              : 'text-orange-400 group-hover:text-orange-600'
-                          }`} />
+                          <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
                         </div>
                       </Link>
                     </motion.div>
                   ))}
                 </div>
-              </div>
 
-              {/* 일반 네비게이션 메뉴 */}
-              <div className="text-sm font-semibold text-gray-700 mb-3 px-3">전체 서비스</div>
-              {[
-                { href: '/', label: '홈', icon: Home, description: '메인페이지' },
-                { href: '/services/business-analysis', label: '사업분석', icon: BarChart3, description: '비즈니스 컨설팅' },
-                { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap, description: 'AI 업무 자동화' },
-                { href: '/services/policy-funding', label: '정책자금', icon: Building2, description: '듀얼브레인 정책자금 컨설팅' },
-                { href: '/services/tech-startup', label: '기술창업', icon: Rocket, description: '스타트업 지원' },
-                { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield, description: '각종 인증 획득' },
-                { href: '/services/website', label: '매출증대웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
-                { href: '/center-leader', label: '교장소개', icon: User, description: '이후경 경영지도사' },
-                { href: '/seminar', label: '세미나', icon: Video, description: '교육 프로그램' },
-                { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' }
-              ].map((item) => (
-                <motion.div key={item.href} whileHover={{ x: 8 }} className="group">
-                  <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
-                    <div className="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-all duration-200 group">
-                      <item.icon className="w-6 h-6 mr-4 text-blue-600 group-hover:text-blue-700" />
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900 group-hover:text-blue-700">
-                          {item.label}
-                        </div>
-                        <div className="text-sm text-gray-500 group-hover:text-blue-600">
-                          {item.description}
-                        </div>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-
-              {/* 모바일 세금계산기 섹션 */}
-              <div className="pt-4 border-t border-gray-200">
-                <div className="text-sm font-semibold text-gray-700 mb-3 px-3">세금계산기</div>
-                {taxCalculators.map((calc) => (
-                  <motion.div key={calc.id} whileHover={{ x: 8 }} className="group mb-2">
-                    <button
-                      onClick={() => {
-                        handleTaxCalculatorSelect(calc.id);
-                        setIsMenuOpen(false);
-                      }}
-                      className="w-full text-left"
-                    >
-                      <div className="flex items-center p-3 rounded-xl hover:bg-green-50 transition-all duration-200 group">
-                        <calc.icon className="w-5 h-5 mr-4 text-green-600 group-hover:text-green-700" />
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900 group-hover:text-green-700 text-sm">
-                            {calc.title}
+                {/* 모바일 세금계산기 섹션 */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">🧮 세금계산기</div>
+                  {taxCalculators.map((calc) => (
+                    <motion.div key={calc.id} whileHover={{ x: 8 }} className="group mb-2">
+                      <button
+                        onClick={() => {
+                          handleTaxCalculatorSelect(calc.id);
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-center p-3 rounded-xl hover:bg-green-50 transition-all duration-200 group">
+                          <calc.icon className="w-5 h-5 mr-4 text-green-600 group-hover:text-green-700" />
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900 group-hover:text-green-700 text-sm">
+                              {calc.title}
+                            </div>
+                            <div className="text-xs text-gray-500 group-hover:text-green-600">
+                              {calc.description}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500 group-hover:text-green-600">
-                            {calc.description}
-                          </div>
+                          <Calculator className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
                         </div>
-                        <Calculator className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
-                      </div>
-                    </button>
-                  </motion.div>
-                ))}
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
