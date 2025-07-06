@@ -104,11 +104,11 @@ const Header = () => {
   const navigationItems = [
     { href: '/', label: '홈', icon: Home },
     { href: '/services/business-analysis', label: '사업분석', icon: BarChart3 },
-    { href: '/services/ai-productivity', label: 'AI생산성', icon: Zap },
+    { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap },
     { href: '/services/policy-funding', label: '정책자금', icon: Building2 },
     { href: '/services/tech-startup', label: '기술창업', icon: Rocket },
-    { href: '/services/certification', label: '인증지원', icon: Shield },
-    { href: '/services/website', label: '웹페이지', icon: Building },
+    { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield },
+    { href: '/services/website', label: '매출증대웹페이지', icon: Building },
     { href: '/cases', label: '성공사례', icon: Trophy },
     { href: '/center-leader', label: '교장', icon: User },
     { href: '/seminar', label: '세미나', icon: Video },
@@ -192,7 +192,7 @@ const Header = () => {
   const actionButtons = [
     { href: '/diagnosis', label: '무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '상담신청', color: 'green', icon: MessageSquare },
-    { href: '/tax-calculator', label: '세금계산', color: 'purple', icon: Calculator }
+    { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator }
   ];
 
   return (
@@ -286,11 +286,11 @@ const Header = () => {
               {[
                 { href: '/', label: '홈', icon: Home, description: '메인페이지' },
                 { href: '/services/business-analysis', label: '사업분석', icon: BarChart3, description: '비즈니스 컨설팅' },
-                { href: '/services/ai-productivity', label: 'AI생산성', icon: Zap, description: 'AI 업무 자동화' },
+                { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap, description: 'AI 업무 자동화' },
                 { href: '/services/policy-funding', label: '정책자금', icon: Building2, description: '듀얼브레인 정책자금 컨설팅' },
                 { href: '/services/tech-startup', label: '기술창업', icon: Rocket, description: '스타트업 지원' },
-                { href: '/services/certification', label: '인증지원', icon: Shield, description: '각종 인증 획득' },
-                { href: '/services/website', label: '웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
+                { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield, description: '각종 인증 획득' },
+                { href: '/services/website', label: '매출증대웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
                 { href: '/center-leader', label: '교장소개', icon: User, description: '이후경 경영지도사' },
                 { href: '/seminar', label: '세미나', icon: Video, description: '교육 프로그램' },
                 { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' },

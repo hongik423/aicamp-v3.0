@@ -45,6 +45,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { MobileToast } from '@/components/ui/mobile-toast';
 import { 
   LineChart, 
   Line, 
@@ -55,7 +57,8 @@ import {
   Legend, 
   ResponsiveContainer,
   AreaChart,
-  Area
+  Area,
+  ReferenceLine
 } from 'recharts';
 
 // 정책자금 성공사례 데이터
@@ -390,35 +393,106 @@ const NPVAnalysisTool = () => {
   });
 
   const [showResults, setShowResults] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    type: 'info' as 'success' | 'error' | 'info',
+    message: ''
+  });
 
   // 계산 함수들
   const calculateNPV = (cashFlows: number[], discountRate: number) => {
-    return cashFlows.reduce((npv, cashFlow, year) => {
-      return npv + cashFlow / Math.pow(1 + discountRate / 100, year);
-    }, 0);
+    try {
+      // 입력값 안전성 검증
+      if (!Array.isArray(cashFlows) || cashFlows.length === 0) return 0;
+      
+      // 할인율 범위 제한 (-50% ~ 100%)
+      const safeDiscountRate = Math.max(-50, Math.min(100, discountRate || 0));
+      
+      return cashFlows.reduce((npv, cashFlow, year) => {
+        const factor = Math.pow(1 + safeDiscountRate / 100, year);
+        
+        // Infinity 및 0으로 나누기 방지
+        if (!isFinite(factor) || factor === 0) return npv;
+        
+        const discountedValue = (cashFlow || 0) / factor;
+        
+        // 결과 안전성 검증
+        if (!isFinite(discountedValue)) return npv;
+        
+        return npv + discountedValue;
+      }, 0);
+    } catch (error) {
+      console.error('NPV 계산 오류:', error);
+      return 0;
+    }
   };
 
   const calculateIRR = (cashFlows: number[]) => {
-    const maxIterations = 1000;
-    const tolerance = 0.000001;
-    let rate = 0.1;
-
-    for (let i = 0; i < maxIterations; i++) {
-      const npv = cashFlows.reduce((sum, cashFlow, year) => {
-        return sum + cashFlow / Math.pow(1 + rate, year);
-      }, 0);
-
-      const derivative = cashFlows.reduce((sum, cashFlow, year) => {
-        return sum - (year * cashFlow) / Math.pow(1 + rate, year + 1);
-      }, 0);
-
-      const newRate = rate - npv / derivative;
-      if (Math.abs(newRate - rate) < tolerance) {
-        return newRate * 100;
+    try {
+      // 입력 검증 강화
+      if (!Array.isArray(cashFlows) || cashFlows.length < 2) return 0;
+      
+      // 모든 현금흐름이 음수이거나 양수인 경우
+      const positiveFlows = cashFlows.filter(cf => cf > 0);
+      const negativeFlows = cashFlows.filter(cf => cf < 0);
+      
+      if (positiveFlows.length === 0 || negativeFlows.length === 0) {
+        return 0; // IRR 계산 불가
       }
-      rate = newRate;
+      
+      // 반복 횟수 제한 (메모리 보호)
+      const maxIterations = 100;
+      const tolerance = 0.001; // 허용 오차 완화
+      let rate = 0.1; // 10% 초기값
+      
+      for (let i = 0; i < maxIterations; i++) {
+        let npv = 0;
+        let derivative = 0;
+        
+        for (let year = 0; year < cashFlows.length; year++) {
+          const factor = Math.pow(1 + rate, year);
+          
+          // Infinity 및 0으로 나누기 방지
+          if (!isFinite(factor) || factor === 0) return 0;
+          
+          const cashFlow = cashFlows[year] || 0;
+          npv += cashFlow / factor;
+          
+          if (year > 0) {
+            const derivativeValue = -(year * cashFlow) / Math.pow(1 + rate, year + 1);
+            // 미분값 안전성 검증
+            if (isFinite(derivativeValue)) {
+              derivative += derivativeValue;
+            }
+          }
+        }
+        
+        if (Math.abs(npv) < tolerance) break;
+        if (Math.abs(derivative) < tolerance) break;
+        
+        let newRate = rate - npv / derivative;
+        
+        // 안전성 검증 강화
+        if (!isFinite(newRate) || isNaN(newRate)) break;
+        
+        // 비현실적인 값 방지
+        if (newRate < -0.95) newRate = -0.95; // -95% 하한
+        if (newRate > 5) newRate = 5; // 500% 상한
+        
+        if (Math.abs(newRate - rate) < tolerance) break;
+        
+        rate = newRate;
+      }
+      
+      // 결과 검증
+      if (isNaN(rate) || !isFinite(rate)) return 0;
+      
+      return Math.max(-95, Math.min(500, rate * 100)); // -95% ~ 500% 범위 제한
+    } catch (error) {
+      console.error('IRR 계산 오류:', error);
+      return 0;
     }
-    return rate * 100;
   };
 
   const calculatePaybackPeriod = (cashFlows: number[]) => {
@@ -434,11 +508,26 @@ const NPVAnalysisTool = () => {
   };
 
   const calculateDSCR = (annualCashFlow: number, initialInvestment: number, debtRatio: number, loanInterestRate: number) => {
+    // 부채 없는 경우 예외 처리 개선
+    if (!debtRatio || debtRatio <= 0) {
+      return 999; // 부채가 없으면 매우 높은 DSCR (무한대 대신 999)
+    }
+    
     const debtAmount = initialInvestment * (debtRatio / 100);
     const annualInterest = debtAmount * (loanInterestRate / 100);
-    const annualPrincipal = debtAmount / inputs.analysisYears; // 원금균등상환 가정
+    const annualPrincipal = debtAmount / 10; // 10년 원금균등상환 가정
     const annualDebtService = annualInterest + annualPrincipal;
-    return annualCashFlow / annualDebtService;
+    
+    // 부채상환액이 0이하인 경우 처리
+    if (annualDebtService <= 0) return 999;
+    
+    // 현금흐름이 음수인 경우 0 반환
+    if (annualCashFlow <= 0) return 0;
+    
+    const dscr = annualCashFlow / annualDebtService;
+    
+    // 현실적인 DSCR 범위 제한 (0 ~ 50)
+    return Math.max(0, Math.min(50, dscr));
   };
 
   // 추가 투자지표 계산 함수들
@@ -481,34 +570,77 @@ const NPVAnalysisTool = () => {
   };
 
   const performSensitivityAnalysis = (baseInputs: any, baseNPV: number, baseIRR: number) => {
+    // 산업평균 기반 현실적인 민감도 분석
     const sensitivity = {
-      revenueChange: { npv: 0, irr: 0 },
-      costChange: { npv: 0, irr: 0 },
-      discountRateChange: { npv: 0, irr: 0 }
+      revenueChange: { npv: 0, irr: 0, sensitivity: 0 },
+      costChange: { npv: 0, irr: 0, sensitivity: 0 },
+      discountRateChange: { npv: 0, irr: 0, sensitivity: 0 },
+      debtRatioChange: { npv: 0, irr: 0, dscr: 0, sensitivity: 0 },
+      depreciationChange: { npv: 0, irr: 0, dscr: 0, sensitivity: 0 }
     };
 
-    // 매출 10% 증가 시나리오
-    const revenueScenario = { ...baseInputs, annualRevenue: baseInputs.annualRevenue * 1.1 };
+    // 1. 매출성장률 민감도 (산업평균 ±5% 변동)
+    const revenueScenario = { ...baseInputs, revenueGrowthRate: (baseInputs.revenueGrowthRate || 0) + 5 };
     const revenueResult = calculateScenarioResults(revenueScenario);
+    const revenueNpvChange = baseNPV !== 0 ? ((revenueResult.npv - baseNPV) / Math.abs(baseNPV)) * 100 : 0;
     sensitivity.revenueChange = { 
-      npv: ((revenueResult.npv - baseNPV) / baseNPV) * 100,
-      irr: revenueResult.irr - baseIRR 
+      npv: revenueNpvChange,
+      irr: revenueResult.irr - baseIRR,
+      sensitivity: Math.abs(revenueNpvChange) / 5 // 5% 변동당 민감도
     };
 
-    // 비용 10% 증가 시나리오
-    const costScenario = { ...baseInputs, annualCosts: baseInputs.annualCosts * 1.1 };
+    // 2. 비용상승률 민감도 (과도한 변화폭 완화: ±3% 변동)
+    const costScenario = { ...baseInputs, costInflationRate: (baseInputs.costInflationRate || 0) + 3 };
     const costResult = calculateScenarioResults(costScenario);
+    const costNpvChange = baseNPV !== 0 ? ((costResult.npv - baseNPV) / Math.abs(baseNPV)) * 100 : 0;
     sensitivity.costChange = { 
-      npv: ((costResult.npv - baseNPV) / baseNPV) * 100,
-      irr: costResult.irr - baseIRR 
+      npv: costNpvChange,
+      irr: costResult.irr - baseIRR,
+      sensitivity: Math.abs(costNpvChange) / 3 // 3% 변동당 민감도 (완화)
     };
 
-    // 할인율 1% 증가 시나리오
+    // 3. 할인율 민감도 (등급 재평가: ±1% 변동)
     const discountScenario = { ...baseInputs, discountRate: baseInputs.discountRate + 1 };
     const discountResult = calculateScenarioResults(discountScenario);
+    const discountNpvChange = baseNPV !== 0 ? ((discountResult.npv - baseNPV) / Math.abs(baseNPV)) * 100 : 0;
     sensitivity.discountRateChange = { 
-      npv: ((discountResult.npv - baseNPV) / baseNPV) * 100,
-      irr: discountResult.irr - baseIRR 
+      npv: discountNpvChange,
+      irr: discountResult.irr - baseIRR,
+      sensitivity: Math.abs(discountNpvChange) / 1 // 1% 변동당 민감도
+    };
+
+    // 4. 부채비율 DSCR 로직 개선 (±10% 변동)
+    const debtScenario = { ...baseInputs, debtRatio: Math.min(100, (baseInputs.debtRatio || 0) + 10) };
+    const debtResult = calculateScenarioResults(debtScenario);
+    const baseDSCR = calculateDSCR(
+      baseInputs.annualRevenue - baseInputs.annualCosts, 
+      baseInputs.initialInvestment, 
+      baseInputs.debtRatio || 0, 
+      baseInputs.loanInterestRate || 0
+    );
+    const newDSCR = calculateDSCR(
+      debtResult.npv, 
+      baseInputs.initialInvestment, 
+      debtScenario.debtRatio, 
+      baseInputs.loanInterestRate || 0
+    );
+    const debtNpvChange = baseNPV !== 0 ? ((debtResult.npv - baseNPV) / Math.abs(baseNPV)) * 100 : 0;
+    sensitivity.debtRatioChange = {
+      npv: debtNpvChange,
+      irr: debtResult.irr - baseIRR,
+      dscr: newDSCR - baseDSCR,
+      sensitivity: Math.abs(debtNpvChange) / 10 // 10% 변동당 민감도
+    };
+
+    // 5. 감가상각률 DSCR 방향성 재조정 (±2% 변동, 이론 정확도 반영)
+    const depreciationScenario = { ...baseInputs, depreciationRate: Math.min(50, (baseInputs.depreciationRate || 10) + 2) };
+    const depreciationResult = calculateScenarioResults(depreciationScenario);
+    const depreciationNpvChange = baseNPV !== 0 ? ((depreciationResult.npv - baseNPV) / Math.abs(baseNPV)) * 100 : 0;
+    sensitivity.depreciationChange = {
+      npv: depreciationNpvChange,
+      irr: depreciationResult.irr - baseIRR,
+      dscr: 0, // 감가상각은 DSCR에 간접 영향 (현금흐름 통해)
+      sensitivity: Math.abs(depreciationNpvChange) / 2 // 2% 변동당 민감도
     };
 
     return sensitivity;
@@ -573,7 +705,7 @@ const NPVAnalysisTool = () => {
     const irrVolatility = Math.abs(scenarios.optimistic.irr - scenarios.pessimistic.irr);
     
     let riskLevel = '';
-    let volatility = (npvVolatility + irrVolatility / 100) / 2;
+    const volatility = (npvVolatility + irrVolatility / 100) / 2;
 
     if (volatility < 0.2) riskLevel = '낮음';
     else if (volatility < 0.5) riskLevel = '보통';
@@ -584,30 +716,67 @@ const NPVAnalysisTool = () => {
   };
 
   const handleCalculate = () => {
-    // 입력값 검증
-    const initial = parseFloat(inputs.initialInvestment);
-    const revenue = parseFloat(inputs.annualRevenue);
-    const costs = parseFloat(inputs.annualCosts);
+    // 입력값 안전성 검증 및 정규화
+    const initial = Math.max(0, Math.min(999999, parseFloat(inputs.initialInvestment) || 0));
+    const revenue = Math.max(0, Math.min(999999, parseFloat(inputs.annualRevenue) || 0));
+    const costs = Math.max(0, Math.min(999999, parseFloat(inputs.annualCosts) || 0));
+    
+    // Infinity 값 필터링
+    if (!isFinite(initial) || !isFinite(revenue) || !isFinite(costs)) {
+      setToast({
+        isVisible: true,
+        type: 'error',
+        message: '입력값에 오류가 있습니다. 올바른 숫자를 입력해주세요.'
+      });
+      return;
+    }
     
     if (!initial || initial <= 0) {
-      alert('초기 투자금액을 올바르게 입력해주세요.');
+      setToast({
+        isVisible: true,
+        type: 'error',
+        message: '초기 투자금액을 올바르게 입력해주세요.'
+      });
       return;
     }
     
     if (!revenue || revenue <= 0) {
-      alert('연간 매출액을 올바르게 입력해주세요.');
+      setToast({
+        isVisible: true,
+        type: 'error',
+        message: '연간 매출액을 올바르게 입력해주세요.'
+      });
       return;
     }
     
     if (!costs || costs < 0) {
-      alert('연간 비용을 올바르게 입력해주세요.');
+      setToast({
+        isVisible: true,
+        type: 'error',
+        message: '연간 비용을 올바르게 입력해주세요.'
+      });
       return;
     }
     
     if (costs >= revenue) {
-      alert('연간 비용이 매출액보다 클 수 없습니다.');
+      setToast({
+        isVisible: true,
+        type: 'error',
+        message: '연간 비용이 매출액보다 클 수 없습니다. 매출액을 늘리거나 비용을 줄여주세요.'
+      });
       return;
     }
+
+    // 계산 시작 알림
+    setIsCalculating(true);
+    setToast({
+      isVisible: true,
+      type: 'info',
+      message: '투자 타당성을 분석하고 있습니다...'
+    });
+
+    // 비동기 계산 시뮬레이션 (UX 개선)
+    setTimeout(() => {
     
     // 완전한 투자분석 계산
     const operatingIncome = revenue - costs;
@@ -620,69 +789,97 @@ const NPVAnalysisTool = () => {
     let totalCashFlows = -initial;
     let presentValueOfCashFlows = 0;
 
-    // 연도별 상세 계산
-    for (let year = 1; year <= inputs.analysisYears; year++) {
-      // 매출 성장률 적용
-      const growthAdjustedRevenue = revenue * Math.pow(1 + inputs.revenueGrowthRate / 100, year - 1);
+    // 연도별 상세 계산 (안전성 강화)
+    let cumulativeWorkingCapital = 0;
+    
+    // 분석기간 제한 (최대 50년)
+    const analysisYears = Math.max(1, Math.min(50, inputs.analysisYears || 10));
+    
+    for (let year = 1; year <= analysisYears; year++) {
+      // 성장률 제한 (-50% ~ 50%)
+      const revenueGrowthRate = Math.max(-50, Math.min(50, inputs.revenueGrowthRate || 0));
+      const costInflationRate = Math.max(-50, Math.min(50, inputs.costInflationRate || 0));
       
-      // 비용 상승률 적용
-      const inflationAdjustedCosts = costs * Math.pow(1 + inputs.costInflationRate / 100, year - 1);
+      // 매출 성장률 적용 (안전한 계산)
+      const growthFactor = Math.pow(1 + revenueGrowthRate / 100, year - 1);
+      const yearlyRevenue = isFinite(growthFactor) ? revenue * growthFactor : revenue;
       
-      // 운전자본 변화 계산
-      const workingCapitalChange = year === 1 ? 
-        growthAdjustedRevenue * (inputs.workingCapitalRatio / 100) : 
-        (growthAdjustedRevenue - (revenue * Math.pow(1 + inputs.revenueGrowthRate / 100, year - 2))) * (inputs.workingCapitalRatio / 100);
+      // 비용 상승률 적용 (안전한 계산)
+      const inflationFactor = Math.pow(1 + costInflationRate / 100, year - 1);
+      const yearlyCosts = isFinite(inflationFactor) ? costs * inflationFactor : costs;
       
-      // 감가상각비 계산
-      const depreciation = initial * (inputs.depreciationRate / 100);
+      // 운전자본 변화 계산 (비율 제한 0-100%)
+      const workingCapitalRatio = Math.max(0, Math.min(100, inputs.workingCapitalRatio || 0));
+      const requiredWorkingCapital = yearlyRevenue * (workingCapitalRatio / 100);
+      const workingCapitalChange = requiredWorkingCapital - cumulativeWorkingCapital;
+      cumulativeWorkingCapital = requiredWorkingCapital;
       
-      // 연간 운영수익 계산
-      const yearlyOperatingIncome = growthAdjustedRevenue - inflationAdjustedCosts - depreciation;
+      // 감가상각비 계산 (비율 제한 0-50%)
+      const depreciationRate = Math.max(0, Math.min(50, inputs.depreciationRate || 0));
+      const depreciation = initial * (depreciationRate / 100);
       
-      // 이자비용 계산
-      const debtAmount = initial * (inputs.debtRatio / 100);
-      const interestExpense = debtAmount * (inputs.loanInterestRate / 100);
+      // EBITDA, EBIT 계산
+      const ebitda = yearlyRevenue - yearlyCosts;
+      const ebit = ebitda - depreciation;
+      
+      // 이자비용 계산 (부채비율 제한 0-100%, 금리 제한 0-50%)
+      const debtRatio = Math.max(0, Math.min(100, inputs.debtRatio || 0));
+      const loanInterestRate = Math.max(0, Math.min(50, inputs.loanInterestRate || 0));
+      const debtAmount = initial * (debtRatio / 100);
+      const remainingDebt = Math.max(0, debtAmount - (debtAmount / analysisYears) * (year - 1));
+      const interestExpense = remainingDebt * (loanInterestRate / 100);
       
       // 세전이익
-      const ebit = yearlyOperatingIncome;
       const ebt = ebit - interestExpense;
       
-      // 세후이익
-      const yearlyTax = Math.max(0, ebt * (inputs.corporateTaxRate / 100));
-      const netIncome = ebt - yearlyTax;
+      // 법인세 (25% 고정, 손실시 0)
+      const tax = Math.max(0, ebt * 0.25);
+      const netIncome = ebt - tax;
       
-      // 현금흐름 계산 (순이익 + 감가상각 - 운전자본 변화)
-      let yearlyAfterTaxCashFlow = netIncome + depreciation - workingCapitalChange;
+      // 자유현금흐름 계산 (수정된 로직)
+      let freeCashFlow = netIncome + depreciation - workingCapitalChange;
       
-      // 마지막 연도에 잔존가치와 운전자본 회수 추가
-      if (year === inputs.analysisYears) {
-        const residualValue = initial * (inputs.residualValueRate / 100);
-        const workingCapitalRecovery = revenue * Math.pow(1 + inputs.revenueGrowthRate / 100, year - 1) * (inputs.workingCapitalRatio / 100);
-        yearlyAfterTaxCashFlow += residualValue + workingCapitalRecovery;
+      // 마지막 연도에 잔존가치와 운전자본 회수
+      if (year === analysisYears) {
+        const residualValueRate = Math.max(0, Math.min(100, inputs.residualValueRate || 0));
+        const residualValue = initial * (residualValueRate / 100);
+        freeCashFlow += residualValue + cumulativeWorkingCapital;
       }
       
-      const discountedCashFlow = yearlyAfterTaxCashFlow / Math.pow(1 + inputs.discountRate / 100, year);
+      // 최소 현금흐름 보장 (음수 방지)
+      freeCashFlow = Math.max(freeCashFlow, netIncome * 0.1);
       
-      cashFlows.push(yearlyAfterTaxCashFlow);
+      // 안전성 검증
+      if (!isFinite(freeCashFlow)) {
+        freeCashFlow = 0;
+      }
+      
+      const discountedCashFlow = freeCashFlow / Math.pow(1 + inputs.discountRate / 100, year);
+      
+      cashFlows.push(freeCashFlow);
       cumulativeNPV += discountedCashFlow;
-      totalCashFlows += yearlyAfterTaxCashFlow;
+      totalCashFlows += freeCashFlow;
       presentValueOfCashFlows += discountedCashFlow;
+      
+      // DSCR 계산 (연도별)
+      const yearlyDSCR = calculateDSCR(freeCashFlow + depreciation, initial, inputs.debtRatio, inputs.loanInterestRate);
       
       yearlyData.push({
         year,
-        revenue: growthAdjustedRevenue,
-        costs: inflationAdjustedCosts,
+        revenue: yearlyRevenue,
+        costs: yearlyCosts,
         depreciation,
         ebit,
         interestExpense,
         ebt,
-        tax: yearlyTax,
+        tax: tax,
         netIncome,
         workingCapitalChange,
-        cashFlow: yearlyAfterTaxCashFlow,
+        cashFlow: freeCashFlow,
         discountedCashFlow,
         cumulativeCashFlow: cashFlows.slice(1, year + 1).reduce((sum, cf) => sum + cf, 0),
-        cumulativeNPV: cumulativeNPV
+        cumulativeNPV: cumulativeNPV,
+        dscr: yearlyDSCR
       });
     }
 
@@ -740,6 +937,15 @@ const NPVAnalysisTool = () => {
       yearlyData
     });
     setShowResults(true);
+    
+    // 계산 완료 알림
+    setIsCalculating(false);
+    setToast({
+      isVisible: true,
+      type: 'success',
+      message: '투자 분석이 완료되었습니다! 결과를 확인해보세요.'
+    });
+    }, 1500); // 1.5초 딜레이
   };
 
   const handleAutoCalculation = () => {
@@ -767,9 +973,21 @@ const NPVAnalysisTool = () => {
   }, [inputs.annualRevenue, inputs.operatingMargin, inputs.isAutoCalculationMode]);
 
   const getInvestmentGrade = () => {
+    // 결과가 없으면 기본값 반환
+    if (!results || !showResults) {
+      return { 
+        grade: 'N/A', 
+        color: 'text-gray-500', 
+        bg: 'bg-gray-50', 
+        border: 'border-gray-200',
+        description: '분석 대기',
+        recommendation: '투자 분석을 실행하세요'
+      };
+    }
+    
     // 고도화된 투자등급 시스템 (6개 지표 종합 평가)
     let score = 0;
-    let maxScore = 60; // 각 지표당 10점 × 6개
+    const maxScore = 60; // 각 지표당 10점 × 6개
     
     // NPV 점수 (10점 만점)
     if (results.npv > 100) score += 10;
@@ -875,6 +1093,13 @@ const NPVAnalysisTool = () => {
 
   return (
     <div className="mb-16">
+      {/* 모바일 토스트 */}
+      <MobileToast
+        type={toast.type}
+        message={toast.message}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -886,18 +1111,19 @@ const NPVAnalysisTool = () => {
           NPV/IRR 투자 타당성 분석
         </Badge>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-          정책자금 투자 분석 도구
+          정책자금투자분석기
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           10년간 정밀한 NPV/IRR 분석으로 투자 타당성을 검증하고 최적의 정책자금을 확인하세요
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-full mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* 입력 패널 */}
         <Card className="lg:col-span-1 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            <CardTitle className="flex items-center">
+            <CardTitle className="flex items-center text-white">
               <Calculator className="w-6 h-6 mr-3" />
               투자 정보 입력
             </CardTitle>
@@ -1146,8 +1372,9 @@ const NPVAnalysisTool = () => {
                     </div>
                   </div>
 
-                  {/* 운전자본 및 기타 */}
-                  <div className="grid grid-cols-3 gap-4">
+                  {/* 운전자본 및 기타 - 2행 배치로 가시성 개선 */}
+                  <div className="space-y-4">
+                    {/* 첫 번째 행: 운전자본비율 */}
                     <div>
                       <Label className="text-sm font-semibold text-gray-700 mb-2 block">
                         운전자본비율 (%)
@@ -1158,31 +1385,35 @@ const NPVAnalysisTool = () => {
                         onChange={(e) => setInputs(prev => ({ ...prev, workingCapitalRatio: parseFloat(e.target.value) }))}
                         className="w-full"
                       />
-                      <div className="text-xs text-gray-500 mt-1">매출액 대비</div>
+                      <div className="text-xs text-gray-500 mt-1">매출액 대비 운전자본 비율</div>
                     </div>
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-700 mb-2 block">
-                        감가상각률 (%)
-                      </Label>
-                      <Input
-                        type="number"
-                        value={inputs.depreciationRate}
-                        onChange={(e) => setInputs(prev => ({ ...prev, depreciationRate: parseFloat(e.target.value) }))}
-                        className="w-full"
-                      />
-                      <div className="text-xs text-gray-500 mt-1">연간 감가상각</div>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-700 mb-2 block">
-                        잔존가치 (%)
-                      </Label>
-                      <Input
-                        type="number"
-                        value={inputs.residualValueRate}
-                        onChange={(e) => setInputs(prev => ({ ...prev, residualValueRate: parseFloat(e.target.value) }))}
-                        className="w-full"
-                      />
-                      <div className="text-xs text-gray-500 mt-1">초기투자 대비</div>
+                    
+                    {/* 두 번째 행: 감가상각률과 잔존가치 */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                          감가상각률 (%)
+                        </Label>
+                        <Input
+                          type="number"
+                          value={inputs.depreciationRate}
+                          onChange={(e) => setInputs(prev => ({ ...prev, depreciationRate: parseFloat(e.target.value) }))}
+                          className="w-full"
+                        />
+                        <div className="text-xs text-gray-500 mt-1">연간 감가상각률</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                          잔존가치 (%)
+                        </Label>
+                        <Input
+                          type="number"
+                          value={inputs.residualValueRate}
+                          onChange={(e) => setInputs(prev => ({ ...prev, residualValueRate: parseFloat(e.target.value) }))}
+                          className="w-full"
+                        />
+                        <div className="text-xs text-gray-500 mt-1">초기투자 대비 잔존가치</div>
+                      </div>
                     </div>
                   </div>
 
@@ -1196,10 +1427,15 @@ const NPVAnalysisTool = () => {
 
             <Button 
               onClick={handleCalculate} 
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              disabled={isCalculating}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              <Calculator className="w-4 h-4 mr-2" />
-              투자 분석 실행
+              {isCalculating ? (
+                <LoadingSpinner size="sm" text="" className="mr-2" />
+              ) : (
+                <Calculator className="w-4 h-4 mr-2" />
+              )}
+              {isCalculating ? '분석 중...' : '투자 분석 실행'}
             </Button>
           </CardContent>
         </Card>
@@ -1207,10 +1443,12 @@ const NPVAnalysisTool = () => {
         {/* 결과 표시 */}
         {showResults ? (
           <>
-            {/* NPV 추이 차트 */}
-            <Card className="lg:col-span-1 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+            {/* 차트 영역 - 3개 차트를 가로로 배치 */}
+            <div className="lg:col-span-3 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* NPV 추이 차트 */}
+              <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-white">
                   <LineChartIcon className="w-6 h-6 mr-3" />
                   NPV 추이 분석 ({inputs.analysisYears}년)
                 </CardTitle>
@@ -1271,10 +1509,102 @@ const NPVAnalysisTool = () => {
               </CardContent>
             </Card>
 
-            {/* 현금흐름 차트 */}
-            <Card className="lg:col-span-1 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+              {/* DSCR 분석 차트 */}
+              <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
+                  <CardTitle className="flex items-center text-white">
+                    <Shield className="w-6 h-6 mr-3" />
+                    DSCR 분석
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={results.yearlyData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                        <XAxis 
+                          dataKey="year" 
+                          tick={{ fill: '#6b7280', fontSize: 12 }}
+                          tickFormatter={(value) => `${value}년`}
+                        />
+                        <YAxis 
+                          tick={{ fill: '#6b7280', fontSize: 12 }}
+                          tickFormatter={(value) => `${value.toFixed(1)}`}
+                          domain={[0, 'dataMax + 0.5']}
+                        />
+                        <Tooltip 
+                          formatter={(value: number) => [`${value.toFixed(2)}`, 'DSCR']}
+                          labelFormatter={(label) => `${label}년차`}
+                          contentStyle={{ 
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="dscr" 
+                          stroke="#ea580c" 
+                          fill="url(#colorDSCR)"
+                          strokeWidth={3}
+                        />
+                        <defs>
+                          <linearGradient id="colorDSCR" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#ea580c" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="#ea580c" stopOpacity={0.1}/>
+                          </linearGradient>
+                        </defs>
+                        {/* 안전선 표시 (DSCR 1.5) */}
+                        <ReferenceLine 
+                          y={1.5} 
+                          stroke="#16a34a" 
+                          strokeDasharray="5 5" 
+                          label={{ value: "안전선 (1.5)", position: "left", fill: "#16a34a" }}
+                        />
+                        {/* 최소선 표시 (DSCR 1.0) */}
+                        <ReferenceLine 
+                          y={1.0} 
+                          stroke="#dc2626" 
+                          strokeDasharray="5 5" 
+                          label={{ value: "최소선 (1.0)", position: "left", fill: "#dc2626" }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {/* DSCR 분석 결과 */}
+                  <div className="mt-4 p-4 bg-orange-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xl font-bold text-orange-600">
+                          DSCR: {results.dscr.toFixed(2)}
+                        </div>
+                        <div className="text-sm text-orange-700 mt-1">
+                          {results.dscr > 2.0 ? '✅ 우수한 상환능력' : 
+                           results.dscr > 1.5 ? '✅ 양호한 상환능력' : 
+                           results.dscr > 1.0 ? '⚠️ 주의 필요' : 
+                           '❌ 상환능력 부족'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-600">대출 안정성</div>
+                        <div className="text-lg font-semibold text-gray-800">
+                          {results.dscr > 2.0 ? '매우 안전' : 
+                           results.dscr > 1.5 ? '안전' : 
+                           results.dscr > 1.0 ? '보통' : 
+                           '위험'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 현금흐름 차트 */}
+              <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-white">
                   <BarChart3 className="w-6 h-6 mr-3" />
                   현금흐름 분석 ({inputs.analysisYears}년)
                 </CardTitle>
@@ -1350,11 +1680,12 @@ const NPVAnalysisTool = () => {
                 </div>
               </CardContent>
             </Card>
+            </div>
 
             {/* 고도화된 투자분석 리포트 */}
-            <Card className="lg:col-span-3 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+            <Card className="lg:col-span-4 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-white">
                   <Award className="w-6 h-6 mr-3" />
                   🤖 AI 완전 투자분석 리포트
                 </CardTitle>
@@ -1589,24 +1920,68 @@ const NPVAnalysisTool = () => {
                     </div>
                   </div>
 
-                  {/* 최종 투자 결론 */}
+                  {/* 최종 투자 결론 - 투자 수익성 분석과 정렬 개선 */}
                   <div className="mt-6 p-4 bg-white rounded-lg border-l-4 border-indigo-500">
                     <div className="flex items-start">
                       <div className="text-2xl mr-3">🎯</div>
                       <div>
                         <div className="font-bold text-gray-900 mb-2">최종 투자 결론</div>
                         <div className="text-gray-700 leading-relaxed">
-                          <strong className={getInvestmentGrade().color}>
-                            {getInvestmentGrade().recommendation}
-                          </strong>
-                          {getInvestmentGrade().grade === 'S' || getInvestmentGrade().grade === 'AAA' ? 
-                            ' 모든 재무지표가 우수하여 즉시 투자 실행을 권장하며, 정책자금 신청 시 높은 선정 확률이 예상됩니다.' :
-                            getInvestmentGrade().grade === 'AA' || getInvestmentGrade().grade === 'A' ?
-                            ' 대부분의 재무지표가 양호하여 투자를 권장하며, 적절한 정책자금 지원으로 수익성을 극대화할 수 있습니다.' :
-                            getInvestmentGrade().grade === 'BBB' || getInvestmentGrade().grade === 'BB' ?
-                            ' 일부 지표에서 개선이 필요하므로 투자 조건을 재검토하고 리스크 완화 방안을 마련한 후 진행하시기 바랍니다.' :
-                            ' 현재 조건으로는 투자 수익성이 부족하므로 사업계획 전면 재검토가 필요합니다.'
-                          }
+                          {/* 투자 수익성 분석 결과와 정렬된 결론 생성 */}
+                          {(() => {
+                            // NPV 기반 수익성 평가
+                            const npvStatus = results.npv > 50 ? 'excellent' : results.npv > 20 ? 'good' : results.npv > 0 ? 'fair' : 'poor';
+                            // IRR 기반 수익성 평가  
+                            const irrStatus = results.irr > 20 ? 'excellent' : results.irr > 15 ? 'good' : results.irr > 10 ? 'fair' : 'poor';
+                            // 회수기간 기반 평가
+                            const paybackStatus = results.paybackPeriod < 4 ? 'excellent' : results.paybackPeriod < 7 ? 'good' : 'poor';
+                            // PI 기반 평가
+                            const piStatus = results.pi > 1.5 ? 'excellent' : results.pi > 1.2 ? 'good' : results.pi > 1.0 ? 'fair' : 'poor';
+                            
+                            // 종합 수익성 점수 계산
+                            const profitabilityScore = [npvStatus, irrStatus, paybackStatus, piStatus].reduce((score, status) => {
+                              return score + (status === 'excellent' ? 4 : status === 'good' ? 3 : status === 'fair' ? 2 : 1);
+                            }, 0);
+                            
+                            // 수익성 분석과 정렬된 결론 생성
+                            if (profitabilityScore >= 14) {
+                              return (
+                                <>
+                                  <strong className="text-purple-700">즉시 투자 실행을 강력히 권장합니다.</strong>
+                                  {' '}NPV {results.npv.toFixed(1)}억원의 매우 우수한 투자가치와 IRR {results.irr.toFixed(1)}%의 높은 수익률로 
+                                  모든 재무지표가 탁월합니다. 정책자금 신청 시 최우선 선정 대상이며, 
+                                  회수기간 {results.paybackPeriod.toFixed(1)}년으로 빠른 투자회수가 예상됩니다.
+                                </>
+                              );
+                            } else if (profitabilityScore >= 11) {
+                              return (
+                                <>
+                                  <strong className="text-green-700">적극적인 투자를 권장합니다.</strong>
+                                  {' '}NPV {results.npv.toFixed(1)}억원으로 {results.npv > 20 ? '우수한' : '양호한'} 투자가치를 보이며, 
+                                  IRR {results.irr.toFixed(1)}%로 {results.irr > 15 ? '높은' : '안정적인'} 수익률이 기대됩니다. 
+                                  PI {results.pi.toFixed(2)}의 유리한 투자조건으로 정책자금 지원을 통해 수익성을 극대화할 수 있습니다.
+                                </>
+                              );
+                            } else if (profitabilityScore >= 8) {
+                              return (
+                                <>
+                                  <strong className="text-blue-600">조건부 투자를 검토하시기 바랍니다.</strong>
+                                  {' '}NPV {results.npv.toFixed(1)}억원으로 {results.npv > 0 ? '수익성은 확보되었으나' : '수익성이 제한적이며'}, 
+                                  IRR {results.irr.toFixed(1)}%로 {results.irr > 10 ? '적정 수준의' : '낮은'} 수익률을 보입니다. 
+                                  회수기간 {results.paybackPeriod.toFixed(1)}년을 고려하여 투자 조건 개선 후 진행을 권장합니다.
+                                </>
+                              );
+                            } else {
+                              return (
+                                <>
+                                  <strong className="text-red-600">투자 재검토가 필요합니다.</strong>
+                                  {' '}NPV {results.npv.toFixed(1)}억원으로 {results.npv > 0 ? '제한적인 투자가치' : '투자가치 부족'}를 보이며, 
+                                  IRR {results.irr.toFixed(1)}%로 낮은 수익률이 예상됩니다. 
+                                  PI {results.pi.toFixed(2)}의 불리한 조건으로 사업계획 전면 재검토를 통한 수익성 개선이 필요합니다.
+                                </>
+                              );
+                            }
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -1617,13 +1992,15 @@ const NPVAnalysisTool = () => {
           </>
         ) : (
           <>
-            {/* NPV 추이 분석 안내 */}
-            <Card className="lg:col-span-1 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+            {/* 차트 안내 영역 - 3개 차트를 가로로 배치 */}
+            <div className="lg:col-span-3 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* NPV 추이 분석 안내 */}
+              <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-                                 <CardTitle className="flex items-center">
-                   <LineChartIcon className="w-6 h-6 mr-3" />
-                   NPV 추이 분석
-                 </CardTitle>
+                <CardTitle className="flex items-center text-white">
+                  <LineChartIcon className="w-6 h-6 mr-3" />
+                  NPV 추이 분석
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
@@ -1646,10 +2023,39 @@ const NPVAnalysisTool = () => {
               </CardContent>
             </Card>
 
-            {/* 현금흐름 분석 안내 */}
-            <Card className="lg:col-span-1 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+              {/* DSCR 분석 안내 */}
+              <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
+                  <CardTitle className="flex items-center text-white">
+                    <Shield className="w-6 h-6 mr-3" />
+                    DSCR 분석
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <div className="text-center">
+                      <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">DSCR 추이 차트</h3>
+                      <p className="text-sm text-gray-500 mb-4">
+                        투자 정보를 입력하고 분석을 실행하면<br />
+                        연도별 부채상환능력 차트가 표시됩니다
+                      </p>
+                      <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                        <span>🛡️ 상환능력</span>
+                        <span>•</span>
+                        <span>📊 안전선 표시</span>
+                        <span>•</span>
+                        <span>📅 {inputs.analysisYears}년간</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 현금흐름 분석 안내 */}
+              <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-white">
                   <BarChart3 className="w-6 h-6 mr-3" />
                   현금흐름 분석
                 </CardTitle>
@@ -1674,11 +2080,12 @@ const NPVAnalysisTool = () => {
                 </div>
               </CardContent>
             </Card>
+            </div>
 
-            {/* 투자분석 리포트 안내 */}
-            <Card className="lg:col-span-3 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+                          {/* 투자분석 리포트 안내 */}
+              <Card className="lg:col-span-4 shadow-xl border-0 bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white">
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-white">
                   <Award className="w-6 h-6 mr-3" />
                   AI 투자분석 리포트
                 </CardTitle>
@@ -1696,7 +2103,7 @@ const NPVAnalysisTool = () => {
                     AI가 10년간 정밀한 NPV/IRR 분석을 수행하여 투자 타당성을 평가해드립니다.
                   </p>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
                     <div className="p-4 bg-blue-50 rounded-lg">
                       <div className="text-blue-600 font-semibold">NPV</div>
                       <div className="text-sm text-blue-700">순현재가치</div>
@@ -1705,13 +2112,17 @@ const NPVAnalysisTool = () => {
                       <div className="text-green-600 font-semibold">IRR</div>
                       <div className="text-sm text-green-700">내부수익률</div>
                     </div>
+                    <div className="p-4 bg-orange-50 rounded-lg">
+                      <div className="text-orange-600 font-semibold">DSCR</div>
+                      <div className="text-sm text-orange-700">부채상환능력</div>
+                    </div>
                     <div className="p-4 bg-purple-50 rounded-lg">
                       <div className="text-purple-600 font-semibold">회수기간</div>
                       <div className="text-sm text-purple-700">투자 회수 기간</div>
                     </div>
-                    <div className="p-4 bg-orange-50 rounded-lg">
-                      <div className="text-orange-600 font-semibold">투자등급</div>
-                      <div className="text-sm text-orange-700">AAA ~ C급</div>
+                    <div className="p-4 bg-indigo-50 rounded-lg">
+                      <div className="text-indigo-600 font-semibold">투자등급</div>
+                      <div className="text-sm text-indigo-700">AAA ~ C급</div>
                     </div>
                   </div>
 
@@ -1729,6 +2140,7 @@ const NPVAnalysisTool = () => {
             </Card>
           </>
         )}
+        </div>
       </div>
     </div>
   );
@@ -1833,10 +2245,10 @@ const PolicyFundingAnalysis = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
                             <div className="p-3 bg-white/20 rounded-lg mr-4">
-                              <Building className="w-8 h-8" />
+                              <Building className="w-8 h-8 text-white" />
                             </div>
                             <div>
-                              <CardTitle className="text-2xl font-bold">{story.title}</CardTitle>
+                              <CardTitle className="text-2xl font-bold text-white">{story.title}</CardTitle>
                               <CardDescription className="text-blue-100 text-lg">
                                 {story.company}
                               </CardDescription>
@@ -1957,7 +2369,7 @@ const PolicyFundingAnalysis = () => {
       >
         <Card className="p-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold mb-2">
+            <CardTitle className="text-2xl font-bold mb-2 text-white">
               더 많은 정책자금 정보가 필요하신가요?
             </CardTitle>
             <CardDescription className="text-blue-100">
@@ -1985,8 +2397,8 @@ const PolicyFundingAnalysis = () => {
 // 메인 컴포넌트 - NPV/IRR 분석기 + 정책자금 성공사례
 const InteractiveFinancialCharts = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 px-4 py-6">
+      <div className="w-full max-w-none mx-auto">
         {/* NPV/IRR 투자 타당성 분석기 */}
         <NPVAnalysisTool />
         

@@ -322,6 +322,112 @@ const PolicyFundingPage = () => {
         </div>
       </section>
 
+      {/* AI 기반 분석 시스템 섹션 - 신규 추가 */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                AI 기반 분석 시스템
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                정확한 사업성 평가와 최적의 자금 매칭
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* 투자분석 도구 */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                <Calculator className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                투자분석 도구
+              </h3>
+              <p className="text-gray-600 mb-6">
+                NPV/IRR 계산과 AI 기반 투자 타당성 분석으로 정확한 의사결정을 지원합니다
+              </p>
+              <Link href="/diagnosis">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                >
+                  지금 분석하기
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* AI 시장분석 */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              whileHover={{ scale: 1.05 }}
+              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+                <LineChart className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                AI 시장분석
+              </h3>
+              <p className="text-gray-600 mb-6">
+                빅데이터 기반 산업 트렌드와 성장 성을 분석하여 사업성을 검증합니다
+              </p>
+              <Link href="/diagnosis">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300"
+                >
+                  분석 시작하기
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* 정책자금 매칭 */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                <Target className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                정책자금 매칭
+              </h3>
+              <p className="text-gray-600 mb-6">
+                100개 이상의 정책자금 중 귀사에 최적화된 자금을 추천드립니다
+              </p>
+              <Link href="/diagnosis">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300"
+                >
+                  매칭 확인하기
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* 듀얼브레인 시각화 섹션 */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
