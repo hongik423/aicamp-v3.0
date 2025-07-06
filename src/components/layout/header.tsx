@@ -192,7 +192,8 @@ const Header = () => {
   const actionButtons = [
     { href: '/diagnosis', label: '무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '상담신청', color: 'green', icon: MessageSquare },
-    { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator }
+    { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
+    { href: '/services/policy-funding', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp }
   ];
 
   return (
@@ -249,7 +250,9 @@ const Header = () => {
                       ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
                       : button.color === 'green'
                       ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
-                      : 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
+                      : button.color === 'purple'
+                      ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
+                      : 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
                   }`}
                   aria-label={button.label}
                 >
@@ -283,6 +286,76 @@ const Header = () => {
             className="fixed inset-0 z-50 lg:hidden bg-white border-t border-gray-200 overflow-hidden"
           >
             <div className="px-4 py-6 space-y-4">
+              {/* 최상단 주요 액션 버튼들 */}
+              <div className="pb-4 border-b border-gray-200">
+                <div className="text-sm font-semibold text-gray-700 mb-3 px-3">주요 서비스</div>
+                <div className="grid grid-cols-1 gap-2">
+                  {actionButtons.map((button) => (
+                    <motion.div key={button.href} whileHover={{ x: 8 }} className="group">
+                      <Link href={button.href} onClick={() => setIsMenuOpen(false)}>
+                        <div className={`flex items-center p-4 rounded-xl transition-all duration-200 group ${
+                          button.color === 'blue' 
+                            ? 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200'
+                            : button.color === 'green'
+                            ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
+                            : button.color === 'purple'
+                            ? 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200'
+                            : 'bg-orange-50 hover:bg-orange-100 border-2 border-orange-200'
+                        }`}>
+                          <button.icon className={`w-7 h-7 mr-4 ${
+                            button.color === 'blue' 
+                              ? 'text-blue-600 group-hover:text-blue-700'
+                              : button.color === 'green'
+                              ? 'text-green-600 group-hover:text-green-700'
+                              : button.color === 'purple'
+                              ? 'text-purple-600 group-hover:text-purple-700'
+                              : 'text-orange-600 group-hover:text-orange-700'
+                          }`} />
+                          <div className="flex-1">
+                            <div className={`font-bold text-lg ${
+                              button.color === 'blue' 
+                                ? 'text-blue-900 group-hover:text-blue-800'
+                                : button.color === 'green'
+                                ? 'text-green-900 group-hover:text-green-800'
+                                : button.color === 'purple'
+                                ? 'text-purple-900 group-hover:text-purple-800'
+                                : 'text-orange-900 group-hover:text-orange-800'
+                            }`}>
+                              {button.label}
+                            </div>
+                            <div className={`text-sm ${
+                              button.color === 'blue' 
+                                ? 'text-blue-600 group-hover:text-blue-700'
+                                : button.color === 'green'
+                                ? 'text-green-600 group-hover:text-green-700'
+                                : button.color === 'purple'
+                                ? 'text-purple-600 group-hover:text-purple-700'
+                                : 'text-orange-600 group-hover:text-orange-700'
+                            }`}>
+                              {button.label === '무료진단' ? 'AI 기반 기업 진단' : 
+                               button.label === '상담신청' ? '전문가 무료 상담' : 
+                               button.label === '세금계산기' ? '10가지 세금 계산기' :
+                               'NPV/IRR 투자분석'}
+                            </div>
+                          </div>
+                          <ChevronRight className={`w-6 h-6 ${
+                            button.color === 'blue' 
+                              ? 'text-blue-400 group-hover:text-blue-600'
+                              : button.color === 'green'
+                              ? 'text-green-400 group-hover:text-green-600'
+                              : button.color === 'purple'
+                              ? 'text-purple-400 group-hover:text-purple-600'
+                              : 'text-orange-400 group-hover:text-orange-600'
+                          }`} />
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 일반 네비게이션 메뉴 */}
+              <div className="text-sm font-semibold text-gray-700 mb-3 px-3">전체 서비스</div>
               {[
                 { href: '/', label: '홈', icon: Home, description: '메인페이지' },
                 { href: '/services/business-analysis', label: '사업분석', icon: BarChart3, description: '비즈니스 컨설팅' },
@@ -293,8 +366,7 @@ const Header = () => {
                 { href: '/services/website', label: '매출증대웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
                 { href: '/center-leader', label: '교장소개', icon: User, description: '이후경 경영지도사' },
                 { href: '/seminar', label: '세미나', icon: Video, description: '교육 프로그램' },
-                { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' },
-                { href: '/consultation', label: '상담신청', icon: Phone, description: '무료 상담 예약' }
+                { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' }
               ].map((item) => (
                 <motion.div key={item.href} whileHover={{ x: 8 }} className="group">
                   <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
