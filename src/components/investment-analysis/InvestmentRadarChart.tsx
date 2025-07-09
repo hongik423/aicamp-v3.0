@@ -21,54 +21,65 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Target, Award, TrendingUp } from 'lucide-react';
-import { AIEvaluation, InvestmentGrade } from '@/types/investment.types';
+import { InvestmentResult, InvestmentGrade } from '@/types/investment.types';
 
 interface InvestmentRadarChartProps {
-  aiEvaluation: AIEvaluation;
+  result: InvestmentResult;
   grade: InvestmentGrade;
 }
 
-export default function InvestmentRadarChart({ aiEvaluation, grade }: InvestmentRadarChartProps) {
+export default function InvestmentRadarChart({ result, grade }: InvestmentRadarChartProps) {
+  // 평균 DSCR 계산
+  const avgDSCR = result.dscr && result.dscr.length > 0
+    ? result.dscr.reduce((a, b) => a + b, 0) / result.dscr.length
+    : 0;
+
   // 레이더 차트 데이터 준비
   const radarData = [
     {
       metric: 'NPV',
-      score: aiEvaluation.metrics.npv.score,
+      score: grade.details.npvScore,
       fullMark: 100
     },
     {
       metric: 'IRR',
-      score: aiEvaluation.metrics.irr.score,
+      score: grade.details.irrScore,
       fullMark: 100
     },
     {
       metric: 'DSCR',
-      score: aiEvaluation.metrics.dscr.score,
+      score: grade.details.dscrScore,
       fullMark: 100
     },
     {
       metric: '회수기간',
-      score: aiEvaluation.metrics.payback.score,
+      score: grade.details.paybackScore,
       fullMark: 100
     },
     {
-      metric: '수익성',
-      score: aiEvaluation.metrics.profitability.score,
+      metric: '수익성지수',
+      score: result.profitabilityIndex >= 1.5 ? 90 : 
+             result.profitabilityIndex >= 1.2 ? 70 :
+             result.profitabilityIndex >= 1.0 ? 50 : 30,
       fullMark: 100
     },
     {
-      metric: '안정성',
-      score: aiEvaluation.metrics.stability.score,
+      metric: 'ROI',
+      score: result.roi >= 30 ? 90 :
+             result.roi >= 20 ? 70 :
+             result.roi >= 10 ? 50 : 30,
       fullMark: 100
     },
     {
-      metric: '성장성',
-      score: aiEvaluation.metrics.growth.score,
+      metric: '손익분기',
+      score: result.breakEvenPoint <= 2 ? 90 :
+             result.breakEvenPoint <= 3 ? 70 :
+             result.breakEvenPoint <= 5 ? 50 : 30,
       fullMark: 100
     },
     {
-      metric: '위험도',
-      score: aiEvaluation.metrics.risk.score,
+      metric: '종합점수',
+      score: grade.score,
       fullMark: 100
     }
   ];
@@ -82,18 +93,19 @@ export default function InvestmentRadarChart({ aiEvaluation, grade }: Investment
   ];
 
   // 지표별 상세 점수 바차트 데이터
-  const detailScoreData = Object.entries(aiEvaluation.metrics).map(([key, metric]) => ({
-    name: key === 'npv' ? 'NPV' : 
-          key === 'irr' ? 'IRR' : 
-          key === 'dscr' ? 'DSCR' : 
-          key === 'payback' ? '회수기간' :
-          key === 'profitability' ? '수익성' :
-          key === 'stability' ? '안정성' :
-          key === 'growth' ? '성장성' : '위험도',
-    score: metric.score,
-    color: metric.score >= 80 ? '#10b981' : 
-           metric.score >= 60 ? '#3b82f6' : 
-           metric.score >= 40 ? '#f59e0b' : '#ef4444'
+  const detailScoreData = [
+    { name: 'NPV', score: grade.details.npvScore, value: `${(result.npv / 100000000).toFixed(2)}억원` },
+    { name: 'IRR', score: grade.details.irrScore, value: `${result.irr.toFixed(2)}%` },
+    { name: 'DSCR', score: grade.details.dscrScore, value: avgDSCR.toFixed(2) },
+    { name: '회수기간', score: grade.details.paybackScore, value: `${result.paybackPeriod.toFixed(1)}년` },
+    { name: '수익성지수', score: radarData[4].score, value: result.profitabilityIndex.toFixed(2) },
+    { name: 'ROI', score: radarData[5].score, value: `${result.roi.toFixed(1)}%` },
+    { name: '손익분기', score: radarData[6].score, value: `${result.breakEvenPoint}년` }
+  ].map(item => ({
+    ...item,
+    color: item.score >= 80 ? '#10b981' : 
+           item.score >= 60 ? '#3b82f6' : 
+           item.score >= 40 ? '#f59e0b' : '#ef4444'
   }));
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
@@ -182,17 +194,24 @@ export default function InvestmentRadarChart({ aiEvaluation, grade }: Investment
                   <span className="text-lg font-bold">{item.value}점</span>
                 </div>
               ))}
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-gray-600">종합 점수</p>
+                <p className="text-2xl font-bold text-blue-700">{grade.score.toFixed(1)}점</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  리스크 조정: {grade.adjustedScore.toFixed(1)}점 (프리미엄 {(grade.riskPremium * 100).toFixed(0)}%)
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* 8개 지표 상세 점수 바차트 */}
+      {/* 지표별 상세 점수 바차트 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            8개 지표 상세 점수 분석
+            지표별 상세 점수 및 실제값
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -202,7 +221,10 @@ export default function InvestmentRadarChart({ aiEvaluation, grade }: Investment
               <XAxis type="number" domain={[0, 100]} />
               <YAxis dataKey="name" type="category" width={80} />
               <Tooltip 
-                formatter={(value) => [`${value}점`, '점수']}
+                formatter={(value, name) => {
+                  const item = detailScoreData.find(d => d.score === value);
+                  return [`${value}점 (${item?.value || ''})`, '점수'];
+                }}
                 labelStyle={{ color: '#374151' }}
               />
               <Bar 

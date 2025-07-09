@@ -1,5 +1,5 @@
 // AICAMP Service Worker
-const CACHE_NAME = 'aicamp-v1.0.0';
+const CACHE_NAME = 'aicamp-v1.0.1'; // 버전 업데이트
 const STATIC_CACHE_URLS = [
   '/',
   '/diagnosis',
@@ -14,9 +14,19 @@ const STATIC_CACHE_URLS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
 ];
 
+// Check if running in development
+const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
+
 // Install event
 self.addEventListener('install', (event) => {
   console.log('AICAMP Service Worker installing...');
+  
+  // Skip caching in development
+  if (isDevelopment) {
+    console.log('Development mode: Skipping cache installation');
+    return self.skipWaiting();
+  }
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -57,6 +67,11 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - Network first, then cache
 self.addEventListener('fetch', (event) => {
+  // In development, always use network
+  if (isDevelopment) {
+    return;
+  }
+  
   // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
     return;
@@ -64,6 +79,16 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // Skip _next directory (webpack chunks)
+  if (event.request.url.includes('/_next/')) {
+    return;
+  }
+  
+  // Skip API routes
+  if (event.request.url.includes('/api/')) {
     return;
   }
 

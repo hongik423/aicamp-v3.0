@@ -1880,30 +1880,29 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
               <Button 
                 onClick={handleDownload}
                 disabled={isLoading}
-                className="text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                style={{ backgroundColor: '#4285F4' }}
-                onMouseEnter={(e) => {
-                  if (!e.currentTarget.disabled) {
-                    e.currentTarget.style.backgroundColor = '#3367d6';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!e.currentTarget.disabled) {
-                    e.currentTarget.style.backgroundColor = '#4285F4';
-                  }
-                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300"
               >
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                    <span className="text-white font-bold">보고서 생성 중...</span>
+                    <span>다운로드 중...</span>
                   </>
                 ) : (
                   <>
                     <Download className="w-4 h-4 mr-2" />
-                    <span className="text-white font-bold">고급진단완료하기</span>
+                    <span>보고서 다운로드</span>
                   </>
                 )}
+              </Button>
+              <Button 
+                onClick={() => {
+                  // 고급진단 페이지로 이동
+                  window.location.href = '/diagnosis';
+                }}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                <span className="text-white font-bold drop-shadow-md">고급진단 시작하기</span>
               </Button>
             </div>
           </div>

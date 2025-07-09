@@ -190,8 +190,8 @@ const Header = () => {
   ];
 
   const actionButtons = [
-    { href: '/diagnosis', label: '무료진단', color: 'blue', icon: Building },
-    { href: '/consultation', label: '상담신청', color: 'green', icon: MessageSquare },
+    { href: '/diagnosis', label: 'AI 무료진단', color: 'blue', icon: Building },
+    { href: '/consultation', label: '전문가상담', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
     { href: '/services/policy-funding#investment-analysis-section', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp },
     { href: '/support/contact', label: '오류신고', color: 'red', icon: MessageSquare }
@@ -363,8 +363,8 @@ const Header = () => {
                                   ? 'text-orange-600 group-hover:text-orange-700'
                                   : 'text-red-600 group-hover:text-red-700'
                               }`}>
-                                {button.label === '무료진단' ? 'AI 기반 기업 진단' : 
-                                 button.label === '상담신청' ? '전문가 무료 상담' : 
+                                {button.label === 'AI 무료진단' ? 'AI 기반 기업 진단' : 
+                                 button.label === '전문가상담' ? '전문가 무료 상담' : 
                                  button.label === '세금계산기' ? '10가지 세금 계산기' :
                                  button.label === '투자재무타당성분석기' ? 'NPV/IRR 투자분석' :
                                  '버그 및 개선사항 신고'}

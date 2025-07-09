@@ -58,6 +58,10 @@ const advancedDiagnosisFormSchema = z.object({
   email: z.string().email('올바른 이메일 주소를 입력해주세요').min(1, '이메일을 입력해주세요'),
   employeeCount: z.string().min(1, '직원수를 선택해주세요'),
   
+  // 추가 정보 (주요 고민사항, 예상 혜택)
+  mainConcerns: z.string().min(10, '주요 고민사항을 10자 이상 입력해주세요'),
+  expectedBenefits: z.string().min(10, '예상 혜택을 10자 이상 입력해주세요'),
+  
   // 🔶 상품/서비스 관리 역량 (5개, 가중치 25%)
   planning_level: z.number().min(1).max(5).nullable(),
   differentiation_level: z.number().min(1).max(5).nullable(),
@@ -309,6 +313,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       phone: '',
       email: '',
       employeeCount: '',
+      mainConcerns: '',
+      expectedBenefits: '',
       // 모든 평가 항목을 null로 초기화
       planning_level: null,
       differentiation_level: null,
@@ -351,7 +357,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
     
     if (step === 1) {
       // 기본 정보 단계
-      const requiredFields = ['companyName', 'industry', 'contactManager', 'phone', 'email', 'employeeCount'] as const;
+      const requiredFields = ['companyName', 'industry', 'contactManager', 'phone', 'email', 'employeeCount', 'mainConcerns', 'expectedBenefits'] as const;
       return requiredFields.every(field => {
         const value = currentValues[field];
         return value && value.trim().length > 0;
@@ -400,8 +406,6 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         // 🔥 누락된 필드들 기본값 설정
         businessLocation: '서울특별시',
         growthStage: 'growth',
-        mainConcerns: '경영 효율성 향상 및 디지털 전환',
-        expectedBenefits: '매출 증대 및 업무 효율성 향상',
         submitDate: new Date().toISOString()
       };
       
@@ -737,6 +741,51 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                             type="email"
                             placeholder="example@company.com" 
                             className="h-12 border-2 hover:border-blue-400 focus:border-blue-500 transition-all"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* 주요 고민사항과 예상 혜택 */}
+                <div className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="mainConcerns"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center text-base font-semibold">
+                          <AlertCircle className="w-5 h-5 mr-2 text-yellow-600" />
+                          주요 고민사항 *
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="현재 겪고 있는 경영상의 주요 문제점이나 고민사항을 구체적으로 작성해주세요. (예: 매출 정체, 인력 부족, 마케팅 효과 미흡 등)" 
+                            className="min-h-[100px] border-2 hover:border-blue-400 focus:border-blue-500 transition-all resize-none"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="expectedBenefits"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center text-base font-semibold">
+                          <Target className="w-5 h-5 mr-2 text-green-600" />
+                          예상 혜택 *
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="AI 진단을 통해 기대하는 개선사항이나 혜택을 작성해주세요. (예: 업무 효율성 향상, 비용 절감, 신규 사업 기회 발굴 등)" 
+                            className="min-h-[100px] border-2 hover:border-blue-400 focus:border-blue-500 transition-all resize-none"
                             {...field} 
                           />
                         </FormControl>

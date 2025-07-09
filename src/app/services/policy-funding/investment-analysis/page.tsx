@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Calculator, DollarSign, Calendar, FileText, Phone, Globe, Target, CheckCircle, BarChart3, Brain, Zap, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import { InvestmentAnalysisTool } from '@/components/investment-analysis/InvestmentAnalysisTool';
+import InvestmentAnalysisTool from '@/components/investment-analysis/InvestmentAnalysisTool';
 
 export default function InvestmentAnalysisPage() {
   return (

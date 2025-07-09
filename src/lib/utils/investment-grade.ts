@@ -11,50 +11,51 @@ import {
 export function getInvestmentScaleInfo(initialInvestment: number): InvestmentScaleInfo {
   const investmentInBillion = initialInvestment / 100000000; // 억원 단위로 변환
   
+  // 정책자금 특성을 반영한 리스크 프리미엄 재설계
   if (investmentInBillion >= 100) {
     return {
       scale: 'mega',
-      riskPremium: 0.18,
+      riskPremium: 0.12, // 15% → 12% (메가투자)
       description: '메가 투자 (100억원 이상)',
-      minIRR: 20,
-      minDSCR: 3.0,
-      maxPayback: 3.5
-    };
-  } else if (investmentInBillion >= 75) {
-    return {
-      scale: 'large',
-      riskPremium: 0.15,
-      description: '대규모 투자 (75-100억원)',
       minIRR: 18,
       minDSCR: 2.5,
       maxPayback: 4
     };
-  } else if (investmentInBillion >= 50) {
+  } else if (investmentInBillion >= 75) {
     return {
-      scale: 'medium',
-      riskPremium: 0.12,
-      description: '중규모 투자 (50-75억원)',
+      scale: 'large',
+      riskPremium: 0.08, // 8% (대규모투자)
+      description: '대규모 투자 (75-100억원)',
       minIRR: 15,
       minDSCR: 2.0,
       maxPayback: 5
     };
-  } else if (investmentInBillion >= 25) {
+  } else if (investmentInBillion >= 50) {
     return {
-      scale: 'small',
-      riskPremium: 0.08,
-      description: '소규모 투자 (25-50억원)',
+      scale: 'medium',
+      riskPremium: 0.05, // 5% (중규모투자)
+      description: '중규모 투자 (50-75억원)',
       minIRR: 12,
       minDSCR: 1.5,
       maxPayback: 6
     };
+  } else if (investmentInBillion >= 25) {
+    return {
+      scale: 'small',
+      riskPremium: 0.03, // 3% (소규모투자)
+      description: '소규모 투자 (25-50억원)',
+      minIRR: 10,
+      minDSCR: 1.3,
+      maxPayback: 7
+    };
   } else {
     return {
       scale: 'micro',
-      riskPremium: 0.05,
+      riskPremium: 0.02, // 2% (마이크로투자)
       description: '마이크로 투자 (25억원 미만)',
-      minIRR: 10,
-      minDSCR: 1.25,
-      maxPayback: 8
+      minIRR: 8,
+      minDSCR: 1.2,
+      maxPayback: 10
     };
   }
 }
@@ -85,175 +86,67 @@ function getScaleSpecificNPVRanges(scale: string): ScoreRange[] {
   ];
 }
 
-// 투자규모별 IRR 범위
-function getScaleSpecificIRRRanges(scale: string): ScoreRange[] {
-  const baseRanges: Record<string, ScoreRange[]> = {
-    mega: [
-      { min: 25, max: Infinity, score: 100, label: '탁월' },
-      { min: 20, max: 25, score: 80, label: '우수' },
-      { min: 15, max: 20, score: 60, label: '양호' },
-      { min: 10, max: 15, score: 40, label: '보통' },
-      { min: -Infinity, max: 10, score: 20, label: '미흡' }
-    ],
-    large: [
-      { min: 22, max: Infinity, score: 100, label: '탁월' },
-      { min: 18, max: 22, score: 80, label: '우수' },
-      { min: 14, max: 18, score: 60, label: '양호' },
-      { min: 10, max: 14, score: 40, label: '보통' },
-      { min: -Infinity, max: 10, score: 20, label: '미흡' }
-    ],
-    medium: [
-      { min: 20, max: Infinity, score: 100, label: '탁월' },
-      { min: 15, max: 20, score: 80, label: '우수' },
-      { min: 12, max: 15, score: 60, label: '양호' },
-      { min: 8, max: 12, score: 40, label: '보통' },
-      { min: -Infinity, max: 8, score: 20, label: '미흡' }
-    ],
-    small: [
-      { min: 18, max: Infinity, score: 100, label: '탁월' },
-      { min: 14, max: 18, score: 80, label: '우수' },
-      { min: 10, max: 14, score: 60, label: '양호' },
-      { min: 6, max: 10, score: 40, label: '보통' },
-      { min: -Infinity, max: 6, score: 20, label: '미흡' }
-    ],
-    micro: [
-      { min: 15, max: Infinity, score: 100, label: '탁월' },
-      { min: 12, max: 15, score: 80, label: '우수' },
-      { min: 8, max: 12, score: 60, label: '양호' },
-      { min: 4, max: 8, score: 40, label: '보통' },
-      { min: -Infinity, max: 4, score: 20, label: '미흡' }
-    ]
-  };
+// IRR 점수 계산 - 할인율 대비 상대적 평가
+function getRelativeIRRScore(irr: number, discountRate: number): number {
+  const spread = irr - discountRate; // IRR과 할인율의 차이
   
-  return baseRanges[scale] || baseRanges.micro;
+  if (spread >= 15) return 100; // 할인율 대비 15%p 이상
+  if (spread >= 10) return 85;  // 할인율 대비 10%p 이상
+  if (spread >= 7) return 70;   // 할인율 대비 7%p 이상
+  if (spread >= 5) return 60;   // 할인율 대비 5%p 이상
+  if (spread >= 3) return 50;   // 할인율 대비 3%p 이상
+  if (spread >= 0) return 40;   // 할인율 이상
+  if (spread >= -3) return 30;  // 할인율 대비 -3%p
+  return 20; // 할인율 대비 -3%p 미만
 }
 
-// 투자규모별 DSCR 범위
-function getScaleSpecificDSCRRanges(scale: string): ScoreRange[] {
-  const baseRanges: Record<string, ScoreRange[]> = {
-    mega: [
-      { min: 3.5, max: Infinity, score: 100, label: '탁월' },
-      { min: 3.0, max: 3.5, score: 80, label: '우수' },
-      { min: 2.5, max: 3.0, score: 60, label: '양호' },
-      { min: 2.0, max: 2.5, score: 40, label: '보통' },
-      { min: -Infinity, max: 2.0, score: 20, label: '미흡' }
-    ],
-    large: [
-      { min: 3.0, max: Infinity, score: 100, label: '탁월' },
-      { min: 2.5, max: 3.0, score: 80, label: '우수' },
-      { min: 2.0, max: 2.5, score: 60, label: '양호' },
-      { min: 1.5, max: 2.0, score: 40, label: '보통' },
-      { min: -Infinity, max: 1.5, score: 20, label: '미흡' }
-    ],
-    medium: [
-      { min: 2.5, max: Infinity, score: 100, label: '탁월' },
-      { min: 2.0, max: 2.5, score: 80, label: '우수' },
-      { min: 1.7, max: 2.0, score: 60, label: '양호' },
-      { min: 1.3, max: 1.7, score: 40, label: '보통' },
-      { min: -Infinity, max: 1.3, score: 20, label: '미흡' }
-    ],
-    small: [
-      { min: 2.0, max: Infinity, score: 100, label: '탁월' },
-      { min: 1.7, max: 2.0, score: 80, label: '우수' },
-      { min: 1.4, max: 1.7, score: 60, label: '양호' },
-      { min: 1.1, max: 1.4, score: 40, label: '보통' },
-      { min: -Infinity, max: 1.1, score: 20, label: '미흡' }
-    ],
-    micro: [
-      { min: 1.5, max: Infinity, score: 100, label: '탁월' },
-      { min: 1.3, max: 1.5, score: 80, label: '우수' },
-      { min: 1.1, max: 1.3, score: 60, label: '양호' },
-      { min: 0.9, max: 1.1, score: 40, label: '보통' },
-      { min: -Infinity, max: 0.9, score: 20, label: '미흡' }
-    ]
-  };
-  
-  return baseRanges[scale] || baseRanges.micro;
+// DSCR 점수 계산 - 1.25를 중간점으로
+function getDSCRScore(dscr: number): number {
+  if (dscr >= 2.0) return 100;  // 매우 안정적
+  if (dscr >= 1.75) return 90;  // 안정적
+  if (dscr >= 1.5) return 80;   // 양호
+  if (dscr >= 1.35) return 70;  // 적정
+  if (dscr >= 1.25) return 60;  // 금융권 안정선 (중간점)
+  if (dscr >= 1.15) return 50;  // 주의 필요
+  if (dscr >= 1.0) return 40;   // 위험
+  if (dscr >= 0.9) return 30;   // 매우 위험
+  return 20; // 상환 불가
 }
 
-// 투자규모별 회수기간 범위
-function getScaleSpecificPaybackRanges(scale: string): ScoreRange[] {
-  const baseRanges: Record<string, ScoreRange[]> = {
-    mega: [
-      { min: -Infinity, max: 3, score: 100, label: '탁월' },
-      { min: 3, max: 3.5, score: 80, label: '우수' },
-      { min: 3.5, max: 4, score: 60, label: '양호' },
-      { min: 4, max: 5, score: 40, label: '보통' },
-      { min: 5, max: Infinity, score: 20, label: '미흡' }
-    ],
-    large: [
-      { min: -Infinity, max: 3.5, score: 100, label: '탁월' },
-      { min: 3.5, max: 4, score: 80, label: '우수' },
-      { min: 4, max: 5, score: 60, label: '양호' },
-      { min: 5, max: 6, score: 40, label: '보통' },
-      { min: 6, max: Infinity, score: 20, label: '미흡' }
-    ],
-    medium: [
-      { min: -Infinity, max: 4, score: 100, label: '탁월' },
-      { min: 4, max: 5, score: 80, label: '우수' },
-      { min: 5, max: 6, score: 60, label: '양호' },
-      { min: 6, max: 7, score: 40, label: '보통' },
-      { min: 7, max: Infinity, score: 20, label: '미흡' }
-    ],
-    small: [
-      { min: -Infinity, max: 4.5, score: 100, label: '탁월' },
-      { min: 4.5, max: 5.5, score: 80, label: '우수' },
-      { min: 5.5, max: 6.5, score: 60, label: '양호' },
-      { min: 6.5, max: 8, score: 40, label: '보통' },
-      { min: 8, max: Infinity, score: 20, label: '미흡' }
-    ],
-    micro: [
-      { min: -Infinity, max: 5, score: 100, label: '탁월' },
-      { min: 5, max: 6, score: 80, label: '우수' },
-      { min: 6, max: 7, score: 60, label: '양호' },
-      { min: 7, max: 9, score: 40, label: '보통' },
-      { min: 9, max: Infinity, score: 20, label: '미흡' }
-    ]
-  };
-  
-  return baseRanges[scale] || baseRanges.micro;
+// 회수기간 점수 계산 - 7-8년을 보통으로
+function getPaybackScore(payback: number): number {
+  if (payback <= 3) return 100;   // 매우 우수
+  if (payback <= 4) return 90;    // 우수
+  if (payback <= 5) return 80;    // 양호
+  if (payback <= 6) return 70;    // 적정
+  if (payback <= 7) return 60;    // 보통 상한
+  if (payback <= 8) return 50;    // 보통 하한
+  if (payback <= 10) return 40;   // 미흡
+  if (payback <= 12) return 30;   // 부진
+  return 20; // 매우 부진
 }
 
 // 동적 점수 구간 생성
 export function getDynamicGradingCriteria(scale: string): GradingCriteria {
-  const baseWeight = { npv: 30, irr: 25, dscr: 25, payback: 20 };
-  
-  const scaleAdjustment: Record<string, any> = {
-    mega: { npv: 1.3, irr: 1.2, dscr: 1.4, payback: 0.9 },
-    large: { npv: 1.2, irr: 1.1, dscr: 1.3, payback: 1.0 },
-    medium: { npv: 1.0, irr: 1.0, dscr: 1.0, payback: 1.0 },
-    small: { npv: 0.8, irr: 1.2, dscr: 0.9, payback: 1.1 },
-    micro: { npv: 0.7, irr: 1.3, dscr: 0.8, payback: 1.2 }
-  };
-  
-  const adjustment = scaleAdjustment[scale] || scaleAdjustment.micro;
-  
-  // 가중치 정규화
-  const rawWeights = {
-    npv: baseWeight.npv * adjustment.npv,
-    irr: baseWeight.irr * adjustment.irr,
-    dscr: baseWeight.dscr * adjustment.dscr,
-    payback: baseWeight.payback * adjustment.payback
-  };
-  
-  const totalWeight = Object.values(rawWeights).reduce((a, b) => a + b, 0);
+  // IRR과 DSCR는 리스크 프리미엄 대상에서 제외
+  const baseWeight = { npv: 35, irr: 30, dscr: 20, payback: 15 };
   
   return {
     npv: {
-      weight: Math.round((rawWeights.npv / totalWeight) * 100),
+      weight: baseWeight.npv,
       ranges: getScaleSpecificNPVRanges(scale)
     },
     irr: {
-      weight: Math.round((rawWeights.irr / totalWeight) * 100),
-      ranges: getScaleSpecificIRRRanges(scale)
+      weight: baseWeight.irr,
+      ranges: [] // IRR은 상대적 평가로 ranges 사용 안함
     },
     dscr: {
-      weight: Math.round((rawWeights.dscr / totalWeight) * 100),
-      ranges: getScaleSpecificDSCRRanges(scale)
+      weight: baseWeight.dscr,
+      ranges: [] // DSCR은 별도 함수로 평가
     },
     payback: {
-      weight: Math.round((rawWeights.payback / totalWeight) * 100),
-      ranges: getScaleSpecificPaybackRanges(scale)
+      weight: baseWeight.payback,
+      ranges: [] // 회수기간은 별도 함수로 평가
     }
   };
 }
@@ -282,35 +175,35 @@ function calculateAverageDSCR(result: InvestmentResult): number {
 // 투자 등급 계산
 export function calculateInvestmentGrade(
   result: InvestmentResult,
-  initialInvestment: number
+  initialInvestment: number,
+  discountRate: number = 5 // 기본 할인율
 ): InvestmentGrade {
   const scaleInfo = getInvestmentScaleInfo(initialInvestment);
   const criteria = getDynamicGradingCriteria(scaleInfo.scale);
   
-  // NPV 점수 (억원 단위)
+  // NPV 점수 (억원 단위) - 리스크 프리미엄 적용
   const npvInBillion = result.npv / 100000000;
   const npvScore = calculateMetricScore(npvInBillion, criteria.npv.ranges);
+  const adjustedNpvScore = npvScore * (1 - scaleInfo.riskPremium);
   
-  // IRR 점수
-  const irrScore = calculateMetricScore(result.irr, criteria.irr.ranges);
+  // IRR 점수 - 할인율 대비 상대적 평가 (리스크 프리미엄 미적용)
+  const irrScore = getRelativeIRRScore(result.irr, discountRate);
   
-  // DSCR 점수 (평균값 사용)
+  // DSCR 점수 - 1.25 중간점 기준 (리스크 프리미엄 미적용)
   const avgDSCR = calculateAverageDSCR(result);
-  const dscrScore = calculateMetricScore(avgDSCR, criteria.dscr.ranges);
+  const dscrScore = getDSCRScore(avgDSCR);
   
-  // 회수기간 점수
-  const paybackScore = calculateMetricScore(result.paybackPeriod, criteria.payback.ranges);
+  // 회수기간 점수 - 7-8년 보통 기준 (리스크 프리미엄 적용)
+  const paybackScore = getPaybackScore(result.paybackPeriod);
+  const adjustedPaybackScore = paybackScore * (1 - scaleInfo.riskPremium);
   
   // 가중 평균 점수 계산
   const totalScore = (
-    npvScore * criteria.npv.weight +
+    adjustedNpvScore * criteria.npv.weight +
     irrScore * criteria.irr.weight +
     dscrScore * criteria.dscr.weight +
-    paybackScore * criteria.payback.weight
+    adjustedPaybackScore * criteria.payback.weight
   ) / 100;
-  
-  // 리스크 프리미엄 적용
-  const adjustedScore = totalScore * (1 - scaleInfo.riskPremium);
   
   // 등급 결정
   let grade: string;
@@ -320,28 +213,28 @@ export function calculateInvestmentGrade(
   let borderColor: string;
   let gradeDesc: string;
   
-  if (adjustedScore >= 90) {
+  if (totalScore >= 85) {
     grade = 'AA';
     recommendation = '매우 우수한 투자안 - 즉시 실행 강력 권장';
     color = 'text-green-700';
     bgColor = 'bg-green-50';
     borderColor = 'border-green-200';
     gradeDesc = '탁월한 투자안';
-  } else if (adjustedScore >= 80) {
+  } else if (totalScore >= 70) {
     grade = 'A';
     recommendation = '우수한 투자안 - 실행 권장';
     color = 'text-blue-700';
     bgColor = 'bg-blue-50';
     borderColor = 'border-blue-200';
     gradeDesc = '우수한 투자안';
-  } else if (adjustedScore >= 60) {
+  } else if (totalScore >= 55) {
     grade = 'B';
     recommendation = '양호한 투자안 - 조건부 실행 고려';
     color = 'text-yellow-700';
     bgColor = 'bg-yellow-50';
     borderColor = 'border-yellow-200';
     gradeDesc = '양호한 투자안';
-  } else if (adjustedScore >= 40) {
+  } else if (totalScore >= 40) {
     grade = 'C';
     recommendation = '보통 투자안 - 추가 검토 필요';
     color = 'text-orange-700';
@@ -366,13 +259,13 @@ export function calculateInvestmentGrade(
     borderColor,
     gradeDesc,
     details: {
-      npvScore,
+      npvScore: adjustedNpvScore,
       irrScore,
       dscrScore,
-      paybackScore
+      paybackScore: adjustedPaybackScore
     },
     investmentScale: scaleInfo.scale,
     riskPremium: scaleInfo.riskPremium,
-    adjustedScore
+    adjustedScore: totalScore
   };
 } 
