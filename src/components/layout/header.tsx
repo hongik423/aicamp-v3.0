@@ -193,7 +193,7 @@ const Header = () => {
     { href: '/diagnosis', label: '무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '상담신청', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
-    { href: '/services/policy-funding', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp },
+    { href: '/services/policy-funding#investment-analysis-section', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp },
     { href: '/support/contact', label: '오류신고', color: 'red', icon: MessageSquare }
   ];
 
@@ -224,13 +224,16 @@ const Header = () => {
             </Link>
 
             {/* 메인 네비게이션 - 가운데 */}
-            <div className="hidden lg:flex items-center space-x-1.5">
+            <div className="hidden lg:flex items-center space-x-1 xl:space-x-1.5">
               {navigationItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3.5 py-2 text-sm rounded-full transition-all duration-200 font-normal ${
-                    pathname === item.href
+                  className={`px-1.5 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap
+                    lg:px-2 lg:text-xs
+                    xl:px-3 xl:text-sm
+                    2xl:px-3.5 2xl:text-sm
+                    ${pathname === item.href
                       ? 'text-white bg-gray-800'
                       : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100'
                   }`}
@@ -241,13 +244,16 @@ const Header = () => {
             </div>
 
             {/* 액션 버튼들 - 오른쪽 */}
-            <div className="hidden lg:flex items-center space-x-2">
+            <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
               {actionButtons.map((button) => (
                 <Link
                   key={button.href}
                   href={button.href}
-                  className={`inline-block px-3 py-1.5 text-sm rounded-full transition-all duration-200 font-medium ${
-                    button.color === 'blue' 
+                  className={`inline-block px-1.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap
+                    lg:px-2 lg:text-xs
+                    xl:px-3 xl:text-sm
+                    2xl:px-3 2xl:text-sm
+                    ${button.color === 'blue' 
                       ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
                       : button.color === 'green'
                       ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'

@@ -34,22 +34,27 @@ interface NumberInputProps {
 // 🔧 개선된 유틸리티 함수들
 const formatNumberDisplay = (num: number): string => {
   if (num === 0) return '';
-  return new Intl.NumberFormat('ko-KR').format(Math.round(num));
+  // 소수점 자리수 유지하면서 천단위 구분
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 10
+  }).format(num);
 };
 
 const parseNumberInput = (input: string): number => {
   if (!input) return 0;
-  // 숫자와 쉼표만 허용, 다른 문자 제거
-  const cleaned = input.replace(/[^\d,]/g, '').replace(/,/g, '');
-  const num = parseInt(cleaned) || 0;
+  // 숫자, 쉼표, 소수점 허용, 다른 문자 제거
+  const cleaned = input.replace(/[^\d,\.]/g, '').replace(/,/g, '');
+  const num = parseFloat(cleaned) || 0;
   return num;
 };
 
 const isValidNumberInput = (input: string): boolean => {
   // 빈 문자열은 유효
   if (!input) return true;
-  // 숫자와 쉼표만 허용
-  return /^[\d,]*$/.test(input);
+  // 숫자, 쉼표, 소수점만 허용 (소수점은 최대 1개)
+  const dotCount = (input.match(/\./g) || []).length;
+  return /^[\d,\.]*$/.test(input) && dotCount <= 1;
 };
 
 export function NumberInput({
@@ -175,7 +180,9 @@ export function NumberInput({
     // 포커스 시 쉼표 제거하여 편집하기 쉽게 만들기
     const rawNumber = parseNumberInput(displayValue);
     if (rawNumber > 0) {
-      setDisplayValue(rawNumber.toString());
+      // 소수점 자리수 유지하면서 쉼표만 제거
+      const unformattedValue = displayValue.replace(/,/g, '');
+      setDisplayValue(unformattedValue);
     }
   };
 
@@ -200,8 +207,12 @@ export function NumberInput({
     
     setHasWarning(warning);
     
-    // 포맷팅된 값으로 표시
-    setDisplayValue(formatNumberDisplay(finalValue));
+    // 포맷팅된 값으로 표시 (값이 0이 아닌 경우에만)
+    if (finalValue !== 0) {
+      setDisplayValue(formatNumberDisplay(finalValue));
+    } else {
+      setDisplayValue('');
+    }
     
     // 값이 변경되었으면 onChange 호출
     if (finalValue !== numericValue) {
@@ -246,9 +257,35 @@ export function NumberInput({
     ];
     
     const isNumber = /^[0-9]$/.test(e.key);
+    const isDot = e.key === '.' || e.key === ',';
+
+    // 소수점 입력 처리
+    if (isDot) {
+      const currentValue = displayValue;
+      const dotCount = (currentValue.match(/\./g) || []).length;
+      // 이미 소수점이 있으면 차단
+      if (dotCount >= 1) {
+        e.preventDefault();
+        return;
+      }
+      // 쉼표는 소수점으로 변환
+      if (e.key === ',') {
+        e.preventDefault();
+        const target = e.target as HTMLInputElement;
+        const start = target.selectionStart || 0;
+        const end = target.selectionEnd || 0;
+        const newValue = currentValue.substring(0, start) + '.' + currentValue.substring(end);
+        setDisplayValue(newValue);
+        // 커서 위치 조정
+        setTimeout(() => {
+          target.setSelectionRange(start + 1, start + 1);
+        }, 0);
+        return;
+      }
+    }
 
     // 허용되지 않는 키 차단
-    if (!allowedKeys.includes(e.key) && !isNumber) {
+    if (!allowedKeys.includes(e.key) && !isNumber && !isDot) {
       e.preventDefault();
       return;
     }
@@ -263,10 +300,16 @@ export function NumberInput({
     e.preventDefault();
     const pastedText = e.clipboardData.getData('text');
     
-    // 붙여넣기된 텍스트에서 숫자만 추출
-    const numbersOnly = pastedText.replace(/[^\d]/g, '');
-    if (numbersOnly) {
-      const numericValue = parseInt(numbersOnly) || 0;
+    // 붙여넣기된 텍스트에서 숫자와 소수점만 추출
+    const numbersOnly = pastedText.replace(/[^\d\.]/g, '');
+    // 소수점이 여러 개 있으면 첫 번째만 유지
+    const dotIndex = numbersOnly.indexOf('.');
+    const cleanedText = dotIndex >= 0 
+      ? numbersOnly.substring(0, dotIndex + 1) + numbersOnly.substring(dotIndex + 1).replace(/\./g, '')
+      : numbersOnly;
+    
+    if (cleanedText) {
+      const numericValue = parseFloat(cleanedText) || 0;
       
       // 범위 체크
       let finalValue = numericValue;
@@ -483,7 +526,7 @@ export function NumberInput({
       {/* 포커스 시 사용법 안내 */}
       {isFocused && !finalError && (
         <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded border">
-          💡 숫자만 입력하세요. 천단위 쉼표는 포커스 해제 시 자동으로 표시됩니다.
+          💡 숫자와 소수점을 입력하세요. 천단위 쉼표는 포커스 해제 시 자동으로 표시됩니다.
           {min !== undefined && ` (최소: ${min.toLocaleString()})`}
           {finalMax !== undefined && ` (최대: ${finalMax.toLocaleString()})`}
         </div>

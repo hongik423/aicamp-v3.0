@@ -559,6 +559,17 @@ export default function CasesPage() {
             </Link>
             
             <Link 
+              href="/services/policy-funding"
+              className="inline-flex items-center justify-center bg-yellow-400 text-gray-900 hover:bg-yellow-300 px-8 py-4 text-lg font-semibold rounded-md transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group"
+            >
+              <span className="absolute inset-0 bg-yellow-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+              <span className="relative flex items-center">
+                <ArrowRight className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
+                정책자금 메인으로 돌아가기
+              </span>
+            </Link>
+            
+            <Link 
               href="/consultation"
               className="inline-flex items-center justify-center border border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold rounded-md transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] hover:shadow-lg relative overflow-hidden group"
             >

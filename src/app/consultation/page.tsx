@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import Link from 'next/link';
 import Header from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -763,12 +764,12 @@ export default function ConsultationPage() {
             전문가가 직접 연락드립니다
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
-            <a href="tel:010-9251-9743">
+            <Link href="/diagnosis">
               <button className="apple-button bg-green-600 text-white hover:bg-green-700 mobile-full-width shadow-lg hover:shadow-xl">
                 <Phone className="w-5 h-5 mr-2" />
-                즉시 전화상담
+                무료진단
               </button>
-            </a>
+            </Link>
             <button 
               className="apple-button bg-blue-600 hover:bg-blue-700 text-white mobile-full-width shadow-lg hover:shadow-xl"
               onClick={() => {

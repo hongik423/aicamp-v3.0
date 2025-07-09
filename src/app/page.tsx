@@ -521,11 +521,11 @@ export default function Home() {
                     </button>
                   </Link>
                   
-                  <a href="tel:010-9251-9743">
+                  <Link href="/diagnosis">
                     <button className="px-8 py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-900 text-lg font-medium rounded-full transition-all duration-200">
-                      전화상담 (010-9251-9743)
+                      무료진단
                     </button>
-                  </a>
+                  </Link>
                 </div>
                 
                 {/* 상태 인디케이터 */}

@@ -1,970 +1,1346 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowRight,
-  CheckCircle,
-  Star,
-  Users,
-  Building2,
-  TrendingUp,
-  Shield,
-  Clock,
-  Award,
-  Zap,
-  Target,
-  BarChart3,
-  FileText,
-  Brain,
-  Cpu,
-  DollarSign,
-  Lightbulb,
-  Calendar,
-  Phone,
-  Mail,
-  Play,
-  ChevronRight,
-  Crown,
-  Sparkles,
-  Database,
-  Settings,
-  PieChart,
-  Calculator,
-  Globe,
-  Rocket,
-  Gauge,
-  LineChart,
-  TrendingDown,
-  AlertTriangle,
-  MapPin,
-  Briefcase
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Header from '@/components/layout/header';
-import InteractiveFinancialCharts from '@/components/policy-funding/InteractiveFinancialCharts';
-import CaseStudySystem from '@/components/policy-funding/CaseStudySystem';
+import InvestmentAnalysisTool from '@/components/investment-analysis/InvestmentAnalysisTool';
+import { 
+  Target, 
+  Clock, 
+  TrendingUp, 
+  Award,
+  Shield,
+  Zap,
+  Star,
+  Calculator,
+  ChevronRight,
+  Phone,
+  MessageCircle,
+  CheckCircle,
+  ArrowRight,
+  ExternalLink,
+  Building2,
+  FileText,
+  Users,
+  Lightbulb,
+  BarChart3,
+  Brain,
+  Trophy,
+  MapPin,
+  Calendar,
+  DollarSign,
+  CreditCard,
+  Beaker,
+  Workflow,
+  Factory
+} from 'lucide-react';
 
-const PolicyFundingPage = () => {
-  const router = useRouter();
-  const [activeStep, setActiveStep] = useState(0);
-  const [activeTier, setActiveTier] = useState(1);
-
-  // 자동 슬라이드 효과
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % 5);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // 핵심 성과 지표 (PRD 문서 기준)
-  const keyMetrics = [
+export default function PolicyFundingPage() {
+  const performanceMetrics = [
     {
-      value: "95%",
-      label: "정책자금 선정 성공률",
-      description: "업계 평균 30% 대비 3배 성과",
+      value: 95,
+      unit: '%',
+      trend: '+12%',
+      label: '승인율',
+      description: '정책자금 심사 통과율',
       icon: Target,
-      color: "text-green-600",
-      trend: "+12%"
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
     },
     {
-      value: "25일",
-      label: "평균 처리기간",
-      description: "업계 최단 처리시간 달성",
+      value: 25,
+      unit: '일',
+      trend: '-5일',
+      label: '평균 처리기간',
+      description: '신청부터 승인까지',
       icon: Clock,
-      color: "text-blue-600",
-      trend: "-60%"
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
-      value: "4.2억원",
-      label: "평균 확보 금액",
-      description: "최대 150억원까지 확보",
-      icon: DollarSign,
-      color: "text-purple-600",
-      trend: "+8%"
+      value: 4.2,
+      unit: '억원',
+      trend: '+8%',
+      label: '평균 대출금액',
+      description: '기업당 평균 지원금',
+      icon: TrendingUp,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
     },
     {
-      value: "800+",
-      label: "누적 성공 사례",
-      description: "검증된 전문성과 신뢰도",
+      value: 800,
+      unit: '+',
+      trend: '+156',
+      label: '성공 사례',
+      description: '누적 지원 기업 수',
       icon: Award,
-      color: "text-orange-600",
-      trend: "+156"
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
     }
   ];
 
-  // 듀얼브레인 5단계 프로세스
-  const dualBrainProcess = [
+
+
+  const fundingTypes = [
     {
-      step: 1,
-      title: "AI 빅데이터 환경분석",
-      description: "10만+ 기업 데이터로 실시간 환경 분석",
-      duration: "1-2일",
-      icon: Database,
-      humanRole: "분석 방향성 및 핵심 변수 설정",
-      aiRole: "10만+ 기업 데이터 실시간 분석",
-      outputs: ["종합 환경분석 리포트", "기회요인 및 위험요인 매트릭스", "정책 변화 영향도 분석"],
-      color: "from-blue-500 to-cyan-500"
+      title: '시설자금',
+      description: '생산설비, 사업장 구입',
+      amount: '최대 45억원',
+      rate: '연 2.0~3.0%',
+      detailUrl: '/services/policy-funding/facility-funding',
+      icon: Factory,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-100',
+      specialty: '생산 최적화 + 품질관리'
     },
     {
-      step: 2,
-      title: "하이브리드 시장분석",
-      description: "경쟁사 분석 및 시장 기회 발굴",
-      duration: "2-3일",
+      title: '운전자금',
+      description: '원자재, 인건비 등',
+      amount: '최대 10억원',
+      rate: '연 2.5~3.5%',
+      detailUrl: '/services/policy-funding/operating-funding',
+      icon: CreditCard,
+      color: 'text-green-600',
+      bgColor: 'bg-green-100',
+      specialty: '현금흐름 관리 + 운영 효율화'
+    },
+    {
+      title: '창업자금',
+      description: '창업 7년 이내 기업 대상',
+      amount: '최대 10억원',
+      rate: '연 1.5~2.5%',
+      detailUrl: '/services/policy-funding/startup-funding',
+      icon: Lightbulb,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100',
+      specialty: '비즈니스 모델 + 마케팅 전략'
+    },
+    {
+      title: 'R&D자금',
+      description: '기술개발 전용',
+      amount: '최대 20억원',
+      rate: '연 1.0~2.0%',
+      detailUrl: '/services/policy-funding/rd-funding',
+      icon: Beaker,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-100',
+      specialty: '기술사업화 + 특허 전략'
+    },
+    {
+      title: '투자분석기',
+      description: 'AI 기반 재무타당성 분석',
+      amount: '무료 제공',
+      rate: '실시간 분석',
+      detailUrl: '/services/policy-funding/investment-analysis',
+      icon: Calculator,
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-100',
+      specialty: '5구간 평가 + 8개 지표 분석'
+    },
+    {
+      title: '전문가 상담',
+      description: '이후경 경영지도사 1:1 컨설팅',
+      amount: '무료 상담',
+      rate: '성공 시 수수료',
+      detailUrl: '/consultation',
+      icon: Users,
+      color: 'text-teal-600',
+      bgColor: 'bg-teal-100',
+      specialty: '28년 노하우 + 듀얼브레인 방법론'
+    },
+    {
+      title: '성공 사례',
+      description: '정책자금 승인 성공 스토리',
+      amount: '평균 4.2억원',
+      rate: '승인률 95%',
+      detailUrl: '/cases',
+      icon: Trophy,
+      color: 'text-cyan-600',
+      bgColor: 'bg-cyan-100',
+      specialty: '실제 기업 성공사례 + 노하우'
+    },
+    {
+      title: '종합 지원',
+      description: '설립부터 사업성공까지',
+      amount: '맞춤형 제안',
+      rate: '성과 기반',
+      detailUrl: '/services',
+      icon: Shield,
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-100',
+      specialty: '통합 솔루션 + 원스톱 서비스'
+    }
+  ];
+
+  // 새로운 섹션 데이터
+  const governmentAgencies = [
+    {
+      name: '중소벤처기업부',
+      description: '창업·벤처 지원',
+      url: 'https://www.mss.go.kr',
+      icon: Building2,
+      color: 'text-blue-600'
+    },
+    {
+      name: '신용보증기금',
+      description: '신용보증 지원',
+      url: 'https://www.kodit.co.kr',
+      icon: Shield,
+      color: 'text-green-600'
+    },
+    {
+      name: '기술보증기금',
+      description: '기술평가 보증',
+      url: 'https://www.kibo.or.kr',
+      icon: Zap,
+      color: 'text-purple-600'
+    },
+    {
+      name: '소상공인시장진흥공단',
+      description: '소상공인 지원',
+      url: 'https://www.semas.or.kr',
+      icon: Users,
+      color: 'text-orange-600'
+    },
+    {
+      name: '중소벤처기업진흥공단 (KOSME)',
+      description: '중소기업 종합지원',
+      url: 'https://www.sbc.or.kr',
+      icon: TrendingUp,
+      color: 'text-teal-600'
+    },
+    {
+      name: 'TIPS',
+      description: '민관 합동 투자 프로그램',
+      url: 'https://www.jointips.or.kr/',
+      icon: Star,
+      color: 'text-yellow-600'
+    },
+    {
+      name: '기업마당',
+      description: '기업 지원사업 통합정보',
+      url: 'https://www.bizinfo.go.kr',
+      icon: FileText,
+      color: 'text-indigo-600'
+    },
+    {
+      name: '창업진흥원',
+      description: '창업 생태계 지원',
+      url: 'https://www.kised.or.kr',
+      icon: Lightbulb,
+      color: 'text-cyan-600'
+    },
+    {
+      name: 'IRIS',
+      description: '통합연구지원시스템',
+      url: 'https://www.iris.go.kr',
       icon: BarChart3,
-      humanRole: "시장 기회의 전략적 해석",
-      aiRole: "실시간 경쟁사 벤치마킹",
-      outputs: ["정밀 시장분석 리포트", "경쟁우위 전략 제안서", "고객 세그먼트별 전략"],
-      color: "from-green-500 to-emerald-500"
+      color: 'text-emerald-600'
     },
     {
-      step: 3,
-      title: "초정밀 재무분석",
-      description: "1,000+ 시나리오 재무 시뮬레이션",
-      duration: "3-4일",
-      icon: PieChart,
-      humanRole: "재무 전략 수립 및 최적화",
-      aiRole: "1,000+ 시나리오 동시 분석",
-      outputs: ["종합 재무분석 리포트", "다중 시나리오 분석표", "투자수익성 검증서"],
-      color: "from-purple-500 to-violet-500"
+      name: '지역신용보증재단',
+      description: '지역 신용보증 지원',
+      url: 'https://untact.koreg.or.kr/web/index.do',
+      icon: MapPin,
+      color: 'text-rose-600'
     },
     {
-      step: 4,
-      title: "지능형 정책매칭",
-      description: "500+ 정책자금 실시간 매칭",
-      duration: "2-3일",
-      icon: Target,
-      humanRole: "정책 변화 대응 전략 수립",
-      aiRole: "500+ 정책자금 실시간 매칭",
-      outputs: ["맞춤형 정책자금 매칭표", "성공확률 예측 리포트", "신청 전략 가이드"],
-      color: "from-orange-500 to-red-500"
+      name: '중소벤처24',
+      description: '중소벤처기업 원스톱 서비스',
+      url: 'https://www.smes.go.kr',
+      icon: Calendar,
+      color: 'text-violet-600'
     },
     {
-      step: 5,
-      title: "통합 의사결정 지원",
-      description: "최적 솔루션 및 실행 계획",
-      duration: "1-2일",
-      icon: Crown,
-      humanRole: "최종 전략 의사결정",
-      aiRole: "종합 리스크 매트릭스 생성",
-      outputs: ["종합 사업타당성분석서", "정책자금 신청 전략서", "실행 로드맵 및 관리 방안"],
-      color: "from-indigo-500 to-purple-500"
+      name: '고용지원금',
+      description: '고용창출 및 고용안정 지원',
+      url: 'https://www.work24.go.kr',
+      icon: DollarSign,
+      color: 'text-amber-600'
     }
   ];
 
-  // 서비스 티어
-  const serviceTiers = [
-    {
-      id: 1,
-      name: "기본 분석 서비스",
-      price: "문의",
-      description: "소규모 프로젝트, 초기 검토 단계",
-      features: [
-        "AI 자동 사업타당성분석",
-        "정책자금 매칭 (Top 10)",
-        "기본 재무 시뮬레이션",
-        "신청서 템플릿 제공",
-        "이후경 경영지도사 검토 1회"
-      ],
-      color: "border-gray-200",
-      buttonColor: "bg-gray-600 hover:bg-gray-700"
-    },
-    {
-      id: 2,
-      name: "듀얼브레인 프리미엄",
-      price: "문의",
-      description: "중대형 프로젝트, 확실한 성공 보장",
-      features: [
-        "완전 듀얼브레인 분석 프로세스",
-        "1,000+ 시나리오 정밀 분석",
-        "맞춤형 신청서 완전 작성",
-        "심사 대응 전략 수립",
-        "6개월 사후 관리",
-        "실시간 진행상황 공유"
-      ],
-      color: "border-blue-500 ring-2 ring-blue-200",
-      buttonColor: "bg-blue-600 hover:bg-blue-700",
-      recommended: true
-    },
-    {
-      id: 3,
-      name: "전략 컨설팅 패키지",
-      price: "문의",
-      description: "대규모 프로젝트, 장기 파트너십",
-      features: [
-        "프리미엄 서비스 + 추가 혜택",
-        "실시간 모니터링 시스템",
-        "무제한 전략 상담",
-        "재신청 보장 서비스",
-        "1년 전략 파트너십"
-      ],
-      color: "border-purple-200",
-      buttonColor: "bg-purple-600 hover:bg-purple-700"
-    }
-  ];
 
-  // 성공사례
-  const successCases = [
+
+
+
+  const detailedSuccessCases = [
     {
-      company: "㈜테크이노베이션",
-      industry: "IT/소프트웨어",
-      amount: "45억원",
-      duration: "18일",
-      result: "1차 선정",
-      testimonial: "기존 3번 탈락했는데, 듀얼브레인 분석으로 한 번에 성공했습니다!",
-      ceo: "김대표"
+      company: 'A제조업 (자동차 부품)',
+      industry: '제조업',
+      location: '경기도 안산',
+      fundingType: '시설자금',
+      amount: '5억원',
+      period: '20일',
+      beforeSales: '120억원',
+      afterSales: '360억원',
+      employment: '15명 신규 채용',
+      details: 'AI 품질검사 시스템 도입으로 불량률 30% 감소',
+      year: '2023',
+      icon: Target
     },
     {
-      company: "㈜스마트팩토리",
-      industry: "제조업",
-      amount: "38억원",
-      duration: "22일",
-      result: "심사위원 만점",
-      testimonial: "AI 분석의 정확도와 전문가의 통찰력이 결합된 완벽한 서비스였습니다.",
-      ceo: "박대표"
+      company: 'B테크기업 (AI 솔루션)',
+      industry: '정보통신업',
+      location: '서울 강남',
+      fundingType: 'R&D 자금',
+      amount: '3억원',
+      period: '15일',
+      beforeSales: '50억원',
+      afterSales: '150억원',
+      employment: '25명 신규 채용',
+      details: '자체 AI 모델 개발로 글로벌 시장 진출',
+      year: '2024',
+      icon: Brain
+    },
+    {
+      company: 'C바이오기업 (의료기기)',
+      industry: '바이오헬스',
+      location: '대전 대덕',
+      fundingType: '창업자금',
+      amount: '10억원',
+      period: '30일',
+      beforeSales: '0원',
+      afterSales: '200억원',
+      employment: '40명 신규 채용',
+      details: '혁신 의료기기 개발로 IPO 준비 중',
+      year: '2024',
+      icon: Lightbulb
     }
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <Badge className="bg-blue-500/10 text-blue-300 border-blue-500/20 mb-6">
-                <Crown className="w-4 h-4 mr-2" />
-                대한민국 최고 수준 정책자금 전문 플랫폼
-              </Badge>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-                중소기업 성장 동력을
-                <br />
-                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  확실하게 뒷받침
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
-                Apple Store 수준의 사용자 경험과 <strong className="text-yellow-300">95% 성공률</strong>의 전문성을 결합한<br />
-                <strong className="text-cyan-300">토털 솔루션</strong>으로 정책자금 확보의 새로운 기준을 제시합니다
-              </p>
-            </motion.div>
-
-            {/* 성과 지표 */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12"
-            >
-              {keyMetrics.map((metric, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-center"
-                >
-                  <div className="absolute top-3 right-3">
-                    <metric.icon className={`w-5 h-5 ${metric.color.replace('text-', 'text-')}`} />
-                  </div>
-                  <div className={`text-4xl md:text-5xl font-bold text-white mb-2`}>
-                    {metric.value}
-                  </div>
-                  <div className="text-blue-200 font-medium mb-1">
-                    {metric.label}
-                  </div>
-                  <div className="text-sm text-blue-300 mb-3">
-                    {metric.description}
-                  </div>
-                  <div className="flex items-center justify-center gap-1">
-                    <TrendingUp className="w-3 h-3 text-green-400" />
-                    <span className="text-xs text-green-400 font-semibold">
-                      {metric.trend}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* CTA 버튼 */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
+      {/* 히어로 섹션 */}
+      <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-purple-800 text-white">
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+          <div className="text-center">
+            <Badge className="mb-4 bg-blue-500/20 text-white border-blue-400 rounded-full">
+              정책자금 전문 컨설팅
+            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              <span className="text-white">정책자금으로 시작하는</span><br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">
+                성공적인 사업 확장
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
+              AI 기반 맞춤형 정책자금 매칭으로<br />
+              평균 4.2억원, 최대 45억원까지 지원받으세요
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
-                onClick={() => router.push('/consultation')}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-lg px-8 py-4 rounded-full shadow-2xl"
+                size="lg" 
+                className="bg-white text-blue-900 hover:bg-gray-100 text-lg px-8 py-6 rounded-full"
+                onClick={() => {
+                  const analysisSection = document.getElementById('investment-analysis-section');
+                  if (analysisSection) {
+                    analysisSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
-                무료 상담 신청하기
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <Calculator className="mr-2 h-5 w-5" />
+                투자재무타당성분석기
               </Button>
-              <Button 
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4 rounded-full"
-              >
-                성공사례 보기
-              </Button>
-            </motion.div>
+              <Link href="/consultation">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full">
+                  <Phone className="mr-2 h-5 w-5" />
+                  상담신청
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* AI 기반 분석 시스템 섹션 - 신규 추가 */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* 투자재무타당성분석기 킬러콘텐츠 섹션 */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                AI 기반 분석 시스템
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                정확한 사업성 평가와 최적의 자금 매칭
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* 투자분석 도구 */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
-            >
-              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
-                <Calculator className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                투자분석 도구
-              </h3>
-              <p className="text-gray-600 mb-6">
-                NPV/IRR 계산과 AI 기반 투자 타당성 분석으로 정확한 의사결정을 지원합니다
-              </p>
-              <Link href="/diagnosis">
-                <Button 
-                  variant="outline" 
-                  className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
-                >
-                  지금 분석하기
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            </motion.div>
-
-            {/* AI 시장분석 */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
-            >
-              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
-                <LineChart className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                AI 시장분석
-              </h3>
-              <p className="text-gray-600 mb-6">
-                빅데이터 기반 산업 트렌드와 성장 성을 분석하여 사업성을 검증합니다
-              </p>
-              <Link href="/diagnosis">
-                <Button 
-                  variant="outline" 
-                  className="w-full border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300"
-                >
-                  분석 시작하기
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            </motion.div>
-
-            {/* 정책자금 매칭 */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-300"
-            >
-              <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
-                <Target className="w-8 h-8 text-purple-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                정책자금 매칭
-              </h3>
-              <p className="text-gray-600 mb-6">
-                100개 이상의 정책자금 중 귀사에 최적화된 자금을 추천드립니다
-              </p>
-              <Link href="/diagnosis">
-                <Button 
-                  variant="outline" 
-                  className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300"
-                >
-                  매칭 확인하기
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* 듀얼브레인 시각화 섹션 */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full px-6 py-2">
+              🎯 킬러콘텐츠
+            </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              혁신적 듀얼브레인 방법론
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                투자재무타당성분석기
+              </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              인간 전문성과 AI 기술의 완벽한 융합으로 10명 전문가팀의 성과를 1/3 시간에 5배 깊이로 구현
+              AI 기반 5구간 투자규모별 평가와 8개 지표 종합분석으로<br />
+              정책자금 승인 가능성을 사전에 정확히 예측합니다
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-            {/* 이후경 경영지도사 */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 text-center border border-blue-200"
-            >
-              <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Brain className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">이후경 경영지도사</h3>
-              <div className="space-y-2 text-gray-700">
-                <div className="font-semibold">✓ 경영지도사 자격 보유</div>
-                <div className="font-semibold">✓ 20년 정책자금 컨설팅 경력</div>
-                <div className="font-semibold">✓ 1,000+ 성공 프로젝트 경험</div>
-                <div className="font-semibold">✓ 정부 정책 담당자 네트워크</div>
-              </div>
-              <div className="mt-6 p-4 bg-white rounded-xl">
-                <div className="text-sm text-blue-600 font-medium">담당 역할</div>
-                <div className="text-gray-800">창조적 사고와 직관적 판단, 최종 의사결정</div>
-              </div>
-            </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* 좌측: 분석기 미리보기 */}
+            <div className="relative">
+              <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-200">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">투자분석 종합 보고서</h3>
+                  <Badge className="bg-green-100 text-green-800 rounded-full">완료</Badge>
+                </div>
+                
+                {/* 탭 메뉴 미리보기 */}
+                <div className="flex gap-2 mb-6 overflow-x-auto">
+                  {['입력', '점수분석', 'AI평가', '재무분석', '차트분석', 'DSCR', '레이더', 'AI리포트'].map((tab, index) => (
+                    <Badge 
+                      key={index} 
+                      variant={index === 2 ? "default" : "secondary"}
+                      className="rounded-full text-xs whitespace-nowrap"
+                    >
+                      {tab}
+                    </Badge>
+                  ))}
+                </div>
 
-            {/* 시너지 표현 */}
-            <div className="flex flex-col items-center justify-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="w-16 h-16 border-4 border-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-4"
-              >
-                <Sparkles className="w-8 h-8 text-purple-600" />
-              </motion.div>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">시너지 효과</h3>
-                <p className="text-gray-600">인간 직관 × AI 정밀도</p>
-                <div className="mt-4 text-sm text-purple-600 font-semibold">98% 성공률 달성</div>
+                {/* 핵심 지표 미리보기 */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-4">
+                    <div className="text-sm text-blue-600 mb-1">NPV (순현재가치)</div>
+                    <div className="text-2xl font-bold text-blue-800">+12.5억원</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-2xl p-4">
+                    <div className="text-sm text-green-600 mb-1">IRR (내부수익률)</div>
+                    <div className="text-2xl font-bold text-green-800">18.3%</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl p-4">
+                    <div className="text-sm text-purple-600 mb-1">DSCR (상환능력)</div>
+                    <div className="text-2xl font-bold text-purple-800">2.8</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl p-4">
+                    <div className="text-sm text-orange-600 mb-1">회수기간</div>
+                    <div className="text-2xl font-bold text-orange-800">4.2년</div>
+                  </div>
+                </div>
+
+                {/* 종합 등급 */}
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-6 text-white text-center">
+                  <div className="text-sm opacity-90 mb-2">투자 등급</div>
+                  <div className="text-3xl font-bold mb-2">A등급</div>
+                  <div className="text-sm opacity-90">투자 실행 적극 권장</div>
+                </div>
+              </div>
+              
+              {/* 애니메이션 효과 */}
+              <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-20 animate-pulse"></div>
+              <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full opacity-20 animate-pulse delay-1000"></div>
+            </div>
+
+            {/* 우측: 특징 및 CTA */}
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <BarChart3 className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">5구간 투자규모별 평가</h4>
+                    <p className="text-gray-600">25억 미만부터 100억 이상까지 투자규모에 따른 차별화된 평가 기준 적용</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Brain className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">AI 기반 8개 지표 종합분석</h4>
+                    <p className="text-gray-600">NPV, IRR, DSCR, 회수기간, 수익성, 안정성, 성장성, 리스크를 종합 분석</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Target className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">실시간 승인 가능성 예측</h4>
+                    <p className="text-gray-600">정책자금 승인 확률을 사전에 정확히 예측하여 성공률 극대화</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+                <h3 className="text-2xl font-bold mb-4">지금 바로 분석 시작</h3>
+                <p className="text-blue-100 mb-6">
+                  3분만에 귀하의 투자 프로젝트가 정책자금 투자가 타당성 "PASS" 인지를 확인해보세요
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    size="lg" 
+                    className="w-full bg-white text-blue-600 hover:bg-gray-100 rounded-full font-semibold"
+                    onClick={() => {
+                      const analysisSection = document.getElementById('investment-analysis-section');
+                      if (analysisSection) {
+                        analysisSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
+                    <Calculator className="mr-2 h-5 w-5" />
+                    무료 분석 시작
+                  </Button>
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 rounded-full">
+                    <MessageCircle className="mr-2 h-5 w-5" />
+                    전문가 상담
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 성과 지표 섹션 */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">검증된 성과</h2>
+            <p className="text-lg text-gray-600">데이터로 증명하는 정책자금 컨설팅 실적</p>
+          </div>
+          
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {performanceMetrics.map((metric, index) => (
+              <Card key={index} className="relative overflow-hidden rounded-2xl">
+                <div className={`absolute top-0 right-0 w-24 h-24 ${metric.bgColor} rounded-bl-full opacity-20`} />
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 ${metric.bgColor} rounded-xl`}>
+                      <metric.icon className={`h-6 w-6 ${metric.color}`} />
+                    </div>
+                    <Badge variant="secondary" className="text-xs rounded-full">
+                      {metric.trend}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-bold text-gray-900">{metric.value}</span>
+                      <span className="text-xl text-gray-600">{metric.unit}</span>
+                    </div>
+                    <div className="text-sm font-medium text-gray-900">{metric.label}</div>
+                    <div className="text-xs text-gray-500">{metric.description}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+
+
+
+      {/* 차별성 강조 - 듀얼브레인 방법론 섹션 */}
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full">
+              Dual-Brain Methodology
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              🧠 듀얼브레인 방법론
+            </h2>
+            <p className="text-lg text-gray-600">
+              AI와 탁월한 융합적 능력자 이후경 경영지도사의 시너지로<br />
+              차별화된 BM 구축과 합격하는 사업계획서 작성 지도
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* 좌측: 듀얼브레인 설명 */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-3xl p-8 shadow-xl">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+                    <Brain className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">AI Brain + Human Brain</h3>
+                    <p className="text-gray-600">인공지능과 전문가의 완벽한 결합</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Zap className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">AI 기반 재무타당성 평가</h4>
+                      <p className="text-sm text-gray-600">NPV, IRR, DSCR 등 정밀한 재무분석</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Users className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">이후경 경영지도사 전문 컨설팅</h4>
+                      <p className="text-sm text-gray-600">30년 경험의 융합적 능력자가 직접 지도</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Trophy className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">차별화된 BM 구축</h4>
+                      <p className="text-sm text-gray-600">시장 경쟁력 확보를 위한 맞춤형 비즈니스 모델</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl p-6 text-white">
+                <div className="flex items-center gap-3 mb-4">
+                  <FileText className="h-6 w-6" />
+                  <h3 className="text-xl font-bold">합격하는 사업계획서</h3>
+                </div>
+                <p className="text-green-100 mb-4">
+                  단순한 서류 작성이 아닌, 실제 승인받는 사업계획서 작성 지도
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="font-bold text-lg">95%</div>
+                    <div className="text-sm text-green-100">승인율</div>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="font-bold text-lg">평균 4.2억</div>
+                    <div className="text-sm text-green-100">지원금액</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* AI 시스템 */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-8 text-center border border-purple-200"
-            >
-              <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Cpu className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">AI 시스템</h3>
-              <div className="space-y-2 text-gray-700">
-                <div className="font-semibold">✓ 실시간 빅데이터 분석 (10만+ 기업)</div>
-                <div className="font-semibold">✓ 1,000+ 시나리오 동시 처리</div>
-                <div className="font-semibold">✓ 24/7 지속적 학습 및 업데이트</div>
-                <div className="font-semibold">✓ 500+ 정책자금 실시간 매칭</div>
-              </div>
-              <div className="mt-6 p-4 bg-white rounded-xl">
-                <div className="text-sm text-purple-600 font-medium">담당 역할</div>
-                <div className="text-gray-800">무제한 동시 처리, 정밀한 패턴 인식</div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Financial Charts 섹션 */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <InteractiveFinancialCharts />
-        </div>
-      </section>
-
-      {/* Case Study System 섹션 */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <CaseStudySystem />
-        </div>
-      </section>
-
-      {/* Progressive Disclosure - 주요 차별화 요소 */}
-      <section className="py-20 bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <Badge className="bg-white/10 text-white border-white/20 mb-6">
-                <Rocket className="w-4 h-4 mr-2" />
-                세계 최고 수준의 차별화
-              </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                왜 AI CAMP인가?
-              </h2>
-              <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-                업계 평균을 압도하는 성과와 혁신적 방법론
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* 성공률 비교 */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20"
-            >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Target className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">성공률</h3>
-                <div className="text-4xl font-bold text-green-400 mb-2">95%</div>
-                <div className="text-purple-200 text-sm">vs 업계 평균 30%</div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-purple-200">AI CAMP</span>
-                  <span className="text-white font-semibold">95%</span>
-                </div>
-                <div className="w-full bg-white/20 rounded-full h-2">
-                  <div className="bg-green-400 h-2 rounded-full w-[95%]"></div>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-purple-200">업계 평균</span>
-                  <span className="text-white font-semibold">30%</span>
-                </div>
-                <div className="w-full bg-white/20 rounded-full h-2">
-                  <div className="bg-gray-400 h-2 rounded-full w-[30%]"></div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* 처리 속도 비교 */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20"
-            >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Gauge className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">처리 속도</h3>
-                <div className="text-4xl font-bold text-blue-400 mb-2">25일</div>
-                <div className="text-purple-200 text-sm">vs 업계 평균 60일</div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-purple-200">AI CAMP</span>
-                  <span className="text-white font-semibold">25일</span>
-                </div>
-                <div className="w-full bg-white/20 rounded-full h-2">
-                  <div className="bg-blue-400 h-2 rounded-full w-[42%]"></div>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-purple-200">업계 평균</span>
-                  <span className="text-white font-semibold">60일</span>
-                </div>
-                <div className="w-full bg-white/20 rounded-full h-2">
-                  <div className="bg-gray-400 h-2 rounded-full w-[100%]"></div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* 평균 확보 금액 */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20"
-            >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <DollarSign className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">확보 금액</h3>
-                <div className="text-4xl font-bold text-purple-400 mb-2">4.2억원</div>
-                <div className="text-purple-200 text-sm">최대 150억원</div>
-              </div>
-              <div className="bg-purple-500/20 rounded-2xl p-4">
-                <div className="text-center">
-                  <div className="text-white font-semibold mb-1">성공 사례</div>
-                  <div className="text-purple-200 text-sm">800+ 프로젝트 완료</div>
-                  <div className="flex justify-center items-center gap-1 mt-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                    <span className="text-white text-sm ml-2">4.9/5.0</span>
+            {/* 우측: 프로세스 플로우 */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-3xl p-8 shadow-xl">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                  통합 자문 서비스 프로세스
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-blue-600 font-bold">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">AI 재무타당성 분석</h4>
+                      <p className="text-sm text-gray-600">투자 프로젝트의 정밀한 재무분석 및 평가</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-green-600 font-bold">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">전문가 1:1 컨설팅</h4>
+                      <p className="text-sm text-gray-600">이후경 경영지도사의 맞춤형 사업전략 수립</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-purple-600 font-bold">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">차별화된 BM 구축</h4>
+                      <p className="text-sm text-gray-600">시장 경쟁력 확보를 위한 비즈니스 모델 설계</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-orange-600 font-bold">4</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">사업계획서 작성 지도</h4>
+                      <p className="text-sm text-gray-600">승인받는 사업계획서의 핵심 포인트 지도</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-red-600 font-bold">5</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">정책자금 신청 지원</h4>
+                      <p className="text-sm text-gray-600">신청부터 승인까지 전 과정 지원</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 5단계 프로세스 섹션 */}
-      <section className="py-20 bg-gray-50">
+      {/* 투자재무타당성분석기 섹션 */}
+      <section id="investment-analysis-section" className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <Badge className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full px-6 py-2">
+              🎯 투자재무타당성분석기
+            </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              듀얼브레인 혁신 프로세스
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                AI 정책자금사업타당성 분석기
+              </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              기존 60일 → 20일 (67% 단축), 1,000+ 시나리오 정밀 분석
+              5구간 투자규모별 평가와 8개 지표 종합분석으로<br />
+              정책자금 승인 가능성을 사전에 정확히 분석해보세요
             </p>
           </div>
 
-          <div className="space-y-8">
-            {dualBrainProcess.map((process, index) => (
-              <motion.div
+          {/* 투자분석 도구 */}
+          <div className="bg-white rounded-3xl shadow-2xl p-8 mb-12">
+            <InvestmentAnalysisTool />
+          </div>
+
+          {/* 투자분석기 특징 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="bg-white/80 backdrop-blur-sm border-blue-200 hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
+                  <BarChart3 className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl">5구간 투자규모별 평가</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  25억 미만부터 100억 이상까지 투자규모에 따른 차별화된 평가 기준을 적용합니다.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm border-purple-200 hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
+                  <Brain className="h-8 w-8 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl">AI 기반 8개 지표 종합분석</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  NPV, IRR, DSCR, 회수기간, 수익성, 안정성, 성장성, 리스크를 종합 분석합니다.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm border-green-200 hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-4">
+                  <Target className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-xl">정책자금 승인 가능성 예측</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  정책자금 승인 확률을 사전에 정확히 예측하여 성공률을 극대화합니다.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* CTA 버튼 */}
+          <div className="text-center mt-12">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4 text-white">전문가 상담 문의</h3>
+              <p className="text-white mb-6">
+                분석 결과를 바탕으로 이후경 경영지도사와 1:1 맞춤 컨설팅을 받아보세요
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/consultation">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 rounded-full font-semibold">
+                    <Phone className="mr-2 h-5 w-5" />
+                    상담 신청
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 rounded-full">
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  카카오톡 상담
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 정책자금 관련기관 바로가기 섹션 */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-green-100 text-green-800 rounded-full">
+              Government Agencies
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              정책자금 관련기관 바로가기
+            </h2>
+            <p className="text-lg text-gray-600">
+              정책자금 신청 및 문의를 위한 관련 기관 링크
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {governmentAgencies.map((agency, index) => (
+              <Card key={index} className="group hover:shadow-xl transition-shadow rounded-2xl">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 ${agency.color === 'text-blue-600' ? 'bg-blue-100' : agency.color === 'text-green-600' ? 'bg-green-100' : agency.color === 'text-purple-600' ? 'bg-purple-100' : agency.color === 'text-orange-600' ? 'bg-orange-100' : agency.color === 'text-indigo-600' ? 'bg-indigo-100' : 'bg-teal-100'} rounded-xl`}>
+                      <agency.icon className={`h-6 w-6 ${agency.color}`} />
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{agency.name}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{agency.description}</p>
+                  <Link href={agency.url} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" className="w-full rounded-full">
+                      바로가기
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 전문가 프로필 섹션 */}
+      <section className="py-16 bg-gradient-to-r from-indigo-900 via-purple-900 to-blue-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* 좌측: 전문가 프로필 */}
+            <div>
+              <div className="flex items-center mb-6">
+                <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mr-4 backdrop-blur-sm border border-white/30">
+                  <Users className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <Badge className="bg-yellow-500 text-black font-bold mb-2">28년 검증된 전문가</Badge>
+                  <h2 className="text-3xl lg:text-4xl font-bold mb-2 text-white">이후경 경영지도사</h2>
+                  <p className="text-xl text-yellow-200 font-semibold">정책자금 전문 컨설턴트</p>
+                </div>
+              </div>
+              
+              <div className="mb-8">
+                <span className="font-bold text-yellow-200 text-lg">"단순한 자금 지원이 아닌, 기업 성장의 완전한 솔루션을 제공합니다"</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
+                  <div className="text-3xl font-bold text-yellow-300">500+</div>
+                  <div className="text-sm text-white font-semibold">정책자금 성공</div>
+                  <div className="text-xs text-blue-200">승인률 95% 달성</div>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
+                  <div className="text-3xl font-bold text-yellow-300">1,200억</div>
+                  <div className="text-sm text-white font-semibold">누적 지원금</div>
+                  <div className="text-xs text-blue-200">평균 4.2억원 지원</div>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
+                  <div className="text-3xl font-bold text-yellow-300">MES</div>
+                  <div className="text-sm text-white font-semibold">시스템 구축</div>
+                  <div className="text-xs text-blue-200">스마트팩토리 전문</div>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/20">
+                  <div className="text-3xl font-bold text-yellow-300">98%</div>
+                  <div className="text-sm text-white font-semibold">고객 만족도</div>
+                  <div className="text-xs text-blue-200">재계약률 85%</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 우측: 핵심 특징 */}
+            <div className="space-y-6">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-white">
+                    <Trophy className="w-6 h-6 mr-2 text-yellow-300" />
+                    통합 자문 서비스
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-white font-medium">설립부터 사업성공까지 원스톱 컨설팅</p>
+                  <p className="text-blue-200 text-sm mt-2">비즈니스 모델 + 재무 전략 + 마케팅 + 운영 시스템</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-white">
+                    <Factory className="w-6 h-6 mr-2 text-yellow-300" />
+                    스마트공장 전문성
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-white font-medium">MES 시스템 구축으로 생산 원가 30% 절감</p>
+                  <p className="text-blue-200 text-sm mt-2">제조업 특화 4차 산업혁명 솔루션</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-white">
+                    <Shield className="w-6 h-6 mr-2 text-yellow-300" />
+                    차별화된 전문성
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-white font-medium">대기업 출신 28년 노하우 + 정부 인증 전문가</p>
+                  <p className="text-blue-200 text-sm mt-2">현대그룹, 삼성생명 출신의 검증된 실무 경험</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 통합 자문 서비스 섹션 */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full">
+              Integrated Consulting Service
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              설립부터 사업성공까지 통합 자문 서비스
+            </h2>
+            <p className="text-lg text-gray-600">
+              단순한 자금 지원이 아닌, 기업 성장의 완전한 솔루션을 제공합니다
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Building2 className="h-10 w-10 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">비즈니스 모델 설계</h3>
+              <p className="text-gray-600">
+                수익구조 분석부터 가치제안까지 완전한 비즈니스 모델 구축
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="h-10 w-10 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">재무 마케팅 전략</h3>
+              <p className="text-gray-600">
+                재무계획 수립과 타겟 마케팅 전략으로 매출 극대화
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Factory className="h-10 w-10 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">스마트공장 구축</h3>
+              <p className="text-gray-600">
+                MES 시스템 도입으로 생산 효율성 향상과 원가 절감
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Award className="h-10 w-10 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">사업성공 관리</h3>
+              <p className="text-gray-600">
+                설립부터 운영까지 지속적인 성장 관리 시스템
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 차별화된 전문성 섹션 */}
+      <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
+              Premium Expertise
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              🏆 최고의 전문성을 확보하고 있습니다
+            </h2>
+            <p className="text-lg text-gray-600">
+              단순한 자금 연결이 아닌, 기업 성장의 완전한 솔루션을 제공하는 차별화된 전문성
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* 좌측: 전문 영역 */}
+            <div className="space-y-8">
+              <Card className="rounded-2xl shadow-xl h-80 flex flex-col">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-2xl">
+                  <CardTitle className="flex items-center text-xl">
+                    <Workflow className="w-6 h-6 mr-3" />
+                    MES 시스템 구축 전문
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 flex-1 flex flex-col justify-center">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">생산관리 시스템(MES) 설계</h4>
+                        <p className="text-sm text-gray-600">실시간 생산 모니터링과 품질 관리</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">스마트공장 원가절감 전략</h4>
+                        <p className="text-sm text-gray-600">AI 기반 생산 최적화로 원가 30% 절감</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">4차 산업혁명 대응</h4>
+                        <p className="text-sm text-gray-600">IoT, 빅데이터 활용 스마트 제조</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl shadow-xl h-80 flex flex-col">
+                <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-2xl">
+                  <CardTitle className="flex items-center text-xl">
+                    <TrendingUp className="w-6 h-6 mr-3" />
+                    재무 마케팅 전략
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 flex-1 flex flex-col justify-center">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">재무타당성 분석</h4>
+                        <p className="text-sm text-gray-600">NPV, IRR, DSCR 등 정밀 분석</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">수익모델 최적화</h4>
+                        <p className="text-sm text-gray-600">다양한 수익원 발굴과 최적화</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">디지털 마케팅 전략</h4>
+                        <p className="text-sm text-gray-600">온라인 채널 최적화 및 고객 확보</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 우측: 성과 지표 */}
+            <div className="space-y-8">
+              <Card className="rounded-2xl shadow-xl h-80 flex flex-col">
+                <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-2xl">
+                  <CardTitle className="flex items-center text-xl">
+                    <Trophy className="w-6 h-6 mr-3" />
+                    검증된 성과
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 flex-1 flex flex-col justify-center">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-3xl font-bold text-blue-600">500+</div>
+                      <div className="text-sm text-gray-600">정책자금 성공</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-3xl font-bold text-green-600">95%</div>
+                      <div className="text-sm text-gray-600">승인율</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-3xl font-bold text-purple-600">1,200억</div>
+                      <div className="text-sm text-gray-600">누적 지원금</div>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-lg">
+                      <div className="text-3xl font-bold text-orange-600">30%</div>
+                      <div className="text-sm text-gray-600">평균 원가절감</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl shadow-xl h-80 flex flex-col">
+                <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-t-2xl">
+                  <CardTitle className="flex items-center text-xl">
+                    <Shield className="w-6 h-6 mr-3" />
+                    차별화 요소
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 flex-1 flex flex-col justify-center">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 font-bold text-sm">1</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">대기업 출신 전문가</h4>
+                        <p className="text-sm text-gray-600">현대그룹, 삼성생명 28년 노하우</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <span className="text-green-600 font-bold text-sm">2</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">정부 인증 전문기관</h4>
+                        <p className="text-sm text-gray-600">중소벤처기업부 공식 인증</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <span className="text-purple-600 font-bold text-sm">3</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">통합 솔루션 제공</h4>
+                        <p className="text-sm text-gray-600">설립부터 성공까지 원스톱 서비스</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 정책자금 종류 섹션 */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full">
+              Specialized Funding
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              차별화된 정책자금 전문 서비스
+            </h2>
+            <p className="text-lg text-gray-600">
+              각 분야별 전문 컨설팅과 함께 제공되는 맞춤형 정책자금 지원
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {fundingTypes.map((fund, index) => (
+              <Link 
                 key={index}
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className={`relative rounded-3xl overflow-hidden ${
-                  activeStep === index ? 'ring-4 ring-blue-500 ring-opacity-50' : ''
-                }`}
+                href={fund.detailUrl}
+                className="group block"
               >
-                <Card className="border-0 shadow-xl">
-                  <CardContent className="p-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                      {/* 단계 정보 */}
-                      <div className="text-center lg:text-left">
-                        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${process.color} text-white mb-4`}>
-                          <process.icon className="w-8 h-8" />
-                        </div>
-                        <div className="flex items-center justify-center lg:justify-start gap-2 mb-2">
-                          <Badge variant="outline" className="text-xs">STEP {process.step}</Badge>
-                          <Badge className="bg-green-100 text-green-700">{process.duration}</Badge>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{process.title}</h3>
-                        <p className="text-gray-600">{process.description}</p>
+                <Card className="relative group hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer transform hover:-translate-y-1">
+                  <div className={`absolute top-0 right-0 w-24 h-24 ${fund.bgColor} rounded-bl-full opacity-20`} />
+                  <CardContent className="pt-8">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`p-3 ${fund.bgColor} rounded-xl group-hover:scale-110 transition-transform`}>
+                        <fund.icon className={`h-8 w-8 ${fund.color}`} />
                       </div>
-
-                      {/* 듀얼브레인 역할 */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-blue-50 rounded-2xl p-4 border border-blue-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Brain className="w-5 h-5 text-blue-600" />
-                            <span className="font-semibold text-blue-900">전문가</span>
-                          </div>
-                          <p className="text-sm text-blue-800">{process.humanRole}</p>
-                        </div>
-                        <div className="bg-purple-50 rounded-2xl p-4 border border-purple-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Cpu className="w-5 h-5 text-purple-600" />
-                            <span className="font-semibold text-purple-900">AI</span>
-                          </div>
-                          <p className="text-sm text-purple-800">{process.aiRole}</p>
-                        </div>
+                      <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">{fund.title}</h3>
+                    <p className="text-gray-600 mb-4">{fund.description}</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">지원한도:</span>
+                        <span className="font-semibold">{fund.amount}</span>
                       </div>
-
-                      {/* 결과물 */}
-                      <div className="bg-gray-50 rounded-2xl p-6">
-                        <h4 className="font-semibold text-gray-900 mb-3">산출물</h4>
-                        <div className="space-y-2">
-                          {process.outputs.map((output, outputIndex) => (
-                            <div key={outputIndex} className="flex items-center gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                              <span className="text-sm text-gray-700">{output}</span>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">금리:</span>
+                        <span className="font-semibold text-green-600">{fund.rate}</span>
                       </div>
+                    </div>
+                    
+                    {/* 전문성 차별화 */}
+                    <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                      <div className="text-xs text-gray-600 mb-1">전문 컨설팅</div>
+                      <div className="text-sm font-medium text-gray-900">{fund.specialty}</div>
+                    </div>
+                    
+                    <div className="mt-4 text-center">
+                      <span className="text-sm text-blue-600 font-medium group-hover:underline">
+                        자세히 보기 →
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </Link>
             ))}
-          </div>
-
-          {/* 프로세스 요약 */}
-          <div className="mt-16 text-center">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <div className="text-3xl font-bold text-blue-600 mb-2">총 20일</div>
-                <div className="text-gray-600">완성 기간</div>
-              </div>
-              <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <div className="text-3xl font-bold text-green-600 mb-2">98%</div>
-                <div className="text-gray-600">예측 정확도</div>
-              </div>
-              <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <div className="text-3xl font-bold text-purple-600 mb-2">1,000+</div>
-                <div className="text-gray-600">시나리오 분석</div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* 서비스 티어 섹션 */}
-      <section className="py-20 bg-white">
+      {/* 맞춤형 정책자금 성공사례 섹션 */}
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              서비스 구성
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-yellow-100 text-yellow-800 rounded-full">
+              Success Stories
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              맞춤형 정책자금 성공사례
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              프로젝트 규모와 요구사항에 맞는 최적의 솔루션을 선택하세요
+            <p className="text-lg text-gray-600">
+              투자재무타당성분석기로 검증된 실제 기업들의 정책자금 활용 성공 스토리
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {serviceTiers.map((tier) => (
-              <motion.div
-                key={tier.id}
-                whileHover={{ scale: 1.02 }}
-                className={`relative rounded-3xl overflow-hidden ${tier.color} ${
-                  tier.recommended ? 'transform scale-105' : ''
-                }`}
-              >
-                {tier.recommended && (
-                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-center py-2 text-sm font-semibold">
-                    ⭐ 추천
-                  </div>
-                )}
-                <Card className="border-0 h-full">
-                  <CardHeader className={`text-center ${tier.recommended ? 'pt-12' : 'pt-8'}`}>
-                    <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
-                      {tier.name}
-                    </CardTitle>
-                    <div className="text-3xl font-bold text-blue-600">{tier.price}</div>
-                    <CardDescription className="text-gray-600">
-                      {tier.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {tier.features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                        <span className="text-gray-700">{feature}</span>
+            {detailedSuccessCases.map((story, index) => (
+              <Card key={index} className="relative group hover:shadow-xl transition-shadow rounded-2xl overflow-hidden">
+                {/* 배경 그라데이션 */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-50"></div>
+                
+                <CardHeader className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                        <story.icon className="h-6 w-6 text-white" />
                       </div>
-                    ))}
-                    <Button 
-                      className={`w-full mt-6 ${tier.buttonColor} text-white`}
-                      onClick={() => router.push('/consultation')}
-                    >
-                      상담 신청하기
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                      <div>
+                        <Badge variant="secondary" className="text-xs rounded-full">{story.year}</Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-500" />
+                      <Badge className="bg-green-100 text-green-800 text-xs rounded-full">분석 완료</Badge>
+                    </div>
+                  </div>
+                  <CardTitle className="text-lg">{story.company}</CardTitle>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    <span>{story.location}</span>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="relative">
+                  <div className="space-y-4">
+                    {/* 투자분석 결과 미리보기 */}
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-4 text-white">
+                      <div className="text-sm opacity-90 mb-2">투자재무타당성분석 결과</div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <div className="text-xs opacity-80">NPV</div>
+                          <div className="text-lg font-bold">+{(parseFloat(story.amount.replace('억원', '')) * 2.5).toFixed(1)}억원</div>
+                        </div>
+                        <div>
+                          <div className="text-xs opacity-80">IRR</div>
+                          <div className="text-lg font-bold">{15 + index * 2}%</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-600 mb-1">지원금액</div>
+                        <div className="text-lg font-bold text-blue-600">{story.amount}</div>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-600 mb-1">처리기간</div>
+                        <div className="text-lg font-bold text-green-600">{story.period}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3">
+                      <div className="text-sm text-gray-600 mb-2">성과 지표</div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span>매출 증가</span>
+                          <span className="font-medium">{story.beforeSales} → {story.afterSales}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>고용 창출</span>
+                          <span className="font-medium text-green-600">{story.employment}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3 border-t">
+                      <div className="text-sm text-gray-700">
+                        <span className="font-medium">핵심 성공요인:</span>
+                        <br />
+                        {story.details}
+                      </div>
+                    </div>
+
+                    {/* 분석 시작 버튼 */}
+                    <div className="pt-4">
+                      <Button 
+                        variant="outline" 
+                        className="w-full rounded-full hover:bg-blue-50 hover:border-blue-300 text-sm"
+                        onClick={() => {
+                          const analysisSection = document.getElementById('investment-analysis-section');
+                          if (analysisSection) {
+                            analysisSection.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                      >
+                        <Calculator className="mr-2 h-4 w-4" />
+                        나도 분석해보기
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 성공사례 섹션 */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              검증된 성공사례
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              듀얼브레인으로 달성한 실제 성과들
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {successCases.map((case_, index) => (
-              <motion.div
-                key={index}
-                whileHover={{ scale: 1.02 }}
-                className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200"
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{case_.company}</h3>
-                    <p className="text-gray-600">{case_.industry}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-green-600">{case_.amount}</div>
-                    <div className="text-sm text-gray-500">{case_.duration} 완성</div>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 rounded-2xl p-4 mb-6">
-                  <div className="text-sm text-blue-600 font-medium mb-1">결과</div>
-                  <div className="text-blue-900 font-semibold">{case_.result}</div>
-                </div>
-
-                <blockquote className="italic text-gray-700 mb-4">
-                  "{case_.testimonial}"
-                </blockquote>
-                <div className="text-right text-sm text-gray-500">- {case_.ceo}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 최종 CTA 섹션 - Apple Store 스타일 */}
-      <section className="relative py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 overflow-hidden">
-        {/* 배경 효과 */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 mb-8">
-              <Crown className="w-4 h-4 mr-2" />
-              지금 시작하세요
-            </Badge>
-
-            <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-              중소기업 성장의
-              <br />
-              <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                확실한 파트너
-              </span>
-            </h2>
-            
-            <p className="text-xl md:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
-              <strong className="text-yellow-300">95% 성공률</strong>의 검증된 전문성으로<br />
-              귀하의 사업 성장을 확실하게 뒷받침하겠습니다
-            </p>
-            
-            {/* 보장 사항 */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
-              >
-                <Clock className="w-8 h-8 text-blue-400 mx-auto mb-4" />
-                <div className="text-white font-bold text-lg mb-2">24시간 내</div>
-                <div className="text-blue-200 text-sm">전문가 연락</div>
-              </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
-              >
-                <Target className="w-8 h-8 text-green-400 mx-auto mb-4" />
-                <div className="text-white font-bold text-lg mb-2">무료 진단</div>
-                <div className="text-blue-200 text-sm">성공확률 분석</div>
-              </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
-              >
-                <Lightbulb className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-                <div className="text-white font-bold text-lg mb-2">맞춤 전략</div>
-                <div className="text-blue-200 text-sm">개별화된 솔루션</div>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
-              >
-                <Shield className="w-8 h-8 text-orange-400 mx-auto mb-4" />
-                <div className="text-white font-bold text-lg mb-2">성공 보장</div>
-                <div className="text-blue-200 text-sm">95% 성공률</div>
-              </motion.div>
-            </div>
-
-            {/* 주요 CTA 버튼 */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button 
-                  onClick={() => router.push('/consultation')}
-                  className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black text-xl px-12 py-6 rounded-full shadow-2xl font-bold border-0"
-                >
-                  무료 상담 신청하기
-                  <ArrowRight className="ml-3 w-6 h-6" />
-                </Button>
-              </motion.div>
-              
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button 
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 text-xl px-12 py-6 rounded-full backdrop-blur-sm"
-                >
-                  <Phone className="mr-2 w-5 h-5" />
-                  1599-1234
-                </Button>
-              </motion.div>
-            </div>
-
-            {/* 신뢰도 지표 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-8 border-t border-white/20">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">800+</div>
-                <div className="text-blue-200 text-sm">성공 프로젝트</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400 mb-1">95%</div>
-                <div className="text-blue-200 text-sm">선정 성공률</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-400 mb-1">4.9</div>
-                <div className="text-blue-200 text-sm">고객 만족도</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-400 mb-1">25일</div>
-                <div className="text-blue-200 text-sm">평균 처리기간</div>
-              </div>
-            </div>
-
-            {/* 긴급성 요소 */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="mt-12 p-6 bg-red-500/20 border border-red-500/30 rounded-2xl backdrop-blur-sm"
+      {/* CTA 섹션 */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            지금 바로 정책자금을 받아보세요
+          </h2>
+          <p className="text-xl mb-8 text-blue-100">
+            AI 재무분석으로 승인 가능성을 미리 확인하고<br />
+            전문가의 1:1 맞춤 컨설팅을 받아보세요
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 rounded-full"
+              onClick={() => {
+                const analysisSection = document.getElementById('investment-analysis-section');
+                if (analysisSection) {
+                  analysisSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
             >
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <AlertTriangle className="w-5 h-5 text-red-400" />
-                <span className="text-red-300 font-semibold">한정 특가</span>
-              </div>
-              <p className="text-white">
-                이달 말까지 <strong className="text-yellow-300">무료 심층 분석</strong> 제공 
-                (정가 200만원 상당)
-              </p>
-            </motion.div>
-          </motion.div>
+              <Calculator className="mr-2 h-5 w-5" />
+              AI 투자분석 시작
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8 rounded-full">
+              <MessageCircle className="mr-2 h-5 w-5" />
+              카카오톡 상담
+            </Button>
+          </div>
+          
+          <p className="mt-6 text-sm text-blue-100">
+            평균 응답시간: 30분 이내 | 상담 비용: 무료
+          </p>
         </div>
       </section>
     </div>
   );
-};
-
-export default PolicyFundingPage; 
+} 

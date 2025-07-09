@@ -277,8 +277,9 @@ export default function ServicesPage() {
       <Header />
       
       {/* 히어로 섹션 - 모바일 최적화 */}
-      <section className="mobile-container py-16 lg:py-24 safe-area-top">
-        <div className="text-center mb-12 lg:mb-16">
+      <section className="py-16 lg:py-24 safe-area-top">
+        <div className="max-w-6xl mx-auto px-6 lg:px-12">
+          <div className="text-center mb-12 lg:mb-16">
           <h1 className="text-mobile-3xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 mobile-centered">
             <span className="text-overflow-safe">AICAMP</span>
             <br />
@@ -328,12 +329,14 @@ export default function ServicesPage() {
               </div>
             ))}
           </div>
+                  </div>
         </div>
       </section>
 
       {/* 서비스 카드 섹션 - 사용자 중심 완전 개선 */}
-      <section className="mobile-container py-16 lg:py-24">
-        <div className="text-center mb-12 lg:mb-16">
+      <section className="py-16 lg:py-24">
+        <div className="max-w-6xl mx-auto px-6 lg:px-12">
+          <div className="text-center mb-12 lg:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50
                           text-blue-700 dark:text-blue-400 rounded-full font-semibold text-sm mb-6 animate-bounce-gentle">
             <Star className="w-4 h-4" />
