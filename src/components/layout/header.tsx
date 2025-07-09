@@ -27,7 +27,9 @@ import {
   TrendingUp,
   DollarSign,
   FileText,
-  Crown
+  Crown,
+  Lightbulb,
+  Beaker
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -193,6 +195,9 @@ const Header = () => {
     { href: '/diagnosis', label: 'AI 무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '전문가상담', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
+    { href: '/services/policy-funding/operating-funding', label: '운전자금', color: 'green', icon: DollarSign },
+    { href: '/services/policy-funding/startup-funding', label: '창업자금', color: 'purple', icon: Lightbulb },
+    { href: '/services/policy-funding/rd-funding', label: 'R&D자금', color: 'orange', icon: Beaker },
     { href: '/services/policy-funding#investment-analysis-section', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp },
     { href: '/support/contact', label: '오류신고', color: 'red', icon: MessageSquare }
   ];
@@ -216,7 +221,7 @@ const Header = () => {
             >
               <div className="w-6 h-6 flex items-center justify-center">
                 <img 
-                  src={getImagePath('/images/AICAMP로고.png')}
+                  src={getImagePath('/images/aicamp_logo.png')}
                   alt="AICAMP" 
                   className="w-6 h-6 object-contain"
                 />

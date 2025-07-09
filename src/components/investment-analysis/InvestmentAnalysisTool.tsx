@@ -17,7 +17,8 @@ import {
   RefreshCw,
   Target,
   Award,
-  Table
+  Table,
+  MessageCircle
 } from 'lucide-react';
 import { 
   InvestmentInput, 
@@ -37,6 +38,7 @@ import DSCRChart from './DSCRChart';
 import InvestmentRadarChart from './InvestmentRadarChart';
 import InvestmentScoreBreakdown from './InvestmentScoreBreakdown';
 import ComprehensiveFinancialTable from './ComprehensiveFinancialTable';
+import Link from 'next/link';
 
 export default function InvestmentAnalysisTool() {
   // 초기 입력값 설정 - useMemo로 안정화
@@ -170,96 +172,41 @@ export default function InvestmentAnalysisTool() {
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
-      {/* 헤더 */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 rounded-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-2xl">
-            <Calculator className="h-8 w-8 text-blue-600" />
-            재무타당성 분석기
-          </CardTitle>
-          <CardDescription className="text-base mt-2">
-            정책자금 특성을 반영한 리스크 프리미엄 적용 및 포괄적 재무데이터 분석
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={handleInvestmentAnalysis}
-              disabled={isAnalyzing}
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-6 text-lg font-semibold"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                  분석 중...
-                </>
-              ) : (
-                <>
-                  <TrendingUp className="mr-3 h-6 w-6" />
-                  🚀 투자 분석 시작
-                </>
-              )}
-            </Button>
-            
-            {analysisResult && (
+      {/* 메인 헤더 */}
+      <div className="text-center mb-8 sm:mb-12">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <Calculator className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+            투자재무타당성분석기
+          </h1>
+        </div>
+        <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto px-4">
+          AI 기반 정밀 분석으로 투자 프로젝트의 타당성을 종합 평가합니다
+        </p>
+        
+        {/* 분석 시작 버튼 */}
+        <div className="mt-6 sm:mt-8">
+          <Button 
+            onClick={handleInvestmentAnalysis}
+            disabled={isAnalyzing}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 w-full sm:w-auto"
+          >
+            {isAnalyzing ? (
               <>
-                <Button
-                  onClick={handleReset}
-                  variant="outline"
-                  size="lg"
-                >
-                  <RefreshCw className="mr-2 h-5 w-5" />
-                  초기화
-                </Button>
-                <Button
-                  onClick={handleExport}
-                  variant="outline"
-                  size="lg"
-                >
-                  <Download className="mr-2 h-5 w-5" />
-                  엑셀 내보내기
-                </Button>
+                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                분석 중...
+              </>
+            ) : (
+              <>
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                🚀 투자분석 시작
               </>
             )}
-          </div>
-          
-          {/* 진행상황 표시 */}
-          {(isAnalyzing || isCompleted) && (
-            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-3 mb-3">
-                {isAnalyzing ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                ) : (
-                  <Activity className="h-5 w-5 text-green-600" />
-                )}
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {isCompleted ? '분석 완료!' : '분석 진행 중...'}
-                </h3>
-              </div>
-              
-              {currentStep && (
-                <div className="mb-3">
-                  <p className="text-blue-700 font-medium">
-                    {isCompleted ? '✅ 모든 분석이 완료되었습니다!' : `🔄 ${currentStep}`}
-                  </p>
-                </div>
-              )}
-              
-              {completedSteps.length > 0 && (
-                <div className="space-y-1">
-                  {completedSteps.map((step, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                      <span className="text-green-500">✅</span>
-                      {step}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </Button>
+        </div>
+      </div>
 
       {/* 에러 메시지 */}
       {error && (
@@ -272,9 +219,11 @@ export default function InvestmentAnalysisTool() {
       {/* 입력 폼 */}
       <InvestmentInputForm
         value={investmentInput}
-        onChange={useCallback((newInput: InvestmentInput) => {
-          setInvestmentInput(newInput);
+        onChange={useCallback((partial: Partial<InvestmentInput>) => {
+          setInvestmentInput(prev => ({ ...prev, ...partial }));
         }, [])}
+        onAnalyze={handleInvestmentAnalysis}
+        isAnalyzing={isAnalyzing}
       />
 
       {/* 분석 결과 섹션 - 입력 필드 아래에 표시 */}
@@ -320,7 +269,7 @@ export default function InvestmentAnalysisTool() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">NPV (순현재가치)</span>
                     <span className={`font-bold text-lg ${analysisResult.npv >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {(analysisResult.npv / 100000000).toFixed(2)}억원
+                      {(analysisResult.npv / 100000000).toFixed(1)}억원
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -453,6 +402,19 @@ export default function InvestmentAnalysisTool() {
                   )}
                 </TabsContent>
               </Tabs>
+              
+              {/* 상담신청 버튼 */}
+              <div className="mt-8 flex justify-center">
+                <Link href="/consultation">
+                  <Button 
+                    size="lg" 
+                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-6 text-lg font-semibold"
+                  >
+                    <MessageCircle className="mr-3 h-6 w-6" />
+                    전문가 상담 신청
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

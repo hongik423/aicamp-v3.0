@@ -94,7 +94,7 @@ export default function InvestmentRadarChart({ result, grade }: InvestmentRadarC
 
   // 지표별 상세 점수 바차트 데이터
   const detailScoreData = [
-    { name: 'NPV', score: grade.details.npvScore, value: `${(result.npv / 100000000).toFixed(2)}억원` },
+    { name: 'NPV', score: grade.details.npvScore, value: `${(result.npv / 100000000).toFixed(1)}억원` },
     { name: 'IRR', score: grade.details.irrScore, value: `${result.irr.toFixed(2)}%` },
     { name: 'DSCR', score: grade.details.dscrScore, value: avgDSCR.toFixed(2) },
     { name: '회수기간', score: grade.details.paybackScore, value: `${result.paybackPeriod.toFixed(1)}년` },
@@ -191,7 +191,9 @@ export default function InvestmentRadarChart({ result, grade }: InvestmentRadarC
                     />
                     <span className="font-medium">{item.name}</span>
                   </div>
-                  <span className="text-lg font-bold">{item.value}점</span>
+                  <span className="text-lg font-bold">
+                    {item.name === 'NPV' ? item.value.toFixed(1) : item.value}점
+                  </span>
                 </div>
               ))}
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">

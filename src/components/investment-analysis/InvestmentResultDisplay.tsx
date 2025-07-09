@@ -175,7 +175,7 @@ export default function InvestmentResultDisplay({
                   <div key={index} className={`${scoreGrade.bgColor} rounded-lg p-3 text-center`}>
                     <div className="text-sm font-medium">{metric.name}</div>
                     <div className={`text-lg font-bold ${scoreGrade.color}`}>
-                      {metric.score}점
+                      {metric.name === 'NPV' ? metric.score.toFixed(1) : metric.score}점
                     </div>
                     <div className="text-xs text-gray-600">{scoreGrade.label}</div>
                   </div>
@@ -216,7 +216,7 @@ export default function InvestmentResultDisplay({
                 <metric.icon className={`h-8 w-8 ${metric.color}`} />
                 <div className="text-right">
                   <div className={`text-sm font-medium px-2 py-1 rounded ${getScoreGrade(metric.score).bgColor} ${getScoreGrade(metric.score).color}`}>
-                    {metric.score}점
+                    {metric.title === 'NPV (순현재가치)' ? metric.score.toFixed(1) : metric.score}점
                   </div>
                 </div>
               </div>

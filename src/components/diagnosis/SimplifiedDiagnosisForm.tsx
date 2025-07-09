@@ -892,7 +892,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                         <Button 
                           type="submit"
                           disabled={isSubmitting || !form.getValues('privacyConsent')}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-4 h-auto"
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-4 h-auto text-white"
                         >
                           {isSubmitting ? (
                             <>

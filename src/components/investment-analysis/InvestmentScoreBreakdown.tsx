@@ -210,7 +210,7 @@ export default function InvestmentScoreBreakdown({
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">가중치: {metric.weight}%</Badge>
                   <Badge className={`${getScoreColor(metric.actualScore)} text-white`}>
-                    {metric.actualScore}점
+                    {metric.name === 'NPV (순현재가치)' ? metric.actualScore.toFixed(1) : metric.actualScore}점
                   </Badge>
                 </div>
               </CardTitle>
@@ -269,7 +269,7 @@ export default function InvestmentScoreBreakdown({
                       }}
                     >
                       <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-1 rounded">
-                        {metric.actualScore}점
+                        {metric.name === 'NPV (순현재가치)' ? metric.actualScore.toFixed(1) : metric.actualScore}점
                       </div>
                     </div>
                   </div>

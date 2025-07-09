@@ -28,6 +28,7 @@ export function EnhancedNumberInput({
   const [displayValue, setDisplayValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const updateTimeoutRef = useRef<NodeJS.Timeout>();
   
   // 숫자를 표시 형식으로 변환
   const formatValue = useCallback((num: number, focused: boolean = false): string => {
@@ -92,15 +93,19 @@ export function EnhancedNumberInput({
     }
   }, [value, isFocused, formatValue]);
   
+  // 컴포넌트 언마운트 시 타임아웃 정리
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
+  
   // 포커스 핸들러
   const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
     setDisplayValue(formatValue(value, true));
-    
-    // 전체 선택
-    setTimeout(() => {
-      e.target.select();
-    }, 0);
     
     props.onFocus?.(e);
   }, [value, formatValue, props]);
@@ -108,6 +113,11 @@ export function EnhancedNumberInput({
   // 블러 핸들러
   const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false);
+    
+    // 타임아웃 정리
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
     
     // 최종 값 검증 및 적용
     const parsedValue = parseValue(displayValue);
@@ -132,12 +142,26 @@ export function EnhancedNumberInput({
       return;
     }
     
+    // 표시값 즉시 업데이트
     setDisplayValue(inputValue);
     
-    // 실시간으로 값 업데이트
-    const parsedValue = parseValue(inputValue);
-    onChange(parsedValue);
-  }, [parseValue, onChange]);
+    // 이전 타임아웃 취소
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    
+    // 디바운스를 사용하여 상위 컴포넌트 업데이트
+    updateTimeoutRef.current = setTimeout(() => {
+      const parsedValue = parseValue(inputValue);
+      let finalValue = parsedValue;
+      
+      // min/max 제한 적용
+      if (min !== undefined && finalValue < min) finalValue = min;
+      if (max !== undefined && finalValue > max) finalValue = max;
+      
+      onChange(finalValue);
+    }, 300); // 300ms 디바운스
+  }, [parseValue, onChange, min, max]);
   
   // 키보드 이벤트 핸들러
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {

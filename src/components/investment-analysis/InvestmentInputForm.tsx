@@ -4,22 +4,28 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { InvestmentInput } from '@/types/investment.types';
-import { Info } from 'lucide-react';
+import { Info, TrendingUp, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { EnhancedNumberInput } from '@/components/ui/enhanced-number-input';
 
 interface InvestmentInputFormProps {
   value: InvestmentInput;
-  onChange: (input: InvestmentInput) => void;
+  /**
+   * 변경된 필드만 포함하는 부분 업데이트 콜백
+   * 전체 객체를 다시 전달하면 동시 입력 시 다른 필드 값이 덮어써지는 문제가 발생하므로
+   * Partial 타입으로 변경하여 병합 업데이트를 수행하도록 처리합니다.
+   */
+  onChange: (partial: Partial<InvestmentInput>) => void;
+  onAnalyze?: () => void;
+  isAnalyzing?: boolean;
 }
 
-export default function InvestmentInputForm({ value, onChange }: InvestmentInputFormProps) {
+export default function InvestmentInputForm({ value, onChange, onAnalyze, isAnalyzing = false }: InvestmentInputFormProps) {
   const handleFieldChange = (field: keyof InvestmentInput, newValue: number | string) => {
-    onChange({
-      ...value,
-      [field]: newValue
-    });
+    // 변경된 필드만 전달하여 상위 컴포넌트에서 병합하도록 함
+    onChange({ [field]: newValue });
   };
 
   return (
@@ -357,6 +363,27 @@ export default function InvestmentInputForm({ value, onChange }: InvestmentInput
             </div>
           </CardContent>
         </Card>
+
+        {/* 투자분석시작 버튼 - 입력 폼 하단 */}
+        <div className="mt-8 flex justify-center">
+          <Button 
+            onClick={onAnalyze}
+            disabled={isAnalyzing}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 w-full sm:w-auto"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                분석 중...
+              </>
+            ) : (
+              <>
+                <TrendingUp className="w-5 h-5 mr-2" />
+                🚀 투자분석 시작
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </TooltipProvider>
   );

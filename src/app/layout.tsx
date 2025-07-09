@@ -118,8 +118,8 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         
         {/* Apple PWA 설정 */}
-        <link rel="apple-touch-icon" href="/images/AICAMP로고.png" />
-        <link rel="apple-touch-startup-image" href="/images/AICAMP로고.png" />
+        <link rel="apple-touch-icon" href="/images/aicamp_logo.png" />
+        <link rel="apple-touch-startup-image" href="/images/aicamp_logo.png" />
         
         {/* Vercel 배포 최적화 설정 */}
         <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app'} />

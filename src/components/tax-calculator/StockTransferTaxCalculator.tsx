@@ -2297,25 +2297,23 @@ export default function StockTransferTaxCalculator() {
                     </div>
 
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>주식 수량</Label>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          value={formData.stockQuantity || ''}
-                          onChange={(e) => handleInputChange('stockQuantity', Math.round(Number(e.target.value)))}
-                        />
-                      </div>
+                      <SmartNumberInput
+                        label="주식 수량"
+                        field="stockQuantity"
+                        value={formData.stockQuantity || 0}
+                        placeholder="0"
+                        suffix="주"
+                        step={1}
+                      />
 
-                      <div className="space-y-2">
-                        <Label>주당 가격 (원)</Label>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          value={formData.pricePerShare || ''}
-                          onChange={(e) => handleInputChange('pricePerShare', Math.round(Number(e.target.value)))}
-                        />
-                      </div>
+                      <SmartNumberInput
+                        label="주당 가격 (원)"
+                        field="pricePerShare"
+                        value={formData.pricePerShare || 0}
+                        placeholder="0"
+                        suffix="원"
+                        step={1}
+                      />
 
                       <div className="space-y-2">
                         <Label>총 주식가액</Label>

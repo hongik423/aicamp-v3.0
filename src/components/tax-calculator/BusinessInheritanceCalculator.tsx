@@ -309,6 +309,18 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
     }
   };
 
+  // 안전한 숫자 입력 핸들러
+  const handleSafeNumberInput = (field: string, value: string) => {
+    // 숫자와 관련된 문자만 허용
+    const cleanValue = value.replace(/[^\d]/g, '');
+    updateInput(field, cleanValue);
+  };
+
+  const handleNumberBlur = (field: string, value: string) => {
+    const numericValue = value === '' ? 0 : Number(value.replace(/[^\d]/g, ''));
+    updateInput(field, numericValue);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* 헤더 강화 */}
@@ -744,26 +756,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                       type="text"
                       inputMode="numeric"
                       value={inputs.totalInheritanceValue || ''}
-                      onChange={(e) => updateInput('totalInheritanceValue', Math.round(Number(e.target.value)))}
-                      onKeyDown={(e) => {
-                        // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
-                        if (e.ctrlKey || e.metaKey) {
-                          return; // 모든 Ctrl/Cmd 조합키 허용
-                        }
-
-                        // 기본 허용 키들
-                        const allowedKeys = [
-                          'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
-                          'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-                          'Home', 'End', 'PageUp', 'PageDown'
-                        ];
-                        const isNumber = /^[0-9]$/.test(e.key);
-                        
-                        // 허용되지 않는 키 차단
-                        if (!allowedKeys.includes(e.key) && !isNumber) {
-                          e.preventDefault();
-                        }
-                      }}
+                      onChange={(e) => handleSafeNumberInput('totalInheritanceValue', e.target.value)}
+                      onBlur={(e) => handleNumberBlur('totalInheritanceValue', e.target.value)}
                       placeholder="예: 5000000000 (필수)"
                       autoComplete="off"
                       className={`
@@ -844,26 +838,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                       type="text"
                       inputMode="numeric"
                       value={inputs.businessAssetValue || ''}
-                      onChange={(e) => updateInput('businessAssetValue', Math.round(Number(e.target.value)))}
-                      onKeyDown={(e) => {
-                        // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
-                        if (e.ctrlKey || e.metaKey) {
-                          return; // 모든 Ctrl/Cmd 조합키 허용
-                        }
-
-                        // 기본 허용 키들
-                        const allowedKeys = [
-                          'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
-                          'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-                          'Home', 'End', 'PageUp', 'PageDown'
-                        ];
-                        const isNumber = /^[0-9]$/.test(e.key);
-                        
-                        // 허용되지 않는 키 차단
-                        if (!allowedKeys.includes(e.key) && !isNumber) {
-                          e.preventDefault();
-                        }
-                      }}
+                      onChange={(e) => handleSafeNumberInput('businessAssetValue', e.target.value)}
+                      onBlur={(e) => handleNumberBlur('businessAssetValue', e.target.value)}
                       placeholder="예: 4000000000 (필수)"
                       autoComplete="off"
                       className={`
@@ -920,26 +896,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     type="text"
                     inputMode="numeric"
                     value={inputs.personalAssetValue || ''}
-                    onChange={(e) => updateInput('personalAssetValue', Math.round(Number(e.target.value)))}
-                    onKeyDown={(e) => {
-                      // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
-                      if (e.ctrlKey || e.metaKey) {
-                        return; // 모든 Ctrl/Cmd 조합키 허용
-                      }
-
-                      // 기본 허용 키들
-                      const allowedKeys = [
-                        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
-                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-                        'Home', 'End', 'PageUp', 'PageDown'
-                      ];
-                      const isNumber = /^[0-9]$/.test(e.key);
-                      
-                      // 허용되지 않는 키 차단
-                      if (!allowedKeys.includes(e.key) && !isNumber) {
-                        e.preventDefault();
-                      }
-                    }}
+                    onChange={(e) => handleSafeNumberInput('personalAssetValue', e.target.value)}
+                    onBlur={(e) => handleNumberBlur('personalAssetValue', e.target.value)}
                     placeholder="예: 1000000000"
                     autoComplete="off"
                     className="text-right font-mono"
@@ -952,26 +910,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     type="text"
                     inputMode="numeric"
                     value={inputs.debtsAndExpenses || ''}
-                    onChange={(e) => updateInput('debtsAndExpenses', Math.round(Number(e.target.value)))}
-                    onKeyDown={(e) => {
-                      // 🔥 키보드 단축키 허용 (Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+Z 등)
-                      if (e.ctrlKey || e.metaKey) {
-                        return; // 모든 Ctrl/Cmd 조합키 허용
-                      }
-
-                      // 기본 허용 키들
-                      const allowedKeys = [
-                        'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
-                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-                        'Home', 'End', 'PageUp', 'PageDown'
-                      ];
-                      const isNumber = /^[0-9]$/.test(e.key);
-                      
-                      // 허용되지 않는 키 차단
-                      if (!allowedKeys.includes(e.key) && !isNumber) {
-                        e.preventDefault();
-                      }
-                    }}
+                    onChange={(e) => handleSafeNumberInput('debtsAndExpenses', e.target.value)}
+                    onBlur={(e) => handleNumberBlur('debtsAndExpenses', e.target.value)}
                     placeholder="예: 200000000"
                     autoComplete="off"
                     className="text-right font-mono"
@@ -1036,13 +976,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                       type="text"
                       inputMode="numeric"
                       value={inputs.businessPeriod || ''}
-                      onChange={(e) => updateInput('businessPeriod', Math.round(Number(e.target.value)))}
-                      onKeyDown={(e) => {
-                        if (e.ctrlKey || e.metaKey) return;
-                        const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
-                        const isNumber = /^[0-9]$/.test(e.key);
-                        if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
-                      }}
+                      onChange={(e) => handleSafeNumberInput('businessPeriod', e.target.value)}
+                      onBlur={(e) => handleNumberBlur('businessPeriod', e.target.value)}
                       placeholder="예: 10 (10년 이상 필수)"
                       autoComplete="off"
                       className={`
@@ -1099,13 +1034,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     type="text"
                     inputMode="numeric"
                     value={inputs.employeeCount || ''}
-                    onChange={(e) => updateInput('employeeCount', Math.round(Number(e.target.value)))}
-                    onKeyDown={(e) => {
-                      if (e.ctrlKey || e.metaKey) return;
-                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
-                      const isNumber = /^[0-9]$/.test(e.key);
-                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
-                    }}
+                    onChange={(e) => handleSafeNumberInput('employeeCount', e.target.value)}
+                    onBlur={(e) => handleNumberBlur('employeeCount', e.target.value)}
                     placeholder="예: 50"
                     autoComplete="off"
                     className="text-right font-mono"
@@ -1118,13 +1048,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     type="text"
                     inputMode="numeric"
                     value={inputs.annualRevenue || ''}
-                    onChange={(e) => updateInput('annualRevenue', Math.round(Number(e.target.value)))}
-                    onKeyDown={(e) => {
-                      if (e.ctrlKey || e.metaKey) return;
-                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
-                      const isNumber = /^[0-9]$/.test(e.key);
-                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
-                    }}
+                    onChange={(e) => handleSafeNumberInput('annualRevenue', e.target.value)}
+                    onBlur={(e) => handleNumberBlur('annualRevenue', e.target.value)}
                     placeholder="예: 10000000000"
                     autoComplete="off"
                     className="text-right font-mono"
@@ -1153,13 +1078,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     type="text"
                     inputMode="numeric"
                     value={inputs.inheritorsCount || ''}
-                    onChange={(e) => updateInput('inheritorsCount', Number(e.target.value))}
-                    onKeyDown={(e) => {
-                      if (e.ctrlKey || e.metaKey) return;
-                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
-                      const isNumber = /^[0-9]$/.test(e.key);
-                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
-                    }}
+                    onChange={(e) => handleSafeNumberInput('inheritorsCount', e.target.value)}
+                    onBlur={(e) => handleNumberBlur('inheritorsCount', e.target.value)}
                     placeholder="예: 3"
                     autoComplete="off"
                     className="text-right font-mono"
@@ -1172,13 +1092,8 @@ const BusinessInheritanceCalculatorComponent: React.FC = () => {
                     type="text"
                     inputMode="numeric"
                     value={inputs.directDescendants || ''}
-                    onChange={(e) => updateInput('directDescendants', Number(e.target.value))}
-                    onKeyDown={(e) => {
-                      if (e.ctrlKey || e.metaKey) return;
-                      const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
-                      const isNumber = /^[0-9]$/.test(e.key);
-                      if (!allowedKeys.includes(e.key) && !isNumber) e.preventDefault();
-                    }}
+                    onChange={(e) => handleSafeNumberInput('directDescendants', e.target.value)}
+                    onBlur={(e) => handleNumberBlur('directDescendants', e.target.value)}
                     placeholder="예: 2"
                     autoComplete="off"
                     className="text-right font-mono"
