@@ -42,16 +42,17 @@ const formatNumberDisplay = (num: number): string => {
 };
 
 const parseNumberInput = (input: string): number => {
-  if (!input) return 0;
+  if (!input || input.trim() === '') return 0;
   // 숫자, 쉼표, 소수점 허용, 다른 문자 제거
   const cleaned = input.replace(/[^\d,\.]/g, '').replace(/,/g, '');
-  const num = parseFloat(cleaned) || 0;
-  return num;
+  if (!cleaned) return 0;
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
 };
 
 const isValidNumberInput = (input: string): boolean => {
   // 빈 문자열은 유효
-  if (!input) return true;
+  if (!input || input.trim() === '') return true;
   // 숫자, 쉼표, 소수점만 허용 (소수점은 최대 1개)
   const dotCount = (input.match(/\./g) || []).length;
   return /^[\d,\.]*$/.test(input) && dotCount <= 1;
@@ -90,6 +91,7 @@ export function NumberInput({
   const [isClicked, setIsClicked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [hasRecentChange, setHasRecentChange] = useState(false);
+  const [isUserTyping, setIsUserTyping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   
   // 🔧 props 통합 (기존 호환성)
@@ -103,16 +105,19 @@ export function NumberInput({
   const hasError = !!finalError;
   const isRequiredAndEmpty = required && value === 0;
 
-  // 🔧 외부 value 변경 시에만 displayValue 업데이트 (포커스 중이 아닐 때만)
+  // 🔧 외부 value 변경 시에만 displayValue 업데이트 (사용자 입력 중이 아닐 때만)
   useEffect(() => {
-    if (!isFocused && !isComposing) {
-      setDisplayValue(formatNumberDisplay(value));
+    // 사용자가 입력 중이거나 포커스 중이거나 IME 입력 중일 때는 업데이트 하지 않음
+    if (!isFocused && !isComposing && !isUserTyping) {
+      const formattedValue = formatNumberDisplay(value);
+      setDisplayValue(formattedValue);
     }
-  }, [value, isFocused, isComposing]);
+  }, [value, isFocused, isComposing, isUserTyping]);
 
   // 🔧 컴포넌트 마운트 시 초기값 설정
   useEffect(() => {
-    setDisplayValue(formatNumberDisplay(value));
+    const formattedValue = formatNumberDisplay(value);
+    setDisplayValue(formattedValue);
   }, []);
 
   // 🔧 동적 정보 업데이트
@@ -131,10 +136,21 @@ export function NumberInput({
     }
   }, [value]);
 
+  // 🔥 사용자 입력 상태 관리
+  useEffect(() => {
+    if (isUserTyping) {
+      const timer = setTimeout(() => setIsUserTyping(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isUserTyping]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     
-    // 🔥 IME 입력 중에는 처리하지 않음
+    // 🔥 사용자가 입력 중임을 표시
+    setIsUserTyping(true);
+    
+    // 🔥 IME 입력 중에는 displayValue만 업데이트
     if (isComposing) {
       setDisplayValue(inputValue);
       return;
@@ -148,27 +164,30 @@ export function NumberInput({
     // 🔥 displayValue는 즉시 업데이트 (사용자 입력 피드백)
     setDisplayValue(inputValue);
     
-    // 🔥 숫자 값 파싱 및 범위 체크
+    // 🔥 숫자 값 파싱 및 onChange 호출
     const numericValue = parseNumberInput(inputValue);
     
-    // 범위 체크 및 경고 설정
+    // 범위 체크
     let finalValue = numericValue;
     let warning = false;
     
+    // 최소값 체크 (0이 아닌 경우에만)
     if (min !== undefined && numericValue < min && numericValue !== 0) {
-      finalValue = min;
       warning = true;
+      // 입력 중에는 강제로 변경하지 않음
     }
+    
+    // 최대값 체크
     if (finalMax !== undefined && numericValue > finalMax) {
       finalValue = finalMax;
       warning = true;
-      // 최대값 초과 시 즉시 표시값도 수정
+      // 최대값 초과 시에만 즉시 수정
       setDisplayValue(formatNumberDisplay(finalValue));
     }
     
     setHasWarning(warning);
     
-    // 🔥 onChange는 디바운싱 없이 즉시 호출
+    // 🔥 onChange 호출
     onChange(finalValue);
   };
 
@@ -180,7 +199,7 @@ export function NumberInput({
     // 포커스 시 쉼표 제거하여 편집하기 쉽게 만들기
     const rawNumber = parseNumberInput(displayValue);
     if (rawNumber > 0) {
-      // 소수점 자리수 유지하면서 쉼표만 제거
+      // 쉼표만 제거하고 다른 포맷은 유지
       const unformattedValue = displayValue.replace(/,/g, '');
       setDisplayValue(unformattedValue);
     }
@@ -188,6 +207,7 @@ export function NumberInput({
 
   const handleBlur = () => {
     setIsFocused(false);
+    setIsUserTyping(false);
     
     // 🔥 블러 시 포맷팅 적용 및 범위 재검증
     const numericValue = parseNumberInput(displayValue);
@@ -207,7 +227,7 @@ export function NumberInput({
     
     setHasWarning(warning);
     
-    // 포맷팅된 값으로 표시 (값이 0이 아닌 경우에만)
+    // 포맷팅된 값으로 표시
     if (finalValue !== 0) {
       setDisplayValue(formatNumberDisplay(finalValue));
     } else {
@@ -229,15 +249,21 @@ export function NumberInput({
 
   const handleCompositionStart = () => {
     setIsComposing(true);
+    setIsUserTyping(true);
   };
 
   const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
     setIsComposing(false);
     // 컴포지션 종료 후 즉시 처리
-    handleInputChange(e as any);
+    setTimeout(() => {
+      handleInputChange(e as any);
+    }, 0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 🔥 입력 중임을 표시
+    setIsUserTyping(true);
+    
     // 🔥 Ctrl/Cmd 조합키는 모두 허용
     if (e.ctrlKey || e.metaKey) {
       return;
@@ -298,6 +324,8 @@ export function NumberInput({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+    setIsUserTyping(true);
+    
     const pastedText = e.clipboardData.getData('text');
     
     // 붙여넣기된 텍스트에서 숫자와 소수점만 추출
@@ -403,6 +431,7 @@ export function NumberInput({
           placeholder={required ? `${placeholder} (필수)` : placeholder}
           disabled={disabled}
           autoComplete="off"
+          spellCheck="false"
           title={label}
           aria-label={label}
           aria-required={required}
@@ -498,37 +527,30 @@ export function NumberInput({
       {/* 🔴 필수 필드 완료 안내 */}
       {required && isCompleted && (
         <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
-          ✅ 필수 입력이 완료되었습니다: {formatNumberDisplay(value)}{finalSuffix || '원'}
+          <div className="flex items-start gap-2">
+            <span className="text-green-500 font-bold">✅</span>
+            <span>{label} 입력이 완료되었습니다.</span>
+          </div>
         </div>
       )}
 
-      {/* 🔧 동적 메시지 (기존 호환성) */}
+      {/* 🔧 동적 정보 표시 */}
       {dynamicMessage && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
-          <p className="text-sm text-blue-700">
-            💡 {dynamicMessage}
-          </p>
+        <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+          <div className="flex items-start gap-2">
+            <span className="text-blue-500 font-bold">💡</span>
+            <span>{dynamicMessage}</span>
+          </div>
         </div>
       )}
 
-      {/* 도움말 */}
-      {finalHelpText && !dynamicMessage && !finalError && (
-        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded border">
-          <p className="font-medium">숫자 입력 도움말:</p>
-          <ul className="mt-1 space-y-1">
-            <li>• 숫자만 입력 가능</li>
-            <li>• 자동 천단위 구분</li>
-            <li>• 최대 {max}자리까지 입력</li>
-          </ul>
-        </div>
-      )}
-
-      {/* 포커스 시 사용법 안내 */}
-      {isFocused && !finalError && (
-        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded border">
-          💡 숫자와 소수점을 입력하세요. 천단위 쉼표는 포커스 해제 시 자동으로 표시됩니다.
-          {min !== undefined && ` (최소: ${min.toLocaleString()})`}
-          {finalMax !== undefined && ` (최대: ${finalMax.toLocaleString()})`}
+      {/* 🔧 도움말 정보 */}
+      {finalHelpText && (
+        <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-200">
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 font-bold">💡</span>
+            <span>{finalHelpText}</span>
+          </div>
         </div>
       )}
     </div>
