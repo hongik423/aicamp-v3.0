@@ -273,40 +273,47 @@ const BookPromotionBanner: React.FC = () => {
                     <div className="absolute -inset-1 bg-blue-200 rounded-xl opacity-0 group-active:opacity-30 transition-opacity duration-200" />
                   )}
                   
-                  {/* 책 표지 */}
-                  <div className="relative w-48 h-60 sm:w-56 sm:h-72 lg:w-64 lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
-                    {!imageError ? (
-                      <Image
-                        src="/images/book_1_cover.JPG"
-                        alt="AI 자동화 n8n 워크플로우 북커버"
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        priority
-                        onLoad={handleImageLoad}
-                        onError={handleImageError}
-                        className={`transition-transform duration-300 ${
-                          isMobile ? 'group-active:scale-105' : 'group-hover:scale-105'
-                        }`}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex flex-col items-center justify-center text-white p-4 sm:p-6">
-                        <BookOpen size={isMobile ? 40 : 48} className="mb-3 sm:mb-4" />
-                        <h3 className="text-lg sm:text-xl font-bold text-center">AI 자동화</h3>
-                        <p className="text-sm text-center mt-1 sm:mt-2">n8n 워크플로우</p>
-                        <p className="text-xs text-center mt-2 sm:mt-4 opacity-80">실무 활용 가이드</p>
-                      </div>
-                    )}
-                    
-                    {/* 호버/터치 오버레이 */}
-                    <div className={`absolute inset-0 bg-black/40 opacity-0 ${
-                      isMobile ? 'group-active:opacity-100' : 'group-hover:opacity-100'
-                    } transition-opacity flex items-center justify-center`}>
-                      <div className="text-white text-center">
-                        <BookOpen className="w-6 sm:w-8 h-6 sm:h-8 mx-auto mb-1 sm:mb-2" />
-                        <p className="text-xs sm:text-sm">미리보기</p>
+                                      {/* 책 표지 */}
+                    <div className="relative w-48 h-60 sm:w-56 sm:h-72 lg:w-64 lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
+                      <Link 
+                        href="/@n8n_1-20.pdf" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block w-full h-full"
+                      >
+                        {!imageError ? (
+                          <Image
+                            src="/images/book_1_cover.JPG"
+                            alt="AI 자동화 n8n 워크플로우 북커버"
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            priority
+                            onLoad={handleImageLoad}
+                            onError={handleImageError}
+                            className={`transition-transform duration-300 ${
+                              isMobile ? 'group-active:scale-105' : 'group-hover:scale-105'
+                            }`}
+                          />
+                        ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex flex-col items-center justify-center text-white p-4 sm:p-6">
+                            <BookOpen size={isMobile ? 40 : 48} className="mb-3 sm:mb-4" />
+                            <h3 className="text-lg sm:text-xl font-bold text-center">AI 자동화</h3>
+                            <p className="text-sm text-center mt-1 sm:mt-2">n8n 워크플로우</p>
+                            <p className="text-xs text-center mt-2 sm:mt-4 opacity-80">실무 활용 가이드</p>
+                          </div>
+                        )}
+                      </Link>
+                      
+                      {/* 호버/터치 오버레이 */}
+                      <div className={`absolute inset-0 bg-black/40 opacity-0 ${
+                        isMobile ? 'group-active:opacity-100' : 'group-hover:opacity-100'
+                      } transition-opacity flex items-center justify-center pointer-events-none`}>
+                        <div className="text-white text-center">
+                          <BookOpen className="w-6 sm:w-8 h-6 sm:h-8 mx-auto mb-1 sm:mb-2" />
+                          <p className="text-xs sm:text-sm">PDF 다운로드</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
                   
                   {/* 부유하는 아이콘들 - 이미지 로드 후에만 표시, 모바일에서는 성능상 제한 */}
                   {isLoaded && !isMobile && !shouldReduceMotion && (
@@ -403,7 +410,7 @@ const BookPromotionBanner: React.FC = () => {
                   transition={{ delay: shouldReduceMotion ? 0 : 0.8 }}
                   className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"
                 >
-                  {/* 책 구매하기 버튼 */}
+                  {/* 상담신청 버튼 */}
                   <motion.div 
                     whileHover={isMobile ? {} : { scale: 1.05 }} 
                     whileTap={{ scale: 0.95 }}
@@ -422,23 +429,20 @@ const BookPromotionBanner: React.FC = () => {
                       }}
                     >
                       <Link 
-                        href="/n8n_1-20.pdf" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                        href="/consultation" 
                         className="flex items-center justify-center min-h-[44px] min-w-[44px]"
-                        aria-label="n8n 워크플로우 책 PDF 미리보기 다운로드"
+                        aria-label="AI CAMP 전문가 상담신청"
                         style={{
                           WebkitTapHighlightColor: 'transparent'
                         }}
                       >
                         <BookOpen className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
-                        <span className="text-sm sm:text-base">책 구매하기</span>
-                        <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 ml-2" />
+                        <span className="text-sm sm:text-base">상담신청</span>
                       </Link>
                     </Button>
                   </motion.div>
 
-                  {/* AI CAMP 버튼 */}
+                  {/* AI 무료 경영진단 버튼 */}
                   <motion.div 
                     whileHover={isMobile ? {} : { scale: 1.05 }} 
                     whileTap={{ scale: 0.95 }}
@@ -460,13 +464,13 @@ const BookPromotionBanner: React.FC = () => {
                       <Link 
                         href="/diagnosis"
                         className="flex items-center justify-center min-h-[44px] min-w-[44px]"
-                        aria-label="AI CAMP 무료 진단 시작하기"
+                        aria-label="AI 무료 경영진단 시작하기"
                         style={{
                           WebkitTapHighlightColor: 'transparent'
                         }}
                       >
                         <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
-                        <span className="text-sm sm:text-base">AI CAMP 시작하기</span>
+                        <span className="text-sm sm:text-base">AI 무료 경영진단</span>
                       </Link>
                     </Button>
                   </motion.div>
