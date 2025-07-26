@@ -366,7 +366,7 @@ const BookPromotionModal: React.FC = () => {
                       <div className="text-lg text-orange-600 font-semibold mb-2">지금 바로 시작하세요!</div>
                       <h2 className="text-3xl font-bold text-gray-900 mb-4">
                         <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
-                          한정 특가 + 특별 혜택
+                          무료 진단+ AI CAMP 교육비 20% 할인
                         </span>
                       </h2>
                       <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-full font-semibold">

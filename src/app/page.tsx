@@ -32,6 +32,7 @@ import Link from 'next/link';
 import MCenterChatInterface from '@/components/chatbot/MCenterChatInterface';
 import AICampContentGuide from '@/components/layout/AICampContentGuide';
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
+import BookCoverFloat from '@/components/layout/BookCoverFloat';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
@@ -1239,8 +1240,11 @@ export default function Home() {
       {/* AI CAMP 컨텐츠 가이드 - 하단에서 솟구치는 애니메이션 */}
       <AICampContentGuide />
 
-      {/* n8n 책 홍보 모달 - 최상위 레이어 */}
-      <BookPromotionModal />
+      {/* n8n 책표지 플로팅 애니메이션 - 최상위 레이어 */}
+      <BookCoverFloat />
+      
+      {/* n8n 책 홍보 모달 - 최상위 레이어 (비활성화) */}
+      {/* <BookPromotionModal /> */}
 
       {/* 연결 중 로딩 오버레이 */}
       {isConnecting && (
