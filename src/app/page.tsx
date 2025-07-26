@@ -29,6 +29,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import MCenterChatInterface from '@/components/chatbot/MCenterChatInterface';
 import AICampContentGuide from '@/components/layout/AICampContentGuide';
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
@@ -346,15 +347,37 @@ export default function Home() {
               <span>🔥 신간 출간! 국내최초 한국어판</span>
             </div>
             
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
-              <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                AI 자동화의 끝판왕!
-              </span>
-            </h2>
-            
-            <p className="text-lg sm:text-xl md:text-2xl text-blue-100 font-semibold mb-4 px-2">
-              n8n을 활용한 업무혁신
-            </p>
+            {/* 책표지와 제목을 나란히 배치 */}
+            <div className="flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 mb-6 sm:mb-8">
+              {/* 좌측: 책표지 이미지 */}
+              <div className="flex-shrink-0 order-2 lg:order-1">
+                <div className="relative w-32 h-40 sm:w-40 sm:h-50 lg:w-48 lg:h-60 rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 group">
+                  <Image
+                    src="/images/book_1_cover.JPG"
+                    alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신 책표지"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    priority
+                    className="group-hover:brightness-110 transition-all duration-300"
+                  />
+                  {/* 호버 효과 오버레이 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+              </div>
+              
+              {/* 우측: 제목과 설명 */}
+              <div className="text-center lg:text-left order-1 lg:order-2">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+                  <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                    AI 자동화의 끝판왕!
+                  </span>
+                </h2>
+                
+                <p className="text-lg sm:text-xl md:text-2xl text-blue-100 font-semibold mb-4">
+                  n8n을 활용한 업무혁신
+                </p>
+              </div>
+            </div>
             
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 px-2">
               <Badge className="bg-red-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-lg">
