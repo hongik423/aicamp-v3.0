@@ -27,7 +27,6 @@ const BookPromotionBanner: React.FC = () => {
       if (e.key === 'Escape') {
         if (!isMinimized) {
           handleMinimize();
-        } else {
         }
       }
     };
@@ -46,10 +45,10 @@ const BookPromotionBanner: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
         >
           <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-lg pointer-events-auto"
+            className="absolute inset-0 bg-black/75 backdrop-blur-md pointer-events-auto"
             onClick={handleMinimize}
           />
           <motion.div
@@ -57,16 +56,16 @@ const BookPromotionBanner: React.FC = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="pointer-events-auto w-full"
+            className="relative z-10 w-full pointer-events-auto"
           >
-            <Card className="w-full max-w-6xl mx-auto bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white rounded-2xl shadow-2xl overflow-hidden border-blue-600 border-2">
+            <Card className="w-full max-w-6xl mx-auto bg-white text-gray-800 rounded-2xl shadow-2xl overflow-hidden border">
               <div className="grid grid-cols-1 lg:grid-cols-2">
-                <div className="relative p-6 sm:p-8 flex items-center justify-center">
+                <div className="relative p-6 sm:p-8 flex items-center justify-center bg-gray-50">
                   <Link href="/n8n_1-20.pdf" passHref target="_blank" rel="noopener noreferrer">
                     <motion.div
-                      whileHover={{ scale: 1.05, rotate: -3 }}
+                      whileHover={{ scale: 1.05, rotate: -2 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                      className="relative w-full max-w-[280px] sm:max-w-xs h-96 sm:h-[26rem] mx-auto rounded-lg shadow-2xl overflow-hidden cursor-pointer group"
+                      className="relative w-full max-w-[280px] sm:max-w-xs h-96 sm:h-[26rem] mx-auto rounded-lg shadow-xl overflow-hidden cursor-pointer group"
                     >
                       <Image
                         src="/images/book_1_cover.JPG"
@@ -76,7 +75,7 @@ const BookPromotionBanner: React.FC = () => {
                         priority
                         className="transition-transform duration-300 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/60">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white">
                         <BookOpen className="w-10 h-10 mr-3" /> PDF 맛보기
                       </div>
                     </motion.div>
@@ -84,21 +83,21 @@ const BookPromotionBanner: React.FC = () => {
                 </div>
                 <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center">
                   <CardHeader className="p-0 mb-4 md:mb-6">
-                    <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
-                      <span className="block text-blue-400">Step 1: n8n으로 자동화 마스터</span>
-                      <span className="block text-green-400 mt-2">Step 2: AI Camp에서 전문가 되기</span>
+                    <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-gray-900">
+                      <span className="block text-blue-600">Step 1: n8n으로 자동화 마스터</span>
+                      <span className="block text-green-600 mt-2">Step 2: AI Camp에서 전문가 되기</span>
                     </CardTitle>
-                    <CardDescription className="text-base md:text-lg text-gray-200 mt-4">
+                    <CardDescription className="text-base md:text-lg text-gray-600 mt-4">
                       책으로 실무 자동화 기술을 익히는 것은 시작일 뿐입니다. AI Camp의 전문 교육을 통해 기술을 비즈니스 성과로 연결하는 기획력과 문제 해결 능력을 갖춘 전문가로 성장하세요.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-0 space-y-4">
-                    <div className="bg-gray-800/50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-lg md:text-xl mb-2 text-yellow-400">AI Camp 교육이 필요한 이유!</h3>
-                      <ul className="space-y-2 text-gray-100 text-sm sm:text-base">
-                        <li className="flex items-start"><CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" /><span>단순 업무 자동화를 넘어, AI 전문가로 커리어를 전환하고 싶으신 분</span></li>
-                        <li className="flex items-start"><CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" /><span>AI 기술을 활용해 비즈니스의 핵심 문제를 해결하고 싶으신 분</span></li>
-                        <li className="flex items-start"><CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" /><span>체계적인 프로젝트 경험과 전문가의 멘토링이 필요하신 분</span></li>
+                    <div className="bg-gray-100 p-4 rounded-lg border">
+                      <h3 className="font-semibold text-lg md:text-xl mb-2 text-blue-700">AI Camp 교육이 필요한 이유!</h3>
+                      <ul className="space-y-2 text-gray-700 text-sm sm:text-base">
+                        <li className="flex items-start"><CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" /><span>단순 업무 자동화를 넘어, AI 전문가로 커리어를 전환하고 싶으신 분</span></li>
+                        <li className="flex items-start"><CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" /><span>AI 기술을 활용해 비즈니스의 핵심 문제를 해결하고 싶으신 분</span></li>
+                        <li className="flex items-start"><CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" /><span>체계적인 프로젝트 경험과 전문가의 멘토링이 필요하신 분</span></li>
                       </ul>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4">
@@ -109,7 +108,7 @@ const BookPromotionBanner: React.FC = () => {
                         </Button>
                       </Link>
                       <Link href="/diagnosis" passHref>
-                        <Button size="lg" variant="outline" className="w-full font-bold text-base sm:text-lg py-4 sm:py-6 border-gray-400 text-gray-100 hover:bg-gray-700 hover:text-white">
+                        <Button size="lg" variant="outline" className="w-full font-bold text-base sm:text-lg py-4 sm:py-6">
                           내게 맞는 AI 진단받기
                           <ArrowRight className="w-5 h-5 ml-2" />
                         </Button>
@@ -118,7 +117,7 @@ const BookPromotionBanner: React.FC = () => {
                   </CardContent>
                 </div>
               </div>
-              <button onClick={handleClose} className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-white transition-colors" aria-label="닫기">
+              <button onClick={handleClose} className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-800 transition-colors" aria-label="닫기">
                 <X size={28} />
               </button>
             </Card>
