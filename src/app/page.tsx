@@ -404,7 +404,8 @@ export default function Home() {
 
                 {/* 우측: 비주얼 영역 */}
                 <div className="order-1 lg:order-2 relative">
-                  <div className="relative w-full h-[500px] lg:h-[600px] bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl overflow-hidden shadow-2xl">
+                  <Link href="/chatbot" className="block cursor-pointer group">
+                    <div className="relative w-full h-[500px] lg:h-[600px] bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 group-hover:shadow-3xl group-hover:scale-[1.02]">
                     
                     {/* 배경 그라데이션 */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20"></div>
@@ -470,7 +471,19 @@ export default function Home() {
                     <div className="absolute bottom-20 left-8 w-12 h-12 bg-white/20 dark:bg-aicamp-navy/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-pulse">
                       <span className="text-xl">24H</span>
                     </div>
+                    
+                    {/* 클릭 안내 오버레이 */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                        <div className="flex items-center space-x-2 text-gray-800">
+                          <Bot className="w-5 h-5" />
+                          <span className="font-semibold">이후경 AI 교장과 채팅하기</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                  </Link>
                 </div>
               </div>
             </div>
