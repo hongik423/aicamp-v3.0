@@ -85,48 +85,66 @@ const BookCoverFloat: React.FC = () => {
                 <X className="w-5 h-5 text-gray-600 group-hover:text-gray-800" />
               </button>
 
-              {/* 책표지 */}
-              <motion.div
-                whileHover={{ 
-                  scale: 1.05,
-                  rotateY: 5,
-                  rotateX: -5,
-                  transition: { duration: 0.3 }
+              {/* 책표지 - PDF 링크 */}
+              <a
+                href="/n8n_1-20.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open('/n8n_1-20.pdf', '_blank');
                 }}
-                className="relative bg-white rounded-2xl shadow-2xl overflow-hidden group cursor-pointer transform-gpu"
-                style={{ perspective: '1000px' }}
               >
-                {/* 글로우 효과 */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-transparent to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-                
-                {/* 반짝이는 효과 */}
                 <motion.div
-                  animate={{
-                    rotate: [0, 360],
-                    scale: [1, 1.1, 1]
+                  whileHover={{ 
+                    scale: 1.05,
+                    rotateY: 5,
+                    rotateX: -5,
+                    transition: { duration: 0.3 }
                   }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: 'linear'
-                  }}
-                  className="absolute top-4 right-4 z-20"
+                  className="relative bg-white rounded-2xl shadow-2xl overflow-hidden group cursor-pointer transform-gpu"
+                  style={{ perspective: '1000px' }}
                 >
-                  <Sparkles className="w-8 h-8 text-yellow-400 drop-shadow-lg" />
-                </motion.div>
+                  {/* 글로우 효과 */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-transparent to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+                  
+                  {/* 반짝이는 효과 */}
+                  <motion.div
+                    animate={{
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                      duration: 6,
+                      repeat: Infinity,
+                      ease: 'linear'
+                    }}
+                    className="absolute top-4 right-4 z-20"
+                  >
+                    <Sparkles className="w-8 h-8 text-yellow-400 drop-shadow-lg" />
+                  </motion.div>
 
-                {/* 책 이미지 */}
-                <img 
-                  src="/images/BOOK_n8n.webp"
-                  alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신"
-                  className="w-full h-auto object-cover rounded-2xl transform transition-transform duration-500 group-hover:scale-105"
-                  onError={(e) => {
-                    // 이미지 로드 실패 시 대체 컨텐츠
-                    e.currentTarget.style.display = 'none';
-                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = 'flex';
-                  }}
-                />
+                  {/* 책 이미지 */}
+                  <img 
+                    src="/images/BOOK_n8n.webp"
+                    alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신"
+                    className="w-full h-auto object-cover rounded-2xl transform transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => {
+                      // 이미지 로드 실패 시 대체 컨텐츠
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  
+                  {/* PDF 열기 힌트 오버레이 */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/50 backdrop-blur-sm z-30">
+                    <div className="text-center text-white">
+                      <div className="text-2xl mb-2">📖</div>
+                      <div className="text-sm font-bold">PDF 미리보기</div>
+                      <div className="text-xs opacity-80">클릭하여 내용 확인</div>
+                    </div>
+                  </div>
                 
                 {/* 이미지 로드 실패 시 대체 컨텐츠 */}
                 <div className="hidden w-full aspect-[3/4] bg-gradient-to-br from-blue-600 to-purple-700 flex-col items-center justify-center p-8 text-white text-center">
@@ -174,9 +192,10 @@ const BookCoverFloat: React.FC = () => {
                   </div>
                 </motion.div>
 
-                {/* 3D 효과를 위한 그림자 */}
-                <div className="absolute inset-0 rounded-2xl shadow-inner opacity-30 pointer-events-none"></div>
-              </motion.div>
+                  {/* 3D 효과를 위한 그림자 */}
+                  <div className="absolute inset-0 rounded-2xl shadow-inner opacity-30 pointer-events-none"></div>
+                </motion.div>
+              </a>
 
               {/* 부유하는 파티클 효과 */}
               {[...Array(5)].map((_, i) => (

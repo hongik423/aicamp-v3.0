@@ -32,7 +32,7 @@ import Link from 'next/link';
 import MCenterChatInterface from '@/components/chatbot/MCenterChatInterface';
 import AICampContentGuide from '@/components/layout/AICampContentGuide';
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
-import BookCoverFloat from '@/components/layout/BookCoverFloat';
+import BookPromotionBanner from '@/components/layout/BookPromotionBanner';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
@@ -329,86 +329,86 @@ export default function Home() {
         </div>
       </section>
 
-      {/* n8n 책자 홍보 섹션 - 신규 출간 */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
-        {/* 배경 효과 */}
+      {/* n8n 책자 홍보 섹션 - 모바일 최적화 */}
+      <section className="py-12 sm:py-20 lg:py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+        {/* 배경 효과 - 모바일에서 축소 */}
         <div className="absolute inset-0">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute -top-20 -right-20 sm:-top-40 sm:-right-40 w-40 h-40 sm:w-80 sm:h-80 bg-yellow-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-20 -left-20 sm:-bottom-40 sm:-left-40 w-40 h-40 sm:w-80 sm:h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-96 sm:h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* 상단 배지 */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold rounded-full shadow-lg mb-8 animate-pulse">
-              <Sparkles className="w-5 h-5 mr-2" />
-              <span className="text-lg">🔥 신간 출간! 국내최초 한국어판</span>
+          {/* 상단 배지 - 모바일 최적화 */}
+          <div className="text-center mb-8 sm:mb-12">
+            <div className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold rounded-full shadow-lg mb-6 sm:mb-8 animate-pulse text-sm sm:text-lg">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span>🔥 신간 출간! 국내최초 한국어판</span>
             </div>
             
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
               <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
                 AI 자동화의 끝판왕!
               </span>
             </h2>
             
-            <p className="text-xl md:text-2xl text-blue-100 font-semibold mb-4">
+            <p className="text-lg sm:text-xl md:text-2xl text-blue-100 font-semibold mb-4 px-2">
               n8n을 활용한 업무혁신
             </p>
             
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <Badge className="bg-red-500 text-white font-bold px-4 py-2 text-lg">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 px-2">
+              <Badge className="bg-red-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-lg">
                 🏆 국내최초
               </Badge>
-              <Badge className="bg-blue-500 text-white font-bold px-4 py-2 text-lg">
+              <Badge className="bg-blue-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-lg">
                 ⚡ 실무직결
               </Badge>
-              <Badge className="bg-green-500 text-white font-bold px-4 py-2 text-lg">
+              <Badge className="bg-green-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-lg">
                 🎯 전문가 집필
               </Badge>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* 좌측: 책자 이미지 및 정보 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">
+            {/* 좌측: 책자 이미지 및 정보 - 모바일 최적화 */}
             <div className="text-center lg:text-left order-2 lg:order-1">
-              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20 shadow-2xl">
-                {/* 책자 이미지 플레이스홀더 */}
-                <div className="w-full max-w-md mx-auto mb-8">
-                  <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+                {/* 책자 이미지 플레이스홀더 - 모바일 최적화 */}
+                <div className="w-full max-w-sm sm:max-w-md mx-auto mb-6 sm:mb-8">
+                  <div className="bg-gradient-to-br from-gray-800 to-black rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden">
                     {/* n8n 워크플로우 다이어그램 시뮬레이션 */}
                     <div className="relative">
-                      <div className="text-white text-lg font-bold mb-4">
+                      <div className="text-white text-sm sm:text-lg font-bold mb-3 sm:mb-4 leading-tight">
                         Flexible AI workflow automation<br />
                         for technical teams
                       </div>
                       
-                      {/* 워크플로우 노드들 */}
-                      <div className="grid grid-cols-4 gap-2 mb-4">
-                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">IT Ops use</div>
-                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">Sec Ops use</div>
-                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">Dev Ops use</div>
-                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">Sales use</div>
+                      {/* 워크플로우 노드들 - 모바일 최적화 */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2 mb-3 sm:mb-4">
+                        <div className="bg-purple-600 rounded p-1 sm:p-2 text-xs text-white text-center">IT Ops</div>
+                        <div className="bg-purple-600 rounded p-1 sm:p-2 text-xs text-white text-center">Sec Ops</div>
+                        <div className="bg-purple-600 rounded p-1 sm:p-2 text-xs text-white text-center">Dev Ops</div>
+                        <div className="bg-purple-600 rounded p-1 sm:p-2 text-xs text-white text-center">Sales</div>
                       </div>
                       
-                      {/* 중앙 플로우 */}
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">1</div>
-                        <ArrowRight className="w-4 h-4 text-white" />
-                        <div className="w-12 h-8 bg-gray-700 rounded flex items-center justify-center text-white text-xs">AI Agent</div>
-                        <ArrowRight className="w-4 h-4 text-white" />
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">+</div>
+                      {/* 중앙 플로우 - 모바일 최적화 */}
+                      <div className="flex items-center justify-center gap-1 sm:gap-2 mb-3 sm:mb-4">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">1</div>
+                        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                        <div className="w-10 h-6 sm:w-12 sm:h-8 bg-gray-700 rounded flex items-center justify-center text-white text-xs">AI</div>
+                        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">+</div>
                       </div>
                       
-                      {/* 하단 로고들 */}
-                      <div className="text-xs text-gray-400 text-center">
-                        The world's most popular workflow automation platform for technical teams including
+                      {/* 하단 설명 - 모바일 축소 */}
+                      <div className="text-xs text-gray-400 text-center leading-tight">
+                        글로벌 워크플로우 자동화 플랫폼
                       </div>
                     </div>
                     
-                    {/* 국내최초 뱃지 */}
-                    <div className="absolute top-4 right-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+                    {/* 국내최초 뱃지 - 모바일 최적화 */}
+                    <div className="absolute top-2 right-2 sm:top-4 sm:right-4">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-lg">
                         <div className="text-center">
                           <div className="text-xs font-bold text-gray-900">국내최초</div>
                           <div className="text-xs font-bold text-gray-900">한국어판</div>
@@ -418,75 +418,77 @@ export default function Home() {
                   </div>
                 </div>
                 
-                {/* 저자 정보 */}
+                {/* 저자 정보 - 모바일 최적화 */}
                 <div className="text-center">
-                  <div className="text-white text-lg font-bold mb-2">공동 저자</div>
-                                     <div className="flex items-center justify-center gap-4 text-blue-200 flex-wrap">
-                     <div className="text-center bg-white/5 rounded-lg p-3">
-                       <div className="font-bold text-yellow-300 text-lg">홍용기</div>
-                       <div className="text-xs text-blue-200">AI CAMP 대표이사</div>
-                       <div className="text-xs text-green-200">컨설팅학 박사 · CMC</div>
-                     </div>
-                     <div className="text-white font-bold">×</div>
-                     <div className="text-center bg-white/5 rounded-lg p-3">
-                       <div className="font-bold text-yellow-300 text-lg">이후경</div>
-                       <div className="text-xs text-blue-200">AI CAMP 교장 · CTO</div>
-                       <div className="text-xs text-green-200">경영지도사</div>
-                     </div>
-                     <div className="text-white font-bold">×</div>
-                     <div className="text-center bg-white/5 rounded-lg p-3">
-                       <div className="font-bold text-yellow-300 text-lg">홍정민</div>
-                       <div className="text-xs text-blue-200">박사과정 · CMC</div>
-                       <div className="text-xs text-green-200">NICE평가정보 재직</div>
-                     </div>
-                   </div>
+                  <div className="text-white text-base sm:text-lg font-bold mb-3 sm:mb-2">공동 저자</div>
+                  
+                  {/* 모바일에서 세로 배치, 데스크톱에서 가로 배치 */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-blue-200">
+                    <div className="text-center bg-white/5 rounded-lg p-2 sm:p-3 w-full sm:w-auto">
+                      <div className="font-bold text-yellow-300 text-base sm:text-lg">홍용기</div>
+                      <div className="text-xs text-blue-200">AI CAMP 대표이사</div>
+                      <div className="text-xs text-green-200">컨설팅학 박사 · CMC</div>
+                    </div>
+                    <div className="text-white font-bold hidden sm:block">×</div>
+                    <div className="text-center bg-white/5 rounded-lg p-2 sm:p-3 w-full sm:w-auto">
+                      <div className="font-bold text-yellow-300 text-base sm:text-lg">이후경</div>
+                      <div className="text-xs text-blue-200">AI CAMP 교장 · CTO</div>
+                      <div className="text-xs text-green-200">경영지도사</div>
+                    </div>
+                    <div className="text-white font-bold hidden sm:block">×</div>
+                    <div className="text-center bg-white/5 rounded-lg p-2 sm:p-3 w-full sm:w-auto">
+                      <div className="font-bold text-yellow-300 text-base sm:text-lg">홍정민</div>
+                      <div className="text-xs text-blue-200">박사과정 · CMC</div>
+                      <div className="text-xs text-green-200">NICE평가정보 재직</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             
-            {/* 우측: 책자 소개 및 혜택 */}
-            <div className="space-y-8 order-1 lg:order-2">
+            {/* 우측: 책자 소개 및 혜택 - 모바일 최적화 */}
+            <div className="space-y-6 sm:space-y-8 order-1 lg:order-2">
               <div>
-                <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
                   업무 자동화의 새로운 패러다임,<br />
                   <span className="text-yellow-300">n8n으로 혁신하세요!</span>
                 </h3>
                 
-                                 <p className="text-xl text-blue-100 leading-relaxed mb-8">
-                   <strong className="text-yellow-300">독일에서 개발된 글로벌 자동화 프로그램 n8n</strong>을 
-                   국내 중소기업과 스타트업이 <strong className="text-green-200">실제 업무에 바로 적용</strong>할 수 있도록, 
-                   우리나라의 비즈니스 문화와 시스템에 맞는 <strong className="text-purple-200">실무 중심의 사례와 방법론</strong>을 담은 
-                   국내 최초 한글판 가이드북입니다.
-                 </p>
+                <p className="text-base sm:text-xl text-blue-100 leading-relaxed mb-6 sm:mb-8 text-left px-2">
+                  <strong className="text-yellow-300">독일에서 개발된 글로벌 자동화 프로그램 n8n</strong>을 
+                  국내 중소기업과 스타트업이 <strong className="text-green-200">실제 업무에 바로 적용</strong>할 수 있도록, 
+                  우리나라의 비즈니스 문화와 시스템에 맞는 <strong className="text-purple-200">실무 중심의 사례와 방법론</strong>을 담은 
+                  국내 최초 한글판 가이드북입니다.
+                </p>
               </div>
               
-              {/* 핵심 특징 */}
-              <div className="space-y-4">
-                <h4 className="text-2xl font-bold text-white mb-4">📚 이 책의 핵심 특징</h4>
+              {/* 핵심 특징 - 모바일 최적화 */}
+              <div className="space-y-3 sm:space-y-4">
+                <h4 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 px-2">📚 이 책의 핵심 특징</h4>
                 
-                               {[
-                   { icon: Target, title: "국내 최초 한글판", desc: "해외 자료 의존에서 벗어난 체계적 실무 가이드" },
-                   { icon: Zap, title: "실무 즉시 적용", desc: "중소기업·스타트업 환경에 최적화된 사례 중심" },
-                   { icon: Cpu, title: "AI Agent 구축", desc: "초간단 AI 에이전트부터 심화 프로젝트까지" },
-                   { icon: CheckCircle, title: "전문가 3인 집필", desc: "컨설팅학 박사·경영지도사·CMC 컨설턴트" }
-                 ].map((feature, index) => (
-                  <div key={index} className="flex items-start space-x-4 p-4 bg-white/5 rounded-xl border border-white/10">
-                    <feature.icon className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-1" />
-                    <div>
-                      <h5 className="font-bold text-white text-lg">{feature.title}</h5>
-                      <p className="text-blue-200">{feature.desc}</p>
+                {[
+                  { icon: Target, title: "국내 최초 한글판", desc: "해외 자료 의존에서 벗어난 체계적 실무 가이드" },
+                  { icon: Zap, title: "실무 즉시 적용", desc: "중소기업·스타트업 환경에 최적화된 사례 중심" },
+                  { icon: Cpu, title: "AI Agent 구축", desc: "초간단 AI 에이전트부터 심화 프로젝트까지" },
+                  { icon: CheckCircle, title: "전문가 3인 집필", desc: "컨설팅학 박사·경영지도사·CMC 컨설턴트" }
+                ].map((feature, index) => (
+                  <div key={index} className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 bg-white/5 rounded-xl border border-white/10 mx-2">
+                    <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 flex-shrink-0 mt-1" />
+                    <div className="text-left">
+                      <h5 className="font-bold text-white text-base sm:text-lg leading-tight">{feature.title}</h5>
+                      <p className="text-sm sm:text-base text-blue-200 leading-relaxed mt-1">{feature.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
               
-              {/* CTA 버튼들 */}
-              <div className="flex flex-col sm:flex-row gap-4">
+              {/* CTA 버튼들 - 모바일 터치 최적화 */}
+              <div className="flex flex-col gap-3 sm:gap-4 px-2">
                 <a 
                   href="https://bookk.co.kr/bookStore/687ca81fda03645ce0aa85e0"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-lg rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center px-6 py-4 sm:px-8 sm:py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-base sm:text-lg rounded-xl sm:rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   <span className="mr-2">📖</span>
                   지금 바로 구매하기
@@ -494,61 +496,63 @@ export default function Home() {
                 
                 <Link 
                   href="/services/ai-productivity"
-                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-full transition-all duration-200 transform hover:scale-105 hover:bg-white hover:text-gray-900"
+                  className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 border-2 border-white text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-full transition-all duration-200 transform hover:scale-105 hover:bg-white hover:text-gray-900"
                 >
-                  <Zap className="w-5 h-5 mr-2" />
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   AI 업무혁신 상담
                 </Link>
               </div>
               
-                             {/* 목차 정보 */}
-               <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                 <div className="text-center mb-4">
-                   <div className="text-white font-bold text-lg mb-2">📖 주요 목차</div>
-                 </div>
-                 
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                   <div className="bg-white/5 rounded-lg p-3">
-                     <div className="font-bold text-yellow-300 mb-1">Part I</div>
-                     <div className="text-blue-200 text-xs">AI 자동화, 왜 n8n인가?</div>
-                   </div>
-                   <div className="bg-white/5 rounded-lg p-3">
-                     <div className="font-bold text-yellow-300 mb-1">Part II</div>
-                     <div className="text-blue-200 text-xs">n8n 사용법 완전 정복</div>
-                   </div>
-                   <div className="bg-white/5 rounded-lg p-3">
-                     <div className="font-bold text-yellow-300 mb-1">Part III</div>
-                     <div className="text-blue-200 text-xs">실전 AI 자동화 시나리오</div>
-                   </div>
-                   <div className="bg-white/5 rounded-lg p-3">
-                     <div className="font-bold text-yellow-300 mb-1">Part IV</div>
-                     <div className="text-blue-200 text-xs">안정적 자동화 시스템 구축</div>
-                   </div>
-                 </div>
-                 
-                 <div className="text-center mt-4">
-                   <div className="text-xs text-gray-300">
-                     💡 Template 활용부터 AI Agent 구축까지<br />
-                     🚀 심화 프로젝트: 정부지원사업 알림 & 상담신청 자동화
-                   </div>
-                 </div>
-               </div>
-               
-               {/* 출간 정보 */}
-               <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                 <div className="text-center">
-                   <div className="text-white font-bold mb-2">🏢 부크크(BookK) 출간</div>
-                   <div className="text-xs text-gray-300">
-                     업무 자동화에 관심 있는 모든 분들을 위한 필독서
-                   </div>
-                 </div>
-               </div>
+              {/* 목차 정보 - 모바일 최적화 */}
+              <div className="bg-white/5 rounded-xl p-4 sm:p-6 border border-white/10 mx-2">
+                <div className="text-center mb-3 sm:mb-4">
+                  <div className="text-white font-bold text-base sm:text-lg mb-2">📖 주요 목차</div>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-2 sm:gap-3 text-sm">
+                  <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                    <div className="font-bold text-yellow-300 mb-1 text-sm sm:text-base">Part I</div>
+                    <div className="text-blue-200 text-xs sm:text-sm text-left">AI 자동화, 왜 n8n인가?</div>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                    <div className="font-bold text-yellow-300 mb-1 text-sm sm:text-base">Part II</div>
+                    <div className="text-blue-200 text-xs sm:text-sm text-left">n8n 사용법 완전 정복</div>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                    <div className="font-bold text-yellow-300 mb-1 text-sm sm:text-base">Part III</div>
+                    <div className="text-blue-200 text-xs sm:text-sm text-left">실전 AI 자동화 시나리오</div>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-2 sm:p-3">
+                    <div className="font-bold text-yellow-300 mb-1 text-sm sm:text-base">Part IV</div>
+                    <div className="text-blue-200 text-xs sm:text-sm text-left">안정적 자동화 시스템 구축</div>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-3 sm:mt-4">
+                  <div className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    💡 Template 활용부터 AI Agent 구축까지<br />
+                    🚀 심화 프로젝트: 정부지원사업 알림 & 상담신청 자동화
+                  </div>
+                </div>
+              </div>
+              
+              {/* 출간 정보 - 모바일 최적화 */}
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 mx-2">
+                <div className="text-center">
+                  <div className="text-white font-bold mb-2 text-sm sm:text-base">🏢 부크크(BookK) 출간</div>
+                  <div className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    업무 자동화에 관심 있는 모든 분들을 위한 필독서
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
-          {/* 하단 추천 문구 */}
-          <div className="text-center mt-16">
-                         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-4xl mx-auto">
+                        {/* 하단 저자 인사말 및 추천 문구 */}
+          <div className="text-center mt-16 space-y-12">
+            
+            {/* AI CAMP 비전 */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-4xl mx-auto">
                <Quote className="w-12 h-12 text-yellow-300 mx-auto mb-4" />
                <blockquote className="text-xl md:text-2xl text-white font-medium leading-relaxed mb-6">
                  "AI로 일하는 즐거움을 되찾아드린다"
@@ -558,6 +562,98 @@ export default function Home() {
                  <strong className="text-yellow-300">AI 자동화는 단순한 기술의 도입이 아닌 일하는 방식의 패러다임 전환</strong>입니다.
                </div>
                <cite className="text-blue-200 font-semibold">- AI CAMP의 비전</cite>
+             </div>
+
+             {/* 저자 인사말 - 모바일 최적화 */}
+             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 sm:p-8 border border-white/10 max-w-6xl mx-auto">
+               <div className="text-center mb-6 sm:mb-8">
+                 <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold rounded-full mb-3 sm:mb-4 text-sm sm:text-base">
+                   <Users className="w-4 h-4" />
+                   <span>저자 인사말</span>
+                 </div>
+                 <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 leading-tight px-2">
+                   독자 여러분께 드리는 감사와 다짐
+                 </h3>
+               </div>
+
+               <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8 text-left">
+                 {/* 홍용기 대표이사 - 모바일 최적화 */}
+                 <div className="bg-white/5 rounded-xl p-4 sm:p-6 border border-white/10">
+                   <div className="text-center mb-3 sm:mb-4">
+                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                       <span className="text-white font-bold text-lg sm:text-xl">홍</span>
+                     </div>
+                     <h4 className="text-yellow-300 font-bold text-base sm:text-lg">홍용기</h4>
+                     <p className="text-blue-200 text-xs sm:text-sm">AI CAMP 대표이사</p>
+                     <p className="text-green-200 text-xs">컨설팅학 박사</p>
+                   </div>
+                   <blockquote className="text-blue-100 text-xs sm:text-sm leading-relaxed italic text-left">
+                     "이 책의 출간은 우리나라 기업 환경에 최적화된 AI 자동화 가이드를 제공하고자 하는 
+                     깊은 취지에서 시작되었습니다. 글로벌 Tool인 n8n을 국내 중소기업과 스타트업이 
+                     실제 업무에 바로 적용할 수 있도록 돕고자 합니다."
+                   </blockquote>
+                 </div>
+
+                 {/* 이후경 교장 - 모바일 최적화 */}
+                 <div className="bg-white/5 rounded-xl p-4 sm:p-6 border border-white/10">
+                   <div className="text-center mb-3 sm:mb-4">
+                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                       <span className="text-white font-bold text-lg sm:text-xl">이</span>
+                     </div>
+                     <h4 className="text-yellow-300 font-bold text-base sm:text-lg">이후경</h4>
+                     <p className="text-blue-200 text-xs sm:text-sm">AI CAMP 교장 · CTO</p>
+                     <p className="text-green-200 text-xs">경영지도사</p>
+                   </div>
+                   <blockquote className="text-blue-100 text-xs sm:text-sm leading-relaxed italic text-left">
+                     "28년간 쌓인 실무 경험과 교육자로서의 통찰이 없었다면, 이론과 실무를 완벽하게 
+                     연결하는 이 책의 탄생은 불가능했을 것입니다. 독자분들의 성공적인 자동화 여정을 
+                     진심으로 응원합니다."
+                   </blockquote>
+                 </div>
+
+                 {/* 홍정민 CMC - 모바일 최적화 */}
+                 <div className="bg-white/5 rounded-xl p-4 sm:p-6 border border-white/10">
+                   <div className="text-center mb-3 sm:mb-4">
+                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                       <span className="text-white font-bold text-lg sm:text-xl">홍</span>
+                     </div>
+                     <h4 className="text-yellow-300 font-bold text-base sm:text-lg">홍정민</h4>
+                     <p className="text-blue-200 text-xs sm:text-sm">박사과정 · CMC</p>
+                     <p className="text-green-200 text-xs">NICE평가정보 재직</p>
+                   </div>
+                   <blockquote className="text-blue-100 text-xs sm:text-sm leading-relaxed italic text-left">
+                     "출간 과정에서 AI를 활용한 디자인 작업과 편집 프로세스 최적화, 그리고 무엇보다 
+                     독자들이 이해하기 쉽도록 내용을 구성하는 데 기여했습니다. 함께 학습 공동체를 
+                     구축해나가겠습니다."
+                   </blockquote>
+                 </div>
+               </div>
+
+               <div className="text-center mt-6 sm:mt-8">
+                 <div className="bg-gradient-to-r from-blue-100/10 to-purple-100/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
+                   <h4 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">AI CAMP와 함께 만들어갈 미래</h4>
+                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4 text-xs sm:text-sm text-blue-100">
+                     <div className="flex items-center justify-center sm:justify-start gap-2">
+                       <Users className="w-4 h-4 text-green-400 flex-shrink-0" />
+                       <span>지속적인 학습 커뮤니티</span>
+                     </div>
+                     <div className="flex items-center justify-center sm:justify-start gap-2">
+                       <Target className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                       <span>실무 적용 지원</span>
+                     </div>
+                     <div className="flex items-center justify-center sm:justify-start gap-2">
+                       <TrendingUp className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                       <span>기술 발전과 함께하는 성장</span>
+                     </div>
+                   </div>
+                   <div className="mt-3 sm:mt-4 text-center">
+                     <p className="text-blue-200 text-xs sm:text-sm italic leading-relaxed px-2">
+                       "기술이 사람을 대신하는 것이 아니라, 사람이 더 가치 있는 일에 집중할 수 있도록 돕는 것이 
+                       <strong className="text-yellow-300"> 진정한 자동화의 목표</strong>입니다."
+                     </p>
+                   </div>
+                 </div>
+               </div>
              </div>
           </div>
         </div>
@@ -823,77 +919,75 @@ export default function Home() {
             </p>
           </div>
           
-          {/* 사용자 중심 서비스 그리드 - 우선순위 기반 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* 6대 핵심서비스 - 진짜 동작하는 모바일 버전 */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {services.map((service, index) => (
               <div
                 key={service.id}
-                className={`bg-white rounded-3xl shadow-lg group relative overflow-hidden cursor-pointer border-0
-                           ${service.featured ? 'ring-2 ring-blue-400 ring-opacity-50 scale-[1.02] md:scale-105' : ''} 
-                           hover:shadow-2xl hover:-translate-y-3 
-                           transition-all duration-300`}
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className={`bg-white rounded-xl shadow-lg group relative overflow-hidden cursor-pointer
+                           ${service.featured ? 'ring-2 ring-blue-400 scale-105' : ''} 
+                           hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
               >
                 {/* 특별 추천 배지 */}
                 {service.featured && (
-                  <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+                  <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-20">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white 
-                                    px-4 py-1.5 rounded-full text-xs font-bold shadow-xl animate-pulse">
+                                    px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
                       최고 추천
                     </div>
                   </div>
                 )}
                 
-                <CardContent className="p-6 h-full flex flex-col">
-                  {/* 서비스 헤더 - 간소화 */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-2xl ${service.color} shadow-lg 
-                                    group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
-                      <service.icon className="w-8 h-8" />
+                <CardContent className="p-4 h-full flex flex-col">
+                  {/* 서비스 헤더 */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`p-2 rounded-lg ${service.color} shadow-md 
+                                    group-hover:scale-110 transition-all duration-300`}>
+                      <service.icon className="w-6 h-6 md:w-8 md:h-8" />
                     </div>
-                    <Badge className="bg-white/90 text-gray-700 font-bold text-xs shadow-md">
+                    <Badge className="bg-gray-100 text-gray-700 font-bold text-xs">
                       {service.badge}
                     </Badge>
                   </div>
                   
                   {/* 서비스 정보 */}
-                  <div className="mb-6 flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 
+                  <div className="mb-4 flex-1">
+                    <h3 className="text-sm md:text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 
                                    transition-colors leading-tight">
-                      <span>{service.title}</span>
+                      {service.title}
                     </h3>
                     
-                    <div className="text-sm font-semibold text-blue-600 mb-3">
-                      <span>{service.subtitle}</span>
+                    <div className="text-xs md:text-sm font-semibold text-blue-600 mb-2">
+                      {service.subtitle}
                     </div>
                     
-                    <p className="text-gray-600 mb-4 leading-relaxed">
+                    <p className="text-gray-600 mb-3 text-xs md:text-sm leading-relaxed line-clamp-2">
                       {service.description}
                     </p>
                     
                     {/* 핵심 혜택 */}
-                    <div className="space-y-2">
-                      {service.benefits.slice(0, 3).map((benefit, benefitIndex) => (
-                        <div key={benefitIndex} className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-700 font-medium">{benefit}</span>
+                    <div className="space-y-1.5">
+                      {service.benefits.slice(0, 2).map((benefit, benefitIndex) => (
+                        <div key={benefitIndex} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-xs md:text-sm text-gray-700 font-medium line-clamp-1">{benefit}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   
                   {/* 액션 버튼 */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <Link href={service.href}>
                       <Button 
-                        className={`w-full font-semibold py-3 transition-all duration-300 
-                                   shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]
+                        className={`w-full font-semibold py-3 text-sm transition-all duration-300 
+                                   shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95
                                    ${service.featured 
                                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white' 
                                      : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-blue-400'
                                    }`}
                       >
-                        <span>자세히 보기</span>
+                        자세히 보기
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>
@@ -913,7 +1007,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      AI CAMP 교장에게 바로 문의하기
+                      💬 AI CAMP 교장에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
@@ -1240,8 +1334,8 @@ export default function Home() {
       {/* AI CAMP 컨텐츠 가이드 - 하단에서 솟구치는 애니메이션 */}
       <AICampContentGuide />
 
-      {/* n8n 책표지 플로팅 애니메이션 - 최상위 레이어 */}
-      <BookCoverFloat />
+      {/* n8n 책 홍보 배너 - 최상위 레이어로 위에서 떨어지는 애니메이션 */}
+      <BookPromotionBanner />
       
       {/* n8n 책 홍보 모달 - 최상위 레이어 (비활성화) */}
       {/* <BookPromotionModal /> */}
