@@ -19,7 +19,7 @@ export const COMPANY_INFO = {
     '🎯 성과 (Performance)',
     '🌟 탁월함 (Excellence)'
   ],
-  address: '서울특별시 강남구',
+  address: '서울 금천구 서부샛길 606 대성디폴리스 지식산업센터 A동 14층 1408-3호',
   website: 'https://aicamp-landingpage.vercel.app',
   email: 'hongik423@gmail.com'
 } as const;

@@ -210,34 +210,35 @@ const Header = () => {
           ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200/20' 
           : 'bg-white/95 backdrop-blur-xl'
       }`}>
-        <div className="max-w-screen-2xl mx-auto">
-          <nav className="flex items-center justify-between h-11 px-4 lg:px-6">
+        <div className="w-full max-w-none mx-auto">
+          <nav className="flex items-center justify-between h-11 px-2 sm:px-4 lg:px-6 xl:px-8">
             
             {/* 로고 - 왼쪽 */}
             <Link 
               href="/"
-              className="flex items-center hover:opacity-70 transition-opacity duration-200"
+              className="flex items-center hover:opacity-70 transition-opacity duration-200 flex-shrink-0"
               aria-label="AICAMP 홈페이지로 이동"
             >
-              <div className="w-6 h-6 flex items-center justify-center">
+              <div className="w-5 h-5 lg:w-6 lg:h-6 flex items-center justify-center">
                 <img 
-                  src={getImagePath('/images/aicamp_logo.png')}
+                  src={getImagePath('/images/aicamp_logo_del_250726.png')}
                   alt="AICAMP" 
-                  className="w-6 h-6 object-contain"
+                  className="w-5 h-5 lg:w-6 lg:h-6 object-contain"
                 />
               </div>
             </Link>
 
             {/* 메인 네비게이션 - 가운데 */}
-            <div className="hidden lg:flex items-center space-x-1 xl:space-x-1.5">
+            <div className="hidden md:flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-1 justify-center max-w-5xl mx-2 lg:mx-4">
               {navigationItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-1.5 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap
-                    lg:px-2 lg:text-xs
-                    xl:px-3 xl:text-sm
-                    2xl:px-3.5 2xl:text-sm
+                  className={`px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap
+                    md:px-1 md:text-xs
+                    lg:px-1.5 lg:text-xs
+                    xl:px-2 xl:text-xs
+                    2xl:px-3 2xl:text-sm
                     ${pathname === item.href
                       ? 'text-white bg-gray-800'
                       : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100'
@@ -249,14 +250,15 @@ const Header = () => {
             </div>
 
             {/* 액션 버튼들 - 오른쪽 */}
-            <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+            <div className="hidden md:flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-shrink-0">
               {actionButtons.map((button) => (
                 <Link
                   key={button.href}
                   href={button.href}
-                  className={`inline-block px-1.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap
-                    lg:px-2 lg:text-xs
-                    xl:px-3 xl:text-sm
+                  className={`inline-block px-1 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap
+                    md:px-1 md:text-xs
+                    lg:px-1.5 lg:text-xs
+                    xl:px-2 xl:text-xs
                     2xl:px-3 2xl:text-sm
                     ${button.color === 'blue' 
                       ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
@@ -276,7 +278,7 @@ const Header = () => {
             </div>
 
             {/* 모바일 햄버거 메뉴 */}
-            <div className="lg:hidden">
+            <div className="md:hidden">
               <button
                 className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors duration-200"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}

@@ -23,7 +23,7 @@ export default function TestGovernmentSupportPage() {
     businessManager: '김대표',
     employeeCount: '10-30명',
     establishmentDifficulty: '성장기',
-    businessLocation: '서울시 강남구',
+    businessLocation: '서울시 금천구',
     mainConcerns: '정책자금을 활용한 AI 도입으로 생산성을 향상시키고 싶습니다',
     expectedBenefits: '정부지원을 받아 효율성을 높이고 매출을 증대시키고 싶습니다',
     contactName: '김대표',

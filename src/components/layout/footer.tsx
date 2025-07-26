@@ -27,7 +27,7 @@ export default function Footer() {
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 flex items-center justify-center">
                 <img 
-                  src={getImagePath('/images/aicamp_logo.png')}
+                  src={getImagePath('/images/aicamp_logo_del_250726.png')}
                   alt="AICAMP" 
                   className="w-10 h-10 object-contain"
                 />
@@ -38,6 +38,12 @@ export default function Footer() {
               AI 기반 비즈니스 혁신을 위한 <br />
               전문 컨설팅 서비스
             </p>
+            <div className="text-gray-300 dark:text-gray-400 text-xs leading-relaxed mt-3">
+              <p className="font-medium">본사 주소</p>
+              <p>서울 금천구 서부샛길 606</p>
+              <p>대성디폴리스 지식산업센터</p>
+              <p>A동 14층 1408-3호</p>
+            </div>
                          <div className="flex space-x-4">
                <button 
                  className="text-gray-300 hover:text-white transition-colors"

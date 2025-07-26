@@ -133,14 +133,15 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-4">본사 주소</h3>
                   <p className="text-gray-600 mb-4">
-                    서울특별시 강남구 테헤란로 123<br />
-                                          AI-CAMP 빌딩 10층
+                    서울 금천구 서부샛길 606<br />
+                    대성디폴리스 지식산업센터 A동 14층 1408-3호
                   </p>
                   <h3 className="font-semibold text-gray-900 mb-4">교통편</h3>
                   <div className="space-y-2 text-gray-600">
-                    <div>• 지하철 2호선 강남역 3번 출구 도보 5분</div>
-                    <div>• 버스 146, 540, 360 강남역 하차</div>
-                    <div>• 주차장 이용 가능 (건물 지하 1-3층)</div>
+                    <div>• 지하철 1호선 독산역 3번 출구 도보 10분</div>
+                    <div>• 지하철 1·7호선 가산디지털단지역 4번 출구 도보 12분</div>
+                    <div>• 버스 5012, 5616, 652 대성디폴리스 하차</div>
+                    <div>• 주차장 이용 가능 (건물 지하 1-5층)</div>
                   </div>
                 </div>
                 <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
