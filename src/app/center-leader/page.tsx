@@ -418,11 +418,7 @@ export default function CenterLeaderPage() {
                     <span className="font-semibold w-24 text-gray-700">성명</span>
                     <span className="text-gray-900 font-medium">홍용기 대표이사</span>
                   </div>
-                  <div className="flex items-center">
-                    <Mail className="w-4 h-4 mr-2 text-red-600" />
-                    <span className="font-semibold w-24 text-gray-700">이메일</span>
-                    <span className="text-blue-600 font-medium">hongik423@gmail.com</span>
-                  </div>
+
                   <div className="flex items-center">
                     <Award className="w-4 h-4 mr-2 text-yellow-600" />
                     <span className="font-semibold w-24 text-gray-700">학력</span>
@@ -831,14 +827,7 @@ export default function CenterLeaderPage() {
               </Card>
             </Link>
             
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white transform hover:scale-[1.05] transition-all duration-200">
-              <CardContent className="p-6 text-center">
-                <Mail className="w-8 h-8 mx-auto mb-3 text-yellow-300" />
-                <h3 className="font-semibold mb-2">이메일 문의</h3>
-                <p className="text-blue-100 text-sm mb-3">hongik423@gmail.com</p>
-                <p className="text-xs text-blue-200">24시간 내 회신</p>
-              </CardContent>
-            </Card>
+
             
             <Link href="/consultation" className="block">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-200 cursor-pointer transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group">
