@@ -112,7 +112,7 @@ const Header = () => {
     { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield },
     { href: '/services/website', label: '매출증대웹페이지', icon: Building },
     { href: '/cases', label: '성공사례', icon: Trophy },
-    { href: '/center-leader', label: '교장', icon: User },
+    { href: '/center-leader', label: 'CEO&교장', icon: User },
     { href: '/seminar', label: '세미나', icon: Video },
     { href: '/support', label: '고객지원', icon: Headphones }
   ];
@@ -204,19 +204,19 @@ const Header = () => {
 
   return (
     <>
-      {/* 애플스토어 스타일 헤더 */}
+      {/* 100% 화면 크기 자동 조절 헤더 */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200/20' 
           : 'bg-white/95 backdrop-blur-xl'
       }`}>
-        <div className="w-full max-w-none mx-auto">
-          <nav className="flex items-center justify-between h-11 px-2 sm:px-4 lg:px-6 xl:px-8">
+        <div className="w-full">
+          <nav className="flex items-center justify-between min-h-[44px] px-1 sm:px-2 lg:px-3 xl:px-4 2xl:px-6">
             
-            {/* 로고 - 왼쪽 */}
+            {/* 로고 - 왼쪽 고정 */}
             <Link 
               href="/"
-              className="flex items-center hover:opacity-70 transition-opacity duration-200 flex-shrink-0"
+              className="flex items-center hover:opacity-70 transition-opacity duration-200 flex-shrink-0 mr-1 sm:mr-2"
               aria-label="AICAMP 홈페이지로 이동"
             >
               <div className="w-5 h-5 lg:w-6 lg:h-6 flex items-center justify-center">
@@ -228,57 +228,88 @@ const Header = () => {
               </div>
             </Link>
 
-            {/* 메인 네비게이션 - 가운데 */}
-            <div className="hidden md:flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-1 justify-center max-w-5xl mx-2 lg:mx-4">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap
-                    md:px-1 md:text-xs
-                    lg:px-1.5 lg:text-xs
-                    xl:px-2 xl:text-xs
-                    2xl:px-3 2xl:text-sm
-                    ${pathname === item.href
-                      ? 'text-white bg-gray-800'
-                      : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+            {/* 메인 네비게이션 - 가운데 영역 (스크롤 가능) */}
+            <div className="hidden md:block flex-1 mx-1 lg:mx-2 xl:mx-3">
+              <div className="flex items-center justify-center">
+                <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 overflow-x-auto scrollbar-hide max-w-full">
+                  <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-shrink-0">
+                    {navigationItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0
+                          md:px-1 md:text-xs
+                          lg:px-1.5 lg:text-xs
+                          xl:px-2 xl:text-xs
+                          2xl:px-3 2xl:text-sm
+                          ${pathname === item.href
+                            ? 'text-white bg-gray-800'
+                            : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100'
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* 액션 버튼들 - 오른쪽 */}
-            <div className="hidden md:flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-shrink-0">
-              {actionButtons.map((button) => (
-                <Link
-                  key={button.href}
-                  href={button.href}
-                  className={`inline-block px-1 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap
-                    md:px-1 md:text-xs
-                    lg:px-1.5 lg:text-xs
-                    xl:px-2 xl:text-xs
-                    2xl:px-3 2xl:text-sm
-                    ${button.color === 'blue' 
-                      ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
-                      : button.color === 'green'
-                      ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
-                      : button.color === 'purple'
-                      ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
-                      : button.color === 'orange'
-                      ? 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
-                      : 'text-red-600 hover:text-white hover:bg-red-600 bg-red-100'
-                  }`}
-                  aria-label={button.label}
-                >
-                  {button.label}
-                </Link>
-              ))}
+            {/* 액션 버튼들 - 오른쪽 (스크롤 가능) */}
+            <div className="hidden md:block flex-shrink-0 ml-1 lg:ml-2">
+              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 overflow-x-auto scrollbar-hide max-w-full">
+                <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-shrink-0">
+                  {actionButtons.map((button) => {
+                    const buttonClass = `inline-block px-1 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0
+                      md:px-1 md:text-xs
+                      lg:px-1.5 lg:text-xs
+                      xl:px-2 xl:text-xs
+                      2xl:px-3 2xl:text-sm
+                      ${button.color === 'blue' 
+                        ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
+                        : button.color === 'green'
+                        ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
+                        : button.color === 'purple'
+                        ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
+                        : button.color === 'orange'
+                        ? 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
+                        : button.color === 'yellow'
+                        ? 'text-yellow-600 hover:text-white hover:bg-yellow-600 bg-yellow-100'
+                        : 'text-red-600 hover:text-white hover:bg-red-600 bg-red-100'
+                    }`;
+
+                    if ('external' in button && button.external) {
+                      return (
+                        <a
+                          key={button.href}
+                          href={button.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={buttonClass}
+                          aria-label={button.label}
+                        >
+                          {button.label}
+                        </a>
+                      );
+                    }
+
+                    return (
+                      <Link
+                        key={button.href}
+                        href={button.href}
+                        className={buttonClass}
+                        aria-label={button.label}
+                      >
+                        {button.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* 모바일 햄버거 메뉴 */}
-            <div className="md:hidden">
+            <div className="md:hidden flex-shrink-0 ml-1">
               <button
                 className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors duration-200"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -320,78 +351,179 @@ const Header = () => {
                 <div className="pb-4 border-b border-gray-200">
                   <div className="text-sm font-semibold text-gray-700 mb-3 px-1">⭐ 주요 서비스</div>
                   <div className="grid grid-cols-1 gap-3">
-                    {actionButtons.map((button) => (
-                      <motion.div key={button.href} whileHover={{ x: 8 }} className="group">
-                        <Link href={button.href} onClick={() => setIsMenuOpen(false)}>
-                          <div className={`flex items-center p-4 rounded-xl transition-all duration-200 group ${
-                            button.color === 'blue' 
-                              ? 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200'
-                              : button.color === 'green'
-                              ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
-                              : button.color === 'purple'
-                              ? 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200'
-                              : button.color === 'orange'
-                              ? 'bg-orange-50 hover:bg-orange-100 border-2 border-orange-200'
-                              : 'bg-red-50 hover:bg-red-100 border-2 border-red-200'
-                          }`}>
-                            <button.icon className={`w-7 h-7 mr-4 ${
-                              button.color === 'blue' 
-                                ? 'text-blue-600 group-hover:text-blue-700'
-                                : button.color === 'green'
-                                ? 'text-green-600 group-hover:text-green-700'
-                                : button.color === 'purple'
-                                ? 'text-purple-600 group-hover:text-purple-700'
-                                : button.color === 'orange'
-                                ? 'text-orange-600 group-hover:text-orange-700'
-                                : 'text-red-600 group-hover:text-red-700'
-                            }`} />
-                            <div className="flex-1">
-                              <div className={`font-bold text-lg ${
+                    {actionButtons.map((button) => {
+                      const getDescription = (label: string) => {
+                        switch(label) {
+                          case 'AI 무료진단': return 'AI 기반 기업 진단';
+                          case '전문가상담': return '전문가 무료 상담';
+                          case 'n8n책자구매': return 'AI 자동화 실무 가이드북';
+                          case '세금계산기': return '10가지 세금 계산기';
+                          case '투자재무타당성분석기': return 'NPV/IRR 투자분석';
+                          default: return '버그 및 개선사항 신고';
+                        }
+                      };
+
+                      return (
+                        <motion.div key={button.href} whileHover={{ x: 8 }} className="group">
+                          {('external' in button && button.external) ? (
+                            <a 
+                              href={button.href} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <div className={`flex items-center p-4 rounded-xl transition-all duration-200 group ${
                                 button.color === 'blue' 
-                                  ? 'text-blue-900 group-hover:text-blue-800'
+                                  ? 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200'
                                   : button.color === 'green'
-                                  ? 'text-green-900 group-hover:text-green-800'
+                                  ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
                                   : button.color === 'purple'
-                                  ? 'text-purple-900 group-hover:text-purple-800'
+                                  ? 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200'
                                   : button.color === 'orange'
-                                  ? 'text-orange-900 group-hover:text-orange-800'
-                                  : 'text-red-900 group-hover:text-red-800'
+                                  ? 'bg-orange-50 hover:bg-orange-100 border-2 border-orange-200'
+                                  : button.color === 'yellow'
+                                  ? 'bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-200'
+                                  : 'bg-red-50 hover:bg-red-100 border-2 border-red-200'
                               }`}>
-                                {button.label}
+                                <button.icon className={`w-7 h-7 mr-4 ${
+                                  button.color === 'blue' 
+                                    ? 'text-blue-600 group-hover:text-blue-700'
+                                    : button.color === 'green'
+                                    ? 'text-green-600 group-hover:text-green-700'
+                                    : button.color === 'purple'
+                                    ? 'text-purple-600 group-hover:text-purple-700'
+                                    : button.color === 'orange'
+                                    ? 'text-orange-600 group-hover:text-orange-700'
+                                    : button.color === 'yellow'
+                                    ? 'text-yellow-600 group-hover:text-yellow-700'
+                                    : 'text-red-600 group-hover:text-red-700'
+                                }`} />
+                                <div className="flex-1">
+                                  <div className={`font-bold text-lg ${
+                                    button.color === 'blue' 
+                                      ? 'text-blue-900 group-hover:text-blue-800'
+                                      : button.color === 'green'
+                                      ? 'text-green-900 group-hover:text-green-800'
+                                      : button.color === 'purple'
+                                      ? 'text-purple-900 group-hover:text-purple-800'
+                                      : button.color === 'orange'
+                                      ? 'text-orange-900 group-hover:text-orange-800'
+                                      : button.color === 'yellow'
+                                      ? 'text-yellow-900 group-hover:text-yellow-800'
+                                      : 'text-red-900 group-hover:text-red-800'
+                                  }`}>
+                                    {button.label}
+                                  </div>
+                                  <div className={`text-sm ${
+                                    button.color === 'blue' 
+                                      ? 'text-blue-600 group-hover:text-blue-700'
+                                      : button.color === 'green'
+                                      ? 'text-green-600 group-hover:text-green-700'
+                                      : button.color === 'purple'
+                                      ? 'text-purple-600 group-hover:text-purple-700'
+                                      : button.color === 'orange'
+                                      ? 'text-orange-600 group-hover:text-orange-700'
+                                      : button.color === 'yellow'
+                                      ? 'text-yellow-600 group-hover:text-yellow-700'
+                                      : 'text-red-600 group-hover:text-red-700'
+                                  }`}>
+                                    {getDescription(button.label)}
+                                  </div>
+                                </div>
+                                <ChevronRight className={`w-6 h-6 ${
+                                  button.color === 'blue' 
+                                    ? 'text-blue-400 group-hover:text-blue-600'
+                                    : button.color === 'green'
+                                    ? 'text-green-400 group-hover:text-green-600'
+                                    : button.color === 'purple'
+                                    ? 'text-purple-400 group-hover:text-purple-600'
+                                    : button.color === 'orange'
+                                    ? 'text-orange-400 group-hover:text-orange-600'
+                                    : button.color === 'yellow'
+                                    ? 'text-yellow-400 group-hover:text-yellow-600'
+                                    : 'text-red-400 group-hover:text-red-600'
+                                }`} />
                               </div>
-                              <div className={`text-sm ${
+                            </a>
+                          ) : (
+                            <Link href={button.href} onClick={() => setIsMenuOpen(false)}>
+                              <div className={`flex items-center p-4 rounded-xl transition-all duration-200 group ${
                                 button.color === 'blue' 
-                                  ? 'text-blue-600 group-hover:text-blue-700'
+                                  ? 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200'
                                   : button.color === 'green'
-                                  ? 'text-green-600 group-hover:text-green-700'
+                                  ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
                                   : button.color === 'purple'
-                                  ? 'text-purple-600 group-hover:text-purple-700'
+                                  ? 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200'
                                   : button.color === 'orange'
-                                  ? 'text-orange-600 group-hover:text-orange-700'
-                                  : 'text-red-600 group-hover:text-red-700'
+                                  ? 'bg-orange-50 hover:bg-orange-100 border-2 border-orange-200'
+                                  : button.color === 'yellow'
+                                  ? 'bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-200'
+                                  : 'bg-red-50 hover:bg-red-100 border-2 border-red-200'
                               }`}>
-                                {button.label === 'AI 무료진단' ? 'AI 기반 기업 진단' : 
-                                 button.label === '전문가상담' ? '전문가 무료 상담' : 
-                                 button.label === '세금계산기' ? '10가지 세금 계산기' :
-                                 button.label === '투자재무타당성분석기' ? 'NPV/IRR 투자분석' :
-                                 '버그 및 개선사항 신고'}
+                                <button.icon className={`w-7 h-7 mr-4 ${
+                                  button.color === 'blue' 
+                                    ? 'text-blue-600 group-hover:text-blue-700'
+                                    : button.color === 'green'
+                                    ? 'text-green-600 group-hover:text-green-700'
+                                    : button.color === 'purple'
+                                    ? 'text-purple-600 group-hover:text-purple-700'
+                                    : button.color === 'orange'
+                                    ? 'text-orange-600 group-hover:text-orange-700'
+                                    : button.color === 'yellow'
+                                    ? 'text-yellow-600 group-hover:text-yellow-700'
+                                    : 'text-red-600 group-hover:text-red-700'
+                                }`} />
+                                <div className="flex-1">
+                                  <div className={`font-bold text-lg ${
+                                    button.color === 'blue' 
+                                      ? 'text-blue-900 group-hover:text-blue-800'
+                                      : button.color === 'green'
+                                      ? 'text-green-900 group-hover:text-green-800'
+                                      : button.color === 'purple'
+                                      ? 'text-purple-900 group-hover:text-purple-800'
+                                      : button.color === 'orange'
+                                      ? 'text-orange-900 group-hover:text-orange-800'
+                                      : button.color === 'yellow'
+                                      ? 'text-yellow-900 group-hover:text-yellow-800'
+                                      : 'text-red-900 group-hover:text-red-800'
+                                  }`}>
+                                    {button.label}
+                                  </div>
+                                  <div className={`text-sm ${
+                                    button.color === 'blue' 
+                                      ? 'text-blue-600 group-hover:text-blue-700'
+                                      : button.color === 'green'
+                                      ? 'text-green-600 group-hover:text-green-700'
+                                      : button.color === 'purple'
+                                      ? 'text-purple-600 group-hover:text-purple-700'
+                                      : button.color === 'orange'
+                                      ? 'text-orange-600 group-hover:text-orange-700'
+                                      : button.color === 'yellow'
+                                      ? 'text-yellow-600 group-hover:text-yellow-700'
+                                      : 'text-red-600 group-hover:text-red-700'
+                                  }`}>
+                                    {getDescription(button.label)}
+                                  </div>
+                                </div>
+                                <ChevronRight className={`w-6 h-6 ${
+                                  button.color === 'blue' 
+                                    ? 'text-blue-400 group-hover:text-blue-600'
+                                    : button.color === 'green'
+                                    ? 'text-green-400 group-hover:text-green-600'
+                                    : button.color === 'purple'
+                                    ? 'text-purple-400 group-hover:text-purple-600'
+                                    : button.color === 'orange'
+                                    ? 'text-orange-400 group-hover:text-orange-600'
+                                    : button.color === 'yellow'
+                                    ? 'text-yellow-400 group-hover:text-yellow-600'
+                                    : 'text-red-400 group-hover:text-red-600'
+                                }`} />
                               </div>
-                            </div>
-                            <ChevronRight className={`w-6 h-6 ${
-                              button.color === 'blue' 
-                                ? 'text-blue-400 group-hover:text-blue-600'
-                                : button.color === 'green'
-                                ? 'text-green-400 group-hover:text-green-600'
-                                : button.color === 'purple'
-                                ? 'text-purple-400 group-hover:text-purple-600'
-                                : button.color === 'orange'
-                                ? 'text-orange-400 group-hover:text-orange-600'
-                                : 'text-red-400 group-hover:text-red-600'
-                            }`} />
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
+                            </Link>
+                          )}
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -407,7 +539,7 @@ const Header = () => {
                     { href: '/services/tech-startup', label: '기술창업', icon: Rocket, description: '스타트업 지원' },
                     { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield, description: '각종 인증 획득' },
                     { href: '/cases', label: '성공사례', icon: Trophy, description: '고객 성공 스토리' },
-                    { href: '/center-leader', label: '교장', icon: User, description: '이후경 경영지도사' },
+                    { href: '/center-leader', label: 'CEO&교장', icon: User, description: '홍용기 CEO & 이후경 경영지도사' },
                     { href: '/seminar', label: '세미나', icon: Video, description: '교육 프로그램' },
                     { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' }
                   ].map((item) => (

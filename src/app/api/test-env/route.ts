@@ -68,7 +68,22 @@ export async function POST(request: NextRequest) {
 
     // 🤖 Gemini API 연결 테스트
     try {
-      // Google AI SDK를 동적으로 import
+      // 정적 빌드 시에는 테스트 응답 반환
+      if (process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES === 'true') {
+        return NextResponse.json({
+          success: true,
+          message: 'GitHub Pages 환경 - API 테스트 생략',
+          test: {
+            input: testMessage,
+            output: '안녕하세요! AI CAMP AI상담사입니다. 현재 정적 환경에서 실행 중입니다.',
+            model: 'static-response',
+            timestamp: new Date().toISOString()
+          },
+          status: 'GitHub Pages 정적 환경에서 작동 중입니다.'
+        });
+      }
+
+      // Google AI SDK를 동적으로 import (개발/서버 환경만)
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

@@ -30,6 +30,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MCenterChatInterface from '@/components/chatbot/MCenterChatInterface';
+import AICampContentGuide from '@/components/layout/AICampContentGuide';
+import BookPromotionModal from '@/components/layout/BookPromotionModal';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
@@ -322,6 +324,240 @@ export default function Home() {
                 </button>
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* n8n 책자 홍보 섹션 - 신규 출간 */}
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+        {/* 배경 효과 */}
+        <div className="absolute inset-0">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* 상단 배지 */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold rounded-full shadow-lg mb-8 animate-pulse">
+              <Sparkles className="w-5 h-5 mr-2" />
+              <span className="text-lg">🔥 신간 출간! 국내최초 한국어판</span>
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                AI 자동화의 끝판왕!
+              </span>
+            </h2>
+            
+            <p className="text-xl md:text-2xl text-blue-100 font-semibold mb-4">
+              n8n을 활용한 업무혁신
+            </p>
+            
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <Badge className="bg-red-500 text-white font-bold px-4 py-2 text-lg">
+                🏆 국내최초
+              </Badge>
+              <Badge className="bg-blue-500 text-white font-bold px-4 py-2 text-lg">
+                ⚡ 실무직결
+              </Badge>
+              <Badge className="bg-green-500 text-white font-bold px-4 py-2 text-lg">
+                🎯 전문가 집필
+              </Badge>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* 좌측: 책자 이미지 및 정보 */}
+            <div className="text-center lg:text-left order-2 lg:order-1">
+              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20 shadow-2xl">
+                {/* 책자 이미지 플레이스홀더 */}
+                <div className="w-full max-w-md mx-auto mb-8">
+                  <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                    {/* n8n 워크플로우 다이어그램 시뮬레이션 */}
+                    <div className="relative">
+                      <div className="text-white text-lg font-bold mb-4">
+                        Flexible AI workflow automation<br />
+                        for technical teams
+                      </div>
+                      
+                      {/* 워크플로우 노드들 */}
+                      <div className="grid grid-cols-4 gap-2 mb-4">
+                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">IT Ops use</div>
+                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">Sec Ops use</div>
+                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">Dev Ops use</div>
+                        <div className="bg-purple-600 rounded p-2 text-xs text-white text-center">Sales use</div>
+                      </div>
+                      
+                      {/* 중앙 플로우 */}
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">1</div>
+                        <ArrowRight className="w-4 h-4 text-white" />
+                        <div className="w-12 h-8 bg-gray-700 rounded flex items-center justify-center text-white text-xs">AI Agent</div>
+                        <ArrowRight className="w-4 h-4 text-white" />
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">+</div>
+                      </div>
+                      
+                      {/* 하단 로고들 */}
+                      <div className="text-xs text-gray-400 text-center">
+                        The world's most popular workflow automation platform for technical teams including
+                      </div>
+                    </div>
+                    
+                    {/* 국내최초 뱃지 */}
+                    <div className="absolute top-4 right-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+                        <div className="text-center">
+                          <div className="text-xs font-bold text-gray-900">국내최초</div>
+                          <div className="text-xs font-bold text-gray-900">한국어판</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 저자 정보 */}
+                <div className="text-center">
+                  <div className="text-white text-lg font-bold mb-2">공동 저자</div>
+                                     <div className="flex items-center justify-center gap-4 text-blue-200 flex-wrap">
+                     <div className="text-center bg-white/5 rounded-lg p-3">
+                       <div className="font-bold text-yellow-300 text-lg">홍용기</div>
+                       <div className="text-xs text-blue-200">AI CAMP 대표이사</div>
+                       <div className="text-xs text-green-200">컨설팅학 박사 · CMC</div>
+                     </div>
+                     <div className="text-white font-bold">×</div>
+                     <div className="text-center bg-white/5 rounded-lg p-3">
+                       <div className="font-bold text-yellow-300 text-lg">이후경</div>
+                       <div className="text-xs text-blue-200">AI CAMP 교장 · CTO</div>
+                       <div className="text-xs text-green-200">경영지도사</div>
+                     </div>
+                     <div className="text-white font-bold">×</div>
+                     <div className="text-center bg-white/5 rounded-lg p-3">
+                       <div className="font-bold text-yellow-300 text-lg">홍정민</div>
+                       <div className="text-xs text-blue-200">박사과정 · CMC</div>
+                       <div className="text-xs text-green-200">NICE평가정보 재직</div>
+                     </div>
+                   </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* 우측: 책자 소개 및 혜택 */}
+            <div className="space-y-8 order-1 lg:order-2">
+              <div>
+                <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                  업무 자동화의 새로운 패러다임,<br />
+                  <span className="text-yellow-300">n8n으로 혁신하세요!</span>
+                </h3>
+                
+                                 <p className="text-xl text-blue-100 leading-relaxed mb-8">
+                   <strong className="text-yellow-300">독일에서 개발된 글로벌 자동화 프로그램 n8n</strong>을 
+                   국내 중소기업과 스타트업이 <strong className="text-green-200">실제 업무에 바로 적용</strong>할 수 있도록, 
+                   우리나라의 비즈니스 문화와 시스템에 맞는 <strong className="text-purple-200">실무 중심의 사례와 방법론</strong>을 담은 
+                   국내 최초 한글판 가이드북입니다.
+                 </p>
+              </div>
+              
+              {/* 핵심 특징 */}
+              <div className="space-y-4">
+                <h4 className="text-2xl font-bold text-white mb-4">📚 이 책의 핵심 특징</h4>
+                
+                               {[
+                   { icon: Target, title: "국내 최초 한글판", desc: "해외 자료 의존에서 벗어난 체계적 실무 가이드" },
+                   { icon: Zap, title: "실무 즉시 적용", desc: "중소기업·스타트업 환경에 최적화된 사례 중심" },
+                   { icon: Cpu, title: "AI Agent 구축", desc: "초간단 AI 에이전트부터 심화 프로젝트까지" },
+                   { icon: CheckCircle, title: "전문가 3인 집필", desc: "컨설팅학 박사·경영지도사·CMC 컨설턴트" }
+                 ].map((feature, index) => (
+                  <div key={index} className="flex items-start space-x-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                    <feature.icon className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-1" />
+                    <div>
+                      <h5 className="font-bold text-white text-lg">{feature.title}</h5>
+                      <p className="text-blue-200">{feature.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* CTA 버튼들 */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a 
+                  href="https://bookk.co.kr/bookStore/687ca81fda03645ce0aa85e0"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-lg rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <span className="mr-2">📖</span>
+                  지금 바로 구매하기
+                </a>
+                
+                <Link 
+                  href="/services/ai-productivity"
+                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-full transition-all duration-200 transform hover:scale-105 hover:bg-white hover:text-gray-900"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  AI 업무혁신 상담
+                </Link>
+              </div>
+              
+                             {/* 목차 정보 */}
+               <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                 <div className="text-center mb-4">
+                   <div className="text-white font-bold text-lg mb-2">📖 주요 목차</div>
+                 </div>
+                 
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                   <div className="bg-white/5 rounded-lg p-3">
+                     <div className="font-bold text-yellow-300 mb-1">Part I</div>
+                     <div className="text-blue-200 text-xs">AI 자동화, 왜 n8n인가?</div>
+                   </div>
+                   <div className="bg-white/5 rounded-lg p-3">
+                     <div className="font-bold text-yellow-300 mb-1">Part II</div>
+                     <div className="text-blue-200 text-xs">n8n 사용법 완전 정복</div>
+                   </div>
+                   <div className="bg-white/5 rounded-lg p-3">
+                     <div className="font-bold text-yellow-300 mb-1">Part III</div>
+                     <div className="text-blue-200 text-xs">실전 AI 자동화 시나리오</div>
+                   </div>
+                   <div className="bg-white/5 rounded-lg p-3">
+                     <div className="font-bold text-yellow-300 mb-1">Part IV</div>
+                     <div className="text-blue-200 text-xs">안정적 자동화 시스템 구축</div>
+                   </div>
+                 </div>
+                 
+                 <div className="text-center mt-4">
+                   <div className="text-xs text-gray-300">
+                     💡 Template 활용부터 AI Agent 구축까지<br />
+                     🚀 심화 프로젝트: 정부지원사업 알림 & 상담신청 자동화
+                   </div>
+                 </div>
+               </div>
+               
+               {/* 출간 정보 */}
+               <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                 <div className="text-center">
+                   <div className="text-white font-bold mb-2">🏢 부크크(BookK) 출간</div>
+                   <div className="text-xs text-gray-300">
+                     업무 자동화에 관심 있는 모든 분들을 위한 필독서
+                   </div>
+                 </div>
+               </div>
+            </div>
+          </div>
+          
+          {/* 하단 추천 문구 */}
+          <div className="text-center mt-16">
+                         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 max-w-4xl mx-auto">
+               <Quote className="w-12 h-12 text-yellow-300 mx-auto mb-4" />
+               <blockquote className="text-xl md:text-2xl text-white font-medium leading-relaxed mb-6">
+                 "AI로 일하는 즐거움을 되찾아드린다"
+               </blockquote>
+               <div className="text-lg text-blue-100 leading-relaxed mb-4">
+                 반복적인 작업에서 해방되어 더 창조적이고 의미 있는 일에 집중할 수 있도록, 
+                 <strong className="text-yellow-300">AI 자동화는 단순한 기술의 도입이 아닌 일하는 방식의 패러다임 전환</strong>입니다.
+               </div>
+               <cite className="text-blue-200 font-semibold">- AI CAMP의 비전</cite>
+             </div>
           </div>
         </div>
       </section>
@@ -999,6 +1235,12 @@ export default function Home() {
         onClose={() => setIsChatOpen(false)}
         onMinimize={() => setIsChatOpen(false)}
       />
+
+      {/* AI CAMP 컨텐츠 가이드 - 하단에서 솟구치는 애니메이션 */}
+      <AICampContentGuide />
+
+      {/* n8n 책 홍보 모달 - 최상위 레이어 */}
+      <BookPromotionModal />
 
       {/* 연결 중 로딩 오버레이 */}
       {isConnecting && (

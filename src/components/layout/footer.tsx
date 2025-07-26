@@ -38,11 +38,11 @@ export default function Footer() {
               AI 기반 비즈니스 혁신을 위한 <br />
               전문 컨설팅 서비스
             </p>
-            <div className="text-gray-300 dark:text-gray-400 text-xs leading-relaxed mt-3">
-              <p className="font-medium">본사 주소</p>
-              <p>서울 금천구 서부샛길 606</p>
-              <p>대성디폴리스 지식산업센터</p>
-              <p>A동 14층 1408-3호</p>
+            <div className="text-white text-xs leading-relaxed mt-3">
+              <p className="font-medium text-white mb-1">본사 주소</p>
+              <p className="text-white">서울 금천구 서부샛길 606</p>
+              <p className="text-white">대성디폴리스 지식산업센터</p>
+              <p className="text-white">A동 14층 1408-3호</p>
             </div>
                          <div className="flex space-x-4">
                <button 
