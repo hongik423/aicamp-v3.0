@@ -70,7 +70,7 @@ export default function SitemapPage() {
               사이트맵
             </h1>
             <p className="text-xl text-gray-600">
-              AI-CAMP 웹사이트의 전체 구조를 한눈에 확인하세요.
+              AI CAMP 웹사이트의 전체 구조를 한눈에 확인하세요.
             </p>
           </div>
 

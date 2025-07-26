@@ -61,7 +61,7 @@ export default function CenterLeaderPage() {
                 <div>
                   <Badge className="bg-yellow-500 text-black font-bold mb-2">28년 검증된 전문가</Badge>
                   <h1 className="text-4xl lg:text-5xl font-bold mb-2 text-white">이후경 경영지도사</h1>
-                  <p className="text-xl text-yellow-200 font-semibold">AI-CAMP 교장</p>
+                  <p className="text-xl text-yellow-200 font-semibold">AI CAMP 교장</p>
                 </div>
               </div>
               
@@ -239,7 +239,7 @@ export default function CenterLeaderPage() {
               <CardContent>
                 <div className="space-y-3">
                   {[
-                    'AI-CAMP 교장',
+                    'AI CAMP 교장',
                     '아이엔제이컨설팅 책임컨설턴트',
                     '월드클래스코리아 HRD실장',
                     'ESG인증원 책임컨설턴트',
@@ -374,7 +374,7 @@ export default function CenterLeaderPage() {
                     </CardHeader>
                     <CardContent className="mt-4">
                       <ul className="space-y-2 text-sm text-gray-800">
-                        <li className="font-semibold">• AI-CAMP 교장</li>
+                        <li className="font-semibold">• AI CAMP 교장</li>
                         <li className="font-semibold">• 아이엔제이컨설팅 책임컨설턴트</li>
                         <li className="font-semibold">• 고용노동부 일터혁신 수행기관 컨설턴트</li>
                         <li className="font-semibold">• 200개사 이상 조직/인사 컨설팅 수행</li>

@@ -16,7 +16,7 @@ export default function PrivacyPage() {
               개인정보처리방침
             </h1>
             <p className="text-xl text-gray-800 font-medium">
-              AI-CAMP의 개인정보보호에 관한 정책입니다.
+              AI CAMP의 개인정보보호에 관한 정책입니다.
             </p>
           </div>
 
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
               <div className="prose max-w-none">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b-2 border-blue-500 pb-2">제1조 (개인정보의 처리목적)</h2>
                 <p className="text-gray-800 text-base leading-relaxed mb-6 font-medium">
-                  AI-CAMP(이하 "회사")는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.
+                  AI CAMP(이하 "회사")는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.
                 </p>
                 <ul className="text-gray-800 text-base leading-relaxed mb-8 space-y-2 font-medium">
                   <li>• 서비스 제공에 관한 계약 이행 및 서비스 제공에 따른 요금정산</li>

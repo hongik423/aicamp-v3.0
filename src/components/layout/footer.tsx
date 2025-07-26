@@ -32,7 +32,7 @@ export default function Footer() {
                   className="w-10 h-10 object-contain"
                 />
               </div>
-              <span className="text-xl font-bold text-white">AI-CAMP</span>
+              <span className="text-xl font-bold text-white">AI CAMP</span>
             </div>
             <p className="text-gray-300 dark:text-gray-400 text-sm leading-relaxed">
               AI 기반 비즈니스 혁신을 위한 <br />
@@ -103,7 +103,7 @@ export default function Footer() {
         <div className="border-t border-gray-600 dark:border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-300 dark:text-gray-400 text-sm">
-              © 2024 AI-CAMP. All rights reserved.
+              © 2024 AI CAMP. All rights reserved.
             </p>
             <div className="flex space-x-6">
               <a href="/privacy" className="text-gray-300 dark:text-gray-400 hover:text-white text-sm transition-colors">

@@ -417,7 +417,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       // 📥 HTML 파일로 다운로드
       const companyName = completeDiagnosisData.companyInfo.name.replace(/[^\w가-힣]/g, '_');
       const currentDate = new Date().toISOString().slice(0, 10);
-      const fileName = `AI-CAMP_${companyName}_AI기반종합경영진단결과_${currentDate}.html`;
+      const fileName = `AI_CAMP_${companyName}_AI기반종합경영진단결과_${currentDate}.html`;
       
       // UTF-8 BOM 추가로 한글 인코딩 보장
       const BOM = '\uFEFF';
@@ -466,7 +466,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>AI-CAMP AI 기반 종합 경영진단 결과 - ${data.companyInfo.name}</title>
+              <title>AI CAMP AI 기반 종합 경영진단 결과 - ${data.companyInfo.name}</title>
     <style>
         body { 
             font-family: 'Malgun Gothic', 'Arial Unicode MS', '맑은 고딕', sans-serif; 
@@ -995,7 +995,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             </div>
             <div style="font-size: 0.9rem; opacity: 0.7; line-height: 1.6;">
                             📧 hongik423@gmail.com | 📞 010-9251-9743<br>
-            "중소기업의 성장 파트너, AI-CAMP와 함께 성공하세요!"
+            "중소기업의 성장 파트너, AI CAMP와 함께 성공하세요!"
             </div>
             <div style="margin-top: 20px; font-size: 0.8rem; opacity: 0.6;">
                 ⚠️ 본 보고서는 AI 기반 분석 결과이며, 전문가 상담을 통해 더욱 정확한 진단을 받으실 수 있습니다.

@@ -200,7 +200,7 @@ export default function ChatbotPage() {
             
             <h1 className="text-hero text-gray-900 mb-6 animate-slide-in">
               <Sparkles className="inline-block w-16 h-16 mr-4 text-yellow-500" />
-              AI-CAMP 교장과 채팅
+              AI CAMP 교장과 채팅
             </h1>
             
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in mb-8"
@@ -238,7 +238,7 @@ export default function ChatbotPage() {
                   <Bot className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xl font-bold">AI-CAMP 교장 상담센터</span>
+                  <span className="text-xl font-bold">AI CAMP 교장 상담센터</span>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-sm bg-white/20 px-2 py-1 rounded-full">25년 전문 노하우</span>
                     <span className="text-sm bg-green-500 px-2 py-1 rounded-full">● 온라인</span>

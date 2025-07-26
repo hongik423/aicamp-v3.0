@@ -350,7 +350,7 @@ class EnhancedLeeHukyungAI {
     
     // 🎯 이후경 경영지도사 정체성 보장
     if (!enhanced.includes('이후경')) {
-      enhanced = `안녕하세요! AI-CAMP 교장 이후경입니다.\n\n${enhanced}`;
+              enhanced = `안녕하세요! AI CAMP 교장 이후경입니다.\n\n${enhanced}`;
     }
     
     // 📞 연락처 자연스럽게 추가
@@ -378,7 +378,7 @@ class EnhancedLeeHukyungAI {
     
     // 🎨 감정 표현 및 친근함 추가
     if (complexity === 'simple' && !enhanced.includes('😊') && !enhanced.includes('🙋')) {
-      enhanced = enhanced.replace('안녕하세요! AI-CAMP 교장 이후경입니다.', '안녕하세요! AI-CAMP 교장 이후경입니다. 😊');
+              enhanced = enhanced.replace('안녕하세요! AI CAMP 교장 이후경입니다.', '안녕하세요! AI CAMP 교장 이후경입니다. 😊');
     }
     
     return enhanced;
@@ -418,14 +418,14 @@ class EnhancedLeeHukyungAI {
   static generateFallbackResponse(message: string, complexity: QuestionComplexity): string {
     switch (complexity) {
       case 'simple':
-        return `안녕하세요! AI-CAMP 교장 이후경입니다. 😊
+        return `안녕하세요! AI CAMP 교장 이후경입니다. 😊
 
 25년간 500개 이상 기업과 함께 성장해온 경영지도사로서 언제든 도움 드릴 준비가 되어 있어요.
 
 더 궁금한 점이 있으시면 언제든 말씀해 주세요!`;
 
       case 'consultation':
-        return `안녕하세요! AI-CAMP 교장 이후경 경영지도사입니다.
+        return `안녕하세요! AI CAMP 교장 이후경 경영지도사입니다.
 
 상담 문의해주셔서 감사합니다! 25년간 500개 이상 기업의 성장을 함께해온 경험으로 정확하고 실용적인 솔루션을 제공해드리겠습니다.
 

@@ -63,7 +63,7 @@ export default function DownloadsPage() {
               자료실
             </h1>
             <p className="text-xl text-gray-600">
-              AI-CAMP의 다양한 자료를 다운로드하실 수 있습니다.
+              AI CAMP의 다양한 자료를 다운로드하실 수 있습니다.
             </p>
           </div>
 

@@ -196,11 +196,11 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
   useEffect(() => {
     const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `안녕하세요! AI-CAMP 교장입니다.
+      content: `안녕하세요! AI CAMP 교장입니다.
 
-저는 28년간 수많은 기업과 함께 성장해온 이후경 AI-CAMP 교장의 노하우를 바탕으로 상담해드리고 있어요.
+저는 28년간 수많은 기업과 함께 성장해온 이후경 AI CAMP 교장의 노하우를 바탕으로 상담해드리고 있어요.
 
-실제 검증된 성과로 증명하는 AI-CAMP
+실제 검증된 성과로 증명하는 AI CAMP
 
 한국정밀기계 고객사와 함께 이뤄낸 놀라운 변화:
 - 생산성 42% 향상 (하루 100개 → 142개 생산)
@@ -426,8 +426,8 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                   />
                 </div>
                 <div>
-                                      <h2 className="text-xl font-bold">AI-CAMP 전문상담사</h2>
-                  <p className="text-sm text-gray-600">⭐ 이후경 AI-CAMP 교장 28년 노하우</p>
+                                      <h2 className="text-xl font-bold">AI CAMP 전문상담사</h2>
+                  <p className="text-sm text-gray-600">⭐ 이후경 AI CAMP 교장 28년 노하우</p>
                 </div>
               <div className="ml-auto flex items-center gap-2">
                 <Badge 
@@ -541,7 +541,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 <div className="w-8 h-8 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
                   <img 
                     src={getImagePath('/counselor-icon.svg')} 
-                    alt="AI-CAMP 교장" 
+                    alt="AI CAMP 교장" 
                     className="w-8 h-8 rounded-full"
                   />
                 </div>
@@ -618,7 +618,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputValue)}
-                                  placeholder="AI-CAMP AI 상담사에게 질문해보세요..."
+                                  placeholder="AI CAMP AI 상담사에게 질문해보세요..."
                 className="pr-12"
                 disabled={isTyping || connectionStatus === 'error'}
               />

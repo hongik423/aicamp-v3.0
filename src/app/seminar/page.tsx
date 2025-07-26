@@ -255,7 +255,7 @@ export default function SeminarPage() {
             {/* 메인 타이틀 */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                AI-CAMP
+                AI CAMP
               </span>
               <br />
               <span className="text-3xl md:text-4xl font-light text-white">세미나 영상</span>
@@ -535,7 +535,7 @@ export default function SeminarPage() {
           <div className="mb-8">
             <Youtube className="w-20 h-20 mx-auto mb-6 text-red-300" />
             <h2 className="text-4xl font-bold mb-4">
-                              AI-CAMP 유튜브 채널 구독하기
+                              AI CAMP 유튜브 채널 구독하기
             </h2>
             <p className="text-xl opacity-90 mb-8">
               새로운 세미나 영상과 실무 팁을 가장 빠르게 받아보세요

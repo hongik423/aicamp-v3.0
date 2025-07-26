@@ -316,7 +316,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
 
   // 폴백 응답 생성
   const generateFallbackResponse = (message: string): string => {
-    return `안녕하세요! AI-CAMP 교장 이후경입니다.
+    return `안녕하세요! AI CAMP 교장 이후경입니다.
 
 28년간 500개 이상 기업과 함께 일해온 경험을 바탕으로 답변드리겠습니다.
 

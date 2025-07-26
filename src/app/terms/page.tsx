@@ -15,7 +15,7 @@ export default function TermsPage() {
               이용약관
             </h1>
             <p className="text-xl text-gray-800 font-medium">
-              AI-CAMP 서비스 이용에 관한 약관입니다.
+              AI CAMP 서비스 이용에 관한 약관입니다.
             </p>
           </div>
 
@@ -24,7 +24,7 @@ export default function TermsPage() {
               <div className="prose max-w-none">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b-2 border-blue-500 pb-2">제1조 (목적)</h2>
                 <p className="text-gray-800 text-base leading-relaxed mb-8 font-medium">
-                  이 약관은 AI-CAMP(이하 "회사")가 제공하는 모든 서비스의 이용조건 및 절차, 회사와 회원간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
+                  이 약관은 AI CAMP(이하 "회사")가 제공하는 모든 서비스의 이용조건 및 절차, 회사와 회원간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
                 </p>
 
                 <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b-2 border-blue-500 pb-2">제2조 (정의)</h2>

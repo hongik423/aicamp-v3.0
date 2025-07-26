@@ -336,7 +336,7 @@ export default function Home() {
             </div>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight mb-6">
-              <span className="text-gray-900">AI-CAMP 교장과 바로 대화하기</span>
+              <span className="text-gray-900">AI CAMP 교장과 바로 대화하기</span>
             </h2>
             
             <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
@@ -390,7 +390,7 @@ export default function Home() {
                       {isConnecting ? (
                         <>
                           <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          AI-CAMP 교장 챗봇과 연결하기...
+                          AI CAMP 교장 챗봇과 연결하기...
                         </>
                       ) : (
                         <>
@@ -423,7 +423,7 @@ export default function Home() {
                             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                           </div>
                           <div className="flex-1 text-center">
-                            <span className="text-white/70 text-xs">AI-CAMP AI 상담 시스템</span>
+                            <span className="text-white/70 text-xs">AI CAMP AI 상담 시스템</span>
                           </div>
                         </div>
                         
@@ -438,7 +438,7 @@ export default function Home() {
                             {/* 실시간 대화 시뮬레이션 */}
                             <div className="space-y-3 max-w-md">
                               <div className="bg-white/10 dark:bg-aicamp-navy/30 backdrop-blur-sm rounded-2xl p-4 text-left">
-                                <p className="text-sm text-white/90">안녕하세요! AI-CAMP 교장입니다.</p>
+                                <p className="text-sm text-white/90">안녕하세요! AI CAMP 교장입니다.</p>
                               </div>
                               <div className="bg-blue-500/80 dark:bg-aicamp-teal/80 backdrop-blur-sm rounded-2xl p-4 text-right ml-8">
                                 <p className="text-sm text-white">우리 회사 매출 증대 방법을 알고 싶어요</p>
@@ -521,7 +521,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white">전문가 연결 및 후속 상담</h3>
                     <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                      필요시 이후경 AI-CAMP 교장 직접 상담 (010-9251-9743)
+                      필요시 이후경 AI CAMP 교장 직접 상담 (010-9251-9743)
                     </p>
                   </div>
                 </div>
@@ -676,7 +676,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      AI-CAMP 교장에게 바로 문의하기
+                      AI CAMP 교장에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
@@ -791,7 +791,7 @@ export default function Home() {
               <span>실시간 성과 지표</span>
             </h2>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
-              AI-CAMP와 함께한 기업들의 실제 성과를 확인하세요
+                              AI CAMP와 함께한 기업들의 실제 성과를 확인하세요
             </p>
           </div>
           
@@ -811,7 +811,7 @@ export default function Home() {
               <span>고객 성공 스토리</span>
             </h2>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
-              AI-CAMP를 선택한 기업들의 진솔한 경험담을 들어보세요
+                              AI CAMP를 선택한 기업들의 진솔한 경험담을 들어보세요
             </p>
           </div>
           
@@ -891,7 +891,7 @@ export default function Home() {
                 <span>단계별 맞춤 전략 설계</span>
               </h3>
               <p className="text-gray-600 mb-6">
-                귀하의 기업이 현재 어느 단계에 있든, AI-CAMP는 다음 성장을 위한 
+                귀하의 기업이 현재 어느 단계에 있든, AI CAMP는 다음 성장을 위한 
                 최적의 로드맵을 제시합니다
               </p>
               <Link href="/diagnosis">
@@ -1007,7 +1007,7 @@ export default function Home() {
             <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <Bot className="w-8 h-8 text-white animate-pulse" />
             </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">AI-CAMP 교장 챗봇과 연결하기...</h3>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">AI CAMP 교장 챗봇과 연결하기...</h3>
             <p className="text-gray-600 mb-4">잠시만 기다려 주세요</p>
             <div className="flex justify-center space-x-1">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>

@@ -53,7 +53,7 @@ export default function NoticesPage() {
               공지사항
             </h1>
             <p className="text-xl text-gray-600">
-              AI-CAMP의 최신 소식과 공지사항을 확인하세요.
+              AI CAMP의 최신 소식과 공지사항을 확인하세요.
             </p>
           </div>
 

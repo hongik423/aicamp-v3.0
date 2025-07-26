@@ -145,7 +145,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
 
 정부지원사업과 연계하면 컨설팅 비용의 80-100% 지원받을 수 있어요. 어떤 업종이신지, 현재 매출 규모가 어느 정도인지 알려주시면 더 구체적인 전략을 제시해드릴 수 있어요.`,
       
-      'AI': `안녕하세요, AI-CAMP 교장 이후경입니다! AI 도입에 관심 가져주셔서 정말 감사해요.
+      'AI': `안녕하세요, AI CAMP 교장 이후경입니다! AI 도입에 관심 가져주셔서 정말 감사해요.
 
 28년 컨설팅 경험을 통해 확신하는 건, AI가 단순한 도구가 아니라 정말 일터혁신의 게임 체인저라는 거예요. 제가 직접 200여 개 기업에 AI를 도입하면서 얻은 통찰이랑 최신 AI 검색 기술을 결합해서 답변드릴게요.
 
@@ -168,7 +168,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
     }
 
     // 기본 응답
-    return `안녕하세요! AI-CAMP 교장 이후경 경영지도사입니다.
+    return `안녕하세요! AI CAMP 교장 이후경 경영지도사입니다.
 
 25년간 현대그룹과 삼성생명에서 쌓은 대기업 실무 경험과 500개 기업을 직접 지도한 컨설팅 노하우에 최첨단 AI 검색 기술을 접목해서 "${userMessage}"에 대해 실질적이고 성과 중심적인 솔루션을 제공해드릴게요.
 
@@ -224,7 +224,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-              console.error('AI-CAMP Response Error:', error);
+              console.error('AI CAMP Response Error:', error);
       // 에러 발생시 폴백 응답
       const fallbackMessage: Message = {
         id: (Date.now() + 1).toString(),
