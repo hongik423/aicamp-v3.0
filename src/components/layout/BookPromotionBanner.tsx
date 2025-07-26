@@ -276,7 +276,7 @@ const BookPromotionBanner: React.FC = () => {
                                       {/* 책 표지 */}
                     <div className="relative w-48 h-60 sm:w-56 sm:h-72 lg:w-64 lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
                       <Link 
-                        href="/@n8n_1-20.pdf" 
+                        href="/n8n_1-20.pdf" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="block w-full h-full"
