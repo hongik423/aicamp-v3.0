@@ -347,35 +347,111 @@ export default function Home() {
               <span>🔥 신간 출간! 국내최초 한국어판</span>
             </div>
             
-            {/* 책표지와 제목을 나란히 배치 */}
-            <div className="flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 mb-6 sm:mb-8">
-              {/* 좌측: 책표지 이미지 */}
-              <div className="flex-shrink-0 order-2 lg:order-1">
-                <div className="relative w-32 h-40 sm:w-40 sm:h-50 lg:w-48 lg:h-60 rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 group">
-                  <Image
-                    src="/images/book_1_cover.JPG"
-                    alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신 책표지"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    priority
-                    className="group-hover:brightness-110 transition-all duration-300"
-                  />
-                  {/* 호버 효과 오버레이 */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* 제목과 설명을 먼저 표시 */}
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+                <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                  AI 자동화의 끝판왕!
+                </span>
+              </h2>
+              
+              <p className="text-lg sm:text-xl md:text-2xl text-blue-100 font-semibold mb-4">
+                n8n을 활용한 업무혁신
+              </p>
+            </div>
+
+            {/* 책표지와 상세 내용을 아래에 배치 */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-center gap-8 sm:gap-12 lg:gap-16 mb-6 sm:mb-8">
+              {/* 좌측: 더 큰 책표지 이미지 */}
+              <div className="flex-shrink-0 mx-auto lg:mx-0">
+                <Link 
+                  href="/n8n_1-20.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block cursor-pointer"
+                >
+                  <div className="relative w-48 h-60 sm:w-56 sm:h-72 lg:w-64 lg:h-80 xl:w-72 xl:h-90 rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 group">
+                    <Image
+                      src="/images/book_1_cover.JPG"
+                      alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신 책표지"
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      priority
+                      className="group-hover:brightness-110 transition-all duration-300"
+                    />
+                    {/* 호버 효과 오버레이 */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    {/* 책표지 위 "클릭하여 미리보기" 텍스트 */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2">
+                        <p className="text-white text-sm font-medium">📖 PDF 다운로드</p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                
+                {/* 책표지 아래 간단한 정보 */}
+                <div className="text-center mt-4 lg:text-left">
+                  <p className="text-blue-200 text-sm font-medium">📘 국내최초 한국어판</p>
+                  <p className="text-white text-sm">부크크(BookK) 출간</p>
                 </div>
               </div>
               
-              {/* 우측: 제목과 설명 */}
-              <div className="text-center lg:text-left order-1 lg:order-2">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                  <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                    AI 자동화의 끝판왕!
-                  </span>
-                </h2>
+              {/* 우측: 책 소개 내용 */}
+              <div className="flex-1 text-center lg:text-left space-y-4 sm:space-y-6 max-w-2xl">
+                <div>
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-4 leading-tight">
+                    업무 자동화의 새로운 패러다임,<br />
+                    <span className="text-yellow-300">n8n으로 혁신하세요!</span>
+                  </h3>
+                  
+                  <p className="text-base sm:text-lg text-blue-100 leading-relaxed mb-6">
+                    <strong className="text-yellow-300">독일에서 개발된 글로벌 자동화 프로그램 n8n</strong>을 
+                    국내 중소기업과 스타트업이 <strong className="text-green-200">실제 업무에 바로 적용</strong>할 수 있도록, 
+                    우리나라의 비즈니스 문화와 시스템에 맞는 <strong className="text-purple-200">실무 중심의 사례와 방법론</strong>을 담은 
+                    국내 최초 한글판 가이드북입니다.
+                  </p>
+                </div>
                 
-                <p className="text-lg sm:text-xl md:text-2xl text-blue-100 font-semibold mb-4">
-                  n8n을 활용한 업무혁신
-                </p>
+                {/* 핵심 특징 - 간결하게 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  {[
+                    { icon: "🏆", title: "국내 최초 한글판", desc: "해외 자료 의존 탈피" },
+                    { icon: "⚡", title: "실무 즉시 적용", desc: "중소기업 환경 최적화" },
+                    { icon: "🤖", title: "AI Agent 구축", desc: "초간단부터 심화까지" },
+                    { icon: "👨‍💼", title: "전문가 3인 집필", desc: "박사·경영지도사·CMC" }
+                  ].map((feature, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span className="text-lg flex-shrink-0">{feature.icon}</span>
+                      <div className="text-left">
+                        <h5 className="font-bold text-white text-sm leading-tight">{feature.title}</h5>
+                        <p className="text-xs text-blue-200 leading-relaxed mt-1">{feature.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* CTA 버튼들 - 더 눈에 띄게 */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start pt-4">
+                  <a 
+                    href="https://bookk.co.kr/bookStore/687ca81fda03645ce0aa85e0"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-base rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <span className="mr-2">📖</span>
+                    지금 바로 구매하기
+                  </a>
+                  
+                  <a 
+                    href="/services/ai-productivity"
+                    className="inline-flex items-center justify-center px-6 py-3 border-2 border-white text-white font-bold text-base rounded-xl transition-all duration-200 transform hover:scale-105 hover:bg-white hover:text-gray-900"
+                  >
+                    <span className="mr-2">⚡</span>
+                    AI 업무혁신 상담
+                  </a>
+                </div>
               </div>
             </div>
             
