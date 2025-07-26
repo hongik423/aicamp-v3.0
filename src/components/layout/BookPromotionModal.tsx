@@ -131,14 +131,27 @@ const BookPromotionModal: React.FC = () => {
               </div>
 
               <div className="relative z-10 text-center">
-                {/* 책 커버 시뮬레이션 - PDF 링크 추가 */}
+                {/* 책 커버 시뮬레이션 - PDF 링크 추가 및 모바일 터치 최적화 */}
                 <div 
                   onClick={(e) => {
                     e.stopPropagation();
                     // PDF를 새 탭에서 열기
                     window.open('/n8n_1-20.pdf', '_blank', 'noopener,noreferrer');
                   }}
-                  className="cursor-pointer"
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                    // 모바일 터치 피드백
+                    if (navigator.vibrate) {
+                      navigator.vibrate(40);
+                    }
+                  }}
+                  onTouchEnd={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    // PDF를 새 탭에서 열기
+                    window.open('/n8n_1-20.pdf', '_blank', 'noopener,noreferrer');
+                  }}
+                  className="cursor-pointer touch-manipulation"
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
@@ -148,12 +161,13 @@ const BookPromotionModal: React.FC = () => {
                     }
                   }}
                   aria-label="n8n 책자 PDF 다운로드"
+                  style={{ touchAction: 'manipulation' }}
                 >
                   <motion.div
                     initial={{ rotateY: -15, scale: 0.9 }}
                     animate={{ rotateY: 0, scale: 1 }}
                     transition={{ delay: 0.3, duration: 0.8 }}
-                    className="w-80 h-96 mx-auto mb-6 bg-gradient-to-br from-gray-800 to-black rounded-2xl shadow-2xl relative overflow-hidden transform perspective-1000 hover:scale-105 transition-all duration-300 group"
+                    className="w-80 h-96 mx-auto mb-6 bg-gradient-to-br from-gray-800 to-black rounded-2xl shadow-2xl relative overflow-hidden transform perspective-1000 hover:scale-105 active:scale-95 transition-all duration-300 group"
                     style={{ 
                       boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1)' 
                     }}
@@ -208,12 +222,12 @@ const BookPromotionModal: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* PDF 미리보기 힌트 추가 */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/50 backdrop-blur-sm">
+                  {/* PDF 미리보기 힌트 추가 및 모바일 개선 */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300 bg-black/50 backdrop-blur-sm">
                     <div className="text-center text-white">
                       <div className="text-2xl mb-2">📖</div>
                       <div className="text-sm font-bold">PDF 미리보기</div>
-                      <div className="text-xs opacity-80">클릭하여 내용 확인</div>
+                      <div className="text-xs opacity-80">터치하여 내용 확인</div>
                     </div>
                   </div>
                 </motion.div>
@@ -424,21 +438,39 @@ const BookPromotionModal: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                      {/* 책 구매 버튼 - PDF 링크로 수정 */}
+                      {/* 책 구매 버튼 - PDF 링크로 수정 및 모바일 터치 최적화 */}
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
                           window.open('/n8n_1-20.pdf', '_blank', 'noopener,noreferrer');
                         }}
-                        className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                        onTouchStart={(e) => {
+                          e.stopPropagation();
+                          // 모바일 터치 피드백
+                          if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                          }
+                        }}
+                        className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 active:from-blue-700 active:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center gap-2 touch-manipulation"
+                        style={{ touchAction: 'manipulation' }}
                       >
                         <BookOpen className="w-5 h-5" />
                         <span>책자 PDF 다운로드</span>
                       </button>
                       
-                      {/* AI CAMP 상담하기 버튼 - 상담신청으로 연결 */}
+                      {/* AI CAMP 상담하기 버튼 - 상담신청으로 연결 및 모바일 터치 최적화 */}
                       <Link href="/consultation" className="flex-1">
-                        <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
+                        <button 
+                          className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 active:from-purple-700 active:to-purple-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center gap-2 touch-manipulation"
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            // 모바일 터치 피드백
+                            if (navigator.vibrate) {
+                              navigator.vibrate(50);
+                            }
+                          }}
+                          style={{ touchAction: 'manipulation' }}
+                        >
                           <MessageSquare className="w-5 h-5" />
                           <span>상담신청 하기</span>
                         </button>

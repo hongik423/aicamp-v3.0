@@ -254,15 +254,27 @@ const BookPromotionBanner: React.FC = () => {
                                          {/* 책표지 섹션 */}
                      <div className="relative bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-6 flex items-center justify-center">
                        <div className="text-center">
-                         {/* 책표지 이미지 - PDF 링크 수정 */}
+                         {/* 책표지 이미지 - PDF 링크 수정 및 모바일 터치 개선 */}
                          <div 
                            onClick={(e) => {
                              e.stopPropagation();
                              // PDF를 새 탭에서 열기
                              window.open('/n8n_1-20.pdf', '_blank', 'noopener,noreferrer');
                            }}
-                           onTouchStart={(e) => e.stopPropagation()}
-                           className="block cursor-pointer"
+                           onTouchStart={(e) => {
+                             e.stopPropagation();
+                             // 모바일 터치 피드백
+                             if (navigator.vibrate) {
+                               navigator.vibrate(30);
+                             }
+                           }}
+                           onTouchEnd={(e) => {
+                             e.stopPropagation();
+                             e.preventDefault();
+                             // PDF를 새 탭에서 열기
+                             window.open('/n8n_1-20.pdf', '_blank', 'noopener,noreferrer');
+                           }}
+                           className="block cursor-pointer touch-manipulation"
                            role="button"
                            tabIndex={0}
                            onKeyDown={(e) => {
@@ -272,12 +284,13 @@ const BookPromotionBanner: React.FC = () => {
                              }
                            }}
                            aria-label="n8n 책자 PDF 다운로드"
+                           style={{ touchAction: 'manipulation' }}
                          >
                            <motion.div
                              initial={{ rotateY: -20, scale: 0.8 }}
                              animate={{ rotateY: 0, scale: 1 }}
                              transition={{ delay: 1, duration: 1 }}
-                             className="relative w-64 h-80 mx-auto mb-6 rounded-2xl shadow-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 cursor-pointer group border-2 border-white/20"
+                             className="relative w-64 h-80 mx-auto mb-6 rounded-2xl shadow-2xl overflow-hidden transform hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group border-2 border-white/20"
                            >
                           <img 
                             src="/images/book_1_cover.JPG"
@@ -306,12 +319,12 @@ const BookPromotionBanner: React.FC = () => {
                           {/* 글로우 효과 */}
                           <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-transparent to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                           
-                          {/* PDF 미리보기 힌트 */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/50 backdrop-blur-sm">
+                          {/* PDF 미리보기 힌트 - 모바일 개선 */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300 bg-black/50 backdrop-blur-sm">
                             <div className="text-center text-white">
                               <div className="text-2xl mb-2">📖</div>
                               <div className="text-sm font-bold">PDF 미리보기</div>
-                              <div className="text-xs opacity-80">클릭하여 내용 확인</div>
+                              <div className="text-xs opacity-80">터치하여 내용 확인</div>
                             </div>
                           </div>
                           
@@ -443,17 +456,24 @@ const BookPromotionBanner: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* CTA 버튼 - 상담신청으로 연결 수정 */}
+                        {/* CTA 버튼 - 상담신청으로 연결 수정 및 모바일 터치 개선 */}
                         <div className="text-center pt-2">
                           <Link href="/consultation" className="inline-block">
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onMouseDown={(e) => e.stopPropagation()}
-                              onTouchStart={(e) => e.stopPropagation()}
-                              className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-base relative overflow-hidden group"
+                              onTouchStart={(e) => {
+                                e.stopPropagation();
+                                // 모바일 터치 피드백
+                                if (navigator.vibrate) {
+                                  navigator.vibrate(50);
+                                }
+                              }}
+                              className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl active:shadow-md transition-all duration-300 text-base relative overflow-hidden group touch-manipulation"
+                              style={{ touchAction: 'manipulation' }}
                             >
-                              <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                              <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300"></span>
                               <span className="relative flex items-center gap-2">
                                 <span className="animate-pulse">🔥</span>
                                 <span>지금 바로 상담신청</span>
@@ -512,14 +532,20 @@ const BookPromotionBanner: React.FC = () => {
                         </div>
 
                         <div className="space-y-3">
-                          {/* 책+AI CAMP 패키지 버튼 - 상담신청으로 연결 */}
+                          {/* 책+AI CAMP 패키지 버튼 - 상담신청으로 연결 및 모바일 터치 개선 */}
                           <Link 
                             href="/consultation"
-                            className="block w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-center text-sm relative overflow-hidden group"
-                            onTouchStart={(e) => e.stopPropagation()}
+                            className="block w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl active:shadow-md text-center text-sm relative overflow-hidden group touch-manipulation"
+                            onTouchStart={(e) => {
+                              e.stopPropagation();
+                              if (navigator.vibrate) {
+                                navigator.vibrate(40);
+                              }
+                            }}
                             onMouseDown={(e) => e.stopPropagation()}
+                            style={{ touchAction: 'manipulation' }}
                           >
-                            <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                            <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200"></span>
                             <span className="relative flex items-center justify-center gap-2">
                               📖
                               <span>책 + AI CAMP 패키지 신청</span>
@@ -527,14 +553,20 @@ const BookPromotionBanner: React.FC = () => {
                             </span>
                           </Link>
                           
-                          {/* 무료AI 진단 버튼 - AI 무료진단으로 연결 */}
+                          {/* 무료AI 진단 버튼 - AI 무료진단으로 연결 및 모바일 터치 개선 */}
                           <Link href="/diagnosis" className="block">
                             <button 
-                              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm relative overflow-hidden group"
-                              onTouchStart={(e) => e.stopPropagation()}
+                              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl active:shadow-md text-sm relative overflow-hidden group touch-manipulation"
+                              onTouchStart={(e) => {
+                                e.stopPropagation();
+                                if (navigator.vibrate) {
+                                  navigator.vibrate(40);
+                                }
+                              }}
                               onMouseDown={(e) => e.stopPropagation()}
+                              style={{ touchAction: 'manipulation' }}
                             >
-                              <span className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                              <span className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200"></span>
                               <span className="relative flex items-center justify-center gap-2">
                                 🎯
                                 <span>무료 AI 진단 먼저 받기</span>
@@ -556,7 +588,7 @@ const BookPromotionBanner: React.FC = () => {
               </div>
             </>
           ) : (
-            /* 미니멈화된 플로팅 버튼 - 책자 배너 복귀 기능 수정 */
+            /* 미니멈화된 플로팅 버튼 - 책자 배너 복귀 기능 및 모바일 터치 개선 */
             <motion.button
               initial={{ scale: 0, x: 100 }}
               animate={{ scale: 1, x: 0 }}
@@ -567,12 +599,20 @@ const BookPromotionBanner: React.FC = () => {
                 setIsMinimized(false);
                 setIsVisible(true);
               }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                // 모바일 터치 피드백
+                if (navigator.vibrate) {
+                  navigator.vibrate(50);
+                }
+              }}
               onTouchEnd={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 setIsMinimized(false);
                 setIsVisible(true);
               }}
-              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-2xl z-[99999] flex items-center justify-center group touch-manipulation active:scale-75"
+              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-16 h-16 sm:w-16 sm:h-16 md:w-18 md:h-18 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-2xl z-[99999] flex items-center justify-center group touch-manipulation active:scale-75"
               style={{ 
                 isolation: 'isolate',
                 touchAction: 'manipulation' // 더블 탭 줌 방지
@@ -584,17 +624,17 @@ const BookPromotionBanner: React.FC = () => {
                 animate={{ rotate: [0, 15, -15, 0] }}
                 transition={{ duration: 2.5, repeat: Infinity }}
               >
-                <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                <BookOpen className="w-7 h-7 sm:w-7 sm:h-7 md:w-8 md:h-8" />
               </motion.div>
               
-              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-red-500 text-white text-[8px] sm:text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-red-500 text-white text-xs sm:text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                 📖
               </div>
               
               <div className="absolute right-full mr-2 sm:mr-4 top-1/2 transform -translate-y-1/2 bg-black/90 text-white px-2 py-1 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none hidden sm:block">
                 AI 자동화 책자 배너 보기
                 <br />
-                <span className="text-xs opacity-75">클릭하여 다시 열기</span>
+                <span className="text-xs opacity-75">터치하여 다시 열기</span>
               </div>
             </motion.button>
           )}
