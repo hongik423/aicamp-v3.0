@@ -411,7 +411,7 @@ export const generateAIManual = () => {
   const htmlContent = `
     <div class="header">
       <h1>🤖 AI 활용 실무 매뉴얼</h1>
-      <div class="company">M-CENTER 경영지도센터</div>
+      <div class="company">AI CAMP 경영지도센터</div>
       <div class="contact">Tel: 010-9251-9743 | Email: hongik423@gmail.com</div>
     </div>
 
@@ -595,7 +595,7 @@ export const generateAIManual = () => {
     </div>
   `;
   
-  generatePdfFromHtml(htmlContent, 'M-CENTER_AI활용매뉴얼');
+      generatePdfFromHtml(htmlContent, 'AI_CAMP_AI활용매뉴얼');
 };
 
 // 3. 세금계산기 사용매뉴얼 PDF 생성
@@ -603,7 +603,7 @@ export const generateTaxCalculatorManual = () => {
   const htmlContent = `
     <div class="header">
       <h1>💰 세금계산기 사용 매뉴얼</h1>
-      <div class="company">M-CENTER 경영지도센터</div>
+      <div class="company">AI CAMP 경영지도센터</div>
       <div class="contact">Tel: 010-9251-9743 | Email: hongik423@gmail.com</div>
     </div>
 
@@ -622,7 +622,7 @@ export const generateTaxCalculatorManual = () => {
     <div class="section">
       <h2 class="section-title">1. 🎯 세금계산기 개요</h2>
       <div class="content">
-        <p><strong>M-CENTER 세금계산기</strong>는 기업과 개인이 각종 세금을 쉽고 정확하게 계산할 수 있도록 개발된 전문 도구입니다.</p>
+        <p><strong>AI CAMP 세금계산기</strong>는 기업과 개인이 각종 세금을 쉽고 정확하게 계산할 수 있도록 개발된 전문 도구입니다.</p>
         
         <div class="highlight">
           <h4>✨ 주요 특징</h4>
@@ -773,7 +773,7 @@ export const generateTaxCalculatorManual = () => {
           <h4>🔥 전문가 상담</h4>
           <p><strong>전화:</strong> 010-9251-9743</p>
           <p><strong>이메일:</strong> hongik423@gmail.com</p>
-          <p><strong>웹사이트:</strong> https://m-center-landingpage.vercel.app</p>
+          <p><strong>웹사이트:</strong> https://aicamp-v3.vercel.app</p>
           <p><strong>상담시간:</strong> 평일 09:00-18:00</p>
         </div>
         
@@ -789,5 +789,5 @@ export const generateTaxCalculatorManual = () => {
     </div>
   `;
   
-  generatePdfFromHtml(htmlContent, 'M-CENTER_세금계산기_사용매뉴얼');
+      generatePdfFromHtml(htmlContent, 'AI_CAMP_세금계산기_사용매뉴얼');
 }; 

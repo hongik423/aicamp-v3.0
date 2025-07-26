@@ -33,7 +33,7 @@ export class OptimizedReportGenerator {
         this.generateQuickActionPlan(diagnosis),
         this.generateQuickContact(diagnosis)
       ],
-      footer: `생성일: ${currentDate} | M-Center 이후경 경영지도사 전문 진단시스템`
+      footer: `생성일: ${currentDate} | AI CAMP 이후경 경영지도사 전문 진단시스템`
     };
   }
 
@@ -381,7 +381,7 @@ export class ReportGenerator {
         this.generateImplementationPlan(results),
         this.generateAppendix(diagnosisData)
       ],
-      footer: `생성일: ${currentDate} | M-Center 이후경 경영지도사 진단시스템`
+      footer: `생성일: ${currentDate} | AI CAMP 이후경 경영지도사 진단시스템`
     };
   }
 

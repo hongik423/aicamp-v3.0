@@ -1,6 +1,6 @@
 /**
  * 통합 구글시트 연동 서비스 (Apps Script 호환 버전)
- * M-CENTER Apps Script와 완전 호환되는 통합 데이터 처리 시스템
+ * AI CAMP Apps Script와 완전 호환되는 통합 데이터 처리 시스템
  */
 
 // 타입 정의

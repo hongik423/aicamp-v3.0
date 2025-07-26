@@ -958,7 +958,7 @@ function generateSimplifiedDiagnosis(data: SimplifiedDiagnosisRequest) {
     opportunities: [
       ...industryData.opportunities,
       '정부 지원사업 및 정책자금 활용',
-      'M-CENTER 전문 서비스를 통한 경쟁력 강화',
+              'AI CAMP 전문 서비스를 통한 경쟁력 강화',
       `${industryDisplayName} 특화 트렌드 적극 활용`
     ],
     threats: [

@@ -84,7 +84,7 @@ export class PremiumReportGenerator {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M-CENTER AI 진단보고서 - ${data.companyName}</title>
+    <title>AI CAMP AI 진단보고서 - ${data.companyName}</title>
     <style>
         ${this.generateEnhancedCSS()}
     </style>
@@ -1188,7 +1188,7 @@ export class PremiumReportGenerator {
                 </div>
             </div>
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); opacity: 0.8;">
-                <p>© 2025 M-CENTER 경영지도센터 | AI 진단 시스템 v2.0</p>
+                <p>© 2025 AI CAMP 경영지도센터 | AI 진단 시스템 v2.0</p>
                 <p style="font-size: 0.9rem; margin-top: 5px;">
                     🎯 첫 상담 완전 무료 | ⚡ 즉시 예약 가능 | 🏆 95% 고객 만족도
                 </p>
@@ -1522,7 +1522,7 @@ export class PremiumReportGenerator {
                 </div>
                 <div class="mitigation-strategies">
                     <h4>🛡️ 위험 완화 전략</h4>
-                    <p>M-CENTER의 전문 서비스를 통해 주요 위험 요소들을 체계적으로 관리하고 예방할 수 있습니다.</p>
+                    <p>AI CAMP의 전문 서비스를 통해 주요 위험 요소들을 체계적으로 관리하고 예방할 수 있습니다.</p>
                 </div>
             </div>
         </div>
@@ -1593,7 +1593,7 @@ export class PremiumReportGenerator {
 <body>
     <div class="header">
         <h1>${data.companyName} AI 진단결과</h1>
-        <p>M-CENTER 경영지도센터</p>
+        <p>AI CAMP 경영지도센터</p>
     </div>
     <div class="content">
         <div class="score">${data.totalScore}점</div>

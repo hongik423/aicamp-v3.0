@@ -223,7 +223,7 @@ const LEE_HUKYUNG_RESPONSES = {
     responses: [
       `세금계산기에 대해 문의해주셨네요.
 
-      저희 M-CENTER에서는 11개 전문 세금계산기를 제공하고 있습니다. 2024년 최신 세법을 완벽하게 반영했어요.
+      저희 AI CAMP에서는 11개 전문 세금계산기를 제공하고 있습니다. 2024년 최신 세법을 완벽하게 반영했어요.
       
       🧮 제공 계산기:
       • 종합소득세 계산기
@@ -470,7 +470,7 @@ function generateDirectResponse(message: string): { response: string; buttons?: 
       
       25년간 500개 이상 기업의 성장을 함께해온 경영지도사로서 상담해드리겠습니다.
       
-      🎯 M-CENTER 주요 서비스:
+      🎯 AI CAMP 주요 서비스:
       • BM ZEN 사업분석 (신규사업 성공률 95%)
       • AI 생산성향상 (20-99인 기업 100% 무료)
       • 정책자금 확보 (5억원 지원)

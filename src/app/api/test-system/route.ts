@@ -57,7 +57,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: 'M-CENTER 시스템 상태 확인 완료',
+      message: 'AI CAMP 시스템 상태 확인 완료',
       data: systemStatus
     });
 
