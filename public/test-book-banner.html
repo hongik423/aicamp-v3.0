@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Promotion Banner 반응형 테스트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        .test-title {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 8px;
+        }
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .device-frame {
+            border: 8px solid #374151;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 667px;
+            max-width: 100%;
+        }
+        .tablet-frame {
+            width: 768px;
+            height: 1024px;
+            max-width: 100%;
+        }
+        .desktop-frame {
+            width: 1440px;
+            height: 900px;
+            max-width: 100%;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 100%;
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .warning-title {
+            color: #92400e;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .warning-text {
+            color: #78350f;
+            font-size: 14px;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 8px;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #10b981;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #1e293b; margin-bottom: 40px;">
+            📚 Book Promotion Banner 반응형 테스트
+        </h1>
+
+        <div class="warning">
+            <div class="warning-title">⚠️ 테스트 가이드</div>
+            <div class="warning-text">
+                이 페이지는 BookPromotionBanner 컴포넌트의 반응형 디자인을 테스트하기 위한 페이지입니다.<br>
+                실제 테스트는 Next.js 개발 서버에서 /test-book-banner 경로로 확인하세요.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 기본 기능 테스트</div>
+            <div class="checklist">
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>3초 후 자동 등장</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>ESC 키로 닫기</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>배경 클릭으로 닫기</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>z-index 10000 최상위 표시</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎨 애니메이션 테스트</div>
+            <div class="checklist">
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>3D 플로팅 애니메이션 (scale, rotateY, rotateX)</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>호버 시 3D 회전 효과</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>글로우 효과 (그라데이션 blur)</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>파티클 애니메이션 (8개 황금 파티클)</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>부유하는 아이콘 (Star, Sparkles)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📱 반응형 디자인 테스트</div>
+            <p>다음 해상도에서 테스트해보세요:</p>
+            <div class="checklist">
+                <div class="check-item">
+                    <div class="check-icon">📱</div>
+                    <span>모바일: 375px × 667px (iPhone SE)</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">📱</div>
+                    <span>모바일: 414px × 896px (iPhone 11 Pro)</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">📟</div>
+                    <span>태블릿: 768px × 1024px (iPad)</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">💻</div>
+                    <span>데스크톱: 1440px × 900px</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">♿ 접근성 테스트</div>
+            <div class="checklist">
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>aria-modal="true" 모달 속성</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>aria-labelledby 타이틀 참조</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>aria-describedby 설명 참조</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>키보드 포커스 표시 (focus:ring)</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>스크린리더용 aria-label</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>배경 스크롤 방지</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 콘텐츠 검증</div>
+            <div class="checklist">
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>혜택 텍스트: "무료 진단+ AI CAMP 교육비 20% 할인"</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>한정 텍스트: "출간 기념 할인 - 30일 한정"</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>책 구매하기 버튼 링크 동작</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>AI CAMP 시작하기 버튼 링크 동작</span>
+                </div>
+                <div class="check-item">
+                    <div class="check-icon">✓</div>
+                    <span>이미지 로드 실패 시 대체 콘텐츠</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="btn" onclick="window.open('/test-book-banner', '_blank')">
+                📱 Next.js 테스트 페이지 열기
+            </button>
+            <button class="btn btn-success" onclick="window.open('/', '_blank')">
+                🏠 메인 페이지에서 실제 테스트
+            </button>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #f1f5f9; border-radius: 12px; text-align: center;">
+            <p style="color: #475569; margin: 0;">
+                💡 <strong>테스트 팁:</strong> 브라우저 개발자 도구의 Device Mode를 사용하여 다양한 화면 크기에서 테스트해보세요.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 테스트 결과를 콘솔에 로그
+        console.log('📚 Book Promotion Banner Test Page Loaded');
+        console.log('✅ All test cases are ready for manual verification');
+        
+        // 키보드 단축키 안내
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                alert('📋 테스트 단축키:\n\n' +
+                      '• F1: 이 도움말 표시\n' +
+                      '• Ctrl+1: 테스트 페이지 열기\n' +
+                      '• Ctrl+2: 메인 페이지 열기');
+            } else if (e.ctrlKey && e.key === '1') {
+                e.preventDefault();
+                window.open('/test-book-banner', '_blank');
+            } else if (e.ctrlKey && e.key === '2') {
+                e.preventDefault();
+                window.open('/', '_blank');
+            }
+        });
+    </script>
+</body>
+</html> 
