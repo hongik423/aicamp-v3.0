@@ -210,8 +210,8 @@ const Header = () => {
           ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200/20' 
           : 'bg-white/95 backdrop-blur-xl'
       }`}>
-        <div className="w-full">
-          <nav className="flex items-center justify-between min-h-[44px] px-1 sm:px-2 lg:px-3 xl:px-4 2xl:px-6">
+        <div className="w-full overflow-x-auto scrollbar-hide">
+          <nav className="flex items-center min-h-[44px] px-1 sm:px-2 lg:px-3 xl:px-4 2xl:px-6 min-w-max">
             
             {/* 로고 - 왼쪽 고정 */}
             <Link 
