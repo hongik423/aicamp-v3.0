@@ -80,21 +80,22 @@ const BookPromotionBanner: React.FC = () => {
                 <div className="p-8 flex flex-col justify-center">
                   <CardHeader className="p-0 mb-4">
                     <CardTitle className="text-3xl font-extrabold text-gray-800 leading-tight">
-                      AI 자동화, n8n으로 시작하세요!
+                      <span className="text-blue-600">n8n 자동화</span>로 실무를 혁신하고, <br />
+                      <span className="text-green-600">AI Camp</span>에서 전문가로 거듭나세요!
                     </CardTitle>
-                    <CardDescription className="text-lg text-gray-600 mt-2">
-                      AI CAMP의 교육과정과 n8n 자동화 워크플로우를 결합하여 비즈니스 효율을 극대화하세요.
+                    <CardDescription className="text-lg text-gray-600 mt-3">
+                      단순 반복 업무는 이제 그만! 코딩 없이 가능한 n8n 워크플로우 자동화 기술을 배우고, AI Camp의 체계적인 교육을 통해 비즈니스 가치를 창출하는 핵심 인재가 될 수 있습니다.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-0 space-y-6">
                     <ul className="space-y-3 text-gray-700">
-                      <li className="flex items-center">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                        <span>코딩 없이 만드는 강력한 자동화 워크플로우</span>
+                      <li className="flex items-start">
+                        <CheckCircle className="w-6 h-6 text-blue-500 mr-3 mt-1 flex-shrink-0" />
+                        <span><strong>'n8n 워크플로우' 책:</strong> 지금 바로 적용 가능한 실무 자동화 스킬을 습득합니다.</span>
                       </li>
-                      <li className="flex items-center">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                        <span>AI CAMP 전문가의 체계적인 교육 지원</span>
+                      <li className="flex items-start">
+                        <CheckCircle className="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0" />
+                        <span><strong>'AI Camp' 교육:</strong> 자동화 기술을 넘어, AI 비즈니스 전략과 기획 역량을 완성합니다.</span>
                       </li>
                     </ul>
                     <div className="space-y-4 pt-4">
