@@ -564,7 +564,7 @@ export default function CenterLeaderPage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">주요 경력 타임라인</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">이후경 교장의 주요경력 타임라인</h2>
             <p className="text-xl text-gray-600">28년간의 전문성 축적 과정</p>
           </div>
           
