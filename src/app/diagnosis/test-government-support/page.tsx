@@ -111,7 +111,7 @@ export default function TestGovernmentSupportPage() {
           🏛️ 정책자금 활용 서비스 추천 시스템 테스트
         </h1>
         <p className="text-xl text-gray-600">
-          경영지도센터 6개 서비스영역 중 가장 적합한 1개 추천 엔진 테스트
+                      AI CAMP 6개 서비스영역 중 가장 적합한 1개 추천 엔진 테스트
         </p>
       </div>
 

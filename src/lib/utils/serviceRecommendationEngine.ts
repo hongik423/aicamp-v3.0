@@ -1,5 +1,5 @@
 // 🏛️ 정책자금 및 정부지원 활용 서비스 추천 엔진
-// 경영지도센터 6개 서비스영역 중 가장 적합한 1개 추천 시스템
+// AI CAMP 6개 서비스영역 중 가장 적합한 1개 추천 시스템
 
 export interface DiagnosisProcessRequest {
   companyName: string;
@@ -16,7 +16,7 @@ export interface DiagnosisProcessRequest {
   privacyConsent: boolean;
 }
 
-// 경영지도센터 6개 서비스영역 정의
+  // AI CAMP 6개 서비스영역 정의
 export interface MCenterService {
   id: string;
   name: string;
@@ -540,7 +540,7 @@ export class ServiceRecommendationEngine {
       phase2: {
         period: '11-30일 (핵심 과제 - 사용자 요구사항)',
         tasks: [
-          `🎯 경영지도센터 6개 서비스영역 중 ${service.name} 1개 최종 선택`,
+          `🎯 AI CAMP 6개 서비스영역 중 ${service.name} 1개 최종 선택`,
           '선택된 서비스에 대한 구체적 실행계획 수립',
           '정부지원 신청서 작성 및 제출',
           '프로젝트 킥오프 및 본격 실행 시작'
@@ -691,7 +691,7 @@ export class GovernmentSupportReportGenerator {
 - **주요 고민**: ${data.mainConcerns}
 - **기대 효과**: ${data.expectedBenefits}
 
-## 🎯 **경영지도센터 6개 서비스영역 중 최적 추천**
+## 🎯 **AI CAMP 6개 서비스영역 중 최적 추천**
 
 ### 🥇 **1순위 추천: ${serviceName}**
 

@@ -14,7 +14,7 @@ export default function AboutPage() {
           {/* 회사 소개 헤더 */}
           <div className="text-center mb-16">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              기업의별 경영지도센터
+                              AI CAMP
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Business Model Zen으로 기업의 5단계 성장을 완성하는 

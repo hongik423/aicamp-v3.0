@@ -411,7 +411,7 @@ export const generateAIManual = () => {
   const htmlContent = `
     <div class="header">
       <h1>🤖 AI 활용 실무 매뉴얼</h1>
-      <div class="company">AI CAMP 경영지도센터</div>
+      <div class="company">AI CAMP</div>
       <div class="contact">Tel: 010-9251-9743 | Email: hongik423@gmail.com</div>
     </div>
 
@@ -603,7 +603,7 @@ export const generateTaxCalculatorManual = () => {
   const htmlContent = `
     <div class="header">
       <h1>💰 세금계산기 사용 매뉴얼</h1>
-      <div class="company">AI CAMP 경영지도센터</div>
+      <div class="company">AI CAMP</div>
       <div class="contact">Tel: 010-9251-9743 | Email: hongik423@gmail.com</div>
     </div>
 

@@ -841,7 +841,7 @@ export default function WebsitePage() {
             </div>
             
             <div className="text-center">
-              <p className="text-purple-200 mb-2">전문가 직접 상담 - 경영지도센터 디지털혁신센터</p>
+              <p className="text-purple-200 mb-2">전문가 직접 상담 - AI CAMP 디지털혁신센터</p>
               <div className="flex items-center justify-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />

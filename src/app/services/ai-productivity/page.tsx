@@ -113,7 +113,7 @@ export default function AIProductivityPage() {
     },
     {
       title: '전문 컨설턴트 지원',
-      description: '경영지도센터 전문 컨설턴트의 현장 방문 지원',
+              description: 'AI CAMP 전문 컨설턴트의 현장 방문 지원',
       icon: Target
     }
   ];
@@ -684,7 +684,7 @@ export default function AIProductivityPage() {
                     <CardContent className="p-0">
                       <div className="space-y-3">
                         <div className="bg-white p-3 rounded-lg">
-                          <h4 className="font-bold text-orange-800 text-sm mb-1">경영지도센터 특화</h4>
+                          <h4 className="font-bold text-orange-800 text-sm mb-1">AI CAMP 특화</h4>
                           <p className="text-xs text-orange-700">전통 제도 + AI 기술 융합</p>
                         </div>
                         <div className="bg-white p-3 rounded-lg">
@@ -807,7 +807,7 @@ export default function AIProductivityPage() {
                           <span className="text-white font-bold text-lg">이후경</span>
                         </div>
                         <h3 className="font-bold text-gray-900 mb-1">이후경 책임컨설턴트</h3>
-                        <p className="text-sm text-gray-600 mb-3">경영지도센터</p>
+                        <p className="text-sm text-gray-600 mb-3">AI CAMP</p>
                       </div>
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center justify-between">
