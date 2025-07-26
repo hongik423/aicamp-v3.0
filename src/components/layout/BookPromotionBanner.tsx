@@ -254,18 +254,24 @@ const BookPromotionBanner: React.FC = () => {
                                          {/* 책표지 섹션 */}
                      <div className="relative bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-6 flex items-center justify-center">
                        <div className="text-center">
-                         {/* 책표지 이미지 - PDF 링크 */}
-                         <a 
-                           href="/n8n_1-20.pdf"
-                           target="_blank"
-                           rel="noopener noreferrer"
+                         {/* 책표지 이미지 - PDF 링크 수정 */}
+                         <div 
                            onClick={(e) => {
                              e.stopPropagation();
-                             // PDF 새 탭에서 열기
-                             window.open('/n8n_1-20.pdf', '_blank');
+                             // PDF를 새 탭에서 열기
+                             window.open('/n8n_1-20.pdf', '_blank', 'noopener,noreferrer');
                            }}
                            onTouchStart={(e) => e.stopPropagation()}
                            className="block cursor-pointer"
+                           role="button"
+                           tabIndex={0}
+                           onKeyDown={(e) => {
+                             if (e.key === 'Enter' || e.key === ' ') {
+                               e.preventDefault();
+                               window.open('/n8n_1-20.pdf', '_blank', 'noopener,noreferrer');
+                             }
+                           }}
+                           aria-label="n8n 책자 PDF 다운로드"
                          >
                            <motion.div
                              initial={{ rotateY: -20, scale: 0.8 }}
@@ -437,7 +443,7 @@ const BookPromotionBanner: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* CTA 버튼 */}
+                        {/* CTA 버튼 - 상담신청으로 연결 수정 */}
                         <div className="text-center pt-2">
                           <Link href="/consultation" className="inline-block">
                             <motion.button
@@ -450,7 +456,7 @@ const BookPromotionBanner: React.FC = () => {
                               <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                               <span className="relative flex items-center gap-2">
                                 <span className="animate-pulse">🔥</span>
-                                <span>지금 바로 무료상담 신청</span>
+                                <span>지금 바로 상담신청</span>
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                               </span>
                             </motion.button>
@@ -506,6 +512,7 @@ const BookPromotionBanner: React.FC = () => {
                         </div>
 
                         <div className="space-y-3">
+                          {/* 책+AI CAMP 패키지 버튼 - 상담신청으로 연결 */}
                           <Link 
                             href="/consultation"
                             className="block w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-center text-sm relative overflow-hidden group"
@@ -516,10 +523,11 @@ const BookPromotionBanner: React.FC = () => {
                             <span className="relative flex items-center justify-center gap-2">
                               📖
                               <span>책 + AI CAMP 패키지 신청</span>
-                              <span className="text-xs bg-yellow-400 text-black px-2 py-1 rounded-full">80만원 상당</span>
+                              <span className="text-xs bg-yellow-400 text-black px-2 py-1 rounded-full">상담신청</span>
                             </span>
                           </Link>
                           
+                          {/* 무료AI 진단 버튼 - AI 무료진단으로 연결 */}
                           <Link href="/diagnosis" className="block">
                             <button 
                               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-sm relative overflow-hidden group"
@@ -548,7 +556,7 @@ const BookPromotionBanner: React.FC = () => {
               </div>
             </>
           ) : (
-            /* 미니멈화된 플로팅 버튼 - 모바일 터치 최적화 */
+            /* 미니멈화된 플로팅 버튼 - 책자 배너 복귀 기능 수정 */
             <motion.button
               initial={{ scale: 0, x: 100 }}
               animate={{ scale: 1, x: 0 }}
@@ -569,8 +577,8 @@ const BookPromotionBanner: React.FC = () => {
                 isolation: 'isolate',
                 touchAction: 'manipulation' // 더블 탭 줌 방지
               }}
-              title="책 홍보 배너 보기"
-              aria-label="AI 자동화 책 홍보 배너 열기"
+              title="책자 홍보 배너 다시 보기"
+              aria-label="AI 자동화 책자 홍보 배너 열기"
             >
               <motion.div
                 animate={{ rotate: [0, 15, -15, 0] }}
@@ -580,13 +588,13 @@ const BookPromotionBanner: React.FC = () => {
               </motion.div>
               
               <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-red-500 text-white text-[8px] sm:text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
-                🔥
+                📖
               </div>
               
               <div className="absolute right-full mr-2 sm:mr-4 top-1/2 transform -translate-y-1/2 bg-black/90 text-white px-2 py-1 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none hidden sm:block">
-                AI 자동화 책 + 20% 할인!
+                AI 자동화 책자 배너 보기
                 <br />
-                <span className="text-xs opacity-75">클릭하여 자세히 보기</span>
+                <span className="text-xs opacity-75">클릭하여 다시 열기</span>
               </div>
             </motion.button>
           )}
