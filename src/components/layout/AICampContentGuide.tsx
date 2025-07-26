@@ -265,7 +265,7 @@ const AICampContentGuide: React.FC = () => {
           duration: 0.8 
         }}
         className={`fixed z-40 left-0 right-0 transition-all duration-500 ${
-          isMinimized ? 'bottom-4' : 'bottom-0'
+          isMinimized ? 'bottom-28' : 'bottom-24'
         }`}
       >
         <div className={`mx-auto transition-all duration-500 ${

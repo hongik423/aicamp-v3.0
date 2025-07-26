@@ -392,7 +392,7 @@ const BookPromotionModal: React.FC = () => {
                         <Sparkles className="w-8 h-8 text-purple-600 mx-auto mb-3" />
                         <h3 className="font-bold text-purple-900 mb-2">AI CAMP 패키지</h3>
                         <div className="text-2xl font-bold text-purple-600 mb-2">99,000원</div>
-                        <div className="text-sm text-purple-700">• 책 + AI 진단 + 전문가 상담<br />• 총 50만원 상당 혜택</div>
+                        <div className="text-sm text-purple-700">• 무료 진단+ AI CAMP 교육비 20% 할인<br />• 총 50만원 상당 혜택</div>
                       </div>
                     </div>
 
