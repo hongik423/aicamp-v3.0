@@ -419,7 +419,8 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="이후경 AI 교육교장에게 상담 문의하세요... (28년 경험)"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 text-white placeholder-gray-300"
+                    style={{ backgroundColor: '#4285F4' }}
                     disabled={isLoading}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">

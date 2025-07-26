@@ -619,7 +619,8 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputValue)}
                                   placeholder="AI CAMP AI 상담사에게 질문해보세요..."
-                className="pr-12"
+                className="pr-12 text-white placeholder-gray-300 border-blue-400"
+                style={{ backgroundColor: '#4285F4' }}
                 disabled={isTyping || connectionStatus === 'error'}
               />
               
