@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     : 'http://localhost:3000'
   ),
   title: {
-    default: 'AICAMP | AI 교육 및 디지털 혁신',
+    default: 'AICAMP | AI 프로세스 자동화 컨설팅 및 교육',
     template: '%s | AICAMP'
   },
   description: 'AICAMP AI 교육센터 - AI 기반 무료 진단과 전문 교육으로 기업과 개인의 AI 역량 강화를 지원합니다.',

@@ -1,0 +1,145 @@
+{
+  "timestamp": "2025-07-27T11:29:54.415Z",
+  "url": "https://script.google.com/macros/s/AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB/exec",
+  "tests": {
+    "healthCheck": {
+      "success": true,
+      "status": 200,
+      "data": {
+        "success": true,
+        "timestamp": "2025. 07. 27. PM 08:29:56",
+        "version": "2025.07.27.AI_CAMP_시스템통합완료",
+        "executionTime": 1753615796962,
+        "status": "AI CAMP 통합 시스템 정상 작동 중 (환경변수 최신화 및 진단 기능 완료)",
+        "deploymentInfo": {
+          "scriptId": "1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z",
+          "deploymentId": "AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB",
+          "webAppUrl": "https://script.google.com/macros/s/AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB/exec",
+          "libraryUrl": "https://script.google.com/macros/library/d/1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z/9",
+          "lastUpdated": "2025.07.27"
+        },
+        "googleSheets": {
+          "spreadsheetId": "1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00",
+          "adminEmail": "hongik423@gmail.com"
+        },
+        "apiKeys": {
+          "gemini": "✅ 설정됨"
+        },
+        "permissions": {
+          "gmail": true,
+          "sheets": true,
+          "script": true
+        },
+        "features": [
+          "✅ 진단신청 처리 (60개 컬럼)",
+          "✅ 상담신청 처리 (19개 컬럼)",
+          "✅ 베타피드백 처리 (14개 컬럼)",
+          "📧 PDF 첨부 이메일 발송 (개선됨)",
+          "✅ 진단점수 정확 저장 (1-5점)",
+          "✅ 자동 이메일 발송",
+          "✅ 관리자/신청자 알림",
+          "🔄 환경변수 최신화 완료",
+          "🔧 자동 오류 진단 및 수정",
+          "🏥 시스템 건강 상태 모니터링",
+          "🧪 종합 기능 테스트 시스템",
+          "⚛️ Next.js 호환성 보장",
+          "🔒 권한 체크 및 유효성 검증",
+          "📊 성능 모니터링 및 최적화"
+        ],
+        "diagnosticFunctions": [
+          "systemHealthCheck() - 전체 시스템 건강 상태 점검",
+          "diagnoseAndFixIssues() - 자동 문제 진단 및 수정",
+          "checkEnvironmentSync() - 환경변수 동기화 확인",
+          "checkNextjsCompatibility() - Next.js 호환성 확인",
+          "testAllFunctions() - 모든 기능 종합 테스트",
+          "generateDiagnosticReport() - 상세 진단 보고서 생성"
+        ]
+      },
+      "message": "시스템 접근 정상"
+    },
+    "consultation": {
+      "success": true,
+      "status": 200,
+      "data": {
+        "success": true,
+        "timestamp": "2025. 07. 27. 오후 08:30:01",
+        "version": "2025.07.27.AI_CAMP_시스템통합완료",
+        "executionTime": 1753615801958,
+        "message": "상담신청이 성공적으로 접수되었습니다. 24시간 내에 AI CAMP 전문가가 연락드리겠습니다.",
+        "company": "AI CAMP",
+        "consultant": "이후경 교장",
+        "phone": "010-9251-9743",
+        "sheet": "상담신청",
+        "row": 13,
+        "processingTime": "854ms"
+      },
+      "message": "상담신청 정상 처리"
+    },
+    "diagnosis": {
+      "success": true,
+      "status": 200,
+      "data": {
+        "success": true,
+        "timestamp": "2025. 07. 27. 오후 08:30:05",
+        "version": "2025.07.27.AI_CAMP_시스템통합완료",
+        "executionTime": 1753615806449,
+        "message": "📊 AI 무료진단이 성공적으로 접수되었습니다 (문항별 점수 + 보고서 포함). PDF 이메일 발송이 가능합니다.",
+        "sheet": "AI_무료진단신청",
+        "row": 18,
+        "진단점수": 75,
+        "추천서비스": "AI CAMP 시스템 테스트를 위한 진단보고서입니다. 전체적으로 양호한 수준의 디지털 역량...",
+        "pdfSendingEnabled": true,
+        "processingTime": "1153ms"
+      },
+      "totalScore": 75,
+      "message": "무료진단 정상 처리"
+    },
+    "pdfEmail": {
+      "success": true,
+      "status": 200,
+      "data": {
+        "success": true,
+        "timestamp": "2025. 07. 27. 오후 08:30:10",
+        "version": "2025.07.27.AI_CAMP_시스템통합완료",
+        "executionTime": 1753615811438,
+        "message": "📊 AI 무료진단이 성공적으로 접수되었습니다 (문항별 점수 + 보고서 포함). PDF 이메일 발송이 가능합니다.",
+        "sheet": "AI_무료진단신청",
+        "row": 19,
+        "진단점수": 0,
+        "추천서비스": "",
+        "pdfSendingEnabled": true,
+        "processingTime": "1771ms"
+      },
+      "pdfSize": "0KB",
+      "message": "PDF 이메일 발송 정상"
+    },
+    "error302Diagnosis": {
+      "timestamp": "2025-07-27T11:30:12.633Z",
+      "currentUrl": "https://script.google.com/macros/s/AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB/exec",
+      "tests": {
+        "urlFormat": {
+          "valid": true,
+          "expected": "https://script.google.com/macros/s/[DEPLOYMENT_ID]/exec",
+          "actual": "https://script.google.com/macros/s/AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB/exec"
+        },
+        "deploymentId": {
+          "extracted": "AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB",
+          "valid": true,
+          "length": 72
+        },
+        "getRequest": {
+          "success": false,
+          "status": 302,
+          "error": "Request failed with status code 302",
+          "is302": true
+        }
+      },
+      "issues": [
+        "302 리다이렉트 오류가 발생했습니다."
+      ],
+      "recommendations": [
+        "웹앱 배포를 다시 활성화하고 \"모든 사용자\" 권한으로 설정하세요."
+      ]
+    }
+  }
+}
