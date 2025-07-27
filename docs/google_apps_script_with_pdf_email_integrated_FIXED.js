@@ -1,6 +1,6 @@
 /**
  * ================================================================================
- * AICAMP 통합 Apps Script 2025 최종완성판 + PDF 이메일 발송 기능 (오류 수정 완료 버전)
+ * AI CAMP 통합 Apps Script 2025 최종완성판 + PDF 이메일 발송 기능 (오류 수정 완료 버전)
  * ================================================================================
  * 
  * 🎯 배포 정보:
@@ -50,7 +50,7 @@ const SHEETS = {
 const ADMIN_EMAIL = 'hongik423@gmail.com';
 const AUTO_REPLY_ENABLED = true;
 const DEBUG_MODE = true;
-const VERSION = '2025.01.06.AICAMP_최종완성_PDF발송기능_오류수정완료';
+const VERSION = '2025.01.06.AI_CAMP_최종완성_PDF발송기능_오류수정완료';
 
 // 📊 제한사항 설정 (새로 추가)
 const LIMITS = {
@@ -506,7 +506,7 @@ function doGet(e) {
     const permissions = checkRequiredPermissions();
     
     return createSuccessResponse({
-      status: 'AICAMP 통합 시스템 정상 작동 중 (PDF 이메일 발송 기능 포함, 오류 수정 완료)',
+      status: 'AI CAMP 통합 시스템 정상 작동 중 (PDF 이메일 발송 기능 포함, 오류 수정 완료)',
       timestamp: getCurrentKoreanTime(),
       version: VERSION,
       deploymentInfo: {
@@ -625,7 +625,7 @@ function sendDiagnosisPdfEmail(data) {
     }
 
     // 7. 이메일 내용 구성 (개선됨)
-    const emailSubject = `[AICAMP] AI 무료진단 결과보고서 - ${data.company_name}`;
+    const emailSubject = `[AI CAMP] AI 무료진단 결과보고서 - ${data.company_name}`;
     
     // 이메일 제목 길이 체크
     if (emailSubject.length > LIMITS.EMAIL_SUBJECT_MAX_LENGTH) {
@@ -634,7 +634,7 @@ function sendDiagnosisPdfEmail(data) {
     
     const emailBody = `안녕하세요, ${data.to_name || '고객'}님.
 
-AICAMP AI 교육센터에서 요청하신 AI 무료진단이 완료되어 결과보고서를 첨부파일로 발송해드립니다.
+AI CAMP에서 요청하신 AI 무료진단이 완료되어 결과보고서를 첨부파일로 발송해드립니다.
 
 📊 진단 결과 요약:
 • 회사명: ${data.company_name}
@@ -668,7 +668,7 @@ AICAMP AI 교육센터에서 요청하신 AI 무료진단이 완료되어 결과
 감사합니다.
 
 --
-AICAMP AI 교육센터
+AI CAMP
 Tel: ${data.consultant_phone || '010-9251-9743'}
 Email: ${data.consultant_email || ADMIN_EMAIL}
 Website: https://aicamp-v3-0.vercel.app
@@ -684,7 +684,7 @@ Website: https://aicamp-v3-0.vercel.app
 
     // 8. 이메일 발송 (PDF 첨부파일 포함)
     const emailOptions = {
-      name: 'AICAMP AI 교육센터',
+      name: 'AI CAMP',
       replyTo: data.consultant_email || ADMIN_EMAIL,
       htmlBody: emailBody.replace(/\n/g, '<br>')
     };
@@ -719,7 +719,7 @@ Website: https://aicamp-v3-0.vercel.app
 
     // 10. 관리자에게 알림 이메일 발송 (개선됨)
     try {
-      const adminSubject = `[AICAMP] PDF 진단보고서 발송 완료 - ${data.company_name}`;
+      const adminSubject = `[AI CAMP] PDF 진단보고서 발송 완료 - ${data.company_name}`;
       const adminBody = `PDF 진단보고서가 성공적으로 발송되었습니다.
 
 📊 발송 정보:
@@ -737,14 +737,14 @@ Website: https://aicamp-v3-0.vercel.app
 담당자가 후속 상담을 위해 연락할 예정입니다.
 
 --
-AICAMP 자동 알림 시스템 (오류 수정 완료 버전)
+AI CAMP 자동 알림 시스템 (오류 수정 완료 버전)
       `;
 
       GmailApp.sendEmail(
         ADMIN_EMAIL,
         adminSubject,
         adminBody,
-        { name: 'AICAMP AI 교육센터 자동알림' }
+        { name: 'AI CAMP 자동알림' }
       );
 
       console.log('✅ 관리자 알림 이메일 발송 완료');
@@ -784,7 +784,7 @@ AICAMP 자동 알림 시스템 (오류 수정 완료 버전)
     
     // 오류 발생 시 관리자에게 긴급 알림 (개선됨)
     try {
-      const errorSubject = `[AICAMP] ⚠️ 긴급: PDF 이메일 발송 실패 - ${data.company_name || '알수없음'}`;
+      const errorSubject = `[AI CAMP] ⚠️ 긴급: PDF 이메일 발송 실패 - ${data.company_name || '알수없음'}`;
       const errorBody = `PDF 진단보고서 이메일 발송 중 오류가 발생했습니다.
 
 ❌ 오류 정보:
@@ -807,14 +807,14 @@ AICAMP 자동 알림 시스템 (오류 수정 완료 버전)
 4. 오류 원인 분석 및 해결
 
 --
-AICAMP 자동 알림 시스템 (오류 수정 완료 버전)
+AI CAMP 자동 알림 시스템 (오류 수정 완료 버전)
       `;
 
       GmailApp.sendEmail(
         ADMIN_EMAIL,
         errorSubject,
         errorBody,
-        { name: 'AICAMP AI 교육센터 오류알림' }
+        { name: 'AI CAMP 오류알림' }
       );
     } catch (notificationError) {
       console.error('❌ 오류 알림 발송도 실패:', notificationError);
@@ -1510,7 +1510,7 @@ function testPdfEmailSending() {
 // ================================================================================
 
 /**
- * 📖 AICAMP 통합 Apps Script 2025 최종완성판 + PDF 이메일 발송 기능 사용법 (오류 수정 완료)
+ * 📖 AI CAMP 통합 Apps Script 2025 최종완성판 + PDF 이메일 발송 기능 사용법 (오류 수정 완료)
  * 
  * 🎯 현재 배포 정보:
  * - Script ID: 1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z
@@ -1619,7 +1619,7 @@ function sendConsultationAdminNotification(data, rowNumber) {
   try {
     console.log('📧 상담신청 관리자 알림 이메일 발송 시작');
     
-    const subject = `[AICAMP] 새로운 상담신청 - ${data.성명 || data.name} (${data.회사명 || data.company})`;
+    const subject = `[AI CAMP] 새로운 상담신청 - ${data.성명 || data.name} (${data.회사명 || data.company})`;
     
     const body = `새로운 상담신청이 접수되었습니다.
 
@@ -1649,7 +1649,7 @@ ${data.문의내용 || data.inquiryContent || 'N/A'}
 4. 결과 보고서 작성
 
 --
-AICAMP AI 교육센터 자동알림 시스템
+AI CAMP 자동알림 시스템
 📧 자동발송: ${getCurrentKoreanTime()}
     `;
 
@@ -1658,7 +1658,7 @@ AICAMP AI 교육센터 자동알림 시스템
       subject,
       body,
       { 
-        name: 'AICAMP AI 교육센터 상담알림',
+        name: 'AI CAMP 상담알림',
         replyTo: data.이메일 || data.email
       }
     );
@@ -1683,11 +1683,11 @@ function sendUserConfirmation(userEmail, userName, serviceType) {
       return;
     }
     
-    const subject = `[AICAMP] ${serviceType} 신청이 접수되었습니다 - ${userName}님`;
+    const subject = `[AI CAMP] ${serviceType} 신청이 접수되었습니다 - ${userName}님`;
     
     const body = `안녕하세요, ${userName}님!
 
-AICAMP AI 교육센터입니다.
+AI CAMP입니다.
 
 🎉 ${serviceType} 신청이 성공적으로 접수되었습니다.
 
@@ -1709,7 +1709,7 @@ AICAMP AI 교육센터입니다.
 • 이메일: ${ADMIN_EMAIL}
 • 전화: 02-1234-5678 (평일 09:00-18:00)
 
-🏢 AICAMP AI 교육센터
+🏢 AI CAMP
 AI 기반 비즈니스 혁신을 통한 성장 동반자
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1719,7 +1719,7 @@ AI 기반 비즈니스 혁신을 통한 성장 동반자
 감사합니다!
 
 --
-AICAMP AI 교육센터 자동확인 시스템
+AI CAMP 자동확인 시스템
 📧 자동발송: ${getCurrentKoreanTime()}
     `;
 
@@ -1728,7 +1728,7 @@ AICAMP AI 교육센터 자동확인 시스템
       subject,
       body,
       { 
-        name: 'AICAMP AI 교육센터',
+        name: 'AI CAMP',
         replyTo: ADMIN_EMAIL
       }
     );
@@ -1748,7 +1748,7 @@ function sendDiagnosisAdminNotification(data, rowNumber, totalScore, reportSumma
   try {
     console.log('📧 진단신청 관리자 알림 이메일 발송 시작');
     
-    const subject = `[AICAMP] 새로운 AI 무료진단 완료 - ${data.회사명 || data.company_name} (${totalScore}점)`;
+    const subject = `[AI CAMP] 새로운 AI 무료진단 완료 - ${data.회사명 || data.company_name} (${totalScore}점)`;
     
     const body = `새로운 AI 무료진단이 완료되었습니다.
 
@@ -1779,7 +1779,7 @@ ${reportSummary || 'N/A'}
 4. 전문가 상담 일정 조율
 
 --
-AICAMP AI 교육센터 자동알림 시스템
+AI CAMP 자동알림 시스템
 📧 자동발송: ${getCurrentKoreanTime()}
     `;
 
@@ -1788,7 +1788,7 @@ AICAMP AI 교육센터 자동알림 시스템
       subject,
       body,
       { 
-        name: 'AICAMP AI 교육센터 진단알림',
+        name: 'AI CAMP 진단알림',
         replyTo: data.이메일 || data.email
       }
     );
@@ -1813,11 +1813,11 @@ function sendDiagnosisUserConfirmation(userEmail, userName, companyName) {
       return;
     }
     
-    const subject = `[AICAMP] AI 무료진단 접수 완료 - ${userName}님 (${companyName})`;
+    const subject = `[AI CAMP] AI 무료진단 접수 완료 - ${userName}님 (${companyName})`;
     
     const body = `안녕하세요, ${userName}님!
 
-AICAMP AI 교육센터입니다.
+AI CAMP입니다.
 
 🎉 AI 무료진단 신청이 성공적으로 접수되었습니다.
 
@@ -1846,7 +1846,7 @@ AICAMP AI 교육센터입니다.
 • 이메일: ${ADMIN_EMAIL}
 • 전화: 02-1234-5678 (평일 09:00-18:00)
 
-🏢 AICAMP AI 교육센터
+🏢 AI CAMP
 AI 기반 비즈니스 혁신을 통한 성장 동반자
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1856,7 +1856,7 @@ AI 기반 비즈니스 혁신을 통한 성장 동반자
 감사합니다!
 
 --
-AICAMP AI 교육센터 자동확인 시스템
+AI CAMP 자동확인 시스템
 📧 자동발송: ${getCurrentKoreanTime()}
     `;
 
@@ -1865,7 +1865,7 @@ AICAMP AI 교육센터 자동확인 시스템
       subject,
       body,
       { 
-        name: 'AICAMP AI 교육센터',
+        name: 'AI CAMP',
         replyTo: ADMIN_EMAIL
       }
     );
