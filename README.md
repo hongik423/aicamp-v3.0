@@ -153,3 +153,4 @@ NEXT_PUBLIC_GOOGLE_SCRIPT_URL=your_script_url
 ---
 
 **AICAMP v3.0** - AI로 더 스마트한 미래를 만들어갑니다! 🚀
+ 
