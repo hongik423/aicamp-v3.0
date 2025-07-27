@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     // 질문 분석 및 답변 길이 결정
     const analysisResult = analyzeQuestionAndDetermineLength(message);
     
-    const GEMINI_API_KEY = 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
     const systemPrompt = `당신은 28년 베테랑 컨설턴트 이후경 경영지도사입니다. 마치 사무실에서 기업 대표와 직접 마주앉아 상담하는 것처럼 자연스럽고 친근하면서도 핵심을 짚어주는 대화체로 답변해주세요.
 
