@@ -15,6 +15,7 @@ interface SimplifiedDiagnosisRequest {
   companyName: string;
   industry: string;
   contactManager: string;
+  phone: string;
   email: string;
   employeeCount: string;
   growthStage: string;
@@ -1790,10 +1791,17 @@ export async function POST(request: NextRequest) {
     const data: SimplifiedDiagnosisRequest = await request.json();
     
     // 입력 데이터 검증
-    if (!data.companyName || !data.industry || !data.contactManager || !data.email) {
+    if (!data.companyName || !data.industry || !data.contactManager || !data.phone || !data.email) {
+      console.log('❌ 필수 필드 누락:', {
+        companyName: !!data.companyName,
+        industry: !!data.industry,
+        contactManager: !!data.contactManager,
+        phone: !!data.phone,
+        email: !!data.email
+      });
       return NextResponse.json({
         success: false,
-        error: '필수 정보가 누락되었습니다.'
+        error: '필수 정보가 누락되었습니다. (회사명, 업종, 담당자명, 연락처, 이메일을 모두 입력해주세요)'
       }, { status: 400 });
     }
 

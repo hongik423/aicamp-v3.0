@@ -3,12 +3,12 @@
  * AI CAMP 통합 Apps Script 2025 최종완성판 + PDF 이메일 발송 기능 (완전 기능 + 브랜드 통일)
  * ================================================================================
  * 
- * 🎯 배포 정보 (최신 업데이트 2025.07.27):
- * - Script ID: 1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z
- * - Deployment ID: AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB
- * - Web App URL: https://script.google.com/macros/s/AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB/exec
- * - Library URL: https://script.google.com/macros/library/d/1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z/9
- * - Google Sheets ID: 1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00
+ * 🎯 배포 정보 (최신 업데이트 2025.01.27):
+ * - Script ID: 1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj
+ * - Deployment ID: AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0
+ * - Web App URL: https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec
+ * - Library URL: https://script.google.com/macros/library/d/1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj/1
+ * - Google Sheets ID: 1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0
  * - 관리자 이메일: hongik423@gmail.com
  * - Gemini API Key: AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM
  * 
@@ -637,7 +637,7 @@ function generateDiagnosticReport() {
 // 🔧 기본 설정 (최신 배포 환경 + PDF 기능 + AI CAMP 브랜딩)
 // ================================================================================
 
-const SPREADSHEET_ID = '1XutoJ8k5A_2z-mgUqTZKQeWsoYtf2Kbu_JBHMTj3g00';
+const SPREADSHEET_ID = '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0';
 
 const SHEETS = {
   DIAGNOSIS: 'AI_무료진단신청',
@@ -656,7 +656,7 @@ const COMPANY_WEBSITE = 'https://aicamp.club';
 
 const AUTO_REPLY_ENABLED = true;
 const DEBUG_MODE = true;
-const VERSION = '2025.07.27.AI_CAMP_시스템통합완료';
+const VERSION = '2025.01.27.PDF_오류_완전수정완료';
 
 // 📊 제한사항 설정 (새로 추가)
 const LIMITS = {
@@ -669,13 +669,13 @@ const LIMITS = {
   HEALTH_CHECK_INTERVAL: 300000  // 건강 상태 체크 간격 (5분)
 };
 
-// 🌐 웹앱 배포 정보 (사용자 제공 정확한 버전)
+// 🌐 웹앱 배포 정보 (새 Script 완전 생성 버전)
 const DEPLOYMENT_INFO = {
-  SCRIPT_ID: '1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z',
-  DEPLOYMENT_ID: 'AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB',
-  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB/exec',
-  LIBRARY_URL: 'https://script.google.com/macros/library/d/1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z/9',
-  LAST_UPDATED: '2025.07.27'
+  SCRIPT_ID: '1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj',
+  DEPLOYMENT_ID: 'AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0',
+  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec',
+  LIBRARY_URL: 'https://script.google.com/macros/library/d/1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj/1',
+  LAST_UPDATED: '2025.01.27'
 };
 
 // 🔑 API 키 설정 (새로 추가)
@@ -1580,25 +1580,46 @@ function sendDiagnosisPdfEmail(data) {
       console.warn('⚠️ 처리 시간 초과 경고, 빠른 처리 모드로 전환');
     }
 
-    // 6. PDF 첨부파일 처리 (개선됨)
+    // 6. PDF 첨부파일 처리 (오류 수정 완료)
     let pdfBlob = null;
     if (data.pdf_attachment && data.pdf_filename) {
       try {
         console.log('🔧 PDF 첨부파일 처리 시작...');
         
-        // Base64 디코딩하여 PDF Blob 생성
+        // Base64 디코딩하여 PDF Blob 생성 (오류 처리 강화)
         const pdfBytes = Utilities.base64Decode(data.pdf_attachment);
         pdfBlob = Utilities.newBlob(pdfBytes, 'application/pdf', data.pdf_filename);
         
-        // 생성된 Blob 검증
-        if (!pdfBlob || pdfBlob.getSize() === 0) {
-          throw new Error('PDF Blob 생성 실패 또는 빈 파일');
+        // 생성된 Blob 검증 (완전 안전한 방법으로 수정)
+        if (!pdfBlob) {
+          throw new Error('PDF Blob 생성 실패');
+        }
+        
+        // 완전히 안전한 크기 확인 방법
+        let blobSize = 0;
+        let sizeInfo = 'Unknown';
+        try {
+          // getBytes()를 사용하여 안전하게 크기 확인
+          const bytes = pdfBlob.getBytes();
+          blobSize = bytes.length;
+          sizeInfo = Math.round(blobSize / 1024) + 'KB';
+        } catch (sizeError) {
+          console.warn('⚠️ PDF 크기 확인 불가 (정상적으로 계속 진행):', sizeError.toString());
+          // Base64 길이로 대략적인 크기 추정
+          blobSize = Math.round((data.pdf_attachment.length * 3) / 4);
+          sizeInfo = Math.round(blobSize / 1024) + 'KB (추정)';
+        }
+        
+        // 비어있는 파일 체크 (Base64 길이로 확인)
+        if (data.pdf_attachment.length < 100) {
+          throw new Error('PDF 데이터가 너무 작습니다 (손상되었을 가능성)');
         }
         
         console.log('✅ PDF 첨부파일 생성 완료:', {
           filename: data.pdf_filename,
-          size: Math.round(pdfBlob.getSize() / 1024) + 'KB',
-          contentType: pdfBlob.getContentType()
+          size: sizeInfo,
+          originalBase64Length: data.pdf_attachment.length,
+          contentType: 'application/pdf'
         });
         
       } catch (pdfError) {
@@ -3374,7 +3395,7 @@ function diagnose302Error() {
     {
       step: 1,
       title: '🔧 Google Apps Script 에디터 접속',
-      action: 'https://script.google.com/d/1Iot8Hzeuq8plBXy0ODQ43_k3JPa1ec_dJUgFqNyziIu5xShVylUYYl5z/edit',
+      action: 'https://script.google.com/d/1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj/edit',
       details: 'Script ID로 직접 접속하여 에디터 열기'
     },
     {
