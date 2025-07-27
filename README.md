@@ -156,3 +156,4 @@ NEXT_PUBLIC_GOOGLE_SCRIPT_URL=your_script_url
  
 # Vercel 무오류 배포 트리거 - 2025-07-27 13:22:08.66 
 # 연락처 정보 통일 배포 - 2025-07-27 13:50:37.28 
+# M-CENTER 완전 삭제 및 AI CAMP 통일 완료 - 2025-07-27 14:05:09.51 
