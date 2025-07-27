@@ -27,7 +27,7 @@ function testConnection(url) {
         console.log(`📄 응답 미리보기: ${data.substring(0, 200)}...`);
         
         if (res.statusCode === 200) {
-          if (data.includes('기업의별') || data.includes('M-CENTER') || data.includes('status')) {
+          if (data.includes('AI CAMP') || data.includes('status')) {
             console.log('✅ 연결 성공! Apps Script가 정상 작동 중입니다.');
             resolve({ success: true, url, data });
           } else {

@@ -7,9 +7,9 @@
 
 // 🏢 기업 정보
 export const COMPANY_INFO = {
-  name: 'AICAMP',
-  fullName: 'AICAMP AI 교육센터',
-  shortName: 'AICAMP',
+  name: 'AI CAMP',
+  fullName: 'AI CAMP',
+  shortName: 'AI CAMP',
   slogan: 'AI와 함께 성장하는 미래를 만들어갑니다',
   mission: '기업과 개인의 AI 역량 강화를 통한 디지털 혁신을 지원합니다',
   vision: 'AI 기술을 통해 모든 기업이 글로벌 경쟁력을 갖춘 리더가 되는 세상',
@@ -34,7 +34,7 @@ export const CONSULTANT_INFO = {
   experience: '25년',
   specialization: 'AI 기술 교육 및 디지털 혁신 전략',
   certification: 'AI 교육 전문가 자격증',
-  company: 'AICAMP',
+  company: 'AI CAMP',
   description: '25년간 500개 이상 기업의 AI 도입과 디지털 혁신을 이끌어온 전문가',
   background: '현대그룹, 삼성생명 대기업 AI 전략 경험 + 200개사 AI 교육 노하우'
 } as const;
@@ -130,15 +130,12 @@ export const CHATBOT_CONFIG = {
   }
 } as const;
 
-// 🔧 환경 변수 (레거시 호환)
+// 🔧 환경 변수 (레거시 호환) - M-CENTER 완전 삭제 후 AI CAMP 통일
 export const LEGACY_MAPPING = {
-  // 기존 M-CENTER -> 새 브랜드명
-  'M-CENTER': COMPANY_INFO.name,
-  'M-Center': COMPANY_INFO.name,
-  'm-center': COMPANY_INFO.shortName,
-  '기업의별 M-CENTER': COMPANY_INFO.name,
-  '기업의별 경영지도센터': COMPANY_INFO.fullName,
-  '경영지도센터': COMPANY_INFO.fullName,
+  // 기존 모든 브랜드명 -> AI CAMP 통일
+  'AICAMP': COMPANY_INFO.name,
+  'AI캠프': COMPANY_INFO.name,
+  'AI교육센터': COMPANY_INFO.name,
   
   // 기존 담당자 -> 새 담당자
   '이후경 책임컨설턴트': CONSULTANT_INFO.name,
