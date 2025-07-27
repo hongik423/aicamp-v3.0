@@ -1589,7 +1589,10 @@ export default function TaxCalculatorPage() {
       />
 
       {/* 🚨 베타피드백 폼 */}
-      <BetaFeedbackForm />
+      <BetaFeedbackForm 
+        calculatorName="종합소득세계산기"
+        calculatorType="tax-calculator"
+      />
     </div>
   );
 } 

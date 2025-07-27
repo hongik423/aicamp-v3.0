@@ -184,7 +184,10 @@ export default function CenterLeaderPage() {
                   className="w-full h-full object-cover rounded-full"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (nextElement) {
+                      nextElement.style.display = 'flex';
+                    }
                   }}
                 />
                 <User className="w-16 h-16 text-white hidden" />

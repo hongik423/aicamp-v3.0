@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,8 +18,8 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Star,
   Sparkles,
+  Star,
   Printer,
   BarChart3,
   Lightbulb,
@@ -33,6 +33,8 @@ import { PremiumReportGenerator, type PremiumReportData } from '@/lib/utils/prem
 import { useReactToPrint } from 'react-to-print';
 import { safeGet, validateApiResponse } from '@/lib/utils/safeDataAccess';
 import { generateServiceGuideBook } from '@/lib/utils/pdfDocumentGenerator';
+import { sendDiagnosisReportPdf, previewDiagnosisReportPdf, type DiagnosisReportData } from '@/lib/utils/pdfEmailService';
+import { appConfig } from '@/lib/config/env';
 
 interface DiagnosisData {
   companyName: string;
@@ -152,6 +154,13 @@ interface SimplifiedDiagnosisResultsProps {
       googleSheetsSaved: boolean;
       processingTime: string;
       reportType: string;
+      // 한글 속성들 추가 (Google Apps Script 연동용)
+      회사명?: string;
+      담당자명?: string;
+      이메일?: string;
+      연락처?: string;
+      업종?: string;
+      직원수?: string;
     };
   };
 }
@@ -159,6 +168,8 @@ interface SimplifiedDiagnosisResultsProps {
 export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosisResultsProps) {
   const [showFullReport, setShowFullReport] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pdfEmailSent, setPdfEmailSent] = useState(false);
+  const [pdfEmailStatus, setPdfEmailStatus] = useState<'sending' | 'success' | 'failed' | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
   // 🔧 **React Hook을 최상단으로 이동하여 조건부 호출 방지**
@@ -1009,7 +1020,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   // 📄 강화된 PDF 다운로드 기능
   const handlePDFDownload = async () => {
     try {
-      console.log('📄 PDF 다운로드 시작');
+      console.log('📄 PDF 다운로드 시작 (백업 기능)');
       setIsLoading(true);
       
       toast({
@@ -1171,6 +1182,226 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     }
   };
 
+  // 📧 Google Apps Script를 통한 PDF 이메일 발송 기능
+  const handlePDFEmailSend = async () => {
+    try {
+      console.log('📧 PDF 이메일 발송 시작 (Google Apps Script)');
+      setIsLoading(true);
+      
+      toast({
+        title: "PDF 결과보고서 발송 중...",
+        description: "PDF를 생성하고 이메일로 발송하고 있습니다. 잠시만 기다려주세요.",
+        duration: 3000,
+      });
+
+      // 🔧 필수 데이터 검증
+      const companyName = diagnosis.companyName || data.data.회사명 || 'Unknown Company';
+      const contactName = diagnosis.contactName || data.data.담당자명 || '담당자';
+      const contactEmail = diagnosis.contactEmail || data.data.이메일 || '';
+      const totalScore = diagnosis.totalScore || 75;
+      const overallGrade = diagnosis.overallGrade || 'B';
+      const industryType = diagnosis.industryType || data.data.업종 || '일반 업종';
+
+      console.log('📊 PDF 이메일 데이터 준비:', {
+        companyName,
+        contactEmail,
+        totalScore,
+        overallGrade
+      });
+
+      // 이메일 주소 유효성 검사
+      if (!contactEmail || !contactEmail.includes('@')) {
+        throw new Error('유효한 이메일 주소가 필요합니다. 담당자 이메일을 확인해주세요.');
+      }
+
+      // 🔧 진단 데이터를 PDF 이메일 서비스 형식으로 변환
+      const reportData: DiagnosisReportData = {
+        companyName,
+        contactName,
+        contactEmail,
+        contactPhone: diagnosis.contactPhone || data.data.연락처 || '',
+        totalScore,
+        overallGrade,
+        industryType,
+        employeeCount: diagnosis.employeeCount || data.data.직원수 || '10-50명',
+        categoryResults: diagnosis.categoryResults || [],
+        strengths: diagnosis.strengths || [],
+        weaknesses: diagnosis.weaknesses || [],
+        opportunities: diagnosis.opportunities || [],
+        actionPlan: diagnosis.actionPlan || [],
+        recommendedServices: diagnosis.recommendedServices || [],
+        consultant: {
+          name: '이후경 경영지도사',
+          phone: '010-9251-9743',
+          email: 'hongik423@gmail.com'
+        },
+        summaryReport: diagnosis.summaryReport || '',
+        diagnosisDate: new Date().toLocaleDateString('ko-KR')
+      };
+
+      // 1단계: PDF 생성 및 base64 인코딩
+      console.log('📄 1단계: PDF 생성 시작...');
+      const pdfResult = await sendDiagnosisReportPdf(reportData);
+      
+      if (!pdfResult.success || !pdfResult.pdfBase64) {
+        throw new Error(pdfResult.error || 'PDF 생성에 실패했습니다.');
+      }
+
+      console.log('✅ PDF 생성 완료, 크기:', Math.round(pdfResult.pdfBase64.length / 1024) + 'KB');
+
+      // 2단계: Google Apps Script를 통한 PDF 이메일 발송
+      console.log('📧 2단계: Google Apps Script로 PDF 이메일 발송...');
+      
+      const pdfEmailData = {
+        action: 'sendDiagnosisPdfEmail',
+        to_email: contactEmail,
+        to_name: contactName,
+        company_name: companyName,
+        total_score: totalScore,
+        overall_grade: overallGrade,
+        industry_type: industryType,
+        diagnosis_date: new Date().toLocaleDateString('ko-KR'),
+        pdf_attachment: pdfResult.pdfBase64,
+        pdf_filename: `AI진단보고서_${companyName}_${new Date().toISOString().split('T')[0]}.pdf`,
+        consultant_name: '이후경 경영지도사',
+        consultant_phone: '010-9251-9743',
+        consultant_email: 'hongik423@gmail.com'
+      };
+
+      const response = await fetch(appConfig.googleScriptUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pdfEmailData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Google Apps Script 호출 실패: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: "✅ PDF 결과보고서 발송 완료!",
+          description: `${contactEmail}로 AI 진단 결과보고서가 발송되었습니다. 이메일을 확인해주세요.`,
+          duration: 7000,
+        });
+
+        console.log('✅ PDF 이메일 발송 성공:', {
+          timestamp: result.timestamp,
+          filename: pdfEmailData.pdf_filename,
+          sent_to: contactEmail
+        });
+      } else {
+        throw new Error(result.error || 'PDF 이메일 발송에 실패했습니다.');
+      }
+
+    } catch (error) {
+      console.error('❌ PDF 이메일 발송 오류:', error);
+      
+      // 🔧 상세 오류 분석 및 사용자 친화적 메시지
+      let errorMessage = "PDF 이메일 발송 중 오류가 발생했습니다.";
+      let suggestion = "잠시 후 다시 시도해주세요.";
+      
+      if (error instanceof Error) {
+        const errorText = error.message.toLowerCase();
+        if (errorText.includes('이메일') || errorText.includes('email')) {
+          errorMessage = "이메일 주소가 올바르지 않습니다.";
+          suggestion = "담당자 이메일 주소를 확인하고 다시 시도해주세요.";
+        } else if (errorText.includes('pdf')) {
+          errorMessage = "PDF 생성 중 오류가 발생했습니다.";
+          suggestion = "브라우저를 새로고침하고 다시 시도해주세요.";
+        } else if (errorText.includes('network') || errorText.includes('연결')) {
+          errorMessage = "네트워크 연결 오류입니다.";
+          suggestion = "인터넷 연결을 확인하고 다시 시도해주세요.";
+        }
+      }
+      
+      toast({
+        title: "PDF 이메일 발송 실패",
+        description: `${errorMessage} ${suggestion}`,
+        variant: "destructive",
+        duration: 7000,
+      });
+
+      // 폴백: PDF 미리보기 제공
+      try {
+        const reportData: DiagnosisReportData = {
+          companyName: diagnosis.companyName || 'Unknown Company',
+          contactName: diagnosis.contactName || data.data.담당자명 || '담당자',
+          contactEmail: diagnosis.contactEmail || data.data.이메일 || '',
+          contactPhone: diagnosis.contactPhone || data.data.연락처 || '',
+          totalScore: diagnosis.totalScore || 75,
+          overallGrade: diagnosis.overallGrade || 'B',
+          industryType: diagnosis.industryType || data.data.업종 || '일반 업종',
+          employeeCount: diagnosis.employeeCount || data.data.직원수 || '10-50명',
+          categoryResults: diagnosis.categoryResults || [],
+          strengths: diagnosis.strengths || [],
+          weaknesses: diagnosis.weaknesses || [],
+          opportunities: diagnosis.opportunities || [],
+          actionPlan: diagnosis.actionPlan || [],
+          recommendedServices: diagnosis.recommendedServices || [],
+          consultant: {
+            name: '이후경 경영지도사',
+            phone: '010-9251-9743',
+            email: 'hongik423@gmail.com'
+          },
+          summaryReport: diagnosis.summaryReport || '',
+          diagnosisDate: new Date().toLocaleDateString('ko-KR')
+        };
+
+        previewDiagnosisReportPdf(reportData);
+        
+        toast({
+          title: "📄 PDF 미리보기 제공",
+          description: "이메일 발송은 실패했지만 PDF 미리보기를 새 창에서 열었습니다. 인쇄하여 저장하실 수 있습니다.",
+          duration: 5000,
+        });
+      } catch (previewError) {
+        console.error('PDF 미리보기도 실패:', previewError);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 🚀 진단 완료 시 자동 PDF 이메일 발송 (업그레이드 기능)
+  useEffect(() => {
+    const sendAutomaticPdfEmail = async () => {
+      // 이미 발송했거나 발송 중이면 중복 실행 방지
+      if (pdfEmailSent || pdfEmailStatus === 'sending') {
+        return;
+      }
+
+      // 진단 데이터가 유효한지 확인
+      const contactEmail = diagnosis.contactEmail || normalizedData.data.이메일;
+      if (!diagnosis.companyName || !contactEmail) {
+        console.log('📧 자동 PDF 이메일 발송 건너뜀: 필수 데이터 부족');
+        return;
+      }
+
+      console.log('📧 자동 PDF 이메일 발송 시작');
+      setPdfEmailStatus('sending');
+
+      try {
+        await handlePDFEmailSend();
+        setPdfEmailStatus('success');
+        setPdfEmailSent(true);
+        console.log('✅ 자동 PDF 이메일 발송 완료');
+      } catch (error) {
+        console.error('❌ 자동 PDF 이메일 발송 실패:', error);
+        setPdfEmailStatus('failed');
+      }
+    };
+
+    // 컴포넌트 마운트 후 3초 뒤에 자동 발송 시작 (UI 로딩 완료 후)
+    const timer = setTimeout(sendAutomaticPdfEmail, 3000);
+
+    return () => clearTimeout(timer);
+  }, [diagnosis.companyName, pdfEmailSent, pdfEmailStatus]);
+
   const handleConsultationRequest = () => {
     // 상담 신청 페이지로 이동
     window.location.href = '/consultation';
@@ -1217,6 +1448,53 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </div>
         </CardContent>
       </Card>
+
+      {/* 🆕 PDF 이메일 발송 상태 카드 */}
+      {pdfEmailStatus && (
+        <Card className={`${
+          pdfEmailStatus === 'sending' ? 'border-blue-200 bg-blue-50' :
+          pdfEmailStatus === 'success' ? 'border-green-200 bg-green-50' :
+          'border-red-200 bg-red-50'
+        }`}>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              {pdfEmailStatus === 'sending' && (
+                <>
+                  <div className="w-8 h-8 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800">PDF 결과보고서 이메일 발송 중...</h3>
+                    <p className="text-blue-700">
+                      PDF를 생성하고 이메일로 발송하고 있습니다. 잠시만 기다려주세요.
+                    </p>
+                  </div>
+                </>
+              )}
+              {pdfEmailStatus === 'success' && (
+                <>
+                  <Mail className="w-8 h-8 text-green-600" />
+                  <div>
+                    <h3 className="text-lg font-bold text-green-800">📧 PDF 결과보고서가 이메일로 발송되었습니다!</h3>
+                    <p className="text-green-700">
+                      {normalizedData.data.이메일 || diagnosis.contactEmail || '등록된 이메일'}로 PDF 첨부 메일을 발송했습니다. 이메일함을 확인해주세요.
+                    </p>
+                  </div>
+                </>
+              )}
+              {pdfEmailStatus === 'failed' && (
+                <>
+                  <AlertCircle className="w-8 h-8 text-red-600" />
+                  <div>
+                    <h3 className="text-lg font-bold text-red-800">PDF 이메일 발송 실패</h3>
+                    <p className="text-red-700">
+                      자동 발송에 실패했습니다. 아래 "PDF 결과보고서 이메일 발송" 버튼을 클릭해주세요.
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 진단 요약 */}
       <Card>
@@ -1303,17 +1581,18 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 }
                 
                 return Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
-                  // 안전한 데이터 처리
+                  // 안전한 데이터 처리 및 타입 가드
                   if (!category || typeof category !== 'object') {
                     console.warn(`⚠️ 카테고리 데이터 오류: ${categoryKey}`, category);
                     return null;
                   }
                   
-                  // Enhanced 엔진 결과에서 안전하게 점수 추출
-                  const safeScore = typeof category.score === 'number' ? category.score : 0;
-                  const safeMaxScore = typeof category.maxScore === 'number' ? category.maxScore : 5;
-                  const safeName = category.name || categoryKey;
-                  const safeWeight = typeof category.weight === 'number' ? category.weight : 0;
+                  // Enhanced 엔진 결과에서 안전하게 점수 추출 (타입 단언 사용)
+                  const categoryData = category as any;
+                  const safeScore = typeof categoryData.score === 'number' ? categoryData.score : 0;
+                  const safeMaxScore = typeof categoryData.maxScore === 'number' ? categoryData.maxScore : 5;
+                  const safeName = categoryData.name || categoryKey;
+                  const safeWeight = typeof categoryData.weight === 'number' ? categoryData.weight : 0;
                   
                   // 5점 기준을 100점으로 환산
                   const score100 = Math.round((safeScore / safeMaxScore) * 100);
@@ -1382,16 +1661,17 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 }
                 
                 return Object.entries(diagnosis.categoryScores).map(([categoryKey, category]) => {
-                  // 안전한 데이터 처리
+                  // 안전한 데이터 처리 및 타입 가드
                   if (!category || typeof category !== 'object') {
                     console.warn(`⚠️ 카테고리 데이터 오류: ${categoryKey}`, category);
                     return null;
                   }
                   
-                  // Enhanced 엔진 결과에서 안전하게 추출
-                  const safeItems = Array.isArray(category.items) ? category.items : [];
-                  const safeName = category.name || categoryKey;
-                  const safeScore = typeof category.score === 'number' ? category.score : 0;
+                  // Enhanced 엔진 결과에서 안전하게 추출 (타입 단언 사용)
+                  const categoryData = category as any;
+                  const safeItems = Array.isArray(categoryData.items) ? categoryData.items : [];
+                  const safeName = categoryData.name || categoryKey;
+                  const safeScore = typeof categoryData.score === 'number' ? categoryData.score : 0;
                   
                   if (safeItems.length === 0) {
                     console.warn(`⚠️ 카테고리 ${categoryKey}에 항목이 없습니다:`, category);
@@ -1417,7 +1697,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                       </h5>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {safeItems.map((item, index) => {
+                        {safeItems.map((item: any, index: number) => {
                           // 항목별 안전한 데이터 처리
                           const safeItemScore = typeof item.score === 'number' ? item.score : 0;
                           const safeItemName = item.name || `항목 ${index + 1}`;
@@ -1504,13 +1784,19 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                   <div>
                     <span className="font-medium">우수 영역:</span>
                     <span className="ml-2">
-                      {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => cat && (cat.score / cat.maxScore) >= 0.8).map(cat => cat?.name).join(', ') || '균형적 발전'}
+                      {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => {
+                        const catData = cat as any;
+                        return catData && (catData.score / catData.maxScore) >= 0.8;
+                      }).map(cat => (cat as any)?.name).join(', ') || '균형적 발전'}
                     </span>
                   </div>
                   <div>
                     <span className="font-medium">개선 영역:</span>
                     <span className="ml-2">
-                      {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => cat && (cat.score / cat.maxScore) < 0.6).map(cat => cat?.name).join(', ') || '지속적 성장'}
+                      {diagnosis.categoryScores && Object.values(diagnosis.categoryScores).filter(cat => {
+                        const catData = cat as any;
+                        return catData && (catData.score / catData.maxScore) < 0.6;
+                      }).map(cat => (cat as any)?.name).join(', ') || '지속적 성장'}
                     </span>
                   </div>
                 </div>
@@ -1878,19 +2164,37 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 {showFullReport ? '보고서 접기' : '보고서 펼치기'}
               </Button>
               <Button 
-                onClick={handleDownload}
+                onClick={handlePDFEmailSend}
                 disabled={isLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 {isLoading ? (
                   <>
                     <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                    <span>다운로드 중...</span>
+                    <span>PDF 발송 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4 mr-2" />
+                    <span>📧 PDF 결과보고서 이메일 발송</span>
+                  </>
+                )}
+              </Button>
+              <Button 
+                onClick={handlePDFDownload}
+                disabled={isLoading}
+                variant="outline"
+                className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                    <span>PDF 생성 중...</span>
                   </>
                 ) : (
                   <>
                     <Download className="w-4 h-4 mr-2" />
-                    <span>보고서 다운로드</span>
+                    <span>📄 PDF 다운로드 (백업)</span>
                   </>
                 )}
               </Button>
@@ -1949,34 +2253,43 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
             </p>
           </div>
           
-          <Button 
-            onClick={handleDownload}
-            disabled={isLoading}
-            className="text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            style={{ backgroundColor: '#4285F4' }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundColor = '#3367d6';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundColor = '#4285F4';
-              }
-            }}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                보고서 생성 중...
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                결과보고서다운로드
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handlePDFEmailSend}
+              disabled={isLoading}
+              className="text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
+                  PDF 발송 중...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4" />
+                  📧 PDF 이메일 발송
+                </>
+              )}
+            </Button>
+            <Button 
+              onClick={handlePDFDownload}
+              disabled={isLoading}
+              variant="outline"
+              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                  PDF 생성 중...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  📄 PDF 다운로드
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -2271,6 +2584,73 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 {formatReportForDisplay(data.data.summaryReport)}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* 🆕 PDF 이메일 발송 및 다운로드 버튼 */}
+        <Card className="border-gray-200">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              {/* PDF 이메일 발송 버튼 - 메인 기능 */}
+              <Button 
+                onClick={handlePDFEmailSend}
+                disabled={isLoading || pdfEmailStatus === 'sending'}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105"
+              >
+                {pdfEmailStatus === 'sending' ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>PDF 이메일 발송 중...</span>
+                  </>
+                ) : pdfEmailStatus === 'success' ? (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    <span>✅ 발송 완료</span>
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-5 h-5" />
+                    <span>📧 PDF 결과보고서 이메일 발송</span>
+                  </>
+                )}
+              </Button>
+
+              {/* PDF 다운로드 버튼 - 백업 기능 */}
+              <Button 
+                onClick={handleDownload}
+                disabled={isLoading}
+                variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50 font-medium px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300"
+              >
+                {isLoading && pdfEmailStatus !== 'sending' ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span>PDF 생성 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    <span>📄 PDF 다운로드</span>
+                  </>
+                )}
+              </Button>
+
+              {/* 고급진단 버튼 */}
+              <Button 
+                onClick={() => window.location.href = '/diagnosis'}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 hover:scale-105"
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>✨ 고급진단 받기</span>
+              </Button>
+            </div>
+
+            {/* 이메일 안내 텍스트 */}
+            {(diagnosis.contactEmail || normalizedData.data.이메일) && (
+              <div className="mt-4 text-center text-sm text-gray-600">
+                📧 {diagnosis.contactEmail || normalizedData.data.이메일}로 PDF 결과보고서를 발송합니다
+              </div>
+            )}
           </CardContent>
         </Card>
 

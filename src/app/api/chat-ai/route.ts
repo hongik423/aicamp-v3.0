@@ -104,8 +104,11 @@ function analyzeQuestionAndDetermineLength(message: string): {
 }
 
 export async function POST(request: NextRequest) {
+  let message: string = ''; // 스코프 문제 해결을 위해 상단에서 선언
+  
   try {
-    const { message } = await request.json();
+    const requestBody = await request.json();
+    message = requestBody.message;
     
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });

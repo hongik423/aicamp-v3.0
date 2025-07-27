@@ -460,18 +460,19 @@ export default function ConsultationRequestModal({
             </div>
 
             {/* 개인정보 동의 */}
-            <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-start space-x-4 p-6 bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-200 rounded-xl shadow-sm">
               <Checkbox
                 id="privacyConsent"
                 checked={formData.privacyConsent}
                 onCheckedChange={(checked) => handleInputChange('privacyConsent', !!checked)}
                 required
+                className="w-7 h-7 border-4 border-black shadow-lg ring-2 ring-blue-500 ring-offset-2 data-[state=checked]:bg-blue-600 data-[state=checked]:border-black data-[state=checked]:ring-green-500 rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-xl focus:ring-4 focus:ring-blue-300"
               />
               <div className="flex-1">
-                <Label htmlFor="privacyConsent" className="text-sm font-medium text-gray-700 cursor-pointer">
+                <Label htmlFor="privacyConsent" className="text-base font-bold text-gray-800 cursor-pointer hover:text-blue-700 transition-colors">
                   개인정보 수집 및 이용 동의 *
                 </Label>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-sm text-gray-700 mt-2 leading-relaxed">
                   상담 서비스 제공 및 마케팅 활용을 위한 개인정보 수집 및 이용에 동의합니다. 수집된 정보는 상담 진행, 맞춤형 서비스 제공, 마케팅 정보 안내 목적으로 사용되며, 개인정보보호법에 따라 3년간 보관됩니다.
                 </p>
               </div>
