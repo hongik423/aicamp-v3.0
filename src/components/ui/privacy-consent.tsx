@@ -92,7 +92,7 @@ export default function PrivacyConsent({
             id="privacy-consent-checkbox"
             checked={checked}
             onCheckedChange={handleConsentChange}
-            className="w-7 h-7 border-3 border-blue-500 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded-lg transition-all duration-200 shadow-md"
+            className="w-8 h-8 border-4 border-black shadow-lg ring-2 ring-blue-500 ring-offset-2 data-[state=checked]:bg-blue-600 data-[state=checked]:border-black data-[state=checked]:ring-green-500 rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-xl focus:ring-4 focus:ring-blue-300"
             required={required}
           />
         </div>
