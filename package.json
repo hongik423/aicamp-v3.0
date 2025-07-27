@@ -1,6 +1,6 @@
 {
   "name": "aicamp_v3.0",
-  "version": "3.0.0",
+  "version": "3.0.27",
   "private": true,
   "scripts": {
     "dev": "npx next dev",
@@ -24,9 +24,12 @@
     "vercel:deploy": "vercel --prod",
     "vercel:setup": "npm run vercel:env && npm run vercel:deploy",
     "setup:env": "cp env.local.production .env.local && echo '✅ 환경변수 파일 복사 완료'",
+    "setup:env-correct": "copy env.local.production .env.local && echo '✅ 정확한 환경변수 파일 복사 완료'",
+    "env:verify": "node -e \"const fs=require('fs');if(fs.existsSync('.env.local')){console.log('✅ .env.local 파일 존재');const content=fs.readFileSync('.env.local','utf8');console.log('📊 Google Script URL:',content.includes('AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB')?'✅ 정확함':'❌ 불일치');}else{console.log('❌ .env.local 파일 없음');}\"",
     "update:google-script": "node scripts/update-google-script-url.js",
     "test:beta-feedback": "node scripts/test-beta-feedback-system.js",
     "test:google-script": "npm run test:beta-feedback",
+    "deploy:correct": "npm run setup:env-correct && npm run build && npm run vercel:deploy",
     "deploy:complete": "npm run build && npm run vercel:deploy && npm run test:beta-feedback"
   },
   "dependencies": {
@@ -55,7 +58,7 @@
     "@types/react": "18.3.5",
     "@types/react-dom": "18.3.0",
     "autoprefixer": "10.4.20",
-    "axios": "^1.7.9",
+    "axios": "^1.11.0",
     "chart.js": "^4.5.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -90,6 +93,7 @@
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
     "cross-env": "^7.0.3",
+    "dotenv": "^17.2.1",
     "eslint": "^9.29.0",
     "eslint-config-next": "^15.1.0",
     "puppeteer": "^24.12.0"

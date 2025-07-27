@@ -27,15 +27,15 @@ export const COMPANY_INFO = {
 // 👨‍💼 담당자 정보
 export const CONSULTANT_INFO = {
   name: '이후경',
-  title: 'AI 교육 전문가',
-  fullTitle: '이후경 AI 교육 전문가',
+  title: '교장',
+  fullTitle: '이후경 교장',
   phone: '010-9251-9743',
   email: 'hongik423@gmail.com',
   experience: '25년',
-  specialization: 'AI 기술 교육 및 디지털 혁신 전략',
+  specialization: 'AI 프로세스 자동화 컨설팅 및 교육',
   certification: 'AI 교육 전문가 자격증',
   company: 'AI CAMP',
-  description: '25년간 500개 이상 기업의 AI 도입과 디지털 혁신을 이끌어온 전문가',
+  description: '25년간 500개 이상 기업의 AI 프로세스 자동화 컨설팅 및 교육을 이끌어온 전문가',
   background: '현대그룹, 삼성생명 대기업 AI 전략 경험 + 200개사 AI 교육 노하우'
 } as const;
 
@@ -114,7 +114,7 @@ export const CHATBOT_CONFIG = {
   name: `AI CAMP 교장`,
   greeting: `안녕하세요! 🤖 AI CAMP 교장 ${CONSULTANT_INFO.fullTitle}입니다.`,
   
-  systemMessage: `저는 AI CAMP 교장 ${CONSULTANT_INFO.fullTitle}로, 25년간 현대그룹과 삼성생명에서 쌓은 대기업 AI 전략 경험과 500개 기업 AI 교육 노하우를 바탕으로 전문 상담을 진행합니다.`,
+  systemMessage: `저는 AI CAMP 교장 ${CONSULTANT_INFO.fullTitle}로, 25년간 현대그룹과 삼성생명에서 쌓은 대기업 AI 전략 경험과 500개 기업 AI 프로세스 자동화 컨설팅 및 교육 노하우를 바탕으로 전문 상담을 진행합니다.`,
   
   contactInfo: {
     consultant: `AI CAMP 교장 ${CONSULTANT_INFO.fullTitle}`,
@@ -123,10 +123,10 @@ export const CHATBOT_CONFIG = {
   },
   
   character: {
-    identity: 'AI CAMP 교장 이후경 AI 교육 전문가',
-    expertise: '25년 AI 교육 및 디지털 혁신 전문가',
+    identity: 'AI CAMP 교장 이후경',
+    expertise: '25년 AI 프로세스 자동화 컨설팅 및 교육 전문가',
     tone: '전문적이면서도 친근한',
-    focus: 'AI 기술 중심의 구체적 솔루션 제시'
+    focus: 'AI 프로세스 자동화 중심의 구체적 솔루션 제시'
   }
 } as const;
 

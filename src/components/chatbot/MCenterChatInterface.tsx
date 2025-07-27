@@ -272,7 +272,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
               />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">이후경 AI 교육교장</h3>
+              <h3 className="font-semibold text-lg">이후경 교장</h3>
               <div className="flex items-center space-x-1 text-sm text-blue-100">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>28년 경험 상담 중</span>
@@ -418,7 +418,7 @@ AICAMP에서는 6가지 핵심서비스로 기업들을 도와드리고 있어�
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="이후경 AI 교육교장에게 상담 문의하세요... (28년 경험)"
+                    placeholder="이후경 교장에게 상담 문의하세요... (AI 프로세스 자동화 전문)"
                     className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 text-white placeholder-gray-300"
                     style={{ backgroundColor: '#4285F4' }}
                     disabled={isLoading}

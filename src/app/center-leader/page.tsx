@@ -350,7 +350,7 @@ export default function CenterLeaderPage() {
               <CardContent>
                 <div className="space-y-4">
                   {[
-                    { role: 'AI CAMP CEO', desc: 'AI 교육 및 컨설팅 대표' },
+                    { role: 'AI CAMP CEO', desc: 'AI 프로세스 자동화 컨설팅 및 교육 대표' },
                     { role: 'ISP 컨설팅 전문가', desc: '정부기관 정보화전략계획 수립' },
                     { role: 'ODA 프로젝트 총괄', desc: '요르단 치안정보통합관리시스템 구축' },
                     { role: 'AI 데이터 평가위원', desc: 'AI학습용 데이터구축사업 평가' },
