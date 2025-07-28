@@ -1,0 +1,35 @@
+{
+  "testSuite": "AICAMP 업그레이드 시스템 종합 테스트",
+  "version": "2025.01.28",
+  "timestamp": "2025-07-28T22:54:07.920Z",
+  "totalTests": 3,
+  "passedTests": 3,
+  "successRate": 100,
+  "upgradedFeatures": {
+    "corsFixed": true,
+    "industryCheckbox": true,
+    "locationSelection": true,
+    "privacyConsentFixed": true,
+    "googleAppsScriptIntegration": true
+  },
+  "detailedResults": [
+    {
+      "name": "🎯 AI 무료진단 (업종체크박스+소재지)",
+      "success": true,
+      "status": 200,
+      "timestamp": "2025-07-28T22:53:58.349Z"
+    },
+    {
+      "name": "💬 상담신청 (개인정보동의 수정)",
+      "success": true,
+      "status": 200,
+      "timestamp": "2025-07-28T22:54:03.438Z"
+    },
+    {
+      "name": "🧪 베타피드백 (기존기능 확인)",
+      "success": true,
+      "status": 200,
+      "timestamp": "2025-07-28T22:54:07.919Z"
+    }
+  ]
+}

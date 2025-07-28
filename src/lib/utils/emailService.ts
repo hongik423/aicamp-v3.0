@@ -308,9 +308,15 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
       }
     };
 
-    // 📝 업종별 특화 분석 데이터 준비
+    // 📝 업종별 특화 분석 데이터 준비 (🔥 업그레이드: 배열 처리)
+    let processedIndustry = diagnosisData.industry || diagnosisData.업종 || '';
+    if (Array.isArray(processedIndustry)) {
+      processedIndustry = processedIndustry.join(', ');
+      console.log('✅ 업종 배열을 문자열로 변환:', processedIndustry);
+    }
+    
     const industryAnalysis = {
-      업종: diagnosisData.industry || diagnosisData.업종 || '',
+      업종: processedIndustry,
       업종특화분석: diagnosisData.industrySpecificAnalysis || '',
       시장위치: diagnosisData.marketPosition || '',
       경쟁력분석: diagnosisData.competitiveAnalysis || '',
@@ -324,15 +330,15 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
       제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
       timestamp: Date.now(),
       
-      // 🔵 기본 정보
+      // 🔵 기본 정보 (🔥 업그레이드: 업종 배열 처리, 소재지 추가)
       회사명: diagnosisData.companyName || diagnosisData.회사명 || '',
-      업종: diagnosisData.industry || diagnosisData.업종 || '',
+      업종: processedIndustry, // 🔥 업그레이드: 배열을 문자열로 변환된 데이터 사용
       사업담당자: diagnosisData.businessManager || diagnosisData.사업담당자 || '',
       직원수: diagnosisData.employeeCount || diagnosisData.직원수 || '',
       사업성장단계: diagnosisData.growthStage || diagnosisData.사업성장단계 || '',
       주요고민사항: diagnosisData.mainConcerns || diagnosisData.주요고민사항 || '',
       예상혜택: diagnosisData.expectedBenefits || diagnosisData.예상혜택 || '',
-      진행사업장: diagnosisData.businessLocation || diagnosisData.진행사업장 || '',
+      소재지: diagnosisData.businessLocation || diagnosisData.소재지 || diagnosisData.진행사업장 || '', // 🔥 업그레이드: 소재지 필드로 변경
       담당자명: diagnosisData.contactName || diagnosisData.contactManager || diagnosisData.담당자명 || '',
       연락처: diagnosisData.contactPhone || diagnosisData.phone || diagnosisData.연락처 || '',
       이메일: diagnosisData.contactEmail || diagnosisData.email || diagnosisData.이메일 || '',
