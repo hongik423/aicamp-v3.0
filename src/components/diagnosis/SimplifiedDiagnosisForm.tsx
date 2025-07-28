@@ -593,23 +593,43 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
               {item.description}
             </p>
             
-            {/* 5점 척도 버튼 */}
-            <div className="grid grid-cols-5 gap-2">
-              {scaleLabels.map((scale) => (
-                <button
-                  key={scale.value}
-                  type="button"
-                  onClick={() => field.onChange(scale.value)}
-                  className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${
-                    field.value === scale.value
-                      ? `border-${categoryColor}-500 ${scale.bg} ${scale.color} shadow-md`
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                  }`}
-                >
-                  <div className="font-bold text-lg">{scale.value}</div>
-                  <div className="text-xs font-medium">{scale.label}</div>
-                </button>
-              ))}
+            {/* 📱 모바일 최적화된 5점 척도 버튼 */}
+            <div className="space-y-2">
+              {/* 모바일에서는 세로 배치, 데스크톱에서는 가로 배치 */}
+              <div className="grid grid-cols-5 md:grid-cols-5 gap-2 md:gap-3">
+                {scaleLabels.map((scale) => (
+                  <button
+                    key={scale.value}
+                    type="button"
+                    onClick={() => field.onChange(scale.value)}
+                    className={`
+                      relative p-2 md:p-3 rounded-xl border-2 text-center transition-all duration-300 
+                      min-h-[60px] md:min-h-[70px] hover:scale-105 active:scale-95
+                      ${field.value === scale.value
+                        ? `border-${categoryColor}-500 ${scale.bg} ${scale.color} shadow-lg ring-2 ring-${categoryColor}-200`
+                        : 'border-gray-200 hover:border-gray-400 text-gray-600 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    {/* 점수 숫자 */}
+                    <div className="font-bold text-lg md:text-xl mb-1">{scale.value}</div>
+                    {/* 라벨 */}
+                    <div className="text-xs md:text-sm font-medium leading-tight">{scale.label}</div>
+                    
+                    {/* 선택됨 표시 */}
+                    {field.value === scale.value && (
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                        <CheckCircle2 className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              
+              {/* 📱 모바일용 추가 안내 텍스트 */}
+              <div className="md:hidden text-center">
+                <p className="text-xs text-gray-500">👆 버튼을 터치하여 점수를 선택하세요</p>
+              </div>
             </div>
             
             {/* 선택된 점수 표시 */}
@@ -660,7 +680,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                         <FormControl>
                           <Input 
                             placeholder="(주)AICAMP" 
-                            className="h-12 border-2 hover:border-blue-400 focus:border-blue-500 transition-all"
+                            className="h-12 md:h-14 border-2 hover:border-blue-400 focus:border-blue-500 transition-all text-base"
                             {...field} 
                           />
                         </FormControl>
@@ -680,7 +700,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                         </FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-12 border-2 hover:border-blue-400 focus:border-blue-500 transition-all">
+                            <SelectTrigger className="h-12 md:h-14 border-2 hover:border-blue-400 focus:border-blue-500 transition-all text-base">
                               <SelectValue placeholder="업종을 선택해주세요" />
                             </SelectTrigger>
                           </FormControl>
@@ -716,7 +736,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                         <FormControl>
                           <Input 
                             placeholder="홍길동" 
-                            className="h-12 border-2 hover:border-blue-400 focus:border-blue-500 transition-all"
+                            className="h-12 md:h-14 border-2 hover:border-blue-400 focus:border-blue-500 transition-all text-base"
                             {...field} 
                           />
                         </FormControl>
@@ -849,15 +869,15 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                   />
                 </div>
 
-                {/* 다음 단계 버튼 */}
-                <div className="flex justify-between pt-6">
+                {/* 📱 모바일 최적화된 네비게이션 버튼 */}
+                <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-6">
                   <Button 
                     type="button"
                     variant="outline" 
                     onClick={onBack}
-                    className="px-6"
+                    className="h-12 px-6 text-base font-medium hover:bg-gray-50 transition-all duration-200"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <ArrowLeft className="w-5 h-5 mr-2" />
                     이전으로
                   </Button>
                   
@@ -865,10 +885,10 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     type="button"
                     onClick={nextStep}
                     disabled={!isStepComplete(1)}
-                    className="px-6"
+                    className="h-12 px-8 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 transition-all duration-200"
                   >
                     다음 단계
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
               </CardContent>
@@ -902,15 +922,15 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                   {/* 평가 문항들 */}
                   {category.items.map((item) => renderScaleInput(item, category.color))}
 
-                  {/* 네비게이션 버튼 */}
-                  <div className="flex justify-between pt-6">
+                  {/* 📱 모바일 최적화된 네비게이션 버튼 */}
+                  <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-6">
                     <Button 
                       type="button"
                       variant="outline" 
                       onClick={prevStep}
-                      className="px-6"
+                      className="h-12 px-6 text-base font-medium hover:bg-gray-50 transition-all duration-200"
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      <ArrowLeft className="w-5 h-5 mr-2" />
                       이전 단계
                     </Button>
                     
@@ -919,10 +939,10 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                         type="button"
                         onClick={nextStep}
                         disabled={!isStepComplete(currentStep)}
-                        className="px-6"
+                        className="h-12 px-8 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 transition-all duration-200"
                       >
                         다음 단계
-                        <ArrowRight className="w-4 h-4 ml-2" />
+                        <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     ) : (
                       <div className="space-y-4">
@@ -942,11 +962,11 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                           )}
                         />
                         
-                        {/* 진단 완료 버튼 */}
+                        {/* 📱 모바일 최적화된 진단 완료 버튼 */}
                         <Button 
                           type="submit"
                           disabled={isSubmitting || !form.getValues('privacyConsent')}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-4 h-auto text-white"
+                          className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 px-8 text-base md:text-lg font-bold text-white transition-all duration-300 hover:scale-105 active:scale-95"
                         >
                           {isSubmitting ? (
                             <>
