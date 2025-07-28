@@ -1,200 +1,346 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { 
-  FileText, 
-  Download, 
-  Phone, 
-  Mail, 
-  Calendar, 
-  CheckCircle,
-  AlertCircle,
-  Sparkles,
-  Star
+  Trophy, 
+  TrendingUp, 
+  Star, 
+  Award, 
+  Target,
+  FileText,
+  Download,
+  Mail,
+  Phone,
+  Loader2
 } from 'lucide-react';
 
+import { 
+  VisualReportGenerator, 
+  transformDiagnosisData, 
+  downloadFile,
+  prepareEmailData 
+} from '@/lib/utils/reportGenerator';
+
 interface SimpleDiagnosisResultsProps {
-  data: any;
+  data: {
+    companyName: string;
+    diagnosis: {
+      totalScore: number;
+      categoryResults: Array<{
+        category: string;
+        score: number;
+        averageScore: number;
+      }>;
+      recommendations: string;
+    };
+    enhanced: boolean;
+    analysisEngine: string;
+    timestamp: string;
+  };
 }
 
 export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { toast } = useToast();
+  const reportRef = useRef<HTMLDivElement>(null);
 
-  const diagnosis = data.data.diagnosis;
-  const companyName = data.data.회사명 || 'Unknown Company';
-  const contactName = data.data.담당자명 || '담당자';
-  const contactEmail = data.data.이메일 || '';
-  const totalScore = diagnosis.totalScore || 75;
-  const overallGrade = diagnosis.overallGrade || 'B';
+  const { companyName, diagnosis } = data;
+  
+  // 안전한 디스트럭처링 적용 - diagnosis가 undefined일 경우 기본값 설정
+  const { 
+    totalScore = 0, 
+    categoryResults = [], 
+    recommendations = '' 
+  } = diagnosis || {};
 
-  // 간소화된 진단 결과 처리
-  const handleResultSubmit = async () => {
-    if (isLoading) return;
-    
-    setIsLoading(true);
+  // diagnosis 객체가 없는 경우 에러 핸들링
+  if (!diagnosis) {
+    console.warn('⚠️ diagnosis 객체가 undefined입니다:', data);
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card className="border-2 border-red-200 shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl text-red-600">진단 결과 오류</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-8">
+            <p className="text-gray-600 mb-4">진단 결과를 불러오는 중 오류가 발생했습니다.</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              새로고침
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 등급 정보 계산
+  const getGradeInfo = (score: number) => {
+    if (score >= 90) return { grade: 'A+', color: 'bg-green-500', description: '최우수' };
+    if (score >= 85) return { grade: 'A', color: 'bg-green-400', description: '우수' };
+    if (score >= 80) return { grade: 'B+', color: 'bg-blue-500', description: '양호' };
+    if (score >= 75) return { grade: 'B', color: 'bg-blue-400', description: '보통' };
+    if (score >= 70) return { grade: 'C+', color: 'bg-yellow-500', description: '개선 필요' };
+    if (score >= 65) return { grade: 'C', color: 'bg-yellow-400', description: '개선 권장' };
+    if (score >= 60) return { grade: 'D+', color: 'bg-orange-500', description: '미흡' };
+    if (score >= 55) return { grade: 'D', color: 'bg-orange-400', description: '부족' };
+    return { grade: 'F', color: 'bg-red-500', description: '위험' };
+  };
+
+  const gradeInfo = getGradeInfo(totalScore);
+
+  // 🎨 시각적 보고서 다운로드
+  const handleDownloadReport = async () => {
+    setIsDownloading(true);
     
     try {
-      console.log('📊 진단 결과 처리 시작');
-      
       toast({
-        title: "진단 결과 처리 중...",
-        description: "결과를 전송하고 있습니다.",
+        title: "📄 보고서 생성 중...",
+        description: "시각적 AI 진단 보고서를 생성하고 있습니다.",
         duration: 3000,
       });
 
-      const diagnosisData = {
-        회사명: companyName,
-        업종: data.data.업종 || '일반 업종',
-        담당자명: contactName,
-        연락처: data.data.연락처 || '',
-        이메일: contactEmail,
-        개인정보동의: true,
-        종합점수: totalScore,
-        진단보고서요약: diagnosis.summaryReport || '진단 완료',
-        문항별점수: diagnosis.categoryResults || {},
-        제출일시: new Date().toLocaleString('ko-KR'),
-        timestamp: Date.now()
-      };
+      // 진단 데이터 변환
+      const reportData = transformDiagnosisData({
+        companyName: companyName,
+        totalScore: totalScore,
+        categoryScores: categoryResults.reduce((acc, category) => {
+          acc[category.category] = category.averageScore;
+          return acc;
+        }, {} as { [key: string]: number }),
+        recommendations: recommendations,
+        timestamp: data.timestamp,
+        industry: '기타', // 기본값
+        contactName: '담당자',
+        email: ''
+      });
 
-      const response = await fetch('https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec', {
+      const generator = new VisualReportGenerator();
+      
+      // HTML 보고서 생성
+      const htmlContent = generator.generateHTMLReport(reportData);
+      
+      // 임시 iframe을 사용해서 HTML을 렌더링하고 PDF로 변환
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      iframe.style.width = '800px';
+      iframe.style.height = '1200px';
+      document.body.appendChild(iframe);
+      
+      iframe.contentDocument?.open();
+      iframe.contentDocument?.write(htmlContent);
+      iframe.contentDocument?.close();
+      
+      // iframe이 완전히 로드될 때까지 대기
+      await new Promise(resolve => {
+        iframe.onload = resolve;
+        setTimeout(resolve, 2000); // 최대 2초 대기
+      });
+
+      const reportElement = iframe.contentDocument?.getElementById('diagnosis-report');
+      
+      if (reportElement) {
+        // PDF로 변환
+        const pdfBlob = await generator.convertToPDF(reportElement, `${companyName}_AI진단보고서.pdf`);
+        
+        // 다운로드 실행
+        downloadFile(pdfBlob, `${companyName}_AI진단보고서_${new Date().toISOString().slice(0, 10)}.pdf`);
+        
+        toast({
+          title: "✅ 다운로드 완료!",
+          description: "AI 진단 보고서가 다운로드되었습니다.",
+          duration: 4000,
+        });
+      } else {
+        throw new Error('보고서 요소를 찾을 수 없습니다.');
+      }
+      
+      // 임시 iframe 제거
+      document.body.removeChild(iframe);
+      
+    } catch (error) {
+      console.error('보고서 다운로드 실패:', error);
+      toast({
+        title: "❌ 다운로드 실패",
+        description: "보고서 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        duration: 5000,
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // 🔄 기존 결과 제출 로직
+  const handleResultSubmit = async () => {
+    setIsLoading(true);
+    
+    try {
+      toast({
+        title: "📊 결과 제출 중...",
+        description: "진단 결과를 처리하고 있습니다.",
+        duration: 3000,
+      });
+
+      // 진단 데이터 변환 (이메일 전송용)
+      const reportData = transformDiagnosisData({
+        companyName: companyName,
+        totalScore: totalScore,
+        categoryScores: categoryResults.reduce((acc, category) => {
+          acc[category.category] = category.averageScore;
+          return acc;
+        }, {} as { [key: string]: number }),
+        recommendations: recommendations,
+        timestamp: data.timestamp,
+        industry: '기타',
+        contactName: '담당자',
+        email: ''
+      });
+
+      // 이메일 데이터 준비
+      const emailData = prepareEmailData(reportData);
+      
+      // Google Apps Script로 데이터 전송 (기존 로직 유지)
+      const response = await fetch('/api/simplified-diagnosis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(diagnosisData)
+        body: JSON.stringify({
+          ...data,
+          action: 'submitResults',
+          emailTemplate: emailData.htmlContent,
+          mobileEmailTemplate: emailData.mobileHtmlContent
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error('결과 제출 실패');
       }
 
       const result = await response.json();
       
       if (result.success) {
         toast({
-          title: "✅ 진단 결과 처리 완료!",
-          description: `관리자 확인 후 ${contactEmail}로 연락드리겠습니다.`,
-          duration: 7000,
+          title: "🎉 제출 완료!",
+          description: "진단 결과가 성공적으로 제출되었습니다. 전문가가 검토 후 연락드리겠습니다.",
+          duration: 5000,
         });
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error || '알 수 없는 오류');
       }
 
     } catch (error) {
-      console.error('❌ 오류:', error);
-      
+      console.error('결과 제출 실패:', error);
       toast({
-        title: "처리 실패",
-        description: "네트워크를 확인하고 다시 시도해주세요.",
-        variant: "destructive",
+        title: "❌ 제출 실패",
+        description: "결과 제출 중 오류가 발생했습니다. 전화 상담을 이용해주세요.",
         duration: 5000,
       });
-      
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getGradeColor = (grade: string) => {
-    switch (grade) {
-      case 'A': return 'bg-green-500';
-      case 'B': return 'bg-blue-500';
-      case 'C': return 'bg-yellow-500';
-      case 'D': return 'bg-orange-500';
-      case 'F': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getScoreIcon = (score: number) => {
-    if (score >= 90) return <Sparkles className="h-6 w-6 text-yellow-500" />;
-    if (score >= 80) return <Star className="h-6 w-6 text-blue-500" />;
-    if (score >= 70) return <CheckCircle className="h-6 w-6 text-green-500" />;
-    return <AlertCircle className="h-6 w-6 text-orange-500" />;
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
       {/* 헤더 */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <FileText className="h-4 w-4" />
-          AI 진단 결과
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-3">
+          <Trophy className="w-8 h-8 text-yellow-500" />
+          <h1 className="text-3xl font-bold text-gray-900">
+            🎉 AI 진단 완료!
+          </h1>
         </div>
-        <h1 className="text-3xl font-bold mb-2">
-          {companyName}의 진단 결과
-        </h1>
-        <p className="text-muted-foreground">
-          AI 기반 정밀 진단 완료
+        <p className="text-lg text-gray-600">
+          <strong className="text-blue-600">{companyName}</strong>의 종합 진단 결과입니다
         </p>
       </div>
 
-      {/* 종합 점수 */}
-      <Card className="border-2 border-blue-200">
+      {/* 종합 점수 카드 */}
+      <Card className="border-2 border-blue-200 shadow-lg">
         <CardHeader className="text-center pb-2">
-          <CardTitle className="flex items-center justify-center gap-2">
-            {getScoreIcon(totalScore)}
-            종합 점수
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <div className="text-6xl font-bold mb-4 text-blue-600">
-            {totalScore}
-            <span className="text-2xl text-muted-foreground">점</span>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Award className="w-8 h-8 text-yellow-500" />
+            <CardTitle className="text-2xl">종합 진단 점수</CardTitle>
           </div>
-          <Badge 
-            className={`text-white px-4 py-2 text-lg ${getGradeColor(overallGrade)}`}
-          >
-            등급: {overallGrade}
-          </Badge>
-          <Progress value={totalScore} className="mt-4 h-3" />
-        </CardContent>
+          
+          <div className="flex items-center justify-center gap-8">
+            <div className="text-center">
+              <div className="text-6xl font-bold text-blue-600 mb-2">
+                {totalScore}
+              </div>
+              <div className="text-lg text-gray-600">점 / 100점</div>
+            </div>
+            
+            <div className="text-center">
+              <Badge className={`text-white text-xl px-4 py-2 ${gradeInfo.color}`}>
+                {gradeInfo.grade}등급
+              </Badge>
+              <div className="text-sm text-gray-600 mt-2">
+                {gradeInfo.description}
+              </div>
+            </div>
+          </div>
+          
+          <Progress value={totalScore} className="h-3 mt-4" />
+        </CardHeader>
       </Card>
 
-      {/* 기업 정보 */}
+      {/* 카테고리별 결과 */}
       <Card>
         <CardHeader>
-          <CardTitle>기업 정보</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-6 h-6 text-blue-600" />
+            영역별 진단 결과
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">회사명:</span>
-            <span>{companyName}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-medium">업종:</span>
-            <span>{data.data.업종 || '일반 업종'}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4" />
-            <span>{contactName}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4" />
-            <span>{contactEmail}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span>{new Date().toLocaleDateString('ko-KR')}</span>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categoryResults.map((category, index) => (
+              <div key={index} className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-lg border">
+                <div className="flex items-center gap-2 mb-3">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  <h3 className="font-semibold text-gray-900">{category.category}</h3>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-sm text-gray-600">평균 점수</span>
+                    <span className="text-lg font-bold text-blue-600">
+                      {category.averageScore.toFixed(1)}점
+                    </span>
+                  </div>
+                  <Progress value={(category.averageScore / 5) * 100} className="h-2" />
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* 진단 요약 */}
-      {diagnosis.summaryReport && (
-        <Card>
+      {/* 개선 권장사항 */}
+      {recommendations && (
+        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
           <CardHeader>
-            <CardTitle>진단 요약</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-orange-800">
+              <TrendingUp className="w-6 h-6" />
+              💡 개선 권장사항
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground leading-relaxed">
-              {diagnosis.summaryReport}
-            </p>
+            <div className="prose prose-sm max-w-none text-gray-700">
+              {recommendations.split('\n').map((line, index) => (
+                <p key={index} className="mb-2">{line}</p>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -207,27 +353,70 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           className="flex-1"
           size="lg"
         >
-          <FileText className="mr-2 h-5 w-5" />
-          {isLoading ? '처리 중...' : '진단 결과 제출'}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              처리 중...
+            </>
+          ) : (
+            <>
+              <FileText className="mr-2 h-5 w-5" />
+              진단 결과 제출
+            </>
+          )}
         </Button>
         
         <Button 
           variant="outline"
           className="flex-1"
           size="lg"
+          onClick={handleDownloadReport}
+          disabled={isDownloading}
         >
-          <Download className="mr-2 h-5 w-5" />
-          결과 다운로드
+          {isDownloading ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              생성 중...
+            </>
+          ) : (
+            <>
+              <Download className="mr-2 h-5 w-5" />
+              📄 AI 진단보고서 다운로드
+            </>
+          )}
         </Button>
       </div>
 
       {/* 안내 메시지 */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-        <p className="text-blue-800">
-          🎯 진단이 완료되었습니다! 
-          <br />
-          <strong>전문가 상담</strong>을 원하시면 결과 제출을 클릭해주세요.
-        </p>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="text-center space-y-2">
+          <p className="text-blue-800 font-medium">
+            🎯 진단이 완료되었습니다!
+          </p>
+          <p className="text-blue-700 text-sm">
+            <strong>전문가 상담</strong>을 원하시면 결과 제출을 클릭하거나 아래 연락처로 문의해주세요.
+          </p>
+          <div className="flex justify-center gap-4 mt-3">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => window.open('tel:010-9251-9743')}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              <Phone className="w-4 h-4 mr-1" />
+              010-9251-9743
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => window.open('mailto:hongik423@gmail.com')}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              <Mail className="w-4 h-4 mr-1" />
+              이메일 문의
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,800 +1,688 @@
-import { DiagnosisData, DiagnosisResults } from '../stores/diagnosisStore';
-import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
+/**
+ * 🎨 AI 진단 보고서 생성 및 변환 유틸리티
+ * 
+ * 📊 기능:
+ * - HTML to Image 변환
+ * - HTML to PDF 변환  
+ * - 시각적 보고서 템플릿 생성
+ * - 이메일용 HTML 템플릿 생성
+ */
 
-export interface ReportTemplate {
-  title: string;
-  sections: ReportSection[];
-  footer: string;
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
+
+export interface DiagnosisData {
+  companyName: string;
+  industry: string;
+  contactName: string;
+  email: string;
+  totalScore: number;
+  categoryScores: {
+    [key: string]: number;
+  };
+  recommendations: string;
+  timestamp: string;
 }
 
-export interface ReportSection {
-  title: string;
-  content: string[];
-  charts?: ChartData[];
+export interface ReportStyle {
+  primaryColor: string;
+  secondaryColor: string;
+  backgroundColor: string;
+  fontFamily: string;
+  logoUrl?: string;
 }
 
-export interface ChartData {
-  type: 'bar' | 'pie' | 'line';
-  title: string;
-  data: any;
-}
+const DEFAULT_STYLE: ReportStyle = {
+  primaryColor: '#4285f4',
+  secondaryColor: '#34a853', 
+  backgroundColor: '#ffffff',
+  fontFamily: "'Pretendard', 'Malgun Gothic', sans-serif"
+};
 
-// 🚀 최적화된 빠른 보고서 생성기
-export class OptimizedReportGenerator {
-  // 빠른 요약 보고서 생성 (3초 이내 목표)
-  static generateQuickReport(diagnosis: any): ReportTemplate {
-    const currentDate = new Date().toLocaleDateString('ko-KR');
-    
-    return {
-      title: `⚡ 빠른 진단 결과 - ${diagnosis.companyName || '기업명'}`,
-      sections: [
-        this.generateQuickOverview(diagnosis),
-        this.generateQuickRecommendations(diagnosis),
-        this.generateQuickActionPlan(diagnosis),
-        this.generateQuickContact(diagnosis)
-      ],
-      footer: `생성일: ${currentDate} | AI CAMP 이후경 전문 진단시스템`
-    };
+/**
+ * 🎨 시각적 진단 보고서 생성 클래스
+ */
+export class VisualReportGenerator {
+  private style: ReportStyle;
+  
+  constructor(customStyle?: Partial<ReportStyle>) {
+    this.style = { ...DEFAULT_STYLE, ...customStyle };
   }
 
-  // 1. 빠른 개요 섹션
-  private static generateQuickOverview(diagnosis: any): ReportSection {
-    const score = diagnosis.overallScore || 75;
-    const position = diagnosis.marketPosition || '양호';
-    const growth = diagnosis.industryGrowth || '25%';
-    
-    return {
-      title: '📊 진단 개요',
-      content: [
-        `✅ 종합 점수: ${score}점/100점 (${position} 수준)`,
-        `📈 업계 성장률: ${growth}`,
-        `⏰ 예상 성과 달성: ${diagnosis.quickAnalysis?.timeline || '3-6개월'}`,
-        '',
-        '🎯 핵심 강점:',
-        ...(diagnosis.quickAnalysis?.strengths || ['업종 전문성', '성장 의지', '시장 적응력']).map((s: string) => `  • ${s}`),
-        '',
-        '🔧 개선 포인트:',
-        ...(diagnosis.quickAnalysis?.improvements || ['디지털 전환', '마케팅 강화', '효율성 개선']).map((i: string) => `  • ${i}`)
-      ]
-    };
-  }
-
-  // 2. 빠른 추천사항
-  private static generateQuickRecommendations(diagnosis: any): ReportSection {
-    const primary = diagnosis.primaryService || 'business-analysis';
-    const services = diagnosis.recommendedServices || ['ai-productivity', 'website'];
-    
-    const serviceNames: { [key: string]: string } = {
-      'business-analysis': 'BM ZEN 사업분석',
-      'ai-productivity': 'AI 활용 생산성향상',
-      'factory-auction': '정책자금 확보',
-      'tech-startup': '기술사업화/기술창업',
-      'certification': '인증지원',
-      'website': '웹사이트 구축'
-    };
-
-    return {
-      title: '🚀 추천 서비스',
-      content: [
-        `🥇 1순위: ${serviceNames[primary] || primary}`,
-        '   → 가장 큰 성과를 기대할 수 있는 핵심 서비스',
-        '',
-        '📋 추가 추천 서비스:',
-        ...services.slice(0, 3).map((service: string, index: number) => 
-          `   ${index + 2}. ${serviceNames[service] || service}`
-        ),
-        '',
-        '💰 예상 투자 효과:',
-        `   • 매출 성장: ${diagnosis.expectedOutcome?.sales || '20-30%'}`,
-        `   • 효율성 향상: ${diagnosis.expectedOutcome?.efficiency || '25-35%'}`,
-        `   • 달성 기간: ${diagnosis.expectedOutcome?.timeline || '6개월 내'}`
-      ]
-    };
-  }
-
-  // 3. 빠른 실행 계획
-  private static generateQuickActionPlan(diagnosis: any): ReportSection {
-    const actions = diagnosis.actionPlan || [
-      '7일 내: 무료 상담 신청 및 현황 진단',
-      '30일 내: 우선순위 서비스 선택 및 착수',
-      '90일 내: 첫 번째 성과 측정 및 전략 조정'
-    ];
-
-    return {
-      title: '⚡ 즉시 실행 계획',
-      content: [
-        '🎯 단계별 로드맵:',
-        '',
-        ...actions.map((action: string, index: number) => {
-          const parts = action.split(':');
-          const timeline = parts[0];
-          const task = parts[1]?.trim() || action;
-          return `${index + 1}. ${timeline}: ${task}`;
-        }),
-        '',
-        '📞 다음 단계:',
-        '   → 전문가 상담을 통한 구체적 계획 수립',
-        '   → 정부 지원 프로그램 매칭',
-        '   → 맞춤형 서비스 실행 시작'
-      ]
-    };
-  }
-
-  // 4. 빠른 연락처 정보
-  private static generateQuickContact(diagnosis: any): ReportSection {
-    const consultant = diagnosis.consultant || {
-      name: CONSULTANT_INFO.name,
-      title: CONSULTANT_INFO.title,
-      email: CONTACT_INFO.mainEmail
-    };
-
-    return {
-      title: '📞 전담 컨설턴트',
-      content: [
-        `👨‍💼 담당자: ${consultant.name}`,
-        `📱 직통 전화: ${consultant.phone}`,
-        `📧 이메일: ${consultant.email}`,
-        '',
-        '🆓 무료 서비스:',
-        '   • 첫 상담 (30분) - 완전 무료',
-        '   • 현황 진단 및 우선순위 도출',
-        '   • 정부 지원 프로그램 안내',
-        '   • 맞춤형 실행 계획 제안',
-        '',
-        '⏰ 상담 가능 시간: 평일 09:00-18:00',
-        '🚀 즉시 상담 신청: 전화 또는 이메일'
-      ]
-    };
-  }
-
-  // 빠른 텍스트 보고서 생성 (최적화)
-  static generateQuickTextReport(diagnosis: any): string {
-    const template = this.generateQuickReport(diagnosis);
-    
-    let report = `${template.title}\n`;
-    report += '='.repeat(50) + '\n\n';
-
-    template.sections.forEach((section, index) => {
-      report += `${section.title}\n`;
-      report += '-'.repeat(30) + '\n';
-      
-      section.content.forEach(line => {
-        report += line + '\n';
-      });
-      
-      report += '\n';
-    });
-
-    report += template.footer + '\n';
-    return report;
-  }
-
-  // 빠른 HTML 보고서 생성 (최적화)
-  static generateQuickHTMLReport(diagnosis: any): string {
-    const template = this.generateQuickReport(diagnosis);
+  /**
+   * 📊 HTML 보고서 템플릿 생성
+   */
+  generateHTMLReport(data: DiagnosisData): string {
+    const gradeInfo = this.getGradeInfo(data.totalScore);
     
     return `
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${template.title}</title>
-    <style>
-        body { 
-            font-family: 'Malgun Gothic', sans-serif; 
-            line-height: 1.6; 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-        h1 { 
-            color: #2563eb; 
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.8rem;
-        }
-        h2 { 
-            color: #1e40af; 
-            border-left: 4px solid #3b82f6;
-            padding-left: 12px;
-            margin-top: 30px;
-        }
-        .section { 
-            margin-bottom: 25px; 
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        .footer { 
-            text-align: center; 
-            margin-top: 30px; 
-            padding: 15px;
-            background: #1e40af;
-            color: white;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        .highlight { 
-            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
-            padding: 10px;
-            border-radius: 6px;
-            margin: 8px 0;
-        }
-        .contact-box {
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI 진단 보고서 - ${data.companyName}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { 
+            font-family: ${this.style.fontFamily}; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+          }
+          
+          .report-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: ${this.style.backgroundColor};
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+          }
+          
+          .header {
+            background: linear-gradient(135deg, ${this.style.primaryColor} 0%, ${this.style.secondaryColor} 100%);
             color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+          }
+          
+          .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+          }
+          
+          .header-content {
+            position: relative;
+            z-index: 1;
+          }
+          
+          .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+          
+          .company-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+          }
+          
+          .report-title {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+          }
+          
+          .report-date {
+            font-size: 14px;
+            opacity: 0.8;
+          }
+          
+          .content {
+            padding: 40px 30px;
+          }
+          
+          .score-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8faff 0%, #e8f4f8 100%);
+            border-radius: 15px;
+            position: relative;
+          }
+          
+          .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(${this.style.primaryColor} ${data.totalScore * 3.6}deg, #e5e7eb 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+          }
+          
+          .score-inner {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+          
+          .score-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: ${this.style.primaryColor};
+            line-height: 1;
+          }
+          
+          .score-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+          }
+          
+          .grade-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: ${gradeInfo.color};
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 10px;
+          }
+          
+          .grade-description {
+            color: #666;
+            font-size: 14px;
+          }
+          
+          .categories-section {
+            margin-bottom: 40px;
+          }
+          
+          .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+          }
+          
+          .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+          }
+          
+          .category-card {
+            background: white;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-        }
-        .score {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #059669;
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+          }
+          
+          .category-card:hover {
+            border-color: ${this.style.primaryColor};
+            transform: translateY(-2px);
+          }
+          
+          .category-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+          }
+          
+          .category-score {
+            font-size: 24px;
+            font-weight: 700;
+            color: ${this.style.primaryColor};
+          }
+          
+          .category-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+          }
+          
+          .category-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, ${this.style.primaryColor}, ${this.style.secondaryColor});
+            transition: width 0.8s ease;
+          }
+          
+          .recommendations-section {
+            background: #f8faff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+          }
+          
+          .recommendations-text {
+            line-height: 1.6;
+            color: #444;
+            font-size: 14px;
+          }
+          
+          .footer {
             text-align: center;
-            margin: 20px 0;
-        }
-        .badge {
-            display: inline-block;
-            background: #3b82f6;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin: 2px;
-        }
-        .emoji { font-size: 1.2em; }
-        ul { padding-left: 0; }
-        li { 
-            list-style: none; 
-            margin: 8px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-        li:before {
-            content: "▶";
-            color: #3b82f6;
-            position: absolute;
-            left: 0;
-        }
-        @media print {
-            body { background: white; }
-            .container { box-shadow: none; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>${template.title}</h1>
-        
-        ${template.sections.map(section => `
-        <div class="section">
-            <h2>${section.title}</h2>
-            ${section.content.map(line => {
-              if (line.includes('종합 점수:')) {
-                const score = line.match(/(\d+)점/)?.[1] || '75';
-                return `<div class="score">${score}점</div>`;
-              }
-              if (line.includes('→') || line.includes('•')) {
-                return `<div class="highlight">${line}</div>`;
-              }
-              if (line.includes('담당자:') || line.includes('전화:') || line.includes('이메일:')) {
-                return `<div class="contact-box">${line}</div>`;
-              }
-              if (line.trim() === '') {
-                return '<br>';
-              }
-              return `<p>${line}</p>`;
-            }).join('')}
-        </div>
-        `).join('')}
-        
-        <div class="footer">
-            ${template.footer}
-            <br>
-            <span class="badge">⚡ 3초 이내 생성</span>
-            <span class="badge">🏢 전문가 분석</span>
-            <span class="badge">📞 즉시 상담 가능</span>
-        </div>
-    </div>
-</body>
-</html>`;
-  }
-
-  // 즉시 다운로드 (최적화)
-  static downloadQuickReport(diagnosis: any, format: 'text' | 'html' = 'html'): void {
-    const content = format === 'html' 
-      ? this.generateQuickHTMLReport(diagnosis)
-      : this.generateQuickTextReport(diagnosis);
-    
-    const companyName = diagnosis.companyName || '기업';
-    const timestamp = new Date().toISOString().slice(0, 10);
-    const filename = `${companyName}_진단결과_${timestamp}`;
-    
-    const mimeType = format === 'html' ? 'text/html' : 'text/plain';
-    const extension = format === 'html' ? '.html' : '.txt';
-    
-    const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    
-    link.href = url;
-    link.download = filename + extension;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }
-
-  // 성능 측정 포함 보고서 생성
-  static generatePerformanceReport(diagnosis: any, processingTime: number): ReportTemplate {
-    const baseReport = this.generateQuickReport(diagnosis);
-    
-    // 성능 정보 섹션 추가
-    const performanceSection: ReportSection = {
-      title: '⚡ 성능 정보',
-      content: [
-        `🚀 처리 시간: ${processingTime}ms`,
-        `🎯 목표 시간: 3000ms`,
-        `✅ 성능 개선: ${processingTime < 3000 ? '목표 달성' : '최적화 필요'}`,
-        `🏢 전문 분석: ${diagnosis.professionalAnalysis ? '적용' : '기본 모드'}`,
-        `⚡ 최적화: ${diagnosis.optimized ? '적용됨' : '기본 모드'}`,
-        '',
-        '📊 시스템 최적화 효과:',
-        '   • 기존 대비 70% 속도 향상',
-        '   • 병렬 처리로 응답 시간 단축',
-        '   • 간소화된 보고서로 핵심 정보 집중'
-      ]
-    };
-    
-    baseReport.sections.push(performanceSection);
-    return baseReport;
-  }
-}
-
-// 기존 ReportGenerator 클래스 (호환성 유지)
-export class ReportGenerator {
-  // 메인 보고서 생성
-  static generateComprehensiveReport(
-    diagnosisData: DiagnosisData, 
-    results: DiagnosisResults
-  ): ReportTemplate {
-    const currentDate = new Date().toLocaleDateString('ko-KR');
-    
-    return {
-      title: `${diagnosisData.companyName} 종합 진단 보고서`,
-      sections: [
-        this.generateExecutiveSummary(diagnosisData, results),
-        this.generateCompanyOverview(diagnosisData),
-        this.generateDiagnosisResults(results),
-        this.generateStrengthsWeaknesses(results),
-        this.generateRecommendations(results),
-        this.generateImplementationPlan(results),
-        this.generateAppendix(diagnosisData)
-      ],
-      footer: `생성일: ${currentDate} | AI CAMP 이후경 진단시스템`
-    };
-  }
-
-  // 경영진 요약
-  private static generateExecutiveSummary(
-    data: DiagnosisData, 
-    results: DiagnosisResults
-  ): ReportSection {
-    const keyInsights = [
-      `${data.companyName}의 종합 진단 점수는 100점 만점에 ${results.overallScore}점으로 ${results.marketPosition} 수준입니다.`,
-      `${data.industry} 업계 내 성장 잠재력은 ${results.industryGrowth}%로 평가됩니다.`,
-      `주요 강점: ${results.strengths.slice(0, 3).join(', ')}`,
-      `핵심 개선사항: ${results.weaknesses.slice(0, 3).join(', ')}`,
-      `우선순위 추천사항: ${results.recommendations.filter(r => r.priority === '높음').length}개의 고우선순위 액션 아이템`
-    ];
-
-    return {
-      title: '경영진 요약 (Executive Summary)',
-      content: keyInsights
-    };
-  }
-
-  // 회사 개요
-  private static generateCompanyOverview(data: DiagnosisData): ReportSection {
-    const overview = [
-      `회사명: ${data.companyName}`,
-      `업종: ${data.industry}`,
-      `설립년도: ${data.establishedYear}`,
-      `조직 규모: ${data.companySize}`,
-      `비즈니스 모델: ${data.businessModel}`,
-      `연 매출 규모: ${data.annualRevenue}`,
-      '',
-      '주요 제품/서비스:',
-      data.mainProducts,
-      '',
-      '목표 시장:',
-      data.targetMarket
-    ];
-
-    return {
-      title: '회사 개요',
-      content: overview
-    };
-  }
-
-  // 진단 결과
-  private static generateDiagnosisResults(results: DiagnosisResults): ReportSection {
-    const diagnosticResults = [
-      `종합 진단 점수: ${results.overallScore}/100`,
-      `시장 위치: ${results.marketPosition}`,
-      `업계 성장률: ${results.industryGrowth}%`,
-      `경쟁 강도: ${results.competitiveness}`,
-      '',
-      '세부 분석 결과:',
-      `• 비즈니스 모델 적합성: ${results.detailedAnalysis.businessModel.score}/100`,
-      `  ${results.detailedAnalysis.businessModel.feedback}`,
-      '',
-      `• 시장 이해도: ${results.detailedAnalysis.market.score}/100`,
-      `  ${results.detailedAnalysis.market.feedback}`,
-      '',
-      `• 운영 체계: ${results.detailedAnalysis.operation.score}/100`,
-      `  ${results.detailedAnalysis.operation.feedback}`
-    ];
-
-    const chartData: ChartData[] = [
-      {
-        type: 'bar',
-        title: '분야별 점수',
-        data: {
-          labels: ['비즈니스 모델', '시장 이해도', '운영 체계'],
-          values: [
-            results.detailedAnalysis.businessModel.score,
-            results.detailedAnalysis.market.score,
-            results.detailedAnalysis.operation.score
-          ]
-        }
-      }
-    ];
-
-    return {
-      title: '진단 결과 분석',
-      content: diagnosticResults,
-      charts: chartData
-    };
-  }
-
-  // 강점 및 약점 분석
-  private static generateStrengthsWeaknesses(results: DiagnosisResults): ReportSection {
-    const analysis = [
-      '주요 강점:',
-      ...results.strengths.map((strength, index) => `${index + 1}. ${strength}`),
-      '',
-      '개선 필요 사항:',
-      ...results.weaknesses.map((weakness, index) => `${index + 1}. ${weakness}`)
-    ];
-
-    return {
-      title: '강점 및 약점 분석',
-      content: analysis
-    };
-  }
-
-  // 추천사항
-  private static generateRecommendations(results: DiagnosisResults): ReportSection {
-    const recommendations = [
-      '우선순위별 추천사항:',
-      ''
-    ];
-
-    // 높은 우선순위 추천사항
-    const highPriority = results.recommendations.filter(r => r.priority === '높음');
-    if (highPriority.length > 0) {
-      recommendations.push('🔴 높은 우선순위:');
-      highPriority.forEach((rec, index) => {
-        recommendations.push(`${index + 1}. [${rec.category}] ${rec.action}`);
-        recommendations.push(`   실행 기간: ${rec.timeline}`);
-        recommendations.push('');
-      });
-    }
-
-    // 보통 우선순위 추천사항
-    const mediumPriority = results.recommendations.filter(r => r.priority === '보통');
-    if (mediumPriority.length > 0) {
-      recommendations.push('🟡 보통 우선순위:');
-      mediumPriority.forEach((rec, index) => {
-        recommendations.push(`${index + 1}. [${rec.category}] ${rec.action}`);
-        recommendations.push(`   실행 기간: ${rec.timeline}`);
-        recommendations.push('');
-      });
-    }
-
-    return {
-      title: '추천사항',
-      content: recommendations
-    };
-  }
-
-  // 실행 계획
-  private static generateImplementationPlan(results: DiagnosisResults): ReportSection {
-    const plan = [
-      '실행 로드맵:',
-      '',
-      '1개월 내 착수 항목:',
-      ...results.recommendations
-        .filter(r => r.timeline.includes('1개월'))
-        .map(r => `• ${r.category}: ${r.action}`),
-      '',
-      '3개월 내 완료 항목:',
-      ...results.recommendations
-        .filter(r => r.timeline.includes('3개월'))
-        .map(r => `• ${r.category}: ${r.action}`),
-      '',
-      '6개월 내 완료 항목:',
-      ...results.recommendations
-        .filter(r => r.timeline.includes('6개월'))
-        .map(r => `• ${r.category}: ${r.action}`),
-      '',
-      '성공 지표 (KPI):',
-      '• 매출 성장률: 전년 대비 20% 증가',
-      '• 고객 만족도: 85% 이상 유지',
-      '• 운영 효율성: 프로세스 자동화율 70% 달성',
-      '• 디지털 전환율: 핵심 업무 80% 디지털화'
-    ];
-
-    return {
-      title: '실행 계획',
-      content: plan
-    };
-  }
-
-  // 부록
-  private static generateAppendix(data: DiagnosisData): ReportSection {
-    const appendix = [
-      '담당자 정보:',
-      `• 성명: ${data.contactName}`,
-      `• 직책: ${data.position}`,
-      `• 이메일: ${data.contactEmail}`,
-      `• 연락처: ${data.contactPhone}`,
-      '',
-      '주요 도전과제:',
-      ...data.mainChallenges.map((challenge, index) => `${index + 1}. ${challenge}`),
-      '',
-      '비즈니스 목표:',
-      ...data.businessGoals.map((goal, index) => `${index + 1}. ${goal}`),
-      '',
-      '시급한 해결 과제:',
-      data.urgentIssues,
-      '',
-      '기대하는 결과:',
-      data.expectedOutcome
-    ];
-
-    if (data.additionalInfo) {
-      appendix.push('', '추가 정보:', data.additionalInfo);
-    }
-
-    return {
-      title: '부록',
-      content: appendix
-    };
-  }
-
-  // 텍스트 보고서 생성
-  static generateTextReport(template: ReportTemplate): string {
-    let report = `${template.title}\n`;
-    report += '='.repeat(template.title.length) + '\n\n';
-
-    template.sections.forEach((section, index) => {
-      report += `${index + 1}. ${section.title}\n`;
-      report += '-'.repeat(section.title.length + 3) + '\n';
-      
-      section.content.forEach(line => {
-        report += line + '\n';
-      });
-      
-      report += '\n';
-    });
-
-    report += '\n' + template.footer + '\n';
-    
-    return report;
-  }
-
-  // HTML 보고서 생성
-  static generateHTMLReport(template: ReportTemplate): string {
-    let html = `
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${template.title}</title>
-    <style>
-        body { 
-            font-family: 'Arial', sans-serif; 
-            line-height: 1.6; 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .report-container {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 { 
-            color: #2563eb; 
-            border-bottom: 3px solid #2563eb; 
-            padding-bottom: 10px;
-            text-align: center;
-        }
-        h2 { 
-            color: #1e40af; 
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-        .section { 
-            margin-bottom: 30px; 
-            padding: 20px;
-            background: #f8fafc;
-            border-left: 4px solid #3b82f6;
-            border-radius: 4px;
-        }
-        .footer { 
-            text-align: center; 
-            margin-top: 40px; 
+            padding: 30px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 12px;
+          }
+          
+          .contact-info {
+            margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #e5e7eb;
-            color: #6b7280;
-        }
-        ul { padding-left: 20px; }
-        li { margin-bottom: 8px; }
-        .highlight { 
-            background-color: #dbeafe; 
-            padding: 15px; 
-            border-radius: 4px; 
-            margin: 10px 0;
-        }
-        .priority-high { color: #dc2626; font-weight: bold; }
-        .priority-medium { color: #d97706; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="report-container">
-        <h1>${template.title}</h1>
-`;
-
-    template.sections.forEach(section => {
-      html += `        <div class="section">
-            <h2>${section.title}</h2>
-`;
-      
-      section.content.forEach(line => {
-        if (line.trim() === '') {
-          html += '            <br>\n';
-        } else if (line.includes('🔴')) {
-          html += `            <p class="priority-high">${line}</p>\n`;
-        } else if (line.includes('🟡')) {
-          html += `            <p class="priority-medium">${line}</p>\n`;
-        } else if (line.includes(':') && !line.includes('•')) {
-          html += `            <p><strong>${line}</strong></p>\n`;
-        } else {
-          html += `            <p>${line}</p>\n`;
-        }
-      });
-      
-      html += '        </div>\n';
-    });
-
-    html += `        <div class="footer">
-            <p>${template.footer}</p>
+          }
+          
+          .contact-item {
+            display: inline-block;
+            margin: 0 15px;
+          }
+          
+          @media print {
+            body { background: white; padding: 0; }
+            .report-container { box-shadow: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="report-container" id="diagnosis-report">
+          <div class="header">
+            <div class="header-content">
+              <div class="logo">🎯</div>
+              <div class="company-name">${data.companyName}</div>
+              <div class="report-title">AI 무료진단 결과보고서</div>
+              <div class="report-date">${new Date(data.timestamp).toLocaleDateString('ko-KR')} 발행</div>
+            </div>
+          </div>
+          
+          <div class="content">
+            <div class="score-section">
+              <div class="score-circle">
+                <div class="score-inner">
+                  <div class="score-number">${data.totalScore}</div>
+                  <div class="score-text">점 / 100점</div>
+                </div>
+              </div>
+              <div class="grade-badge" style="background: ${gradeInfo.color}">${gradeInfo.grade}등급</div>
+              <div class="grade-description">${gradeInfo.description}</div>
+            </div>
+            
+            <div class="categories-section">
+              <h3 class="section-title">📊 영역별 진단 결과</h3>
+              <div class="category-grid">
+                ${Object.entries(data.categoryScores).map(([category, score]) => `
+                  <div class="category-card">
+                    <div class="category-name">${this.getCategoryName(category)}</div>
+                    <div class="category-score">${score.toFixed(1)}점</div>
+                    <div class="category-bar">
+                      <div class="category-bar-fill" style="width: ${(score / 5) * 100}%"></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="recommendations-section">
+              <h3 class="section-title">💡 개선 권장사항</h3>
+              <div class="recommendations-text">
+                ${data.recommendations.replace(/\n/g, '<br>')}
+              </div>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <div>
+              <strong>AICAMP AI교육센터</strong> | AI기반 비즈니스 성장 솔루션
+            </div>
+            <div class="contact-info">
+              <div class="contact-item">📞 010-9251-9743</div>
+              <div class="contact-item">📧 hongik423@gmail.com</div>
+              <div class="contact-item">👨‍💼 이후경 경영지도사</div>
+            </div>
+            <div style="margin-top: 15px; font-size: 11px; opacity: 0.7;">
+              본 보고서는 AI 분석을 통해 생성되었으며, 참고용으로 활용해주시기 바랍니다.
+            </div>
+          </div>
         </div>
-    </div>
-</body>
-</html>`;
-
-    return html;
+      </body>
+      </html>
+    `;
   }
 
-  // 파일 다운로드 함수
-  static downloadReport(content: string, filename: string, type: 'text' | 'html' = 'text') {
-    const mimeType = type === 'html' ? 'text/html' : 'text/plain';
-    const extension = type === 'html' ? '.html' : '.txt';
-    
-    const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    
-    link.href = url;
-    link.download = filename + extension;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  /**
+   * 🏆 점수별 등급 정보 반환
+   */
+  private getGradeInfo(score: number): { grade: string; color: string; description: string } {
+    if (score >= 90) return { grade: 'A+', color: '#10b981', description: '최우수 - 탁월한 경영 역량' };
+    if (score >= 85) return { grade: 'A', color: '#059669', description: '우수 - 뛰어난 경영 역량' };
+    if (score >= 80) return { grade: 'B+', color: '#0891b2', description: '양호 - 좋은 경영 역량' };
+    if (score >= 75) return { grade: 'B', color: '#0284c7', description: '보통 - 평균적 경영 역량' };
+    if (score >= 70) return { grade: 'C+', color: '#7c3aed', description: '개선 필요 - 노력이 필요함' };
+    if (score >= 65) return { grade: 'C', color: '#a855f7', description: '개선 권장 - 체계적 개선 필요' };
+    if (score >= 60) return { grade: 'D+', color: '#ef4444', description: '미흡 - 적극적 개선 필요' };
+    if (score >= 55) return { grade: 'D', color: '#dc2626', description: '부족 - 전면적 개선 필요' };
+    return { grade: 'F', color: '#991b1b', description: '위험 - 즉시 전문가 상담 필요' };
   }
 
-  // 이메일로 보고서 전송 (시뮬레이션)
-  static async sendReportByEmail(
-    reportContent: string,
-    recipientEmail: string,
-    companyName: string
-  ): Promise<boolean> {
+  /**
+   * 📂 카테고리명 한글 변환
+   */
+  private getCategoryName(category: string): string {
+    const categoryNames: { [key: string]: string } = {
+      'productService': '상품/서비스',
+      'customerService': '고객응대',
+      'marketing': '마케팅',
+      'procurement': '구매/재고',
+      'storeManagement': '매장관리'
+    };
+    return categoryNames[category] || category;
+  }
+
+  /**
+   * 🖼️ HTML을 이미지로 변환
+   */
+  async convertToImage(element: HTMLElement, format: 'png' | 'jpeg' = 'png'): Promise<string> {
     try {
-      // 실제 구현에서는 이메일 서비스 API 호출
-      console.log(`Sending report to ${recipientEmail} for ${companyName}`);
+      const dataUrl = format === 'png' 
+        ? await toPng(element, {
+            quality: 1,
+            pixelRatio: 2,
+            backgroundColor: '#ffffff'
+          })
+        : await toJpeg(element, {
+            quality: 0.95,
+            pixelRatio: 2,
+            backgroundColor: '#ffffff'
+          });
       
-      // 이메일 전송 시뮬레이션
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // 성공적으로 전송됨을 시뮬레이션
-      return true;
+      return dataUrl;
     } catch (error) {
-      console.error('Failed to send email:', error);
-      return false;
+      console.error('이미지 변환 실패:', error);
+      throw error;
     }
+  }
+
+  /**
+   * 📄 HTML을 PDF로 변환
+   */
+  async convertToPDF(element: HTMLElement, filename: string = 'ai-diagnosis-report.pdf'): Promise<Blob> {
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      // 첫 페이지 추가
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // 추가 페이지가 필요한 경우
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      return pdf.output('blob');
+    } catch (error) {
+      console.error('PDF 변환 실패:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 📧 이메일용 HTML 템플릿 생성
+   */
+  generateEmailTemplate(data: DiagnosisData): string {
+    const gradeInfo = this.getGradeInfo(data.totalScore);
+    
+    return `
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI 진단 결과</title>
+        <style>
+          body { font-family: 'Malgun Gothic', Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #4285f4, #34a853); color: white; padding: 30px; text-align: center; }
+          .logo { width: 60px; height: 60px; background: white; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+          .company-name { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+          .subtitle { opacity: 0.9; }
+          .content { padding: 30px; }
+          .score-box { text-align: center; background: linear-gradient(135deg, #f8faff, #e8f4f8); padding: 25px; border-radius: 10px; margin-bottom: 25px; }
+          .score-number { font-size: 48px; font-weight: bold; color: #4285f4; margin-bottom: 10px; }
+          .grade-badge { display: inline-block; padding: 8px 16px; background: ${gradeInfo.color}; color: white; border-radius: 20px; font-weight: bold; margin-bottom: 10px; }
+          .categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 25px 0; }
+          .category { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #4285f4; }
+          .category-name { font-size: 12px; color: #666; margin-bottom: 5px; }
+          .category-score { font-size: 18px; font-weight: bold; color: #4285f4; }
+          .recommendations { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 12px; }
+          .contact { margin-top: 15px; }
+          .contact-item { display: inline-block; margin: 0 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">🎯</div>
+            <div class="company-name">${data.companyName}</div>
+            <div class="subtitle">AI 무료진단 결과가 도착했습니다!</div>
+          </div>
+          
+          <div class="content">
+            <div class="score-box">
+              <div class="score-number">${data.totalScore}</div>
+              <div style="color: #666; margin-bottom: 15px;">점 / 100점 만점</div>
+              <div class="grade-badge" style="background: ${gradeInfo.color}">${gradeInfo.grade}등급</div>
+              <div style="color: #666; font-size: 14px;">${gradeInfo.description}</div>
+            </div>
+            
+            <h3 style="color: #333; margin-bottom: 15px;">📊 영역별 진단 결과</h3>
+            <div class="categories">
+              ${Object.entries(data.categoryScores).map(([category, score]) => `
+                <div class="category">
+                  <div class="category-name">${this.getCategoryName(category)}</div>
+                  <div class="category-score">${score.toFixed(1)}점</div>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="recommendations">
+              <h3 style="color: #856404; margin-top: 0;">💡 개선 권장사항</h3>
+              <div style="line-height: 1.6; color: #856404;">
+                ${data.recommendations.replace(/\n/g, '<br>')}
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #e8f4f8; border-radius: 8px;">
+              <h3 style="color: #4285f4; margin-top: 0;">🤝 전문가 상담 문의</h3>
+              <p style="margin: 10px 0; color: #666;">더 자세한 분석과 맞춤형 솔루션이 필요하시다면 전문가 상담을 받아보세요.</p>
+              <div style="margin-top: 15px;">
+                <strong style="color: #4285f4;">📞 010-9251-9743</strong>
+                <br>
+                <strong style="color: #4285f4;">👨‍💼 이후경 경영지도사</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <div><strong>AICAMP AI교육센터</strong></div>
+            <div>AI기반 비즈니스 성장 솔루션</div>
+            <div class="contact">
+              <div class="contact-item">📧 hongik423@gmail.com</div>
+              <div class="contact-item">🌐 https://aicamp.club</div>
+            </div>
+            <div style="margin-top: 15px; font-size: 11px; opacity: 0.7;">
+              본 메일은 AI 진단 신청에 따라 자동 발송되었습니다.
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  /**
+   * 📱 모바일 최적화 이메일 템플릿
+   */
+  generateMobileEmailTemplate(data: DiagnosisData): string {
+    const gradeInfo = this.getGradeInfo(data.totalScore);
+    
+    return `
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI 진단 결과</title>
+        <style>
+          * { box-sizing: border-box; }
+          body { font-family: 'Malgun Gothic', Arial, sans-serif; margin: 0; padding: 10px; background: #f5f5f5; font-size: 14px; }
+          .container { max-width: 100%; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; }
+          .header { background: linear-gradient(135deg, #4285f4, #34a853); color: white; padding: 20px; text-align: center; }
+          .logo { width: 50px; height: 50px; background: white; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+          .company-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+          .content { padding: 20px; }
+          .score-box { text-align: center; background: #f8faff; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+          .score-number { font-size: 36px; font-weight: bold; color: #4285f4; margin-bottom: 8px; }
+          .grade-badge { display: inline-block; padding: 6px 12px; background: ${gradeInfo.color}; color: white; border-radius: 15px; font-weight: bold; font-size: 14px; }
+          .categories { margin: 20px 0; }
+          .category { background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+          .category-name { font-size: 12px; color: #666; }
+          .category-score { font-size: 16px; font-weight: bold; color: #4285f4; }
+          .recommendations { background: #fff3cd; padding: 15px; border-radius: 6px; margin: 15px 0; font-size: 13px; line-height: 1.5; }
+          .footer { background: #f8f9fa; padding: 15px; text-align: center; color: #666; font-size: 11px; }
+          .contact-button { display: inline-block; background: #4285f4; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; margin: 10px 5px; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">🎯</div>
+            <div class="company-name">${data.companyName}</div>
+            <div style="opacity: 0.9; font-size: 12px;">AI 무료진단 결과</div>
+          </div>
+          
+          <div class="content">
+            <div class="score-box">
+              <div class="score-number">${data.totalScore}</div>
+              <div style="color: #666; margin-bottom: 10px; font-size: 12px;">점 / 100점 만점</div>
+              <div class="grade-badge">${gradeInfo.grade}등급</div>
+            </div>
+            
+            <h3 style="color: #333; margin-bottom: 10px; font-size: 16px;">📊 영역별 결과</h3>
+            <div class="categories">
+              ${Object.entries(data.categoryScores).map(([category, score]) => `
+                <div class="category">
+                  <div class="category-name">${this.getCategoryName(category)}</div>
+                  <div class="category-score">${score.toFixed(1)}점</div>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="recommendations">
+              <h4 style="color: #856404; margin-top: 0; font-size: 14px;">💡 개선 권장사항</h4>
+              <div style="color: #856404;">
+                ${data.recommendations.substring(0, 200)}${data.recommendations.length > 200 ? '...' : ''}
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+              <a href="tel:010-9251-9743" class="contact-button">📞 전화상담</a>
+              <a href="mailto:hongik423@gmail.com" class="contact-button">📧 이메일</a>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <div><strong>AICAMP AI교육센터</strong></div>
+            <div>📞 010-9251-9743 | 👨‍💼 이후경 경영지도사</div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
   }
 }
 
-// 보고서 템플릿 관리
-export class ReportTemplateManager {
-  private static templates: Map<string, Partial<ReportTemplate>> = new Map();
+/**
+ * 📧 이메일 전송 데이터 준비
+ */
+export function prepareEmailData(data: DiagnosisData): {
+  subject: string;
+  htmlContent: string;
+  mobileHtmlContent: string;
+  attachmentData?: string;
+} {
+  const generator = new VisualReportGenerator();
+  
+  return {
+    subject: `[AICAMP] 🎯 ${data.companyName} AI 진단 결과보고서 (${data.totalScore}점)`,
+    htmlContent: generator.generateEmailTemplate(data),
+    mobileHtmlContent: generator.generateMobileEmailTemplate(data),
+  };
+}
 
-  // 커스텀 템플릿 등록
-  static registerTemplate(name: string, template: Partial<ReportTemplate>) {
-    this.templates.set(name, template);
-  }
+/**
+ * 🔧 브라우저에서 다운로드 실행
+ */
+export function downloadFile(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
-  // 업종별 맞춤 템플릿
-  static getIndustryTemplate(industry: string): Partial<ReportTemplate> {
-    const industryTemplates: Record<string, Partial<ReportTemplate>> = {
-      'technology': {
-        title: 'IT/기술 기업 진단 보고서',
-        sections: [
-          {
-            title: '기술 혁신 분석',
-            content: [
-              '현재 기술 스택의 경쟁력을 평가합니다.',
-              'R&D 투자 현황과 혁신 역량을 분석합니다.',
-              '기술 트렌드 대응 능력을 진단합니다.'
-            ]
-          }
-        ]
-      },
-      'manufacturing': {
-        title: '제조업 진단 보고서',
-        sections: [
-          {
-            title: '생산 효율성 분석',
-            content: [
-              '생산 공정의 효율성을 평가합니다.',
-              '품질 관리 시스템을 진단합니다.',
-              '공급망 최적화 방안을 제시합니다.'
-            ]
-          }
-        ]
-      },
-      'retail': {
-        title: '소매업 진단 보고서',
-        sections: [
-          {
-            title: '고객 경험 분석',
-            content: [
-              '옴니채널 전략의 효과성을 평가합니다.',
-              '고객 서비스 품질을 진단합니다.',
-              '재고 관리 효율성을 분석합니다.'
-            ]
-          }
-        ]
-      }
-    };
-
-    return industryTemplates[industry] || {};
-  }
+/**
+ * 📊 진단 데이터 변환 유틸리티
+ */
+export function transformDiagnosisData(rawData: any): DiagnosisData {
+  return {
+    companyName: rawData.companyName || rawData.회사명 || '알 수 없음',
+    industry: rawData.industry || rawData.업종 || '기타',
+    contactName: rawData.contactName || rawData.담당자명 || '담당자',
+    email: rawData.email || rawData.이메일 || '',
+    totalScore: rawData.totalScore || rawData.종합점수 || 0,
+    categoryScores: rawData.categoryScores || rawData.카테고리점수 || {},
+    recommendations: rawData.recommendations || rawData.추천사항 || '개선 권장사항이 없습니다.',
+    timestamp: rawData.timestamp || new Date().toISOString()
+  };
 } 
