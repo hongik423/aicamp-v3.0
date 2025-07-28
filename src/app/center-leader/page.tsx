@@ -728,11 +728,11 @@ export default function CenterLeaderPage() {
                        </div>
                        <div>
                          <div className="font-bold text-yellow-300 text-lg">홍정민 컨설턴트</div>
-                         <div className="text-sm text-blue-200">국민대 박사과정 · CMC · NICE평가정보</div>
+                         <div className="text-sm text-blue-200">국민대 박사과정 · CMC</div>
                        </div>
                      </div>
                      <div className="text-xs text-gray-300 leading-relaxed">
-                       국내 굴지의 기업 NICE평가정보에 재직하면서 국민대학교 비즈니스IT전문대학원 박사과정을 밟고 있음. 
+                       국민대학교 비즈니스IT전문대학원 박사과정을 밟고 있음. 
                        국제공인컨설턴트 CMC로서 AI와 비즈니스를 융합하여 업무의 효율성을 높이는데 많은 관심을 가지고 있음.
                      </div>
                    </div>
@@ -801,6 +801,312 @@ export default function CenterLeaderPage() {
                   <div className="text-sm text-blue-200">
                     업무 효율성을 획기적으로 향상시키는<br />
                     AI 자동화 솔루션의 완전 정복 가이드
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 박상준 이사 프로필 섹션 */}
+      <section className="py-16 bg-gradient-to-br from-slate-900 via-gray-900 to-blue-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="relative container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-6">
+              <div className="w-32 h-32 mx-auto bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/30 overflow-hidden mb-6">
+                <User className="w-16 h-16 text-white" />
+              </div>
+            </div>
+            
+            <div className="mb-8">
+              <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white font-bold text-lg px-6 py-2 mb-4">24년 검증된 전문가</Badge>
+              <h1 className="text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-green-100 to-teal-100 bg-clip-text text-transparent">
+                박상준 이사
+              </h1>
+              <p className="text-2xl text-green-200 font-bold mb-6">AI CAMP 이사 · 경영학 석사 · 교육학 학사</p>
+            </div>
+            
+            {/* 이사 인사말 */}
+            <div className="max-w-4xl mx-auto mb-12">
+              <div className="text-3xl lg:text-4xl font-bold mb-8 text-center leading-relaxed">
+                <span className="block mb-4 text-green-300">"교육과 컨설팅의 융합으로"</span>
+                <span className="block mb-4 text-white">"기업의 성장을 이끌겠습니다"</span>
+                <span className="block text-teal-200 text-2xl lg:text-3xl">"24년 경험으로 함께하겠습니다"</span>
+              </div>
+              
+              <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                <p className="text-xl lg:text-2xl leading-relaxed text-white font-medium">
+                  <span className="text-green-300 font-bold">고려대학교 경영학 석사</span>와 
+                  <span className="text-blue-300 font-bold">교육학 학사</span>, 
+                  <span className="text-teal-200 font-bold">중등교사자격</span>을 바탕으로 
+                  <span className="text-purple-200 font-bold">대기업과 관공서 교육 컨설팅 경력 10년</span>과 
+                  <span className="text-blue-200 font-bold">24년간의 다양한 실무 경험</span>을 결합하여 
+                  <span className="text-orange-200 font-bold">기업 맞춤형 솔루션</span>을 제공합니다.
+                </p>
+              </div>
+            </div>
+            
+            {/* 이사 핵심 역량 카드들 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/20 transform hover:scale-105 transition-all duration-200">
+                <div className="text-4xl font-bold text-green-300 mb-2">24년</div>
+                <div className="text-sm text-white font-bold mb-1">총 경력</div>
+                <div className="text-xs text-teal-200">컨설팅 + 교육 + 사업운영</div>
+              </div>
+              <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/20 transform hover:scale-105 transition-all duration-200">
+                <div className="text-4xl font-bold text-green-300 mb-2">석사</div>
+                <div className="text-sm text-white font-bold mb-1">고려대 경영학</div>
+                <div className="text-xs text-teal-200">최고 학술 전문성</div>
+              </div>
+              <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/20 transform hover:scale-105 transition-all duration-200">
+                <div className="text-4xl font-bold text-green-300 mb-2">교사</div>
+                <div className="text-sm text-white font-bold mb-1">중등교사자격</div>
+                <div className="text-xs text-teal-200">교육 전문 자격</div>
+              </div>
+              <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm border border-white/20 transform hover:scale-105 transition-all duration-200">
+                <div className="text-4xl font-bold text-green-300 mb-2">재무</div>
+                <div className="text-sm text-white font-bold mb-1">전문인력 1급</div>
+                <div className="text-xs text-teal-200">재무관리 전문</div>
+              </div>
+            </div>
+            
+            {/* 이사 핵심 메시지 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white transform hover:scale-105 transition-all duration-200">
+                <CardHeader className="text-center">
+                  <Award className="w-8 h-8 mx-auto mb-3 text-green-300" />
+                  <CardTitle className="text-white text-lg">교육 전문가</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-white font-medium">중등교사자격과 대기업·관공서 교육 컨설팅 경력 10년, 7년간 영어학원 운영으로 검증된 교육 전문성</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white transform hover:scale-105 transition-all duration-200">
+                <CardHeader className="text-center">
+                  <Building className="w-8 h-8 mx-auto mb-3 text-green-300" />
+                  <CardTitle className="text-white text-lg">컨설팅 전문</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-white font-medium">Nemo Partners, Envision 컨설팅 등 다수 컨설팅 회사 경력</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white transform hover:scale-105 transition-all duration-200">
+                <CardHeader className="text-center">
+                  <DollarSign className="w-8 h-8 mx-auto mb-3 text-green-300" />
+                  <CardTitle className="text-white text-lg">재무 전문</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-white font-medium">재무관련전문인력 1급 자격으로 기업 재무관리 전문</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 박상준 이사 상세 경력 */}
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-green-50">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">박상준 이사 경력</h2>
+            <p className="text-xl text-gray-600">24년간 축적된 교육·컨설팅·사업 전문성</p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            {/* 이사 기본 정보 */}
+            <Card className="shadow-2xl border-0 bg-gradient-to-br from-green-600 to-teal-600 text-white">
+              <CardHeader>
+                <CardTitle className="flex items-center text-2xl text-white">
+                  <User className="w-8 h-8 mr-3 text-yellow-300" />
+                  이사 기본정보
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+                    <User className="w-6 h-6 mr-3 text-yellow-300" />
+                    <div>
+                      <span className="font-bold block text-white">박상준 이사</span>
+                      <span className="text-green-100 text-sm">AI CAMP 이사</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+                    <Building className="w-6 h-6 mr-3 text-yellow-300" />
+                    <div>
+                      <span className="font-bold block text-white">고려대학교 경영학 석사</span>
+                      <span className="text-green-100 text-sm">고려대학교 교육학 학사</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+                    <Award className="w-6 h-6 mr-3 text-yellow-300" />
+                    <div>
+                      <span className="font-bold block text-white">중등교사자격</span>
+                      <span className="text-green-100 text-sm">교육 전문 자격</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+                    <DollarSign className="w-6 h-6 mr-3 text-yellow-300" />
+                    <div>
+                      <span className="font-bold block text-white">재무관련전문인력 1급</span>
+                      <span className="text-green-100 text-sm">재무 전문자격</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* 현재 주요 역할 */}
+            <Card className="shadow-2xl border-0 bg-gradient-to-br from-blue-600 to-purple-600 text-white">
+              <CardHeader>
+                <CardTitle className="flex items-center text-2xl text-white">
+                  <Rocket className="w-8 h-8 mr-3 text-yellow-300" />
+                  현재 주요 역할
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { role: 'AI CAMP 이사', desc: 'AI 교육 및 컨설팅 사업 총괄' },
+                    { role: '월드리치스 센터장', desc: '사업 개발 및 운영 관리 (2025년~현재)' },
+                    { role: '고려경영연구소 팀장', desc: '경영 컨설팅 프로젝트 관리 (2022년~현재)' },
+                    { role: '교육사업 전문가', desc: '7년간 영어학원 운영 경험' },
+                    { role: '컨설팅 전문가', desc: 'Nemo Partners, Envision 등 다수 경력' },
+                    { role: '재무관리 전문가', desc: '재무관련전문인력 1급 자격 보유' }
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+                      <CheckCircle className="w-5 h-5 mr-3 text-yellow-300 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-white block">{item.role}</span>
+                        <span className="text-blue-100 text-sm">{item.desc}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* 이사 주요 성과 */}
+          <div className="mb-16">
+            <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">주요 성과 하이라이트</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { metric: "24년", label: "총 경력", desc: "교육·컨설팅·사업운영", color: "green" },
+                { metric: "7년", label: "교육사업", desc: "영어학원 운영 경험", color: "blue" },
+                { metric: "석사", label: "고려대 경영학", desc: "최고 학술 전문성", color: "purple" },
+                { metric: "1급", label: "재무전문인력", desc: "재무관리 전문자격", color: "orange" }
+              ].map((item, index) => (
+                <Card key={index} className={`shadow-xl border-0 transform hover:scale-105 transition-all duration-200 ${
+                  item.color === 'green' ? 'bg-gradient-to-br from-green-500 to-green-600' :
+                  item.color === 'blue' ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
+                  item.color === 'purple' ? 'bg-gradient-to-br from-purple-500 to-purple-600' :
+                  'bg-gradient-to-br from-orange-500 to-orange-600'
+                } text-white`}>
+                  <CardContent className="p-6 text-center">
+                    <div className="text-4xl font-bold mb-2">{item.metric}</div>
+                    <div className="text-lg font-semibold mb-1">{item.label}</div>
+                    <div className="text-sm opacity-90">{item.desc}</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* 경력 타임라인 */}
+          <div className="mb-16">
+            <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">주요경력 타임라인</h3>
+            <div className="relative">
+              {/* 타임라인 선 */}
+              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-gradient-to-b from-green-500 to-teal-500 rounded-full"></div>
+              
+              <div className="space-y-12">
+                {/* 2022년~현재 */}
+                <div className="relative flex items-center">
+                  <div className="flex-1 text-right pr-8">
+                    <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-green-50 to-green-100">
+                      <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+                        <CardTitle className="text-lg font-bold">2022년~현재</CardTitle>
+                        <CardDescription className="text-green-100 font-semibold">고려경영연구소 팀장</CardDescription>
+                      </CardHeader>
+                      <CardContent className="mt-4">
+                        <ul className="space-y-2 text-sm text-gray-800">
+                          <li className="font-semibold">• 경영 컨설팅 프로젝트 관리</li>
+                          <li className="font-semibold">• 기업 진단 및 개선방안 수립</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-green-600 rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="flex-1 pl-8"></div>
+                </div>
+                
+                {/* 2017년~2021년 */}
+                <div className="relative flex items-center">
+                  <div className="flex-1 pr-8"></div>
+                  <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-blue-600 rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="flex-1 pl-8">
+                    <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+                      <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                        <CardTitle className="text-lg font-bold">2017년~2021년</CardTitle>
+                        <CardDescription className="text-blue-100 font-semibold">ubob 수석</CardDescription>
+                      </CardHeader>
+                      <CardContent className="mt-4">
+                        <ul className="space-y-2 text-sm text-gray-800">
+                          <li className="font-semibold">• 사업 개발 및 전략 수립</li>
+                          <li className="font-semibold">• 프로젝트 관리 및 운영</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                
+                {/* 2009년~2016년 */}
+                <div className="relative flex items-center">
+                  <div className="flex-1 text-right pr-8">
+                    <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+                      <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+                        <CardTitle className="text-lg font-bold">2009년~2016년 (7년)</CardTitle>
+                        <CardDescription className="text-purple-100 font-semibold">영어학원 원장</CardDescription>
+                      </CardHeader>
+                      <CardContent className="mt-4">
+                        <ul className="space-y-2 text-sm text-gray-800">
+                          <li className="font-semibold">• 교육기관 운영 및 관리</li>
+                          <li className="font-semibold">• 교육 프로그램 개발</li>
+                          <li className="font-semibold">• 학원 경영 전반</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-purple-600 rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="flex-1 pl-8"></div>
+                </div>
+                
+                {/* 2006년~2008년 */}
+                <div className="relative flex items-center">
+                  <div className="flex-1 pr-8"></div>
+                  <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-orange-600 rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="flex-1 pl-8">
+                    <Card className="inline-block max-w-md shadow-xl border-0 bg-gradient-to-br from-orange-50 to-orange-100">
+                      <CardHeader className="bg-gradient-to-r from-orange-600 to-orange-700 text-white">
+                        <CardTitle className="text-lg font-bold">2006년~2008년</CardTitle>
+                                                 <CardDescription className="text-orange-100 font-semibold">Envision 컨설팅 그룹장</CardDescription>
+                      </CardHeader>
+                      <CardContent className="mt-4">
+                        <ul className="space-y-2 text-sm text-gray-800">
+                          <li className="font-semibold">• 컨설팅 프로젝트 총괄</li>
+                          <li className="font-semibold">• 팀 관리 및 운영</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
               </div>

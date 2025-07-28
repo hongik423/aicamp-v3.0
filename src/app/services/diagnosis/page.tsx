@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/layout/header';
 import SimplifiedDiagnosisForm from '@/components/diagnosis/SimplifiedDiagnosisForm';
-import SimplifiedDiagnosisResults from '@/components/diagnosis/SimplifiedDiagnosisResults';
+import SimpleDiagnosisResults from '@/components/diagnosis/SimpleDiagnosisResults';
 import { 
   Brain, 
   CheckCircle, 
@@ -67,7 +67,7 @@ export default function FreeDiagnosisPage() {
           </div>
         </div>
         <div className="container mx-auto px-4 py-8">
-          <SimplifiedDiagnosisResults data={diagnosisResults} />
+                        <SimpleDiagnosisResults data={diagnosisResults} />
         </div>
       </div>
     );

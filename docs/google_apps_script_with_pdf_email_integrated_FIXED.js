@@ -99,8 +99,7 @@ function createSuccessResponse(data) {
   
   return ContentService
     .createTextOutput(JSON.stringify(response, null, 2))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Content-Type', 'application/json; charset=utf-8');
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
@@ -118,8 +117,7 @@ function createErrorResponse(message) {
   
   return ContentService
     .createTextOutput(JSON.stringify(response, null, 2))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Content-Type', 'application/json; charset=utf-8');
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
@@ -292,7 +290,11 @@ function processDiagnosisForm(data) {
         회사명: data.회사명 || data.companyName,
         이메일: data.이메일 || data.contactEmail,
         총점: data.종합점수 || data.totalScore,
-        문항별점수: data.문항별점수 || data.detailedScores
+        문항별점수: data.문항별점수 || data.detailedScores,
+        // 🆕 PDF 첨부 확인
+        hasPdfAttachment: !!(data.pdf_attachment || data.pdfAttachment),
+        pdfSize: (data.pdf_attachment || data.pdfAttachment) ? 
+          Math.round((data.pdf_attachment || data.pdfAttachment).length / 1024) + 'KB' : '없음'
       });
     }
 
@@ -388,24 +390,84 @@ function processDiagnosisForm(data) {
       });
     }
 
-    // 이메일 발송
+    // 🆕 PDF 첨부파일이 있는 경우 신청자에게 PDF 이메일 발송
+    const pdfAttachment = data.pdf_attachment || data.pdfAttachment;
+    let pdfEmailResult = null;
+    
+    if (pdfAttachment && pdfAttachment.length > 100) {
+      console.log('📧 PDF 첨부파일 감지 - 신청자에게 PDF 이메일 발송 시작');
+      
+      // PDF 이메일 발송 데이터 준비
+      const pdfEmailData = {
+        to_email: data.이메일 || data.contactEmail || data.email,
+        to_name: data.담당자명 || data.contactName || data.contactManager,
+        company_name: data.회사명 || data.companyName,
+        pdf_attachment: pdfAttachment,
+        pdf_filename: `AI진단보고서_${data.회사명 || data.companyName}_${timestamp.replace(/[^\w가-힣]/g, '_')}.pdf`,
+        total_score: totalScore,
+        overall_grade: getGradeFromScore(totalScore),
+        industry_type: data.업종 || data.industry,
+        diagnosis_date: timestamp,
+        consultant_name: '이후경 교장 (경영지도사)',
+        consultant_phone: '010-9251-9743',
+        consultant_email: ADMIN_EMAIL
+      };
+      
+      // 신청자에게 PDF 이메일 발송
+      pdfEmailResult = sendPdfEmailToUser(pdfEmailData);
+      
+      if (pdfEmailResult.success) {
+        console.log('✅ 신청자 PDF 이메일 발송 성공');
+        
+        // PDF 발송 기록을 별도 시트에 저장
+        savePdfSendingRecord(pdfEmailData, pdfEmailResult.sentTime);
+        
+        // 관리자에게 PDF 발송 완료 알림
+        sendPdfNotificationToAdmin(pdfEmailData, pdfEmailResult.sentTime);
+      } else {
+        console.error('❌ 신청자 PDF 이메일 발송 실패:', pdfEmailResult.error);
+        
+        // 관리자에게 PDF 발송 실패 알림
+        sendPdfErrorNotificationToAdmin(pdfEmailData, new Error(pdfEmailResult.error));
+      }
+    }
+
+    // 관리자 이메일 발송 (기존 기능)
     if (AUTO_REPLY_ENABLED) {
       sendDiagnosisAdminNotification(data, newRow, totalScore, reportSummary);
       
       const userEmail = data.이메일 || data.contactEmail || data.email;
       const userName = data.담당자명 || data.contactName || data.contactManager;
-      if (userEmail) {
-        sendUserConfirmation(userEmail, userName, '진단');
+      
+      // PDF 이메일을 보냈다면 일반 확인 이메일은 스킵
+      if (!pdfEmailResult || !pdfEmailResult.success) {
+        if (userEmail) {
+          sendUserConfirmation(userEmail, userName, '진단');
+        }
+      }
+    }
+
+    // 응답 메시지 준비
+    let responseMessage = '📊 AI 무료진단이 성공적으로 접수되었습니다 (문항별 점수 + 보고서 포함). 관리자 확인 후 연락드리겠습니다.';
+    
+    if (pdfEmailResult) {
+      if (pdfEmailResult.success) {
+        responseMessage = `📧 AI 무료진단이 접수되었으며, PDF 결과보고서가 ${data.이메일 || data.contactEmail}로 발송되었습니다. 이메일을 확인해주세요.`;
+      } else {
+        responseMessage = '📊 AI 무료진단이 접수되었습니다. PDF 이메일 발송에 일시적 문제가 있어 관리자가 직접 연락드리겠습니다.';
       }
     }
 
     return createSuccessResponse({
-      message: '📊 AI 무료진단이 성공적으로 접수되었습니다 (문항별 점수 + 보고서 포함). 관리자 확인 후 연락드리겠습니다.',
+      message: responseMessage,
       sheet: SHEETS.DIAGNOSIS,
       row: newRow,
       timestamp: timestamp,
       진단점수: totalScore,
-      추천서비스: reportSummary.length > 50 ? reportSummary.substring(0, 50) + '...' : reportSummary
+      추천서비스: reportSummary.length > 50 ? reportSummary.substring(0, 50) + '...' : reportSummary,
+      // 🆕 PDF 이메일 발송 결과 포함
+      pdfEmailSent: pdfEmailResult ? pdfEmailResult.success : false,
+      pdfEmailError: pdfEmailResult && !pdfEmailResult.success ? pdfEmailResult.error : null
     });
 
   } catch (error) {
@@ -667,296 +729,14 @@ function extractCategoryScores(data) {
     }
   }
   
-  // ================================================================================
-  // 📧 이메일 발송 함수들 (UTF-8 완전 지원)
-  // ================================================================================
   
-  /**
-   * 진단 관리자 알림 이메일 (구글시트 링크 포함)
-   */
-  function sendDiagnosisAdminNotification(data, rowNumber, totalScore, reportSummary) {
-    try {
-      const companyName = data.회사명 || data.companyName || '미확인';
-      const subject = '[AICAMP] 🎯 AI 무료진단 접수 - ' + companyName + ' (' + totalScore + '점)';
-      
-      const emailBody = '📊 새로운 AI 무료진단이 접수되었습니다!\n\n' +
-        '🏢 회사명: ' + companyName + '\n' +
-        '📧 담당자: ' + (data.담당자명 || data.contactName || '미확인') + ' (' + (data.이메일 || data.contactEmail || data.email || '미확인') + ')\n' +
-        '🏭 업종: ' + (data.업종 || data.industry || '미확인') + '\n' +
-        '👥 직원수: ' + (data.직원수 || data.employeeCount || '미확인') + '\n' +
-        '🎯 종합점수: ' + totalScore + '점/100점\n' +
-        '📝 보고서 길이: ' + reportSummary.length + '자\n' +
-        '⏰ 접수 시간: ' + getCurrentKoreanTime() + '\n\n' +
-        '💭 주요 고민사항:\n' + ((data.주요고민사항 || data.mainConcerns || '').substring(0, 200)) + '...\n\n' +
-        '🎯 기대 효과:\n' + ((data.예상혜택 || data.expectedBenefits || '').substring(0, 200)) + '...\n\n' +
-        '📋 시트 위치: ' + SHEETS.DIAGNOSIS + ' 시트 ' + rowNumber + '행\n' +
-        '🔗 구글시트 바로가기: ' + GOOGLE_SHEETS_URL + '\n' +
-        '🔗 직접 링크: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit#gid=0&range=A' + rowNumber + '\n\n' +
-        '※ 문항별 상세 점수와 진단결과보고서가 구글시트에 완전히 저장되었습니다.\n\n' +
-        '---\n' +
-        'AICAMP 자동 알림 시스템\n' +
-        '담당: 이후경 교장 (경영지도사)\n' +
-        '📞 010-9251-9743 | 📧 ' + ADMIN_EMAIL;
-
-      // UTF-8 인코딩을 위해 옵션 추가
-      MailApp.sendEmail({
-        to: ADMIN_EMAIL,
-        subject: subject,
-        body: emailBody,
-        htmlBody: emailBody.replace(/\n/g, '<br>'),
-        attachments: []
-      });
-      
-      console.log('📧 진단 관리자 알림 이메일 발송 완료 (UTF-8)');
-    } catch (error) {
-      console.error('❌ 진단 관리자 이메일 발송 실패:', error);
-    }
-  }
-  
-  /**
-   * 상담 관리자 알림 이메일 (구글시트 링크 포함)
-   */
-  function sendConsultationAdminNotification(data, rowNumber) {
-    try {
-      const subject = '[AICAMP] 💬 새로운 상담신청 접수 - ' + (data.회사명 || data.company || '회사명미상');
-      
-      const emailBody = '💬 새로운 상담신청이 접수되었습니다!\n\n' +
-        '👤 신청자: ' + (data.성명 || data.name || '미확인') + '\n' +
-        '🏢 회사명: ' + (data.회사명 || data.company || '미확인') + '\n' +
-        '📧 이메일: ' + (data.이메일 || data.email || '미확인') + '\n' +
-        '📞 연락처: ' + (data.연락처 || data.phone || '미확인') + '\n' +
-        '🎯 상담유형: ' + (data.상담유형 || data.consultationType || '일반상담') + '\n' +
-        '📝 상담분야: ' + (data.상담분야 || data.consultationArea || '미확인') + '\n' +
-        '⏰ 접수시간: ' + getCurrentKoreanTime() + '\n\n' +
-        '💭 문의내용:\n' + ((data.문의내용 || data.inquiryContent || '').substring(0, 300)) + '...\n\n' +
-        '📋 시트 위치: ' + SHEETS.CONSULTATION + ' 시트 ' + rowNumber + '행\n' +
-        '🔗 구글시트 바로가기: ' + GOOGLE_SHEETS_URL + '\n' +
-        '🔗 직접 링크: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit#gid=' + getSheetId(SHEETS.CONSULTATION) + '&range=A' + rowNumber + '\n\n' +
-        '---\n' +
-        'AICAMP 자동 알림 시스템\n' +
-        '담당: 이후경 교장 (경영지도사)\n' +
-        '📞 010-9251-9743 | 📧 ' + ADMIN_EMAIL;
-
-      MailApp.sendEmail({
-        to: ADMIN_EMAIL,
-        subject: subject,
-        body: emailBody,
-        htmlBody: emailBody.replace(/\n/g, '<br>'),
-        attachments: []
-      });
-      
-      console.log('📧 상담 관리자 알림 이메일 발송 완료 (UTF-8)');
-    } catch (error) {
-      console.error('❌ 상담 관리자 이메일 발송 실패:', error);
-    }
-  }
-  
-  /**
-   * 베타피드백 관리자 알림 이메일 (구글시트 링크 포함) 
-   */
-  function sendBetaFeedbackAdminNotification(data, rowNumber) {
-    try {
-      const subject = '[AICAMP] 🚨 긴급! 베타 피드백 접수 - ' + (data.계산기명 || '세금계산기');
-      
-      const emailBody = '🧪 새로운 베타 피드백이 접수되었습니다!\n\n' +
-        '🎯 대상 계산기: ' + (data.계산기명 || 'N/A') + '\n' +
-        '�� 피드백 유형: ' + (data.피드백유형 || 'N/A') + '\n' +
-        '📧 사용자 이메일: ' + (data.사용자이메일 || 'N/A') + '\n' +
-        '⚠️ 심각도: ' + (data.심각도 || 'N/A') + '\n' +
-        '⏰ 접수 시간: ' + getCurrentKoreanTime() + '\n\n' +
-        '📝 문제 설명:\n' + ((data.문제설명 || '').substring(0, 200)) + '...\n\n' +
-        '📋 시트 위치: ' + SHEETS.BETA_FEEDBACK + ' 시트 ' + rowNumber + '행\n' +
-        '🔗 구글시트 바로가기: ' + GOOGLE_SHEETS_URL + '\n' +
-        '🔗 직접 링크: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit#gid=' + getSheetId(SHEETS.BETA_FEEDBACK) + '&range=A' + rowNumber + '\n\n' +
-        '---\n' +
-        'AICAMP 베타테스트 개발팀\n' +
-        '📧 ' + ADMIN_EMAIL;
-
-      MailApp.sendEmail({
-        to: ADMIN_EMAIL,
-        subject: subject,
-        body: emailBody,
-        htmlBody: emailBody.replace(/\n/g, '<br>'),
-        attachments: []
-      });
-      
-      console.log('📧 베타피드백 관리자 알림 이메일 발송 완료 (UTF-8)');
-    } catch (error) {
-      console.error('❌ 베타피드백 관리자 이메일 발송 실패:', error);
-    }
-  }
-  
-  /**
-   * 신청자 확인 이메일 발송 (진단/상담용) - UTF-8 지원
-   */
-  function sendUserConfirmation(email, name, type) {
-    try {
-      const isConsultation = type === '상담';
-      const subject = '[AICAMP] ' + (isConsultation ? '상담' : '진단') + ' 신청이 접수되었습니다';
-      
-      const emailBody = '안녕하세요 ' + (name || '고객') + '님,\n\n' +
-        'AICAMP에서 알려드립니다.\n\n' +
-        '✅ ' + (isConsultation ? '전문가 상담' : 'AI 무료 진단') + ' 신청이 성공적으로 접수되었습니다.\n\n' +
-        '�� 담당 전문가가 1-2일 내에 연락드리겠습니다.\n\n' +
-        '-----------------------------------\n' +
-        '👨‍�� 담당 컨설턴트: 이후경 경영지도사\n' +
-        '📞 전화: 010-9251-9743\n' +
-        '📧 이메일: ' + ADMIN_EMAIL + '\n' +
-        '-----------------------------------\n\n' +
-        (isConsultation ? 
-          '상담 일정을 조율하여 맞춤형 컨설팅을 제공해드리겠습니다.' :
-          '진단 결과를 바탕으로 맞춤형 개선방안을 제시해드리겠습니다.'
-        ) + '\n\n' +
-        '감사합니다.\nAICAMP';
-
-      MailApp.sendEmail({
-        to: email,
-        subject: subject,
-        body: emailBody,
-        htmlBody: emailBody.replace(/\n/g, '<br>'),
-        attachments: []
-      });
-      
-      console.log('📧 신청자 확인 이메일 발송 완료 (UTF-8):', email);
-    } catch (error) {
-      console.error('❌ 신청자 이메일 발송 실패:', error);
-    }
-  }
-  
-  /**
-   * 베타피드백 사용자 확인 이메일 (UTF-8 지원)
-   */
-  function sendBetaFeedbackUserConfirmation(email, data) {
-    try {
-      const subject = '[AICAMP] 🧪 베타 피드백 접수 완료! ' + (data.계산기명 || '세금계산기');
-      
-      const emailBody = '안녕하세요!\n\n' +
-        'AICAMP 세금계산기 베타테스트에 참여해 주셔서 감사합니다.\n\n' +
-        '🎯 접수된 피드백: ' + (data.계산기명 || '세금계산기') + '\n' +
-        '🐛 피드백 유형: ' + (data.피드백유형 || 'N/A') + '\n' +
-        '⏰ 접수 일시: ' + getCurrentKoreanTime() + '\n\n' +
-        '담당자가 검토 후 이메일로 회신드리겠습니다.\n\n' +
-        '추가 문의사항이 있으시면 언제든 연락해주세요.\n\n' +
-        '감사합니다.\nAICAMP 베타테스트 개발팀';
-
-      MailApp.sendEmail({
-        to: email,
-        subject: subject,
-        body: emailBody,
-        htmlBody: emailBody.replace(/\n/g, '<br>'),
-        attachments: []
-      });
-      
-      console.log('📧 베타피드백 사용자 확인 이메일 발송 완료 (UTF-8):', email);
-    } catch (error) {
-      console.error('❌ 베타피드백 사용자 이메일 발송 실패:', error);
-    }
-  }
-  
-  /**
-   * 시트 ID 가져오기 (링크 생성용)
-   */
-  function getSheetId(sheetName) {
-    try {
-      const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
-      const sheet = spreadsheet.getSheetByName(sheetName);
-      return sheet ? sheet.getSheetId() : 0;
-    } catch (error) {
-      console.error('시트 ID 가져오기 실패:', error);
-      return 0;
-    }
-  }
+  // (오래된 중복 함수들 제거됨 - 개선된 버전만 유지)
   
   // ================================================================================
   // 🛠️ 유틸리티 함수들
   // ================================================================================
   
-  /**
-   * 시트 가져오기 또는 생성
-   */
-  function getOrCreateSheet(sheetName, type) {
-    try {
-      const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
-      let sheet = spreadsheet.getSheetByName(sheetName);
-      
-      if (!sheet) {
-        sheet = spreadsheet.insertSheet(sheetName);
-        setupHeaders(sheet, type);
-        console.log('📋 새 시트 생성:', sheetName);
-      }
-      
-      return sheet;
-    } catch (error) {
-      console.error('❌ 시트 생성/접근 오류:', error);
-      throw new Error(`시트 처리 오류: ${error.toString()}`);
-    }
-  }
-  
-  /**
-   * 한국 시간 가져오기
-   */
-  function getCurrentKoreanTime() {
-    return Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy. MM. dd. a hh:mm:ss');
-  }
-  
-  /**
-   * 성공 응답 생성
-   */
-  function createSuccessResponse(data) {
-    const response = { 
-      success: true, 
-      timestamp: getCurrentKoreanTime(),
-      version: VERSION,
-      ...data 
-    };
-    
-    if (DEBUG_MODE) {
-      console.log('✅ 성공 응답 생성:', response);
-    }
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(response))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  /**
-   * 오류 응답 생성
-   */
-  function createErrorResponse(message) {
-    const response = { 
-      success: false, 
-      error: message,
-      timestamp: getCurrentKoreanTime(),
-      version: VERSION
-    };
-    
-    console.error('❌ 오류 응답 생성:', response);
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(response))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  /**
-   * 베타 피드백 요청 확인
-   */
-  function isBetaFeedback(data) {
-    return data.action === 'saveBetaFeedback' || 
-           data.폼타입 === '베타테스트_피드백' || 
-           (data.피드백유형 && data.사용자이메일 && data.계산기명);
-  }
-  
-  /**
-   * 상담신청 요청 확인
-   */
-  function isConsultationRequest(data) {
-    if (isBetaFeedback(data)) {
-      return false;
-    }
-    
-    return !!(data.상담유형 || data.consultationType || data.성명 || data.name || 
-             data.문의내용 || data.inquiryContent || data.action === 'saveConsultation');
-  } 
+    // (중복된 유틸리티 함수들 제거됨) 
   // ================================================================================
 // 📊 시트 헤더 설정 (58개 진단, 19개 상담, 14개 베타피드백)
 // ================================================================================
@@ -978,6 +758,13 @@ function setupHeaders(sheet, type) {
         '제출일시', '계산기명', '피드백유형', '사용자이메일', '문제설명', 
         '기대동작', '실제동작', '재현단계', '심각도', '추가의견', 
         '브라우저정보', '제출경로', '처리상태', '처리일시'
+      ];
+    } else if (type === 'pdfRecord') {
+      // 🆕 PDF 발송 기록 헤더 (13개 컬럼)
+      headers = [
+        '발송일시', '수신자이메일', '수신자명', '회사명', 'PDF파일명',
+        '파일크기', '진단점수', '등급', '업종', '진단일시',
+        '발송상태', '담당자', '후속조치'
       ];
     } else {
       // 진단신청 헤더 (58개 컬럼) - 진단 질문 키워드 포함
@@ -1139,6 +926,50 @@ function setupHeaders(sheet, type) {
       
       console.log('📊 진단 질문 키워드 포함 헤더 설정 완료 (58개 컬럼 + 설명)');
       console.log('🎨 카테고리별 색상 구분 적용 완료');
+    }
+    
+    // 🆕 PDF 발송 기록 시트의 경우 특별한 스타일링 적용
+    if (type === 'pdfRecord') {
+      // 🎨 PDF 발송 기록 전용 스타일링 (빨간색)
+      headerRange.setBackground('#ff6b6b');
+      headerRange.setFontColor('#ffffff');
+      headerRange.setFontWeight('bold');
+      headerRange.setHorizontalAlignment('center');
+      headerRange.setVerticalAlignment('middle');
+      headerRange.setWrap(true);
+      sheet.setFrozenRows(1);
+      
+      // 📏 컬럼 폭 자동 조정
+      sheet.autoResizeColumns(1, headers.length);
+      
+      // 📝 2행에 설명 추가
+      const pdfDescriptions = [
+        '발송 완료 시간',
+        '받는 사람 이메일',
+        '받는 사람 이름',
+        '고객 회사명',
+        'PDF 파일 이름',
+        'PDF 파일 크기',
+        '진단 총점',
+        '등급 (A+ ~ F)',
+        '고객 업종',
+        '진단 수행 일시',
+        '발송 상태',
+        '담당 컨설턴트',
+        '후속 조치 사항'
+      ];
+      
+      sheet.getRange(2, 1, 1, pdfDescriptions.length).setValues([pdfDescriptions]);
+      const pdfDescriptionRange = sheet.getRange(2, 1, 1, pdfDescriptions.length);
+      pdfDescriptionRange.setBackground('#ffe0e0');
+      pdfDescriptionRange.setFontColor('#c62828');
+      pdfDescriptionRange.setFontStyle('italic');
+      pdfDescriptionRange.setFontSize(10);
+      pdfDescriptionRange.setHorizontalAlignment('center');
+      
+      sheet.setFrozenRows(2); // 설명 행도 고정
+      
+      console.log('📧 PDF 발송 기록 시트 스타일링 완료 (13개 컬럼 + 설명)');
     }
     
     console.log(`📋 ${type} 시트 헤더 설정 완료: ${headers.length}개 컬럼`);
@@ -1569,3 +1400,798 @@ function testBetaFeedback() {
     throw error;
   }
 } 
+
+// ================================================================================
+// 📧 개선된 이메일 발송 함수들 (PDF 첨부 + 구글시트 첨부 + UTF-8 완전 지원)
+// ================================================================================
+
+/**
+ * 📊 진단 결과 PDF 생성
+ */
+function generateDiagnosisPDF(data, totalScore, reportSummary, rowNumber) {
+  try {
+    const companyName = data.회사명 || data.companyName || '미확인';
+    const contactName = data.담당자명 || data.contactName || '미확인';
+    
+    // HTML 템플릿으로 PDF 생성
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; margin: 20px; }
+          .header { text-align: center; border-bottom: 2px solid #4285f4; padding-bottom: 20px; margin-bottom: 30px; }
+          .company-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }
+          .score-section { background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .score-big { font-size: 48px; font-weight: bold; color: #1976d2; text-align: center; }
+          .summary { background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>🎯 AI 무료진단 결과보고서</h1>
+          <h2>AICAMP - 비즈니스 성장 솔루션</h2>
+          <p>진단일시: ${getCurrentKoreanTime()}</p>
+        </div>
+        
+        <div class="company-info">
+          <h3>📋 기업 정보</h3>
+          <p><strong>회사명:</strong> ${companyName}</p>
+          <p><strong>담당자:</strong> ${contactName}</p>
+          <p><strong>업종:</strong> ${data.업종 || data.industry || '미확인'}</p>
+          <p><strong>직원수:</strong> ${data.직원수 || data.employeeCount || '미확인'}</p>
+          <p><strong>성장단계:</strong> ${data.사업성장단계 || data.growthStage || '미확인'}</p>
+        </div>
+        
+        <div class="score-section">
+          <h3>🎯 진단 결과</h3>
+          <div class="score-big">${totalScore}점</div>
+          <p style="text-align: center; font-size: 18px; margin-top: 10px;">100점 만점 기준</p>
+        </div>
+        
+        <div class="summary">
+          <h3>📝 진단 요약</h3>
+          <p>${reportSummary}</p>
+        </div>
+        
+        <div>
+          <h3>💭 주요 고민사항</h3>
+          <p>${data.주요고민사항 || data.mainConcerns || '미확인'}</p>
+          
+          <h3>🎯 기대 효과</h3>
+          <p>${data.예상혜택 || data.expectedBenefits || '미확인'}</p>
+        </div>
+        
+        <div class="footer">
+          <p><strong>AICAMP</strong> | 담당: 이후경 경영지도사</p>
+          <p>📞 010-9251-9743 | 📧 hongik423@gmail.com</p>
+          <p>🔗 상세 데이터: 구글시트 ${rowNumber}행 참조</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // HTML을 PDF로 변환
+    const blob = Utilities.newBlob(htmlContent, 'text/html', `AI진단결과_${companyName}_${getCurrentKoreanTime().replace(/[^\w가-힣]/g, '_')}.html`);
+    
+    // HTML을 PDF로 변환하는 방법 (Google Apps Script 제한으로 HTML 파일로 반환)
+    return blob;
+    
+  } catch (error) {
+    console.error('❌ 진단 PDF 생성 실패:', error);
+    return null;
+  }
+}
+
+/**
+ * 📋 상담신청서 PDF 생성
+ */
+function generateConsultationPDF(data, rowNumber) {
+  try {
+    const applicantName = data.성명 || data.name || '미확인';
+    const companyName = data.회사명 || data.company || '미확인';
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; margin: 20px; }
+          .header { text-align: center; border-bottom: 2px solid #4285f4; padding-bottom: 20px; margin-bottom: 30px; }
+          .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .info-table th, .info-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+          .info-table th { background-color: #f8f9fa; font-weight: bold; }
+          .inquiry-section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>💬 전문가 상담신청서</h1>
+          <h2>AICAMP - 비즈니스 성장 솔루션</h2>
+          <p>신청일시: ${getCurrentKoreanTime()}</p>
+        </div>
+        
+        <table class="info-table">
+          <tr><th>성명</th><td>${applicantName}</td></tr>
+          <tr><th>회사명</th><td>${companyName}</td></tr>
+          <tr><th>직책</th><td>${data.직책 || data.position || '미확인'}</td></tr>
+          <tr><th>이메일</th><td>${data.이메일 || data.email || '미확인'}</td></tr>
+          <tr><th>연락처</th><td>${data.연락처 || data.phone || '미확인'}</td></tr>
+          <tr><th>상담유형</th><td>${data.상담유형 || data.consultationType || '일반상담'}</td></tr>
+          <tr><th>상담분야</th><td>${data.상담분야 || data.consultationArea || '미확인'}</td></tr>
+          <tr><th>희망상담시간</th><td>${data.희망상담시간 || data.preferredTime || '미확인'}</td></tr>
+        </table>
+        
+        <div class="inquiry-section">
+          <h3>💭 문의내용</h3>
+          <p>${data.문의내용 || data.inquiryContent || '미확인'}</p>
+        </div>
+        
+        <div class="footer">
+          <p><strong>AICAMP</strong> | 담당: 이후경 경영지도사</p>
+          <p>📞 010-9251-9743 | 📧 hongik423@gmail.com</p>
+          <p>🔗 상세 데이터: 구글시트 ${rowNumber}행 참조</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    const blob = Utilities.newBlob(htmlContent, 'text/html', `상담신청서_${companyName}_${getCurrentKoreanTime().replace(/[^\w가-힣]/g, '_')}.html`);
+    return blob;
+    
+  } catch (error) {
+    console.error('❌ 상담신청서 PDF 생성 실패:', error);
+    return null;
+  }
+}
+
+/**
+ * 📊 구글시트를 CSV로 내보내기
+ */
+function exportSheetAsCSV(sheetName, rowNumber) {
+  try {
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = spreadsheet.getSheetByName(sheetName);
+    
+    if (!sheet) {
+      console.error('❌ 시트를 찾을 수 없음:', sheetName);
+      return null;
+    }
+    
+    // 해당 행의 데이터 가져오기
+    const headerRange = sheet.getRange(1, 1, 1, sheet.getLastColumn());
+    const dataRange = sheet.getRange(rowNumber, 1, 1, sheet.getLastColumn());
+    
+    const headers = headerRange.getValues()[0];
+    const rowData = dataRange.getValues()[0];
+    
+    // CSV 형식으로 변환
+    let csvContent = headers.join(',') + '\n';
+    csvContent += rowData.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',');
+    
+    const fileName = `${sheetName}_${rowNumber}행_${getCurrentKoreanTime().replace(/[^\w가-힣]/g, '_')}.csv`;
+    const blob = Utilities.newBlob(csvContent, 'text/csv', fileName);
+    
+    return blob;
+    
+  } catch (error) {
+    console.error('❌ CSV 내보내기 실패:', error);
+    return null;
+  }
+}
+
+/**
+ * 📧 개선된 진단 관리자 알림 이메일 (PDF + CSV 첨부)
+ */
+function sendDiagnosisAdminNotification(data, rowNumber, totalScore, reportSummary) {
+  try {
+    const companyName = data.회사명 || data.companyName || '미확인';
+    const contactName = data.담당자명 || data.contactName || '미확인';
+    const subject = '[AICAMP] 🎯 AI 무료진단 접수 - ' + companyName + ' (' + totalScore + '점)';
+    
+    const emailBody = '📊 새로운 AI 무료진단이 접수되었습니다!\n\n' +
+      '🏢 회사명: ' + companyName + '\n' +
+      '👤 담당자: ' + contactName + ' (' + (data.이메일 || data.contactEmail || data.email || '미확인') + ')\n' +
+      '🏭 업종: ' + (data.업종 || data.industry || '미확인') + '\n' +
+      '👥 직원수: ' + (data.직원수 || data.employeeCount || '미확인') + '\n' +
+      '🎯 종합점수: ' + totalScore + '점/100점\n' +
+      '📝 보고서 길이: ' + reportSummary.length + '자\n' +
+      '⏰ 접수 시간: ' + getCurrentKoreanTime() + '\n\n' +
+      '💭 주요 고민사항:\n' + ((data.주요고민사항 || data.mainConcerns || '').substring(0, 300)) + '...\n\n' +
+      '🎯 기대 효과:\n' + ((data.예상혜택 || data.expectedBenefits || '').substring(0, 300)) + '...\n\n' +
+      '📋 진단 요약:\n' + reportSummary.substring(0, 500) + '...\n\n' +
+      '📊 데이터 위치:\n' +
+      '• 시트: ' + SHEETS.DIAGNOSIS + ' 시트 ' + rowNumber + '행\n' +
+      '• 구글시트: ' + GOOGLE_SHEETS_URL + '\n' +
+      '• 직접 링크: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit#gid=0&range=A' + rowNumber + '\n\n' +
+      '📎 첨부파일:\n' +
+      '• AI진단결과보고서.html (고객용 리포트)\n' +
+      '• 진단데이터.csv (상세 데이터)\n\n' +
+      '※ 문항별 상세 점수(1-5점)와 카테고리별 분석이 완료되었습니다.\n\n' +
+      '🔔 다음 단계:\n' +
+      '1. 진단 결과 검토\n' +
+      '2. 고객 연락 및 상담 일정 협의\n' +
+      '3. 맞춤형 솔루션 제안\n\n' +
+      '---\n' +
+      'AICAMP 자동 알림 시스템\n' +
+      '담당: 이후경 교장 (경영지도사)\n' +
+      '📞 010-9251-9743 | 📧 ' + ADMIN_EMAIL;
+
+    // PDF 및 CSV 파일 생성
+    const attachments = [];
+    
+    // 진단 결과 PDF 생성
+    const diagnosisPDF = generateDiagnosisPDF(data, totalScore, reportSummary, rowNumber);
+    if (diagnosisPDF) {
+      attachments.push(diagnosisPDF);
+    }
+    
+    // 데이터 CSV 생성
+    const csvFile = exportSheetAsCSV(SHEETS.DIAGNOSIS, rowNumber);
+    if (csvFile) {
+      attachments.push(csvFile);
+    }
+
+    // HTML 이메일 본문
+    const htmlBody = emailBody.replace(/\n/g, '<br>')
+      .replace(/📊|🏢|👤|🏭|👥|🎯|📝|⏰|💭|📋|📎|🔔/g, '<strong>$&</strong>');
+
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: subject,
+      body: emailBody,
+      htmlBody: htmlBody,
+      attachments: attachments
+    });
+    
+    console.log('📧 진단 관리자 알림 이메일 발송 완료 (첨부파일 ' + attachments.length + '개)');
+  } catch (error) {
+    console.error('❌ 진단 관리자 이메일 발송 실패:', error);
+  }
+}
+
+/**
+ * 📧 개선된 상담 관리자 알림 이메일 (PDF + CSV 첨부)
+ */
+function sendConsultationAdminNotification(data, rowNumber) {
+  try {
+    const companyName = data.회사명 || data.company || '회사명미상';
+    const applicantName = data.성명 || data.name || '미확인';
+    const subject = '[AICAMP] 💬 새로운 상담신청 접수 - ' + companyName + ' (' + applicantName + ')';
+    
+    const emailBody = '💬 새로운 상담신청이 접수되었습니다!\n\n' +
+      '👤 신청자: ' + applicantName + '\n' +
+      '🏢 회사명: ' + companyName + '\n' +
+      '💼 직책: ' + (data.직책 || data.position || '미확인') + '\n' +
+      '📧 이메일: ' + (data.이메일 || data.email || '미확인') + '\n' +
+      '📞 연락처: ' + (data.연락처 || data.phone || '미확인') + '\n' +
+      '🎯 상담유형: ' + (data.상담유형 || data.consultationType || '일반상담') + '\n' +
+      '📝 상담분야: ' + (data.상담분야 || data.consultationArea || '미확인') + '\n' +
+      '⏰ 희망시간: ' + (data.희망상담시간 || data.preferredTime || '미확인') + '\n' +
+      '📅 접수시간: ' + getCurrentKoreanTime() + '\n\n' +
+      '💭 문의내용:\n' + ((data.문의내용 || data.inquiryContent || '').substring(0, 500)) + '\n\n' +
+      '📊 연계정보:\n' +
+      '• 진단연계여부: ' + (data.진단연계여부 || 'N') + '\n' +
+      '• 진단점수: ' + (data.진단점수 || '미연계') + '\n' +
+      '• 추천서비스: ' + (data.추천서비스 || '미연계') + '\n\n' +
+      '📊 데이터 위치:\n' +
+      '• 시트: ' + SHEETS.CONSULTATION + ' 시트 ' + rowNumber + '행\n' +
+      '• 구글시트: ' + GOOGLE_SHEETS_URL + '\n' +
+      '• 직접 링크: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit#gid=' + getSheetId(SHEETS.CONSULTATION) + '&range=A' + rowNumber + '\n\n' +
+      '📎 첨부파일:\n' +
+      '• 상담신청서.html (신청서 양식)\n' +
+      '• 상담데이터.csv (상세 데이터)\n\n' +
+      '🔔 다음 단계:\n' +
+      '1. 신청자 연락 (1-2일 내)\n' +
+      '2. 상담 일정 협의\n' +
+      '3. 전문가 상담 진행\n' +
+      '4. 솔루션 제안 및 후속 조치\n\n' +
+      '---\n' +
+      'AICAMP 자동 알림 시스템\n' +
+      '담당: 이후경 교장 (경영지도사)\n' +
+      '📞 010-9251-9743 | 📧 ' + ADMIN_EMAIL;
+
+    // PDF 및 CSV 파일 생성
+    const attachments = [];
+    
+    // 상담신청서 PDF 생성
+    const consultationPDF = generateConsultationPDF(data, rowNumber);
+    if (consultationPDF) {
+      attachments.push(consultationPDF);
+    }
+    
+    // 데이터 CSV 생성
+    const csvFile = exportSheetAsCSV(SHEETS.CONSULTATION, rowNumber);
+    if (csvFile) {
+      attachments.push(csvFile);
+    }
+
+    // HTML 이메일 본문
+    const htmlBody = emailBody.replace(/\n/g, '<br>')
+      .replace(/💬|👤|🏢|💼|📧|📞|🎯|📝|⏰|📅|💭|📊|📎|🔔/g, '<strong>$&</strong>');
+
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: subject,
+      body: emailBody,
+      htmlBody: htmlBody,
+      attachments: attachments
+    });
+    
+    console.log('📧 상담 관리자 알림 이메일 발송 완료 (첨부파일 ' + attachments.length + '개)');
+  } catch (error) {
+    console.error('❌ 상담 관리자 이메일 발송 실패:', error);
+  }
+}
+
+/**
+ * 📧 개선된 신청자 확인 이메일 (상세 안내 포함)
+ */
+function sendUserConfirmation(email, name, type) {
+  try {
+    const isConsultation = type === '상담';
+    const subject = '[AICAMP] ' + (isConsultation ? '전문가 상담' : 'AI 무료진단') + ' 신청이 접수되었습니다 ✅';
+    
+    const emailBody = '안녕하세요 ' + (name || '고객') + '님,\n\n' +
+      'AICAMP에 ' + (isConsultation ? '전문가 상담' : 'AI 무료진단') + ' 신청을 해주셔서 감사합니다.\n\n' +
+      '✅ 신청이 성공적으로 접수되었습니다!\n' +
+      '📅 접수일시: ' + getCurrentKoreanTime() + '\n\n' +
+      '🔔 다음 진행사항:\n' +
+      (isConsultation ? 
+        '1. 전문가가 1-2일 내에 연락드립니다\n' +
+        '2. 상담 일정을 협의합니다\n' +
+        '3. 맞춤형 전문가 상담을 진행합니다\n' +
+        '4. 구체적인 솔루션을 제안드립니다\n\n' +
+        '💡 상담 준비사항:\n' +
+        '• 현재 비즈니스 현황 자료\n' +
+        '• 구체적인 고민사항 정리\n' +
+        '• 목표하는 성과 및 일정\n' +
+        '• 예산 범위 (대략적으로)'
+        :
+        '1. AI 진단 결과를 분석합니다\n' +
+        '2. 전문가가 결과를 검토합니다\n' +
+        '3. 1-2일 내에 상세한 분석 결과를 연락드립니다\n' +
+        '4. 맞춤형 개선방안을 제시합니다\n\n' +
+        '💡 진단 결과 포함사항:\n' +
+        '• 5개 영역별 상세 분석 (100점 만점)\n' +
+        '• 강점과 개선점 도출\n' +
+        '• 맞춤형 솔루션 제안\n' +
+        '• 단계별 실행 계획'
+      ) + '\n\n' +
+      '📞 빠른 연락을 원하시면:\n' +
+      '전화: 010-9251-9743 (이후경 경영지도사)\n' +
+      '이메일: ' + ADMIN_EMAIL + '\n\n' +
+      '🎯 AICAMP 서비스 소개:\n' +
+      '• AI 기반 비즈니스 진단\n' +
+      '• 전문가 1:1 맞춤 상담\n' +
+      '• 성장 전략 수립 지원\n' +
+      '• 실행 계획 및 후속 관리\n\n' +
+      '더 자세한 정보가 궁금하시면 언제든 연락해주세요.\n' +
+      '귀하의 비즈니스 성장을 위해 최선을 다하겠습니다.\n\n' +
+      '감사합니다.\n\n' +
+      '---\n' +
+      'AICAMP (AI기반 비즈니스 성장 솔루션)\n' +
+      '담당: 이후경 교장 (경영지도사)\n' +
+      '📞 010-9251-9743\n' +
+      '📧 ' + ADMIN_EMAIL + '\n' +
+      '🌐 https://ai-camp-landingpage.vercel.app';
+
+    // HTML 이메일 본문 (더 예쁘게 formatting)
+    const htmlBody = `
+      <div style="font-family: 'Malgun Gothic', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; border-bottom: 3px solid #4285f4; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="color: #4285f4; margin-bottom: 10px;">🎯 AICAMP</h1>
+          <h2 style="color: #333; margin: 0;">신청 접수 완료 안내</h2>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #28a745; margin-top: 0;">✅ 접수 완료</h3>
+          <p><strong>${name || '고객'}님</strong>의 <strong>${isConsultation ? '전문가 상담' : 'AI 무료진단'}</strong> 신청이 성공적으로 접수되었습니다.</p>
+          <p><strong>📅 접수일시:</strong> ${getCurrentKoreanTime()}</p>
+        </div>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #1976d2; margin-top: 0;">🔔 다음 진행사항</h3>
+          ${isConsultation ? `
+            <ol>
+              <li>전문가가 <strong>1-2일 내</strong>에 연락드립니다</li>
+              <li>상담 일정을 협의합니다</li>
+              <li>맞춤형 전문가 상담을 진행합니다</li>
+              <li>구체적인 솔루션을 제안드립니다</li>
+            </ol>
+          ` : `
+            <ol>
+              <li>AI 진단 결과를 분석합니다</li>
+              <li>전문가가 결과를 검토합니다</li>
+              <li><strong>1-2일 내</strong>에 상세한 분석 결과를 연락드립니다</li>
+              <li>맞춤형 개선방안을 제시합니다</li>
+            </ol>
+          `}
+        </div>
+        
+        <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #f57c00; margin-top: 0;">📞 연락처</h3>
+          <p><strong>담당:</strong> 이후경 교장 (경영지도사)</p>
+          <p><strong>전화:</strong> 010-9251-9743</p>
+          <p><strong>이메일:</strong> ${ADMIN_EMAIL}</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666;">
+          <p><strong>AICAMP</strong> - AI기반 비즈니스 성장 솔루션</p>
+          <p>귀하의 비즈니스 성장을 위해 최선을 다하겠습니다.</p>
+        </div>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      body: emailBody,
+      htmlBody: htmlBody,
+      attachments: []
+    });
+    
+    console.log('📧 신청자 확인 이메일 발송 완료 (개선된 버전):', email);
+  } catch (error) {
+    console.error('❌ 신청자 이메일 발송 실패:', error);
+  }
+}
+
+/**
+ * 베타피드백 관리자 알림 이메일 (구글시트 링크 포함) 
+ */
+function sendBetaFeedbackAdminNotification(data, rowNumber) {
+  try {
+    const subject = '[AICAMP] 🚨 긴급! 베타 피드백 접수 - ' + (data.계산기명 || '세금계산기');
+    
+    const emailBody = '🧪 새로운 베타 피드백이 접수되었습니다!\n\n' +
+      '🎯 대상 계산기: ' + (data.계산기명 || 'N/A') + '\n' +
+      '🐛 피드백 유형: ' + (data.피드백유형 || 'N/A') + '\n' +
+      '📧 사용자 이메일: ' + (data.사용자이메일 || 'N/A') + '\n' +
+      '⚠️ 심각도: ' + (data.심각도 || 'N/A') + '\n' +
+      '⏰ 접수 시간: ' + getCurrentKoreanTime() + '\n\n' +
+      '📝 문제 설명:\n' + ((data.문제설명 || '').substring(0, 200)) + '...\n\n' +
+      '📋 시트 위치: ' + SHEETS.BETA_FEEDBACK + ' 시트 ' + rowNumber + '행\n' +
+      '🔗 구글시트 바로가기: ' + GOOGLE_SHEETS_URL + '\n' +
+      '🔗 직접 링크: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit#gid=' + getSheetId(SHEETS.BETA_FEEDBACK) + '&range=A' + rowNumber + '\n\n' +
+      '---\n' +
+      'AICAMP 베타테스트 개발팀\n' +
+      '📧 ' + ADMIN_EMAIL;
+
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: subject,
+      body: emailBody,
+      htmlBody: emailBody.replace(/\n/g, '<br>'),
+      attachments: []
+    });
+    
+    console.log('📧 베타피드백 관리자 알림 이메일 발송 완료 (UTF-8)');
+  } catch (error) {
+    console.error('❌ 베타피드백 관리자 이메일 발송 실패:', error);
+  }
+}
+
+/**
+ * 베타피드백 사용자 확인 이메일 (UTF-8 지원)
+ */
+function sendBetaFeedbackUserConfirmation(email, data) {
+  try {
+    const subject = '[AICAMP] 🧪 베타 피드백 접수 완료! ' + (data.계산기명 || '세금계산기');
+    
+    const emailBody = '안녕하세요!\n\n' +
+      'AICAMP 세금계산기 베타테스트에 참여해 주셔서 감사합니다.\n\n' +
+      '🎯 접수된 피드백: ' + (data.계산기명 || '세금계산기') + '\n' +
+      '🐛 피드백 유형: ' + (data.피드백유형 || 'N/A') + '\n' +
+      '⏰ 접수 일시: ' + getCurrentKoreanTime() + '\n\n' +
+      '담당자가 검토 후 이메일로 회신드리겠습니다.\n\n' +
+      '추가 문의사항이 있으시면 언제든 연락해주세요.\n\n' +
+      '감사합니다.\nAICAMP 베타테스트 개발팀';
+
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      body: emailBody,
+      htmlBody: emailBody.replace(/\n/g, '<br>'),
+      attachments: []
+    });
+    
+    console.log('📧 베타피드백 사용자 확인 이메일 발송 완료 (UTF-8):', email);
+  } catch (error) {
+    console.error('❌ 베타피드백 사용자 이메일 발송 실패:', error);
+  }
+}
+
+/**
+ * 시트 ID 가져오기 (링크 생성용)
+ */
+function getSheetId(sheetName) {
+  try {
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = spreadsheet.getSheetByName(sheetName);
+    return sheet ? sheet.getSheetId() : 0;
+  } catch (error) {
+    console.error('시트 ID 가져오기 실패:', error);
+    return 0;
+  }
+}
+
+// ================================================================================
+// 🆕 PDF 이메일 발송 관련 함수들 (신규 추가)
+// ================================================================================
+
+/**
+ * 📧 신청자에게 PDF 첨부 이메일 발송
+ */
+function sendPdfEmailToUser(pdfData) {
+  try {
+    const sentTime = getCurrentKoreanTime();
+    
+    // 📄 Base64 PDF 데이터를 Blob으로 변환
+    let pdfBlob = null;
+    try {
+      const base64Data = pdfData.pdf_attachment.replace(/^data:application\/pdf;base64,/, '');
+      const binaryData = Utilities.base64Decode(base64Data);
+      pdfBlob = Utilities.newBlob(binaryData, 'application/pdf', pdfData.pdf_filename);
+      
+      console.log('✅ PDF Blob 생성 성공:', {
+        filename: pdfBlob.getName(),
+        size: Math.round(pdfBlob.getBytes().length / 1024) + 'KB'
+      });
+    } catch (pdfError) {
+      console.error('❌ PDF Blob 생성 실패:', pdfError);
+      return { success: false, error: 'PDF 데이터 변환 실패: ' + pdfError.toString() };
+    }
+
+    const subject = `[AICAMP] 🎯 AI 무료진단 결과보고서 - ${pdfData.company_name}`;
+    
+    const emailBody = `안녕하세요 ${pdfData.to_name}님,
+
+AICAMP AI 무료진단을 신청해 주셔서 감사합니다.
+요청하신 진단 결과보고서를 첨부파일로 보내드립니다.
+
+📊 진단 정보:
+• 회사명: ${pdfData.company_name}
+• 진단일시: ${pdfData.diagnosis_date}
+• 종합점수: ${pdfData.total_score}점 (100점 만점)
+• 등급: ${pdfData.overall_grade}
+• 업종: ${pdfData.industry_type}
+
+📎 첨부파일:
+• AI 진단 결과보고서 (PDF)
+
+📞 후속 상담 문의:
+• 담당: ${pdfData.consultant_name}
+• 전화: ${pdfData.consultant_phone}
+• 이메일: ${pdfData.consultant_email}
+
+💡 진단 결과를 바탕으로 맞춤형 성장 전략을 제안드릴 수 있습니다.
+추가 상담이나 문의사항이 있으시면 언제든 연락해주세요.
+
+귀하의 비즈니스 성장을 위해 최선을 다하겠습니다.
+
+감사합니다.
+
+---
+AICAMP (AI기반 비즈니스 성장 솔루션)
+담당: ${pdfData.consultant_name}
+📞 ${pdfData.consultant_phone}
+📧 ${pdfData.consultant_email}
+🌐 https://ai-camp-landingpage.vercel.app
+발송일시: ${sentTime}`;
+
+    // HTML 이메일 본문
+    const htmlBody = `
+      <div style="font-family: 'Malgun Gothic', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; border-bottom: 3px solid #4285f4; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="color: #4285f4; margin-bottom: 10px;">🎯 AICAMP</h1>
+          <h2 style="color: #333; margin: 0;">AI 무료진단 결과보고서</h2>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #28a745; margin-top: 0;">✅ 진단 완료</h3>
+          <p><strong>${pdfData.to_name}님</strong>의 AI 무료진단이 완료되었습니다.</p>
+          <p>상세한 분석 결과를 첨부파일로 확인하실 수 있습니다.</p>
+        </div>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #1976d2; margin-top: 0;">📊 진단 정보</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>회사명</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${pdfData.company_name}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>진단일시</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;">${pdfData.diagnosis_date}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>종합점수</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong style="color: #f57c00; font-size: 18px;">${pdfData.total_score}점</strong></td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>등급</strong></td><td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong style="color: #2196f3;">${pdfData.overall_grade}</strong></td></tr>
+            <tr><td style="padding: 8px;"><strong>업종</strong></td><td style="padding: 8px;">${pdfData.industry_type}</td></tr>
+          </table>
+        </div>
+        
+        <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #f57c00; margin-top: 0;">📞 후속 상담</h3>
+          <p><strong>담당:</strong> ${pdfData.consultant_name}</p>
+          <p><strong>전화:</strong> ${pdfData.consultant_phone}</p>
+          <p><strong>이메일:</strong> ${pdfData.consultant_email}</p>
+          <p style="margin-top: 15px;">진단 결과를 바탕으로 <strong>맞춤형 성장 전략</strong>을 제안드릴 수 있습니다.</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666;">
+          <p><strong>AICAMP</strong> - AI기반 비즈니스 성장 솔루션</p>
+          <p>귀하의 비즈니스 성장을 위해 최선을 다하겠습니다.</p>
+        </div>
+      </div>
+    `;
+
+    // 이메일 발송 (PDF 첨부)
+    MailApp.sendEmail({
+      to: pdfData.to_email,
+      subject: subject,
+      body: emailBody,
+      htmlBody: htmlBody,
+      attachments: [pdfBlob],
+      name: 'AICAMP AI 교육센터'
+    });
+    
+    console.log('📧 신청자 PDF 이메일 발송 완료:', {
+      to: pdfData.to_email,
+      company: pdfData.company_name,
+      sentTime: sentTime,
+      pdfSize: Math.round(pdfBlob.getBytes().length / 1024) + 'KB'
+    });
+
+    return { success: true, sentTime: sentTime };
+
+  } catch (error) {
+    console.error('❌ 신청자 PDF 이메일 발송 실패:', error);
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * 📊 점수에서 등급 산출
+ */
+function getGradeFromScore(score) {
+  if (score >= 90) return 'A+';
+  if (score >= 85) return 'A';
+  if (score >= 80) return 'B+';
+  if (score >= 75) return 'B';
+  if (score >= 70) return 'C+';
+  if (score >= 65) return 'C';
+  if (score >= 60) return 'D+';
+  if (score >= 55) return 'D';
+  return 'F';
+}
+
+/**
+ * 📧 관리자에게 PDF 발송 완료 알림
+ */
+function sendPdfNotificationToAdmin(pdfData, sentTime) {
+  try {
+    const subject = `[AICAMP] ✅ PDF 진단보고서 발송 완료 - ${pdfData.company_name}`;
+    
+    const adminBody = `📧 AI 진단 결과보고서가 성공적으로 발송되었습니다!
+
+📊 발송 정보:
+• 수신자: ${pdfData.to_name} (${pdfData.to_email})
+• 회사명: ${pdfData.company_name}
+• 진단점수: ${pdfData.total_score}점
+• 등급: ${pdfData.overall_grade}
+• 업종: ${pdfData.industry_type}
+• 발송일시: ${sentTime}
+
+📎 발송된 파일:
+• ${pdfData.pdf_filename}
+• 크기: ${pdfData.pdf_attachment ? Math.round(pdfData.pdf_attachment.length / 1024) + 'KB' : 'N/A'}
+
+🔔 다음 단계:
+1. 고객 후속 연락 (1-2일 내)
+2. 진단 결과 설명 및 상담 제안
+3. 맞춤형 솔루션 제시
+
+📊 구글시트 확인:
+${GOOGLE_SHEETS_URL}
+
+---
+AICAMP 자동 알림 시스템
+발송일시: ${sentTime}`;
+
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: subject,
+      body: adminBody,
+      htmlBody: adminBody.replace(/\n/g, '<br>'),
+      name: 'AICAMP 자동 알림 시스템'
+    });
+    
+    console.log('📧 관리자 PDF 발송 완료 알림 전송');
+
+  } catch (error) {
+    console.error('❌ 관리자 알림 발송 실패:', error);
+  }
+}
+
+/**
+ * 🚨 관리자에게 PDF 발송 오류 알림
+ */
+function sendPdfErrorNotificationToAdmin(pdfData, error) {
+  try {
+    const subject = `[AICAMP] 🚨 긴급: PDF 발송 실패 - ${pdfData.company_name}`;
+    
+    const errorBody = `❌ PDF 진단보고서 발송 중 오류가 발생했습니다!
+
+🚨 오류 정보:
+• 수신자: ${pdfData.to_name} (${pdfData.to_email})
+• 회사명: ${pdfData.company_name}
+• 진단점수: ${pdfData.total_score}점
+• 오류 메시지: ${error.toString()}
+• 발생 시간: ${getCurrentKoreanTime()}
+
+🚨 즉시 조치 필요:
+1. 고객에게 직접 연락하여 상황 설명
+2. PDF 보고서 수동 발송 또는 재발송
+3. 시스템 오류 점검 및 수정
+
+📞 고객 연락처: ${pdfData.to_email}
+
+---
+AICAMP 긴급 알림 시스템
+발생일시: ${getCurrentKoreanTime()}`;
+
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: subject,
+      body: errorBody,
+      htmlBody: errorBody.replace(/\n/g, '<br>'),
+      name: 'AICAMP 긴급 알림 시스템'
+    });
+    
+    console.log('🚨 관리자 PDF 발송 오류 알림 전송');
+
+  } catch (notificationError) {
+    console.error('❌ 관리자 오류 알림 발송도 실패:', notificationError);
+  }
+}
+
+/**
+ * 📊 PDF 발송 기록을 구글시트에 저장
+ */
+function savePdfSendingRecord(pdfData, sentTime) {
+  try {
+    const sheet = getOrCreateSheet('PDF_발송기록', 'pdfRecord');
+    
+    const rowData = [
+      sentTime,                                    // A: 발송일시
+      pdfData.to_email,                           // B: 수신자이메일
+      pdfData.to_name,                            // C: 수신자명
+      pdfData.company_name,                       // D: 회사명
+      pdfData.pdf_filename,                       // E: PDF파일명
+      pdfData.pdf_attachment ? Math.round(pdfData.pdf_attachment.length / 1024) + 'KB' : '0KB', // F: 파일크기
+      pdfData.total_score,                        // G: 진단점수
+      pdfData.overall_grade,                      // H: 등급
+      pdfData.industry_type,                      // I: 업종
+      pdfData.diagnosis_date,                     // J: 진단일시
+      '발송완료',                                  // K: 발송상태
+      pdfData.consultant_name,                    // L: 담당자
+      ''                                          // M: 후속조치
+    ];
+    
+    const newRow = sheet.getLastRow() + 1;
+    sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
+    
+    console.log('📊 PDF 발송 기록 저장 완료:', {
+      시트: 'PDF_발송기록',
+      행번호: newRow,
+      회사명: pdfData.company_name,
+      수신자: pdfData.to_email
+    });
+    
+    return { success: true, row: newRow };
+
+  } catch (error) {
+    console.error('❌ PDF 발송 기록 저장 실패:', error);
+    return { success: false, error: error.toString() };
+  }
+}
+  

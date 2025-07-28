@@ -1,0 +1,6 @@
+# AI 무료진단 PDF 보고서들은 git에 포함하지 않음
+*.pdf
+
+# README.md와 .gitignore만 포함
+!README.md
+!.gitignore

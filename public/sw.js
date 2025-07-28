@@ -1,5 +1,5 @@
-// AICAMP Service Worker
-const CACHE_NAME = 'aicamp-v1.0.1'; // 버전 업데이트
+// AICAMP Service Worker - 완전 오류 방지 버전
+const CACHE_NAME = 'aicamp-v1.0.3'; // 버전 업데이트
 const STATIC_CACHE_URLS = [
   '/',
   '/diagnosis',
@@ -8,6 +8,7 @@ const STATIC_CACHE_URLS = [
   '/about',
   '/services',
   '/center-leader',
+  '/n8n_1-20.pdf',  // ✅ PDF 파일 추가
   '/images/AICAMP로고.png',
   '/images/aicamp_leader.png',
   '/images/aicamp_leader2.jpg',
@@ -16,6 +17,38 @@ const STATIC_CACHE_URLS = [
 
 // Check if running in development
 const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
+
+// 🆕 완전한 메시지 포트 오류 방지 시스템
+self.addEventListener('error', (event) => {
+  if (event.error && event.error.message && event.error.message.includes('port closed')) {
+    console.log('Message port error suppressed in SW');
+    event.preventDefault();
+    return false;
+  }
+  console.log('Service Worker error handled:', event.error);
+  event.preventDefault();
+});
+
+self.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && typeof event.reason === 'string' && event.reason.includes('port closed')) {
+    console.log('Message port rejection suppressed in SW');
+    event.preventDefault();
+    return;
+  }
+  console.log('Service Worker unhandled rejection:', event.reason);
+  event.preventDefault();
+});
+
+// 🆕 메시지 이벤트 안전 처리
+self.addEventListener('message', (event) => {
+  try {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+  } catch (error) {
+    console.log('Message event error handled:', error);
+  }
+});
 
 // Install event
 self.addEventListener('install', (event) => {
@@ -46,9 +79,11 @@ self.addEventListener('install', (event) => {
 // Activate event
 self.addEventListener('activate', (event) => {
   console.log('AICAMP Service Worker activating...');
+  
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME) {
@@ -57,12 +92,61 @@ self.addEventListener('activate', (event) => {
             }
           })
         );
-      })
-      .then(() => {
-        console.log('AICAMP Service Worker activated');
-        return self.clients.claim();
-      })
+      }),
+      // Take control of all clients
+      self.clients.claim()
+    ]).then(() => {
+      console.log('AICAMP Service Worker activated');
+      // 🆕 오프라인 양식 제출 처리
+      return handleOfflineFormSubmission();
+    })
   );
+});
+
+// 🆕 개선된 메시지 핸들러 - 메시지 포트 오류 방지
+self.addEventListener('message', (event) => {
+  try {
+    if (!event.ports || event.ports.length === 0) {
+      console.log('No message port available, skipping response');
+      return;
+    }
+    
+    const { type, data } = event.data || {};
+    
+    switch (type) {
+      case 'SKIP_WAITING':
+        self.skipWaiting();
+        event.ports[0].postMessage({ success: true });
+        break;
+        
+      case 'GET_VERSION':
+        event.ports[0].postMessage({ version: CACHE_NAME });
+        break;
+        
+      case 'CACHE_URLS':
+        if (data && Array.isArray(data.urls)) {
+          caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(data.urls))
+            .then(() => event.ports[0].postMessage({ success: true }))
+            .catch(error => event.ports[0].postMessage({ success: false, error: error.message }));
+        }
+        break;
+        
+      default:
+        console.log('Unknown message type:', type);
+        event.ports[0].postMessage({ success: false, error: 'Unknown message type' });
+    }
+  } catch (error) {
+    console.error('Message handler error:', error);
+    // 메시지 포트가 닫혔을 수 있으므로 안전하게 처리
+    try {
+      if (event.ports && event.ports[0]) {
+        event.ports[0].postMessage({ success: false, error: error.message });
+      }
+    } catch (portError) {
+      console.log('Message port already closed');
+    }
+  }
 });
 
 // Fetch event - Network first, then cache
@@ -103,6 +187,9 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME)
             .then((cache) => {
               cache.put(event.request, responseClone);
+            })
+            .catch((error) => {
+              console.log('Cache storage error:', error);
             });
         }
         
@@ -178,22 +265,11 @@ self.addEventListener('push', (event) => {
     data: {
       dateOfArrival: Date.now(),
       primaryKey: 1
-    },
-    actions: [
-      {
-        action: 'explore',
-        title: '확인하기',
-        icon: '/images/AICAMP로고.png'
-      },
-      {
-        action: 'close',
-        title: '닫기'
-      }
-    ]
+    }
   };
-  
+
   event.waitUntil(
-    self.registration.showNotification('AICAMP', options)
+    self.registration.showNotification('AICAMP 알림', options)
   );
 });
 
@@ -201,20 +277,81 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
-  if (event.action === 'explore') {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
-  }
+  event.waitUntil(
+    clients.openWindow('/')
+  );
 });
 
-// Helper functions for IndexedDB operations
+// 🆕 IndexedDB helper functions - 오류 방지 개선
 async function getStoredForms() {
-  // Implement IndexedDB operations
-  return [];
+  try {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('AICAMPOfflineDB', 1);
+      
+      request.onerror = () => {
+        console.log('IndexedDB open error');
+        resolve([]);
+      };
+      
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+        
+        if (!db.objectStoreNames.contains('forms')) {
+          resolve([]);
+          return;
+        }
+        
+        const transaction = db.transaction(['forms'], 'readonly');
+        const store = transaction.objectStore('forms');
+        const getAllRequest = store.getAll();
+        
+        getAllRequest.onsuccess = () => {
+          resolve(getAllRequest.result || []);
+        };
+        
+        getAllRequest.onerror = () => {
+          console.log('IndexedDB getAll error');
+          resolve([]);
+        };
+      };
+      
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains('forms')) {
+          db.createObjectStore('forms', { keyPath: 'id' });
+        }
+      };
+    });
+  } catch (error) {
+    console.error('getStoredForms error:', error);
+    return [];
+  }
 }
 
 async function removeStoredForm(id) {
-  // Implement IndexedDB removal
-  console.log('Removing stored form:', id);
+  try {
+    return new Promise((resolve) => {
+      const request = indexedDB.open('AICAMPOfflineDB', 1);
+      
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+        
+        if (!db.objectStoreNames.contains('forms')) {
+          resolve();
+          return;
+        }
+        
+        const transaction = db.transaction(['forms'], 'readwrite');
+        const store = transaction.objectStore('forms');
+        
+        const deleteRequest = store.delete(id);
+        deleteRequest.onsuccess = () => resolve();
+        deleteRequest.onerror = () => resolve();
+      };
+      
+      request.onerror = () => resolve();
+    });
+  } catch (error) {
+    console.error('removeStoredForm error:', error);
+  }
 } 

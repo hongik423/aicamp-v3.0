@@ -28,6 +28,8 @@
     "env:verify": "node -e \"const fs=require('fs');if(fs.existsSync('.env.local')){console.log('✅ .env.local 파일 존재');const content=fs.readFileSync('.env.local','utf8');console.log('📊 Google Script URL:',content.includes('AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB')?'✅ 정확함':'❌ 불일치');}else{console.log('❌ .env.local 파일 없음');}\"",
     "update:google-script": "node scripts/update-google-script-url.js",
     "test:beta-feedback": "node scripts/test-beta-feedback-system.js",
+    "test:comprehensive": "node scripts/comprehensive-system-test.js",
+    "test:full-system": "npm run test:comprehensive",
     "test:google-script": "npm run test:beta-feedback",
     "deploy:correct": "npm run setup:env-correct && npm run build && npm run vercel:deploy",
     "deploy:complete": "npm run build && npm run vercel:deploy && npm run test:beta-feedback"
@@ -70,7 +72,7 @@
     "lucide-react": "^0.469.0",
     "next": "14.2.13",
     "next-themes": "^0.4.3",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.6.7",
     "postcss": "^8",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
