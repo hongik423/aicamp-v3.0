@@ -50,18 +50,25 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
   const { toast } = useToast();
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const { companyName, diagnosis } = data;
+  // API 응답 구조 확인 및 안전한 데이터 접근
+  console.log('🔍 SimpleDiagnosisResults 받은 데이터:', data);
   
-  // 안전한 디스트럭처링 적용 - diagnosis가 undefined일 경우 기본값 설정
-  const { 
-    totalScore = 0, 
-    categoryResults = [], 
-    recommendations = '' 
-  } = diagnosis || {};
+  // API 응답 구조에 맞는 데이터 추출
+  const apiResponse = data;
+  const actualData = apiResponse?.data || data; // API 응답의 data 프로퍼티 또는 직접 data
+  const companyName = actualData?.diagnosis?.companyName || actualData?.companyName || '고객사';
+  const diagnosis = actualData?.diagnosis;
 
-  // diagnosis 객체가 없는 경우 에러 핸들링
+  // diagnosis 객체가 없는 경우 API 응답 구조 확인
   if (!diagnosis) {
-    console.warn('⚠️ diagnosis 객체가 undefined입니다:', data);
+    console.warn('⚠️ diagnosis 객체를 찾을 수 없습니다. 데이터 구조:', {
+      hasApiResponse: !!apiResponse,
+      hasData: !!apiResponse?.data,
+      hasDiagnosis: !!apiResponse?.data?.diagnosis,
+      actualDataKeys: actualData ? Object.keys(actualData) : 'undefined',
+      fullData: data
+    });
+    
     return (
       <div className="max-w-4xl mx-auto p-6">
         <Card className="border-2 border-red-200 shadow-lg">
@@ -70,6 +77,9 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           </CardHeader>
           <CardContent className="text-center py-8">
             <p className="text-gray-600 mb-4">진단 결과를 불러오는 중 오류가 발생했습니다.</p>
+            <p className="text-sm text-gray-500 mb-4">
+              데이터 구조: {JSON.stringify(Object.keys(actualData || {}), null, 2)}
+            </p>
             <Button 
               onClick={() => window.location.reload()} 
               className="bg-blue-600 hover:bg-blue-700"
@@ -81,6 +91,20 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
       </div>
     );
   }
+  
+  // 안전한 디스트럭처링 적용 - diagnosis가 있는 경우
+  const { 
+    totalScore = 0, 
+    categoryResults = [], 
+    recommendations = '' 
+  } = diagnosis;
+
+  console.log('✅ SimpleDiagnosisResults 데이터 추출 완료:', {
+    companyName,
+    totalScore,
+    categoryResultsLength: categoryResults.length,
+    hasRecommendations: !!recommendations
+  });
 
   // 등급 정보 계산
   const getGradeInfo = (score: number) => {
@@ -117,7 +141,7 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           return acc;
         }, {} as { [key: string]: number }),
         recommendations: recommendations,
-        timestamp: data.timestamp,
+        timestamp: actualData.timestamp,
         industry: '기타', // 기본값
         contactName: '담당자',
         email: ''
@@ -199,7 +223,7 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           return acc;
         }, {} as { [key: string]: number }),
         recommendations: recommendations,
-        timestamp: data.timestamp,
+        timestamp: actualData.timestamp,
         industry: '기타',
         contactName: '담당자',
         email: ''
@@ -215,7 +239,7 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
+          ...actualData,
           action: 'submitResults',
           emailTemplate: emailData.htmlContent,
           mobileEmailTemplate: emailData.mobileHtmlContent

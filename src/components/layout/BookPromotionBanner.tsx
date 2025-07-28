@@ -275,7 +275,7 @@ const BookPromotionBanner: React.FC = () => {
                   
                                       {/* 책 표지 */}
                     <div className="relative w-48 h-60 sm:w-56 sm:h-72 lg:w-64 lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
-                      <Link 
+                      <a 
                         href="/n8n_1-20.pdf" 
                         target="_blank" 
                         rel="noopener noreferrer"
@@ -302,7 +302,7 @@ const BookPromotionBanner: React.FC = () => {
                             <p className="text-xs text-center mt-2 sm:mt-4 opacity-80">실무 활용 가이드</p>
                           </div>
                         )}
-                      </Link>
+                      </a>
                       
                       {/* 호버/터치 오버레이 */}
                       <div className={`absolute inset-0 bg-black/40 opacity-0 ${

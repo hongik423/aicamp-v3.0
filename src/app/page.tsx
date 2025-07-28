@@ -364,7 +364,7 @@ export default function Home() {
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-center gap-8 sm:gap-12 lg:gap-16 mb-6 sm:mb-8">
               {/* 좌측: 더 큰 책표지 이미지 */}
               <div className="flex-shrink-0 mx-auto lg:mx-0">
-                <Link 
+                <a 
                   href="/n8n_1-20.pdf" 
                   target="_blank" 
                   rel="noopener noreferrer"
@@ -389,7 +389,7 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                </Link>
+                </a>
                 
                 {/* 책표지 아래 간단한 정보 */}
                 <div className="text-center mt-4 lg:text-left">

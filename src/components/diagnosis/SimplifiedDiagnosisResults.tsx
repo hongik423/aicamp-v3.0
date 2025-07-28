@@ -33,7 +33,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
 
-  // 데이터 안전성 검증
+  // 데이터 안전성 검증 및 API 응답 구조 처리
   if (!data) {
     console.warn('⚠️ SimplifiedDiagnosisResults: data가 undefined입니다');
     return (
@@ -56,12 +56,38 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     );
   }
 
-  const companyName = data.companyName || data.회사명 || '고객사';
-  const totalScore = data.totalScore || data.종합점수 || 0;
-  const recommendations = data.summaryReport || data.추천사항 || '';
+  console.log('🔍 SimplifiedDiagnosisResults 받은 데이터:', data);
+
+  // API 응답 구조에 맞는 데이터 추출
+  const apiResponse = data;
+  const actualData = apiResponse?.data || data; // API 응답의 data 프로퍼티 또는 직접 data
+  
+  // 다양한 가능한 경로에서 데이터 추출
+  const companyName = actualData?.diagnosis?.companyName || 
+                     actualData?.companyName || 
+                     actualData?.회사명 || 
+                     '고객사';
+  
+  const totalScore = actualData?.diagnosis?.totalScore || 
+                    actualData?.totalScore || 
+                    actualData?.종합점수 || 
+                    0;
+  
+  const recommendations = actualData?.summaryReport || 
+                         actualData?.diagnosis?.recommendations || 
+                         actualData?.추천사항 || 
+                         '';
 
   // totalScore가 유효한 숫자인지 확인
   const validTotalScore = typeof totalScore === 'number' && !isNaN(totalScore) ? totalScore : 0;
+
+  console.log('✅ SimplifiedDiagnosisResults 데이터 추출 완료:', {
+    companyName,
+    totalScore,
+    validTotalScore,
+    hasRecommendations: !!recommendations,
+    actualDataKeys: actualData ? Object.keys(actualData) : 'no actualData'
+  });
 
   // 등급 정보 계산
   const getGradeInfo = (score: number) => {
@@ -93,12 +119,12 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       const reportData = transformDiagnosisData({
         companyName: companyName,
         totalScore: validTotalScore,
-        categoryScores: data.categoryScores || data.카테고리점수 || {},
+        categoryScores: actualData?.diagnosis?.categoryScores || actualData?.카테고리점수 || {},
         recommendations: recommendations,
-        timestamp: data.timestamp || new Date().toISOString(),
-        industry: data.industry || data.업종 || '기타',
-        contactName: data.contactName || data.담당자명 || '담당자',
-        email: data.email || data.이메일 || ''
+        timestamp: actualData?.diagnosis?.timestamp || new Date().toISOString(),
+        industry: actualData?.diagnosis?.industry || actualData?.업종 || '기타',
+        contactName: actualData?.diagnosis?.contactName || actualData?.담당자명 || '담당자',
+        email: actualData?.diagnosis?.email || actualData?.이메일 || ''
       });
 
       const generator = new VisualReportGenerator();
@@ -173,12 +199,12 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       const reportData = transformDiagnosisData({
         companyName: companyName,
         totalScore: validTotalScore,
-        categoryScores: data.categoryScores || data.카테고리점수 || {},
+        categoryScores: actualData?.diagnosis?.categoryScores || actualData?.카테고리점수 || {},
         recommendations: recommendations,
-        timestamp: data.timestamp || new Date().toISOString(),
-        industry: data.industry || data.업종 || '기타',
-        contactName: data.contactName || data.담당자명 || '담당자',
-        email: data.email || data.이메일 || ''
+        timestamp: actualData?.diagnosis?.timestamp || new Date().toISOString(),
+        industry: actualData?.diagnosis?.industry || actualData?.업종 || '기타',
+        contactName: actualData?.diagnosis?.contactName || actualData?.담당자명 || '담당자',
+        email: actualData?.diagnosis?.email || actualData?.이메일 || ''
       });
 
       // 이메일 데이터 준비
@@ -191,7 +217,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
+          ...actualData, // 전체 데이터를 보내서 이메일 템플릿에서 필요한 부분을 추출
           action: 'submitWithVisualEmail',
           emailData: {
             subject: emailData.subject,
@@ -273,7 +299,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       </Card>
 
       {/* 카테고리별 결과 */}
-      {data.categoryScores && Object.keys(data.categoryScores).length > 0 && (
+      {actualData?.diagnosis?.categoryScores && Object.keys(actualData?.diagnosis?.categoryScores).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -283,7 +309,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(data.categoryScores).map(([category, score], index) => (
+              {Object.entries(actualData?.diagnosis?.categoryScores).map(([category, score], index) => (
                 <div key={index} className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-lg border">
                   <div className="flex items-center gap-2 mb-3">
                     <Star className="w-5 h-5 text-yellow-500" />
