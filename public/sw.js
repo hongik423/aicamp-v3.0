@@ -1,5 +1,5 @@
 // AICAMP Service Worker - 완전 오류 방지 버전
-const CACHE_NAME = 'aicamp-v1.0.3'; // 버전 업데이트
+const CACHE_NAME = 'aicamp-v1.0.4'; // 버전 업데이트 - 오류 수정
 const STATIC_CACHE_URLS = [
   '/',
   '/diagnosis',
@@ -20,7 +20,9 @@ const isDevelopment = self.location.hostname === 'localhost' || self.location.ho
 
 // 🆕 완전한 메시지 포트 오류 방지 시스템
 self.addEventListener('error', (event) => {
-  if (event.error && event.error.message && event.error.message.includes('port closed')) {
+  if (event.error && event.error.message && 
+      (event.error.message.includes('port closed') || 
+       event.error.message.includes('message port closed'))) {
     console.log('Message port error suppressed in SW');
     event.preventDefault();
     return false;
@@ -29,11 +31,14 @@ self.addEventListener('error', (event) => {
   event.preventDefault();
 });
 
+// 🆕 unhandledrejection 이벤트 처리 추가
 self.addEventListener('unhandledrejection', (event) => {
-  if (event.reason && typeof event.reason === 'string' && event.reason.includes('port closed')) {
+  if (event.reason && event.reason.message && 
+      (event.reason.message.includes('port closed') || 
+       event.reason.message.includes('message port closed'))) {
     console.log('Message port rejection suppressed in SW');
     event.preventDefault();
-    return;
+    return false;
   }
   console.log('Service Worker unhandled rejection:', event.reason);
   event.preventDefault();
@@ -105,46 +110,60 @@ self.addEventListener('activate', (event) => {
 
 // 🆕 개선된 메시지 핸들러 - 메시지 포트 오류 방지
 self.addEventListener('message', (event) => {
+  // 안전한 포트 응답 함수
+  const safePostMessage = (port, message) => {
+    try {
+      if (port && typeof port.postMessage === 'function') {
+        port.postMessage(message);
+      }
+    } catch (error) {
+      console.log('Message port send failed (likely closed):', error.message);
+    }
+  };
+
   try {
     if (!event.ports || event.ports.length === 0) {
       console.log('No message port available, skipping response');
       return;
     }
     
+    const port = event.ports[0];
     const { type, data } = event.data || {};
     
     switch (type) {
       case 'SKIP_WAITING':
         self.skipWaiting();
-        event.ports[0].postMessage({ success: true });
+        safePostMessage(port, { success: true });
         break;
         
       case 'GET_VERSION':
-        event.ports[0].postMessage({ version: CACHE_NAME });
+        safePostMessage(port, { version: CACHE_NAME });
         break;
         
       case 'CACHE_URLS':
         if (data && Array.isArray(data.urls)) {
           caches.open(CACHE_NAME)
             .then(cache => cache.addAll(data.urls))
-            .then(() => event.ports[0].postMessage({ success: true }))
-            .catch(error => event.ports[0].postMessage({ success: false, error: error.message }));
+            .then(() => safePostMessage(port, { success: true }))
+            .catch(error => safePostMessage(port, { success: false, error: error.message }));
+        } else {
+          safePostMessage(port, { success: false, error: 'Invalid URL data' });
         }
         break;
         
       default:
         console.log('Unknown message type:', type);
-        event.ports[0].postMessage({ success: false, error: 'Unknown message type' });
+        safePostMessage(port, { success: false, error: 'Unknown message type' });
     }
   } catch (error) {
     console.error('Message handler error:', error);
     // 메시지 포트가 닫혔을 수 있으므로 안전하게 처리
-    try {
-      if (event.ports && event.ports[0]) {
+    if (event.ports && event.ports[0]) {
+      try {
         event.ports[0].postMessage({ success: false, error: error.message });
+      } catch (portError) {
+        console.log('Message port already closed during error handling');
       }
-    } catch (portError) {
-      console.log('Message port already closed');
     }
   }
 });

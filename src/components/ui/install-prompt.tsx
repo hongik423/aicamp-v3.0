@@ -45,18 +45,26 @@ export function InstallPrompt() {
 
     // PWA 설치 프롬프트 이벤트 리스너
     const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      // 조건부로만 preventDefault 호출
+      const shouldShowPrompt = !isDismissed && !isStandalone;
       
-      // 사용자가 이전에 닫았는지 확인
-      if (typeof window !== 'undefined') {
-        const currentStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                                 (window.navigator as any).standalone ||
-                                 document.referrer.includes('android-app://');
+      if (shouldShowPrompt) {
+        e.preventDefault();
+        setDeferredPrompt(e as BeforeInstallPromptEvent);
         
-        if (!isDismissed && !currentStandalone) {
-          setShowInstallPrompt(true);
+        // 사용자가 이전에 닫았는지 확인
+        if (typeof window !== 'undefined') {
+          const currentStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                                   (window.navigator as any).standalone ||
+                                   document.referrer.includes('android-app://');
+          
+          if (!currentStandalone) {
+            setShowInstallPrompt(true);
+          }
         }
+      } else {
+        // 배너를 표시하지 않을 경우 기본 동작 허용
+        console.log('PWA 설치 배너: 조건에 맞지 않아 기본 동작 허용');
       }
     };
 

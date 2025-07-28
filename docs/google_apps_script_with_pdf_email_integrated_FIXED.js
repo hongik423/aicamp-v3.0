@@ -1591,9 +1591,162 @@ function sendDiagnosisAdminNotification(data, rowNumber, totalScore, reportSumma
   try {
     const companyName = data.회사명 || data.companyName || '미확인';
     const contactName = data.담당자명 || data.contactName || '미확인';
-    const subject = '[AICAMP] 🎯 AI 무료진단 접수 - ' + companyName + ' (' + totalScore + '점)';
+    const subject = '[AICAMP] 🎯 새로운 AI 진단 접수 - ' + companyName + ' (' + totalScore + '점)';
     
-    const emailBody = '📊 새로운 AI 무료진단이 접수되었습니다!\n\n' +
+    // 🎨 시각적 HTML 이메일 템플릿
+    const htmlBody = `
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI 진단 접수 알림</title>
+        <style>
+          body { font-family: 'Malgun Gothic', Arial, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; }
+          .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; position: relative; }
+          .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>'); opacity: 0.3; }
+          .header-content { position: relative; z-index: 1; }
+          .logo { width: 70px; height: 70px; background: white; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+          .title { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
+          .subtitle { opacity: 0.9; font-size: 16px; }
+          .content { padding: 35px; }
+          .alert-banner { background: linear-gradient(45deg, #ff6b6b, #ff8e8e); color: white; padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-weight: bold; }
+          .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 25px 0; }
+          .info-card { background: #f8faff; padding: 20px; border-radius: 10px; border-left: 4px solid #4285f4; }
+          .info-label { font-size: 12px; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+          .info-value { font-size: 16px; font-weight: bold; color: #333; }
+          .score-highlight { background: linear-gradient(135deg, #4285f4, #34a853); color: white; padding: 20px; border-radius: 12px; text-align: center; margin: 25px 0; }
+          .score-number { font-size: 42px; font-weight: bold; margin-bottom: 5px; }
+          .score-label { opacity: 0.9; }
+          .summary-section { background: #fff8e1; border: 1px solid #ffcc02; padding: 20px; border-radius: 10px; margin: 20px 0; }
+          .action-buttons { display: flex; gap: 15px; justify-content: center; margin: 30px 0; }
+          .btn { display: inline-block; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: bold; text-align: center; transition: all 0.3s ease; }
+          .btn-primary { background: #4285f4; color: white; }
+          .btn-secondary { background: #f0f0f0; color: #333; }
+          .footer { background: #f8f9fa; padding: 25px; text-align: center; color: #666; border-top: 1px solid #e9ecef; }
+          .contact-info { margin-top: 15px; }
+          .contact-item { display: inline-block; margin: 0 10px; font-size: 14px; }
+          .urgent { animation: pulse 2s infinite; }
+          @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+          @media (max-width: 600px) { 
+            .info-grid { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; }
+            .btn { margin-bottom: 10px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="header-content">
+              <div class="logo">🎯</div>
+              <div class="title">새로운 AI 진단 접수!</div>
+              <div class="subtitle">고객 진단 결과가 도착했습니다</div>
+            </div>
+          </div>
+          
+          <div class="content">
+            <div class="alert-banner urgent">
+              📢 신규 진단 접수 - 즉시 확인 필요!
+            </div>
+            
+            <div class="score-highlight">
+              <div class="score-number">${totalScore}점</div>
+              <div class="score-label">종합 진단 점수 (100점 만점)</div>
+            </div>
+            
+            <div class="info-grid">
+              <div class="info-card">
+                <div class="info-label">회사명</div>
+                <div class="info-value">${companyName}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">담당자</div>
+                <div class="info-value">${contactName}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">연락처</div>
+                <div class="info-value">${data.연락처 || data.phone || '미확인'}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">이메일</div>
+                <div class="info-value">${data.이메일 || data.contactEmail || data.email || '미확인'}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">업종</div>
+                <div class="info-value">${data.업종 || data.industry || '미확인'}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">접수시간</div>
+                <div class="info-value">${getCurrentKoreanTime()}</div>
+              </div>
+            </div>
+            
+            <div class="summary-section">
+              <h3 style="color: #f57c00; margin-top: 0;">📝 진단 요약</h3>
+              <p style="line-height: 1.6; color: #333; margin-bottom: 15px;">
+                ${reportSummary.substring(0, 300)}${reportSummary.length > 300 ? '...' : ''}
+              </p>
+              <div style="font-size: 12px; color: #666;">
+                보고서 길이: ${reportSummary.length}자 | 구글시트 ${rowNumber}행
+              </div>
+            </div>
+            
+            <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h3 style="color: #2e7d32; margin-top: 0;">🎯 주요 고민사항</h3>
+              <p style="color: #2e7d32; margin-bottom: 10px;">
+                ${(data.주요고민사항 || data.mainConcerns || '미확인').substring(0, 200)}
+              </p>
+              
+              <h3 style="color: #2e7d32; margin-top: 15px;">💡 기대 효과</h3>
+              <p style="color: #2e7d32; margin-bottom: 0;">
+                ${(data.예상혜택 || data.expectedBenefits || '미확인').substring(0, 200)}
+              </p>
+            </div>
+            
+            <div class="action-buttons">
+              <a href="${GOOGLE_SHEETS_URL}" class="btn btn-primary">
+                📊 구글시트에서 확인
+              </a>
+              <a href="tel:${data.연락처 || data.phone || '010-9251-9743'}" class="btn btn-secondary">
+                📞 고객에게 연락
+              </a>
+            </div>
+            
+            <div style="background: #fff3e0; border: 1px solid #ffb74d; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h4 style="color: #ef6c00; margin-top: 0;">🔔 다음 단계</h4>
+              <ol style="color: #ef6c00; margin: 0; padding-left: 20px;">
+                <li>진단 결과 상세 검토</li>
+                <li>고객 연락 및 상담 일정 협의 (1-2일 내)</li>
+                <li>맞춤형 솔루션 제안</li>
+                <li>후속 서비스 안내</li>
+              </ol>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <div>
+              <strong style="color: #4285f4;">AICAMP AI교육센터</strong>
+              <br>
+              AI기반 비즈니스 성장 솔루션
+            </div>
+            <div class="contact-info">
+              <div class="contact-item">📞 010-9251-9743</div>
+              <div class="contact-item">📧 ${ADMIN_EMAIL}</div>
+              <div class="contact-item">🌐 https://aicamp.club</div>
+            </div>
+            <div style="margin-top: 15px; font-size: 11px; opacity: 0.7;">
+              본 메일은 AI 진단 신청에 따라 자동 발송되었습니다. | ${VERSION}
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // 일반 텍스트 버전 (백업용)
+    const textBody = '📊 새로운 AI 무료진단이 접수되었습니다!\n\n' +
       '🏢 회사명: ' + companyName + '\n' +
       '👤 담당자: ' + contactName + ' (' + (data.이메일 || data.contactEmail || data.email || '미확인') + ')\n' +
       '🏭 업종: ' + (data.업종 || data.industry || '미확인') + '\n' +
@@ -1604,14 +1757,8 @@ function sendDiagnosisAdminNotification(data, rowNumber, totalScore, reportSumma
       '💭 주요 고민사항:\n' + ((data.주요고민사항 || data.mainConcerns || '').substring(0, 300)) + '...\n\n' +
       '🎯 기대 효과:\n' + ((data.예상혜택 || data.expectedBenefits || '').substring(0, 300)) + '...\n\n' +
       '📋 진단 요약:\n' + reportSummary.substring(0, 500) + '...\n\n' +
-      '📊 데이터 위치:\n' +
-      '• 시트: ' + SHEETS.DIAGNOSIS + ' 시트 ' + rowNumber + '행\n' +
-      '• 구글시트: ' + GOOGLE_SHEETS_URL + '\n' +
-      '• 직접 링크: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit#gid=0&range=A' + rowNumber + '\n\n' +
-      '📎 첨부파일:\n' +
-      '• AI진단결과보고서.html (고객용 리포트)\n' +
-      '• 진단데이터.csv (상세 데이터)\n\n' +
-      '※ 문항별 상세 점수(1-5점)와 카테고리별 분석이 완료되었습니다.\n\n' +
+      '📊 데이터 위치: ' + SHEETS.DIAGNOSIS + ' 시트 ' + rowNumber + '행\n' +
+      '🔗 구글시트: ' + GOOGLE_SHEETS_URL + '\n\n' +
       '🔔 다음 단계:\n' +
       '1. 진단 결과 검토\n' +
       '2. 고객 연락 및 상담 일정 협의\n' +
@@ -1636,16 +1783,14 @@ function sendDiagnosisAdminNotification(data, rowNumber, totalScore, reportSumma
       attachments.push(csvFile);
     }
 
-    // HTML 이메일 본문
-    const htmlBody = emailBody.replace(/\n/g, '<br>')
-      .replace(/📊|🏢|👤|🏭|👥|🎯|📝|⏰|💭|📋|📎|🔔/g, '<strong>$&</strong>');
-
+    // 이메일 발송 (HTML 버전 우선, 텍스트 백업)
     MailApp.sendEmail({
       to: ADMIN_EMAIL,
       subject: subject,
-      body: emailBody,
+      body: textBody,
       htmlBody: htmlBody,
-      attachments: attachments
+      attachments: attachments,
+      name: 'AICAMP 진단 알림 시스템'
     });
     
     console.log('📧 진단 관리자 알림 이메일 발송 완료 (첨부파일 ' + attachments.length + '개)');
@@ -1729,13 +1874,14 @@ function sendConsultationAdminNotification(data, rowNumber) {
 }
 
 /**
- * 📧 개선된 신청자 확인 이메일 (상세 안내 포함)
+ * 📧 신청자 확인 이메일 (깔끔한 버전)
  */
 function sendUserConfirmation(email, name, type) {
   try {
     const isConsultation = type === '상담';
-    const subject = '[AICAMP] ' + (isConsultation ? '전문가 상담' : 'AI 무료진단') + ' 신청이 접수되었습니다 ✅';
+    const subject = '[AICAMP] ' + (isConsultation ? '🤝 전문가 상담' : '🎯 AI 진단') + ' 신청이 접수되었습니다!';
     
+    // 텍스트 이메일
     const emailBody = '안녕하세요 ' + (name || '고객') + '님,\n\n' +
       'AICAMP에 ' + (isConsultation ? '전문가 상담' : 'AI 무료진단') + ' 신청을 해주셔서 감사합니다.\n\n' +
       '✅ 신청이 성공적으로 접수되었습니다!\n' +
@@ -1778,64 +1924,22 @@ function sendUserConfirmation(email, name, type) {
       '담당: 이후경 교장 (경영지도사)\n' +
       '📞 010-9251-9743\n' +
       '📧 ' + ADMIN_EMAIL + '\n' +
-      '🌐 https://ai-camp-landingpage.vercel.app';
+      '🌐 https://aicamp.club';
 
-    // HTML 이메일 본문 (더 예쁘게 formatting)
-    const htmlBody = `
-      <div style="font-family: 'Malgun Gothic', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; border-bottom: 3px solid #4285f4; padding-bottom: 20px; margin-bottom: 30px;">
-          <h1 style="color: #4285f4; margin-bottom: 10px;">🎯 AICAMP</h1>
-          <h2 style="color: #333; margin: 0;">신청 접수 완료 안내</h2>
-        </div>
-        
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
-          <h3 style="color: #28a745; margin-top: 0;">✅ 접수 완료</h3>
-          <p><strong>${name || '고객'}님</strong>의 <strong>${isConsultation ? '전문가 상담' : 'AI 무료진단'}</strong> 신청이 성공적으로 접수되었습니다.</p>
-          <p><strong>📅 접수일시:</strong> ${getCurrentKoreanTime()}</p>
-        </div>
-        
-        <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
-          <h3 style="color: #1976d2; margin-top: 0;">🔔 다음 진행사항</h3>
-          ${isConsultation ? `
-            <ol>
-              <li>전문가가 <strong>1-2일 내</strong>에 연락드립니다</li>
-              <li>상담 일정을 협의합니다</li>
-              <li>맞춤형 전문가 상담을 진행합니다</li>
-              <li>구체적인 솔루션을 제안드립니다</li>
-            </ol>
-          ` : `
-            <ol>
-              <li>AI 진단 결과를 분석합니다</li>
-              <li>전문가가 결과를 검토합니다</li>
-              <li><strong>1-2일 내</strong>에 상세한 분석 결과를 연락드립니다</li>
-              <li>맞춤형 개선방안을 제시합니다</li>
-            </ol>
-          `}
-        </div>
-        
-        <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0;">
-          <h3 style="color: #f57c00; margin-top: 0;">📞 연락처</h3>
-          <p><strong>담당:</strong> 이후경 교장 (경영지도사)</p>
-          <p><strong>전화:</strong> 010-9251-9743</p>
-          <p><strong>이메일:</strong> ${ADMIN_EMAIL}</p>
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666;">
-          <p><strong>AICAMP</strong> - AI기반 비즈니스 성장 솔루션</p>
-          <p>귀하의 비즈니스 성장을 위해 최선을 다하겠습니다.</p>
-        </div>
-      </div>
-    `;
+    // HTML 버전 (간단한 스타일)
+    const htmlBody = emailBody.replace(/\n/g, '<br>')
+      .replace(/✅|📅|🔔|💡|📞|🎯/g, '<strong>$&</strong>');
 
+    // 이메일 발송
     MailApp.sendEmail({
       to: email,
       subject: subject,
       body: emailBody,
       htmlBody: htmlBody,
-      attachments: []
+      name: 'AICAMP AI교육센터'
     });
-    
-    console.log('📧 신청자 확인 이메일 발송 완료 (개선된 버전):', email);
+              
+    console.log('📧 신청자 확인 이메일 발송 완료:', email);
   } catch (error) {
     console.error('❌ 신청자 이메일 발송 실패:', error);
   }
