@@ -214,6 +214,33 @@ function doPost(e) {
       });
     }
 
+    // 🧪 내부 테스트 함수 호출 처리
+    if (requestData.action === 'internalTest') {
+      console.log('🔬 내부 테스트 함수 처리 시작:', requestData.functionName);
+      
+      try {
+        let testResult;
+        switch (requestData.functionName) {
+          case 'testDiagnosisSubmission':
+            testResult = testDiagnosisSubmission();
+            break;
+          case 'testConsultationSubmission':
+            testResult = testConsultationSubmission();
+            break;
+          case 'testBetaFeedback':
+            testResult = testBetaFeedback();
+            break;
+          default:
+            return createErrorResponse('지원하지 않는 테스트 함수: ' + requestData.functionName);
+        }
+        
+        return testResult;
+      } catch (error) {
+        console.error('❌ 내부 테스트 함수 실행 오류:', error);
+        return createErrorResponse('내부 테스트 함수 실행 오류: ' + error.toString());
+      }
+    }
+
     // 🧪 베타 피드백 처리 (최우선)
     if (isBetaFeedback(requestData)) {
       console.log('🎯 베타 피드백 처리 시작');
@@ -275,6 +302,18 @@ function doGet(e) {
   }
 }
 
+/**
+ * CORS preflight OPTIONS 요청 처리
+ * 참고: Google Apps Script는 기본적으로 CORS를 허용하므로 별도 헤더 설정 불필요
+ */
+function doOptions(e) {
+  console.log('🔄 OPTIONS preflight 요청 수신:', getCurrentKoreanTime());
+  
+  return ContentService
+    .createTextOutput('')
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 // ================================================================================
 // 🎯 고급 진단신청 처리 (80개 컬럼 + 업종별 특화 분석)
 // ================================================================================
@@ -327,13 +366,13 @@ function processDiagnosisForm(data) {
       // 🔵 기본 정보 (A-R: 18개)
       timestamp,                                                  // A: 제출일시
       data.회사명 || data.companyName || '',                        // B: 회사명
-      data.업종 || data.industry || '',                            // C: 업종
+      Array.isArray(data.업종 || data.industry) ? (data.업종 || data.industry).join(', ') : (data.업종 || data.industry || ''),  // C: 업종 (배열 처리)
       data.사업담당자 || data.businessManager || data.contactManager || '', // D: 사업담당자
       data.직원수 || data.employeeCount || '',                     // E: 직원수
       data.사업성장단계 || data.growthStage || '',                  // F: 사업성장단계
       data.주요고민사항 || data.mainConcerns || '',                 // G: 주요고민사항
       data.예상혜택 || data.expectedBenefits || '',                // H: 예상혜택
-      data.진행사업장 || data.businessLocation || '',              // I: 진행사업장
+      data.소재지 || data.businessLocation || '',                 // I: 소재지
       data.담당자명 || data.contactName || data.contactManager || '', // J: 담당자명
       data.연락처 || data.contactPhone || '',                      // K: 연락처
       data.이메일 || data.contactEmail || data.email || '',        // L: 이메일
@@ -825,7 +864,7 @@ function setupHeaders(sheet, type) {
       '사업성장단계', 
       '주요고민사항', 
       '예상혜택', 
-      '진행사업장', 
+      '소재지', 
       '담당자명', 
       '연락처', 
       '이메일', 
@@ -1404,15 +1443,15 @@ function testDiagnosisSubmission() {
   
   const testData = {
     action: 'saveDiagnosis',
-    회사명: '테스트기업_이메일수정테스트',
-    업종: 'IT/소프트웨어',
+    회사명: '테스트기업_업그레이드_테스트',
+    업종: ['제조업', 'IT/소프트웨어'], // 🔥 업그레이드: 복수 업종 선택
+    소재지: '경기도', // 🔥 업그레이드: 소재지 추가
     사업담당자: '김대표',
     직원수: '10-50명',
     사업성장단계: '성장기',
-    주요고민사항: '매출 증대 및 마케팅 전략 수립이 필요합니다.',
-    예상혜택: '체계적인 마케팅 전략 수립과 매출 증대',
-    진행사업장: '서울',
-    담당자명: '이담당_테스트',
+    주요고민사항: '업종별 특화 마케팅 전략 수립과 디지털 전환이 필요합니다.',
+    예상혜택: '체계적인 업종별 맞춤형 솔루션과 지역별 정책자금 지원 안내',
+    담당자명: '이담당_업그레이드테스트',
     연락처: '010-1234-5678',
     이메일: 'aicamp.test.user@gmail.com', // 테스트용 이메일 주소
     개인정보동의: true,
@@ -1446,7 +1485,7 @@ function testDiagnosisSubmission() {
       procurement: { score: 4.0 },
       storeManagement: { score: 4.5 }
     },
-    진단보고서요약: '테스트 진단 보고서입니다. PDF 발송 기능이 제거되어 단순 접수 확인 이메일만 발송됩니다. 이메일 발송 오류 수정 테스트 중입니다.'
+    진단보고서요약: '업그레이드된 AI 고급진단 결과입니다. 제조업과 IT/소프트웨어 융합형 비즈니스 모델로 높은 성장 잠재력을 보유하고 있습니다. 경기도 지역의 정책자금 지원 프로그램 활용을 통해 추가적인 성장 동력을 확보할 수 있습니다. CORS 오류 해결과 업종 체크박스, 소재지 선택 기능이 정상 작동합니다.'
   };
 
   try {
@@ -1491,19 +1530,19 @@ function testConsultationSubmission() {
   
   const testData = {
     action: 'saveConsultation',
-    상담유형: '경영컨설팅_이메일테스트',
-    성명: '김테스트_상담',
+    상담유형: '정책자금_업그레이드테스트', // 🔥 업그레이드: 정책자금 상담
+    성명: '김테스트_업그레이드상담',
     연락처: '010-9876-5432',
     이메일: 'aicamp.test.consultation@gmail.com', // 테스트용 이메일 주소
-    회사명: '테스트컴퍼니_상담',
+    회사명: '테스트컴퍼니_업그레이드',
     직책: '대표이사',
-    상담분야: '마케팅전략',
-    문의내용: '온라인 마케팅 전략 수립에 대한 상담을 받고 싶습니다. 이메일 발송 오류 수정 테스트 중입니다.',
-    희망상담시간: '평일 오후 2-5시',
-    개인정보동의: true,
+    상담분야: 'policy-funding', // 🔥 업그레이드: 정책자금 분야
+    문의내용: '제조업 및 IT융합 기업의 정책자금 지원 프로그램 상담을 요청합니다. 업종별 특화 지원사업과 지역별 혜택을 알고 싶습니다. (개인정보 동의 오류 수정 테스트)',
+    희망상담시간: 'afternoon', // 🔥 업그레이드: 표준화된 값
+    개인정보동의: true, // 🔥 업그레이드: 개인정보 동의 오류 수정 확인
     진단연계여부: 'Y',
-    진단점수: '75',
-    추천서비스: '마케팅 컨설팅'
+    진단점수: '78', // 🔥 업그레이드: 향상된 점수
+    추천서비스: '정책자금 컨설팅'
   };
 
   try {
@@ -1543,17 +1582,17 @@ function testBetaFeedback() {
   
   const testData = {
     action: 'saveBetaFeedback',
-    계산기명: '종합소득세계산기',
-    피드백유형: '버그신고',
-    사용자이메일: 'beta@test.com',
-    문제설명: '계산 결과가 0원으로 표시됩니다.',
-    기대동작: '정확한 세금 계산 결과 표시',
-    실제동작: '모든 입력값에 대해 0원 표시',
-    재현단계: '1. 소득금액 입력\n2. 계산 버튼 클릭\n3. 결과 0원 표시',
-    심각도: '높음',
-    추가의견: '빠른 수정 부탁드립니다.',
-    브라우저정보: 'Chrome 120.0.0.0',
-    제출경로: '/tax-calculator'
+    계산기명: '업종별맞춤진단시스템_업그레이드', // 🔥 업그레이드: 새로운 시스템 테스트
+    피드백유형: '기능개선',
+    사용자이메일: 'aicamp.beta.upgrade@gmail.com',
+    문제설명: '업종 체크박스와 소재지 선택 기능이 추가되어 사용성이 크게 향상되었습니다.',
+    기대동작: '복수 업종 선택과 시도별 소재지 정확 입력',
+    실제동작: '정상적으로 작동하며 데이터가 올바르게 저장됩니다.',
+    재현단계: '1. 업종 복수선택 (제조업, IT/소프트웨어)\n2. 소재지 드롭다운 선택 (경기도)\n3. 진단 완료\n4. 구글시트 저장 확인', // 🔥 업그레이드: 새로운 기능 테스트
+    심각도: '낮음',
+    추가의견: '업그레이드 기능이 정책자금 상담에 매우 유용합니다. CORS 오류도 완전히 해결되었습니다.',
+    브라우저정보: 'Chrome 120.0.0.0 (업그레이드 테스트)',
+    제출경로: '/diagnosis-upgrade-test' // 🔥 업그레이드: 새로운 경로
   };
 
   try {

@@ -50,9 +50,10 @@ import {
 
 // 🚀 **최고 사양 5점 척도 20개 문항 진단 폼 스키마**
 const advancedDiagnosisFormSchema = z.object({
-  // 기본 정보 (5개)
+  // 기본 정보 (6개)
   companyName: z.string().min(2, '회사명을 입력해주세요'),
-  industry: z.string().min(1, '업종을 선택해주세요'),
+  industry: z.array(z.string()).min(1, '업종을 최소 1개 이상 선택해주세요'),
+  businessLocation: z.string().min(1, '소재지를 선택해주세요'),
   contactManager: z.string().min(2, '담당자명을 입력해주세요'),
   phone: z.string().min(10, '연락처를 입력해주세요'),
   email: z.string().email('올바른 이메일 주소를 입력해주세요').min(1, '이메일을 입력해주세요'),
@@ -104,10 +105,39 @@ interface SimplifiedDiagnosisFormProps {
   onBack?: () => void;
 }
 
-// 🍎 업종 옵션 (간소화)
+// 🍎 업종 옵션 (체크박스용)
 const industryOptions = [
-  '제조업', '도소매업', '음식점/숙박업', 'IT/소프트웨어', '건설업',
-  '서비스업', '의료/보건업', '교육/문화', '운수/물류', '기타'
+  { value: '제조업', label: '제조업 (금속, 화학, 기계 등)' },
+  { value: '도소매업', label: '도소매업 (유통, 판매업)' },
+  { value: '음식점/숙박업', label: '음식점/숙박업 (요식업, 호텔)' },
+  { value: 'IT/소프트웨어', label: 'IT/소프트웨어 (앱, 웹개발)' },
+  { value: '건설업', label: '건설업 (건축, 토목)' },
+  { value: '서비스업', label: '서비스업 (컨설팅, 청소 등)' },
+  { value: '의료/보건업', label: '의료/보건업 (병원, 약국)' },
+  { value: '교육/문화', label: '교육/문화 (학원, 예술)' },
+  { value: '운수/물류', label: '운수/물류 (택배, 운송)' },
+  { value: '기타', label: '기타 업종' }
+];
+
+// 🍎 소재지 옵션 (시군 단위)
+const locationOptions = [
+  { value: '서울특별시', label: '서울특별시' },
+  { value: '부산광역시', label: '부산광역시' },
+  { value: '대구광역시', label: '대구광역시' },
+  { value: '인천광역시', label: '인천광역시' },
+  { value: '광주광역시', label: '광주광역시' },
+  { value: '대전광역시', label: '대전광역시' },
+  { value: '울산광역시', label: '울산광역시' },
+  { value: '세종특별자치시', label: '세종특별자치시' },
+  { value: '경기도', label: '경기도' },
+  { value: '강원도', label: '강원도' },
+  { value: '충청북도', label: '충청북도' },
+  { value: '충청남도', label: '충청남도' },
+  { value: '전라북도', label: '전라북도' },
+  { value: '전라남도', label: '전라남도' },
+  { value: '경상북도', label: '경상북도' },
+  { value: '경상남도', label: '경상남도' },
+  { value: '제주특별자치도', label: '제주특별자치도' }
 ];
 
 // 🍎 직원수 옵션
@@ -308,7 +338,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
     resolver: zodResolver(advancedDiagnosisFormSchema),
     defaultValues: {
       companyName: '',
-      industry: '',
+      industry: [],
+      businessLocation: '',
       contactManager: '',
       phone: '',
       email: '',
@@ -357,11 +388,16 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
     
     if (step === 1) {
       // 기본 정보 단계
-      const requiredFields = ['companyName', 'industry', 'contactManager', 'phone', 'email', 'employeeCount', 'mainConcerns', 'expectedBenefits'] as const;
-      return requiredFields.every(field => {
+      const requiredFields = ['companyName', 'businessLocation', 'contactManager', 'phone', 'email', 'employeeCount', 'mainConcerns', 'expectedBenefits'] as const;
+      const basicFieldsComplete = requiredFields.every(field => {
         const value = currentValues[field];
         return value && value.trim().length > 0;
       });
+      
+      // 업종은 배열이므로 별도 체크
+      const industryComplete = currentValues.industry && currentValues.industry.length > 0;
+      
+      return basicFieldsComplete && industryComplete;
     } else if (step >= 2 && step <= 6) {
       // 평가 영역 단계
       const categoryIndex = step - 2;
@@ -404,7 +440,6 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       const requestData = {
         ...data,
         // 🔥 누락된 필드들 기본값 설정
-        businessLocation: '서울특별시',
         growthStage: 'growth',
         submitDate: new Date().toISOString()
       };
@@ -693,25 +728,63 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     control={form.control}
                     name="industry"
                     render={({ field }) => (
-                      <FormItem className="relative">
-                        <FormLabel className="flex items-center text-base font-semibold">
+                      <FormItem>
+                        <FormLabel className="flex items-center text-base font-semibold mb-4">
                           <Building className="w-5 h-5 mr-2 text-purple-600" />
-                          업종 *
+                          업종 * (복수선택 가능)
+                        </FormLabel>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {industryOptions.map((industry) => (
+                            <div key={industry.value} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-purple-50 transition-colors">
+                              <Checkbox
+                                id={industry.value}
+                                checked={field.value?.includes(industry.value)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    field.onChange([...field.value, industry.value]);
+                                  } else {
+                                    field.onChange(field.value?.filter((value) => value !== industry.value));
+                                  }
+                                }}
+                                className="border-2 border-purple-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                              />
+                              <label
+                                htmlFor={industry.value}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                              >
+                                {industry.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="businessLocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center text-base font-semibold">
+                          <MapPin className="w-5 h-5 mr-2 text-green-600" />
+                          소재지 *
                         </FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="h-12 md:h-14 border-2 hover:border-blue-400 focus:border-blue-500 transition-all text-base">
-                              <SelectValue placeholder="업종을 선택해주세요" />
+                              <SelectValue placeholder="소재지를 선택해주세요" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="z-[10000] bg-white/95 backdrop-blur-sm shadow-2xl border-gray-200 industry-select">
-                            {industryOptions.map((industry) => (
+                          <SelectContent className="z-[10000] bg-white/95 backdrop-blur-sm shadow-2xl border-gray-200 location-select">
+                            {locationOptions.map((location) => (
                               <SelectItem 
-                                key={industry} 
-                                value={industry}
-                                className="hover:bg-purple-50 focus:bg-purple-50 cursor-pointer"
+                                key={location.value} 
+                                value={location.value}
+                                className="hover:bg-green-50 focus:bg-green-50 cursor-pointer"
                               >
-                                {industry}
+                                {location.label}
                               </SelectItem>
                             ))}
                           </SelectContent>

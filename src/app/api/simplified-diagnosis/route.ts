@@ -15,7 +15,7 @@ import { IndustryDataService, generateIndustryEnhancedReport } from '@/lib/utils
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
-  industry: string;
+  industry: string | string[]; // 🔥 업그레이드: 단일 문자열 또는 배열 모두 지원
   contactManager: string;
   phone: string;
   email: string;
@@ -326,11 +326,20 @@ export async function POST(request: NextRequest) {
     
     const data: SimplifiedDiagnosisRequest = await request.json();
     
-    // 입력 데이터 검증
-    if (!data.companyName || !data.industry || !data.contactManager || !data.phone || !data.email) {
+    // 🔥 업그레이드: 업종 배열을 문자열로 변환
+    if (Array.isArray(data.industry)) {
+      data.industry = data.industry.join(', ');
+      console.log('✅ 업종 배열을 문자열로 변환:', data.industry);
+    }
+    
+    // 입력 데이터 검증 (배열 처리 개선)
+    const hasIndustry = data.industry && (typeof data.industry === 'string' ? data.industry.trim() : Array.isArray(data.industry) && data.industry.length > 0);
+    
+    if (!data.companyName || !hasIndustry || !data.contactManager || !data.phone || !data.email) {
       console.log('❌ 필수 필드 누락:', {
         companyName: !!data.companyName,
-        industry: !!data.industry,
+        industry: hasIndustry,
+        businessLocation: !!data.businessLocation,
         contactManager: !!data.contactManager,
         phone: !!data.phone,
         email: !!data.email
@@ -472,14 +481,14 @@ export async function POST(request: NextRequest) {
       
     } catch (error) {
       console.error('❌ 업종별 진단보고서 생성 실패, 기본 AI 보고서로 폴백:', error.message);
-      try {
-        comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
+    try {
+      comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
         console.log('📋 기본 AI 보고서 생성 완료:', {
-          reportLength: comprehensiveReport.length
-        });
+        reportLength: comprehensiveReport.length
+      });
       } catch (fallbackError) {
         console.error('❌ AI 보고서도 실패, 기본 보고서로 최종 폴백:', fallbackError.message);
-        comprehensiveReport = generateFallbackReport(data, enhancedResult);
+      comprehensiveReport = generateFallbackReport(data, enhancedResult);
         console.log('📋 최종 폴백 보고서 생성 완료:', {
           reportLength: comprehensiveReport.length
         });
@@ -545,6 +554,8 @@ export async function POST(request: NextRequest) {
     // 6단계: Google Apps Script로 완전한 진단 데이터 전송
     console.log('📤 Google Apps Script로 완전한 진단 데이터 전송 시작');
     
+    let gasResult = { success: false, error: 'Not attempted' };
+    
     try {
       // 🎯 완전한 진단 데이터 준비 (개별 점수 + 업종별 특화 분석 포함)
       const completeRequestData = {
@@ -596,7 +607,7 @@ export async function POST(request: NextRequest) {
       };
 
       // Google Apps Script로 전송
-      const gasResult = await submitDiagnosisToGoogle(completeRequestData);
+      gasResult = await submitDiagnosisToGoogle(completeRequestData);
       
       if (gasResult.success) {
         console.log('✅ Google Apps Script 전송 성공 (완전한 진단 데이터 포함)');
@@ -608,52 +619,59 @@ export async function POST(request: NextRequest) {
       console.error('❌ Google Apps Script 전송 중 오류:', gasError);
     }
 
-    // 7단계: 최종 응답 생성 (업종별 특화 분석 포함)
+    // 7단계: 최종 응답 생성 (CompleteDiagnosisResults 컴포넌트 호환)
     const response = {
       success: true,
-      resultId: diagnosisResult.resultId,
-      resultUrl: diagnosisResult.resultUrl,
       message: `🎉 ${data.companyName}의 업종별 특화 AI 진단이 완료되었습니다!`,
       
-      // 🎯 완벽한 진단 결과
-      diagnosisResult: {
-        ...diagnosisResult,
-        
-        // 📊 6가지 핵심 지표 표시
-        coreMetrics: {
-          businessModel: Math.round(enhancedResult.totalScore * 0.8),
-          marketPosition: Math.round(enhancedResult.totalScore * 0.9),
-          operationalEfficiency: Math.round(enhancedResult.totalScore * 0.85),
-          growthPotential: Math.round(enhancedResult.totalScore * 0.75),
-          digitalReadiness: Math.round(enhancedResult.totalScore * 0.7),
-          financialHealth: Math.round(enhancedResult.totalScore * 0.8)
+      // 🎯 CompleteDiagnosisResults 컴포넌트가 기대하는 데이터 구조
+      data: {
+        diagnosis: {
+          ...diagnosisResult,
+          
+          // 📊 6가지 핵심 지표 표시
+          coreMetrics: {
+            businessModel: Math.round(enhancedResult.totalScore * 0.8),
+            marketPosition: Math.round(enhancedResult.totalScore * 0.9),
+            operationalEfficiency: Math.round(enhancedResult.totalScore * 0.85),
+            growthPotential: Math.round(enhancedResult.totalScore * 0.75),
+            digitalReadiness: Math.round(enhancedResult.totalScore * 0.7),
+            financialHealth: Math.round(enhancedResult.totalScore * 0.8)
+          },
+          
+          // 📈 업종별 특화 인사이트 (2025년 최신 데이터 기반)
+          industryInsights: {
+            industryName: data.industry,
+            industryTrends: getIndustryTrends(data.industry),
+            competitiveLandscape: getCompetitiveLandscape(data.industry),
+            growthOpportunities: getGrowthOpportunities(data.industry, data.growthStage),
+            digitalTransformation: getDigitalTransformationGuide(data.industry),
+            // 🚀 2025년 최신 업종 데이터 추가 (안전한 처리)
+            latestIndustryData: industryTrends,
+            customInsights: industryInsights
+          }
         },
         
-        // 📈 업종별 특화 인사이트 (2025년 최신 데이터 기반)
-        industryInsights: {
-          industryName: data.industry,
-          industryTrends: getIndustryTrends(data.industry),
-          competitiveLandscape: getCompetitiveLandscape(data.industry),
-          growthOpportunities: getGrowthOpportunities(data.industry, data.growthStage),
-          digitalTransformation: getDigitalTransformationGuide(data.industry),
-          // 🚀 2025년 최신 업종 데이터 추가 (안전한 처리)
-          latestIndustryData: industryTrends,
-          customInsights: industryInsights
-        }
-      },
-      
-      // 📋 상세 보고서
-      comprehensiveReport: comprehensiveReport,
-      
-      // 🎯 개선 효과
-      improvements: [
-        '✅ 개별 점수 20개 문항 완전 분석',
-        '✅ 업종별 특화 맞춤 진단',
-        '✅ 6가지 핵심 지표 분석',
-        '✅ SWOT 분석 고도화',
-        '✅ 4000자 확장 보고서',
-        '✅ 구글시트 완전 데이터 저장'
-      ]
+        // 📋 상세 보고서 (summaryReport로 이름 변경)
+        summaryReport: comprehensiveReport,
+        
+        // 🎯 이메일 발송 상태
+        emailSent: gasResult?.success || false,
+        
+        // 📊 추가 메타데이터
+        resultId: diagnosisResult.resultId,
+        resultUrl: diagnosisResult.resultUrl,
+        
+        // 🎯 개선 효과
+        improvements: [
+          '✅ 개별 점수 20개 문항 완전 분석',
+          '✅ 업종별 특화 맞춤 진단',
+          '✅ 6가지 핵심 지표 분석',
+          '✅ SWOT 분석 고도화',
+          '✅ 4000자 확장 보고서',
+          '✅ 구글시트 완전 데이터 저장'
+        ]
+      }
     };
 
     console.log('🎉 업종별 최신정보 기반 특화 AI 진단 완료:', {
@@ -668,7 +686,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(response);
-
+    
   } catch (error) {
     console.error('❌ 업종별 특화 AI 진단 오류:', error);
     
@@ -924,7 +942,7 @@ function generateBasicDiagnosis(data: SimplifiedDiagnosisRequest): any {
       weight: 0.25,
       strengths: ['기본적인 상품 관리'],
       weaknesses: ['차별화 전략 필요'],
-      itemResults: []
+        itemResults: []
     },
     {
       categoryName: '고객응대',
