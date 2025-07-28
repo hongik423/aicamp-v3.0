@@ -308,36 +308,6 @@ async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagno
   }
 }
 
-// 🔄 폴백 보고서 생성 (AI 실패시)
-function generateFallbackReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): string {
-  const totalScore = diagnosisData.totalScore || 0;
-  const grade = getGradeFromScore(totalScore);
-  
-  return `
-📊 ${data.companyName} 레벨업 시트 진단 보고서
-
-🏆 종합 평가: ${totalScore}점/100점 (${grade}급)
-
-📈 현황 분석
-${data.companyName}은 ${data.industry} 업종에서 ${data.employeeCount} 규모로 운영되고 있으며, 레벨업 시트 20개 항목 평가 결과 종합 ${totalScore}점을 기록했습니다.
-
-🎯 핵심 개선 과제
-• 주요 고민: ${data.mainConcerns.substring(0, 100)}...
-• 기대 효과: ${data.expectedBenefits.substring(0, 100)}...
-
-💡 우선 추천 방안
-1. AI 도구 활용을 통한 업무 효율성 개선
-2. 고객 응대 역량 강화를 통한 만족도 제고
-3. 체계적인 마케팅 전략 수립 및 실행
-
-📞 전문가 상담
-더 자세한 분석과 맞춤형 솔루션을 원하시면 전문가 상담을 신청하세요.
-연락처: 010-9251-9743 (이후경 경영지도사)
-
-*본 보고서는 레벨업 시트 표준 평가 도구를 활용한 과학적 분석 결과입니다.*
-  `.trim();
-}
-
 // 📊 점수 기반 등급 함수
 function getGradeFromScore(score: number): string {
   if (score >= 90) return 'S급 (최우수)';
