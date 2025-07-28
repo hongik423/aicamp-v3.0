@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Header from '@/components/layout/header';
 import SimplifiedDiagnosisForm from '@/components/diagnosis/SimplifiedDiagnosisForm';
-import SimplifiedDiagnosisResults from '@/components/diagnosis/SimplifiedDiagnosisResults';
+import SimpleDiagnosisResults from '@/components/diagnosis/SimpleDiagnosisResults';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -92,7 +92,7 @@ export default function DiagnosisPage() {
               </div>
               
               {/* 진단 결과 */}
-              <SimplifiedDiagnosisResults data={results} />
+              <SimpleDiagnosisResults data={results} />
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -117,9 +117,7 @@ export default function DiagnosisPage() {
                   {/* 진단 폼 */}
                   <div className="p-8">
                     <SimplifiedDiagnosisForm 
-                      onDiagnosisComplete={handleDiagnosisComplete}
-                      isLoading={isLoading}
-                      setIsLoading={setIsLoading}
+                      onComplete={handleDiagnosisComplete}
                     />
                   </div>
                 </div>

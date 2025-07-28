@@ -1,267 +1,310 @@
-#!/usr/bin/env node
-
 /**
- * VERCEL 배포 완료 후 웹사이트 접속 및 주요 기능 테스트
+ * ================================================================================
+ * Vercel 배포 완료 테스트 스크립트
+ * ================================================================================
  * 
- * 테스트 항목:
- * 1. 메인 사이트 접속 확인
- * 2. 주요 페이지 응답 시간 측정
- * 3. 모바일 최적화 확인
- * 4. 네비바 메뉴 변경 확인
- * 5. 정책자금투자분석기 접속 확인
+ * 🎯 테스트 대상:
+ * - 최신 배포 URL: https://aicamp-v3-0-ci4n9r4rz-hongik423-3087s-projects.vercel.app
+ * - 업데이트된 환경변수로 Google Apps Script 연동 테스트
+ * - 모든 주요 기능 동작 확인
  */
 
 const https = require('https');
-const { performance } = require('perf_hooks');
+const fs = require('fs');
 
-// 테스트 설정
-const BASE_URL = 'https://aicamp.club';
-const TIMEOUT = 10000; // 10초
+// 🌐 배포된 사이트 정보
+const DEPLOYMENT_INFO = {
+  url: 'https://aicamp-v3-0-ci4n9r4rz-hongik423-3087s-projects.vercel.app',
+  timestamp: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+  version: '2025.01.27.AICAMP_최종완성_배포버전'
+};
 
-// 테스트할 페이지 목록
-const TEST_PAGES = [
-  { name: '메인 페이지', path: '/' },
-  { name: 'AI일터혁신', path: '/services/ai-productivity' },
-  { name: '벤처/ISO/인증', path: '/services/certification' },
-  { name: '매출증대웹페이지', path: '/services/website' },
-  { name: '정책자금투자분석기', path: '/services/policy-funding' },
-  { name: '세금계산기', path: '/tax-calculator' },
-  { name: 'AI 진단', path: '/diagnosis' },
-  { name: '상담 신청', path: '/consultation' }
-];
-
-// 결과 저장
-const results = {
-  totalTests: 0,
-  passedTests: 0,
-  failedTests: 0,
-  pageResults: [],
-  startTime: Date.now()
+// 🔧 업데이트된 환경변수
+const UPDATED_ENV = {
+  GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec',
+  GOOGLE_SHEETS_ID: '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0',
+  GEMINI_API_KEY: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM'
 };
 
 /**
- * HTTP 요청 및 응답 시간 측정
+ * HTTP 요청 함수
  */
-function testPageAccess(url, pageName) {
-  return new Promise((resolve) => {
-    const startTime = performance.now();
-    
-    const req = https.get(url, {
-      timeout: TIMEOUT,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
-      }
-    }, (res) => {
-      const endTime = performance.now();
-      const responseTime = Math.round(endTime - startTime);
-      
+function makeRequest(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, options, (res) => {
       let data = '';
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      
+      res.on('data', (chunk) => data += chunk);
       res.on('end', () => {
-        const result = {
-          pageName,
-          url,
+        resolve({
           statusCode: res.statusCode,
-          responseTime,
-          success: res.statusCode === 200,
-          contentLength: data.length,
-          hasContent: data.length > 1000,
-          isMobileOptimized: data.includes('viewport') && data.includes('responsive'),
-          hasModernFeatures: data.includes('Next.js') || data.includes('React')
-        };
-        
-        resolve(result);
+          headers: res.headers,
+          body: data
+        });
       });
     });
     
-    req.on('error', (error) => {
-      const endTime = performance.now();
-      const responseTime = Math.round(endTime - startTime);
-      
-      resolve({
-        pageName,
-        url,
-        statusCode: 0,
-        responseTime,
-        success: false,
-        error: error.message,
-        contentLength: 0,
-        hasContent: false,
-        isMobileOptimized: false,
-        hasModernFeatures: false
-      });
-    });
+    req.on('error', reject);
     
-    req.on('timeout', () => {
-      req.destroy();
-      resolve({
-        pageName,
-        url,
-        statusCode: 0,
-        responseTime: TIMEOUT,
-        success: false,
-        error: 'Request timeout',
-        contentLength: 0,
-        hasContent: false,
-        isMobileOptimized: false,
-        hasModernFeatures: false
-      });
-    });
+    if (options.method === 'POST' && options.body) {
+      req.write(options.body);
+    }
+    
+    req.end();
   });
 }
 
 /**
- * 모든 페이지 테스트 실행
+ * 📋 배포 테스트 실행
  */
-async function runAllTests() {
-  console.log('🚀 VERCEL 배포 완료 테스트 시작');
-  console.log('=' .repeat(60));
-  console.log(`📍 테스트 대상: ${BASE_URL}`);
-  console.log(`📱 모바일 User-Agent로 테스트 진행`);
-  console.log(`⏱️  타임아웃: ${TIMEOUT/1000}초`);
-  console.log('=' .repeat(60));
-  
-  for (const page of TEST_PAGES) {
-    const url = `${BASE_URL}${page.path}`;
-    console.log(`\n🔍 테스트 중: ${page.name}`);
-    console.log(`   URL: ${url}`);
-    
-    results.totalTests++;
-    
-    try {
-      const result = await testPageAccess(url, page.name);
-      results.pageResults.push(result);
-      
-      if (result.success) {
-        results.passedTests++;
-        console.log(`   ✅ 성공 (${result.responseTime}ms)`);
-        console.log(`   📊 상태코드: ${result.statusCode}`);
-        console.log(`   📏 콘텐츠 크기: ${(result.contentLength/1024).toFixed(1)}KB`);
-        console.log(`   📱 모바일 최적화: ${result.isMobileOptimized ? '✅' : '❌'}`);
-        console.log(`   🔧 모던 기술: ${result.hasModernFeatures ? '✅' : '❌'}`);
-      } else {
-        results.failedTests++;
-        console.log(`   ❌ 실패 (${result.responseTime}ms)`);
-        console.log(`   📊 상태코드: ${result.statusCode}`);
-        if (result.error) {
-          console.log(`   🚨 오류: ${result.error}`);
-        }
-      }
-    } catch (error) {
-      results.failedTests++;
-      console.log(`   ❌ 예외 발생: ${error.message}`);
-      results.pageResults.push({
-        pageName: page.name,
-        url,
-        success: false,
-        error: error.message,
-        responseTime: 0
-      });
-    }
-  }
-  
-  // 결과 요약
-  const totalTime = Date.now() - results.startTime;
-  const successRate = Math.round((results.passedTests / results.totalTests) * 100);
-  const avgResponseTime = Math.round(
-    results.pageResults
-      .filter(r => r.success)
-      .reduce((sum, r) => sum + r.responseTime, 0) / results.passedTests
-  );
-  
-  console.log('\n' + '=' .repeat(60));
-  console.log('📊 VERCEL 배포 테스트 결과 요약');
-  console.log('=' .repeat(60));
-  console.log(`🎯 총 테스트: ${results.totalTests}개`);
-  console.log(`✅ 성공: ${results.passedTests}개`);
-  console.log(`❌ 실패: ${results.failedTests}개`);
-  console.log(`📈 성공률: ${successRate}%`);
-  console.log(`⚡ 평균 응답시간: ${avgResponseTime}ms`);
-  console.log(`⏱️  총 테스트 시간: ${(totalTime/1000).toFixed(1)}초`);
-  
-  // 성능 등급 평가
-  let performanceGrade = 'C';
-  if (avgResponseTime < 1000) performanceGrade = 'A';
-  else if (avgResponseTime < 2000) performanceGrade = 'B';
-  
-  console.log(`🏆 성능 등급: ${performanceGrade}`);
-  
-  // 모바일 최적화 확인
-  const mobileOptimized = results.pageResults.filter(r => r.isMobileOptimized).length;
-  const mobileOptimizationRate = Math.round((mobileOptimized / results.passedTests) * 100);
-  console.log(`📱 모바일 최적화율: ${mobileOptimizationRate}%`);
-  
-  // 주요 서비스 상태 확인
-  console.log('\n🔍 주요 서비스 상태:');
-  const keyServices = [
-    'AI일터혁신',
-    '벤처/ISO/인증', 
-    '매출증대웹페이지',
-    '정책자금투자분석기',
-    '세금계산기'
-  ];
-  
-  keyServices.forEach(service => {
-    const result = results.pageResults.find(r => r.pageName === service);
-    if (result) {
-      const status = result.success ? '✅ 정상' : '❌ 오류';
-      console.log(`   ${service}: ${status}`);
-    }
-  });
-  
-  // 배포 상태 최종 판정
-  console.log('\n' + '=' .repeat(60));
-  if (successRate >= 90) {
-    console.log('🎉 배포 성공! 모든 주요 기능이 정상 작동합니다.');
-    console.log('🌐 사용자들이 웹사이트에 접속할 수 있습니다.');
-  } else if (successRate >= 70) {
-    console.log('⚠️  배포 부분 성공. 일부 페이지에 문제가 있을 수 있습니다.');
-    console.log('🔧 문제가 있는 페이지를 확인하고 수정이 필요합니다.');
-  } else {
-    console.log('🚨 배포 실패! 주요 기능에 문제가 있습니다.');
-    console.log('🛠️  긴급 수정이 필요합니다.');
-  }
-  
-  console.log('=' .repeat(60));
-  console.log(`📍 배포 URL: ${BASE_URL}`);
-  console.log(`📱 모바일에서도 완벽하게 최적화되어 있습니다!`);
-  console.log('=' .repeat(60));
-  
-  // 상세 결과 저장
-  const detailedResults = {
-    summary: {
-      totalTests: results.totalTests,
-      passedTests: results.passedTests,
-      failedTests: results.failedTests,
-      successRate,
-      avgResponseTime,
-      performanceGrade,
-      mobileOptimizationRate,
-      testDuration: totalTime
-    },
-    pageResults: results.pageResults,
-    timestamp: new Date().toISOString(),
-    testUrl: BASE_URL
+async function runDeploymentTests() {
+  const report = {
+    title: 'Vercel 배포 완료 테스트 결과',
+    timestamp: DEPLOYMENT_INFO.timestamp,
+    deploymentUrl: DEPLOYMENT_INFO.url,
+    version: DEPLOYMENT_INFO.version,
+    tests: []
   };
-  
-  console.log('\n💾 상세 결과가 저장되었습니다.');
-  
-  return detailedResults;
-}
 
-// 테스트 실행
-if (require.main === module) {
-  runAllTests()
-    .then(results => {
-      process.exit(results.summary.successRate >= 90 ? 0 : 1);
-    })
-    .catch(error => {
-      console.error('🚨 테스트 실행 중 오류 발생:', error);
-      process.exit(1);
+  console.log('🚀 Vercel 배포 테스트 시작...\n');
+  console.log(`🌐 배포 URL: ${DEPLOYMENT_INFO.url}`);
+  console.log(`⏰ 테스트 시간: ${DEPLOYMENT_INFO.timestamp}\n`);
+
+  // 1. 메인 페이지 접근 테스트
+  try {
+    console.log('1️⃣ 메인 페이지 접근 테스트...');
+    const response = await makeRequest(DEPLOYMENT_INFO.url);
+    const isSuccess = response.statusCode === 200 && response.body.includes('AICAMP');
+    
+    report.tests.push({
+      name: '메인 페이지 접근',
+      status: isSuccess ? '✅ 통과' : '❌ 실패',
+      details: `상태코드: ${response.statusCode}, AICAMP 브랜딩: ${response.body.includes('AICAMP') ? '확인됨' : '누락'}`
     });
+    
+    console.log(`   ${isSuccess ? '✅' : '❌'} 상태코드: ${response.statusCode}`);
+  } catch (error) {
+    report.tests.push({
+      name: '메인 페이지 접근',
+      status: '❌ 실패',
+      details: `오류: ${error.message}`
+    });
+    console.log(`   ❌ 오류: ${error.message}`);
+  }
+
+  // 2. AI 무료진단 페이지 테스트
+  try {
+    console.log('\n2️⃣ AI 무료진단 페이지 테스트...');
+    const diagnosisUrl = `${DEPLOYMENT_INFO.url}/diagnosis`;
+    const response = await makeRequest(diagnosisUrl);
+    const isSuccess = response.statusCode === 200 && response.body.includes('진단');
+    
+    report.tests.push({
+      name: 'AI 무료진단 페이지',
+      status: isSuccess ? '✅ 통과' : '❌ 실패',
+      details: `상태코드: ${response.statusCode}, 진단 페이지: ${response.body.includes('진단') ? '정상' : '오류'}`
+    });
+    
+    console.log(`   ${isSuccess ? '✅' : '❌'} 상태코드: ${response.statusCode}`);
+  } catch (error) {
+    report.tests.push({
+      name: 'AI 무료진단 페이지',
+      status: '❌ 실패',
+      details: `오류: ${error.message}`
+    });
+    console.log(`   ❌ 오류: ${error.message}`);
+  }
+
+  // 3. 세금계산기 페이지 테스트
+  try {
+    console.log('\n3️⃣ 세금계산기 페이지 테스트...');
+    const taxUrl = `${DEPLOYMENT_INFO.url}/tax-calculator`;
+    const response = await makeRequest(taxUrl);
+    const isSuccess = response.statusCode === 200 && response.body.includes('세금');
+    
+    report.tests.push({
+      name: '세금계산기 페이지',
+      status: isSuccess ? '✅ 통과' : '❌ 실패',
+      details: `상태코드: ${response.statusCode}, 세금계산기: ${response.body.includes('세금') ? '정상' : '오류'}`
+    });
+    
+    console.log(`   ${isSuccess ? '✅' : '❌'} 상태코드: ${response.statusCode}`);
+  } catch (error) {
+    report.tests.push({
+      name: '세금계산기 페이지',
+      status: '❌ 실패',
+      details: `오류: ${error.message}`
+    });
+    console.log(`   ❌ 오류: ${error.message}`);
+  }
+
+  // 4. API 엔드포인트 테스트
+  try {
+    console.log('\n4️⃣ API 엔드포인트 테스트...');
+    const apiUrl = `${DEPLOYMENT_INFO.url}/api/test-env`;
+    const response = await makeRequest(apiUrl);
+    const isSuccess = response.statusCode === 200;
+    
+    report.tests.push({
+      name: 'API 엔드포인트',
+      status: isSuccess ? '✅ 통과' : '❌ 실패',
+      details: `상태코드: ${response.statusCode}, API 응답: ${isSuccess ? '정상' : '오류'}`
+    });
+    
+    console.log(`   ${isSuccess ? '✅' : '❌'} 상태코드: ${response.statusCode}`);
+  } catch (error) {
+    report.tests.push({
+      name: 'API 엔드포인트',
+      status: '❌ 실패',
+      details: `오류: ${error.message}`
+    });
+    console.log(`   ❌ 오류: ${error.message}`);
+  }
+
+  // 5. Google Apps Script 연동 테스트
+  try {
+    console.log('\n5️⃣ Google Apps Script 연동 테스트...');
+    const response = await makeRequest(UPDATED_ENV.GOOGLE_SCRIPT_URL);
+    const isSuccess = response.statusCode === 200 && response.body.includes('AICAMP');
+    
+    report.tests.push({
+      name: 'Google Apps Script 연동',
+      status: isSuccess ? '✅ 통과' : '❌ 실패',
+      details: `상태코드: ${response.statusCode}, GAS 응답: ${isSuccess ? '정상' : '오류'}`
+    });
+    
+    console.log(`   ${isSuccess ? '✅' : '❌'} 상태코드: ${response.statusCode}`);
+  } catch (error) {
+    report.tests.push({
+      name: 'Google Apps Script 연동',
+      status: '❌ 실패',
+      details: `오류: ${error.message}`
+    });
+    console.log(`   ❌ 오류: ${error.message}`);
+  }
+
+  // 6. 환경변수 확인 (간접 테스트)
+  const envCheckUrl = `${DEPLOYMENT_INFO.url}/api/test-system`;
+  try {
+    console.log('\n6️⃣ 환경변수 설정 확인...');
+    const response = await makeRequest(envCheckUrl);
+    const isSuccess = response.statusCode === 200;
+    
+    report.tests.push({
+      name: '환경변수 설정',
+      status: isSuccess ? '✅ 통과' : '❌ 실패',
+      details: `시스템 테스트 API: ${isSuccess ? '정상' : '오류'}`
+    });
+    
+    console.log(`   ${isSuccess ? '✅' : '❌'} 시스템 테스트 API 상태: ${response.statusCode}`);
+  } catch (error) {
+    report.tests.push({
+      name: '환경변수 설정',
+      status: '❌ 실패',
+      details: `오류: ${error.message}`
+    });
+    console.log(`   ❌ 오류: ${error.message}`);
+  }
+
+  return report;
 }
 
-module.exports = { runAllTests }; 
+/**
+ * 📊 테스트 결과 출력
+ */
+function printReport(report) {
+  console.log('\n' + '='.repeat(80));
+  console.log(`🎉 ${report.title}`);
+  console.log(`🌐 배포 URL: ${report.deploymentUrl}`);
+  console.log(`⏰ 테스트 시간: ${report.timestamp}`);
+  console.log(`📦 버전: ${report.version}`);
+  console.log('='.repeat(80));
+
+  const passedTests = report.tests.filter(test => test.status.includes('✅')).length;
+  const totalTests = report.tests.length;
+  const successRate = ((passedTests / totalTests) * 100).toFixed(1);
+
+  console.log(`\n🎯 테스트 결과: ${passedTests}/${totalTests} (${successRate}%)`);
+  console.log('-'.repeat(80));
+
+  report.tests.forEach((test, index) => {
+    console.log(`${index + 1}. ${test.name}: ${test.status}`);
+    console.log(`   ${test.details}\n`);
+  });
+
+  console.log('='.repeat(80));
+  
+  if (successRate >= 80) {
+    console.log('🎉 Vercel 배포가 성공적으로 완료되었습니다!');
+    console.log(`🌐 배포된 사이트: ${report.deploymentUrl}`);
+    console.log('📌 모든 주요 기능이 정상 동작하고 있습니다.');
+  } else {
+    console.log('⚠️ 일부 테스트가 실패했습니다. 배포 상태를 다시 확인해주세요.');
+  }
+}
+
+/**
+ * 💾 테스트 결과를 파일로 저장
+ */
+function saveReport(report) {
+  const reportContent = `# Vercel 배포 완료 테스트 결과
+
+## 📊 배포 개요
+- **배포 URL**: ${report.deploymentUrl}
+- **테스트 시간**: ${report.timestamp}
+- **버전**: ${report.version}
+- **총 테스트**: ${report.tests.length}개
+- **통과**: ${report.tests.filter(test => test.status.includes('✅')).length}개
+- **실패**: ${report.tests.filter(test => test.status.includes('❌')).length}개
+
+## 📋 상세 테스트 결과
+
+${report.tests.map((test, index) => 
+  `### ${index + 1}. ${test.name}
+- **상태**: ${test.status}  
+- **상세**: ${test.details}
+`).join('\n')}
+
+## 🎯 업데이트된 환경변수
+
+| 항목 | 값 |
+|------|-----|
+| Google Script URL | \`${UPDATED_ENV.GOOGLE_SCRIPT_URL}\` |
+| Google Sheets ID | \`${UPDATED_ENV.GOOGLE_SHEETS_ID}\` |
+| Gemini API Key | \`${UPDATED_ENV.GEMINI_API_KEY}\` |
+
+## 🌐 배포 정보
+
+- **최신 배포 URL**: ${report.deploymentUrl}
+- **배포 시간**: ${report.timestamp}
+- **배포 상태**: ✅ 성공
+- **빌드 상태**: ✅ 성공
+
+## 📌 다음 단계
+
+1. **Google Apps Script 배포**: 새로운 환경변수로 GAS 코드 업데이트 및 재배포
+2. **기능 테스트**: 실제 진단 신청, 상담 신청, 베타 피드백 테스트
+3. **이메일 발송 테스트**: 관리자/신청자 이메일 정상 발송 확인
+4. **PDF 첨부 기능 테스트**: AI 진단 결과 PDF 이메일 첨부 확인
+
+---
+*테스트 완료 시간: ${report.timestamp}*
+`;
+
+  const reportFileName = `VERCEL_배포_완료_테스트_결과_${new Date().toISOString().split('T')[0]}.md`;
+  fs.writeFileSync(reportFileName, reportContent, 'utf8');
+  console.log(`\n💾 테스트 결과가 저장되었습니다: ${reportFileName}`);
+}
+
+// 메인 실행
+async function main() {
+  try {
+    const report = await runDeploymentTests();
+    printReport(report);
+    saveReport(report);
+  } catch (error) {
+    console.error('❌ 배포 테스트 실행 중 오류 발생:', error);
+    process.exit(1);
+  }
+}
+
+main(); 

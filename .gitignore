@@ -156,3 +156,4 @@ public/logo-small.svg
 !README.md
 !DEPLOYMENT_GUIDE.md
 !SECURITY.md
+.env*.local

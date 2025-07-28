@@ -538,7 +538,6 @@ export default function Home() {
                     <div className="text-center bg-white/5 rounded-lg p-2 sm:p-3 w-full sm:w-auto">
                       <div className="font-bold text-yellow-300 text-base sm:text-lg">홍정민</div>
                       <div className="text-xs text-blue-200">박사과정 · CMC</div>
-                      <div className="text-xs text-green-200">NICE평가정보 재직</div>
                     </div>
                   </div>
                 </div>
@@ -718,7 +717,6 @@ export default function Home() {
                      </div>
                      <h4 className="text-yellow-300 font-bold text-base sm:text-lg">홍정민</h4>
                      <p className="text-blue-200 text-xs sm:text-sm">박사과정 · CMC</p>
-                     <p className="text-green-200 text-xs">NICE평가정보 재직</p>
                    </div>
                    <blockquote className="text-blue-100 text-xs sm:text-sm leading-relaxed italic text-left">
                      "출간 과정에서 AI를 활용한 디자인 작업과 편집 프로세스 최적화, 그리고 무엇보다 
