@@ -17,20 +17,22 @@ import {
   Loader2
 } from 'lucide-react';
 
-import { 
-  VisualReportGenerator, 
-  transformDiagnosisData, 
-  downloadFile,
-  prepareEmailData 
-} from '@/lib/utils/reportGenerator';
+// PDF 및 복잡한 보고서 생성 기능 제거됨
+// import { 
+//   VisualReportGenerator, 
+//   transformDiagnosisData, 
+//   downloadFile,
+//   prepareEmailData 
+// } from '@/lib/utils/reportGenerator';
+
+import { submitDiagnosisToGoogle } from '@/lib/utils/emailService';
 
 interface SimplifiedDiagnosisResultsProps {
   data: any;
 }
 
 export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosisResultsProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   // 데이터 안전성 검증
@@ -130,157 +132,68 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
 
   const gradeInfo = getGradeInfo(validTotalScore);
 
-  // 🎨 시각적 보고서 다운로드
-  const handlePDFDownload = async () => {
-    setIsDownloading(true);
-    
-    try {
-      toast({
-        title: "📄 AI 진단보고서 생성 중...",
-        description: "고품질 PDF 보고서를 생성하고 있습니다.",
-        duration: 4000,
-      });
-
-      // 진단 데이터 변환
-      const reportData = transformDiagnosisData({
-        companyName: companyName,
-        totalScore: validTotalScore,
-        categoryScores: diagnosis?.categoryScores || diagnosis?.카테고리점수 || {},
-        recommendations: recommendations,
-        timestamp: diagnosis?.timestamp || new Date().toISOString(),
-        industry: diagnosis?.industry || diagnosis?.업종 || '기타',
-        contactName: diagnosis?.contactName || diagnosis?.담당자명 || '담당자',
-        email: diagnosis?.email || diagnosis?.이메일 || ''
-      });
-
-      const generator = new VisualReportGenerator();
-      
-      // HTML 보고서 생성
-      const htmlContent = generator.generateHTMLReport(reportData);
-      
-      // 임시 iframe으로 HTML 렌더링
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'absolute';
-      iframe.style.left = '-9999px';
-      iframe.style.width = '800px';
-      iframe.style.height = '1200px';
-      document.body.appendChild(iframe);
-      
-      iframe.contentDocument?.open();
-      iframe.contentDocument?.write(htmlContent);
-      iframe.contentDocument?.close();
-      
-      // iframe이 완전히 로드될 때까지 대기
-      await new Promise(resolve => {
-        iframe.onload = resolve;
-        setTimeout(resolve, 2000);
-      });
-
-      const reportElement = iframe.contentDocument?.getElementById('diagnosis-report');
-      
-      if (reportElement) {
-        // PDF로 변환
-        const pdfBlob = await generator.convertToPDF(reportElement);
-        
-        // 다운로드 실행
-        const filename = `${companyName}_AI진단보고서_${new Date().toISOString().slice(0, 10)}.pdf`;
-        downloadFile(pdfBlob, filename);
-        
-        toast({
-          title: "✅ 다운로드 완료!",
-          description: "시각적 AI 진단보고서가 성공적으로 다운로드되었습니다.",
-          duration: 5000,
-        });
-      } else {
-        throw new Error('보고서 요소를 찾을 수 없습니다.');
-      }
-      
-      // 임시 iframe 제거
-      document.body.removeChild(iframe);
-      
-    } catch (error) {
-      console.error('PDF 다운로드 실패:', error);
-      toast({
-        title: "❌ 다운로드 실패",
-        description: "PDF 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-        duration: 5000,
-      });
-    } finally {
-      setIsDownloading(false);
-    }
+  // 🎯 등급 정보 헬퍼 함수
+  const getGradeFromScore = (score: number): string => {
+    if (score >= 90) return 'A+';
+    if (score >= 80) return 'A';
+    if (score >= 70) return 'B+';
+    if (score >= 60) return 'B';
+    if (score >= 50) return 'C+';
+    if (score >= 40) return 'C';
+    return 'D';
   };
 
-  // 🔄 결과 제출 (이메일 전송 포함)
-  const handleResultSubmit = async () => {
-    setIsLoading(true);
+  // 🎯 간단한 진단 접수 제출
+  const handleDiagnosisSubmit = async () => {
+    setIsSubmitting(true);
     
     try {
       toast({
-        title: "📧 결과 제출 및 이메일 발송 중...",
-        description: "진단 결과를 처리하고 시각적 이메일을 발송하고 있습니다.",
+        title: "📋 AI 무료진단 접수 중...",
+        description: "진단 결과를 저장하고 접수 확인 메일을 발송하고 있습니다.",
         duration: 4000,
       });
 
-      // 진단 데이터 변환
-      const reportData = transformDiagnosisData({
+      // 진단 데이터 준비
+      const diagnosisSubmissionData = {
         companyName: companyName,
-        totalScore: validTotalScore,
-        categoryScores: diagnosis?.categoryScores || diagnosis?.카테고리점수 || {},
-        recommendations: recommendations,
-        timestamp: diagnosis?.timestamp || new Date().toISOString(),
-        industry: diagnosis?.industry || diagnosis?.업종 || '기타',
         contactName: diagnosis?.contactName || diagnosis?.담당자명 || '담당자',
-        email: diagnosis?.email || diagnosis?.이메일 || ''
-      });
+        contactEmail: diagnosis?.email || diagnosis?.이메일 || '',
+        contactPhone: diagnosis?.phone || diagnosis?.연락처 || '',
+        industry: diagnosis?.industry || diagnosis?.업종 || '기타',
+        totalScore: validTotalScore,
+        overallGrade: getGradeFromScore(validTotalScore),
+        timestamp: new Date().toISOString()
+      };
 
-      // 이메일 데이터 준비
-      const emailData = prepareEmailData(reportData);
-      
-      // API로 데이터 전송 (개선된 이메일 템플릿 포함)
-      const response = await fetch('/api/simplified-diagnosis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...data, // 전체 데이터를 보내서 이메일 템플릿에서 필요한 부분을 추출
-          action: 'submitWithVisualEmail',
-          emailData: {
-            subject: emailData.subject,
-            htmlContent: emailData.htmlContent,
-            mobileHtmlContent: emailData.mobileHtmlContent,
-            reportData: reportData
-          }
-        })
-      });
+      console.log('📊 진단 접수 데이터:', diagnosisSubmissionData);
 
-      if (!response.ok) {
-        throw new Error('결과 제출 실패');
-      }
-
-      const result = await response.json();
+      // Google Apps Script로 접수 처리
+      const result = await submitDiagnosisToGoogle(diagnosisSubmissionData);
       
       if (result.success) {
         toast({
-          title: "🎉 제출 완료!",
-          description: "진단 결과가 제출되었으며, 시각적 보고서가 이메일로 발송되었습니다.",
+          title: "🎉 접수 완료!",
+          description: "AI 무료진단 접수가 완료되었습니다. 접수 확인 메일을 확인해주세요.",
           duration: 6000,
         });
       } else {
-        throw new Error(result.error || '알 수 없는 오류');
+        throw new Error(result.error || '접수 처리 실패');
       }
 
     } catch (error) {
-      console.error('결과 제출 실패:', error);
+      console.error('진단 접수 실패:', error);
       toast({
-        title: "❌ 제출 실패",
-        description: "결과 제출 중 오류가 발생했습니다. 아래 연락처로 직접 문의해주세요.",
+        title: "❌ 접수 실패",
+        description: "진단 접수 중 오류가 발생했습니다. 아래 연락처로 직접 문의해주세요.",
         duration: 5000,
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6 bg-gradient-to-br from-blue-50 to-white min-h-screen">
@@ -379,41 +292,22 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
         </Card>
       )}
 
-      {/* 액션 버튼 */}
-      <div className="flex flex-wrap gap-4 justify-center">
+      {/* 진단 접수 버튼 */}
+      <div className="flex justify-center">
         <Button 
-          onClick={handlePDFDownload}
-          variant="outline" 
-          disabled={isDownloading}
-          className="flex items-center gap-2 min-w-[200px]"
+          onClick={handleDiagnosisSubmit}
+          disabled={isSubmitting}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-w-[300px] py-3 text-lg"
         >
-          {isDownloading ? (
+          {isSubmitting ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              PDF 생성 중...
+              <Loader2 className="w-5 h-5 animate-spin" />
+              접수 처리 중...
             </>
           ) : (
             <>
-              <Download className="w-4 h-4" />
-              📄 시각적 보고서 다운로드
-            </>
-          )}
-        </Button>
-        
-        <Button 
-          onClick={handleResultSubmit}
-          disabled={isLoading}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-w-[200px]"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              처리 중...
-            </>
-          ) : (
-            <>
-              <Mail className="w-4 h-4" />
-              📧 결과 제출 및 이메일 발송
+              <Mail className="w-5 h-5" />
+              📋 AI 무료진단 접수 신청
             </>
           )}
         </Button>
@@ -461,8 +355,8 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           🎯 <strong>AI 진단이 완료되었습니다!</strong>
         </p>
         <p className="text-blue-700 text-sm">
-          시각적 보고서를 다운로드하시거나, 결과 제출 버튼을 클릭하여 
-          <br />전문가 상담을 받아보세요. 더 자세한 분석과 맞춤형 솔루션을 제공해드립니다.
+          위의 접수 신청 버튼을 클릭하시면 진단 결과가 저장되고,
+          <br />접수 확인 메일을 발송해드립니다. 전문가 상담도 함께 받아보세요!
         </p>
       </div>
     </div>

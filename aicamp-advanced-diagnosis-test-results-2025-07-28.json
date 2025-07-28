@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-07-28T19:40:15.915Z",
+  "version": "AICAMP_고급진단시스템_v3.0",
+  "tests": [
+    {
+      "name": "1️⃣ 고급 진단 API 호출 테스트",
+      "status": "FAILED",
+      "duration": 21683,
+      "error": "read ECONNRESET",
+      "stack": "Error: read ECONNRESET\n    at AxiosError.from (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:899:14)\n    at RedirectableRequest.handleRequestError (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:3228:25)\n    at RedirectableRequest.emit (node:events:519:35)\n    at eventHandlers.<computed> (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\follow-redirects\\index.js:49:24)\n    at ClientRequest.emit (node:events:507:28)\n    at emitErrorEvent (node:_http_client:104:11)\n    at TLSSocket.socketErrorListener (node:_http_client:518:5)\n    at TLSSocket.emit (node:events:507:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)\n    at Axios.request (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:4317:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async testAdvancedDiagnosisAPI (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:268:20)\n    at async runTest (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:228:20)\n    at async runAllTests (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:599:3)"
+    },
+    {
+      "name": "2️⃣ Google Apps Script 직접 호출 테스트",
+      "status": "PASSED",
+      "duration": 7166,
+      "result": {
+        "success": true,
+        "sheet": "AI_무료진단신청",
+        "row": 41,
+        "message": "📊 AI 무료진단이 성공적으로 접수되었습니다. 관리자 확인 후 1-2일 내에 연락드리겠습니다."
+      }
+    },
+    {
+      "name": "3️⃣ 업종별 특화 분석 테스트",
+      "status": "FAILED",
+      "duration": 23404,
+      "error": "Request failed with status code 500",
+      "stack": "AxiosError: Request failed with status code 500\n    at settle (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:2090:12)\n    at IncomingMessage.handleStreamEnd (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:3207:11)\n    at IncomingMessage.emit (node:events:519:35)\n    at endReadableNT (node:internal/streams/readable:1696:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:4317:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async testIndustrySpecificAnalysis (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:382:22)\n    at async runTest (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:228:20)\n    at async runAllTests (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:601:3)"
+    },
+    {
+      "name": "4️⃣ 6가지 핵심 지표 테스트",
+      "status": "FAILED",
+      "duration": 14047,
+      "error": "Request failed with status code 500",
+      "stack": "AxiosError: Request failed with status code 500\n    at settle (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:2090:12)\n    at IncomingMessage.handleStreamEnd (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:3207:11)\n    at IncomingMessage.emit (node:events:519:35)\n    at endReadableNT (node:internal/streams/readable:1696:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:4317:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async testCoreMetrics (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:432:20)\n    at async runTest (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:228:20)\n    at async runAllTests (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:602:3)"
+    },
+    {
+      "name": "5️⃣ 이메일 발송 테스트 (실제 발송)",
+      "status": "FAILED",
+      "duration": 30949,
+      "error": "Request failed with status code 500",
+      "stack": "AxiosError: Request failed with status code 500\n    at settle (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:2090:12)\n    at IncomingMessage.handleStreamEnd (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:3207:11)\n    at IncomingMessage.emit (node:events:519:35)\n    at endReadableNT (node:internal/streams/readable:1696:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (C:\\VS_Code_202410\\aicamp_v3.0\\node_modules\\axios\\dist\\node\\axios.cjs:4317:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async testEmailSending (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:486:20)\n    at async runTest (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:228:20)\n    at async runAllTests (C:\\VS_Code_202410\\aicamp_v3.0\\test-advanced-diagnosis-system-comprehensive.js:603:3)"
+    },
+    {
+      "name": "6️⃣ 오류 처리 테스트",
+      "status": "PASSED",
+      "duration": 10893,
+      "result": {
+        "success": true,
+        "errorTests": [
+          {
+            "test": "빈 데이터",
+            "result": "EXPECTED_ERROR",
+            "status": 400
+          },
+          {
+            "test": "잘못된 점수 범위",
+            "result": "ERROR_THROWN"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 2,
+    "failed": 4,
+    "errors": [
+      "1️⃣ 고급 진단 API 호출 테스트: read ECONNRESET",
+      "3️⃣ 업종별 특화 분석 테스트: Request failed with status code 500",
+      "4️⃣ 6가지 핵심 지표 테스트: Request failed with status code 500",
+      "5️⃣ 이메일 발송 테스트 (실제 발송): Request failed with status code 500"
+    ]
+  }
+}
