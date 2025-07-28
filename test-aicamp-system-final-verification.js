@@ -34,11 +34,19 @@ const SYNCHRONIZED_CONFIG = {
   GEMINI_API_KEY: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM'
 };
 
-// 📝 HTTP 요청 함수 (UTF-8 지원)
-function makeHttpRequest(url, data, method = 'POST') {
+// 📝 HTTP 요청 함수 (UTF-8 지원 + 리다이렉트 자동 처리)
+function makeHttpRequest(url, data, method = 'POST', maxRedirects = 5) {
   return new Promise((resolve, reject) => {
+    if (maxRedirects <= 0) {
+      reject({
+        success: false,
+        error: 'Too many redirects',
+        code: 'MAX_REDIRECTS_EXCEEDED'
+      });
+      return;
+    }
+
     const urlObj = new URL(url);
-    const postData = JSON.stringify(data);
     
     const options = {
       hostname: urlObj.hostname,
@@ -46,15 +54,31 @@ function makeHttpRequest(url, data, method = 'POST') {
       path: urlObj.pathname + urlObj.search,
       method: method,
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json',
-        'Content-Length': Buffer.byteLength(postData, 'utf8'),
         'User-Agent': 'AICAMP-Test-Client/1.0'
       },
       timeout: 30000
     };
 
+    // POST 요청일 때만 Content-Type과 Content-Length 설정
+    let postData = '';
+    if (method === 'POST' && data) {
+      postData = JSON.stringify(data);
+      options.headers['Content-Type'] = 'application/json; charset=utf-8';
+      options.headers['Content-Length'] = Buffer.byteLength(postData, 'utf8');
+    }
+
     const req = https.request(options, (res) => {
+      // 리다이렉트 처리 (302, 301, 307, 308)
+      if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location) {
+        console.log(`🔄 리다이렉트 감지: ${res.statusCode} → ${res.headers.location}`);
+        // 리다이렉트된 URL로 재요청
+        makeHttpRequest(res.headers.location, data, method, maxRedirects - 1)
+          .then(resolve)
+          .catch(reject);
+        return;
+      }
+
       let body = '';
       res.setEncoding('utf8');
       
@@ -105,7 +129,8 @@ function makeHttpRequest(url, data, method = 'POST') {
       });
     });
 
-    if (method === 'POST') {
+    // POST 요청일 때만 데이터 전송
+    if (method === 'POST' && postData) {
       req.write(postData);
     }
     req.end();

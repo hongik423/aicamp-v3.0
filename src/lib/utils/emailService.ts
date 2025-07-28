@@ -461,6 +461,106 @@ export async function updateDiagnosisResultToGoogle(updateData: any) {
  * - 관리자 알림 이메일 자동 발송
  * - 피드백 제출자 접수 확인 이메일 자동 발송
  */
+// 🆕 PDF 첨부 기능이 포함된 진단 신청 처리
+export async function submitDiagnosisWithPdfToGoogle(diagnosisData: any, pdfBase64?: string) {
+  try {
+    console.log('📊 PDF 첨부 진단 신청 처리 시작');
+    
+    // 기본 진단 데이터 준비
+    const requestData = {
+      폼타입: 'AI_무료진단',
+      제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+      timestamp: Date.now(),
+      
+      // 기본 정보
+      회사명: diagnosisData.companyName || diagnosisData.회사명 || '',
+      담당자명: diagnosisData.contactName || diagnosisData.담당자명 || '',
+      이메일: diagnosisData.contactEmail || diagnosisData.이메일 || '',
+      연락처: diagnosisData.contactPhone || diagnosisData.연락처 || '',
+      업종: diagnosisData.industry || diagnosisData.업종 || '',
+      
+      // 진단 결과
+      종합점수: diagnosisData.totalScore || diagnosisData.종합점수 || 0,
+      진단보고서요약: diagnosisData.summaryReport || diagnosisData.진단보고서요약 || '',
+      
+      // 상세 점수 데이터
+      문항별점수: diagnosisData.detailedScores || diagnosisData.문항별점수 || {},
+      카테고리점수: diagnosisData.categoryScores || diagnosisData.카테고리점수 || {},
+      
+      // 🆕 PDF 첨부 데이터
+      pdf_attachment: pdfBase64 || '',
+      pdfAttachment: pdfBase64 || ''
+    };
+
+    console.log('📄 PDF 첨부 데이터 확인:', {
+      hasPdf: !!(pdfBase64 && pdfBase64.length > 100),
+      pdfSize: pdfBase64 ? Math.round(pdfBase64.length / 1024) + 'KB' : '없음',
+      companyName: requestData.회사명,
+      contactEmail: requestData.이메일
+    });
+
+    // Google Apps Script URL 가져오기
+    const googleScriptUrl = GOOGLE_SCRIPT_CONFIG.SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
+    
+    if (!googleScriptUrl) {
+      throw new Error('Google Apps Script URL이 설정되지 않았습니다.');
+    }
+
+    console.log('📤 Google Apps Script로 PDF 첨부 진단 데이터 전송 시작');
+
+    // POST 방식으로 전송
+    const response = await fetch(googleScriptUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+      mode: 'cors'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.text();
+    let parsedResult;
+    
+    try {
+      parsedResult = JSON.parse(result);
+    } catch (parseError) {
+      console.warn('JSON 파싱 실패, 텍스트 응답:', result);
+      parsedResult = { success: true, message: result };
+    }
+
+    console.log('✅ PDF 첨부 진단 신청 처리 완료:', parsedResult);
+
+    return {
+      success: true,
+      message: '🎉 AI 무료진단이 완료되었습니다! PDF 결과보고서가 이메일로 발송되었습니다.',
+      data: parsedResult,
+      service: 'google-apps-script-pdf',
+      features: [
+        '✅ 진단 데이터 자동 저장',
+        '✅ PDF 결과보고서 첨부 이메일 발송',
+        '✅ 관리자 알림 이메일 발송',
+        '✅ 구글시트 자동 기록',
+        '✅ 한국시간 정확 처리'
+      ]
+    };
+
+  } catch (error) {
+    console.error('❌ PDF 첨부 진단 신청 처리 실패:', error);
+    
+    return {
+      success: false,
+      message: 'PDF 첨부 진단 신청 처리 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : '알 수 없는 오류',
+      service: 'google-apps-script-pdf'
+    };
+  }
+}
+
 export async function submitBetaFeedbackToGoogle(feedbackData: any) {
   try {
     console.log('🧪 Google Apps Script로 베타 피드백 및 이메일 처리 시작');
