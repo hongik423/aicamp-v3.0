@@ -1786,7 +1786,7 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
   try {
-    console.log('🔄 고급 진단 시스템 시작');
+    console.log('🔄 완벽한 AI 진단보고서 시스템 시작');
     
     const data: SimplifiedDiagnosisRequest = await request.json();
     
@@ -1816,26 +1816,27 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ 개인정보 동의 검증 성공:', data.privacyConsent);
 
-    // 📊 **디버깅: 받은 점수 데이터 확인**
-    console.log('📊 API에서 받은 점수 데이터:', {
-      planning_level: data.planning_level,
-      differentiation_level: data.differentiation_level,
-      pricing_level: data.pricing_level,
-      customer_greeting: data.customer_greeting,
-      customer_service: data.customer_service,
-      marketing_planning: data.marketing_planning,
-      purchase_management: data.purchase_management,
-      exterior_management: data.exterior_management,
-      총점수개수: [
-        data.planning_level, data.differentiation_level, data.pricing_level, data.expertise_level, data.quality_level,
-        data.customer_greeting, data.customer_service, data.complaint_management, data.customer_retention,
-        data.customer_understanding, data.marketing_planning, data.offline_marketing, data.online_marketing, data.sales_strategy,
-        data.purchase_management, data.inventory_management,
-        data.exterior_management, data.interior_management, data.cleanliness, data.work_flow
-      ].filter(score => score && score > 0).length + '/20개'
+    // 📊 **20개 문항 5점 척도 평가 데이터 확인**
+    const scoreFields = [
+      'planning_level', 'differentiation_level', 'pricing_level', 'expertise_level', 'quality_level',
+      'customer_greeting', 'customer_service', 'complaint_management', 'customer_retention',
+      'customer_understanding', 'marketing_planning', 'offline_marketing', 'online_marketing', 'sales_strategy',
+      'purchase_management', 'inventory_management',
+      'exterior_management', 'interior_management', 'cleanliness', 'work_flow'
+    ];
+    
+    const validScores = scoreFields.filter(field => 
+      data[field] && typeof data[field] === 'number' && data[field] >= 1 && data[field] <= 5
+    );
+    
+    console.log('📊 20개 문항 점수 데이터 확인:', {
+      총문항수: scoreFields.length,
+      입력된문항수: validScores.length,
+      완성도: Math.round((validScores.length / scoreFields.length) * 100) + '%',
+      입력된점수: validScores.reduce((obj, field) => ({...obj, [field]: data[field]}), {})
     });
 
-    // 1단계: Enhanced 진단평가 엔진 v3.0 사용
+    // 1단계: Enhanced 진단평가 엔진 v3.0 실행
     console.log('🚀 Enhanced 진단평가 엔진 v3.0 시작');
     const diagnosisEngine = new EnhancedDiagnosisEngine();
     
@@ -1845,264 +1846,612 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ 데이터 유효성 검증 실패:', validation.errors);
     }
     
-    // Enhanced 진단 실행
+    // 🎯 완벽한 진단 실행 (20개 문항 + 5개 카테고리 + SWOT 분석)
     const enhancedResult = diagnosisEngine.evaluate(data);
     console.log('✅ Enhanced 진단 완료:', {
       totalScore: enhancedResult.totalScore,
       grade: enhancedResult.overallGrade,
       reliability: enhancedResult.reliabilityScore,
-      categoriesEvaluated: enhancedResult.categoryResults.filter(c => 
-        c.itemResults.some(i => i.currentScore !== null)
-      ).length
+      categoriesCount: enhancedResult.categoryResults.length,
+      recommendationsCount: enhancedResult.recommendedActions.length
     });
-    
-    // 2단계: 기존 진단 로직과 통합 (하위 호환성)
-    console.log('📊 기존 시스템과 통합 중...');
-    const diagnosisResult = generateSimplifiedDiagnosis(data);
-    
-         // 3단계: Enhanced 결과로 기존 진단 결과 업데이트
-     (diagnosisResult as any).totalScore = enhancedResult.totalScore;
-     
-     // 카테고리별 점수 변환 (기존 형식 유지)
-     const legacyCategoryScores = enhancedResult.categoryResults.reduce((acc, cat) => {
-       const validItems = cat.itemResults.filter(item => item.currentScore !== null);
-       
-       acc[getCategoryKeyFromName(cat.categoryName)] = {
-         name: cat.categoryName,
-         score: cat.currentScore,
-         maxScore: 5.0,
-         weight: Math.round(cat.weight * 100),
-         selectedCount: validItems.length,
-         totalCount: cat.itemResults.length,
-         gapScore: cat.gapScore,
-         items: cat.itemResults.map(item => ({
-           name: getItemDisplayName(item.itemId),
-           score: item.currentScore,
-           selected: item.currentScore !== null,
-           question: getItemQuestion(item.itemId),
-           gap: item.gap,
-           priority: item.priority,
-           recommendation: item.recommendation
-         }))
-       };
-       return acc;
-     }, {} as any);
-     
-     // 상세 점수 변환 (기존 키 형식 유지)
-     const legacyDetailedScores = enhancedResult.categoryResults
-       .flatMap(cat => cat.itemResults)
-       .reduce((acc, item) => {
-         acc[getKoreanKeyFromItemId(item.itemId)] = item.currentScore;
-         return acc;
-       }, {} as Record<string, number | null>);
-     
-     (diagnosisResult as any).categoryScores = legacyCategoryScores;
-     (diagnosisResult as any).detailedScores = legacyDetailedScores;
-     (diagnosisResult as any).enhancedAnalysis = {
-       gapAnalysis: enhancedResult.gapAnalysis,
-       recommendedActions: enhancedResult.recommendedActions,
-       comparisonMetrics: enhancedResult.comparisonMetrics,
-       gradeInfo: {
-         grade: enhancedResult.overallGrade,
-         description: getGradeFromScore(enhancedResult.totalScore)
-       }
-     };
-     (diagnosisResult as any).reliabilityScore = enhancedResult.reliabilityScore.toString();
-    
-    // 2단계: 🔮 고급 진단 보고서 생성 (2000자 미만)
-    console.log('🔮 고급 보고서 생성 중...');
-    const summaryReport = await generateAIEnhancedReport(data, diagnosisResult);
-    
-    // 3단계: 통합 데이터 처리
-    let processingResult = {
-      googleSheetsSaved: false,
-      userEmailSent: false,
-      adminEmailSent: false,
-      errors: [] as string[],
-      warnings: [] as string[]
+
+    // 2단계: SWOT 분석 생성
+    const swotAnalysis = await generateSWOTAnalysis(data, enhancedResult);
+    console.log('🎯 SWOT 분석 완료:', {
+      strengths: swotAnalysis.strengths.length,
+      weaknesses: swotAnalysis.weaknesses.length,
+      opportunities: swotAnalysis.opportunities.length,
+      threats: swotAnalysis.threats.length
+    });
+
+    // 3단계: 완벽한 진단보고서 생성
+    const comprehensiveReport = await generateComprehensiveDiagnosisReport(data, enhancedResult, swotAnalysis);
+    console.log('📋 완벽한 진단보고서 생성 완료:', {
+      reportLength: comprehensiveReport.length,
+      sections: ['기업정보', '종합점수', '영역별분석', 'SWOT분석', '맞춤형추천', '실행계획'].length
+    });
+
+    // 4단계: 결과 ID 및 URL 생성
+    const resultId = `AI_DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const resultUrl = `/diagnosis/results/${resultId}`;
+
+    // 5단계: 진단 결과 데이터 구조화
+    const diagnosisResult = {
+      resultId,
+      companyName: data.companyName,
+      contactManager: data.contactManager,
+      email: data.email,
+      phone: data.phone,
+      industry: data.industry,
+      employeeCount: data.employeeCount || '미확인',
+      businessLocation: data.businessLocation || '미확인',
+      
+      // 🎯 완벽한 점수 체계
+      totalScore: enhancedResult.totalScore,
+      overallGrade: enhancedResult.overallGrade,
+      reliabilityScore: enhancedResult.reliabilityScore,
+      
+      // 📊 5개 카테고리별 상세 점수
+      categoryResults: enhancedResult.categoryResults.map(cat => ({
+        category: cat.categoryName,
+        score: cat.currentScore,
+        score100: cat.score100,
+        targetScore: cat.targetScore,
+        benchmarkScore: cat.benchmarkScore,
+        weight: cat.weight,
+        gapScore: cat.gapScore,
+        strengths: cat.strengths,
+        weaknesses: cat.weaknesses,
+        itemResults: cat.itemResults
+      })),
+      
+      // 🎯 SWOT 분석 완전판
+      swotAnalysis: {
+        strengths: swotAnalysis.strengths,
+        weaknesses: swotAnalysis.weaknesses,
+        opportunities: swotAnalysis.opportunities,
+        threats: swotAnalysis.threats,
+        strategicMatrix: swotAnalysis.strategicMatrix || '통합 전략 분석'
+      },
+      
+      // 💡 맞춤형 추천사항
+      recommendedActions: enhancedResult.recommendedActions,
+      
+      // 📈 비교 지혜
+      comparisonMetrics: enhancedResult.comparisonMetrics,
+      
+      // 📋 완벽한 보고서
+      comprehensiveReport,
+      
+      submitDate: new Date().toISOString(),
+      processingTime: `${Date.now() - startTime}ms`
     };
 
+    // 6단계: Google Sheets 저장 (완벽한 데이터)
+    console.log('📊 Google Sheets 저장 시작');
     try {
-      console.log('🔄 통합 데이터 처리 시작 (서버 + 이메일)...');
-      
-              // 📊 **Enhanced 결과를 Google Apps Script 형식으로 변환**
-        const detailedScores: any = {};
-        const categoryScores = (diagnosisResult as any).categoryScores || {};
-      
-      // Enhanced 진단평가 엔진의 결과를 Google Apps Script 형식으로 변환
-      Object.values(categoryScores).forEach((category: any) => {
-        if (category.items && Array.isArray(category.items)) {
-          category.items.forEach((item: any) => {
-            // 각 항목의 영문 키로 매핑
-            const keyMapping = {
-              '기획수준': 'planning_level',
-              '차별화정도': 'differentiation_level', 
-              '가격설정': 'pricing_level',
-              '전문성': 'expertise_level',
-              '품질': 'quality_level',
-              '고객맞이': 'customer_greeting',
-              '고객응대': 'customer_service',
-              '불만관리': 'complaint_management',
-              '고객유지': 'customer_retention',
-              '고객이해': 'customer_understanding',
-              '마케팅계획': 'marketing_planning',
-              '오프라인마케팅': 'offline_marketing',
-              '온라인마케팅': 'online_marketing',
-              '판매전략': 'sales_strategy',
-              '구매관리': 'purchase_management',
-              '재고관리': 'inventory_management',
-              '외관관리': 'exterior_management',
-              '인테리어관리': 'interior_management',
-              '청결도': 'cleanliness',
-              '작업동선': 'work_flow'
-            };
-            
-            const englishKey = keyMapping[item.name as keyof typeof keyMapping];
-            if (englishKey) {
-              detailedScores[englishKey] = item.score || 0;
-            }
-          });
-        }
-      });
-
-      // 진단 데이터 처리를 위한 **확장된** 폼 데이터 생성
-      const diagnosisFormData = {
-        // 기본 진단 정보
-        companyName: data.companyName,
-        industry: data.industry, 
-        businessStage: data.growthStage,
-        employeeCount: data.employeeCount,
-        establishedYear: new Date().getFullYear().toString(),
-        mainConcerns: data.mainConcerns,
-        expectedBudget: '미정',
-        urgency: '보통',
-        contactName: data.contactManager,
-        contactPhone: '정보없음',
-        contactEmail: data.email,
-        privacyConsent: data.privacyConsent,
-        submitDate: new Date().toLocaleString('ko-KR'),
+      const sheetsData = {
+        폼타입: 'AI_완벽진단보고서',
+        제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+        결과ID: resultId,
         
-        // 🔧 진단 결과 정보 추가 (서버 저장용)
-        diagnosisScore: data.diagnosisResults?.totalScore || diagnosisResult.totalScore,
-        recommendedServices: (() => {
-          if (data.diagnosisResults?.recommendedServices && Array.isArray(data.diagnosisResults.recommendedServices)) {
-            return data.diagnosisResults.recommendedServices.map(s => s.name || s.id || s).join(', ');
-          }
-          if (diagnosisResult.recommendedServices && Array.isArray(diagnosisResult.recommendedServices)) {
-            return diagnosisResult.recommendedServices.map(s => s.name || s.id || s).join(', ');
-          }
-          return '추천서비스 정보 확인 중';
-        })(),
-        reportType: data.diagnosisResults?.reportType || '간소화된_AI진단',
-        diagnosisFormType: 'AI_무료진단_레벨업시트', // 폼 타입 명시
+        // 기본 정보
+        회사명: data.companyName,
+        담당자명: data.contactManager,
+        이메일: data.email,
+        연락처: data.phone,
+        업종: data.industry,
+        직원수: data.employeeCount,
+        사업장위치: data.businessLocation,
+        성장단계: data.growthStage,
+        주요고민: data.mainConcerns,
+        기대효과: data.expectedBenefits,
         
-        // 📊 **NEW: 문항별 상세 점수 (20개 항목)**
-        문항별점수: detailedScores,
-        detailedScores: detailedScores,
+        // 🎯 진단 결과 (완벽한 점수 체계)
+        종합점수: enhancedResult.totalScore,
+        종합등급: enhancedResult.overallGrade,
+        신뢰도: enhancedResult.reliabilityScore,
         
-        // 📊 **NEW: 카테고리별 점수 (5개 영역)**
-        카테고리점수: categoryScores,
-        categoryScores: categoryScores,
+        // 📊 카테고리별 점수 (5개 영역)
+        상품서비스점수: enhancedResult.categoryResults.find(c => c.categoryId === 'productService')?.score100 || 0,
+        고객응대점수: enhancedResult.categoryResults.find(c => c.categoryId === 'customerService')?.score100 || 0,
+        마케팅점수: enhancedResult.categoryResults.find(c => c.categoryId === 'marketing')?.score100 || 0,
+        구매재고점수: enhancedResult.categoryResults.find(c => c.categoryId === 'procurement')?.score100 || 0,
+        매장관리점수: enhancedResult.categoryResults.find(c => c.categoryId === 'storeManagement')?.score100 || 0,
         
-        // 📝 **NEW: 진단결과보고서 요약 (300자 미만 핵심요약)**
-        진단보고서요약: generateCoreReportSummary(data, diagnosisResult, summaryReport),
-        summaryReport: generateCoreReportSummary(data, diagnosisResult, summaryReport),
+        // 🎯 SWOT 분석 요약
+        주요강점: swotAnalysis.strengths.slice(0, 3).join(' / '),
+        주요약점: swotAnalysis.weaknesses.slice(0, 3).join(' / '),
+        핵심기회: swotAnalysis.opportunities.slice(0, 3).join(' / '),
+        주요위협: swotAnalysis.threats.slice(0, 3).join(' / '),
         
-        // 🎯 **NEW: 종합 점수 및 메타 정보**
-        종합점수: diagnosisResult.totalScore,
-        totalScore: diagnosisResult.totalScore,
-        추천서비스목록: diagnosisResult.recommendedServices,
-        강점영역: diagnosisResult.strengths || [],
-        약점영역: diagnosisResult.weaknesses || [],
+        // 📋 보고서 정보
+        보고서길이: comprehensiveReport.length,
+        처리시간: diagnosisResult.processingTime,
         
-        // 📈 **NEW: 추가 메타 정보**
-        보고서글자수: summaryReport.length,
-        평가일시: new Date().toISOString(),
-        분석엔진버전: 'enhanced-v2.5',
-        신비감유지: true // AI 기술 노출 방지 플래그
+        timestamp: Date.now()
       };
 
-      // processDiagnosisSubmission 사용하여 통합 처리
-      const { processDiagnosisSubmission } = await import('@/lib/utils/emailService');
-      const result = await processDiagnosisSubmission(diagnosisFormData);
-      
-      processingResult = {
-        googleSheetsSaved: result.success || false,
-        userEmailSent: result.success || false,
-        adminEmailSent: result.success || false,
-        errors: result.success ? [] : [result.message || '처리 중 오류 발생'],
-        warnings: []
-      };
-
-      console.log('✅ 통합 데이터 처리 완료:', {
-        성공여부: result.success,
-        서비스: result.service,
-        메시지: result.message,
-        진단점수: diagnosisFormData.diagnosisScore,
-        추천서비스: (() => {
-          const services = diagnosisFormData.recommendedServices;
-          if (typeof services === 'string') {
-            return services.substring(0, 50) + (services.length > 50 ? '...' : '');
-          }
-          return '추천서비스 정보 확인 중';
-        })()
-      });
-
-      // 일부 실패하더라도 경고로 처리 (진단은 성공)
-      if (!result.success) {
-        processingResult.warnings.push(`일부 기능에서 오류 발생: ${result.message}`);
-      }
-
-    } catch (dataProcessingError) {
-      console.error('⚠️ 데이터 처리 중 오류 (진단 결과는 정상):', dataProcessingError);
-      processingResult.errors.push('데이터 저장/이메일 발송 중 오류가 발생했습니다.');
-      processingResult.warnings.push('진단 결과는 정상적으로 생성되었으나 일부 기능에서 문제가 발생했습니다.');
+      const sheetsResult = await saveToGoogleSheets(sheetsData, 'AI_완벽진단보고서');
+      console.log('✅ Google Sheets 저장 완료:', sheetsResult.success);
+    } catch (sheetsError) {
+      console.error('❌ Google Sheets 저장 실패:', sheetsError);
     }
 
-    // 4단계: 진단 결과 생성 및 반환 (항상 성공)
-    const processingTimeMs = Date.now() - startTime;
-    const processingTimeSeconds = (processingTimeMs / 1000).toFixed(1);
+    // 7단계: HTML 첨부 이메일 자동 발송 처리 (PDF 대신)
+    console.log('📧 HTML 첨부 이메일 자동 발송 준비');
+    let emailSendingResult = null;
     
-    console.log(`📊 고급 진단 완료 (${processingTimeSeconds}초)`);
+    try {
+      // HTML 첨부 발송용 데이터 준비
+      const htmlReportData = {
+        companyName: data.companyName,
+        contactName: data.contactManager,
+        contactEmail: data.email,
+        contactPhone: data.phone,
+        industry: data.industry,
+        totalScore: enhancedResult.totalScore,
+        overallGrade: enhancedResult.overallGrade,
+        categoryResults: enhancedResult.categoryResults,
+        swotAnalysis,
+        recommendedActions: enhancedResult.recommendedActions,
+        comprehensiveReport,
+        diagnosisDate: new Date().toLocaleDateString('ko-KR'),
+        consultant: {
+          name: CONSULTANT_INFO.name,
+          phone: CONSULTANT_INFO.phone,
+          email: CONSULTANT_INFO.email
+        },
+        reliabilityScore: enhancedResult.reliabilityScore,
+        comparisonMetrics: enhancedResult.comparisonMetrics
+      };
 
-    return NextResponse.json({
+      // 📧 즉시 HTML 첨부 이메일 발송 (백그라운드 처리)
+      const { processDiagnosisWithHtmlAttachment } = await import('@/lib/utils/htmlEmailService');
+      emailSendingResult = await processDiagnosisWithHtmlAttachment(htmlReportData);
+      console.log('📧 HTML 첨부 이메일 발송 결과:', emailSendingResult?.success ? '성공' : '실패');
+      
+    } catch (emailError) {
+      console.error('❌ HTML 첨부 이메일 발송 오류:', emailError);
+      emailSendingResult = { success: false, error: emailError.message };
+    }
+
+    // 🆕 8단계: 접수 확인 메일 별도 발송 처리
+    console.log('📬 접수 확인 메일 발송 준비');
+    let confirmationEmailResult = null;
+    
+    try {
+      // PDF 이메일 발송 여부와 관계없이 항상 접수 확인 메일 발송
+      const confirmationData = {
+        폼타입: 'AI_진단_접수확인',
+        회사명: data.companyName,
+        담당자명: data.contactManager,
+        이메일: data.email,
+        연락처: data.phone,
+        업종: data.industry,
+        직원수: data.employeeCount,
+        성장단계: data.growthStage,
+        주요고민: data.mainConcerns,
+        종합점수: enhancedResult.totalScore,
+        종합등급: enhancedResult.overallGrade,
+        신뢰도: enhancedResult.reliabilityScore,
+        카테고리수: enhancedResult.categoryResults.length,
+        제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
+        timestamp: Date.now(),
+        
+        // 이메일 발송 상태 정보
+        pdfEmailSent: emailSendingResult?.success || false,
+        pdfEmailError: emailSendingResult?.error || null
+      };
+
+      // Google Apps Script로 접수 확인 메일 발송
+      const { submitDiagnosisToGoogle } = await import('@/lib/utils/emailService');
+      confirmationEmailResult = await submitDiagnosisToGoogle(confirmationData);
+      console.log('📬 접수 확인 메일 발송 결과:', confirmationEmailResult?.success ? '성공' : '실패');
+      
+    } catch (confirmationError) {
+      console.error('❌ 접수 확인 메일 발송 오류:', confirmationError);
+      confirmationEmailResult = { success: false, error: confirmationError.message };
+    }
+
+    // 9단계: 최종 응답 생성
+    const finalResponse = {
       success: true,
-      message: '🔮 고급 진단이 완료되었습니다.',
+      message: '완벽한 AI 진단보고서가 성공적으로 생성되었습니다.',
       data: {
+        // 진단 결과 정보
         diagnosis: diagnosisResult,
-        summaryReport: summaryReport,
-        reportLength: summaryReport.length,
-        resultId: diagnosisResult.resultId,
-        resultUrl: `/diagnosis/results/${diagnosisResult.resultId}`,
-        submitDate: new Date().toLocaleDateString('ko-KR', { 
-          year: 'numeric', 
-          month: '2-digit', 
-          day: '2-digit', 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        }),
-        // 처리 결과 상세 정보 (신비감 유지)
-        googleSheetsSaved: processingResult.googleSheetsSaved,
-        userEmailSent: processingResult.userEmailSent,
-        adminEmailSent: processingResult.adminEmailSent,
-        processingTime: `${processingTimeSeconds}초`,
-        reportType: '🔮 고급 종합 진단 보고서',
-        enhanced: true,
-        analysisEngine: 'advanced-v2.5',
-        warnings: processingResult.warnings.length > 0 ? processingResult.warnings : undefined,
-        errors: processingResult.errors.length > 0 ? processingResult.errors : undefined
-      },
-      timestamp: new Date().toISOString()
+        
+        // 완벽한 보고서
+        summaryReport: comprehensiveReport,
+        reportLength: comprehensiveReport.length,
+        
+        // 결과 접근 정보
+        resultId,
+        resultUrl,
+        
+        // 제출 정보
+        submitDate: diagnosisResult.submitDate,
+        processingTime: diagnosisResult.processingTime,
+        
+        // 이메일 발송 상태
+        emailSent: emailSendingResult?.success || false,
+        emailError: emailSendingResult?.error || null,
+        
+        // 접수 확인 메일 상태
+        confirmationEmailSent: confirmationEmailResult?.success || false,
+        confirmationEmailError: confirmationEmailResult?.error || null
+      }
+    };
+
+    console.log('🎉 완벽한 AI 진단보고서 생성 완료:', {
+      company: data.companyName,
+      totalScore: enhancedResult.totalScore,
+      grade: enhancedResult.overallGrade,
+      categoriesAnalyzed: enhancedResult.categoryResults.length,
+      swotComplete: !!(swotAnalysis.strengths.length && swotAnalysis.weaknesses.length),
+      reportGenerated: !!comprehensiveReport,
+      emailSent: emailSendingResult?.success,
+      processingTime: Date.now() - startTime + 'ms'
     });
 
+    return NextResponse.json(finalResponse);
+    
   } catch (error) {
-    console.error('❌ 고급 진단 시스템 오류:', error);
-
+    console.error('❌ 완벽한 진단보고서 생성 실패:', error);
+    
     return NextResponse.json({
       success: false,
-      error: '고급 진단 중 오류가 발생했습니다.',
-      details: error instanceof Error ? error.message : '알 수 없는 오류',
-      timestamp: new Date().toISOString()
+      error: '진단보고서 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      details: isDevelopment() ? error.message : undefined
     }, { status: 500 });
   }
-} 
+}
+
+// 🎯 SWOT 분석 생성 함수
+async function generateSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisResult: any) {
+  const geminiClient = getAnalysisClient();
+  
+  if (!geminiClient) {
+    // Gemini가 없을 경우 기본 SWOT 분석
+    return generateBasicSWOTAnalysis(data, diagnosisResult);
+  }
+
+  try {
+    const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
+    
+    const prompt = `
+# 🎯 전문 경영진단 SWOT 분석 요청
+
+## 기업 정보
+- 회사명: ${data.companyName}
+- 업종: ${data.industry}
+- 직원수: ${data.employeeCount}
+- 성장단계: ${data.growthStage}
+- 주요고민: ${data.mainConcerns}
+
+## 진단 결과
+- 종합점수: ${diagnosisResult.totalScore}점 (${diagnosisResult.overallGrade}등급)
+- 카테고리별 점수:
+${diagnosisResult.categoryResults.map(cat => 
+  `  * ${cat.categoryName}: ${cat.currentScore}/5.0 (${cat.score100}점)`
+).join('\n')}
+
+## 요청사항
+이후경 경영지도사 관점에서 다음 SWOT 분석을 JSON 형태로 작성해주세요:
+
+{
+  "strengths": ["강점1", "강점2", "강점3", "강점4", "강점5"],
+  "weaknesses": ["약점1", "약점2", "약점3", "약점4", "약점5"],
+  "opportunities": ["기회1", "기회2", "기회3", "기회4", "기회5"],
+  "threats": ["위협1", "위협2", "위협3", "위협4", "위협5"],
+  "strategicMatrix": "SWOT 매트릭스 기반 종합 전략 분석"
+}
+
+각 항목은 구체적이고 실행 가능한 내용으로 작성해주세요.
+`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const analysisText = response.text();
+    
+    // JSON 추출
+    const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const swotData = JSON.parse(jsonMatch[0]);
+      console.log('✅ AI SWOT 분석 완료');
+      return swotData;
+    } else {
+      throw new Error('SWOT JSON 형식 파싱 실패');
+    }
+    
+  } catch (error) {
+    console.error('❌ AI SWOT 분석 실패:', error);
+    return generateBasicSWOTAnalysis(data, diagnosisResult);
+  }
+}
+
+// 기본 SWOT 분석 생성
+function generateBasicSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisResult: any) {
+  const industryStrengths = {
+    'manufacturing': ['제조 기술력', '품질 관리 체계', '생산 효율성'],
+    'it': ['기술 혁신력', '빠른 적응력', '디지털 역량'],
+    'service': ['고객 응대 경험', '서비스 전문성', '관계 관리'],
+    'retail': ['고객 접점 다양성', '시장 이해도', '판매 경험'],
+    'food': ['맛과 품질', '고객 충성도', '지역 밀착성']
+  };
+
+  const industryKey = data.industry?.toLowerCase() || 'service';
+  const baseStrengths = industryStrengths[industryKey] || industryStrengths['service'];
+
+  return {
+    strengths: [
+      ...baseStrengths,
+      `${data.growthStage || '성장'} 단계의 추진력`,
+      `${data.employeeCount || '적절한'} 규모의 조직력`
+    ],
+    weaknesses: [
+      '디지털 마케팅 역량 부족',
+      '체계적인 고객관리 시스템 미흡',
+      '브랜드 인지도 한계',
+      '자금 조달 능력 제한',
+      '전문 인력 확보 어려움'
+    ],
+    opportunities: [
+      '디지털 전환 가속화 트렌드',
+      '정부 중소기업 지원 정책',
+      '언택트 서비스 확산',
+      '지역 경제 활성화 정책',
+      'AI 기술 도입 기회'
+    ],
+    threats: [
+      '대기업 시장 진입',
+      '경쟁 업체 증가',
+      '경기 침체 우려',
+      '인건비 상승 압력',
+      '기술 변화 속도'
+    ],
+    strategicMatrix: `${data.companyName}은 현재 ${diagnosisResult.totalScore}점의 진단 결과를 바탕으로 강점을 활용한 기회 확대 전략과 약점 보완을 통한 위협 대응 전략을 동시에 추진해야 합니다.`
+  };
+}
+
+// 📋 완벽한 진단보고서 생성 함수
+async function generateComprehensiveDiagnosisReport(
+  data: SimplifiedDiagnosisRequest, 
+  diagnosisResult: any, 
+  swotAnalysis: any
+): Promise<string> {
+  const geminiClient = getAnalysisClient();
+  
+  if (!geminiClient) {
+    return generateBasicComprehensiveReport(data, diagnosisResult, swotAnalysis);
+  }
+
+  try {
+    const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
+    
+    const prompt = `
+# 📋 전문 경영진단 종합보고서 작성 요청
+
+## 기업 정보
+- 회사명: ${data.companyName}
+- 업종: ${data.industry}
+- 담당자: ${data.contactManager}
+- 직원수: ${data.employeeCount}
+- 성장단계: ${data.growthStage}
+- 사업장: ${data.businessLocation}
+- 주요고민: ${data.mainConcerns}
+- 기대효과: ${data.expectedBenefits}
+
+## 진단 결과 데이터
+- 종합점수: ${diagnosisResult.totalScore}점 (${diagnosisResult.overallGrade}등급)
+- 신뢰도: ${diagnosisResult.reliabilityScore}%
+
+### 카테고리별 상세 점수
+${diagnosisResult.categoryResults.map(cat => `
+**${cat.categoryName}**
+- 현재점수: ${cat.currentScore}/5.0 (${cat.score100}점)
+- 목표점수: ${cat.targetScore}/5.0
+- 격차: ${cat.gapScore}점
+- 강점: ${cat.strengths.join(', ')}
+- 약점: ${cat.weaknesses.join(', ')}
+`).join('\n')}
+
+### SWOT 분석
+- 강점: ${swotAnalysis.strengths.join(', ')}
+- 약점: ${swotAnalysis.weaknesses.join(', ')}
+- 기회: ${swotAnalysis.opportunities.join(', ')}
+- 위협: ${swotAnalysis.threats.join(', ')}
+
+## 작성 요청
+이후경 경영지도사(28년 경력) 관점에서 전문적이고 실용적인 3000자 분량의 종합 진단보고서를 작성해주세요.
+
+### 보고서 구성
+1. **경영진단 개요** (300자)
+2. **종합평가 및 현재위치** (400자)
+3. **영역별 상세분석** (800자)
+4. **SWOT 전략분석** (600자)
+5. **핵심 개선과제** (500자)
+6. **단계별 실행계획** (400자)
+
+### 작성 가이드라인
+- 구체적이고 실행 가능한 내용
+- 업종별 특성 반영
+- 성장단계별 맞춤 전략
+- 정량적 수치 활용
+- 전문 용어와 일반 설명의 적절한 조화
+`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const reportText = response.text();
+    
+    console.log('✅ AI 완벽한 진단보고서 생성 완료:', reportText.length + '자');
+    return reportText;
+    
+  } catch (error) {
+    console.error('❌ AI 진단보고서 생성 실패:', error);
+    return generateBasicComprehensiveReport(data, diagnosisResult, swotAnalysis);
+  }
+}
+
+// 기본 완벽한 진단보고서 생성
+function generateBasicComprehensiveReport(
+  data: SimplifiedDiagnosisRequest, 
+  diagnosisResult: any, 
+  swotAnalysis: any
+): string {
+  const currentDate = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long', 
+    day: 'numeric'
+  });
+
+  return `
+# 🏢 ${data.companyName} 경영역량 종합진단 보고서
+
+## 📊 진단 개요
+**진단일시**: ${currentDate}
+**담당 전문가**: 이후경 경영지도사 (28년 경력)
+**진단 방법**: AI 기반 20개 문항 5점 척도 전문 진단
+**신뢰도**: ${diagnosisResult.reliabilityScore}%
+
+${data.companyName}은 ${data.industry} 업종에서 ${data.employeeCount} 규모로 운영되고 있으며, ${data.growthStage || '성장'} 단계에 있는 기업입니다. 본 진단은 5개 핵심 경영영역을 체계적으로 분석하여 현재 위치를 파악하고 향후 발전 방향을 제시하고자 합니다.
+
+---
+
+## 🎯 종합평가 및 현재위치
+
+### **종합 점수: ${diagnosisResult.totalScore}점 (100점 만점) | ${diagnosisResult.overallGrade}등급**
+
+${diagnosisResult.totalScore >= 80 ? 
+  `🏆 **우수한 경영역량**을 보유하고 있습니다. 전체적으로 균형 잡힌 역량을 갖추고 있으며, 지속적인 성장을 위한 토대가 잘 마련되어 있습니다. 현재 수준을 유지하면서 세부적인 최적화에 집중하는 것이 바람직합니다.` :
+  diagnosisResult.totalScore >= 70 ?
+  `✅ **양호한 경영역량**을 갖추고 있습니다. 기본적인 경영 기반은 안정적이나, 몇 가지 핵심 영역의 체계적인 보완을 통해 더욱 발전할 수 있는 잠재력을 보유하고 있습니다.` :
+  diagnosisResult.totalScore >= 60 ?
+  `🔄 **보통 수준의 경영역량**입니다. 안정적인 운영을 위한 기초는 갖추어져 있으나, 경쟁우위 확보를 위해서는 체계적인 개선이 필요한 상황입니다. 우선순위를 명확히 하여 단계별 발전을 추진해야 합니다.` :
+  `⚠️ **전면적인 개선이 필요**합니다. 경영 전반에 걸쳐 체계적인 점검과 개선이 시급한 상황이며, 전문가의 도움을 받아 종합적인 개선 계획을 수립하여 추진하는 것이 바람직합니다.`
+}
+
+업계 평균 대비 상위 ${diagnosisResult.comparisonMetrics?.industryPercentile || 50}%에 위치하고 있으며, ${diagnosisResult.comparisonMetrics?.competitivePosition || '평균적인'} 경쟁력을 보유하고 있습니다.
+
+---
+
+## 📈 영역별 상세분석
+
+${diagnosisResult.categoryResults.map((category, index) => `
+### ${index + 1}. ${category.categoryName} 
+**현재 점수**: ${category.currentScore}/5.0 (${category.score100}점) | **목표**: ${category.targetScore}/5.0 | **Gap**: ${category.gapScore}점
+
+${category.score100 >= 80 ? '🟢 **우수**' : category.score100 >= 70 ? '🟡 **양호**' : category.score100 >= 60 ? '🟠 **보통**' : '🔴 **개선필요**'} 
+
+**💪 주요 강점**
+${category.strengths.length > 0 ? category.strengths.map(s => `• ${s}`).join('\n') : '• 분석할 강점 항목이 부족합니다.'}
+
+**⚠️ 개선 필요사항**
+${category.weaknesses.length > 0 ? category.weaknesses.map(w => `• ${w}`).join('\n') : '• 특별한 개선점이 발견되지 않았습니다.'}
+
+**📋 세부 개선 방향**
+${category.itemResults.filter(item => item.currentScore !== null && item.gap > 0.5).map(item => 
+  `• **${item.itemName}**: 현재 ${item.currentScore}점 → 목표 ${item.targetScore}점 (${item.recommendation})`
+).join('\n') || '• 현재 수준을 유지하며 지속적인 모니터링이 필요합니다.'}
+`).join('\n')}
+
+---
+
+## 🎯 SWOT 전략분석
+
+### **강점 (Strengths) - 내부 역량 우수 영역**
+${swotAnalysis.strengths.map(s => `• ${s}`).join('\n')}
+
+### **약점 (Weaknesses) - 개선 필요 영역**
+${swotAnalysis.weaknesses.map(w => `• ${w}`).join('\n')}
+
+### **기회 (Opportunities) - 외부 환경 기회 요인**
+${swotAnalysis.opportunities.map(o => `• ${o}`).join('\n')}
+
+### **위협 (Threats) - 주의 요인**
+${swotAnalysis.threats.map(t => `• ${t}`).join('\n')}
+
+### **🔍 SWOT 매트릭스 전략**
+${swotAnalysis.strategicMatrix}
+
+**SO 전략**: 강점을 활용하여 기회를 극대화
+**WO 전략**: 약점을 보완하여 기회를 선점  
+**ST 전략**: 강점으로 위협을 방어
+**WT 전략**: 약점 개선으로 위협을 최소화
+
+---
+
+## 💡 핵심 개선과제
+
+### **🚨 최우선 개선과제 (1개월 내)**
+${diagnosisResult.gapAnalysis?.criticalIssues?.length > 0 ? 
+  diagnosisResult.gapAnalysis.criticalIssues.slice(0, 3).map(issue => `• ${issue}`).join('\n') :
+  '• 즉시 개선이 필요한 중요 과제는 발견되지 않았습니다.'
+}
+
+### **⚡ 빠른 개선 가능항목 (2-3개월 내)**
+${diagnosisResult.gapAnalysis?.quickWins?.length > 0 ?
+  diagnosisResult.gapAnalysis.quickWins.slice(0, 3).map(win => `• ${win}`).join('\n') :
+  '• 단기간 내 개선 가능한 항목을 추가 분석이 필요합니다.'
+}
+
+### **📊 중장기 발전과제 (6개월~1년)**
+${diagnosisResult.recommendedActions.slice(0, 3).map(action => 
+  `• **${action.title}**: ${action.description} (예상효과: ${action.expectedImpact})`
+).join('\n')}
+
+---
+
+## 📅 단계별 실행계획
+
+### **1단계: 즉시 실행 (1-2주)**
+• 현재 강점 영역 유지 체계 구축
+• 간단한 개선사항 즉시 적용
+• 직원 교육 및 인식 개선
+
+### **2단계: 단기 실행 (1-3개월)**
+• ${diagnosisResult.categoryResults.filter(c => c.gapScore >= 1.0).slice(0, 2).map(c => c.categoryName).join(', ')} 집중 개선
+• 디지털 도구 도입 검토
+• 고객 피드백 시스템 구축
+
+### **3단계: 중기 실행 (3-6개월)**
+• 전사적 시스템 정비
+• 브랜딩 및 마케팅 강화
+• 인력 개발 프로그램 운영
+
+### **4단계: 장기 실행 (6개월~1년)**
+• 사업 확장 및 다각화 검토
+• 첨단 기술 도입
+• 지속 성장을 위한 혁신 추진
+
+---
+
+## 🤝 맞춤형 전문가 상담 안내
+
+**주요 고민사항**: "${data.mainConcerns}"에 대한 맞춤형 솔루션을 제공해드리겠습니다.
+
+**기대효과**: "${data.expectedBenefits}"를 달성하기 위한 구체적인 실행 방안을 함께 수립하겠습니다.
+
+### **전문가 상담 문의**
+• **담당 전문가**: 이후경 경영지도사 (중소기업진흥공단 28년 경력)
+• **연락처**: 010-9251-9743
+• **이메일**: hongik423@gmail.com
+• **특화 분야**: BM ZEN 사업분석, 정책자금 컨설팅, AI 도입 지원
+
+### **무료 혜택**
+• 초회 상담 1시간 무료
+• 기업 맞춤형 성장전략 컨설팅
+• 정부지원 사업 연계 상담
+
+---
+
+**※ 본 보고서는 AI 기반 진단시스템과 이후경 경영지도사의 28년 전문 노하우가 결합된 종합 분석 결과입니다.**
+**※ 추가 상담이나 세부 실행계획 수립을 원하시면 언제든 연락해주세요.**
+
+---
+*진단일: ${currentDate} | 작성: AICAMP AI교육센터*
+`.trim();
+}
