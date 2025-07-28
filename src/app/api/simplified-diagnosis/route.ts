@@ -422,38 +422,67 @@ export async function POST(request: NextRequest) {
 
     // 3단계: 업종별 최신정보 기반 완벽한 진단보고서 생성 (최고 수준)
     let comprehensiveReport;
+    let industryTrends = null;
+    let industryInsights = null;
+    
     try {
       console.log('🏭 업종별 최신정보 검색 시작:', data.industry);
       
-      // 업종별 최신 트렌드 정보 조회
-      const industryTrends = IndustryDataService.getIndustryTrends(data.industry);
-      console.log('📊 업종 트렌드 데이터 조회 완료:', {
-        hasData: !!industryTrends,
-        industry: data.industry
-      });
+      // 안전한 IndustryDataService 호출
+      try {
+        industryTrends = IndustryDataService.getIndustryTrends(data.industry);
+        console.log('📊 업종 트렌드 데이터 조회 완료:', {
+          hasData: !!industryTrends,
+          industry: data.industry
+        });
+      } catch (industryError) {
+        console.warn('⚠️ IndustryDataService.getIndustryTrends 실패:', industryError.message);
+        industryTrends = null;
+      }
 
-      // 업종별 특화 인사이트 생성
-      const industryInsights = IndustryDataService.generateIndustryInsights(data.industry, {
-        ...data,
-        totalScore: enhancedResult.totalScore
-      });
-      console.log('🎯 업종별 특화 인사이트 생성 완료');
+      // 안전한 업종별 인사이트 생성
+      try {
+        industryInsights = IndustryDataService.generateIndustryInsights(data.industry, {
+          ...data,
+          totalScore: enhancedResult.totalScore
+        });
+        console.log('🎯 업종별 특화 인사이트 생성 완료');
+      } catch (insightError) {
+        console.warn('⚠️ IndustryDataService.generateIndustryInsights 실패:', insightError.message);
+        industryInsights = null;
+      }
 
-      // 업종별 최신정보가 반영된 완벽한 보고서 생성
-      comprehensiveReport = generateIndustryEnhancedReport(data.industry, data, enhancedResult);
+      // 업종별 최신정보가 있으면 특화 보고서, 없으면 기본 보고서
+      if (industryTrends && industryInsights) {
+        try {
+          comprehensiveReport = generateIndustryEnhancedReport(data.industry, data, enhancedResult);
+          console.log('📋 업종별 최신정보 기반 완벽한 진단보고서 생성 완료:', {
+            reportLength: comprehensiveReport.length,
+            hasIndustryData: !!industryTrends,
+            industryTrendsCount: industryTrends?.trends?.length || 0
+          });
+        } catch (reportError) {
+          console.warn('⚠️ generateIndustryEnhancedReport 실패:', reportError.message);
+          throw reportError; // 다음 단계로 폴백
+        }
+      } else {
+        console.log('📋 업종별 데이터 부족으로 기본 AI 보고서 생성');
+        throw new Error('Industry data unavailable, fallback to AI report');
+      }
       
-      console.log('📋 업종별 최신정보 기반 완벽한 진단보고서 생성 완료:', {
-        reportLength: comprehensiveReport.length,
-        hasIndustryData: !!industryTrends,
-        industryTrendsCount: industryTrends?.trends?.length || 0
-      });
     } catch (error) {
-      console.error('❌ 업종별 진단보고서 생성 실패, 기본 AI 보고서로 폴백:', error);
+      console.error('❌ 업종별 진단보고서 생성 실패, 기본 AI 보고서로 폴백:', error.message);
       try {
         comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
+        console.log('📋 기본 AI 보고서 생성 완료:', {
+          reportLength: comprehensiveReport.length
+        });
       } catch (fallbackError) {
-        console.error('❌ AI 보고서도 실패, 기본 보고서로 최종 폴백:', fallbackError);
+        console.error('❌ AI 보고서도 실패, 기본 보고서로 최종 폴백:', fallbackError.message);
         comprehensiveReport = generateFallbackReport(data, enhancedResult);
+        console.log('📋 최종 폴백 보고서 생성 완료:', {
+          reportLength: comprehensiveReport.length
+        });
       }
     }
 
@@ -607,12 +636,9 @@ export async function POST(request: NextRequest) {
           competitiveLandscape: getCompetitiveLandscape(data.industry),
           growthOpportunities: getGrowthOpportunities(data.industry, data.growthStage),
           digitalTransformation: getDigitalTransformationGuide(data.industry),
-          // 🚀 2025년 최신 업종 데이터 추가
-          latestIndustryData: IndustryDataService.getIndustryTrends(data.industry),
-          customInsights: IndustryDataService.generateIndustryInsights(data.industry, {
-            ...data,
-            totalScore: enhancedResult.totalScore
-          })
+          // 🚀 2025년 최신 업종 데이터 추가 (안전한 처리)
+          latestIndustryData: industryTrends,
+          customInsights: industryInsights
         }
       },
       
