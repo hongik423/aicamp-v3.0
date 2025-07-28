@@ -1,0 +1,78 @@
+{
+  "timestamp": "2025-07-28T20:11:46.518Z",
+  "successRate": 63,
+  "diagnosisResults": {
+    "timestamp": "2025-07-28T20:08:50.467Z",
+    "totalTests": 5,
+    "passedTests": 2,
+    "failedTests": 3,
+    "industryResults": {
+      "manufacturing": {
+        "status": "SUCCESS",
+        "processingTime": 46303,
+        "totalScore": 0,
+        "reportLength": 0,
+        "hasLatestData": false,
+        "trendsCount": 0
+      },
+      "it": {
+        "status": "FAILED",
+        "error": "Request failed with status code 500",
+        "processingTime": 0
+      },
+      "service": {
+        "status": "FAILED",
+        "error": "Request failed with status code 500",
+        "processingTime": 0
+      },
+      "retail": {
+        "status": "FAILED",
+        "error": "Request failed with status code 500",
+        "processingTime": 0
+      },
+      "food": {
+        "status": "SUCCESS",
+        "processingTime": 45846,
+        "totalScore": 0,
+        "reportLength": 0,
+        "hasLatestData": false,
+        "trendsCount": 0
+      }
+    },
+    "emailResults": {}
+  },
+  "emailResults": {
+    "totalTests": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "results": [
+      {
+        "type": "진단신청",
+        "status": "SUCCESS",
+        "sheet": "AI_무료진단신청",
+        "row": 61
+      },
+      {
+        "type": "상담신청",
+        "status": "SUCCESS",
+        "sheet": "상담신청",
+        "row": 4
+      }
+    ]
+  },
+  "consultationResult": {
+    "status": "SUCCESS",
+    "success": true,
+    "timestamp": "2025. 07. 29. 05:11:43",
+    "version": "2025.01.28.AICAMP_단순화_PDF제거_이메일오류수정_최종버전",
+    "message": "상담신청이 성공적으로 접수되었습니다. 1-2일 내에 전문가가 연락드리겠습니다.",
+    "sheet": "상담신청",
+    "row": 5,
+    "처리방식": "단순_접수_확인_이메일"
+  },
+  "summary": {
+    "totalTests": 8,
+    "totalPassed": 5,
+    "totalFailed": 3
+  }
+}

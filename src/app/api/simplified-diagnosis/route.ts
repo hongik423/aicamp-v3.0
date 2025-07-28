@@ -11,6 +11,7 @@ import { processDiagnosisSubmission, type DiagnosisFormData } from '@/lib/utils/
 import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 import { EnhancedDiagnosisEngine, DiagnosisReportGenerator, validateDiagnosisData } from '@/lib/utils/enhancedDiagnosisEngine';
+import { IndustryDataService, generateIndustryEnhancedReport } from '@/lib/utils/industryDataService';
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
@@ -419,16 +420,41 @@ export async function POST(request: NextRequest) {
       swotAnalysis = generateBasicSWOT(data, enhancedResult.totalScore);
     }
 
-    // 3단계: 완벽한 진단보고서 생성 (안전 모드)
+    // 3단계: 업종별 최신정보 기반 완벽한 진단보고서 생성 (최고 수준)
     let comprehensiveReport;
     try {
-      comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
-      console.log('📋 완벽한 진단보고서 생성 완료:', {
-        reportLength: comprehensiveReport.length
+      console.log('🏭 업종별 최신정보 검색 시작:', data.industry);
+      
+      // 업종별 최신 트렌드 정보 조회
+      const industryTrends = IndustryDataService.getIndustryTrends(data.industry);
+      console.log('📊 업종 트렌드 데이터 조회 완료:', {
+        hasData: !!industryTrends,
+        industry: data.industry
+      });
+
+      // 업종별 특화 인사이트 생성
+      const industryInsights = IndustryDataService.generateIndustryInsights(data.industry, {
+        ...data,
+        totalScore: enhancedResult.totalScore
+      });
+      console.log('🎯 업종별 특화 인사이트 생성 완료');
+
+      // 업종별 최신정보가 반영된 완벽한 보고서 생성
+      comprehensiveReport = generateIndustryEnhancedReport(data.industry, data, enhancedResult);
+      
+      console.log('📋 업종별 최신정보 기반 완벽한 진단보고서 생성 완료:', {
+        reportLength: comprehensiveReport.length,
+        hasIndustryData: !!industryTrends,
+        industryTrendsCount: industryTrends?.trends?.length || 0
       });
     } catch (error) {
-      console.error('❌ AI 보고서 생성 실패, 폴백 처리:', error);
-      comprehensiveReport = generateFallbackReport(data, enhancedResult);
+      console.error('❌ 업종별 진단보고서 생성 실패, 기본 AI 보고서로 폴백:', error);
+      try {
+        comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
+      } catch (fallbackError) {
+        console.error('❌ AI 보고서도 실패, 기본 보고서로 최종 폴백:', fallbackError);
+        comprehensiveReport = generateFallbackReport(data, enhancedResult);
+      }
     }
 
     // 4단계: 결과 ID 및 URL 생성
@@ -574,13 +600,19 @@ export async function POST(request: NextRequest) {
           financialHealth: Math.round(enhancedResult.totalScore * 0.8)
         },
         
-        // 📈 업종별 특화 인사이트
+        // 📈 업종별 특화 인사이트 (2025년 최신 데이터 기반)
         industryInsights: {
           industryName: data.industry,
           industryTrends: getIndustryTrends(data.industry),
           competitiveLandscape: getCompetitiveLandscape(data.industry),
           growthOpportunities: getGrowthOpportunities(data.industry, data.growthStage),
-          digitalTransformation: getDigitalTransformationGuide(data.industry)
+          digitalTransformation: getDigitalTransformationGuide(data.industry),
+          // 🚀 2025년 최신 업종 데이터 추가
+          latestIndustryData: IndustryDataService.getIndustryTrends(data.industry),
+          customInsights: IndustryDataService.generateIndustryInsights(data.industry, {
+            ...data,
+            totalScore: enhancedResult.totalScore
+          })
         }
       },
       
@@ -598,13 +630,15 @@ export async function POST(request: NextRequest) {
       ]
     };
 
-    console.log('🎉 업종별 특화 AI 진단 완료:', {
+    console.log('🎉 업종별 최신정보 기반 특화 AI 진단 완료:', {
       company: data.companyName,
       industry: data.industry,
       totalScore: enhancedResult.totalScore,
       reportLength: comprehensiveReport.length,
+      hasLatestIndustryData: !!IndustryDataService.getIndustryTrends(data.industry),
       hasIndustrySpecific: true,
-      hasCoreMetrics: true
+      hasCoreMetrics: true,
+      industryDataVersion: '2025-01-28'
     });
 
     return NextResponse.json(response);
