@@ -50,25 +50,9 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
   const { toast } = useToast();
   const reportRef = useRef<HTMLDivElement>(null);
 
-  // API 응답 구조 확인 및 안전한 데이터 접근
-  console.log('🔍 SimpleDiagnosisResults 받은 데이터:', data);
-  
-  // API 응답 구조에 맞는 데이터 추출
-  const apiResponse = data;
-  const actualData = apiResponse?.data || data; // API 응답의 data 프로퍼티 또는 직접 data
-  const companyName = actualData?.diagnosis?.companyName || actualData?.companyName || '고객사';
-  const diagnosis = actualData?.diagnosis;
-
-  // diagnosis 객체가 없는 경우 API 응답 구조 확인
-  if (!diagnosis) {
-    console.warn('⚠️ diagnosis 객체를 찾을 수 없습니다. 데이터 구조:', {
-      hasApiResponse: !!apiResponse,
-      hasData: !!apiResponse?.data,
-      hasDiagnosis: !!apiResponse?.data?.diagnosis,
-      actualDataKeys: actualData ? Object.keys(actualData) : 'undefined',
-      fullData: data
-    });
-    
+  // 데이터 안전성 검증
+  if (!data) {
+    console.warn('⚠️ SimpleDiagnosisResults: data가 undefined입니다');
     return (
       <div className="max-w-4xl mx-auto p-6">
         <Card className="border-2 border-red-200 shadow-lg">
@@ -76,9 +60,49 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
             <CardTitle className="text-xl text-red-600">진단 결과 오류</CardTitle>
           </CardHeader>
           <CardContent className="text-center py-8">
-            <p className="text-gray-600 mb-4">진단 결과를 불러오는 중 오류가 발생했습니다.</p>
+            <p className="text-gray-600 mb-4">진단 결과 데이터를 불러올 수 없습니다.</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              새로고침
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  console.log('🔍 SimpleDiagnosisResults 받은 데이터:', data);
+  
+  // 실제 API 응답 구조: {success: true, data: {diagnosis: {...}, summaryReport: "..."}}
+  const diagnosis = data?.data?.diagnosis;
+  const summaryReport = data?.data?.summaryReport;
+
+  // diagnosis 객체 확인
+  if (!diagnosis) {
+    console.error('❌ diagnosis 객체를 찾을 수 없습니다:', {
+      hasData: !!data,
+      hasDataProperty: !!data?.data,
+      hasDiagnosis: !!data?.data?.diagnosis,
+      dataKeys: data ? Object.keys(data) : 'no data',
+      dataDataKeys: data?.data ? Object.keys(data.data) : 'no data.data'
+    });
+    
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card className="border-2 border-red-200 shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl text-red-600">진단 결과 처리 오류</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-8">
+            <p className="text-gray-600 mb-4">진단 데이터 구조에 문제가 있습니다.</p>
             <p className="text-sm text-gray-500 mb-4">
-              데이터 구조: {JSON.stringify(Object.keys(actualData || {}), null, 2)}
+              디버깅 정보: {JSON.stringify({
+                hasData: !!data,
+                hasDataProperty: !!data?.data,
+                dataKeys: data ? Object.keys(data) : 'none'
+              })}
             </p>
             <Button 
               onClick={() => window.location.reload()} 
@@ -92,7 +116,8 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
     );
   }
   
-  // 안전한 디스트럭처링 적용 - diagnosis가 있는 경우
+  // 안전한 데이터 추출
+  const companyName = diagnosis.companyName || '고객사';
   const { 
     totalScore = 0, 
     categoryResults = [], 
@@ -103,7 +128,8 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
     companyName,
     totalScore,
     categoryResultsLength: categoryResults.length,
-    hasRecommendations: !!recommendations
+    hasRecommendations: !!recommendations,
+    diagnosisKeys: diagnosis ? Object.keys(diagnosis) : 'no diagnosis'
   });
 
   // 등급 정보 계산
@@ -141,7 +167,7 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           return acc;
         }, {} as { [key: string]: number }),
         recommendations: recommendations,
-        timestamp: actualData.timestamp,
+        timestamp: diagnosis.timestamp,
         industry: '기타', // 기본값
         contactName: '담당자',
         email: ''
@@ -223,7 +249,7 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           return acc;
         }, {} as { [key: string]: number }),
         recommendations: recommendations,
-        timestamp: actualData.timestamp,
+        timestamp: diagnosis.timestamp,
         industry: '기타',
         contactName: '담당자',
         email: ''
@@ -239,7 +265,7 @@ export default function SimpleDiagnosisResults({ data }: SimpleDiagnosisResultsP
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...actualData,
+          ...data, // 전체 데이터 전송
           action: 'submitResults',
           emailTemplate: emailData.htmlContent,
           mobileEmailTemplate: emailData.mobileHtmlContent
