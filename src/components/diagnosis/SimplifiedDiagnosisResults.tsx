@@ -33,7 +33,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
 
-  // 데이터 안전성 검증 및 API 응답 구조 처리
+  // 데이터 안전성 검증
   if (!data) {
     console.warn('⚠️ SimplifiedDiagnosisResults: data가 undefined입니다');
     return (
@@ -58,25 +58,51 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
 
   console.log('🔍 SimplifiedDiagnosisResults 받은 데이터:', data);
 
-  // API 응답 구조에 맞는 데이터 추출
-  const apiResponse = data;
-  const actualData = apiResponse?.data || data; // API 응답의 data 프로퍼티 또는 직접 data
+  // 실제 API 응답 구조: {success: true, data: {diagnosis: {...}, summaryReport: "..."}}
+  const diagnosis = data?.data?.diagnosis;
+  const summaryReport = data?.data?.summaryReport;
   
-  // 다양한 가능한 경로에서 데이터 추출
-  const companyName = actualData?.diagnosis?.companyName || 
-                     actualData?.companyName || 
-                     actualData?.회사명 || 
-                     '고객사';
+  // diagnosis 객체 확인
+  if (!diagnosis) {
+    console.error('❌ diagnosis 객체를 찾을 수 없습니다:', {
+      hasData: !!data,
+      hasDataProperty: !!data?.data,
+      hasDiagnosis: !!data?.data?.diagnosis,
+      dataKeys: data ? Object.keys(data) : 'no data',
+      dataDataKeys: data?.data ? Object.keys(data.data) : 'no data.data'
+    });
+    
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Card className="border-2 border-red-200 shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl text-red-600">진단 결과 처리 오류</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-8">
+            <p className="text-gray-600 mb-4">진단 데이터 구조에 문제가 있습니다.</p>
+            <p className="text-sm text-gray-500 mb-4">
+              디버깅 정보: {JSON.stringify({
+                hasData: !!data,
+                hasDataProperty: !!data?.data,
+                dataKeys: data ? Object.keys(data) : 'none'
+              })}
+            </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              새로고침
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   
-  const totalScore = actualData?.diagnosis?.totalScore || 
-                    actualData?.totalScore || 
-                    actualData?.종합점수 || 
-                    0;
-  
-  const recommendations = actualData?.summaryReport || 
-                         actualData?.diagnosis?.recommendations || 
-                         actualData?.추천사항 || 
-                         '';
+  // 안전한 데이터 추출
+  const companyName = diagnosis.companyName || '고객사';
+  const totalScore = diagnosis.totalScore || 0;
+  const recommendations = summaryReport || diagnosis.recommendations || '';
 
   // totalScore가 유효한 숫자인지 확인
   const validTotalScore = typeof totalScore === 'number' && !isNaN(totalScore) ? totalScore : 0;
@@ -86,7 +112,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     totalScore,
     validTotalScore,
     hasRecommendations: !!recommendations,
-    actualDataKeys: actualData ? Object.keys(actualData) : 'no actualData'
+    diagnosisKeys: diagnosis ? Object.keys(diagnosis) : 'no diagnosis'
   });
 
   // 등급 정보 계산
@@ -119,12 +145,12 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       const reportData = transformDiagnosisData({
         companyName: companyName,
         totalScore: validTotalScore,
-        categoryScores: actualData?.diagnosis?.categoryScores || actualData?.카테고리점수 || {},
+        categoryScores: diagnosis?.categoryScores || diagnosis?.카테고리점수 || {},
         recommendations: recommendations,
-        timestamp: actualData?.diagnosis?.timestamp || new Date().toISOString(),
-        industry: actualData?.diagnosis?.industry || actualData?.업종 || '기타',
-        contactName: actualData?.diagnosis?.contactName || actualData?.담당자명 || '담당자',
-        email: actualData?.diagnosis?.email || actualData?.이메일 || ''
+        timestamp: diagnosis?.timestamp || new Date().toISOString(),
+        industry: diagnosis?.industry || diagnosis?.업종 || '기타',
+        contactName: diagnosis?.contactName || diagnosis?.담당자명 || '담당자',
+        email: diagnosis?.email || diagnosis?.이메일 || ''
       });
 
       const generator = new VisualReportGenerator();
@@ -199,12 +225,12 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       const reportData = transformDiagnosisData({
         companyName: companyName,
         totalScore: validTotalScore,
-        categoryScores: actualData?.diagnosis?.categoryScores || actualData?.카테고리점수 || {},
+        categoryScores: diagnosis?.categoryScores || diagnosis?.카테고리점수 || {},
         recommendations: recommendations,
-        timestamp: actualData?.diagnosis?.timestamp || new Date().toISOString(),
-        industry: actualData?.diagnosis?.industry || actualData?.업종 || '기타',
-        contactName: actualData?.diagnosis?.contactName || actualData?.담당자명 || '담당자',
-        email: actualData?.diagnosis?.email || actualData?.이메일 || ''
+        timestamp: diagnosis?.timestamp || new Date().toISOString(),
+        industry: diagnosis?.industry || diagnosis?.업종 || '기타',
+        contactName: diagnosis?.contactName || diagnosis?.담당자명 || '담당자',
+        email: diagnosis?.email || diagnosis?.이메일 || ''
       });
 
       // 이메일 데이터 준비
@@ -217,7 +243,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...actualData, // 전체 데이터를 보내서 이메일 템플릿에서 필요한 부분을 추출
+          ...data, // 전체 데이터를 보내서 이메일 템플릿에서 필요한 부분을 추출
           action: 'submitWithVisualEmail',
           emailData: {
             subject: emailData.subject,
@@ -299,7 +325,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       </Card>
 
       {/* 카테고리별 결과 */}
-      {actualData?.diagnosis?.categoryScores && Object.keys(actualData?.diagnosis?.categoryScores).length > 0 && (
+      {diagnosis?.categoryScores && Object.keys(diagnosis?.categoryScores).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -309,7 +335,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(actualData?.diagnosis?.categoryScores).map(([category, score], index) => (
+              {Object.entries(diagnosis?.categoryScores).map(([category, score], index) => (
                 <div key={index} className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-lg border">
                   <div className="flex items-center gap-2 mb-3">
                     <Star className="w-5 h-5 text-yellow-500" />
