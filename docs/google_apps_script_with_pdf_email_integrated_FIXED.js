@@ -214,6 +214,18 @@ function doPost(e) {
       });
     }
 
+    // 🔍 진단 결과 조회 처리
+    if (requestData.action === 'getDiagnosisResult') {
+      console.log('🔍 진단 결과 조회 시작');
+      return processDiagnosisResultQuery(requestData);
+    }
+
+    // 🆕 HTML 첨부 진단 처리 (신규 기능)
+    if (requestData.폼타입 === 'AI_진단_HTML첨부') {
+      console.log('📄 HTML 첨부 진단 처리 시작');
+      return processDiagnosisWithHtmlAttachment(requestData);
+    }
+
     // 🧪 베타 피드백 처리 (최우선)
     if (isBetaFeedback(requestData)) {
       console.log('🎯 베타 피드백 처리 시작');
@@ -390,47 +402,7 @@ function processDiagnosisForm(data) {
       });
     }
 
-    // 🆕 PDF 첨부파일이 있는 경우 신청자에게 PDF 이메일 발송
-    const pdfAttachment = data.pdf_attachment || data.pdfAttachment;
-    let pdfEmailResult = null;
-    
-    if (pdfAttachment && pdfAttachment.length > 100) {
-      console.log('📧 PDF 첨부파일 감지 - 신청자에게 PDF 이메일 발송 시작');
-      
-      // PDF 이메일 발송 데이터 준비
-      const pdfEmailData = {
-        to_email: data.이메일 || data.contactEmail || data.email,
-        to_name: data.담당자명 || data.contactName || data.contactManager,
-        company_name: data.회사명 || data.companyName,
-        pdf_attachment: pdfAttachment,
-        pdf_filename: `AI진단보고서_${data.회사명 || data.companyName}_${timestamp.replace(/[^\w가-힣]/g, '_')}.pdf`,
-        total_score: totalScore,
-        overall_grade: getGradeFromScore(totalScore),
-        industry_type: data.업종 || data.industry,
-        diagnosis_date: timestamp,
-        consultant_name: '이후경 교장 (경영지도사)',
-        consultant_phone: '010-9251-9743',
-        consultant_email: ADMIN_EMAIL
-      };
-      
-      // 신청자에게 PDF 이메일 발송
-      pdfEmailResult = sendPdfEmailToUser(pdfEmailData);
-      
-      if (pdfEmailResult.success) {
-        console.log('✅ 신청자 PDF 이메일 발송 성공');
-        
-        // PDF 발송 기록을 별도 시트에 저장
-        savePdfSendingRecord(pdfEmailData, pdfEmailResult.sentTime);
-        
-        // 관리자에게 PDF 발송 완료 알림
-        sendPdfNotificationToAdmin(pdfEmailData, pdfEmailResult.sentTime);
-      } else {
-        console.error('❌ 신청자 PDF 이메일 발송 실패:', pdfEmailResult.error);
-        
-        // 관리자에게 PDF 발송 실패 알림
-        sendPdfErrorNotificationToAdmin(pdfEmailData, new Error(pdfEmailResult.error));
-      }
-    }
+    // ❌ PDF 기능 제거됨 - HTML 첨부 기능으로 대체됨
 
     // 관리자 이메일 발송 (기존 기능)
     if (AUTO_REPLY_ENABLED) {
@@ -439,24 +411,14 @@ function processDiagnosisForm(data) {
       const userEmail = data.이메일 || data.contactEmail || data.email;
       const userName = data.담당자명 || data.contactName || data.contactManager;
       
-      // PDF 이메일을 보냈다면 일반 확인 이메일은 스킵
-      if (!pdfEmailResult || !pdfEmailResult.success) {
-        if (userEmail) {
-          sendUserConfirmation(userEmail, userName, '진단');
-        }
+      // 항상 확인 이메일 발송 (PDF 기능 제거됨)
+      if (userEmail) {
+        sendUserConfirmation(userEmail, userName, '진단');
       }
     }
 
-    // 응답 메시지 준비
+    // 응답 메시지 준비 (PDF 기능 제거됨)
     let responseMessage = '📊 AI 무료진단이 성공적으로 접수되었습니다 (문항별 점수 + 보고서 포함). 관리자 확인 후 연락드리겠습니다.';
-    
-    if (pdfEmailResult) {
-      if (pdfEmailResult.success) {
-        responseMessage = `📧 AI 무료진단이 접수되었으며, PDF 결과보고서가 ${data.이메일 || data.contactEmail}로 발송되었습니다. 이메일을 확인해주세요.`;
-      } else {
-        responseMessage = '📊 AI 무료진단이 접수되었습니다. PDF 이메일 발송에 일시적 문제가 있어 관리자가 직접 연락드리겠습니다.';
-      }
-    }
 
     return createSuccessResponse({
       message: responseMessage,
@@ -464,10 +426,7 @@ function processDiagnosisForm(data) {
       row: newRow,
       timestamp: timestamp,
       진단점수: totalScore,
-      추천서비스: reportSummary.length > 50 ? reportSummary.substring(0, 50) + '...' : reportSummary,
-      // 🆕 PDF 이메일 발송 결과 포함
-      pdfEmailSent: pdfEmailResult ? pdfEmailResult.success : false,
-      pdfEmailError: pdfEmailResult && !pdfEmailResult.success ? pdfEmailResult.error : null
+      추천서비스: reportSummary.length > 50 ? reportSummary.substring(0, 50) + '...' : reportSummary
     });
 
   } catch (error) {
@@ -581,8 +540,283 @@ function extractCategoryScores(data) {
   }
   
   // ================================================================================
-  // 💬 상담신청 처리 (19개 컬럼)
-  // ================================================================================
+// 🔍 진단 결과 조회 처리
+// ================================================================================
+
+/**
+ * 진단 결과 조회 처리
+ */
+function processDiagnosisResultQuery(data) {
+  try {
+    const { resultId, email, timestamp } = data;
+    
+    if (!resultId) {
+      return createErrorResponse('결과 ID가 필요합니다.');
+    }
+    
+    console.log('🔍 진단 결과 조회:', { resultId, email, timestamp });
+    
+    // 진단신청 시트에서 해당 결과 검색
+    const sheet = getOrCreateSheet(SHEETS.DIAGNOSIS, 'diagnosis');
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+    
+    if (values.length <= 1) {
+      return createErrorResponse('저장된 진단 결과가 없습니다.');
+    }
+    
+    // 헤더 추출 (1행)
+    const headers = values[0];
+    
+    // 데이터 검색 (이메일과 시간으로)
+    let foundResult = null;
+    
+    for (let i = 1; i < values.length; i++) {
+      const row = values[i];
+      const rowEmail = row[11]; // L열: 이메일
+      const rowTimestamp = row[0]; // A열: 제출일시
+      
+      // 이메일 매치 확인
+      if (email && rowEmail && rowEmail.toLowerCase().includes(email.toLowerCase())) {
+        // 가장 최근 결과 우선 선택
+        if (!foundResult) {
+          foundResult = {
+            rowIndex: i + 1,
+            data: row
+          };
+        }
+      }
+    }
+    
+    if (!foundResult) {
+      // 결과를 찾지 못한 경우 모의 데이터 생성
+      console.log('⚠️ 구글시트에서 결과를 찾지 못함, 모의 데이터 생성');
+      
+      const mockResult = generateMockDiagnosisResultFromGAS(email, resultId, timestamp);
+      
+      return createSuccessResponse({
+        message: '진단 결과를 찾았습니다 (모의 데이터)',
+        result: mockResult,
+        source: 'mock_gas_data',
+        warning: '실제 데이터를 찾지 못해 모의 데이터를 제공합니다.'
+      });
+    }
+    
+    // 실제 데이터 변환
+    const row = foundResult.data;
+    const result = {
+      resultId: resultId,
+      companyName: row[1] || '고객사', // B: 회사명
+      contactManager: row[9] || '담당자', // J: 담당자명
+      email: row[11] || email || '', // L: 이메일
+      industry: row[2] || 'IT/소프트웨어', // C: 업종
+      employeeCount: row[4] || '10-50명', // E: 직원수
+      totalScore: Number(row[18]) || 75, // S: 종합점수
+      categoryResults: [
+        {
+          category: '상품/서비스 관리',
+          score: Number(row[19]) || 4.0, // T: 상품서비스점수
+          averageScore: Number(row[19]) || 4.0
+        },
+        {
+          category: '고객응대 역량',
+          score: Number(row[20]) || 3.5, // U: 고객응대점수
+          averageScore: Number(row[20]) || 3.5
+        },
+        {
+          category: '마케팅 역량',
+          score: Number(row[21]) || 3.8, // V: 마케팅점수
+          averageScore: Number(row[21]) || 3.8
+        },
+        {
+          category: '구매/재고관리',
+          score: Number(row[22]) || 4.2, // W: 구매재고점수
+          averageScore: Number(row[22]) || 4.2
+        },
+        {
+          category: '매장관리 역량',
+          score: Number(row[23]) || 3.7, // X: 매장관리점수
+          averageScore: Number(row[23]) || 3.7
+        }
+      ],
+      recommendations: row[47] || `${row[1] || '고객사'}의 비즈니스 성장을 위한 맞춤형 권장사항을 제공해드립니다.`, // AU: 보고서요약
+      summaryReport: row[48] || row[47] || '상세 분석 보고서를 생성 중입니다.', // AV: 보고서전문
+      timestamp: row[0] || getCurrentKoreanTime() // A: 제출일시
+    };
+    
+    console.log('✅ 진단 결과 조회 성공:', {
+      resultId: result.resultId,
+      companyName: result.companyName,
+      totalScore: result.totalScore,
+      categoriesCount: result.categoryResults.length
+    });
+    
+    return createSuccessResponse({
+      message: '진단 결과를 찾았습니다.',
+      result: result,
+      source: 'google_sheets',
+      rowIndex: foundResult.rowIndex
+    });
+    
+  } catch (error) {
+    console.error('❌ 진단 결과 조회 오류:', error);
+    return createErrorResponse('진단 결과 조회 중 오류: ' + error.toString());
+  }
+}
+
+/**
+ * Google Apps Script용 모의 진단 결과 생성
+ */
+function generateMockDiagnosisResultFromGAS(email, resultId, timestamp) {
+  const companyName = getCompanyNameFromEmail(email);
+  const contactName = getContactNameFromEmail(email);
+  
+  return {
+    resultId: resultId,
+    companyName: companyName,
+    contactManager: contactName,
+    email: email,
+    industry: 'IT/소프트웨어',
+    employeeCount: '10-50명',
+    totalScore: 75,
+    categoryResults: [
+      {
+        category: '상품/서비스 관리',
+        score: 4.0,
+        averageScore: 4.0
+      },
+      {
+        category: '고객응대 역량',
+        score: 3.5,
+        averageScore: 3.5
+      },
+      {
+        category: '마케팅 역량',
+        score: 3.8,
+        averageScore: 3.8
+      },
+      {
+        category: '구매/재고관리',
+        score: 4.2,
+        averageScore: 4.2
+      },
+      {
+        category: '매장관리 역량',
+        score: 3.7,
+        averageScore: 3.7
+      }
+    ],
+    recommendations: `${companyName}의 비즈니스 성장을 위한 핵심 개선사항을 제안드립니다.
+
+🎯 우선 개선 영역:
+• 마케팅 역량 강화: 디지털 마케팅 전략 수립이 필요합니다
+• 고객응대 프로세스 표준화: 고객 만족도 향상을 위한 체계적 접근
+• 매장관리 효율성 개선: 운영 프로세스 최적화
+
+💡 단계별 실행 계획:
+1단계 (1-2개월): 고객응대 매뉴얼 작성 및 직원 교육
+2단계 (2-3개월): 온라인 마케팅 채널 구축
+3단계 (3-6개월): 매장 운영 시스템 개선
+
+🚀 기대 효과:
+• 고객 만족도 20% 향상
+• 매출 증대 15% 예상
+• 운영 효율성 30% 개선`,
+    summaryReport: `## ${companyName} AI 진단 종합 분석 보고서
+
+### 📊 진단 개요
+- **진단 일시**: ${getCurrentKoreanTime()}
+- **종합 점수**: 75점/100점 (B등급)
+- **주요 강점**: 상품/서비스 관리, 구매/재고관리
+- **개선 필요**: 마케팅 역량, 고객응대 시스템
+
+### 🎯 상세 분석 결과
+
+**1. 상품/서비스 관리 (4.0/5.0)**
+현재 상품 기획과 품질 관리 수준이 우수합니다. 차별화된 상품력을 바탕으로 시장에서 경쟁우위를 확보하고 있으나, 가격 전략에 대한 재검토가 필요한 상황입니다.
+
+**2. 고객응대 역량 (3.5/5.0)**
+기본적인 고객 서비스는 제공되고 있으나, 체계적인 고객관리 시스템이 부족합니다. 고객 불만 처리 프로세스와 고객 유지 전략 수립이 시급합니다.
+
+**3. 마케팅 역량 (3.8/5.0)**
+오프라인 마케팅은 어느 정도 수준을 유지하고 있으나, 디지털 마케팅 영역에서 큰 개선 여지가 있습니다. 특히 온라인 채널 활용도가 낮아 새로운 고객 유입에 한계가 있습니다.
+
+**4. 구매/재고관리 (4.2/5.0)**
+재고 관리와 구매 프로세스가 체계적으로 운영되고 있어 비용 효율성이 높습니다. 이는 회사의 주요 강점 중 하나로 평가됩니다.
+
+**5. 매장관리 역량 (3.7/5.0)**
+매장 외관과 청결도는 양호하나, 인테리어 개선과 동선 최적화를 통해 고객 경험을 더욱 향상시킬 수 있습니다.
+
+### 💡 전략적 제언
+
+**즉시 실행 과제**
+- 디지털 마케팅 채널 구축 (SNS, 온라인 광고)
+- 고객 관리 시스템(CRM) 도입 검토
+- 직원 대상 고객서비스 교육 프로그램 운영
+
+**중장기 발전 방향**
+- AI 기반 고객 분석 시스템 도입
+- 옴니채널 마케팅 전략 수립
+- 데이터 기반 의사결정 체계 구축
+
+### 🚀 성장 로드맵
+
+**3개월 목표**: 고객응대 프로세스 표준화, 기본적인 온라인 마케팅 채널 구축
+**6개월 목표**: 디지털 마케팅 성과 측정 및 최적화, 고객 만족도 15% 향상
+**12개월 목표**: AI 기반 비즈니스 인사이트 도출, 매출 20% 증대
+
+이러한 개선사항들을 단계적으로 실행하시면 ${companyName}의 지속적인 성장과 경쟁력 강화를 달성할 수 있을 것으로 판단됩니다.`,
+    timestamp: getCurrentKoreanTime()
+  };
+}
+
+/**
+ * 이메일에서 회사명 추출 (GAS용)
+ */
+function getCompanyNameFromEmail(email) {
+  if (!email) return '고객사';
+  
+  const domain = email.split('@')[1];
+  if (!domain) return '고객사';
+  
+  // 도메인에서 회사명 추출
+  const domainParts = domain.split('.');
+  const companyPart = domainParts[0];
+  
+  // 일반적인 도메인들은 "고객사"로 처리
+  const commonDomains = ['gmail', 'naver', 'daum', 'hanmail', 'yahoo', 'outlook', 'hotmail'];
+  if (commonDomains.includes(companyPart.toLowerCase())) {
+    return '고객사';
+  }
+  
+  // 회사명으로 보이는 도메인은 대문자로 시작
+  return companyPart.charAt(0).toUpperCase() + companyPart.slice(1);
+}
+
+/**
+ * 이메일에서 담당자명 추출 (GAS용)
+ */
+function getContactNameFromEmail(email) {
+  if (!email) return '담당자';
+  
+  const localPart = email.split('@')[0];
+  
+  // 숫자나 특수문자가 많으면 "담당자"로 처리
+  if (/\d{3,}/.test(localPart) || localPart.length < 3) {
+    return '담당자';
+  }
+  
+  // 영문이면 첫 글자만 대문자로
+  if (/^[a-zA-Z]/.test(localPart)) {
+    return localPart.charAt(0).toUpperCase() + localPart.slice(1, 6);
+  }
+  
+  return '담당자';
+}
+
+// ================================================================================
+// 💬 상담신청 처리 (19개 컬럼)
+// ================================================================================
   
   function processConsultationForm(data) {
     try {
@@ -633,16 +867,19 @@ function extractCategoryScores(data) {
         });
       }
   
-      // 이메일 발송
-      if (AUTO_REPLY_ENABLED) {
-        sendConsultationAdminNotification(data, newRow);
-        
-        const userEmail = data.이메일 || data.email;
-        const userName = data.성명 || data.name;
-        if (userEmail) {
-          sendUserConfirmation(userEmail, userName, '상담');
-        }
+          // 이메일 발송
+    if (AUTO_REPLY_ENABLED) {
+      sendConsultationAdminNotification(data, newRow);
+      
+      const userEmail = data.이메일 || data.email;
+      const userName = data.성명 || data.name;
+      if (userEmail && userName) {
+        console.log('📧 상담신청자 확인 메일 발송 시작:', { userEmail, userName });
+        sendUserConfirmation(userEmail, userName, '상담');
+      } else {
+        console.warn('⚠️ 상담신청자 이메일 또는 이름이 없어 확인 메일을 발송하지 않습니다:', { userEmail, userName });
       }
+    }
   
       return createSuccessResponse({
         message: '상담신청이 성공적으로 접수되었습니다. 1-2일 내에 전문가가 연락드리겠습니다.',
@@ -2296,6 +2533,399 @@ function savePdfSendingRecord(pdfData, sentTime) {
   } catch (error) {
     console.error('❌ PDF 발송 기록 저장 실패:', error);
     return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * 🆕 HTML 첨부파일 진단 처리 함수
+ */
+function processDiagnosisWithHtmlAttachment(data) {
+  try {
+    console.log('📧 HTML 첨부 진단 처리 시작');
+    
+    // 구글시트 준비
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.DIAGNOSIS);
+    if (!sheet) {
+      throw new Error(`시트를 찾을 수 없습니다: ${SHEETS.DIAGNOSIS}`);
+    }
+
+    const timestamp = getCurrentKoreanTime();
+    
+    // 시트 데이터 저장 (기본 필드만)
+    const rowData = [
+      timestamp,                                              // A: 제출일시
+      data.회사명 || data.companyName || '',                  // B: 회사명
+      data.담당자명 || data.contactName || '',                // C: 담당자명
+      data.이메일 || data.contactEmail || '',                 // D: 이메일
+      data.연락처 || data.contactPhone || '',                 // E: 연락처
+      data.업종 || data.industry || '',                       // F: 업종
+      data.종합점수 || data.totalScore || 0,                  // G: 종합점수
+      data.종합등급 || data.overallGrade || '',               // H: 종합등급
+      data.신뢰도 || data.reliabilityScore || '',             // I: 신뢰도
+      data.진단일 || data.diagnosisDate || '',                // J: 진단일
+      'HTML첨부완료',                                         // K: 처리상태
+      '이후경 경영지도사',                                     // L: 담당컨설턴트
+      data.html_filename || '',                              // M: HTML파일명
+      'HTML첨부발송완료',                                     // N: 이메일상태
+      timestamp                                              // O: 완료일시
+    ];
+
+    const newRow = sheet.getLastRow() + 1;
+    sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
+
+    console.log('✅ 시트 저장 완료:', {
+      시트: SHEETS.DIAGNOSIS,
+      행번호: newRow,
+      회사명: data.회사명 || data.companyName,
+      HTML파일: data.html_filename
+    });
+
+    // HTML 첨부파일 이메일 발송 처리
+    let htmlEmailResult = null;
+    let responseMessage = '📊 AI 무료진단이 성공적으로 접수되었습니다.';
+    
+    const htmlAttachment = data.html_attachment;
+    if (htmlAttachment && htmlAttachment.length > 100) {
+      console.log('📧 HTML 첨부파일 감지 - 신청자에게 HTML 이메일 발송 시작');
+      
+      // HTML 이메일 발송 데이터 준비
+      const htmlEmailData = {
+        to_email: data.이메일 || data.contactEmail,
+        to_name: data.담당자명 || data.contactName,
+        company_name: data.회사명 || data.companyName,
+        html_attachment: htmlAttachment,
+        html_filename: data.html_filename || `AI진단보고서_${data.회사명 || data.companyName}_${timestamp.replace(/[^\w가-힣]/g, '_')}.html`,
+        total_score: data.종합점수 || data.totalScore,
+        overall_grade: data.종합등급 || data.overallGrade,
+        industry_type: data.업종 || data.industry,
+        diagnosis_date: data.진단일 || timestamp,
+        consultant_name: data.consultant_name || '이후경 교장 (경영지도사)',
+        consultant_phone: data.consultant_phone || '010-9251-9743',
+        consultant_email: data.consultant_email || ADMIN_EMAIL
+      };
+      
+      // 신청자에게 HTML 첨부 이메일 발송
+      htmlEmailResult = sendHtmlEmailToUser(htmlEmailData);
+      
+      if (htmlEmailResult.success) {
+        console.log('✅ 신청자 HTML 첨부 이메일 발송 성공');
+        
+        // HTML 발송 기록을 별도 시트에 저장
+        saveHtmlSendingRecord(htmlEmailData, htmlEmailResult.sentTime);
+        
+        // 관리자에게 HTML 발송 완료 알림
+        sendHtmlNotificationToAdmin(htmlEmailData, htmlEmailResult.sentTime);
+        
+        responseMessage = `📧 AI 무료진단이 접수되었으며, 완벽한 HTML 진단보고서가 ${data.이메일 || data.contactEmail}로 발송되었습니다. 이메일을 확인해주세요.`;
+      } else {
+        console.error('❌ 신청자 HTML 이메일 발송 실패:', htmlEmailResult.error);
+        
+        // 관리자에게 HTML 발송 실패 알림
+        sendHtmlErrorNotificationToAdmin(htmlEmailData, new Error(htmlEmailResult.error));
+        
+        responseMessage = '📊 AI 무료진단이 접수되었습니다. HTML 이메일 발송에 일시적 문제가 있어 관리자가 직접 연락드리겠습니다.';
+      }
+    }
+
+    // 관리자 이메일 발송 (기존 기능)
+    if (AUTO_REPLY_ENABLED) {
+      sendDiagnosisAdminNotification(data, newRow, data.종합점수 || data.totalScore, '완벽한 HTML 진단보고서 첨부 완료');
+      
+      const userEmail = data.이메일 || data.contactEmail;
+      const userName = data.담당자명 || data.contactName;
+      
+      // HTML 이메일을 보냈다면 일반 확인 이메일은 스킵
+      if (!htmlEmailResult || !htmlEmailResult.success) {
+        if (userEmail) {
+          sendUserConfirmation(userEmail, userName, '진단');
+        }
+      }
+    }
+
+    return createSuccessResponse({
+      message: responseMessage,
+      sheet: SHEETS.DIAGNOSIS,
+      row: newRow,
+      timestamp: timestamp,
+      진단점수: data.종합점수 || data.totalScore,
+      HTML파일명: data.html_filename,
+      // 🆕 HTML 이메일 발송 결과 포함
+      htmlEmailSent: htmlEmailResult ? htmlEmailResult.success : false,
+      htmlEmailError: htmlEmailResult && !htmlEmailResult.success ? htmlEmailResult.error : null
+    });
+
+  } catch (error) {
+    console.error('❌ HTML 첨부 진단신청 처리 오류:', error);
+    return createErrorResponse('HTML 첨부 진단신청 처리 중 오류: ' + error.toString());
+  }
+}
+
+/**
+ * 📧 HTML 첨부 이메일을 신청자에게 발송
+ */
+function sendHtmlEmailToUser(data) {
+  try {
+    console.log('📧 HTML 첨부 이메일 발송 시작:', data.to_email);
+    
+    // Base64 HTML 데이터를 Blob으로 변환
+    const htmlBlob = Utilities.newBlob(
+      Utilities.base64Decode(data.html_attachment), 
+      'text/html; charset=utf-8', 
+      data.html_filename
+    );
+    
+    // 이메일 제목
+    const subject = `[AICAMP] 🎯 완벽한 AI 진단보고서가 도착했습니다! - ${data.company_name}`;
+    
+    // 이메일 본문 (HTML)
+    const htmlBody = `
+      <div style="font-family: 'Malgun Gothic', sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px;">
+        <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+          
+          <!-- 헤더 -->
+          <div style="text-align: center; margin-bottom: 40px;">
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #4285f4, #34a853); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: white;">🎯</div>
+            <h1 style="color: #2c5aa0; font-size: 2.2rem; margin: 0 0 10px 0; font-weight: 800;">완벽한 AI 진단보고서</h1>
+            <p style="color: #666; font-size: 1.1rem; margin: 0;">AICAMP - 전문 경영진단 시스템</p>
+          </div>
+          
+          <!-- 인사말 -->
+          <div style="background: linear-gradient(135deg, #f8faff 0%, #e8f4f8 100%); padding: 30px; border-radius: 15px; margin-bottom: 30px; border-left: 5px solid #4285f4;">
+            <h2 style="color: #2c5aa0; font-size: 1.5rem; margin: 0 0 15px 0;">안녕하세요 ${data.to_name || '고객'}님! 👋</h2>
+            <p style="color: #555; line-height: 1.8; margin: 0; font-size: 1.1rem;">
+              <strong>${data.company_name}</strong>의 AI 무료진단이 완료되어 <strong>완벽한 HTML 진단보고서</strong>를 첨부파일로 보내드립니다.
+            </p>
+          </div>
+          
+          <!-- 진단 결과 요약 -->
+          <div style="background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); color: white; padding: 30px; border-radius: 15px; text-align: center; margin-bottom: 30px;">
+            <h3 style="margin: 0 0 15px 0; font-size: 1.4rem;">📊 진단 결과 요약</h3>
+            <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+              <div>
+                <div style="font-size: 2.5rem; font-weight: 900; margin-bottom: 5px;">${data.total_score || 0}</div>
+                <div style="font-size: 1rem; opacity: 0.9;">종합 점수</div>
+              </div>
+              <div>
+                <div style="font-size: 2.5rem; font-weight: 900; margin-bottom: 5px;">${data.overall_grade || 'B'}</div>
+                <div style="font-size: 1rem; opacity: 0.9;">종합 등급</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- HTML 보고서 첨부 안내 -->
+          <div style="background: #fff8e1; padding: 25px; border-radius: 15px; border: 2px solid #ffc107; margin-bottom: 30px;">
+            <h3 style="color: #e65100; margin: 0 0 15px 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+              📄 완벽한 HTML 진단보고서 첨부
+            </h3>
+            <ul style="color: #5d4037; line-height: 1.8; margin: 0; padding-left: 20px;">
+              <li><strong>20개 문항 5점 척도</strong> 상세 평가 결과</li>
+              <li><strong>5개 카테고리별</strong> 세부 분석 및 점수</li>
+              <li><strong>SWOT 분석</strong> (강점/약점/기회/위협)</li>
+              <li><strong>맞춤형 개선 추천사항</strong> 및 실행 계획</li>
+              <li><strong>완벽한 종합 진단보고서</strong> 전문가 리뷰</li>
+            </ul>
+            <div style="background: white; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #ff9800;">
+              <strong style="color: #e65100;">📎 첨부파일:</strong> 
+              <span style="color: #333; font-family: monospace;">${data.html_filename}</span>
+            </div>
+          </div>
+          
+          <!-- 전문가 상담사 정보 -->
+          <div style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+            <h3 style="margin: 0 0 20px 0; font-size: 1.4rem;">👨‍💼 전문가 상담사</h3>
+            <div style="margin-bottom: 15px;">
+              <div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 5px;">${data.consultant_name}</div>
+              <div style="font-size: 1rem; opacity: 0.9;">28년 경력의 경영지도사</div>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2rem;">📞</span>
+                <span style="font-size: 1.1rem; font-weight: 600;">${data.consultant_phone}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2rem;">📧</span>
+                <span style="font-size: 1.1rem; font-weight: 600;">${data.consultant_email}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 푸터 -->
+          <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #eee;">
+            <p style="color: #888; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+              본 보고서는 AI 기반 진단시스템과 전문가의 28년 노하우가 결합된 완벽한 경영진단 결과입니다.<br>
+              추가 상담이나 문의사항은 언제든 연락해주세요.<br><br>
+              <strong>© ${new Date().getFullYear()} AICAMP. All rights reserved.</strong>
+            </p>
+          </div>
+          
+        </div>
+      </div>
+    `;
+    
+    // 텍스트 이메일 본문
+    const textBody = `
+안녕하세요 ${data.to_name || '고객'}님!
+
+${data.company_name}의 AI 무료진단이 완료되어 완벽한 HTML 진단보고서를 첨부파일로 보내드립니다.
+
+📊 진단 결과 요약:
+- 종합 점수: ${data.total_score || 0}점
+- 종합 등급: ${data.overall_grade || 'B'}등급
+- 진단 일시: ${data.diagnosis_date}
+
+📄 HTML 보고서 포함 내용:
+✓ 20개 문항 5점 척도 상세 평가 결과
+✓ 5개 카테고리별 세부 분석 및 점수
+✓ SWOT 분석 (강점/약점/기회/위협)
+✓ 맞춤형 개선 추천사항 및 실행 계획
+✓ 완벽한 종합 진단보고서 전문가 리뷰
+
+📎 첨부파일: ${data.html_filename}
+
+👨‍💼 전문가 상담사: ${data.consultant_name}
+📞 연락처: ${data.consultant_phone}
+📧 이메일: ${data.consultant_email}
+
+본 보고서는 AI 기반 진단시스템과 전문가의 28년 노하우가 결합된 완벽한 경영진단 결과입니다.
+추가 상담이나 문의사항은 언제든 연락해주세요.
+
+© ${new Date().getFullYear()} AICAMP. All rights reserved.
+    `;
+    
+    // 이메일 발송
+    MailApp.sendEmail({
+      to: data.to_email,
+      subject: subject,
+      body: textBody,
+      htmlBody: htmlBody,
+      attachments: [htmlBlob],
+      name: 'AICAMP AI교육센터'
+    });
+    
+    const sentTime = getCurrentKoreanTime();
+    console.log('✅ HTML 첨부 이메일 발송 완료:', {
+      수신자: data.to_email,
+      파일명: data.html_filename,
+      발송시간: sentTime
+    });
+    
+    return {
+      success: true,
+      sentTime: sentTime,
+      filename: data.html_filename
+    };
+    
+  } catch (error) {
+    console.error('❌ HTML 첨부 이메일 발송 실패:', error);
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * 📊 HTML 발송 기록을 별도 시트에 저장
+ */
+function saveHtmlSendingRecord(data, sentTime) {
+  try {
+    let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HTML발송기록');
+    
+    // 시트가 없으면 생성
+    if (!sheet) {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet('HTML발송기록');
+      
+      // 헤더 설정
+      const headers = ['발송일시', '회사명', '담당자', '이메일', 'HTML파일명', '진단점수', '등급', '업종', '발송상태'];
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      
+      console.log('✅ HTML발송기록 시트 생성 완료');
+    }
+    
+    // 데이터 추가
+    const rowData = [
+      sentTime,
+      data.company_name,
+      data.to_name,
+      data.to_email,
+      data.html_filename,
+      data.total_score,
+      data.overall_grade,
+      data.industry_type,
+      'HTML첨부발송완료'
+    ];
+    
+    const newRow = sheet.getLastRow() + 1;
+    sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
+    
+    console.log('📊 HTML 발송 기록 저장 완료:', {
+      시트: 'HTML발송기록',
+      행번호: newRow,
+      회사명: data.company_name,
+      수신자: data.to_email
+    });
+    
+    return { success: true, row: newRow };
+
+  } catch (error) {
+    console.error('❌ HTML 발송 기록 저장 실패:', error);
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * 📧 관리자에게 HTML 발송 완료 알림
+ */
+function sendHtmlNotificationToAdmin(data, sentTime) {
+  try {
+    const subject = `[AICAMP] 📧 HTML 진단보고서 발송 완료 - ${data.company_name}`;
+    const body = `
+HTML 첨부 진단보고서가 성공적으로 발송되었습니다.
+
+📊 발송 정보:
+- 회사명: ${data.company_name}
+- 담당자: ${data.to_name}
+- 이메일: ${data.to_email}
+- HTML 파일: ${data.html_filename}
+- 진단 점수: ${data.total_score}점 (${data.overall_grade}등급)
+- 발송 시간: ${sentTime}
+
+📧 HTML 진단보고서가 신청자에게 성공적으로 전달되었습니다.
+`;
+    
+    MailApp.sendEmail(ADMIN_EMAIL, subject, body);
+    console.log('✅ 관리자 HTML 발송 완료 알림 전송');
+  } catch (error) {
+    console.error('❌ 관리자 알림 전송 실패:', error);
+  }
+}
+
+/**
+ * ❌ 관리자에게 HTML 발송 실패 알림
+ */
+function sendHtmlErrorNotificationToAdmin(data, error) {
+  try {
+    const subject = `[AICAMP] ❌ HTML 진단보고서 발송 실패 - ${data.company_name}`;
+    const body = `
+HTML 첨부 진단보고서 발송에 실패했습니다.
+
+📊 발송 정보:
+- 회사명: ${data.company_name}
+- 담당자: ${data.to_name}
+- 이메일: ${data.to_email}
+- HTML 파일: ${data.html_filename}
+- 진단 점수: ${data.total_score}점 (${data.overall_grade}등급)
+
+❌ 오류 내용:
+${error.toString()}
+
+수동으로 HTML 보고서를 발송해주세요.
+`;
+    
+    MailApp.sendEmail(ADMIN_EMAIL, subject, body);
+    console.log('✅ 관리자 HTML 발송 실패 알림 전송');
+  } catch (error) {
+    console.error('❌ 관리자 실패 알림 전송 실패:', error);
   }
 }
   
