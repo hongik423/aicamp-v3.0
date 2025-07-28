@@ -59,8 +59,8 @@ const advancedDiagnosisFormSchema = z.object({
   employeeCount: z.string().min(1, '직원수를 선택해주세요'),
   
   // 추가 정보 (주요 고민사항, 예상 혜택)
-  mainConcerns: z.string().min(10, '주요 고민사항을 10자 이상 입력해주세요'),
-  expectedBenefits: z.string().min(10, '예상 혜택을 10자 이상 입력해주세요'),
+  mainConcerns: z.string().min(4, '주요 고민사항을 4자 이상 입력해주세요'),
+  expectedBenefits: z.string().min(4, '예상 혜택을 4자 이상 입력해주세요'),
   
   // 🔶 상품/서비스 관리 역량 (5개, 가중치 25%)
   planning_level: z.number().min(1).max(5).nullable(),
@@ -445,10 +445,61 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       
     } catch (error) {
       console.error('❌ 고급 진단 처리 오류:', error);
+      let errorTitle = "진단 처리 중 오류가 발생했습니다";
+      let errorDescription = "잠시 후 다시 시도해주시거나 전문가 상담을 신청해주세요.";
+      
+      // 구체적인 오류 메시지 제공
+      if (error instanceof Error) {
+        if (error.message.includes('validation') || error.message.includes('required')) {
+          errorTitle = "📝 필수 정보를 확인해 주세요";
+          
+          // 누락된 필수 항목을 구체적으로 안내
+          const missingFields = [];
+          const formValues = form.getValues();
+          
+          if (!formValues.companyName?.trim()) missingFields.push("회사명");
+          if (!formValues.industry?.trim()) missingFields.push("업종");
+          if (!formValues.contactManager?.trim()) missingFields.push("담당자명");
+          if (!formValues.phone?.trim()) missingFields.push("연락처");
+          if (!formValues.email?.trim()) missingFields.push("이메일");
+          if (!formValues.employeeCount?.trim()) missingFields.push("직원수");
+          if (!formValues.mainConcerns || formValues.mainConcerns.length < 4) missingFields.push("주요 고민사항 (4자 이상)");
+          if (!formValues.expectedBenefits || formValues.expectedBenefits.length < 4) missingFields.push("예상 혜택 (4자 이상)");
+          if (!formValues.privacyConsent) missingFields.push("개인정보 동의");
+          
+          // 평가 점수 확인
+          const evaluationFields = [
+            'planning_level', 'differentiation_level', 'pricing_level', 'expertise_level', 'quality_level',
+            'customer_greeting', 'customer_service', 'complaint_management', 'customer_retention',
+            'customer_understanding', 'marketing_planning', 'offline_marketing', 'online_marketing', 'sales_strategy',
+            'purchase_management', 'inventory_management',
+            'exterior_management', 'interior_management', 'cleanliness', 'work_flow'
+          ];
+          
+          const missingEvaluations = evaluationFields.filter(field => 
+            !formValues[field as keyof AdvancedDiagnosisFormData]
+          );
+          
+          if (missingEvaluations.length > 0) {
+            missingFields.push(`평가 항목 ${missingEvaluations.length}개`);
+          }
+          
+          if (missingFields.length > 0) {
+            errorDescription = `다음 항목을 입력해 주세요: ${missingFields.join(", ")}`;
+          } else {
+            errorDescription = "모든 필수 항목을 입력하고 평가를 완료해주세요.";
+          }
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorTitle = "🔄 네트워크 오류";
+          errorDescription = "인터넷 연결을 확인하고 다시 시도해주세요.";
+        }
+      }
+      
       toast({
-        title: "진단 처리 중 오류가 발생했습니다",
-        description: "잠시 후 다시 시도해주시거나 전문가 상담을 신청해주세요.",
-        variant: "destructive"
+        title: errorTitle,
+        description: errorDescription,
+        variant: "destructive",
+        duration: 7000,
       });
     } finally {
       setIsSubmitting(false);
@@ -462,10 +513,34 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         setCompletedSteps(prev => [...prev.filter(s => s !== currentStep), currentStep]);
         setCurrentStep(currentStep + 1);
       } else {
+        // 단계별 구체적인 오류 메시지
+        let stepErrorMessage = "현재 단계의 모든 필수 정보를 입력한 후 다음 단계로 진행할 수 있습니다.";
+        
+        if (currentStep === 1) {
+          const formValues = form.getValues();
+          const missingFields = [];
+          
+          if (!formValues.companyName?.trim()) missingFields.push("회사명");
+          if (!formValues.industry?.trim()) missingFields.push("업종");
+          if (!formValues.contactManager?.trim()) missingFields.push("담당자명");
+          if (!formValues.phone?.trim()) missingFields.push("연락처");
+          if (!formValues.email?.trim()) missingFields.push("이메일");
+          if (!formValues.employeeCount?.trim()) missingFields.push("직원수");
+          if (!formValues.mainConcerns || formValues.mainConcerns.length < 4) missingFields.push("주요 고민사항 (4자 이상)");
+          if (!formValues.expectedBenefits || formValues.expectedBenefits.length < 4) missingFields.push("예상 혜택 (4자 이상)");
+          
+          if (missingFields.length > 0) {
+            stepErrorMessage = `다음 기본정보를 입력해 주세요: ${missingFields.join(", ")}`;
+          }
+        } else if (currentStep >= 2 && currentStep <= 6) {
+          stepErrorMessage = "현재 단계의 모든 평가 항목을 선택해주세요 (1점~5점 척도).";
+        }
+        
         toast({
-          title: "필수 정보를 입력해주세요",
-          description: "현재 단계의 모든 필수 정보를 입력한 후 다음 단계로 진행할 수 있습니다.",
-          variant: "destructive"
+          title: "📝 필수 정보를 입력해주세요",
+          description: stepErrorMessage,
+          variant: "destructive",
+          duration: 5000,
         });
       }
     }

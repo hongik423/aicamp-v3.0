@@ -172,6 +172,119 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   const [pdfEmailStatus, setPdfEmailStatus] = useState<'sending' | 'success' | 'failed' | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
+  // 🆕 로컬 폴더에 PDF 저장 함수
+  const saveReportToLocalFolder = async (pdfBase64: string, companyName: string) => {
+    try {
+      console.log('💾 로컬 저장 시작:', companyName);
+
+      // Base64를 Blob으로 변환
+      const binaryString = atob(pdfBase64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const pdfBlob = new Blob([bytes], { type: 'application/pdf' });
+
+      // 파일명 생성 (특수문자 제거)
+      const safeCompanyName = companyName.replace(/[<>:"/\\|?*]/g, '_');
+      const fileName = `${safeCompanyName}_AI무료진단보고서_${new Date().toISOString().split('T')[0]}.pdf`;
+
+      // 1차 시도: 서버사이드 저장 (지정된 경로에 직접 저장)
+      try {
+        console.log('🖥️ 서버사이드 저장 시도');
+        const serverSaveResult = await saveToSpecificPath(pdfBase64, safeCompanyName);
+        if (serverSaveResult.success) {
+          console.log('✅ 서버사이드 로컬 저장 성공:', serverSaveResult.path);
+          toast({
+            title: "💾 PDF 보고서 저장 완료!",
+            description: `${fileName} 파일이 C:\\VS_Code_202410\\aicamp_v3.0\\report 폴더에 저장되었습니다.`,
+            duration: 8000,
+          });
+          return;
+        }
+      } catch (serverError) {
+        console.warn('⚠️ 서버사이드 저장 실패:', serverError);
+      }
+
+      // 2차 시도: File System Access API (Chrome 86+)
+      if ('showDirectoryPicker' in window) {
+        try {
+          console.log('📁 File System Access API 사용');
+          const dirHandle = await (window as any).showDirectoryPicker({
+            suggestedName: 'report',
+            mode: 'readwrite'
+          });
+          
+          const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(pdfBlob);
+          await writable.close();
+          
+          console.log('✅ File System Access API 저장 완료:', fileName);
+          toast({
+            title: "💾 PDF 보고서 저장 완료!",
+            description: `${fileName} 파일이 선택한 폴더에 저장되었습니다.`,
+            duration: 8000,
+          });
+          return;
+        } catch (fsError) {
+          console.warn('⚠️ File System Access API 실패:', fsError);
+        }
+      }
+
+      // 3차 시도: 자동 다운로드 (기본 다운로드 폴더)
+      console.log('📥 자동 다운로드 모드');
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log('✅ 자동 다운로드 완료:', fileName);
+      
+      // 사용자에게 안내 메시지
+      toast({
+        title: "💾 PDF 보고서 다운로드 완료!",
+        description: `${fileName} 파일이 다운로드되었습니다. 다운로드 폴더에서 확인 후 C:\\VS_Code_202410\\aicamp_v3.0\\report 폴더로 이동해주세요.`,
+        duration: 10000,
+      });
+
+    } catch (error) {
+      console.error('❌ 로컬 저장 실패:', error);
+      throw error;
+    }
+  };
+
+  // 🆕 서버사이드 저장 함수
+  const saveToSpecificPath = async (pdfBase64: string, companyName: string) => {
+    try {
+      const response = await fetch('/api/save-pdf-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pdfBase64: pdfBase64,
+          companyName: companyName,
+          targetPath: 'C:\\VS_Code_202410\\aicamp_v3.0\\report'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`서버 저장 실패: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.warn('⚠️ 서버사이드 저장 실패:', error);
+      return { success: false, error: error };
+    }
+  };
+
   // 🔧 **React Hook을 최상단으로 이동하여 조건부 호출 방지**
   const handlePrint = useReactToPrint({
     contentRef: printRef,
@@ -445,13 +558,60 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
+      // 🎯 HTML 다운로드 완료 후 자동 이메일 발송
       toast({
         title: "📄 AI 기반 종합 경영진단 결과 다운로드 완료!",
-        description: `완전한 진단 결과 보고서를 HTML 파일로 다운로드했습니다. (${completeDiagnosisData.companyInfo.reportLength}자)`,
+        description: `완전한 진단 결과 보고서를 HTML 파일로 다운로드했습니다. 이메일 발송을 시작합니다...`,
         duration: 5000,
       });
       
-      console.log('✅ 완전한 AI 기반 종합 경영진단 결과 보고서 생성 완료');
+      // 📧 자동 이메일 발송 기능
+      try {
+        console.log('📧 HTML 다운로드 완료 - 자동 이메일 발송 시작');
+        
+        // 이메일 발송을 위한 진단 데이터 준비
+        const emailDiagnosisData = {
+          companyName: completeDiagnosisData.companyInfo.name,
+          contactName: diagnosis.contactName || '담당자',
+          contactEmail: diagnosis.contactEmail || diagnosis.email || '',
+          totalScore: completeDiagnosisData.summary.totalScore,
+          marketPosition: completeDiagnosisData.summary.marketPosition,
+          industryGrowth: completeDiagnosisData.summary.industryGrowth,
+          summaryReport: completeDiagnosisData.detailedReport,
+          detailedScores: diagnosis.detailedScores || {},
+          categoryScores: diagnosis.categoryScores || {}
+        };
+
+        console.log('📧 이메일 발송 데이터:', emailDiagnosisData);
+
+        // Google Apps Script를 통한 PDF 이메일 발송
+        if (emailDiagnosisData.contactEmail) {
+          await handlePDFEmailSend();
+          
+          toast({
+            title: "📧 이메일 발송 완료!",
+            description: `${emailDiagnosisData.contactEmail}과 관리자에게 진단 결과 보고서가 발송되었습니다.`,
+            duration: 8000,
+          });
+        } else {
+          console.warn('⚠️ 이메일 주소가 없어 자동 발송을 건너뜁니다.');
+          toast({
+            title: "📧 이메일 주소 없음",
+            description: "보고서는 다운로드되었지만, 이메일 주소가 없어 자동 발송을 건너뜁니다.",
+            duration: 5000,
+          });
+        }
+      } catch (emailError) {
+        console.error('❌ 자동 이메일 발송 실패:', emailError);
+        toast({
+          title: "📧 이메일 발송 실패",
+          description: "보고서는 다운로드되었지만, 이메일 발송에 실패했습니다. 수동으로 이메일 발송을 시도해주세요.",
+          variant: "destructive",
+          duration: 8000,
+        });
+      }
+      
+      console.log('✅ 완전한 AI 기반 종합 경영진단 결과 보고서 생성 및 이메일 발송 완료');
       
     } catch (error) {
       console.error('❌ 완전한 보고서 생성 실패:', error);
@@ -1071,13 +1231,60 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       // 성공 메시지를 위한 더미 결과
       console.log('📄 PDF 생성 완료 (HTML 기반):', pdfDiagnosisData.companyName);
 
+      // 🎯 PDF 다운로드 완료 후 자동 이메일 발송
       toast({
         title: "✅ PDF 다운로드 완료!",
-        description: "진단 결과 PDF 파일이 다운로드되었습니다. 다운로드 폴더를 확인해주세요.",
+        description: "진단 결과 PDF 파일이 다운로드되었습니다. 이메일 발송을 시작합니다...",
         duration: 5000,
       });
 
-      console.log('✅ PDF 다운로드 성공');
+      // 📧 자동 이메일 발송 기능
+      try {
+        console.log('📧 PDF 다운로드 완료 - 자동 이메일 발송 시작');
+        
+        // 이메일 발송을 위한 진단 데이터 준비
+        const emailDiagnosisData = {
+          companyName: diagnosis.companyName || 'Unknown Company',
+          contactName: diagnosis.contactName || '담당자',
+          contactEmail: diagnosis.contactEmail || diagnosis.email || '',
+          totalScore: diagnosis.totalScore || 75,
+          marketPosition: diagnosis.marketPosition || '양호',
+          industryGrowth: diagnosis.industryGrowth || '성장 중',
+          summaryReport: diagnosis.summaryReport || '진단 결과 보고서가 생성되었습니다.',
+          detailedScores: diagnosis.detailedScores || {},
+          categoryScores: diagnosis.categoryScores || {}
+        };
+
+        console.log('📧 이메일 발송 데이터:', emailDiagnosisData);
+
+        // Google Apps Script를 통한 PDF 이메일 발송
+        if (emailDiagnosisData.contactEmail) {
+          await handlePDFEmailSend();
+          
+          toast({
+            title: "📧 이메일 발송 완료!",
+            description: `${emailDiagnosisData.contactEmail}과 관리자에게 진단 결과 PDF가 발송되었습니다.`,
+            duration: 8000,
+          });
+        } else {
+          console.warn('⚠️ 이메일 주소가 없어 자동 발송을 건너뜁니다.');
+          toast({
+            title: "📧 이메일 주소 없음",
+            description: "PDF는 다운로드되었지만, 이메일 주소가 없어 자동 발송을 건너뜁니다.",
+            duration: 5000,
+          });
+        }
+      } catch (emailError) {
+        console.error('❌ 자동 이메일 발송 실패:', emailError);
+        toast({
+          title: "📧 이메일 발송 실패",
+          description: "PDF는 다운로드되었지만, 이메일 발송에 실패했습니다. 수동으로 이메일 발송을 시도해주세요.",
+          variant: "destructive",
+          duration: 8000,
+        });
+      }
+
+      console.log('✅ PDF 다운로드 및 이메일 발송 프로세스 완료');
 
     } catch (error) {
       console.error('❌ PDF 다운로드 오류:', error);
@@ -1249,53 +1456,53 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
 
       console.log('✅ PDF 생성 완료, 크기:', Math.round(pdfResult.pdfBase64.length / 1024) + 'KB');
 
-      // 2단계: Google Apps Script를 통한 PDF 이메일 발송
-      console.log('📧 2단계: Google Apps Script로 PDF 이메일 발송...');
-      
-      const pdfEmailData = {
-        action: 'sendDiagnosisPdfEmail',
-        to_email: contactEmail,
-        to_name: contactName,
-        company_name: companyName,
-        total_score: totalScore,
-        overall_grade: overallGrade,
-        industry_type: industryType,
-        diagnosis_date: new Date().toLocaleDateString('ko-KR'),
-        pdf_attachment: pdfResult.pdfBase64,
-        pdf_filename: `AI진단보고서_${companyName}_${new Date().toISOString().split('T')[0]}.pdf`,
-        consultant_name: '이후경 경영지도사',
-        consultant_phone: '010-9251-9743',
-        consultant_email: 'hongik423@gmail.com'
-      };
-
-      const response = await fetch(appConfig.googleScriptUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(pdfEmailData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Google Apps Script 호출 실패: ${response.status} ${response.statusText}`);
+      // 🆕 1.5단계: 로컬 폴더에 PDF 저장
+      console.log('💾 1.5단계: 로컬 저장소에 PDF 저장...');
+      try {
+        await saveReportToLocalFolder(pdfResult.pdfBase64, companyName);
+        console.log('✅ 로컬 저장 완료:', companyName);
+      } catch (localSaveError) {
+        console.warn('⚠️ 로컬 저장 실패 (이메일 발송은 계속 진행):', localSaveError);
       }
 
-      const result = await response.json();
+      // 2단계: 새로운 Google Apps Script로 PDF 첨부 진단 신청 처리
+      console.log('📧 2단계: PDF 첨부 진단 신청 처리...');
+      
+      // 🆕 새로운 통합 처리 방식 (진단 신청 + PDF 첨부 한 번에)
+      const { submitDiagnosisWithPdfToGoogle } = await import('@/lib/utils/emailService');
+      
+      const diagnosisSubmissionData = {
+        companyName: companyName,
+        contactName: contactName,
+        contactEmail: contactEmail,
+        contactPhone: diagnosis.contactPhone || data.data.연락처 || '',
+        industry: industryType,
+        totalScore: totalScore,
+        summaryReport: diagnosis.summaryReport || '',
+        detailedScores: diagnosis.categoryResults || {},
+        categoryScores: diagnosis.categoryResults || {}
+      };
 
-      if (result.success) {
+      const submissionResult = await submitDiagnosisWithPdfToGoogle(
+        diagnosisSubmissionData, 
+        pdfResult.pdfBase64
+      );
+
+      if (submissionResult.success) {
         toast({
           title: "✅ PDF 결과보고서 발송 완료!",
-          description: `${contactEmail}로 AI 진단 결과보고서가 발송되었습니다. 이메일을 확인해주세요.`,
+          description: `${contactEmail}로 AI 진단 결과보고서가 첨부된 메일이 발송되었습니다. 이메일을 확인해주세요.`,
           duration: 7000,
         });
 
-        console.log('✅ PDF 이메일 발송 성공:', {
-          timestamp: result.timestamp,
-          filename: pdfEmailData.pdf_filename,
-          sent_to: contactEmail
+        console.log('✅ PDF 첨부 진단 신청 처리 성공:', {
+          timestamp: new Date().toISOString(),
+          pdfSize: Math.round(pdfResult.pdfBase64.length / 1024) + 'KB',
+          sent_to: contactEmail,
+          service: submissionResult.service
         });
       } else {
-        throw new Error(result.error || 'PDF 이메일 발송에 실패했습니다.');
+        throw new Error(submissionResult.error || 'PDF 첨부 진단 신청 처리에 실패했습니다.');
       }
 
     } catch (error) {
@@ -2615,7 +2822,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 )}
               </Button>
 
-              {/* PDF 다운로드 버튼 - 백업 기능 */}
+              {/* PDF 다운로드 + 이메일 발송 버튼 - 통합 기능 */}
               <Button 
                 onClick={handleDownload}
                 disabled={isLoading}
@@ -2625,12 +2832,12 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
                 {isLoading && pdfEmailStatus !== 'sending' ? (
                   <>
                     <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span>PDF 생성 중...</span>
+                    <span>다운로드 + 이메일 발송 중...</span>
                   </>
                 ) : (
                   <>
                     <Download className="w-5 h-5" />
-                    <span>📄 PDF 다운로드</span>
+                    <span>📄 다운로드 + 📧 이메일 발송</span>
                   </>
                 )}
               </Button>
