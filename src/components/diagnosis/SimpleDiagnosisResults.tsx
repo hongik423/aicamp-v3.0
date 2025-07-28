@@ -851,7 +851,7 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
             
             <!-- 상세 진단보고서 -->
             <div class="report-section">
-                <h2>📊 완벽한 종합 진단보고서</h2>
+                <h2>📊 종합 경영진단보고서</h2>
                 <div class="report-content">${diagnosis.comprehensiveReport}</div>
             </div>
         </div>
@@ -1233,7 +1233,7 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Award className="w-6 h-6 text-purple-600" />
-              완벽한 종합 진단보고서
+              종합 경영진단보고서
             </h2>
             
             <Card>
@@ -1264,49 +1264,18 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
           <div className="flex items-center justify-center gap-3 mb-4">
             <Trophy className="w-12 h-12 text-yellow-500" />
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              🎯 완벽한 AI 진단 완료!
+              🎯 AI CAMP 이후경 교장의 AI 진단 완료 !
             </h1>
           </div>
           <p className="text-xl text-gray-700 mb-6">
             <strong>{diagnosis.companyName}</strong>의 전문 경영진단 결과입니다
           </p>
           
-          {/* 이메일 발송 상태 */}
-          <div className="mb-6 space-y-3">
-            {/* HTML 보고서 이메일 상태 */}
-            <div>
-              {data.data.emailSent ? (
-                <div className="flex items-center justify-center gap-2 text-green-600">
-                  <CheckCircle2 className="w-5 h-5" />
-                  <span className="font-semibold">📄 완벽한 HTML 진단보고서가 이메일로 발송되었습니다!</span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center gap-2 text-orange-600">
-                  <AlertTriangle className="w-5 h-5" />
-                  <span className="font-semibold">⚠️ HTML 보고서 이메일 발송 중 오류가 발생했습니다</span>
-                  {data.data.emailError && (
-                    <span className="text-sm text-gray-500">({data.data.emailError})</span>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            {/* 접수 확인 메일 상태 */}
-            <div>
-              {data.data.confirmationEmailSent ? (
-                <div className="flex items-center justify-center gap-2 text-blue-600">
-                  <CheckCircle2 className="w-5 h-5" />
-                  <span className="font-semibold">📬 접수 확인 메일이 발송되었습니다!</span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center gap-2 text-gray-500">
-                  <AlertTriangle className="w-5 h-5" />
-                  <span className="font-semibold">📬 접수 확인 메일 발송 확인 중...</span>
-                  {data.data.confirmationEmailError && (
-                    <span className="text-sm text-gray-500">({data.data.confirmationEmailError})</span>
-                  )}
-                </div>
-              )}
+          {/* 접수 확인 안내 */}
+          <div className="mb-6">
+            <div className="flex items-center justify-center gap-2 text-blue-600">
+              <CheckCircle2 className="w-5 h-5" />
+              <span className="font-semibold">📬 AI 진단이 완료되었습니다. 관리자가 1-2일 내에 연락드리겠습니다.</span>
             </div>
           </div>
           

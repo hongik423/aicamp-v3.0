@@ -82,7 +82,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>완벽한 AI 진단결과보고서 - ${data.companyName}</title>
+    <title>AI CAMP 이후경 교장의 AI 진단결과보고서 - ${data.companyName}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -573,7 +573,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
         <div class="header">
             <div class="header-content">
                 <div class="logo">🎯</div>
-                <h1>완벽한 AI 진단결과보고서</h1>
+                <h1>AI CAMP 이후경 교장의 AI 진단결과보고서</h1>
                 <p class="subtitle">AICAMP - 전문 경영진단 시스템</p>
             </div>
         </div>
