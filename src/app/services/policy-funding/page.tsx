@@ -634,63 +634,7 @@ export default function PolicyFundingPage() {
           </CardContent>
         </Card>
 
-        {/* 투자분석기 섹션 */}
-        <div id="investment-analysis-section" className="mb-8">
-          <Card className="border-2 border-indigo-200">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl flex items-center gap-2">
-                    <Calculator className="h-6 w-6 text-indigo-600" />
-                    AI 투자 재무타당성 분석기
-                  </CardTitle>
-                  <CardDescription>전문가 상담을 통해 정확한 투자 타당성 분석을 제공합니다</CardDescription>
-                </div>
-                <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700">
-                  <Link href="/consultation" className="flex items-center gap-2">
-                    상담 신청하기
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-2 text-blue-800 font-semibold mb-2">
-                  <AlertCircle className="h-5 w-5" />
-                  상담신청 후 이용 가능
-                </div>
-                <p className="text-gray-700">
-                  투자재무타당성분석기는 전문가 상담을 통해 귀사의 상황에 맞는 정확한 분석을 제공하기 위해
-                  상담신청 후 이용하실 수 있습니다.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-indigo-600 mb-2">5구간</div>
-                  <p className="text-gray-600">투자등급 평가</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">8개</div>
-                  <p className="text-gray-600">핵심 재무지표 분석</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">실시간</div>
-                  <p className="text-gray-600">AI 분석 리포트</p>
-                </div>
-              </div>
-              
-              <div className="mt-6 text-center">
-                <Link href="/services/policy-funding/investment-analysis">
-                  <Button variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-50">
-                    분석기 자세히 보기
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* CTA Section */}
         <motion.div 

@@ -23,19 +23,21 @@ export default function InvestmentAnalysisPage() {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Calculator className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">투자재무타당성분석기</h1>
+            <h1 className="text-3xl font-bold text-gray-900">AI투자재무타당성분석기</h1>
             <Badge variant="outline" className="ml-2">AI 분석도구</Badge>
           </div>
           <p className="text-xl text-gray-600">AI 기반 5구간 투자규모별 평가와 8개 지표 종합분석 도구</p>
         </div>
 
-        {/* 상담신청 필수 안내 */}
-        <Alert className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-          <AlertCircle className="h-5 w-5 text-blue-600" />
-          <AlertDescription className="text-base">
-            <strong className="text-blue-900">투자재무타당성분석기는 상담신청 후 이용 가능합니다.</strong>
+        {/* 상담신청 필수 안내 - 더 강조 */}
+        <Alert className="mb-8 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-300">
+          <AlertCircle className="h-6 w-6 text-red-600" />
+          <AlertDescription className="text-lg">
+            <strong className="text-red-900 text-xl">⚠️ 중요: AI투자재무타당성분석기는 상담신청 필수입니다!</strong>
             <br />
-            <span className="text-gray-700">전문가 상담을 통해 귀사의 상황에 맞는 정확한 분석을 제공해드립니다.</span>
+            <span className="text-red-800">전문가 상담을 통해 정확한 분석과 맞춤형 가이드를 제공합니다.</span>
+            <br />
+            <strong className="text-red-900">상담신청서 작성 완료 후 분석기를 사용하실 수 있습니다.</strong>
           </AlertDescription>
         </Alert>
 

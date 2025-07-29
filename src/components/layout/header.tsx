@@ -195,7 +195,7 @@ const Header = () => {
     { href: '/diagnosis', label: 'AI 무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '전문가상담', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
-    { href: '/services/policy-funding#investment-analysis-section', label: '투자재무타당성분석기', color: 'orange', icon: TrendingUp },
+    { href: '/services/policy-funding/investment-analysis', label: 'AI투자재무타당성분석기', color: 'orange', icon: TrendingUp },
     { href: '/services/ai-curriculum', label: 'AI CAMP커리큘럼', color: 'purple', icon: Lightbulb },
     { href: '/support/contact', label: '오류신고', color: 'red', icon: MessageSquare }
   ];

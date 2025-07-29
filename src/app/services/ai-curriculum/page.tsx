@@ -17,39 +17,39 @@ import { motion } from 'framer-motion';
 export default function AICurriculumPage() {
   const [selectedCurriculum, setSelectedCurriculum] = useState('business');
 
-  // 커리큘럼 데이터
+  // 커리큘럼 데이터 - PDF 기반 사실 내용
   const curriculums = {
     business: {
       id: 'business',
       title: '🎯 기업체 실무진 AI 생산성 향상 과정',
-      subtitle: 'AI로 업무 효율 500% 향상시키는 실전 교육',
-      description: '현장에서 바로 활용 가능한 AI 도구 완벽 마스터',
-      badge: 'BEST',
-      badgeColor: 'bg-red-500',
-      duration: '8주 완성',
+      subtitle: 'ChatGPT, Claude 등 AI 도구 실무 활용 교육',
+      description: 'AI 도구를 활용한 업무 효율화 및 생산성 향상',
+      badge: 'BASIC',
+      badgeColor: 'bg-blue-500',
+      duration: '8주 과정',
       target: '기업 실무진, 팀장급',
       bgGradient: 'from-blue-600 to-purple-600',
       features: [
-        { icon: Zap, text: '업무 자동화로 반복작업 90% 감소' },
-        { icon: Brain, text: 'ChatGPT, Claude 실무 활용법' },
-        { icon: BarChart3, text: '데이터 분석 및 보고서 자동화' },
-        { icon: TrendingUp, text: '즉시 적용 가능한 실습 중심' }
+        { icon: Zap, text: 'ChatGPT 문서 작성 활용법' },
+        { icon: Brain, text: 'AI 프롬프트 엔지니어링 기초' },
+        { icon: BarChart3, text: '업무 자동화 도구 활용' },
+        { icon: TrendingUp, text: '실무 중심 실습 교육' }
       ],
       modules: [
-        { week: 1, title: 'AI 기초 이해 및 업무 적용 방안', highlight: true },
-        { week: 2, title: 'ChatGPT 실무 활용법 (문서작성, 기획서)', highlight: true },
-        { week: 3, title: 'AI 도구를 활용한 마케팅 자동화' },
-        { week: 4, title: '데이터 분석 및 보고서 자동 생성' },
-        { week: 5, title: '업무 프로세스 AI 최적화' },
-        { week: 6, title: 'AI 기반 고객 서비스 개선' },
-        { week: 7, title: '조직 내 AI 도입 전략 수립' },
-        { week: 8, title: 'AI 활용 성과 측정 및 지속 개선', highlight: true }
+        { week: 1, title: 'AI 도구 기본 이해와 활용', highlight: true },
+        { week: 2, title: 'ChatGPT 문서 작성 실무', highlight: true },
+        { week: 3, title: 'AI를 활용한 업무 자동화' },
+        { week: 4, title: 'AI 도구 조합 활용법' },
+        { week: 5, title: '업무별 AI 도구 적용' },
+        { week: 6, title: 'AI 활용 효과 측정' },
+        { week: 7, title: '팀 단위 AI 도구 도입' },
+        { week: 8, title: 'AI 활용 지속 개선 방안', highlight: true }
       ],
       results: [
-        '업무 효율성 40-60% 향상',
-        '반복 업무 자동화 90% 달성',
-        'AI 도구 활용 능력 100% 습득',
-        '조직 전반 디지털 전환 가속화'
+        '문서 작성 시간 단축',
+        'AI 도구 기본 활용 능력',
+        '업무 프로세스 개선',
+        '생산성 향상 경험'
       ],
       price: '350만원',
       discountPrice: '198만원',
@@ -58,32 +58,32 @@ export default function AICurriculumPage() {
     advanced: {
       id: 'advanced',
       title: '🚀 기업체 AI 생산성 심화 과정',
-      subtitle: 'AI 전문가로 도약하는 고급 실무 교육',
-      description: '업계 최고 수준의 AI 활용 전문가 양성',
+      subtitle: 'AI 도구 고급 활용 및 맞춤형 솔루션 개발',
+      description: 'AI 기술을 활용한 고급 업무 솔루션 구축',
       badge: 'ADVANCED',
       badgeColor: 'bg-purple-500',
-      duration: '12주 완성',
+      duration: '12주 과정',
       target: 'AI 담당자, 혁신팀',
       bgGradient: 'from-purple-600 to-pink-600',
       features: [
-        { icon: Rocket, text: '커스텀 AI 솔루션 개발 능력' },
-        { icon: Shield, text: 'AI 보안 및 윤리적 활용' },
-        { icon: Globe, text: '글로벌 AI 트렌드 분석' },
-        { icon: Award, text: '수료증 및 AI 전문가 인증' }
+        { icon: Rocket, text: '고급 프롬프트 엔지니어링' },
+        { icon: Shield, text: 'AI 활용 보안 및 가이드라인' },
+        { icon: Globe, text: '최신 AI 도구 동향' },
+        { icon: Award, text: '실무 프로젝트 완성' }
       ],
       modules: [
-        { week: '1-2', title: 'Advanced Prompt Engineering', highlight: true },
-        { week: '3-4', title: 'AI 모델 Fine-tuning 실습' },
-        { week: '5-6', title: 'RAG 시스템 구축 및 활용' },
-        { week: '7-8', title: 'AI Agent 개발 및 자동화', highlight: true },
-        { week: '9-10', title: 'Computer Vision & NLP 활용' },
-        { week: '11-12', title: 'AI 프로젝트 관리 및 ROI 측정' }
+        { week: '1-2', title: '고급 프롬프트 엔지니어링', highlight: true },
+        { week: '3-4', title: 'AI 도구 API 활용' },
+        { week: '5-6', title: '워크플로우 자동화 구축' },
+        { week: '7-8', title: 'AI 기반 데이터 분석', highlight: true },
+        { week: '9-10', title: '맞춤형 AI 솔루션 개발' },
+        { week: '11-12', title: 'AI 프로젝트 관리 및 평가' }
       ],
       results: [
-        'AI 전문가 수준 역량 확보',
-        '맞춤형 AI 솔루션 개발 능력',
-        '팀 내 AI 리더십 발휘',
-        'AI 프로젝트 PM 역량'
+        '고급 AI 도구 활용 능력',
+        '맞춤형 솔루션 개발 경험',
+        'AI 프로젝트 리더십',
+        '조직 내 AI 전문가 역할'
       ],
       price: '400만원',
       discountPrice: '250만원',
@@ -92,32 +92,32 @@ export default function AICurriculumPage() {
     executive: {
       id: 'executive',
       title: '🎖️ 경영진 AI 경영전략 과정',
-      subtitle: 'AI 시대를 선도하는 리더십 교육',
-      description: 'CEO부터 임원까지, AI 경영 혁신 전략',
-      badge: 'PREMIUM',
+      subtitle: 'AI 시대 경영전략 수립 및 조직 혁신',
+      description: 'CEO와 임원을 위한 AI 기반 경영 의사결정',
+      badge: 'EXECUTIVE',
       badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
-      duration: '6주 완성',
+      duration: '6주 과정',
       target: '대표이사, 임원진',
       bgGradient: 'from-orange-600 to-red-600',
       features: [
-        { icon: Trophy, text: 'AI 시대 경영전략 수립' },
-        { icon: Building, text: 'AI 기반 조직 혁신 방법론' },
-        { icon: Target, text: 'AI 투자 ROI 극대화 전략' },
-        { icon: Star, text: '1:1 맞춤 컨설팅 포함' }
+        { icon: Trophy, text: 'AI 경영전략 수립' },
+        { icon: Building, text: '조직 내 AI 도입 전략' },
+        { icon: Target, text: 'AI 투자 ROI 분석' },
+        { icon: Star, text: '1:1 경영 컨설팅' }
       ],
       modules: [
-        { week: 1, title: 'AI 시대 경영환경 변화와 대응전략', highlight: true },
-        { week: 2, title: 'AI 기반 비즈니스 모델 혁신' },
-        { week: 3, title: '데이터 기반 의사결정 체계 구축', highlight: true },
-        { week: 4, title: 'AI 도입을 위한 조직 변화 관리' },
-        { week: 5, title: 'AI 투자 ROI 분석 및 예산 계획' },
-        { week: 6, title: 'AI 시대 리더십과 조직 문화 혁신', highlight: true }
+        { week: 1, title: 'AI 시대 경영환경 이해', highlight: true },
+        { week: 2, title: 'AI 기반 비즈니스 전략' },
+        { week: 3, title: '데이터 기반 의사결정', highlight: true },
+        { week: 4, title: 'AI 도입을 위한 조직 변화' },
+        { week: 5, title: 'AI 투자 및 ROI 분석' },
+        { week: 6, title: 'AI 경영 리더십', highlight: true }
       ],
       results: [
-        'AI 경영전략 수립 역량',
-        '디지털 전환 로드맵 완성',
-        '조직 변화 관리 능력',
-        'AI 투자 의사결정 역량'
+        'AI 경영전략 수립 능력',
+        '조직 혁신 리더십',
+        'AI 투자 의사결정 역량',
+        '디지털 전환 추진력'
       ],
       price: '500만원',
       discountPrice: '350만원',
@@ -127,21 +127,21 @@ export default function AICurriculumPage() {
 
   const successCases = [
     {
-      company: 'A제조업',
-      result: '생산성 45% 향상',
-      testimonial: 'AI 도구 활용으로 업무 시간이 절반으로 줄었습니다.',
+      company: 'A제조업체',
+      result: '문서 작성 시간 단축',
+      testimonial: 'ChatGPT를 활용해 보고서 작성 시간이 크게 줄었습니다.',
       curriculum: 'business'
     },
     {
-      company: 'B금융사',
-      result: '고객 만족도 38% 상승',
-      testimonial: 'AI 챗봇 도입으로 고객 응대가 혁신적으로 개선되었습니다.',
+      company: 'B IT기업',
+      result: 'AI 도구 활용 역량 향상',
+      testimonial: '고급 프롬프트 활용으로 업무 효율이 개선되었습니다.',
       curriculum: 'advanced'
     },
     {
-      company: 'C유통업',
-      result: '매출 62% 증가',
-      testimonial: 'AI 경영전략으로 새로운 비즈니스 모델을 창출했습니다.',
+      company: 'C중소기업',
+      result: 'AI 도입 전략 수립',
+      testimonial: '체계적인 AI 도입 계획을 세울 수 있었습니다.',
       curriculum: 'executive'
     }
   ];
@@ -167,15 +167,15 @@ export default function AICurriculumPage() {
             </Badge>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              <span className="block">당신의 업무 방식을</span>
+              <span className="block">AI 도구 활용으로</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">
-                AI로 완전히 혁신하세요
+                업무 효율성을 향상하세요
               </span>
             </h1>
             
             <p className="text-xl sm:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              국내 최고 AI 교육 전문가가 직접 지도하는<br />
-              실무 중심 AI 활용 교육 프로그램
+              실무에 바로 적용 가능한<br />
+              AI 도구 활용 교육 과정
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -193,16 +193,16 @@ export default function AICurriculumPage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400 mb-2">1,500+</div>
-                <div className="text-white/80">수료생</div>
+                <div className="text-3xl font-bold text-yellow-400 mb-2">300+</div>
+                <div className="text-white/80">교육 수료생</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400 mb-2">98%</div>
-                <div className="text-white/80">만족도</div>
+                <div className="text-3xl font-bold text-yellow-400 mb-2">4.5/5</div>
+                <div className="text-white/80">교육 평점</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400 mb-2">45%</div>
-                <div className="text-white/80">평균 생산성 향상</div>
+                <div className="text-3xl font-bold text-yellow-400 mb-2">8주</div>
+                <div className="text-white/80">체계적 커리큘럼</div>
               </div>
             </div>
           </motion.div>
