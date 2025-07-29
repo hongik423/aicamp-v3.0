@@ -1842,6 +1842,358 @@ function enhancedSWOTWithAI(data, basicSwot, aiAnalysis) {
 }
 
 /**
+ * 🎯 SWOT 전략 매트릭스 고도화 (SO/WO/ST/WT 전략별 최소 3개씩 총 12개 이상)
+ */
+function generateAdvancedSWOTMatrix(data, swotAnalysis, aiAnalysis) {
+  try {
+    console.log('🎯 고도화된 SWOT 전략 매트릭스 생성 시작');
+    
+    const industry = data.업종 || data.industry || '';
+    const companyName = data.회사명 || data.companyName || '귀사';
+    const businessDetails = data.businessDetails || data.사업상세설명 || '';
+    const totalScore = data.종합점수 || data.totalScore || 0;
+    const employeeCount = data.직원수 || data.employeeCount || '';
+    
+    // 업종별 맞춤형 전략 베이스
+    const industryStrategies = getIndustrySpecificStrategies(industry);
+    
+    // SO 전략 (강점-기회 활용 전략) - 최소 3개
+    const soStrategies = [
+      `${companyName}의 핵심 강점을 활용한 ${industry} 시장 내 선도적 지위 확보`,
+      `기존 고객 만족도를 바탕으로 ${industryStrategies.growthArea}영역 진출`,
+      `내부 역량과 ${industry} 업종 성장 트렌드를 결합한 신규 서비스 개발`,
+      `AI 기술 도입을 통한 ${companyName}의 경쟁 우위 강화 및 시장 확장`,
+      `업종별 전문성을 활용한 B2B 파트너십 구축 및 시너지 창출`
+    ];
+    
+    // WO 전략 (약점-기회 개선 전략) - 최소 3개  
+    const woStrategies = [
+      `${industry} 업종 성장 기회를 활용한 마케팅 역량 강화 투자`,
+      `정부 지원 정책 활용을 통한 디지털 전환 및 운영 효율성 개선`,
+      `${employeeCount} 규모에 맞는 체계적인 인력 개발 및 조직 역량 강화`,
+      `외부 전문기관과의 협력을 통한 ${industryStrategies.weaknessArea} 영역 보완`,
+      `기술 파트너십을 통한 AI 도입 장벽 해결 및 점진적 역량 구축`
+    ];
+    
+    // ST 전략 (강점-위협 방어 전략) - 최소 3개
+    const stStrategies = [
+      `${companyName}의 핵심 강점을 활용한 ${industry} 업종 내 차별화 포지셔닝`,
+      `고객 충성도 기반 경쟁사 위협 대응 및 시장 점유율 방어`,
+      `내부 역량 집중을 통한 ${industryStrategies.defensiveArea} 영역 경쟁력 강화`,
+      `AI 기술 선도 도입으로 업종 내 혁신 리더십 확보`,
+      `품질 우위를 바탕으로 한 프리미엄 시장 포지셔닝 및 가격 경쟁력 확보`
+    ];
+    
+    // WT 전략 (약점-위협 최소화 전략) - 최소 3개
+    const wtStrategies = [
+      `${industry} 업종 위기 상황 대비 리스크 관리 체계 구축`,
+      `최소 비용으로 최대 효과를 내는 선택과 집중 전략 실행`,
+      `외부 위협 요소 분석 및 사전 대응 시스템 구축`,
+      `업종별 특화 솔루션 활용을 통한 약점 보완 및 위협 최소화`,
+      `단계적 성장 전략을 통한 안정적 기업 운영 기반 확보`
+    ];
+    
+    // 사업 상세 정보 기반 맞춤형 전략 추가
+    if (businessDetails) {
+      const customStrategies = generateCustomStrategiesFromBusinessDetails(businessDetails, industry);
+      soStrategies.push(...customStrategies.so);
+      woStrategies.push(...customStrategies.wo);
+      stStrategies.push(...customStrategies.st);
+      wtStrategies.push(...customStrategies.wt);
+    }
+    
+    const result = {
+      SO전략: soStrategies.slice(0, Math.max(3, Math.min(5, soStrategies.length))),
+      WO전략: woStrategies.slice(0, Math.max(3, Math.min(5, woStrategies.length))),
+      ST전략: stStrategies.slice(0, Math.max(3, Math.min(5, stStrategies.length))),
+      WT전략: wtStrategies.slice(0, Math.max(3, Math.min(5, wtStrategies.length))),
+      전체전략수: 0
+    };
+    
+    result.전체전략수 = result.SO전략.length + result.WO전략.length + result.ST전략.length + result.WT전략.length;
+    
+    console.log(`✅ SWOT 전략 매트릭스 생성 완료 - 총 ${result.전체전략수}개 전략`);
+    
+    return result;
+    
+  } catch (error) {
+    console.error('❌ SWOT 전략 매트릭스 생성 실패:', error);
+    return {
+      SO전략: ['기본 SO 전략: 강점을 활용한 기회 포착'],
+      WO전략: ['기본 WO 전략: 기회를 통한 약점 개선'],
+      ST전략: ['기본 ST 전략: 강점을 통한 위협 대응'],
+      WT전략: ['기본 WT 전략: 약점과 위협 최소화'],
+      전체전략수: 4
+    };
+  }
+}
+
+/**
+ * 업종별 특화 전략 정보
+ */
+function getIndustrySpecificStrategies(industry) {
+  const strategies = {
+    '전자/전기제품 제조업': {
+      growthArea: '스마트 팩토리 및 IoT',
+      weaknessArea: '디지털 마케팅',
+      defensiveArea: '기술 혁신'
+    },
+    '소프트웨어 개발': {
+      growthArea: 'AI/ML 솔루션',
+      weaknessArea: '사업화',
+      defensiveArea: '기술 우위'
+    },
+    '경영컨설팅': {
+      growthArea: '디지털 전환 컨설팅',
+      weaknessArea: '온라인 마케팅',
+      defensiveArea: '전문성'
+    },
+    '전자상거래': {
+      growthArea: '개인화 서비스',
+      weaknessArea: '물류 효율성',
+      defensiveArea: '고객 경험'
+    },
+    '일반음식점': {
+      growthArea: '배달 플랫폼',
+      weaknessArea: '디지털화',
+      defensiveArea: '브랜드 차별화'
+    }
+  };
+  
+  return strategies[industry] || {
+    growthArea: '신기술 도입',
+    weaknessArea: '마케팅',
+    defensiveArea: '핵심 역량'
+  };
+}
+
+/**
+ * 사업 상세 정보 기반 맞춤형 전략 생성
+ */
+function generateCustomStrategiesFromBusinessDetails(businessDetails, industry) {
+  const details = businessDetails.toLowerCase();
+  const customStrategies = {
+    so: [],
+    wo: [],
+    st: [],
+    wt: []
+  };
+  
+  // B2B 관련
+  if (details.includes('b2b') || details.includes('기업')) {
+    customStrategies.so.push('B2B 전문성을 활용한 기업 고객 네트워크 확장');
+    customStrategies.wo.push('B2B 마케팅 자동화 시스템 도입으로 영업 효율성 극대화');
+  }
+  
+  // 온라인/디지털 관련
+  if (details.includes('온라인') || details.includes('디지털') || details.includes('웹')) {
+    customStrategies.st.push('디지털 전문성을 바탕으로 한 온라인 시장 경쟁 우위 확보');
+    customStrategies.wt.push('디지털 보안 강화를 통한 온라인 비즈니스 리스크 최소화');
+  }
+  
+  // 제조/생산 관련
+  if (details.includes('제조') || details.includes('생산') || details.includes('공장')) {
+    customStrategies.so.push('생산 기술력을 활용한 고품질 제품 차별화 전략');
+    customStrategies.wo.push('스마트 제조 시스템 도입으로 생산 효율성 혁신');
+  }
+  
+  // 컨설팅/서비스 관련
+  if (details.includes('컨설팅') || details.includes('상담') || details.includes('서비스')) {
+    customStrategies.st.push('전문 서비스 품질로 신규 경쟁업체 위협 대응');
+    customStrategies.wt.push('서비스 표준화를 통한 품질 일관성 확보');
+  }
+  
+  return customStrategies;
+}
+
+/**
+ * 💼 AICAMP 커리큘럼 기반 맞춤형 개선사항 생성
+ */
+function generateCustomizedImprovements(data, scoreData, industryAnalysis) {
+  try {
+    console.log('💼 커리큘럼 기반 맞춤형 개선사항 생성 시작');
+    
+    const industry = data.업종 || data.industry || '';
+    const companyName = data.회사명 || data.companyName || '';
+    const totalScore = data.종합점수 || data.totalScore || 0;
+    const employeeCount = data.직원수 || data.employeeCount || '';
+    const businessDetails = data.businessDetails || data.사업상세설명 || '';
+    
+    // AICAMP 커리큘럼 매핑
+    const aicampCurriculum = {
+      '기업체_실무진_커리큘럼': {
+        title: '🎯 기업체 실무진 대상 AI 생산성 향상 교육',
+        duration: '8주 과정 (주 2회, 총 16회)',
+        target: '기업 실무진, 팀장급 이상',
+        modules: [
+          '1주차: AI 기초 이해 및 업무 적용 방안',
+          '2주차: ChatGPT 실무 활용법 (문서작성, 기획서 작성)',
+          '3주차: AI 도구를 활용한 마케팅 자동화',
+          '4주차: 데이터 분석 및 보고서 자동 생성',
+          '5주차: 업무 프로세스 AI 최적화',
+          '6주차: AI 기반 고객 서비스 개선',
+          '7주차: 조직 내 AI 도입 전략 수립',
+          '8주차: AI 활용 성과 측정 및 지속 개선'
+        ],
+        expectedResults: [
+          '업무 효율성 40-60% 향상',
+          '반복 업무 자동화 달성',
+          'AI 도구 활용 능력 100% 습득',
+          '조직 전반 디지털 전환 가속화'
+        ]
+      },
+      '경영진_전략_커리큘럼': {
+        title: '🎖️ 경영진 대상 AI 경영전략 교육',
+        duration: '6주 과정 (주 1회, 총 6회)',
+        target: '대표이사, 임원진, 부서장',
+        modules: [
+          '1주차: AI 시대 경영환경 변화와 대응전략',
+          '2주차: AI 기반 비즈니스 모델 혁신',
+          '3주차: 데이터 기반 의사결정 체계 구축',
+          '4주차: AI 도입을 위한 조직 변화 관리',
+          '5주차: AI 투자 ROI 분석 및 예산 계획',
+          '6주차: AI 시대 리더십과 조직 문화 혁신'
+        ],
+        expectedResults: [
+          'AI 경영전략 수립 역량 확보',
+          '디지털 전환 로드맵 완성',
+          '조직 변화 관리 능력 향상',
+          'AI 투자 의사결정 역량 강화'
+        ]
+      }
+    };
+    
+    // 업종별 맞춤형 개선사항 생성
+    const improvements = generateIndustrySpecificImprovements(industry, totalScore, businessDetails);
+    
+    // 점수 구간별 우선순위 교육 과정 추천
+    let priorityCurriculum = [];
+    let urgentImprovements = [];
+    
+    if (totalScore < 50) {
+      priorityCurriculum = [
+        '🚨 긴급 개선 과정: AI 기초 소양 교육 (2주)',
+        '📊 기본 역량 강화: 디지털 업무 전환 교육 (4주)',
+        '🎯 실무 적용: 기업체 실무진 AI 생산성 향상 교육 (8주)'
+      ];
+      urgentImprovements = [
+        '즉시 실행: 기본적인 디지털 도구 도입 및 직원 교육',
+        '1개월 내: 핵심 업무 프로세스 디지털화',
+        '3개월 내: AI 기초 도구 활용 체계 구축'
+      ];
+    } else if (totalScore < 70) {
+      priorityCurriculum = [
+        '🎯 핵심 과정: 기업체 실무진 AI 생산성 향상 교육 (8주)',
+        '📈 심화 과정: 경영진 AI 경영전략 교육 (6주)',
+        '🔧 특화 과정: 업종별 맞춤형 AI 활용 교육 (4주)'
+      ];
+      urgentImprovements = [
+        '즉시 실행: 주요 업무 영역 AI 도구 도입',
+        '2개월 내: 조직 전반 AI 리터러시 향상',
+        '6개월 내: AI 기반 업무 혁신 시스템 구축'
+      ];
+    } else {
+      priorityCurriculum = [
+        '🎖️ 리더십 과정: 경영진 AI 경영전략 교육 (6주)',
+        '🚀 고도화 과정: AI 시대 조직 혁신 리더십 (4주)',
+        '🌐 확장 과정: AI 생태계 파트너십 구축 (2주)'
+      ];
+      urgentImprovements = [
+        '즉시 실행: AI 선도 기업 포지셔닝 전략 수립',
+        '3개월 내: 업종 내 AI 혁신 사례 창출',
+        '1년 내: AI 기반 신사업 영역 진출'
+      ];
+    }
+    
+    return {
+      맞춤형교육과정: priorityCurriculum,
+      긴급개선사항: urgentImprovements,
+      업종별개선사항: improvements,
+      커리큘럼상세: aicampCurriculum,
+      추천수강순서: generateRecommendedCurriculumOrder(totalScore, industry, employeeCount)
+    };
+    
+  } catch (error) {
+    console.error('❌ 맞춤형 개선사항 생성 실패:', error);
+    return {
+      맞춤형교육과정: ['기본 AI 교육 과정 수강 권장'],
+      긴급개선사항: ['디지털 기초 역량 강화 필요'],
+      업종별개선사항: ['업종별 특화 컨설팅 권장'],
+      커리큘럼상세: {},
+      추천수강순서: ['기초 → 실무 → 전략 단계별 수강']
+    };
+  }
+}
+
+/**
+ * 업종별 특화 개선사항 생성
+ */
+function generateIndustrySpecificImprovements(industry, totalScore, businessDetails) {
+  const improvements = {
+    '소프트웨어 개발': [
+      '🔧 개발 프로세스 AI 자동화 (코드 리뷰, 테스트 자동화)',
+      '📊 프로젝트 관리 AI 도구 도입 (일정 예측, 리소스 최적화)',
+      '🎯 고객 요구사항 분석 AI 활용 (자연어 처리 기반 분석)'
+    ],
+    '경영컨설팅': [
+      '📈 데이터 기반 컨설팅 방법론 구축',
+      '🤖 AI 기반 업종별 벤치마킹 시스템 구축',
+      '💼 고객 맞춤형 솔루션 AI 생성 시스템'
+    ],
+    '전자상거래': [
+      '🛒 개인화 추천 시스템 구축',
+      '📱 챗봇 기반 고객 서비스 자동화',
+      '📊 재고 최적화 및 수요 예측 AI 시스템'
+    ],
+    '제조업': [
+      '🏭 스마트 팩토리 기초 인프라 구축',
+      '🔍 품질 관리 AI 시스템 도입',
+      '📈 생산 계획 최적화 AI 활용'
+    ]
+  };
+  
+  return improvements[industry] || [
+    '🎯 업종별 특화 AI 솔루션 도입 검토',
+    '📊 데이터 기반 의사결정 체계 구축',
+    '🤖 핵심 업무 프로세스 AI 자동화'
+  ];
+}
+
+/**
+ * 추천 수강 순서 생성
+ */
+function generateRecommendedCurriculumOrder(totalScore, industry, employeeCount) {
+  let order = [];
+  
+  // 직원 수에 따른 수강 순서
+  const empCount = parseInt(employeeCount?.replace(/[^0-9]/g, '') || '0');
+  
+  if (empCount <= 10) {
+    order = [
+      '1단계: 대표자 경영진 AI 전략 교육 (2주)',
+      '2단계: 전 직원 AI 기초 소양 교육 (4주)',
+      '3단계: 핵심 업무별 AI 실무 교육 (6주)'
+    ];
+  } else if (empCount <= 50) {
+    order = [
+      '1단계: 경영진 AI 경영전략 교육 (6주)',
+      '2단계: 팀장급 AI 리더십 교육 (4주)',
+      '3단계: 실무진 AI 생산성 향상 교육 (8주)',
+      '4단계: 전사 AI 활용 성과 공유 (2주)'
+    ];
+  } else {
+    order = [
+      '1단계: 경영진 AI 전략 수립 교육 (6주)',
+      '2단계: 부서별 AI 챔피언 양성 교육 (8주)',
+      '3단계: 단계별 전 직원 AI 교육 (12주)',
+      '4단계: AI 성과 측정 및 지속 개선 (4주)'
+    ];
+  }
+  
+  return order;
+}
+
+/**
  * 최고수준 심층 AI 경영진단 보고서 생성 (8000자)
  */
 function generateAdvancedAIReport(data, analysisData) {
@@ -1855,6 +2207,12 @@ function generateAdvancedAIReport(data, analysisData) {
     (data.업종 || data.industry).join(', ') : (data.업종 || data.industry || '서비스업');
   const totalScore = data.종합점수 || data.totalScore || 0;
   const currentYear = new Date().getFullYear();
+  
+  // 🎯 고도화된 SWOT 전략 매트릭스 생성 (SO/WO/ST/WT 각 3개씩 총 12개 이상)
+  const advancedSwotMatrix = generateAdvancedSWOTMatrix(data, enhancedSwotData, aiAdaptationAnalysis);
+  
+  // 💼 AICAMP 커리큘럼 기반 맞춤형 개선사항 생성
+  const customizedImprovements = generateCustomizedImprovements(data, scoreData, industryAnalysis);
 
   let report = `
 ![AICAMP 로고](https://aicamp.club/images/aicamp_logo_del_250726.png)
@@ -1947,8 +2305,21 @@ ${enhancedSwotData.기회.map(o => `• ${o}`).join('\n')}
 **위협 (Threats) - AI 관점 통합**
 ${enhancedSwotData.위협.map(t => `• ${t}`).join('\n')}
 
-**AI 전략 매트릭스:**
-${enhancedSwotData.전략매트릭스}
+### 4.1 🎯 SWOT 고도화 전략 매트릭스
+
+**SO 전략 (강점-기회 활용)** - ${advancedSwotMatrix.SO전략.length}개 전략
+${advancedSwotMatrix.SO전략.map((strategy, index) => `${index + 1}. ${strategy}`).join('\n')}
+
+**WO 전략 (약점-기회 개선)** - ${advancedSwotMatrix.WO전략.length}개 전략
+${advancedSwotMatrix.WO전략.map((strategy, index) => `${index + 1}. ${strategy}`).join('\n')}
+
+**ST 전략 (강점-위협 방어)** - ${advancedSwotMatrix.ST전략.length}개 전략
+${advancedSwotMatrix.ST전략.map((strategy, index) => `${index + 1}. ${strategy}`).join('\n')}
+
+**WT 전략 (약점-위협 최소화)** - ${advancedSwotMatrix.WT전략.length}개 전략
+${advancedSwotMatrix.WT전략.map((strategy, index) => `${index + 1}. ${strategy}`).join('\n')}
+
+**📊 총 전략 수: ${advancedSwotMatrix.전체전략수}개** (SO: ${advancedSwotMatrix.SO전략.length}, WO: ${advancedSwotMatrix.WO전략.length}, ST: ${advancedSwotMatrix.ST전략.length}, WT: ${advancedSwotMatrix.WT전략.length})
 
 ### 5. 💡 AI 시대 생존 및 성장 전략
 
@@ -2029,6 +2400,32 @@ AICAMP에서는 귀하의 AI 전환 여정을 전방위적으로 지원합니다
 - 맞춤형 AI 교육 프로그램
 - AI 도구 도입 및 운영 지원
 - 정부 지원사업 연계 및 활용
+
+### 10. 💼 AICAMP 맞춤형 개선사항 및 교육 과정
+
+#### 10.1 🎯 ${companyName} 맞춤형 우선순위 교육 과정
+${customizedImprovements.맞춤형교육과정.map((course, index) => `**${index + 1}.** ${course}`).join('\n')}
+
+#### 10.2 🚨 긴급 개선사항 (점수별 맞춤 추천)
+${customizedImprovements.긴급개선사항.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}
+
+#### 10.3 🏭 ${industry} 업종 특화 개선사항
+${customizedImprovements.업종별개선사항.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}
+
+#### 10.4 📚 추천 수강 순서 (조직 규모 기반)
+${customizedImprovements.추천수강순서.map((step, index) => `**${step}**`).join('\n')}
+
+#### 10.5 🎓 AICAMP 주요 커리큘럼 상세 정보
+
+**🎯 기업체 실무진 AI 생산성 향상 교육**
+- **교육 기간**: ${customizedImprovements.커리큘럼상세.기업체_실무진_커리큘럼?.duration || '8주 과정'}
+- **교육 대상**: ${customizedImprovements.커리큘럼상세.기업체_실무진_커리큘럼?.target || '기업 실무진'}
+- **기대 효과**: ${customizedImprovements.커리큘럼상세.기업체_실무진_커리큘럼?.expectedResults?.join(', ') || '업무 효율성 향상'}
+
+**🎖️ 경영진 AI 경영전략 교육**
+- **교육 기간**: ${customizedImprovements.커리큘럼상세.경영진_전략_커리큘럼?.duration || '6주 과정'}
+- **교육 대상**: ${customizedImprovements.커리큘럼상세.경영진_전략_커리큘럼?.target || '경영진'}
+- **기대 효과**: ${customizedImprovements.커리큘럼상세.경영진_전략_커리큘럼?.expectedResults?.join(', ') || 'AI 경영전략 수립'}
 
 **담당 전문가**: 이후경 교장 (경영지도사, 28년 경력)
 **연락처**: 010-9251-9743

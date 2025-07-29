@@ -1,13 +1,21 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Calculator, DollarSign, Calendar, FileText, Phone, Globe, Target, CheckCircle, BarChart3, Brain, Zap, TrendingUp } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  ExternalLink, Calculator, DollarSign, Calendar, FileText, Phone, Globe, 
+  Target, CheckCircle, BarChart3, Brain, Zap, TrendingUp, Lock, ArrowRight,
+  MessageCircle, AlertCircle, Shield, Star
+} from 'lucide-react';
 import Link from 'next/link';
-import InvestmentAnalysisTool from '@/components/investment-analysis/InvestmentAnalysisTool';
+import { motion } from 'framer-motion';
 
 export default function InvestmentAnalysisPage() {
+  const [showAnalysisTool, setShowAnalysisTool] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -20,6 +28,16 @@ export default function InvestmentAnalysisPage() {
           </div>
           <p className="text-xl text-gray-600">AI 기반 5구간 투자규모별 평가와 8개 지표 종합분석 도구</p>
         </div>
+
+        {/* 상담신청 필수 안내 */}
+        <Alert className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <AlertCircle className="h-5 w-5 text-blue-600" />
+          <AlertDescription className="text-base">
+            <strong className="text-blue-900">투자재무타당성분석기는 상담신청 후 이용 가능합니다.</strong>
+            <br />
+            <span className="text-gray-700">전문가 상담을 통해 귀사의 상황에 맞는 정확한 분석을 제공해드립니다.</span>
+          </AlertDescription>
+        </Alert>
 
         {/* 개요 */}
         <Card className="mb-8">
@@ -52,17 +70,146 @@ export default function InvestmentAnalysisPage() {
           </CardContent>
         </Card>
 
-        {/* 투자분석 도구 */}
-        <Card className="mb-8">
+        {/* 투자분석 도구 - 잠긴 상태 */}
+        <Card className="mb-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gray-900/10 backdrop-blur-sm z-10 flex items-center justify-center">
+            <motion.div 
+              className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="h-10 w-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">상담신청이 필요합니다</h3>
+              <p className="text-gray-600 mb-6">
+                투자재무타당성분석기는 전문가 상담을 통해 
+                정확한 분석 가이드와 함께 제공됩니다.
+              </p>
+              <div className="space-y-3">
+                <Button 
+                  size="lg" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  asChild
+                >
+                  <Link href="/consultation">
+                    <MessageCircle className="mr-2 h-5 w-5" />
+                    무료 상담 신청하기
+                  </Link>
+                </Button>
+                <p className="text-sm text-gray-500">
+                  상담 접수 후 즉시 분석기 이용 가능
+                </p>
+              </div>
+            </motion.div>
+          </div>
+          
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5" />
               투자재무타당성분석기
             </CardTitle>
-            <CardDescription>실제 분석을 진행해보세요</CardDescription>
+            <CardDescription>상담신청 후 실제 분석을 진행하실 수 있습니다</CardDescription>
           </CardHeader>
-          <CardContent>
-            <InvestmentAnalysisTool />
+          <CardContent className="opacity-50">
+            <div className="bg-gray-100 rounded-lg p-8 text-center">
+              <Calculator className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">분석 도구는 상담신청 후 활성화됩니다</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 상담신청 혜택 */}
+        <Card className="mb-8 border-2 border-blue-200">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Star className="h-6 w-6 text-yellow-500" />
+              상담신청 시 제공되는 혜택
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Calculator className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">투자재무타당성분석기 즉시 이용</h4>
+                    <p className="text-sm text-gray-600">상담 접수 즉시 분석기 사용 권한 부여</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Shield className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">1:1 맞춤형 분석 가이드</h4>
+                    <p className="text-sm text-gray-600">전문가가 직접 분석 방법 안내</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">AI 분석 결과 해석 지원</h4>
+                    <p className="text-sm text-gray-600">복잡한 재무지표를 쉽게 설명</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">맞춤형 투자 전략 수립</h4>
+                    <p className="text-sm text-gray-600">분석 결과 기반 최적 전략 제안</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="h-5 w-5 text-teal-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">정책자금 연계 컨설팅</h4>
+                    <p className="text-sm text-gray-600">분석 결과에 맞는 정책자금 추천</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Phone className="h-5 w-5 text-pink-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">지속적인 사후 관리</h4>
+                    <p className="text-sm text-gray-600">투자 진행 과정 전반 지원</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-8 text-center">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6"
+                asChild
+              >
+                <Link href="/consultation">
+                  지금 바로 상담 신청하기
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <p className="text-sm text-gray-600 mt-3">
+                평균 응답 시간: 30분 이내 | 상담 비용: 완전 무료
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -227,208 +374,29 @@ export default function InvestmentAnalysisPage() {
           </CardContent>
         </Card>
 
-        {/* AI 분석 기능 */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              AI 분석 기능
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Zap className="h-8 w-8 text-blue-600" />
-                </div>
-                <h3 className="font-semibold mb-2">실시간 분석</h3>
-                <p className="text-sm text-gray-600">입력과 동시에 실시간으로 재무타당성 분석 결과 제공</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="font-semibold mb-2">예측 모델링</h3>
-                <p className="text-sm text-gray-600">머신러닝 기반 정책자금 승인 확률 예측</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 className="h-8 w-8 text-purple-600" />
-                </div>
-                <h3 className="font-semibold mb-2">시각화 차트</h3>
-                <p className="text-sm text-gray-600">직관적인 차트와 레이더 분석으로 결과 시각화</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 분석 결과 예시 */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              분석 결과 예시
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-4">프로젝트 개요</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">투자규모:</span>
-                      <span className="font-medium">85억원 (대규모 투자)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">프로젝트 기간:</span>
-                      <span className="font-medium">5년</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">업종:</span>
-                      <span className="font-medium">제조업 (자동차 부품)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">분석일시:</span>
-                      <span className="font-medium">2024.01.15</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-4">핵심 지표</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-sm text-gray-600 mb-1">NPV</div>
-                      <div className="text-lg font-bold text-blue-600">+12.5억원</div>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-sm text-gray-600 mb-1">IRR</div>
-                      <div className="text-lg font-bold text-green-600">18.3%</div>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-sm text-gray-600 mb-1">DSCR</div>
-                      <div className="text-lg font-bold text-purple-600">2.8</div>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-sm text-gray-600 mb-1">회수기간</div>
-                      <div className="text-lg font-bold text-orange-600">4.2년</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-4 text-white text-center">
-                <div className="text-sm opacity-90 mb-1">종합 평가</div>
-                <div className="text-2xl font-bold mb-1">A등급</div>
-                <div className="text-sm opacity-90">투자 실행 적극 권장 / 정책자금 승인 가능성 92%</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 활용 가이드 */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>활용 가이드</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold mb-3">사용 방법</h3>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600">1.</span>
-                    <span className="text-sm">투자 기본정보 입력 (투자금액, 기간, 업종 등)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600">2.</span>
-                    <span className="text-sm">재무정보 입력 (매출, 비용, 현금흐름 등)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600">3.</span>
-                    <span className="text-sm">분석 실행 버튼 클릭</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600">4.</span>
-                    <span className="text-sm">각 탭별 분석 결과 확인</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600">5.</span>
-                    <span className="text-sm">AI 종합 리포트 다운로드</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-3">주의사항</h3>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <span className="text-orange-600">•</span>
-                    <span className="text-sm">모든 재무정보는 정확하게 입력해주세요</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-orange-600">•</span>
-                    <span className="text-sm">분석 결과는 참고용이며, 최종 투자 결정은 전문가와 상담 후 하시기 바랍니다</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-orange-600">•</span>
-                    <span className="text-sm">업종별 특성을 고려한 보정이 필요할 수 있습니다</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-orange-600">•</span>
-                    <span className="text-sm">정기적인 재분석을 통해 투자 계획을 점검하세요</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 관련 정보 */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>관련 정보</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-4 gap-4">
-              <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2" asChild>
-                <Link href="/services/policy-funding/facility-funding">
-                  <BarChart3 className="h-6 w-6" />
-                  <span>시설자금</span>
-                </Link>
-              </Button>
-              <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2" asChild>
-                <Link href="/services/policy-funding/operating-funding">
-                  <TrendingUp className="h-6 w-6" />
-                  <span>운전자금</span>
-                </Link>
-              </Button>
-              <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2" asChild>
-                <Link href="/services/policy-funding/startup-funding">
-                  <Target className="h-6 w-6" />
-                  <span>창업자금</span>
-                </Link>
-              </Button>
-              <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2" asChild>
-                <Link href="/services/policy-funding/rd-funding">
-                  <Brain className="h-6 w-6" />
-                  <span>R&D자금</span>
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 뒤로가기 */}
-        <div className="text-center">
-          <Button variant="outline" asChild>
-            <Link href="/services/policy-funding">
-              ← 정책자금 메인으로 돌아가기
-            </Link>
-          </Button>
+        {/* CTA */}
+        <div className="text-center py-8">
+          <h2 className="text-2xl font-bold mb-4">지금 바로 투자재무타당성분석을 시작하세요</h2>
+          <p className="text-lg text-gray-600 mb-6">
+            전문가 상담을 통해 정확한 분석과 맞춤형 전략을 제공받으실 수 있습니다
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              asChild
+            >
+              <Link href="/consultation">
+                <MessageCircle className="mr-2 h-5 w-5" />
+                무료 상담 신청
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/services/policy-funding">
+                정책자금 안내 보기
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

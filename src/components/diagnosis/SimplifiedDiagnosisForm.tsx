@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import PrivacyConsent from '@/components/ui/privacy-consent';
@@ -53,6 +53,8 @@ const advancedDiagnosisFormSchema = z.object({
   // 기본 정보 (6개)
   companyName: z.string().min(2, '회사명을 입력해주세요'),
   industry: z.array(z.string()).min(1, '업종을 최소 1개 이상 선택해주세요'),
+  customIndustry: z.string().optional(), // 기타 업종 직접 입력
+  businessDetails: z.string().min(4, '귀하의 사업 또는 서비스에 대해 구체적으로 설명해주세요 (최소 4자)'), // 사업 상세 설명
   businessLocation: z.string().min(1, '소재지를 선택해주세요'),
   contactManager: z.string().min(2, '담당자명을 입력해주세요'),
   phone: z.string().min(10, '연락처를 입력해주세요'),
@@ -105,18 +107,76 @@ interface SimplifiedDiagnosisFormProps {
   onBack?: () => void;
 }
 
-// 🍎 업종 옵션 (체크박스용)
+// 🍎 업종 옵션 (체크박스용) - 세분화 및 고도화
 const industryOptions = [
-  { value: '제조업', label: '제조업 (금속, 화학, 기계 등)' },
-  { value: '도소매업', label: '도소매업 (유통, 판매업)' },
-  { value: '음식점/숙박업', label: '음식점/숙박업 (요식업, 호텔)' },
-  { value: 'IT/소프트웨어', label: 'IT/소프트웨어 (앱, 웹개발)' },
-  { value: '건설업', label: '건설업 (건축, 토목)' },
-  { value: '서비스업', label: '서비스업 (컨설팅, 청소 등)' },
-  { value: '의료/보건업', label: '의료/보건업 (병원, 약국)' },
-  { value: '교육/문화', label: '교육/문화 (학원, 예술)' },
-  { value: '운수/물류', label: '운수/물류 (택배, 운송)' },
-  { value: '기타', label: '기타 업종' }
+  // 제조업 세분화
+  { value: '전자/전기제품 제조업', label: '전자/전기제품 제조업 (반도체, 전자부품)' },
+  { value: '자동차/운송장비 제조업', label: '자동차/운송장비 제조업 (자동차, 부품)' },
+  { value: '기계/장비 제조업', label: '기계/장비 제조업 (산업기계, 공작기계)' },
+  { value: '화학/제약 제조업', label: '화학/제약 제조업 (화학제품, 의약품)' },
+  { value: '식품/음료 제조업', label: '식품/음료 제조업 (가공식품, 음료)' },
+  { value: '섬유/의류 제조업', label: '섬유/의류 제조업 (의류, 신발, 가방)' },
+  { value: '철강/금속 제조업', label: '철강/금속 제조업 (철강, 비철금속)' },
+  { value: '의료기기 제조업', label: '의료기기 제조업 (의료장비, 의료용품)' },
+  { value: '기타 제조업', label: '기타 제조업' },
+  
+  // IT/소프트웨어 세분화
+  { value: '소프트웨어 개발', label: '소프트웨어 개발 (웹/앱 개발)' },
+  { value: '웹/모바일 개발', label: '웹/모바일 개발 (홈페이지, 앱)' },
+  { value: '시스템 통합', label: '시스템 통합 (SI, 시스템 구축)' },
+  { value: '게임 개발', label: '게임 개발 (모바일게임, PC게임)' },
+  { value: 'AI/빅데이터', label: 'AI/빅데이터 (인공지능, 데이터분석)' },
+  { value: '클라우드/인프라', label: '클라우드/인프라 (서버, 네트워크)' },
+  { value: '사이버보안', label: '사이버보안 (정보보안, 보안솔루션)' },
+  { value: '핀테크', label: '핀테크 (금융IT, 결제서비스)' },
+  
+  // 전문서비스업 세분화
+  { value: '경영컨설팅', label: '경영컨설팅 (전략, 조직, 프로세스)' },
+  { value: '회계/세무', label: '회계/세무 (회계법인, 세무사무소)' },
+  { value: '법무서비스', label: '법무서비스 (변호사, 법무법인)' },
+  { value: '마케팅/광고', label: '마케팅/광고 (광고대행, 디지털마케팅)' },
+  { value: '디자인/창작', label: '디자인/창작 (그래픽, 웹디자인)' },
+  { value: 'HR컨설팅', label: 'HR컨설팅 (인사, 채용, 교육)' },
+  
+  // 유통/도소매 세분화
+  { value: '전자상거래', label: '전자상거래 (온라인쇼핑몰, 이커머스)' },
+  { value: '오프라인 소매업', label: '오프라인 소매업 (매장, 상점)' },
+  { value: '도매업', label: '도매업 (B2B 유통, 도매상)' },
+  { value: '프랜차이즈', label: '프랜차이즈 (가맹점, 체인점)' },
+  
+  // 건설/부동산 세분화
+  { value: '건축/설계', label: '건축/설계 (건축설계, 인테리어)' },
+  { value: '부동산', label: '부동산 (부동산중개, 개발)' },
+  { value: '인테리어', label: '인테리어 (실내장식, 공간설계)' },
+  
+  // 운송/물류 세분화
+  { value: '물류/택배', label: '물류/택배 (배송, 물류센터)' },
+  { value: '운송업', label: '운송업 (화물운송, 여객운송)' },
+  { value: '창고업', label: '창고업 (보관, 창고운영)' },
+  
+  // 식음료/외식 세분화
+  { value: '일반음식점', label: '일반음식점 (한식, 양식, 중식)' },
+  { value: '카페/베이커리', label: '카페/베이커리 (커피전문점, 제과점)' },
+  { value: '급식/단체급식', label: '급식/단체급식 (단체급식, 케터링)' },
+  
+  // 의료/헬스케어 세분화
+  { value: '병원/의원', label: '병원/의원 (종합병원, 의원)' },
+  { value: '약국/한의원', label: '약국/한의원 (약국, 한의원)' },
+  { value: '미용/웰니스', label: '미용/웰니스 (미용실, 피부관리)' },
+  { value: '헬스/피트니스', label: '헬스/피트니스 (헬스장, 요가)' },
+  
+  // 교육 세분화
+  { value: '교육기관', label: '교육기관 (학교, 교육청)' },
+  { value: '학원/과외', label: '학원/과외 (사설학원, 교습소)' },
+  { value: '온라인교육', label: '온라인교육 (이러닝, 인터넷강의)' },
+  { value: '어학교육', label: '어학교육 (영어학원, 어학원)' },
+  
+  // 금융/보험 세분화
+  { value: '은행/금융', label: '은행/금융 (은행, 신용조합)' },
+  { value: '보험업', label: '보험업 (생명보험, 손해보험)' },
+  { value: '투자/증권', label: '투자/증권 (투자자문, 증권)' },
+  
+  { value: '기타', label: '기타 업종 (직접 입력)' }
 ];
 
 // 🍎 소재지 옵션 (시군 단위)
@@ -339,6 +399,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
     defaultValues: {
       companyName: '',
       industry: [],
+      customIndustry: '', // 기타 업종 직접 입력
+      businessDetails: '', // 사업 상세 설명
       businessLocation: '',
       contactManager: '',
       phone: '',
@@ -757,6 +819,54 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                             </div>
                           ))}
                         </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="customIndustry"
+                    render={({ field }) => (
+                      <FormItem className={`${!form.watch('industry')?.includes('기타') ? 'hidden' : ''}`}>
+                        <FormLabel className="flex items-center text-base font-semibold">
+                          <Sparkles className="w-5 h-5 mr-2 text-pink-600" />
+                          기타 업종 (직접 입력) *
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="예: 신재생에너지, 환경컨설팅, 바이오산업 등" 
+                            className="h-12 md:h-14 border-2 hover:border-blue-400 focus:border-blue-500 transition-all text-base"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription className="text-sm text-gray-600">
+                          위 업종 목록에 없는 경우 구체적으로 입력해주세요
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="businessDetails"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center text-base font-semibold">
+                          <FileText className="w-5 h-5 mr-2 text-teal-600" />
+                          사업/서비스 상세 설명 *
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="귀하의 주력 사업이나 서비스를 구체적으로 설명해주세요. (예: B2B 웹 개발 전문, 중소기업 대상 디지털 마케팅 컨설팅, 친환경 제품 제조 및 유통 등)" 
+                            className="min-h-[120px] border-2 hover:border-blue-400 focus:border-blue-500 transition-all resize-none"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription className="text-sm text-gray-600">
+                          정확한 진단을 위해 주력 제품/서비스, 주요 고객층, 사업 특징 등을 자세히 작성해주세요
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
