@@ -7,7 +7,7 @@ export const maxDuration = 30; // 30초 타임아웃으로 Vercel 제한 해결
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { saveToGoogleSheets } from '@/lib/utils/googleSheetsService';
-import { processDiagnosisSubmission, type DiagnosisFormData } from '@/lib/utils/emailService';
+import { processDiagnosisSubmission, submitDiagnosisToGoogle, type DiagnosisFormData } from '@/lib/utils/emailService';
 import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 import { EnhancedDiagnosisEngine, DiagnosisReportGenerator, validateDiagnosisData } from '@/lib/utils/enhancedDiagnosisEngine';
@@ -1047,4 +1047,27 @@ ${industry} 업종의 특성을 살린 차별화 전략 수립과 디지털 전�
 
 이상으로 ${companyName}의 기본 진단 결과를 마무리합니다.
   `.trim();
+}
+
+/**
+ * GET 메서드 - API 상태 확인
+ */
+export async function GET() {
+  return NextResponse.json({
+    status: 'AI 간편진단 API 활성화',
+    version: '3.0.27',
+    timestamp: new Date().toISOString(),
+    features: [
+      '5점 척도 평가 (20개 문항)',
+      '카테고리별 분석 (5개 영역)',
+      '업종별 특화 분석',
+      'Gemini AI 기반 보고서 생성',
+      '이메일 자동 발송',
+      '구글시트 연동'
+    ],
+    endpoints: {
+      POST: '진단 데이터 처리',
+      GET: '상태 확인'
+    }
+  });
 }

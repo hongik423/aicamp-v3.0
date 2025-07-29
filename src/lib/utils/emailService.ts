@@ -342,7 +342,7 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
       담당자명: diagnosisData.contactName || diagnosisData.contactManager || diagnosisData.담당자명 || '',
       연락처: diagnosisData.contactPhone || diagnosisData.phone || diagnosisData.연락처 || '',
       이메일: diagnosisData.contactEmail || diagnosisData.email || diagnosisData.이메일 || '',
-      개인정보동의: diagnosisData.privacyConsent || diagnosisData.개인정보동의 || true,
+      개인정보동의: diagnosisData.privacyConsent === true || diagnosisData.개인정보동의 === '동의' ? '동의' : '미동의',
       
       // 🟢 진단 결과 (종합 + 카테고리별)
       종합점수: diagnosisData.totalScore || diagnosisData.종합점수 || 0,
