@@ -51,9 +51,9 @@ export default function AICurriculumPage() {
         'AI 도구 활용 능력 100% 습득',
         '조직 전반 디지털 전환 가속화'
       ],
-      price: '150만원',
-      discountPrice: '98만원',
-      discount: '35%'
+      price: '350만원',
+      discountPrice: '198만원',
+      discount: '43%'
     },
     advanced: {
       id: 'advanced',
@@ -85,9 +85,9 @@ export default function AICurriculumPage() {
         '팀 내 AI 리더십 발휘',
         'AI 프로젝트 PM 역량'
       ],
-      price: '250만원',
-      discountPrice: '180만원',
-      discount: '28%'
+      price: '400만원',
+      discountPrice: '250만원',
+      discount: '38%'
     },
     executive: {
       id: 'executive',
