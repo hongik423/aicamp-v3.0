@@ -18,22 +18,22 @@ export default function InvestmentAnalysisPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* 헤더 */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-4">
             <Calculator className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">AI투자재무타당성분석기</h1>
-            <Badge variant="outline" className="ml-2">AI 분석도구</Badge>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">AI투자재무타당성분석기</h1>
+            <Badge variant="outline" className="ml-0 sm:ml-2 mt-2 sm:mt-0">AI 분석도구</Badge>
           </div>
-          <p className="text-xl text-gray-600">AI 기반 5구간 투자규모별 평가와 8개 지표 종합분석 도구</p>
+          <p className="text-lg sm:text-xl text-gray-600">AI 기반 5구간 투자규모별 평가와 8개 지표 종합분석 도구</p>
         </div>
 
         {/* 상담신청 필수 안내 - 더 강조 */}
         <Alert className="mb-8 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-300">
           <AlertCircle className="h-6 w-6 text-red-600" />
-          <AlertDescription className="text-lg">
-            <strong className="text-red-900 text-xl">⚠️ 중요: AI투자재무타당성분석기는 상담신청 필수입니다!</strong>
+          <AlertDescription className="text-base sm:text-lg">
+            <strong className="text-red-900 text-lg sm:text-xl">⚠️ 중요: AI투자재무타당성분석기는 상담신청 필수입니다!</strong>
             <br />
             <span className="text-red-800">전문가 상담을 통해 정확한 분석과 맞춤형 가이드를 제공합니다.</span>
             <br />
