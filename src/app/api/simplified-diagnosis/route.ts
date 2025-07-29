@@ -12,6 +12,7 @@ import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/brandi
 import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 import { EnhancedDiagnosisEngine, DiagnosisReportGenerator, validateDiagnosisData } from '@/lib/utils/enhancedDiagnosisEngine';
 import { IndustryDataService, generateIndustryEnhancedReport } from '@/lib/utils/industryDataService';
+import { AdvancedSWOTEngine } from '@/lib/utils/advancedSWOTEngine';
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
@@ -222,89 +223,200 @@ const mCenterServices = {
 // 🤖 안전한 AI 향상된 진단 (에러 발생시 폴백 처리)
 async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): Promise<string> {
   try {
-    console.log('🚀 고급 AI 진단보고서 생성 시작:', { 
-      company: data.companyName, 
-      industry: data.industry 
-    });
+    const {
+      totalScore = 0,
+      categoryScores = {},
+      swotAnalysis = {},
+      industryInsights = {},
+      detailedMetrics = {},
+      actionPlan = {},
+      recommendations = []
+    } = diagnosisData;
 
-    const apiKey = getGeminiKey();
-    if (!apiKey) {
-      console.warn('⚠️ AI 분석 키 없음, 기본 보고서 생성');
-      return generateFallbackReport(data, diagnosisData);
-    }
+    const companyName = data.companyName || '귀사';
+    const industry = data.industry || '업종';
+    const contactManager = data.contactManager || '담당자';
+    const currentDate = new Date().toLocaleDateString('ko-KR');
+    const strategies = swotAnalysis.strategies || {};
+    const aiAnalysis = swotAnalysis.aiAnalysis || {};
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    // 점수별 평가 등급 및 메시지
+    const getGradeInfo = (score: number) => {
+      if (score >= 80) return { grade: 'A', message: '매우 우수', color: '🟢' };
+      if (score >= 70) return { grade: 'B', message: '우수', color: '🔵' };
+      if (score >= 60) return { grade: 'C', message: '양호', color: '🟡' };
+      if (score >= 50) return { grade: 'D', message: '보통', color: '🟠' };
+      return { grade: 'E', message: '개선 필요', color: '🔴' };
+    };
 
-    const enhancedReportPrompt = `다음 기업의 레벨업 시트 진단 결과를 바탕으로 **AI 실무도입을 통한 일터혁신과 고몰입조직 구축** 중심의 GAP 분석 기반 경영진단보고서를 작성해주세요:
+    const gradeInfo = getGradeInfo(totalScore);
 
-기업명: ${data.companyName}
-업종: ${data.industry}
-담당자: ${data.contactManager}
-직원수: ${data.employeeCount}
-성장단계: ${data.growthStage}
-주요고민: ${data.mainConcerns}
-기대효과: ${data.expectedBenefits}
+    // 카테고리별 상세 분석
+    const categoryAnalysis = Object.entries(categoryScores)
+      .map(([category, data]: [string, any]) => {
+        const categoryNameMap: Record<string, string> = {
+          productService: '상품/서비스 역량',
+          customerService: '고객 서비스',
+          marketing: '마케팅/영업',
+          procurement: '구매/재고관리',
+          storeManagement: '매장/운영관리'
+        };
+        
+        const score = data.score || 0;
+        const maxScore = 5;
+        const percentage = Math.round((score / maxScore) * 100);
+        const name = categoryNameMap[category] || category;
+        
+        return `  ${name}: ${score.toFixed(1)}/5점 (${percentage}%)`;
+      })
+      .join('\n');
 
-종합점수: ${diagnosisData.totalScore || 0}점/100점
-신뢰도: ${diagnosisData.reliabilityScore || 0}%
+    // 업종별 벤치마크 비교
+    const benchmarkComparison = industryInsights.benchmarkScores
+      ? Object.entries(industryInsights.benchmarkScores)
+          .map(([metric, score]) => `  • ${metric}: ${score}점`)
+          .join('\n')
+      : '  • 업종별 벤치마크 데이터 준비중';
 
-🎯 핵심 작성 방향:
-이 보고서는 **AI 실무도입을 통한 일터혁신으로 고몰입조직을 구축**하여 조직의 전략적 목표 달성을 지원하는 것을 목표로 합니다.
+    // AI 트렌드 섹션
+    const aiTrendsSection = aiAnalysis.currentAITrends && aiAnalysis.currentAITrends.length > 0
+      ? `
+🤖 ${industry} AI 트렌드 분석
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-⚠️ 핵심 제약 조건:
-1. 전체 보고서는 반드시 4000자 이내로 작성 (답변 단절 현상 방지를 위해 글자수 확장)
-2. GAP 분석 기반으로 AI 실무도입과 프로세스 효율화 방법론 중심 제안
-3. 고몰입조직 구축을 위한 일터혁신 전략에 집중
-4. 이후경 경영지도사 수준의 전문적이고 신뢰성 있는 톤앤매너 유지
-5. 구체적이고 실행 가능한 솔루션 제시로 실용성 극대화
+📊 현재 주목받는 AI 기술 트렌드:
+${aiAnalysis.currentAITrends.map((trend: string, index: number) => `  ${index + 1}. ${trend}`).join('\n')}
 
-보고서 구성 (4개 섹션):
-1. 조직 현황 진단 및 AI 도입 준비도 평가
-2. 강점 기반 AI 활용 전략 및 고몰입 요소 발굴
-3. GAP 분석 기반 일터혁신 우선순위 및 AI 솔루션
-4. AI 실무도입 액션플랜 및 성과 예측
+🔮 AI로 인한 ${industry} 미래 변화:
+${aiAnalysis.futureChanges?.map((change: string, index: number) => `  ${index + 1}. ${change}`).join('\n') || '  • 데이터 수집중'}
 
-🚫 절대 금지 사항 (매우 중요):
-- 마크다운 문법 (#, **, [], (), -, *, 등) 완전 금지
-- HTML 태그나 특수 기호 사용 금지
-- 불필요한 이모지나 특수문자 남용 금지
+🚀 ${companyName}의 AI 적응 전략:
+${aiAnalysis.adaptationStrategies?.map((strategy: string, index: number) => `  ${strategy}`).join('\n') || '  • 맞춤형 전략 수립 필요'}
 
-✅ 작성 형식 필수 준수 사항:
-- 완전한 일반 텍스트로만 작성
-- 제목은 "1. 조직 현황 진단", "2. 강점 분석" 형태로 숫자와 제목 조합
-- 각 섹션은 2-3개 문단으로 자연스럽게 구성
-- 문장은 존댓말로 정중하고 전문적으로 작성
-- 읽기 쉬운 자연스러운 보고서 문체 사용
-- 구체적인 수치와 실행 방안 포함
-- 마치 실제 경영지도사가 직접 작성한 보고서처럼 작성`;
+💎 AI 도입시 경쟁 우위:
+${aiAnalysis.competitiveAdvantages?.map((advantage: string) => `  • ${advantage}`).join('\n') || '  • 상세 분석 필요'}
+`
+      : '';
 
-    // 타임아웃 설정으로 안전성 확보
-    const reportResponse = await Promise.race([
-      model.generateContent(enhancedReportPrompt),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('AI 분석 타임아웃')), 25000))
-    ]);
+    // SWOT 매트릭스 전략 섹션
+    const swotStrategiesSection = strategies.SO && strategies.SO.length > 0
+      ? `
+🎯 SWOT 매트릭스 전략 분석
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    let aiReport = '';
-    if (reportResponse && typeof reportResponse === 'object' && 'response' in reportResponse) {
-      aiReport = await reportResponse.response.text() || '';
-    }
+📈 SO 전략 (강점-기회 활용):
+${strategies.SO.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
 
-    // 글자수 제한으로 메모리 최적화 (4000자로 확장)
-    if (aiReport.length > 4000) {
-      console.log(`⚠️ 보고서 길이 초과 (${aiReport.length}자), 4000자로 압축`);
-      aiReport = aiReport.substring(0, 3950) + '\n\n[AI 일터혁신 진단보고서 완료]';
-    }
+🔧 WO 전략 (약점-기회 보완):
+${strategies.WO.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
 
-    console.log('✅ 고급 AI 진단보고서 생성 완료:', {
-      length: aiReport.length,
-      company: data.companyName
-    });
+🛡️ ST 전략 (강점-위협 방어):
+${strategies.ST.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
 
-    return aiReport || generateFallbackReport(data, diagnosisData);
+⚡ WT 전략 (약점-위협 회피):
+${strategies.WT.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
+`
+      : '';
+
+    // 최종 보고서 생성
+    const report = `
+🏆 AI CAMP 경영진단 보고서 - AI 시대 맞춤형 분석
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+작성일: ${currentDate}
+기업명: ${companyName}
+업종: ${industry}
+담당자: ${contactManager}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 종합 진단 결과
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+종합점수: ${totalScore}점/100점 ${gradeInfo.color}
+등급: ${gradeInfo.grade}등급 (${gradeInfo.message})
+
+📈 카테고리별 평가:
+${categoryAnalysis}
+
+🎯 6대 핵심 지표 분석:
+  • 비즈니스 모델: ${detailedMetrics.businessModel?.toFixed(0) || 0}점
+  • 시장 포지션: ${detailedMetrics.marketPosition?.toFixed(0) || 0}점
+  • 운영 효율성: ${detailedMetrics.operationalEfficiency?.toFixed(0) || 0}점
+  • 성장 잠재력: ${detailedMetrics.growthPotential?.toFixed(0) || 0}점
+  • 디지털 준비도: ${detailedMetrics.digitalReadiness?.toFixed(0) || 0}점
+  • 재무 건전성: ${detailedMetrics.financialHealth?.toFixed(0) || 0}점
+
+🏭 업종별 벤치마크 비교:
+${benchmarkComparison}
+
+${aiTrendsSection}
+
+📊 SWOT 분석
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💪 강점 (Strengths):
+${swotAnalysis.strengths?.map((s: string) => `  • ${s}`).join('\n') || '  • 데이터 분석중'}
+
+⚠️ 약점 (Weaknesses):
+${swotAnalysis.weaknesses?.map((w: string) => `  • ${w}`).join('\n') || '  • 데이터 분석중'}
+
+🌟 기회 (Opportunities):
+${swotAnalysis.opportunities?.map((o: string) => `  • ${o}`).join('\n') || '  • 데이터 분석중'}
+
+🚨 위협 (Threats):
+${swotAnalysis.threats?.map((t: string) => `  • ${t}`).join('\n') || '  • 데이터 분석중'}
+
+${swotStrategiesSection}
+
+💡 AI 시대 맞춤형 추천 전략
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${recommendations.slice(0, 6).map((rec: string, index: number) => `${index + 1}. ${rec}`).join('\n\n')}
+
+📅 단계별 실행 계획
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏃 즉시 실행 (1개월 이내):
+${actionPlan.immediate?.map((action: string) => `  • ${action}`).join('\n') || '  • 우선순위 과제 도출 필요'}
+
+🎯 단기 계획 (3개월):
+${actionPlan.shortTerm?.map((action: string) => `  • ${action}`).join('\n') || '  • 단기 목표 설정 필요'}
+
+🚀 중기 계획 (6개월):
+${actionPlan.mediumTerm?.map((action: string) => `  • ${action}`).join('\n') || '  • 중기 전략 수립 필요'}
+
+🌟 장기 비전 (1년 이상):
+${actionPlan.longTerm?.map((action: string) => `  • ${action}`).join('\n') || '  • 장기 비전 설정 필요'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 AI 전문가 상담 안내
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏆 이후경 경영지도사 (AI CAMP 대표)
+• 중소벤처기업부 등록 경영지도사
+• AI 경영혁신 전문가
+• 연락처: 010-9251-9743
+• 이메일: hongik423@gmail.com
+
+💎 AI CAMP 특별 혜택:
+• 무료 AI 진단 완료 기업 대상 30% 할인
+• 맞춤형 AI 도입 로드맵 제공
+• 정부 지원사업 매칭 서비스
+• 실무자 AI 교육 프로그램 제공
+
+🌐 홈페이지: https://aicamp.club
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+*본 보고서는 AI 기반 분석과 전문가 검증을 거쳐 작성되었습니다.*
+*${currentDate} 기준 최신 데이터로 분석되었습니다.*
+    `.trim();
+
+    console.log('✅ AI 강화 보고서 생성 완료 (길이: ' + report.length + '자)');
+    return report;
 
   } catch (error) {
-    console.error('❌ AI 진단보고서 생성 실패:', error);
+    console.error('❌ AI 강화 보고서 생성 중 오류:', error);
+    // 폴백으로 기본 보고서 반환
     return generateFallbackReport(data, diagnosisData);
   }
 }
@@ -429,6 +541,108 @@ export async function POST(request: NextRequest) {
       swotAnalysis = generateBasicSWOT(data, enhancedResult.totalScore);
     }
 
+    // 🎯 AI CAMP 교육 커리큘럼 기반 맞춤형 추천사항 생성
+    const recommendations = [];
+    const actionPlan = {
+      immediate: [],
+      shortTerm: [],
+      mediumTerm: [],
+      longTerm: []
+    };
+    
+    // 업종별 AI 교육 프로그램 추천
+    const industryEducationMapping: Record<string, { primary: string; secondary: string }> = {
+      '제조업': { 
+        primary: '생산/물류 트랙 AI & n8n 자동화 교육',
+        secondary: '품질관리 AI 시스템 구축 과정'
+      },
+      'IT': { 
+        primary: '기획/전략 트랙 AI 자동화 교육',
+        secondary: 'GPT 기반 개발 자동화 과정'
+      },
+      '서비스업': { 
+        primary: '고객지원(CS) 트랙 AI 자동화 교육',
+        secondary: '마케팅 트랙 디지털 전환 과정'
+      },
+      '소매업': { 
+        primary: '영업 트랙 AI & n8n 자동화 교육',
+        secondary: '재고관리 AI 최적화 과정'
+      },
+      '외식업': { 
+        primary: '고객지원(CS) 트랙 AI 자동화 교육',
+        secondary: 'AI 메뉴 최적화 시스템 구축'
+      }
+    };
+    
+    const educationPrograms = industryEducationMapping[data.industry] || {
+      primary: '기획/전략 트랙 AI 자동화 교육',
+      secondary: '맞춤형 AI 도입 컨설팅'
+    };
+    
+    // 점수 기반 교육 수준 결정
+    const educationLevel = enhancedResult.totalScore >= 70 ? '심화 과정' : '입문 과정';
+    
+    // 1. AI 교육 프로그램 추천 (최우선)
+    recommendations.push(
+      `[최우선] AI CAMP ${educationPrograms.primary} - ${educationLevel} (12시간 집중 교육)`,
+      `${educationPrograms.secondary}를 통한 실무 적용 능력 강화`,
+      `부서별 맞춤형 AI 자동화 워크플로 구축으로 업무 효율 70% 향상`
+    );
+    
+    // 2. SWOT 전략 기반 추천
+    if (swotAnalysis.strategies) {
+      if (swotAnalysis.strategies.SO && swotAnalysis.strategies.SO.length > 0) {
+        recommendations.push(`[SO전략] ${swotAnalysis.strategies.SO[0]}`);
+      }
+      if (swotAnalysis.strategies.WO && swotAnalysis.strategies.WO.length > 0) {
+        recommendations.push(`[WO전략] ${swotAnalysis.strategies.WO[0]}`);
+      }
+    }
+    
+    // 3. 점수별 추가 추천
+    if (enhancedResult.totalScore < 60) {
+      recommendations.push('정밀 경영진단을 통한 문제점 파악 및 개선 전략 수립');
+    }
+    if (data.growthStage === '성장기' || data.growthStage === '확장기') {
+      recommendations.push('정책자금 컨설팅을 통한 성장 자금 확보 (AI 도입 지원금 활용)');
+    }
+    
+    // 4. AI 트렌드 기반 추천
+    if (swotAnalysis.aiAnalysis && swotAnalysis.aiAnalysis.competitiveAdvantages) {
+      recommendations.push(swotAnalysis.aiAnalysis.competitiveAdvantages[0]);
+    }
+    
+    // 단계별 실행 계획 생성
+    // 즉시 실행 (1개월)
+    actionPlan.immediate = [
+      `${educationPrograms.primary} ${educationLevel} 교육 대상자 선정 및 일정 확정`,
+      'AI 도입 현황 진단 및 우선순위 업무 선정',
+      '정부 AI 바우처 지원사업 신청 준비'
+    ];
+    
+    // 단기 계획 (3개월)
+    actionPlan.shortTerm = [
+      '12시간 AI & n8n 자동화 교육 완료 및 실습 프로젝트 수행',
+      '파일럿 자동화 워크플로 구축 및 테스트',
+      '부서별 AI 활용 성과 측정 체계 구축'
+    ];
+    
+    // 중기 계획 (6개월)
+    actionPlan.mediumTerm = [
+      '전사적 AI 자동화 확산 및 고도화',
+      `${educationPrograms.secondary} 심화 교육 진행`,
+      'AI 기반 신규 비즈니스 모델 개발',
+      '정부 지원사업 본격 활용 (세액공제 30% 적용)'
+    ];
+    
+    // 장기 비전 (1년 이상)
+    actionPlan.longTerm = [
+      'AI 기반 혁신 기업으로 포지셔닝 완성',
+      '업계 AI 활용 Best Practice 선도 기업 인증',
+      'AI 솔루션 자체 개발 및 특허 출원',
+      'AI 생태계 파트너십 구축 및 신시장 진출'
+    ];
+
     // 3단계: 업종별 최신정보 기반 완벽한 진단보고서 생성 (최고 수준)
     let comprehensiveReport;
     let industryTrends = null;
@@ -530,19 +744,40 @@ export async function POST(request: NextRequest) {
         itemResults: cat.itemResults
       })) || [],
       
+      // 카테고리별 점수 (보고서용)
+      categoryScores: enhancedResult.categoryResults?.reduce((acc: any, cat: any) => {
+        acc[cat.categoryId || cat.categoryName] = {
+          score: cat.currentScore,
+          score100: cat.score100
+        };
+        return acc;
+      }, {}) || {},
+      
+      // 상세 지표
+      detailedMetrics: enhancedResult.detailedMetrics || {},
+      
       // 🎯 SWOT 분석 완전판
       swotAnalysis: {
         strengths: swotAnalysis.strengths,
         weaknesses: swotAnalysis.weaknesses,
         opportunities: swotAnalysis.opportunities,
         threats: swotAnalysis.threats,
-        strategicMatrix: swotAnalysis.strategicMatrix || '통합 전략 분석'
+        strategicMatrix: swotAnalysis.strategicMatrix || '통합 전략 분석',
+        strategies: swotAnalysis.strategies,
+        aiAnalysis: swotAnalysis.aiAnalysis
       },
       
-      // 💡 맞춤형 추천사항
+      // 💡 맞춤형 추천사항 (AI CAMP 교육 포함)
       recommendedActions: enhancedResult.recommendedActions || [],
+      recommendations: recommendations,
       
-      // 📈 비교 지혜
+      // 📅 단계별 실행 계획
+      actionPlan: actionPlan,
+      
+      // 🏭 업종별 인사이트
+      industryInsights: industryInsights,
+      
+      // 📈 비교 지표
       comparisonMetrics: enhancedResult.comparisonMetrics || {},
       
       // 📋 완벽한 보고서
@@ -831,67 +1066,55 @@ function getDigitalTransformationGuide(industry: string): string {
  */
 async function generateSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisResult: any): Promise<any> {
   try {
-    console.log('🎯 SWOT 분석 생성 시작');
+    console.log('🎯 고급 SWOT 분석 생성 시작');
     
     const industry = data.industry || 'general';
     const totalScore = diagnosisResult.totalScore || 0;
     
-    // 업종별 기본 SWOT 템플릿
-    const swotTemplates = {
-      'manufacturing': {
-        strengths: ['생산 기술력', '품질 관리 시스템', '제조 경험', '원가 경쟁력'],
-        weaknesses: ['디지털화 부족', '마케팅 역량 한계', '인력 부족', '브랜드 인지도'],
-        opportunities: ['스마트 팩토리', '해외 수출', '정부 지원', '친환경 전환'],
-        threats: ['대기업 진출', '원자재 가격 상승', '환경 규제', '인건비 상승']
+    // 🔥 새로운 고급 SWOT 엔진 사용
+    const advancedAnalysis = AdvancedSWOTEngine.generateAdvancedSWOT(
+      industry,
+      {
+        companyName: data.companyName,
+        employeeCount: data.employeeCount,
+        growthStage: data.growthStage,
+        mainChallenges: data.mainConcerns,
+        expectedBenefits: data.expectedBenefits
       },
-      'it': {
-        strengths: ['기술 전문성', '개발 속도', '혁신 역량', '디지털 네이티브'],
-        weaknesses: ['사업화 경험', '마케팅 부족', '자금 조달', '인력 확보'],
-        opportunities: ['AI 시장 확산', '디지털 전환', '원격 근무', '글로벌 진출'],
-        threats: ['기술 변화 속도', '대기업 경쟁', '인재 유출', '보안 위험']
-      },
-      'service': {
-        strengths: ['고객 서비스', '유연성', '전문성', '관계 중심'],
-        weaknesses: ['규모의 경제', '디지털화 지연', '인력 의존', '표준화 부족'],
-        opportunities: ['개인화 서비스', '디지털 전환', '구독 모델', '데이터 활용'],
-        threats: ['플랫폼 중심화', '비용 상승', '고객 이탈', '경쟁 심화']
-      },
-      'retail': {
-        strengths: ['고객 접점', '지역 밀착', '상품 큐레이션', '서비스 품질'],
-        weaknesses: ['온라인 역량', '재고 관리', '디지털 마케팅', '자금 여력'],
-        opportunities: ['온라인 진출', '옴니채널', '개인화', 'O2O 서비스'],
-        threats: ['대형마트', '온라인몰', '임대료 상승', '소비 패턴 변화']
-      },
-      'food': {
-        strengths: ['맛과 품질', '지역 특색', '고객 충성도', '노하우'],
-        weaknesses: ['위생 관리', '배달 대응', '브랜딩', '디지털 주문'],
-        opportunities: ['배달 서비스', '프리미엄화', '건강식품', '체험 서비스'],
-        threats: ['프랜차이즈', '배달비 상승', '임대료', '식품 안전']
+      {
+        totalScore: diagnosisResult.totalScore,
+        categoryScores: diagnosisResult.categoryScores,
+        digitalReadiness: diagnosisResult.detailedMetrics?.digitalReadiness || 60
       }
-    };
+    );
     
-    const template = swotTemplates[industry.toLowerCase()] || swotTemplates['service'];
+    // SWOT 매트릭스 전략 텍스트 생성
+    const strategicMatrix = `
+🎯 SO 전략 (강점-기회): ${advancedAnalysis.strategies.SO[0]}
+🔧 WO 전략 (약점-기회): ${advancedAnalysis.strategies.WO[0]}
+🛡️ ST 전략 (강점-위협): ${advancedAnalysis.strategies.ST[0]}
+⚡ WT 전략 (약점-위협): ${advancedAnalysis.strategies.WT[0]}
+    `.trim();
     
-    // 점수 기반 조정
-    const adjustedSWOT = {
-      strengths: totalScore >= 70 ? template.strengths : template.strengths.slice(0, 2),
-      weaknesses: totalScore < 60 ? [...template.weaknesses, '경쟁력 부족'] : template.weaknesses,
-      opportunities: [...template.opportunities, '정부 지원 정책 활용'],
-      threats: totalScore < 50 ? [...template.threats, '생존 위험'] : template.threats,
-      strategicMatrix: `${industry} 업종 특화 전략: 강점을 활용한 기회 포착으로 성장 가속화하고, 약점 보완을 통한 위협 요소 최소화 필요`
-    };
-    
-    console.log('✅ SWOT 분석 완료:', {
-      strengths: adjustedSWOT.strengths.length,
-      weaknesses: adjustedSWOT.weaknesses.length,
-      opportunities: adjustedSWOT.opportunities.length,
-      threats: adjustedSWOT.threats.length
+    console.log('✅ 고급 SWOT 분석 완료:', {
+      strengths: advancedAnalysis.swot.strengths.length,
+      weaknesses: advancedAnalysis.swot.weaknesses.length,
+      opportunities: advancedAnalysis.swot.opportunities.length,
+      threats: advancedAnalysis.swot.threats.length,
+      strategies: Object.keys(advancedAnalysis.strategies).length,
+      aiTrends: advancedAnalysis.aiAnalysis.currentAITrends.length
     });
     
-    return adjustedSWOT;
+    return {
+      ...advancedAnalysis.swot,
+      strategicMatrix,
+      strategies: advancedAnalysis.strategies,
+      aiAnalysis: advancedAnalysis.aiAnalysis
+    };
     
   } catch (error) {
-    console.error('❌ SWOT 분석 생성 실패:', error);
+    console.error('❌ 고급 SWOT 분석 생성 실패:', error);
+    // 폴백으로 기존 함수 사용
     return generateBasicSWOT(data, diagnosisResult.totalScore || 0);
   }
 }

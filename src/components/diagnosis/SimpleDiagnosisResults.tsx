@@ -75,6 +75,18 @@ interface CompleteDiagnosisResultsProps {
           opportunities: string[];
           threats: string[];
           strategicMatrix: string;
+          strategies?: { // Added for new strategy display
+            SO: string[];
+            WO: string[];
+            ST: string[];
+            WT: string[];
+          };
+          aiAnalysis?: { // Added for AI analysis
+            currentAITrends: string[];
+            futureChanges: string[];
+            adaptationStrategies: string[];
+            competitiveAdvantages: string[];
+          };
         };
         
         // 💡 맞춤형 추천사항
@@ -819,12 +831,142 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
                     </div>
                 </div>
                 
+                <!-- SWOT 매트릭스 전략 -->
+                ${diagnosis.swotAnalysis.strategies ? `
+                <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 40px; border-radius: 20px; margin-top: 40px;">
+                    <h3 style="color: #1e293b; margin-bottom: 30px; font-size: 1.5rem; text-align: center;">🎯 SWOT 매트릭스 전략</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h4 style="color: #059669; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <span style="background: #10b981; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">SO</span>
+                                강점-기회 활용 전략
+                            </h4>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                ${diagnosis.swotAnalysis.strategies.SO.map(strategy => `
+                                    <li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; line-height: 1.6;">
+                                        <span style="color: #10b981; margin-right: 8px;">▶</span> ${strategy}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h4 style="color: #0891b2; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <span style="background: #06b6d4; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">WO</span>
+                                약점-기회 보완 전략
+                            </h4>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                ${diagnosis.swotAnalysis.strategies.WO.map(strategy => `
+                                    <li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; line-height: 1.6;">
+                                        <span style="color: #06b6d4; margin-right: 8px;">▶</span> ${strategy}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h4 style="color: #7c3aed; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <span style="background: #8b5cf6; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">ST</span>
+                                강점-위협 방어 전략
+                            </h4>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                ${diagnosis.swotAnalysis.strategies.ST.map(strategy => `
+                                    <li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; line-height: 1.6;">
+                                        <span style="color: #8b5cf6; margin-right: 8px;">▶</span> ${strategy}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h4 style="color: #dc2626; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <span style="background: #ef4444; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">WT</span>
+                                약점-위협 회피 전략
+                            </h4>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                ${diagnosis.swotAnalysis.strategies.WT.map(strategy => `
+                                    <li style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; line-height: 1.6;">
+                                        <span style="color: #ef4444; margin-right: 8px;">▶</span> ${strategy}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+                
                 <div style="background: white; padding: 30px; border-radius: 15px; margin-top: 30px;">
                     <h3 style="color: #e65100; margin-bottom: 15px; font-size: 1.3rem;">🔍 SWOT 전략 매트릭스</h3>
                     <p style="line-height: 1.8; color: #333;">${diagnosis.swotAnalysis.strategicMatrix}</p>
                 </div>
             </div>
             
+            <!-- AI 트렌드 분석 섹션 -->
+            ${diagnosis.swotAnalysis.aiAnalysis ? `
+            <div class="ai-trends-section" style="margin-top: 40px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 40px; border-radius: 25px;">
+                <h2 style="text-align: center; color: #1e40af; margin-bottom: 40px;">🤖 ${diagnosis.industry} AI 트렌드 분석</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                    <!-- 현재 AI 트렌드 -->
+                    <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2563eb; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">📊</span> 현재 주목받는 AI 기술
+                        </h3>
+                        <ul style="list-style: none; padding: 0;">
+                            ${diagnosis.swotAnalysis.aiAnalysis.currentAITrends.map((trend, index) => `
+                                <li style="padding: 15px; margin-bottom: 10px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px;">
+                                    <strong style="color: #1e40af;">${index + 1}.</strong> ${trend}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <!-- AI로 인한 미래 변화 -->
+                    <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                        <h3 style="color: #7c3aed; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">🔮</span> AI로 인한 ${diagnosis.industry} 미래
+                        </h3>
+                        <ul style="list-style: none; padding: 0;">
+                            ${diagnosis.swotAnalysis.aiAnalysis.futureChanges.map((change, index) => `
+                                <li style="padding: 15px; margin-bottom: 10px; background: #f5f3ff; border-left: 4px solid #8b5cf6; border-radius: 8px;">
+                                    <strong style="color: #6d28d9;">${index + 1}.</strong> ${change}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <!-- AI 적응 전략 -->
+                    <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                        <h3 style="color: #059669; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">🚀</span> ${diagnosis.companyName}의 AI 적응 전략
+                        </h3>
+                        <ul style="list-style: none; padding: 0;">
+                            ${diagnosis.swotAnalysis.aiAnalysis.adaptationStrategies.map(strategy => `
+                                <li style="padding: 15px; margin-bottom: 10px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 8px;">
+                                    ${strategy}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <!-- AI 도입 경쟁 우위 -->
+                    <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                        <h3 style="color: #dc2626; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">💎</span> AI 도입시 경쟁 우위
+                        </h3>
+                        <ul style="list-style: none; padding: 0;">
+                            ${diagnosis.swotAnalysis.aiAnalysis.competitiveAdvantages.map(advantage => `
+                                <li style="padding: 15px; margin-bottom: 10px; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 8px;">
+                                    ${advantage}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+
             <!-- 맞춤형 추천사항 -->
             <div class="recommendations-section">
                 <h2>💡 맞춤형 개선 추천사항</h2>

@@ -164,6 +164,17 @@ function getOrCreateSheet(sheetName, type) {
       sheet = spreadsheet.insertSheet(sheetName);
       setupHeaders(sheet, type);
       console.log('📋 새 시트 생성:', sheetName);
+    } else {
+      // 🔧 기존 시트가 있을 때도 헤더 확인 및 설정
+      const firstRow = sheet.getRange(1, 1, 1, 10).getValues()[0];
+      const hasHeaders = firstRow.some(cell => cell && cell.toString().trim() !== '');
+      
+      if (!hasHeaders) {
+        console.log('📋 기존 시트에 헤더 없음, 헤더 생성:', sheetName);
+        setupHeaders(sheet, type);
+      } else {
+        console.log('📋 기존 시트 헤더 확인됨:', sheetName);
+      }
     }
     
     return sheet;
@@ -433,7 +444,8 @@ function processDiagnosisForm(data) {
       data.담당자명 || data.contactName || data.contactManager || '', // J: 담당자명
       data.연락처 || data.contactPhone || '',                      // K: 연락처
       data.이메일 || data.contactEmail || data.email || '',        // L: 이메일
-      data.개인정보동의 === true || data.privacyConsent === true ? '동의' : '미동의', // M: 개인정보동의
+      (data.개인정보동의 === true || data.개인정보동의 === '동의' || 
+       data.privacyConsent === true || data.privacyConsent === '동의') ? '동의' : '미동의', // M: 개인정보동의
       'AICAMP_최고수준_AI경영진단',                                 // N: 폼타입
       '접수완료',                                                  // O: 진단상태
       '',                                                         // P: AI분석결과
@@ -595,14 +607,21 @@ function processDiagnosisForm(data) {
       const userEmail = data.이메일 || data.contactEmail || data.email;
       const userName = data.담당자명 || data.contactName || data.contactManager;
       
-      // 최고수준 AI 분석 결과 확인 이메일 발송
+      // 진단신청 접수 확인 이메일 발송 (단순화)
       if (userEmail) {
-        console.log('📧 신청자 최고수준 AI 분석 확인 이메일 발송 시작:', userEmail.substring(0, 5) + '***');
-        const emailResult = sendAdvancedAIUserConfirmation(userEmail, userName, 'AI경영진단', 
-          data.업종 || data.industry, aiAdaptationAnalysis);
+        console.log('📧 진단신청자 접수 확인 이메일 발송 시작:', userEmail.substring(0, 5) + '***');
+        const emailResult = sendUserConfirmation(userEmail, userName, '진단');
         if (emailResult && !emailResult.success) {
-          console.error('❌ 신청자 이메일 발송 실패:', emailResult.error);
+          console.error('❌ 진단신청자 이메일 발송 실패:', emailResult.error);
+        } else {
+          console.log('✅ 진단신청자 접수 확인 이메일 발송 완료');
         }
+      } else {
+        console.warn('⚠️ 진단신청자 이메일 주소가 없어 확인 메일을 발송하지 않습니다:', {
+          이메일: data.이메일,
+          contactEmail: data.contactEmail,
+          email: data.email
+        });
       }
     }
 
@@ -790,7 +809,8 @@ function processConsultationForm(data) {
       data.상담분야 || data.consultationArea || data.industry || '', // H: 상담분야
       data.문의내용 || data.inquiryContent || data.message || '',   // I: 문의내용
       data.희망상담시간 || data.preferredTime || '',                 // J: 희망상담시간
-      data.개인정보동의 === true || data.privacyConsent === true ? '동의' : '미동의', // K: 개인정보동의
+      (data.개인정보동의 === true || data.개인정보동의 === '동의' || 
+       data.privacyConsent === true || data.privacyConsent === '동의') ? '동의' : '미동의', // K: 개인정보동의
       data.진단연계여부 === 'Y' || data.isDiagnosisLinked ? 'Y' : 'N', // L: 진단연계여부
       data.진단점수 || data.diagnosisScore || '',                   // M: 진단점수
       data.추천서비스 || data.recommendedService || '',             // N: 추천서비스
@@ -3914,5 +3934,156 @@ function getSheetId(sheetName) {
   } catch (error) {
     console.error('시트 ID 가져오기 실패:', error);
     return 0;
+  }
+}
+
+// ================================================================================
+// 🔧 헤더 강제 업데이트 함수 (기존 시트 복구용)
+// ================================================================================
+
+/**
+ * 모든 시트에 강제로 헤더 추가/업데이트
+ * 📋 사용법: Google Apps Script 편집기에서 forceUpdateAllHeaders() 함수 실행
+ */
+function forceUpdateAllHeaders() {
+  try {
+    console.log('🔄 전체 시트 헤더 강제 업데이트 시작...');
+    
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let updatedSheets = [];
+    
+    // 1. AI_무료진단신청 시트 헤더 업데이트
+    try {
+      const diagnosisSheet = spreadsheet.getSheetByName(SHEETS.DIAGNOSIS);
+      if (diagnosisSheet) {
+        // 기존 데이터가 있는지 확인
+        const lastRow = diagnosisSheet.getLastRow();
+        if (lastRow > 1) {
+          // 기존 데이터가 있으면 첫 번째 행에 헤더 삽입
+          diagnosisSheet.insertRowBefore(1);
+        }
+        setupHeaders(diagnosisSheet, 'diagnosis');
+        updatedSheets.push(`${SHEETS.DIAGNOSIS} (120개 컬럼)`);
+        console.log('✅ AI_무료진단신청 시트 헤더 업데이트 완료');
+      }
+    } catch (error) {
+      console.error('❌ AI_무료진단신청 시트 헤더 업데이트 실패:', error);
+    }
+    
+    // 2. 상담신청 시트 헤더 업데이트
+    try {
+      const consultationSheet = spreadsheet.getSheetByName(SHEETS.CONSULTATION);
+      if (consultationSheet) {
+        // 기존 데이터가 있는지 확인
+        const lastRow = consultationSheet.getLastRow();
+        if (lastRow > 1) {
+          // 기존 데이터가 있으면 첫 번째 행에 헤더 삽입
+          consultationSheet.insertRowBefore(1);
+        }
+        setupHeaders(consultationSheet, 'consultation');
+        updatedSheets.push(`${SHEETS.CONSULTATION} (19개 컬럼)`);
+        console.log('✅ 상담신청 시트 헤더 업데이트 완료');
+      }
+    } catch (error) {
+      console.error('❌ 상담신청 시트 헤더 업데이트 실패:', error);
+    }
+    
+    // 3. 베타피드백 시트 헤더 업데이트
+    try {
+      const betaSheet = spreadsheet.getSheetByName(SHEETS.BETA_FEEDBACK);
+      if (betaSheet) {
+        // 기존 데이터가 있는지 확인
+        const lastRow = betaSheet.getLastRow();
+        if (lastRow > 1) {
+          // 기존 데이터가 있으면 첫 번째 행에 헤더 삽입
+          betaSheet.insertRowBefore(1);
+        }
+        setupHeaders(betaSheet, 'betaFeedback');
+        updatedSheets.push(`${SHEETS.BETA_FEEDBACK} (14개 컬럼)`);
+        console.log('✅ 베타피드백 시트 헤더 업데이트 완료');
+      }
+    } catch (error) {
+      console.error('❌ 베타피드백 시트 헤더 업데이트 실패:', error);
+    }
+    
+    const result = {
+      success: true,
+      message: '🎉 전체 시트 헤더 강제 업데이트 완료!',
+      updatedSheets: updatedSheets,
+      timestamp: getCurrentKoreanTime(),
+      totalSheets: updatedSheets.length
+    };
+    
+    console.log('🎉 전체 시트 헤더 강제 업데이트 완료:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ 전체 시트 헤더 업데이트 실패:', error);
+    return {
+      success: false,
+      error: '헤더 업데이트 실패: ' + error.toString(),
+      timestamp: getCurrentKoreanTime()
+    };
+  }
+}
+
+/**
+ * 특정 시트만 헤더 강제 업데이트
+ * @param {string} sheetType - 'diagnosis', 'consultation', 'betaFeedback'
+ */
+function forceUpdateSheetHeader(sheetType) {
+  try {
+    console.log(`🔄 ${sheetType} 시트 헤더 강제 업데이트 시작...`);
+    
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheetName;
+    
+    switch(sheetType) {
+      case 'diagnosis':
+        sheetName = SHEETS.DIAGNOSIS;
+        break;
+      case 'consultation':
+        sheetName = SHEETS.CONSULTATION;
+        break;
+      case 'betaFeedback':
+        sheetName = SHEETS.BETA_FEEDBACK;
+        break;
+      default:
+        throw new Error('올바르지 않은 시트 타입: ' + sheetType);
+    }
+    
+    const sheet = spreadsheet.getSheetByName(sheetName);
+    if (!sheet) {
+      throw new Error('시트를 찾을 수 없습니다: ' + sheetName);
+    }
+    
+    // 기존 데이터가 있는지 확인
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      // 기존 데이터가 있으면 첫 번째 행에 헤더 삽입
+      sheet.insertRowBefore(1);
+    }
+    
+    setupHeaders(sheet, sheetType);
+    
+    const result = {
+      success: true,
+      message: `✅ ${sheetName} 시트 헤더 강제 업데이트 완료!`,
+      sheetName: sheetName,
+      sheetType: sheetType,
+      timestamp: getCurrentKoreanTime()
+    };
+    
+    console.log(`✅ ${sheetName} 시트 헤더 강제 업데이트 완료:`, result);
+    return result;
+    
+  } catch (error) {
+    console.error(`❌ ${sheetType} 시트 헤더 업데이트 실패:`, error);
+    return {
+      success: false,
+      error: '헤더 업데이트 실패: ' + error.toString(),
+      sheetType: sheetType,
+      timestamp: getCurrentKoreanTime()
+    };
   }
 }
