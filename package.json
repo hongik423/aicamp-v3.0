@@ -28,6 +28,8 @@
     "env:verify": "node -e \"const fs=require('fs');if(fs.existsSync('.env.local')){console.log('✅ .env.local 파일 존재');const content=fs.readFileSync('.env.local','utf8');console.log('📊 Google Script URL:',content.includes('AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB')?'✅ 정확함':'❌ 불일치');}else{console.log('❌ .env.local 파일 없음');}\"",
     "update:google-script": "node scripts/update-google-script-url.js",
     "test:beta-feedback": "node scripts/test-beta-feedback-system.js",
+    "init:report-folder": "node scripts/init-report-folder.js",
+    "check:pdf-reports": "node -e \"const fs=require('fs');const path=require('path');const reportDir=path.join(process.cwd(),'report');if(fs.existsSync(reportDir)){const files=fs.readdirSync(reportDir).filter(f=>f.endsWith('.pdf'));console.log('📄 PDF 보고서:',files.length,'개');files.forEach(f=>console.log(' -',f));}else{console.log('❌ report 폴더 없음');}\"",
     "test:comprehensive": "node scripts/comprehensive-system-test.js",
     "test:full-system": "npm run test:comprehensive",
     "test:google-script": "npm run test:beta-feedback",
@@ -73,7 +75,7 @@
     "lucide-react": "^0.469.0",
     "next": "14.2.13",
     "next-themes": "^0.4.3",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^2.7.0",
     "postcss": "^8",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
@@ -100,6 +102,7 @@
     "dotenv": "^17.2.1",
     "eslint": "^9.29.0",
     "eslint-config-next": "^15.1.0",
+    "google-auth-library": "^10.2.0",
     "puppeteer": "^24.12.0"
   }
 }
