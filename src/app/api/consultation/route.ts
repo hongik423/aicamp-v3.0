@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       상담분야: consultationData.consultationArea || '',
       문의내용: consultationData.inquiryContent || '',
       희망상담시간: consultationData.preferredTime || '',
-      개인정보동의: '동의',
+      개인정보동의: consultationData.privacyConsent === true ? '동의' : '미동의',
       처리방식: 'API_백업시스템',
       timestamp: Date.now()
     };
