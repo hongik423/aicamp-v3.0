@@ -509,6 +509,7 @@ export async function POST(request: NextRequest) {
       industry: data.industry,
       employeeCount: data.employeeCount || '미확인',
       businessLocation: data.businessLocation || '미확인',
+      privacyConsent: data.privacyConsent,
       
       // 🎯 완벽한 점수 체계
       totalScore: enhancedResult.totalScore,
