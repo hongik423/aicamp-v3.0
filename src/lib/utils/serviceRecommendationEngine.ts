@@ -1,778 +1,543 @@
-// 🏛️ 정책자금 및 정부지원 활용 서비스 추천 엔진
-// AI CAMP 6개 서비스영역 중 가장 적합한 1개 추천 시스템
+'use client';
 
-export interface DiagnosisProcessRequest {
-  companyName: string;
-  industry: string;
-  businessManager: string;
-  employeeCount: string;
-  establishmentDifficulty: string;
-  businessLocation: string;
-  mainConcerns: string;
-  expectedBenefits: string;
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
-  privacyConsent: boolean;
-}
-
-  // AI CAMP 6개 서비스영역 정의
 export interface MCenterService {
   id: string;
   name: string;
   description: string;
-  targetCompanies: string[];
-  expectedOutcome: string;
-  timeframe: string;
-  investment: string;
-  roi: string;
-  governmentSupport: string[];
-  priority: number;
-}
-
-// 6개 핵심 서비스 정의
-export const MCENTER_SERVICES: MCenterService[] = [
-  {
-    id: 'business-analysis',
-    name: 'BM ZEN 사업분석',
-    description: '비즈니스 모델 최적화를 통한 수익성 개선 및 성장전략 수립',
-    targetCompanies: ['매출정체', '수익성부족', '사업모델혁신', '투자유치준비'],
-    expectedOutcome: '매출 20-40% 증대, 수익성 30% 개선',
-    timeframe: '2-3개월',
-    investment: '300-500만원',
-    roi: '300-800%',
-    governmentSupport: ['사업재편지원', 'BM혁신지원', '투자연계지원'],
-    priority: 1
-  },
-  {
-    id: 'ai-productivity',
-    name: 'AI 활용 생산성향상',
-    description: 'ChatGPT, 업무자동화 도구를 활용한 생산성 혁신',
-    targetCompanies: ['업무효율저하', '인력부족', 'AI도입필요', '디지털전환'],
-    expectedOutcome: '업무효율 40-60% 향상, 인건비 25% 절감',
-    timeframe: '1-2개월',
-    investment: '200-400만원',
-    roi: '400-1000%',
-    governmentSupport: ['AI도입지원', '스마트워크지원', '디지털전환지원'],
-    priority: 2
-  },
-  {
-    id: 'factory-auction',
-          name: '정책자금 확보',
-    description: '부동산 경매를 통한 고정비 절감 및 자산 확보',
-    targetCompanies: ['제조업', '공장확장필요', '임대료부담', '자산확보'],
-    expectedOutcome: '부동산비용 30-50% 절감, 자산가치 상승',
-    timeframe: '3-6개월',
-    investment: '1000-3000만원',
-    roi: '200-500%',
-    governmentSupport: ['공장신축지원', '시설자금지원', '입지지원'],
-    priority: 3
-  },
-  {
-    id: 'tech-startup',
-    name: '기술사업화/기술창업',
-    description: '기술 기반 사업화 및 창업 지원으로 혁신 성장',
-    targetCompanies: ['기술보유', '창업준비', 'R&D필요', '특허활용'],
-    expectedOutcome: '평균 5억원 자금 확보, 기술사업화 성공',
-    timeframe: '6-12개월',
-    investment: '500-1000만원',
-    roi: '500-2000%',
-    governmentSupport: ['TIPS프로그램', 'R&D지원', '기술사업화지원'],
-    priority: 4
-  },
-  {
-    id: 'certification',
-    name: '인증지원',
-    description: '벤처/이노비즈 등 각종 인증 취득으로 시장 신뢰도 제고',
-    targetCompanies: ['신뢰도부족', '대기업납품필요', '세제혜택필요', '투자유치'],
-    expectedOutcome: '연간 5,000만원 세제혜택, 신용도 상승',
-    timeframe: '3-6개월',
-    investment: '400-800만원',
-    roi: '200-600%',
-    governmentSupport: ['벤처확인지원', '이노비즈지원', '메인비즈지원'],
-    priority: 5
-  },
-  {
-    id: 'website',
-    name: '웹사이트 구축',
-    description: '전문 웹사이트 구축으로 온라인 마케팅 강화',
-    targetCompanies: ['온라인마케팅', '브랜딩필요', '고객접점확대', '영업강화'],
-    expectedOutcome: '온라인 매출 30-50% 증대, 브랜드 인지도 향상',
-    timeframe: '2-4개월',
-    investment: '500-1200만원',
-    roi: '150-400%',
-    governmentSupport: ['온라인마케팅지원', '브랜딩지원', '쇼핑몰지원'],
-    priority: 6
-  }
-];
-
-// 정책자금 및 정부지원 활용 매핑 규칙
-export interface GovernmentSupportMapping {
-  keyword: string;
-  targetServices: string[];
-  priority: number;
-  reason: string;
-}
-
-// 정책자금 키워드별 서비스 매핑
-export const GOVERNMENT_SUPPORT_MAPPINGS: GovernmentSupportMapping[] = [
-  {
-    keyword: '사업재편',
-    targetServices: ['business-analysis', 'ai-productivity'],
-    priority: 1,
-    reason: '사업모델 혁신과 효율성 개선이 우선 필요'
-  },
-  {
-    keyword: '디지털전환',
-    targetServices: ['ai-productivity', 'website'],
-    priority: 1,
-    reason: 'AI 도입과 온라인 플랫폼 구축이 핵심'
-  },
-  {
-    keyword: '기술혁신',
-    targetServices: ['tech-startup', 'ai-productivity'],
-    priority: 1,
-    reason: '기술사업화와 AI 활용이 혁신 동력'
-  },
-  {
-    keyword: '창업지원',
-    targetServices: ['tech-startup', 'certification'],
-    priority: 1,
-    reason: '기술창업과 인증 취득이 성공 기반'
-  },
-  {
-    keyword: '시설투자',
-    targetServices: ['factory-auction', 'business-analysis'],
-    priority: 1,
-            reason: '정책자금 확보와 투자계획 수립이 필수'
-  },
-  {
-    keyword: '마케팅지원',
-    targetServices: ['website', 'business-analysis'],
-    priority: 1,
-    reason: '온라인 마케팅과 비즈니스 전략이 중요'
-  }
-];
-
-// 추천 결과 인터페이스
-export interface ServiceRecommendation {
-  primaryService: MCenterService;
-  secondaryServices: MCenterService[];
-  reasons: string[];
-  actionPlan: ActionPlan;
-  expectedResults: ExpectedResults;
-  governmentSupports: GovernmentSupport[];
-}
-
-export interface ActionPlan {
-  phase1: {
-    period: string;
-    tasks: string[];
-    milestone: string;
+  targetScore: {
+    min: number;
+    max: number;
   };
-  phase2: {
-    period: string;
-    tasks: string[];
-    milestone: string;
-  };
-  phase3: {
-    period: string;
-    tasks: string[];
-    milestone: string;
-  };
-}
-
-export interface ExpectedResults {
-  immediate: string[];
-  shortTerm: string[];
-  longTerm: string[];
-  quantitative: {
-    salesIncrease: string;
-    efficiencyGain: string;
-    costReduction: string;
-    roi: string;
-  };
-}
-
-export interface GovernmentSupport {
-  name: string;
-  amount: string;
+  businessStage: string[];
+  category: string;
   duration: string;
-  requirements: string[];
-  successRate: string;
+  benefits: string[];
+  curriculum?: string[];
+  price?: string;
+  priority: number;
 }
 
-// 🚀 핵심 서비스 추천 엔진
+export interface ServiceRecommendation {
+  service: MCenterService;
+  reason: string;
+  urgency: 'high' | 'medium' | 'low';
+  expectedImpact: string;
+}
+
+/**
+ * AI CAMP 교육 커리큘럼 기반 서비스 데이터베이스
+ */
+const MCENTER_SERVICES: MCenterService[] = [
+  // 기획/전략 트랙
+  {
+    id: 'ai-planning-basic',
+    name: '기획/전략 트랙 AI & n8n 자동화 교육 - 입문',
+    description: '생성형 AI를 활용한 기획 보고서, 회의록, KPI 리포트 자동화 교육',
+    targetScore: { min: 0, max: 70 },
+    businessStage: ['창업기', '성장기', '성숙기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '시장동향 분석 자동화 구축',
+      '보고서 생성 자동화',
+      'KPI 요약 자동화',
+      '회의록 요약 공유 시스템'
+    ],
+    curriculum: [
+      '생성형AI 개요 및 프롬프트 작성법',
+      'n8n 기본 이해 및 실습',
+      '뉴스 요약/회의록 자동화',
+      'KPI 리포트 자동화'
+    ],
+    price: '12시간 과정',
+    priority: 10
+  },
+  {
+    id: 'ai-planning-advanced',
+    name: '기획/전략 트랙 AI & n8n 자동화 교육 - 심화',
+    description: '외부 데이터/API 연동 및 고급 자동화 구현',
+    targetScore: { min: 70, max: 100 },
+    businessStage: ['성장기', '성숙기', '재도약기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      'ChatGPT API 고급 활용',
+      '외부 데이터 수집 자동화',
+      '전략분석 리포트 자동화',
+      'Notion + GPT 전략문서 자동화'
+    ],
+    curriculum: [
+      'n8n 고급 노드 이해',
+      'API 연동 및 데이터 수집',
+      '조건분기 및 오류처리',
+      '실전 프로젝트 구현'
+    ],
+    price: '12시간 과정',
+    priority: 9
+  },
+  
+  // 영업 트랙
+  {
+    id: 'ai-sales-basic',
+    name: '영업 트랙 AI & n8n 자동화 교육 - 입문',
+    description: '영업 현장의 반복 업무를 자동화할 수 있는 기반 역량 확보',
+    targetScore: { min: 0, max: 70 },
+    businessStage: ['창업기', '성장기', '성숙기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '영업활동 리포트 자동화',
+      '고객사별 맞춤 제안서 작성',
+      '방문일정 리마인드 자동화',
+      '미팅 후 이메일 자동작성'
+    ],
+    curriculum: [
+      '영업 프롬프트 작성 실습',
+      '방문일정 자동 리마인드',
+      '영업활동 리포트 요약',
+      '제안서 문구 자동화'
+    ],
+    price: '12시간 과정',
+    priority: 10
+  },
+  {
+    id: 'ai-sales-advanced',
+    name: '영업 트랙 AI & n8n 자동화 교육 - 심화',
+    description: '고객응대, 제안, 리포트 등 전반적인 영업업무 자동화 설계',
+    targetScore: { min: 70, max: 100 },
+    businessStage: ['성장기', '성숙기', '재도약기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '고객사 정보 자동수집',
+      '제안서 자동 초안 생성',
+      '영업 KPI 리포트 자동화',
+      'CRM 연동 기본'
+    ],
+    curriculum: [
+      'n8n 고급 노드 심화',
+      'API/RSS 데이터 수집',
+      'GPT 기반 제안서 생성',
+      '실무 자동화 설계'
+    ],
+    price: '12시간 과정',
+    priority: 9
+  },
+  
+  // 마케팅 트랙
+  {
+    id: 'ai-marketing-basic',
+    name: '마케팅 트랙 AI & n8n 자동화 교육 - 입문',
+    description: '마케팅 콘텐츠와 광고 데이터를 자동으로 처리할 수 있는 기초 역량',
+    targetScore: { min: 0, max: 70 },
+    businessStage: ['창업기', '성장기', '성숙기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '광고성과 분석 자동화',
+      '캠페인 리포트 요약',
+      'SNS 댓글 분석 및 대응 자동화',
+      '콘텐츠 요약 및 변환'
+    ],
+    curriculum: [
+      '광고문구 자동생성',
+      'Meta/Google Ads 리포트 자동화',
+      'SNS 댓글 수집 및 요약',
+      '캠페인 리마인드 자동화'
+    ],
+    price: '12시간 과정',
+    priority: 10
+  },
+  {
+    id: 'ai-marketing-advanced',
+    name: '마케팅 트랙 AI & n8n 자동화 교육 - 심화',
+    description: '광고/콘텐츠 성과리포트, 고객반응 자동분석 고급 워크플로 설계',
+    targetScore: { min: 70, max: 100 },
+    businessStage: ['성장기', '성숙기', '재도약기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      'Google/Meta Ads API 연동',
+      'GPT 활용 카피 A/B 테스트',
+      '댓글 및 피드백 감성분석',
+      '마케팅 대시보드 자동연동'
+    ],
+    curriculum: [
+      '광고 API 연동 실습',
+      '감성분석 자동화',
+      '캠페인 성과 추적',
+      '실전 설계 프로젝트'
+    ],
+    price: '12시간 과정',
+    priority: 9
+  },
+  
+  // 생산/물류 트랙
+  {
+    id: 'ai-production-basic',
+    name: '생산/물류 트랙 AI & n8n 자동화 교육 - 입문',
+    description: '반복적인 생산/물류 관리 업무를 자동화하는 기초 역량 확보',
+    targetScore: { min: 0, max: 70 },
+    businessStage: ['창업기', '성장기', '성숙기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '생산일정 리마인드',
+      '재고 모니터링 자동화',
+      '배송지연 자동 알림',
+      '작업일지 자동정리'
+    ],
+    curriculum: [
+      '업무 요약용 프롬프트 실습',
+      '재고수량 체크 자동화',
+      '생산일정 리마인드',
+      '출고/입고 보고서 요약'
+    ],
+    price: '12시간 과정',
+    priority: 10
+  },
+  {
+    id: 'ai-production-advanced',
+    name: '생산/물류 트랙 AI & n8n 자동화 교육 - 심화',
+    description: '센서/데이터/API 연동 및 품질이상감지, 재고예측 자동화',
+    targetScore: { min: 70, max: 100 },
+    businessStage: ['성장기', '성숙기', '재도약기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '재고 이상감지 자동화',
+      '품질점검 보고서 자동생성',
+      '센서/IoT 데이터 연동',
+      '공급망 관리 알림 흐름'
+    ],
+    curriculum: [
+      'n8n 고급 노드 실습',
+      'IoT 데이터 연동 설계',
+      '품질 이상감지 시스템',
+      '현장 기반 자동화 설계'
+    ],
+    price: '12시간 과정',
+    priority: 9
+  },
+  
+  // 고객지원(CS) 트랙
+  {
+    id: 'ai-cs-basic',
+    name: '고객지원(CS) 트랙 AI & n8n 자동화 교육 - 입문',
+    description: '반복응대, 민원처리, 보고업무를 자동화할 수 있는 기초능력',
+    targetScore: { min: 0, max: 70 },
+    businessStage: ['창업기', '성장기', '성숙기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '고객문의 자동 분류/요약',
+      'FAQ 자동응답',
+      '응대품질 분석 자동화',
+      'VOC 수집 및 정리'
+    ],
+    curriculum: [
+      '응대 메시지 자동생성',
+      '민원 텍스트 요약',
+      'FAQ 자동화 실습',
+      'VOC 유형 분류'
+    ],
+    price: '12시간 과정',
+    priority: 10
+  },
+  {
+    id: 'ai-cs-advanced',
+    name: '고객지원(CS) 트랙 AI & n8n 자동화 교육 - 심화',
+    description: '고객응대 데이터분석, 응답품질평가, 피드백시스템 자동화',
+    targetScore: { min: 70, max: 100 },
+    businessStage: ['성장기', '성숙기', '재도약기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '다채널 고객문의 통합 자동화',
+      '고객발언 감정분석 자동화',
+      '응대품질 평가시스템 설계',
+      '리포트 자동요약 시스템'
+    ],
+    curriculum: [
+      '멀티채널 통합 대응',
+      'GPT + 감성분석 API',
+      '응대품질 자동평가',
+      'VOC 패턴분석'
+    ],
+    price: '12시간 과정',
+    priority: 9
+  },
+  
+  // 인사/총무 트랙
+  {
+    id: 'ai-hr-basic',
+    name: '인사/총무 트랙 AI & n8n 자동화 교육 - 입문',
+    description: '채용/사내관리/문서정리를 자동화하는 기초 역량 습득',
+    targetScore: { min: 0, max: 70 },
+    businessStage: ['창업기', '성장기', '성숙기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '직원만족도 조사 요약',
+      '채용공고 자동 생성',
+      '입사자 온보딩 안내 자동화',
+      '휴가신청서 정리 자동화'
+    ],
+    curriculum: [
+      '이력서 요약 프롬프트',
+      '채용공고 자동생성',
+      '온보딩 안내 자동화',
+      '만족도 설문 자동화'
+    ],
+    price: '12시간 과정',
+    priority: 10
+  },
+  {
+    id: 'ai-hr-advanced',
+    name: '인사/총무 트랙 AI & n8n 자동화 교육 - 심화',
+    description: '평가, 만족도, 복무데이터 처리 자동화 설계',
+    targetScore: { min: 70, max: 100 },
+    businessStage: ['성장기', '성숙기', '재도약기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '사내알림 자동화 시스템',
+      '피드백 수집 및 요약 자동화',
+      '사내문서 검색/요약 시스템',
+      'HR 지표 자동 리포트'
+    ],
+    curriculum: [
+      'GPT API 커스터마이징',
+      '사내 챗봇 설계',
+      '입퇴사 프로세스 자동화',
+      'HR 대시보드 구축'
+    ],
+    price: '12시간 과정',
+    priority: 9
+  },
+  
+  // 재무/회계 트랙
+  {
+    id: 'ai-finance-basic',
+    name: '재무/회계 트랙 AI & n8n 자동화 교육 - 입문',
+    description: '전표·보고·비용정리 업무를 AI와 자동화 툴로 간소화',
+    targetScore: { min: 0, max: 70 },
+    businessStage: ['창업기', '성장기', '성숙기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '비용정산 자동화',
+      '세금계산서 요약',
+      '월별 지출분석 자동 보고서화',
+      '부서별 예산 자동리포트'
+    ],
+    curriculum: [
+      '숫자기반 요약 프롬프트',
+      '세금계산서 요약 자동화',
+      '월간지출 정리 자동화',
+      '예산 경고알림 설정'
+    ],
+    price: '12시간 과정',
+    priority: 10
+  },
+  {
+    id: 'ai-finance-advanced',
+    name: '재무/회계 트랙 AI & n8n 자동화 교육 - 심화',
+    description: '실적/예산 관련 보고서 자동화 및 재무지표 기반 경고시스템',
+    targetScore: { min: 70, max: 100 },
+    businessStage: ['성장기', '성숙기', '재도약기'],
+    category: 'AI교육',
+    duration: '12시간',
+    benefits: [
+      '실적요약 자동 보고서 작성',
+      '부서별 예산 실시간 비교',
+      'GPT 기반 지표해석 문구생성',
+      '비용흐름 이상감지'
+    ],
+    curriculum: [
+      '고급 n8n 구성 실습',
+      '승인기반 보고 흐름',
+      '회계감사 대응 자동화',
+      '재무 대시보드 구축'
+    ],
+    price: '12시간 과정',
+    priority: 9
+  },
+  
+  // 기존 서비스들도 유지
+  {
+    id: 'diagnosis',
+    name: '정밀 경영진단',
+    description: 'AI 기반 경영 전반 정밀 진단 및 개선방안 도출',
+    targetScore: { min: 0, max: 60 },
+    businessStage: ['창업기', '성장기', '성숙기', '재도약기'],
+    category: '경영진단',
+    duration: '4주',
+    benefits: [
+      '경영 전 영역 정밀 분석',
+      'AI 기반 문제점 진단',
+      '맞춤형 개선방안 제시',
+      '실행 로드맵 수립'
+    ],
+    priority: 8
+  },
+  {
+    id: 'policy-funding',
+    name: '정책자금 컨설팅',
+    description: '정부지원사업 매칭 및 신청 전략 수립',
+    targetScore: { min: 40, max: 80 },
+    businessStage: ['성장기', '성숙기'],
+    category: '자금지원',
+    duration: '2-3개월',
+    benefits: [
+      '맞춤형 정책자금 매칭',
+      '신청서 작성 지원',
+      '사업계획서 고도화',
+      '심사 대응 전략'
+    ],
+    priority: 7
+  }
+];
+
+/**
+ * 서비스 추천 엔진
+ */
 export class ServiceRecommendationEngine {
-  
   /**
-   * "정책자금 및 정부지원 활용" 결과에 대한 최적 서비스 추천
+   * 진단 결과 기반 맞춤 서비스 추천
    */
-  static recommendForGovernmentSupport(data: DiagnosisProcessRequest): ServiceRecommendation {
-    console.log('🎯 정책자금 활용 맞춤 서비스 추천 시작:', data.companyName);
+  static getRecommendations(
+    totalScore: number,
+    businessStage: string,
+    weaknesses: string[],
+    industry: string
+  ): ServiceRecommendation[] {
+    const recommendations: ServiceRecommendation[] = [];
     
-    // 1. 기업 특성 분석
-    const characteristics = this.analyzeCompanyCharacteristics(data);
-    
-    // 2. 정책자금 키워드 매칭
-    const matchedMappings = this.matchGovernmentSupportKeywords(characteristics);
-    
-    // 3. 우선순위 기반 서비스 선정
-    const primaryService = this.selectPrimaryService(characteristics, matchedMappings);
-    const secondaryServices = this.selectSecondaryServices(primaryService, characteristics);
-    
-    // 4. 추천 이유 생성
-    const reasons = this.generateRecommendationReasons(primaryService, characteristics);
-    
-    // 5. 액션플랜 생성
-    const actionPlan = this.generateActionPlan(primaryService, characteristics);
-    
-    // 6. 예상 결과 생성
-    const expectedResults = this.generateExpectedResults(primaryService, characteristics);
-    
-    // 7. 정부지원 프로그램 매칭
-    const governmentSupports = this.matchGovernmentPrograms(primaryService, characteristics);
-    
-    return {
-      primaryService,
-      secondaryServices,
-      reasons,
-      actionPlan,
-      expectedResults,
-      governmentSupports
+    // 업종별 우선 추천 트랙 매핑
+    const industryTrackMapping: Record<string, string[]> = {
+      '제조업': ['ai-production-', 'ai-planning-'],
+      'IT': ['ai-planning-', 'ai-sales-'],
+      '서비스업': ['ai-cs-', 'ai-marketing-'],
+      '소매업': ['ai-sales-', 'ai-marketing-'],
+      '외식업': ['ai-cs-', 'ai-marketing-'],
+      '금융': ['ai-finance-', 'ai-cs-'],
+      '의료': ['ai-cs-', 'ai-hr-'],
+      '교육': ['ai-hr-', 'ai-marketing-']
     };
-  }
-  
-  /**
-   * 기업 특성 분석
-   */
-  private static analyzeCompanyCharacteristics(data: DiagnosisProcessRequest) {
-    const concerns = data.mainConcerns.toLowerCase();
-    const benefits = data.expectedBenefits.toLowerCase();
     
-    return {
-      industry: data.industry,
-      size: data.employeeCount,
-      stage: data.establishmentDifficulty,
-      concerns: this.extractConcernKeywords(concerns),
-      benefits: this.extractBenefitKeywords(benefits),
-      location: data.businessLocation
-    };
-  }
-  
-  /**
-   * 주요 고민 키워드 추출
-   */
-  private static extractConcernKeywords(concerns: string): string[] {
-    const keywords = [];
+    // 점수에 따른 과정 레벨 결정
+    const courseLevel = totalScore >= 70 ? 'advanced' : 'basic';
     
-    if (concerns.includes('매출') || concerns.includes('수익')) keywords.push('매출정체');
-    if (concerns.includes('인력') || concerns.includes('인재')) keywords.push('인력부족');
-    if (concerns.includes('시설') || concerns.includes('공장')) keywords.push('시설투자');
-    if (concerns.includes('마케팅') || concerns.includes('홍보')) keywords.push('마케팅부족');
-    if (concerns.includes('기술') || concerns.includes('혁신')) keywords.push('기술혁신');
-    if (concerns.includes('효율') || concerns.includes('생산성')) keywords.push('업무효율저하');
-    if (concerns.includes('자금') || concerns.includes('투자')) keywords.push('자금부족');
-    if (concerns.includes('인증') || concerns.includes('신뢰')) keywords.push('신뢰도부족');
+    // 업종별 우선 추천 트랙 찾기
+    const priorityTracks = industryTrackMapping[industry] || ['ai-planning-', 'ai-sales-'];
     
-    return keywords.length > 0 ? keywords : ['사업성장'];
-  }
-  
-  /**
-   * 기대 효과 키워드 추출
-   */
-  private static extractBenefitKeywords(benefits: string): string[] {
-    const keywords = [];
-    
-    if (benefits.includes('매출') || benefits.includes('성장')) keywords.push('매출증대');
-    if (benefits.includes('효율') || benefits.includes('생산성')) keywords.push('효율향상');
-    if (benefits.includes('비용') || benefits.includes('절약')) keywords.push('비용절감');
-    if (benefits.includes('확장') || benefits.includes('규모')) keywords.push('사업확장');
-    if (benefits.includes('기술') || benefits.includes('혁신')) keywords.push('기술혁신');
-    if (benefits.includes('고객') || benefits.includes('서비스')) keywords.push('고객확대');
-    
-    return keywords.length > 0 ? keywords : ['종합성장'];
-  }
-  
-  /**
-   * 정책자금 키워드 매칭
-   */
-  private static matchGovernmentSupportKeywords(characteristics: any): GovernmentSupportMapping[] {
-    const matched = [];
-    
-    for (const mapping of GOVERNMENT_SUPPORT_MAPPINGS) {
-      // 고민사항과 기대효과에서 키워드 매칭
-      const concernMatch = characteristics.concerns.some((concern: string) => 
-        concern.includes(mapping.keyword) || mapping.keyword.includes(concern.split('부족')[0])
-      );
-      
-      const benefitMatch = characteristics.benefits.some((benefit: string) => 
-        benefit.includes(mapping.keyword) || mapping.keyword.includes(benefit.split('증대')[0])
-      );
-      
-      if (concernMatch || benefitMatch) {
-        matched.push(mapping);
-      }
-    }
-    
-    // 기본 매핑 (매칭되는 것이 없을 경우)
-    if (matched.length === 0) {
-      matched.push({
-        keyword: '종합지원',
-        targetServices: ['business-analysis', 'ai-productivity'],
-        priority: 1,
-        reason: '종합적인 경영지도를 통한 체계적 성장 지원'
-      });
-    }
-    
-    return matched.sort((a, b) => a.priority - b.priority);
-  }
-  
-  /**
-   * 1순위 서비스 선정
-   */
-  private static selectPrimaryService(
-    characteristics: any, 
-    mappings: GovernmentSupportMapping[]
-  ): MCenterService {
-    
-    // 매핑된 서비스들의 점수 계산
-    const serviceScores = new Map<string, number>();
-    
-    // 1. 정책자금 매핑 점수
-    mappings.forEach(mapping => {
-      mapping.targetServices.forEach(serviceId => {
-        const currentScore = serviceScores.get(serviceId) || 0;
-        serviceScores.set(serviceId, currentScore + (10 - mapping.priority) * 10);
-      });
-    });
-    
-    // 2. 업종별 추가 점수
-    this.addIndustryBonus(serviceScores, characteristics.industry);
-    
-    // 3. 기업 규모별 추가 점수
-    this.addSizeBonus(serviceScores, characteristics.size);
-    
-    // 4. 경영 단계별 추가 점수
-    this.addStageBonus(serviceScores, characteristics.stage);
-    
-    // 가장 높은 점수의 서비스 선택
-    let maxScore = 0;
-    let selectedServiceId = 'business-analysis'; // 기본값
-    
-    serviceScores.forEach((score, serviceId) => {
-      if (score > maxScore) {
-        maxScore = score;
-        selectedServiceId = serviceId;
+    // 서비스 필터링 및 추천
+    MCENTER_SERVICES.forEach(service => {
+      // 점수 범위 확인
+      if (totalScore >= service.targetScore.min && totalScore <= service.targetScore.max) {
+        // 사업 단계 확인
+        if (service.businessStage.includes(businessStage)) {
+          let urgency: 'high' | 'medium' | 'low' = 'medium';
+          let reason = '';
+          let expectedImpact = '';
+          
+          // 업종별 우선 트랙인지 확인
+          const isPriorityTrack = priorityTracks.some(track => 
+            service.id.includes(track) && service.id.includes(courseLevel)
+          );
+          
+          if (isPriorityTrack) {
+            urgency = 'high';
+            reason = `${industry} 업종에 최적화된 AI 자동화 교육으로 즉시 실무 적용 가능`;
+            expectedImpact = '3개월 내 업무 효율 70% 향상, ROI 300% 달성 예상';
+          } else if (service.category === 'AI교육') {
+            // 약점 기반 추천
+            if (weaknesses.includes('디지털화') && service.id.includes('basic')) {
+              urgency = 'high';
+              reason = 'AI/디지털 전환 기초 역량 구축이 시급함';
+              expectedImpact = '디지털 역량 강화로 경쟁력 확보';
+            } else if (weaknesses.includes('마케팅') && service.id.includes('marketing')) {
+              urgency = 'high';
+              reason = '마케팅 자동화를 통한 고객 확보 전략 필요';
+              expectedImpact = '마케팅 ROI 200% 향상';
+            } else if (weaknesses.includes('운영') && service.id.includes('production')) {
+              urgency = 'high';
+              reason = '운영 효율화를 위한 자동화 시스템 구축 필요';
+              expectedImpact = '운영 비용 30% 절감';
+            } else {
+              reason = `${service.name.split(' ')[0]} 부서의 AI 역량 강화 필요`;
+              expectedImpact = '업무 자동화로 생산성 향상';
+            }
+          } else {
+            // 기존 서비스 추천 로직
+            if (totalScore < 50 && service.id === 'diagnosis') {
+              urgency = 'high';
+              reason = '낮은 경영 점수로 정밀 진단이 시급함';
+              expectedImpact = '문제점 파악 및 개선 방향 설정';
+            } else if (service.id === 'policy-funding') {
+              urgency = 'medium';
+              reason = '성장을 위한 자금 확보 전략 필요';
+              expectedImpact = '정부 지원금으로 투자 부담 완화';
+            }
+          }
+          
+          if (reason) {
+            recommendations.push({
+              service,
+              reason,
+              urgency,
+              expectedImpact
+            });
+          }
+        }
       }
     });
     
-    const selectedService = MCENTER_SERVICES.find(s => s.id === selectedServiceId);
-    
-    console.log('🏆 선정된 1순위 서비스:', {
-      service: selectedService?.name,
-      score: maxScore,
-      allScores: Object.fromEntries(serviceScores)
-    });
-    
-    return selectedService!;
-  }
-  
-  /**
-   * 업종별 보너스 점수
-   */
-  private static addIndustryBonus(scores: Map<string, number>, industry: string) {
-    switch (industry.toLowerCase()) {
-      case 'manufacturing':
-      case '제조업':
-        this.addScore(scores, 'factory-auction', 20);
-        this.addScore(scores, 'ai-productivity', 15);
-        break;
-      case 'it':
-      case '정보통신업':
-        this.addScore(scores, 'ai-productivity', 25);
-        this.addScore(scores, 'tech-startup', 20);
-        this.addScore(scores, 'website', 15);
-        break;
-      case 'service':
-      case '서비스업':
-        this.addScore(scores, 'business-analysis', 20);
-        this.addScore(scores, 'website', 18);
-        this.addScore(scores, 'ai-productivity', 15);
-        break;
-      case 'construction':
-      case '건설업':
-        this.addScore(scores, 'factory-auction', 18);
-        this.addScore(scores, 'business-analysis', 15);
-        break;
-      default:
-        this.addScore(scores, 'business-analysis', 10);
-    }
-  }
-  
-  /**
-   * 기업 규모별 보너스 점수
-   */
-  private static addSizeBonus(scores: Map<string, number>, size: string) {
-    if (size.includes('10명 이하') || size.includes('소규모')) {
-      this.addScore(scores, 'ai-productivity', 15);
-      this.addScore(scores, 'website', 12);
-    } else if (size.includes('50명 이하') || size.includes('중소규모')) {
-      this.addScore(scores, 'business-analysis', 15);
-      this.addScore(scores, 'certification', 12);
-    } else {
-      this.addScore(scores, 'factory-auction', 15);
-      this.addScore(scores, 'tech-startup', 12);
-    }
-  }
-  
-  /**
-   * 경영 단계별 보너스 점수
-   */
-  private static addStageBonus(scores: Map<string, number>, stage: string) {
-    if (stage.includes('창업') || stage.includes('초기')) {
-      this.addScore(scores, 'tech-startup', 20);
-      this.addScore(scores, 'certification', 15);
-      this.addScore(scores, 'website', 10);
-    } else if (stage.includes('성장') || stage.includes('확장')) {
-      this.addScore(scores, 'business-analysis', 20);
-      this.addScore(scores, 'factory-auction', 15);
-      this.addScore(scores, 'ai-productivity', 12);
-    } else {
-      this.addScore(scores, 'ai-productivity', 15);
-      this.addScore(scores, 'business-analysis', 12);
-    }
-  }
-  
-  /**
-   * 점수 추가 헬퍼 함수
-   */
-  private static addScore(scores: Map<string, number>, serviceId: string, bonus: number) {
-    const currentScore = scores.get(serviceId) || 0;
-    scores.set(serviceId, currentScore + bonus);
-  }
-  
-  /**
-   * 2-3순위 서비스 선정
-   */
-  private static selectSecondaryServices(
-    primary: MCenterService, 
-    characteristics: any
-  ): MCenterService[] {
-    
-    const secondary = MCENTER_SERVICES
-      .filter(service => service.id !== primary.id)
-      .filter(service => {
-        // 1순위 서비스와 시너지가 있는 서비스 우선 선택
-        return this.hasSynergy(primary.id, service.id);
-      })
-      .sort((a, b) => a.priority - b.priority)
-      .slice(0, 2);
-    
-    return secondary;
-  }
-  
-  /**
-   * 서비스 간 시너지 확인
-   */
-  private static hasSynergy(primaryId: string, secondaryId: string): boolean {
-    const synergyMap: { [key: string]: string[] } = {
-      'business-analysis': ['ai-productivity', 'certification', 'website'],
-      'ai-productivity': ['business-analysis', 'website', 'tech-startup'],
-      'factory-auction': ['business-analysis', 'certification', 'ai-productivity'],
-      'tech-startup': ['certification', 'ai-productivity', 'website'],
-      'certification': ['business-analysis', 'tech-startup', 'factory-auction'],
-      'website': ['business-analysis', 'ai-productivity', 'certification']
-    };
-    
-    return synergyMap[primaryId]?.includes(secondaryId) || false;
-  }
-  
-  /**
-   * 추천 이유 생성
-   */
-  private static generateRecommendationReasons(
-    service: MCenterService, 
-    characteristics: any
-  ): string[] {
-    const reasons = [];
-    
-    // 기본 추천 이유
-    reasons.push(`${characteristics.industry} 업종에서 ${service.name}는 즉시 적용 가능한 핵심 서비스입니다.`);
-    
-    // 기업 특성 기반 이유
-    if (characteristics.concerns.includes('매출정체')) {
-      reasons.push(`매출 정체 상황에서 ${service.expectedOutcome}를 통해 빠른 성과 창출이 가능합니다.`);
-    }
-    
-    if (characteristics.size.includes('소규모') || characteristics.size.includes('10명 이하')) {
-      reasons.push(`소규모 기업의 특성을 고려할 때 ${service.timeframe} 내 실행 가능한 최적의 솔루션입니다.`);
-    }
-    
-    // 정부지원 연계 이유
-    reasons.push(`${service.governmentSupport.join(', ')} 등 정부지원 프로그램과 직접 연계 가능합니다.`);
-    
-    // ROI 기반 이유
-    reasons.push(`투자 대비 ${service.roi}의 높은 투자수익률로 경제적 효과가 검증되었습니다.`);
-    
-    return reasons;
-  }
-  
-  /**
-   * 30일 액션플랜 생성 (사용자 요구사항 반영)
-   */
-  private static generateActionPlan(
-    service: MCenterService, 
-    characteristics: any
-  ): ActionPlan {
-    
-    return {
-      phase1: {
-        period: '1-10일 (즉시 실행)',
-        tasks: [
-          '전문가 무료 상담 신청 및 현황 진단',
-          `${service.name} 서비스 상세 설명 및 계약 검토`,
-          '정부지원 프로그램 신청 조건 확인',
-          '내부 실행 팀 구성 및 역할 분담'
-        ],
-        milestone: '서비스 착수 준비 완료'
-      },
-      phase2: {
-        period: '11-30일 (핵심 과제 - 사용자 요구사항)',
-        tasks: [
-          `🎯 AI CAMP 6개 서비스영역 중 ${service.name} 1개 최종 선택`,
-          '선택된 서비스에 대한 구체적 실행계획 수립',
-          '정부지원 신청서 작성 및 제출',
-          '프로젝트 킥오프 및 본격 실행 시작'
-        ],
-        milestone: '30일 내 핵심 과제 완료 - 최적 서비스 선택 및 착수'
-      },
-      phase3: {
-        period: '31-90일 (성과 창출)',
-        tasks: [
-          `${service.name} 프로젝트 본격 실행`,
-          '중간 성과 점검 및 개선사항 도출',
-          '추가 서비스 연계 필요성 검토',
-          '첫 번째 가시적 성과 측정 및 보고'
-        ],
-        milestone: service.expectedOutcome
+    // 우선순위 및 긴급도로 정렬
+    return recommendations.sort((a, b) => {
+      const urgencyOrder = { high: 0, medium: 1, low: 2 };
+      if (urgencyOrder[a.urgency] !== urgencyOrder[b.urgency]) {
+        return urgencyOrder[a.urgency] - urgencyOrder[b.urgency];
       }
-    };
-  }
-  
-  /**
-   * 예상 결과 생성
-   */
-  private static generateExpectedResults(
-    service: MCenterService, 
-    characteristics: any
-  ): ExpectedResults {
-    
-    return {
-      immediate: [
-        '전문가 컨설팅을 통한 현황 정확한 파악',
-        '정부지원 프로그램 연계를 통한 비용 부담 최소화',
-        '체계적인 실행계획 수립으로 방향성 명확화'
-      ],
-      shortTerm: [
-        service.expectedOutcome,
-        `${service.timeframe} 내 가시적 성과 창출`,
-        '기업 운영 체계의 전반적 개선',
-        '직원들의 업무 역량 및 만족도 향상'
-      ],
-      longTerm: [
-        `${characteristics.industry} 업계 내 경쟁우위 확보`,
-        '지속가능한 성장 기반 구축',
-        '추가 정부지원 사업 연계를 통한 지속 성장',
-        '업계 선도기업으로의 도약 기반 마련'
-      ],
-      quantitative: {
-        salesIncrease: service.expectedOutcome.includes('매출') ? 
-          service.expectedOutcome.match(/(\d+%-?\d*%)/)?.[0] || '20-30%' : '15-25%',
-        efficiencyGain: service.id === 'ai-productivity' ? '40-60%' : '20-35%',
-        costReduction: service.id === 'factory-auction' ? '30-50%' : '15-25%',
-        roi: service.roi
-      }
-    };
-  }
-  
-  /**
-   * 정부지원 프로그램 매칭
-   */
-  private static matchGovernmentPrograms(
-    service: MCenterService, 
-    characteristics: any
-  ): GovernmentSupport[] {
-    
-    const programs: GovernmentSupport[] = [];
-    
-    // 서비스별 주요 지원 프로그램
-    service.governmentSupport.forEach(supportName => {
-      programs.push(this.getGovernmentProgramDetails(supportName, characteristics));
+      return b.service.priority - a.service.priority;
     });
-    
-    // 공통 지원 프로그램
-    programs.push({
-      name: '중소기업 경영지도 지원사업',
-      amount: '최대 2,000만원 (70% 지원)',
-      duration: '6개월',
-      requirements: ['중소기업', '3년 이상 운영', '전년도 매출 5억원 이상'],
-      successRate: '85%'
-    });
-    
-    return programs;
   }
   
   /**
-   * 정부지원 프로그램 상세 정보
+   * 서비스별 실행 계획 생성
    */
-  private static getGovernmentProgramDetails(
-    supportName: string, 
-    characteristics: any
-  ): GovernmentSupport {
+  static generateActionPlan(recommendation: ServiceRecommendation): string[] {
+    const { service } = recommendation;
     
-    const programMap: { [key: string]: Omit<GovernmentSupport, 'name'> } = {
-      'AI도입지원': {
-        amount: '최대 3,000만원 (80% 지원)',
-        duration: '6개월',
-        requirements: ['AI 도입 계획', '직원 10명 이상', '제조업/서비스업'],
-        successRate: '92%'
-      },
-      '사업재편지원': {
-        amount: '최대 5,000만원 (70% 지원)',
-        duration: '12개월',
-        requirements: ['사업 재편 계획', '3년 이상 운영', '매출 감소 증빙'],
-        successRate: '78%'
-      },
-      'BM혁신지원': {
-        amount: '최대 3,000만원 (70% 지원)',
-        duration: '9개월',
-        requirements: ['혁신 계획서', '중소기업', '신규 사업모델'],
-        successRate: '82%'
-      },
-      '기본지원': {
-        amount: '최대 2,000만원 (70% 지원)',
-        duration: '6개월',
-        requirements: ['중소기업', '사업계획서'],
-        successRate: '75%'
-      }
-    };
+    if (service.category === 'AI교육') {
+      const trackType = service.id.includes('basic') ? '입문' : '심화';
+      return [
+        `1. 부서별 교육 대상자 선정 (${service.target || '해당 부서 전원'})`,
+        `2. ${trackType} 과정 일정 조율 및 확정`,
+        `3. 사전 과제 및 준비사항 안내`,
+        `4. ${service.duration} 집중 교육 진행`,
+        `5. 실습 프로젝트 수행 및 피드백`,
+        `6. 현업 적용 및 성과 모니터링`
+      ];
+    } else if (service.id === 'diagnosis') {
+      return [
+        '1. 경영진단 킥오프 미팅',
+        '2. 데이터 수집 및 현황 분석',
+        '3. AI 기반 진단 및 인사이트 도출',
+        '4. 개선방안 수립 및 검토',
+        '5. 최종 보고서 작성 및 발표'
+      ];
+    } else if (service.id === 'policy-funding') {
+      return [
+        '1. 기업 현황 및 자금 수요 분석',
+        '2. 적합한 정책자금 탐색 및 매칭',
+        '3. 신청 전략 수립',
+        '4. 사업계획서 작성 지원',
+        '5. 신청 및 심사 대응'
+      ];
+    }
     
-    const details = programMap[supportName] || programMap['기본지원'];
-    
-    return {
-      name: supportName,
-      ...details
-    };
-  }
-}
-
-// 보고서 생성을 위한 헬퍼 함수들
-export class GovernmentSupportReportGenerator {
-  
-  /**
-   * 정책자금 활용 전용 보고서 생성
-   */
-  static generateGovernmentSupportReport(
-    data: DiagnosisProcessRequest,
-    recommendation: ServiceRecommendation
-  ): string {
-    
-    const companyName = data.companyName;
-    const serviceName = recommendation.primaryService.name;
-    
-    return `
-# 🏛️ ${companyName} 정책자금 및 정부지원 활용 전략 보고서
-
-## 📋 진단 개요
-- **분석 대상**: ${companyName} (${data.industry})
-- **기업 규모**: ${data.employeeCount}  
-- **경영 단계**: ${data.establishmentDifficulty}
-- **주요 고민**: ${data.mainConcerns}
-- **기대 효과**: ${data.expectedBenefits}
-
-## 🎯 **AI CAMP 6개 서비스영역 중 최적 추천**
-
-### 🥇 **1순위 추천: ${serviceName}**
-
-**추천 근거:**
-${recommendation.reasons.map(reason => `• ${reason}`).join('\n')}
-
-**예상 효과:**
-- ${recommendation.primaryService.expectedOutcome}
-- 투자 대비 효과: ${recommendation.primaryService.roi}
-- 실행 기간: ${recommendation.primaryService.timeframe}
-
-### 📊 **6개 서비스영역 비교 분석**
-
-| 순위 | 서비스명 | 적합도 | 예상 효과 | 실행 기간 |
-|------|----------|--------|-----------|-----------|
-| 🥇 | **${recommendation.primaryService.name}** | **최적** | **${recommendation.primaryService.expectedOutcome}** | **${recommendation.primaryService.timeframe}** |
-${recommendation.secondaryServices.map((service, index) => 
-  `| ${index + 2}순위 | ${service.name} | 적합 | ${service.expectedOutcome} | ${service.timeframe} |`
-).join('\n')}
-
-## ⚡ **30일 내 핵심 과제 액션플랜**
-
-### 🗓️ **Phase 1: ${recommendation.actionPlan.phase1.period}**
-${recommendation.actionPlan.phase1.tasks.map(task => `✅ ${task}`).join('\n')}
-**목표:** ${recommendation.actionPlan.phase1.milestone}
-
-### 🎯 **Phase 2: ${recommendation.actionPlan.phase2.period}** ⭐ **핵심 과제**
-${recommendation.actionPlan.phase2.tasks.map(task => `🔥 ${task}`).join('\n')}
-**핵심 목표:** ${recommendation.actionPlan.phase2.milestone}
-
-### 🚀 **Phase 3: ${recommendation.actionPlan.phase3.period}**
-${recommendation.actionPlan.phase3.tasks.map(task => `📈 ${task}`).join('\n')}
-**최종 목표:** ${recommendation.actionPlan.phase3.milestone}
-
-## 💰 **정부지원 프로그램 연계 방안**
-
-${recommendation.governmentSupports.map(program => `
-### 📋 ${program.name}
-- **지원 규모**: ${program.amount}
-- **지원 기간**: ${program.duration}  
-- **신청 조건**: ${program.requirements.join(', ')}
-- **성공률**: ${program.successRate}
-`).join('\n')}
-
-## 📈 **예상 성과 및 효과**
-
-### 즉시 효과 (1개월 내)
-${recommendation.expectedResults.immediate.map(result => `• ${result}`).join('\n')}
-
-### 단기 효과 (3-6개월)
-${recommendation.expectedResults.shortTerm.map(result => `• ${result}`).join('\n')}
-
-### 장기 효과 (1년 이상)
-${recommendation.expectedResults.longTerm.map(result => `• ${result}`).join('\n')}
-
-### 정량적 효과
-- **매출 증가**: ${recommendation.expectedResults.quantitative.salesIncrease}
-- **효율성 개선**: ${recommendation.expectedResults.quantitative.efficiencyGain}
-- **비용 절감**: ${recommendation.expectedResults.quantitative.costReduction}
-- **투자수익률**: ${recommendation.expectedResults.quantitative.roi}
-
-## 🏁 **최종 결론 및 권고사항**
-
-### ✅ **핵심 권고사항**
-1. **즉시 실행**: ${serviceName} 서비스 우선 착수
-2. **정부지원 활용**: ${recommendation.governmentSupports[0].name} 즉시 신청
-3. **단계적 확장**: 성과 확인 후 2순위 서비스 연계
-4. **성과 모니터링**: 30일, 90일 단위 정기 점검
-
-### 🎯 **성공 확률 및 기대 효과**
-- **성공 확률**: 85% 이상 (전문가 지원 + 정부지원 연계)
-- **핵심 성과**: ${recommendation.primaryService.expectedOutcome}
-- **추가 효과**: 경쟁력 강화, 신뢰도 향상, 지속 성장 기반 구축
-
----
-
-**📞 즉시 상담 신청**: 전담 컨설턴트를 통한 맞춤형 실행계획 수립
-**⏰ 상담 가능 시간**: 평일 09:00-18:00
-**🎁 특별 혜택**: 첫 상담 무료 + 정부지원 신청 지원
-
-*본 보고서는 ${companyName}의 현재 상황을 종합 분석하여 가장 효과적인 정책자금 활용 방안을 제시합니다.*
-    `.trim();
+    return ['1. 상세 상담 진행', '2. 맞춤형 계획 수립', '3. 단계별 실행'];
   }
 } 

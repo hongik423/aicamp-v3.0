@@ -385,6 +385,10 @@ export class IndustryDataService {
 
     const totalScore = companyData.totalScore || 0;
     const employeeCount = companyData.employeeCount || '미확인';
+    
+    // 🔥 카테고리별 점수를 활용한 상세 분석
+    const categoryScores = companyData.categoryScores || {};
+    const detailedScores = companyData.detailedScores || {};
 
     return {
       overview: `${trendData.industry}은 현재 ${trendData.growthRate} 성장률을 보이며, ${trendData.marketSize} 규모의 시장을 형성하고 있습니다. 특히 ${trendData.trends.slice(0, 3).join(', ')} 등의 트렌드가 주목받고 있습니다.`,
@@ -554,7 +558,39 @@ export class IndustryDataService {
     };
 
     const industryKey = this.normalizeIndustryName(trendData.industry);
-    return industryBenchmarks[industryKey] || industryBenchmarks['service'];
+    const baseScores = industryBenchmarks[industryKey] || industryBenchmarks['service'];
+    
+    // 🔥 신청자 점수와 연동하여 동적으로 벤치마크 생성
+    const adjustedBenchmarks: { [key: string]: number } = {};
+    const scoreAdjustment = (currentScore - 70) / 30; // -1 ~ +1 범위로 정규화
+    
+    Object.entries(baseScores).forEach(([key, baseValue]) => {
+      // 신청자 점수가 높으면 벤치마크도 상향 조정
+      // 신청자 점수가 낮으면 벤치마크도 현실적으로 조정
+      let adjustedValue = baseValue;
+      
+      if (currentScore >= 80) {
+        // 우수 기업: 업계 상위 수준 벤치마크
+        adjustedValue = Math.min(95, baseValue + 10);
+      } else if (currentScore >= 60) {
+        // 평균 기업: 업계 평균 수준 벤치마크
+        adjustedValue = baseValue;
+      } else if (currentScore >= 40) {
+        // 성장 필요 기업: 달성 가능한 수준의 벤치마크
+        adjustedValue = Math.max(50, baseValue - 10);
+      } else {
+        // 개선 시급 기업: 기초 수준 벤치마크
+        adjustedValue = Math.max(40, baseValue - 20);
+      }
+      
+      // 소수점 반올림
+      adjustedBenchmarks[key] = Math.round(adjustedValue);
+    });
+    
+    // 신청자의 현재 수준 추가
+    adjustedBenchmarks['현재종합점수'] = Math.round(currentScore);
+    
+    return adjustedBenchmarks;
   }
 
   /**

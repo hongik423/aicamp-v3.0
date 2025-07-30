@@ -105,6 +105,13 @@ const Header = () => {
   // 네비게이션 메뉴 데이터
   const navigationItems = [
     { href: '/', label: '홈', icon: Home },
+    { 
+      href: '/services/ai-curriculum', 
+      label: 'AI CAMP 커리큘럼', 
+      icon: Lightbulb,
+      isSpecial: true, // 특별 강조 표시
+      badge: 'NEW'
+    },
     { href: '/services/business-analysis', label: '사업분석', icon: BarChart3 },
     { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap },
     { href: '/services/policy-funding', label: '정책자금', icon: Building2 },
@@ -196,7 +203,6 @@ const Header = () => {
     { href: '/consultation', label: '전문가상담', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
     { href: '/services/policy-funding/investment-analysis', label: 'AI투자재무타당성분석기', color: 'orange', icon: TrendingUp },
-    { href: '/services/ai-curriculum', label: 'AI CAMP커리큘럼', color: 'purple', icon: Lightbulb },
     { href: '/support/contact', label: '오류신고', color: 'red', icon: MessageSquare }
   ];
 
@@ -235,17 +241,29 @@ const Header = () => {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0
+                        className={`relative px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0
                           md:px-1 md:text-xs
                           lg:px-1.5 lg:text-xs
                           xl:px-2 xl:text-xs
                           2xl:px-3 2xl:text-sm
                           ${pathname === item.href
-                            ? 'text-white bg-gray-800'
-                            : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100'
+                            ? (item.isSpecial 
+                                ? 'text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg ring-2 ring-purple-300' 
+                                : 'text-white bg-gray-800')
+                            : (item.isSpecial
+                                ? 'text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-md ring-1 ring-purple-200 font-medium'
+                                : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100')
                         }`}
                       >
-                        {item.label}
+                        <div className="flex items-center gap-1">
+                          {item.icon && <item.icon className="w-3 h-3 lg:w-4 lg:h-4" />}
+                          <span>{item.label}</span>
+                          {item.badge && (
+                            <span className="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 ml-1">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
                       </Link>
                     ))}
                   </div>
@@ -530,6 +548,14 @@ const Header = () => {
                   <div className="text-sm font-semibold text-gray-700 mb-3 px-1">📋 전체 서비스</div>
                   {[
                     { href: '/', label: '홈', icon: Home, description: '메인페이지' },
+                    { 
+                      href: '/services/ai-curriculum', 
+                      label: 'AI CAMP 커리큘럼', 
+                      icon: Lightbulb, 
+                      description: '7개 부서별 맞춤형 AI 자동화 교육',
+                      isSpecial: true,
+                      badge: 'NEW'
+                    },
                     { href: '/services/business-analysis', label: '사업분석', icon: BarChart3, description: '비즈니스 컨설팅' },
                     { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap, description: 'AI 업무 자동화' },
                     { href: '/services/website', label: '매출증대웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
@@ -543,17 +569,42 @@ const Header = () => {
                   ].map((item) => (
                     <motion.div key={item.href} whileHover={{ x: 8 }} className="group mb-2">
                       <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
-                        <div className="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-all duration-200 group">
-                          <item.icon className="w-6 h-6 mr-4 text-blue-600 group-hover:text-blue-700" />
+                        <div className={`flex items-center p-3 rounded-xl transition-all duration-200 group relative ${
+                          item.isSpecial
+                            ? 'bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 border-2 border-purple-200'
+                            : 'hover:bg-blue-50'
+                        }`}>
+                          <item.icon className={`w-6 h-6 mr-4 ${
+                            item.isSpecial
+                              ? 'text-purple-600 group-hover:text-purple-700'
+                              : 'text-blue-600 group-hover:text-blue-700'
+                          }`} />
                           <div className="flex-1">
-                            <div className="font-semibold text-gray-900 group-hover:text-blue-700">
-                              {item.label}
+                            <div className={`font-semibold flex items-center gap-2 ${
+                              item.isSpecial
+                                ? 'text-purple-900 group-hover:text-purple-800'
+                                : 'text-gray-900 group-hover:text-blue-700'
+                            }`}>
+                              <span>{item.label}</span>
+                              {item.badge && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-800 ring-1 ring-yellow-300">
+                                  {item.badge}
+                                </span>
+                              )}
                             </div>
-                            <div className="text-sm text-gray-500 group-hover:text-blue-600">
+                            <div className={`text-sm ${
+                              item.isSpecial
+                                ? 'text-purple-600 group-hover:text-purple-700'
+                                : 'text-gray-500 group-hover:text-blue-600'
+                            }`}>
                               {item.description}
                             </div>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
+                          <ChevronRight className={`w-5 h-5 ${
+                            item.isSpecial
+                              ? 'text-purple-400 group-hover:text-purple-600'
+                              : 'text-gray-400 group-hover:text-blue-600'
+                          }`} />
                         </div>
                       </Link>
                     </motion.div>
