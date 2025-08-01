@@ -109,6 +109,9 @@ const Textarea = React.forwardRef<
         // 포커스 시 배경색 변경
         isFocused && 'bg-background/95 border-ring',
         
+        // 리사이즈 비활성화 및 오버플로우 숨김
+        'resize-none overflow-hidden',
+        
         // 사용자 정의 클래스
         className,
       )}
@@ -118,21 +121,10 @@ const Textarea = React.forwardRef<
       onCompositionStart={handleCompositionStart}
       onCompositionEnd={handleCompositionEnd}
       onInput={handleInput}
-      autoComplete={props.autoComplete || 'off'}
-      // eslint-disable-next-line jsx-a11y/autocomplete-valid
+      autoComplete={props.autoComplete || 'on'}
       autoCapitalize={props.autoCapitalize || 'sentences'}
       autoCorrect={props.autoCorrect || 'off'}
       spellCheck={props.spellCheck ?? false}
-      // eslint-disable-next-line react/forbid-dom-props
-      style={{
-        // 자동 확대 방지를 위한 스타일
-        fontSize: '16px',
-        // 리사이즈 비활성화 (자동 높이 조절 사용)
-        resize: 'none',
-        // 오버플로우 숨김
-        overflow: 'hidden',
-        ...props.style,
-      }}
       {...props}
     />
   );

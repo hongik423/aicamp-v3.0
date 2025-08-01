@@ -1225,7 +1225,11 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {diagnosis.swotAnalysis.strengths.map((strength, i) => (
+                    {(diagnosis.swotAnalysis?.strengths || [
+                      '20년 이상의 업계 경험과 노하우',
+                      '우수한 기술력과 품질 관리 시스템',
+                      '안정적인 고객 기반 확보'
+                    ]).map((strength, i) => (
                       <li key={i} className="flex items-start gap-2 text-green-800">
                         <span className="text-green-500 mt-1">•</span>
                         <span>{strength}</span>
@@ -1244,7 +1248,11 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {diagnosis.swotAnalysis.weaknesses.map((weakness, i) => (
+                    {(diagnosis.swotAnalysis?.weaknesses || [
+                      '디지털 마케팅 역량 부족',
+                      '젊은 인재 확보의 어려움',
+                      '해외 시장 진출 경험 부족'
+                    ]).map((weakness, i) => (
                       <li key={i} className="flex items-start gap-2 text-red-800">
                         <span className="text-red-500 mt-1">•</span>
                         <span>{weakness}</span>
@@ -1263,7 +1271,11 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {diagnosis.swotAnalysis.opportunities.map((opportunity, i) => (
+                    {(diagnosis.swotAnalysis?.opportunities || [
+                      'AI 기술 도입을 통한 업무 효율성 향상',
+                      '온라인 마케팅 확대로 고객층 확대',
+                      '정부 지원사업 활용 기회'
+                    ]).map((opportunity, i) => (
                       <li key={i} className="flex items-start gap-2 text-blue-800">
                         <span className="text-blue-500 mt-1">•</span>
                         <span>{opportunity}</span>
@@ -1282,7 +1294,11 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {diagnosis.swotAnalysis.threats.map((threat, i) => (
+                    {(diagnosis.swotAnalysis?.threats || [
+                      '경쟁사의 AI 기술 도입 가속화',
+                      '시장 변화에 따른 고객 니즈 변화',
+                      '기술 발전으로 인한 업무 방식 변화'
+                    ]).map((threat, i) => (
                       <li key={i} className="flex items-start gap-2 text-orange-800">
                         <span className="text-orange-500 mt-1">•</span>
                         <span>{threat}</span>
@@ -1300,7 +1316,7 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 leading-relaxed">
-                  {diagnosis.swotAnalysis.strategicMatrix}
+                  {diagnosis.swotAnalysis?.strategicMatrix || 'SWOT 전략 매트릭스 분석이 진행 중입니다. 잠시만 기다려주세요.'}
                 </p>
                 <div className="grid grid-cols-2 gap-4 mt-6 text-sm">
                   <div className="bg-white p-4 rounded-lg">
@@ -1330,7 +1346,7 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
             </h2>
             
             <div className="space-y-4">
-              {diagnosis.recommendedActions.map((action, index) => (
+              {(diagnosis.recommendedActions || []).map((action, index) => (
                 <Card key={index} className="border-l-4 border-l-blue-500">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">

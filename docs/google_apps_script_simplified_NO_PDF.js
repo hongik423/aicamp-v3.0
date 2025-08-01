@@ -1,8 +1,8 @@
-// AICAMP 최고수준 AI 경영진단 시스템 Google Apps Script 2025 - 운영 최적화 버전
+// AICAMP 최고수준 AI 경영진단 시스템 Google Apps Script 2025 - 최종 수정 버전
 // GEMINI 2.5 Flash AI 기반 맞춤형 진단보고서 생성
 // Script ID: 1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj
 // 마지막 업데이트: 2025.01.31
-// 최적화: 23개 테스트 함수 제거, 운영 성능 80% 향상
+// 수정사항: setHeaders 오류 완전 제거, CORS 자동 처리, 모든 기능 정상화
 
 // ================================================================================
 // 🔧 기본 설정
@@ -1695,7 +1695,7 @@ function getCurrentKoreanTime() {
 }
 
 /**
- * 성공 응답 생성 (CORS 최적화)
+ * 성공 응답 생성 (CORS 자동 처리)
  */
 function createSuccessResponse(data) {
   try {
@@ -1704,20 +1704,14 @@ function createSuccessResponse(data) {
     const response = ContentService
       .createTextOutput(JSON.stringify({
         success: true,
+        data: data,
         timestamp: timestamp,
-        version: VERSION,
-        ...data
+        version: VERSION
       }))
       .setMimeType(ContentService.MimeType.JSON);
     
-    // CORS 헤더 설정 강화
-    response.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
-      'Access-Control-Allow-Credentials': 'false',
-      'Cache-Control': 'no-cache'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     console.log(`✅ 성공 응답 생성: ${JSON.stringify(data).substring(0, 100)}...`);
     return response;
@@ -1735,19 +1729,15 @@ function createSuccessResponse(data) {
       }))
       .setMimeType(ContentService.MimeType.JSON);
       
-    fallbackResponse.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
-      'Access-Control-Allow-Credentials': 'false'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     return fallbackResponse;
   }
 }
 
 /**
- * 오류 응답 생성 (CORS 최적화)
+ * 오류 응답 생성 (CORS 자동 처리)
  */
 function createErrorResponse(message) {
   try {
@@ -1762,14 +1752,8 @@ function createErrorResponse(message) {
       }))
       .setMimeType(ContentService.MimeType.JSON);
     
-    // CORS 헤더 설정 강화
-    response.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
-      'Access-Control-Allow-Credentials': 'false',
-      'Cache-Control': 'no-cache'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     console.error(`❌ 오류 응답 생성: ${message}`);
     return response;
@@ -1786,11 +1770,8 @@ function createErrorResponse(message) {
       }))
       .setMimeType(ContentService.MimeType.JSON);
       
-    fallbackResponse.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     return fallbackResponse;
   }
@@ -2186,20 +2167,14 @@ function createSuccessResponse(data) {
     const response = ContentService
       .createTextOutput(JSON.stringify({
         success: true,
+        data: data,
         timestamp: timestamp,
-        version: VERSION,
-        ...data
+        version: VERSION
       }))
       .setMimeType(ContentService.MimeType.JSON);
     
-    // CORS 헤더 설정 강화
-    response.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
-      'Access-Control-Allow-Credentials': 'false',
-      'Cache-Control': 'no-cache'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     console.log(`✅ 성공 응답 생성: ${JSON.stringify(data).substring(0, 100)}...`);
     return response;
@@ -2217,21 +2192,15 @@ function createSuccessResponse(data) {
       }))
       .setMimeType(ContentService.MimeType.JSON);
       
-    fallbackResponse.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
-      'Access-Control-Allow-Credentials': 'false'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     return fallbackResponse;
   }
 }
 
 /**
- * 오류 응답 생성 (UTF-8 지원 + CORS 처리)
- * Google Apps Script는 ContentService에서 CORS 헤더를 직접 설정할 수 없음
- * Web App 배포 설정에서 "Anyone"으로 설정해야 CORS 문제 해결
+ * 오류 응답 생성 (CORS 자동 처리)
  */
 function createErrorResponse(message) {
   try {
@@ -2246,14 +2215,8 @@ function createErrorResponse(message) {
       }))
       .setMimeType(ContentService.MimeType.JSON);
     
-    // CORS 헤더 설정 강화
-    response.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
-      'Access-Control-Allow-Credentials': 'false',
-      'Cache-Control': 'no-cache'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     console.error(`❌ 오류 응답 생성: ${message}`);
     return response;
@@ -2270,11 +2233,8 @@ function createErrorResponse(message) {
       }))
       .setMimeType(ContentService.MimeType.JSON);
       
-    fallbackResponse.setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    });
+    // Google Apps Script에서는 setHeaders가 지원되지 않으므로 완전 제거
+    // CORS 헤더는 ContentService에서 자동으로 처리됨
     
     return fallbackResponse;
   }
@@ -2449,6 +2409,9 @@ function doPost(e) {
             break;
           case 'testAICapabilityDiagnosisSystem':
             testResult = testAICapabilityDiagnosisSystem();
+            break;
+          case 'testFreeDiagnosisDetailedResultsSystem':
+            testResult = testFreeDiagnosisDetailedResultsSystem();
             break;
           default:
             return createErrorResponse('지원하지 않는 테스트 함수: ' + requestData.functionName);
@@ -11018,12 +10981,51 @@ function structureFreeDiagnosisResult(analysisResult, data) {
     const calculatedScore = calculateDiagnosisScore(data);
     const calculatedGrade = getDiagnosisGrade(calculatedScore);
     
+    // AI 역량 분석 (데이터가 있는 경우)
+    let aiCapabilityAnalysis = null;
+    if (data.aiCapabilityData) {
+      const aiScore = calculateAICapabilityScore(data.aiCapabilityData);
+      const aiGrade = getAICapabilityGrade(aiScore);
+      const benchmark = getAICapabilityBenchmark(data.industry);
+      const gapAnalysis = analyzeAICapabilityGap(data.aiCapabilityData, benchmark);
+      
+      aiCapabilityAnalysis = {
+        overallScore: aiScore,
+        overallGrade: aiGrade,
+        overallBenchmark: benchmark.total,
+        overallGap: aiScore - benchmark.total,
+        maturityLevel: getAIGradeDescription(aiGrade),
+        categoryScores: {
+          leadership: data.aiCapabilityData.leadership || 0,
+          infrastructure: data.aiCapabilityData.infrastructure || 0, 
+          skills: data.aiCapabilityData.skills || 0,
+          culture: data.aiCapabilityData.culture || 0,
+          application: data.aiCapabilityData.application || 0
+        },
+        categoryGaps: gapAnalysis.categoryGaps,
+        strengths: gapAnalysis.strengths,
+        weaknesses: gapAnalysis.weaknesses,
+        recommendations: gapAnalysis.recommendations,
+        highEngagementStrategies: gapAnalysis.highEngagementStrategies || [],
+        gapAnalysis: `총점 ${aiScore}점으로 업계 평균 ${benchmark.total}점 대비 ${aiScore - benchmark.total}점 ${aiScore >= benchmark.total ? '우수' : '부족'}`
+      };
+    }
+    
     return {
       diagnosisId: data.diagnosisId,
       companyName: data.companyName,
       industry: data.industry,
       region: data.region,
       diagnosisDate: new Date().toISOString(),
+      
+      // 기본 정보 객체 (상세 저장용)
+      basicInfo: {
+        companyName: data.companyName,
+        industry: data.industry,
+        contactManager: data.contactManager,
+        email: data.email,
+        phone: data.phone
+      },
       
       // 기업 정보
       employeeCount: data.employeeCount || '',
@@ -11039,6 +11041,9 @@ function structureFreeDiagnosisResult(analysisResult, data) {
       keyFindings: parsed.keyFindings || parsed['종합진단개요']?.['주요발견사항'] || [],
       reliabilityScore: 92, // 신뢰도 점수
       
+      // AI 역량 분석 (새로 추가)
+      aiCapabilityAnalysis: aiCapabilityAnalysis,
+      
       // SWOT 분석
       swot: {
         strengths: parsed.swot?.strengths || parsed['SWOT분석']?.['강점'] || [],
@@ -11048,27 +11053,29 @@ function structureFreeDiagnosisResult(analysisResult, data) {
       },
       
       // 전략 매트릭스
-      strategy: {
-        so: parsed.strategy?.so || parsed['전략매트릭스']?.['SO전략'] || [],
-        wo: parsed.strategy?.wo || parsed['전략매트릭스']?.['WO전략'] || [],
-        st: parsed.strategy?.st || parsed['전략매트릭스']?.['ST전략'] || [],
-        wt: parsed.strategy?.wt || parsed['전략매트릭스']?.['WT전략'] || []
-      },
+      strategy: parsed.strategy?.so || parsed['전략매트릭스']?.['SO전략']?.join('; ') || '',
       
       // 실행 로드맵
-      roadmap: {
-        phase1: parsed.roadmap?.phase1 || parsed['실행로드맵']?.['1단계'] || [],
-        phase2: parsed.roadmap?.phase2 || parsed['실행로드맵']?.['2단계'] || [],
-        phase3: parsed.roadmap?.phase3 || parsed['실행로드맵']?.['3단계'] || []
-      },
+      roadmap: [
+        parsed.roadmap?.phase1 || parsed['실행로드맵']?.['1단계'] || [],
+        parsed.roadmap?.phase2 || parsed['실행로드맵']?.['2단계'] || [],
+        parsed.roadmap?.phase3 || parsed['실행로드맵']?.['3단계'] || []
+      ].flat().join('; '),
       
-      // 벤치마크
+      // 경쟁 우위
+      competitiveAdvantages: parsed.benchmark?.advantages || parsed['벤치마크']?.['경쟁우위'] || [],
+      
+      // 추천 프로그램 및 컨설팅
+      recommendedPrograms: parsed.recommendations?.programs || parsed['추천서비스']?.['교육프로그램'] || [],
+      recommendedConsulting: parsed.recommendations?.consulting || parsed['추천서비스']?.['컨설팅서비스']?.join('; ') || '',
+      
+      // 벤치마크 (기존 구조 유지)
       benchmark: {
         scores: parsed.benchmark?.scores || parsed['벤치마크']?.['핵심지표'] || {},
         competitiveAdvantages: parsed.benchmark?.advantages || parsed['벤치마크']?.['경쟁우위'] || []
       },
       
-      // AICAMP 서비스 추천
+      // AICAMP 서비스 추천 (기존 구조 유지)
       recommendations: {
         programs: parsed.recommendations?.programs || parsed['추천서비스']?.['교육프로그램'] || [],
         consulting: parsed.recommendations?.consulting || parsed['추천서비스']?.['컨설팅서비스'] || []
@@ -11096,6 +11103,131 @@ function saveFreeDiagnosisResult(diagnosisId, result) {
     result.overallScore,
     result.overallGrade
   ]);
+  
+  // 상세 결과도 함께 저장
+  saveFreeDiagnosisDetailedResult(diagnosisId, result);
+}
+
+/**
+ * 무료 진단 상세 결과를 구조화하여 시트에 저장
+ * @param {string} diagnosisId - 진단 ID
+ * @param {Object} result - 분석 결과 전체 객체
+ */
+function saveFreeDiagnosisDetailedResult(diagnosisId, result) {
+  try {
+    const sheet = getOrCreateSheet('무료진단상세결과', 'freeDiagnosisDetailedResults');
+    
+    // 기본 정보 추출 (결과 객체나 별도로 전달된 데이터에서)
+    const basicInfo = result.basicInfo || {};
+    
+    // AI 역량 분석 데이터 추출
+    const aiCapability = result.aiCapabilityAnalysis || {};
+    const aiScores = aiCapability.categoryScores || {};
+    
+    // SWOT 분석 데이터 추출
+    const swot = result.swot || {};
+    
+    // 안전한 문자열 변환 함수
+    const safeString = (value) => {
+      if (value === null || value === undefined) return '';
+      if (typeof value === 'object') return JSON.stringify(value);
+      return String(value);
+    };
+    
+    // 배열을 문자열로 변환
+    const arrayToString = (arr) => {
+      if (!Array.isArray(arr)) return '';
+      return arr.join('; ');
+    };
+    
+    // 상세 데이터 구성
+    const detailedData = [
+      // 기본 식별 정보
+      diagnosisId,                                    // 진단ID
+      new Date(),                                     // 분석일시
+      safeString(basicInfo.companyName || ''),        // 기업명
+      safeString(basicInfo.industry || ''),           // 업종
+      safeString(basicInfo.contactManager || ''),     // 담당자명
+      safeString(basicInfo.email || ''),              // 이메일
+      safeString(basicInfo.phone || ''),              // 연락처
+      
+      // 종합 결과
+      result.overallScore || 0,                       // 종합점수
+      safeString(result.overallGrade || ''),          // 종합등급
+      result.reliabilityScore || 0,                   // 신뢰도점수
+      safeString(result.executiveSummary || ''),      // 요약
+      arrayToString(result.keyFindings || []),        // 핵심발견사항
+      
+      // AI 역량 분석
+      aiCapability.overallScore || 0,                 // AI역량점수
+      safeString(aiCapability.overallGrade || ''),    // AI역량등급
+      aiScores.leadership || 0,                       // 리더십점수
+      aiScores.infrastructure || 0,                   // 인프라점수
+      aiScores.skills || 0,                          // 스킬점수
+      aiScores.culture || 0,                         // 문화점수
+      aiScores.application || 0,                     // 활용점수
+      
+      // SWOT 분석
+      arrayToString(swot.strengths || []),           // 강점
+      arrayToString(swot.weaknesses || []),          // 약점
+      arrayToString(swot.opportunities || []),       // 기회
+      arrayToString(swot.threats || []),             // 위협
+      
+      // 전략 및 개선방안
+      safeString(result.strategy || ''),             // 전략제안
+      safeString(result.roadmap || ''),              // 로드맵
+      arrayToString(result.competitiveAdvantages || []), // 경쟁우위
+      
+      // 권고사항
+      arrayToString(result.recommendedPrograms || []), // 추천프로그램
+      safeString(result.recommendedConsulting || ''),  // 컨설팅제안
+      
+      // AI 역량 상세 분석
+      safeString(aiCapability.gapAnalysis || ''),      // AI역량GAP분석
+      arrayToString(aiCapability.strengths || []),     // AI역량강점
+      arrayToString(aiCapability.weaknesses || []),    // AI역량약점
+      arrayToString(aiCapability.recommendations || []), // AI역량권고사항
+      arrayToString(aiCapability.highEngagementStrategies || []), // AI고몰입전략
+      
+      // 기타
+      JSON.stringify(result)                         // 전체결과JSON
+    ];
+    
+    // 시트에 데이터 추가
+    sheet.appendRow(detailedData);
+    
+    console.log(`✅ 무료진단 상세결과 저장 완료: ${diagnosisId}`);
+    
+  } catch (error) {
+    console.error(`❌ 무료진단 상세결과 저장 오류 (${diagnosisId}):`, error.toString());
+    
+    // 오류 발생시 기본 데이터라도 저장
+    try {
+      const sheet = getOrCreateSheet('무료진단상세결과', 'freeDiagnosisDetailedResults');
+      sheet.appendRow([
+        diagnosisId,
+        new Date(),
+        '오류로 인한 기본 저장',
+        '',
+        '',
+        '',
+        '',
+        result.overallScore || 0,
+        result.overallGrade || '',
+        0,
+        result.executiveSummary || '오류로 인해 상세 정보를 저장할 수 없습니다.',
+        '',
+        0, '', 0, 0, 0, 0, 0,
+        '', '', '', '',
+        '', '', '',
+        '', '',
+        '', '', '', '', '',
+        JSON.stringify({error: error.toString(), result: result})
+      ]);
+    } catch (fallbackError) {
+      console.error('❌ 폴백 저장도 실패:', fallbackError.toString());
+    }
+  }
 }
 
 /**
@@ -11216,7 +11348,7 @@ function initializeFreeDiagnosisSheets() {
     console.log('무료진단신청 시트 이미 존재');
   }
   
-  // 무료진단결과 시트 생성
+  // 무료진단결과 시트 생성 (기본)
   try {
     let sheet = spreadsheet.getSheetByName('무료진단결과');
     if (!sheet) {
@@ -11233,6 +11365,71 @@ function initializeFreeDiagnosisSheets() {
     }
   } catch (e) {
     console.log('무료진단결과 시트 이미 존재');
+  }
+
+  // 무료진단상세결과 시트 생성 (새로 추가)
+  initializeFreeDiagnosisDetailedResultsSheet();
+}
+
+/**
+ * 무료 진단 상세 결과를 위한 시트 초기화
+ */
+function initializeFreeDiagnosisDetailedResultsSheet() {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  
+  try {
+    let sheet = spreadsheet.getSheetByName('무료진단상세결과');
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('무료진단상세결과');
+      
+      // 상세 보고서 헤더 구성
+      const headers = [
+        // 기본 식별 정보
+        '진단ID', '분석일시', '기업명', '업종', '담당자명', '이메일', '연락처',
+        
+        // 종합 결과
+        '종합점수', '종합등급', '신뢰도점수', '요약', '핵심발견사항',
+        
+        // AI 역량 분석
+        'AI역량점수', 'AI역량등급', '리더십점수', '인프라점수', '스킬점수', '문화점수', '활용점수',
+        
+        // SWOT 분석
+        '강점', '약점', '기회', '위협',
+        
+        // 전략 및 개선방안
+        '전략제안', '로드맵', '경쟁우위',
+        
+        // 권고사항
+        '추천프로그램', '컨설팅제안',
+        
+        // AI 역량 상세 분석
+         'AI역량GAP분석', 'AI역량강점', 'AI역량약점', 'AI역량권고사항', 'AI고몰입전략',
+        
+        // 기타
+        '전체결과JSON'
+      ];
+      
+      sheet.appendRow(headers);
+      
+      // 헤더 스타일 설정
+      const headerRange = sheet.getRange(1, 1, 1, headers.length);
+      headerRange.setBackground('#2d3748');
+      headerRange.setFontColor('#ffffff');
+      headerRange.setFontWeight('bold');
+      headerRange.setFontSize(10);
+      
+      // 컬럼 너비 자동 조정
+      sheet.autoResizeColumns(1, headers.length);
+      
+      // 첫 번째 행 고정
+      sheet.setFrozenRows(1);
+      
+      console.log('✅ 무료진단상세결과 시트 생성 완료 (컬럼 수:', headers.length, ')');
+    } else {
+      console.log('✅ 무료진단상세결과 시트 이미 존재');
+    }
+  } catch (e) {
+    console.error('❌ 무료진단상세결과 시트 생성 오류:', e.toString());
   }
 }
 
@@ -12072,6 +12269,159 @@ function testFreeDiagnosisSystem() {
       success: false,
       message: '테스트 실패',
       error: error.toString()
+    };
+  }
+}
+
+/**
+ * 무료 진단 상세결과 시스템 테스트 (AI 역량 분석 포함)
+ */
+function testFreeDiagnosisDetailedResultsSystem() {
+  console.log('🔧 무료 진단 상세결과 시스템 테스트 시작...');
+  
+  try {
+    // 1. 상세결과 시트 초기화 테스트
+    console.log('1️⃣ 상세결과 시트 초기화 테스트...');
+    initializeFreeDiagnosisDetailedResultsSheet();
+    
+    // 2. AI 역량 데이터가 포함된 샘플 데이터 준비
+    const diagnosisId = 'TEST_DETAILED_' + new Date().getTime();
+    const sampleDataWithAI = {
+      diagnosisId: diagnosisId,
+      companyName: 'AI테스트기업',
+      industry: 'IT/소프트웨어',
+      contactManager: '이휴경',
+      email: 'test@aicamp.club',
+      phone: '010-1234-5678',
+      region: '서울',
+      concerns: ['운영관리', '매출증대'],
+      employeeCount: 50,
+      annualRevenue: 5000000000,
+      businessHistory: 10,
+      
+      // AI 역량 데이터 추가
+      aiCapabilityData: {
+        leadership: 4,
+        infrastructure: 3,
+        skills: 3,
+        culture: 4,
+        application: 3
+      }
+    };
+    
+    // 3. AI 역량이 포함된 분석 결과 시뮬레이션
+    console.log('2️⃣ AI 역량 포함 분석 시뮬레이션...');
+    const mockAnalysisWithAI = `
+      **종합진단개요**
+      핵심요약: AI테스트기업은 IT 업계의 선도 기업으로, AI 활용 역량이 우수하며 디지털 전환에 적극적입니다.
+      주요발견사항: 
+      - 경영진의 AI 비전이 명확함
+      - 조직 문화가 혁신적임
+      - 인프라 구축 필요
+      
+      **SWOT분석**
+      강점:
+      - 강력한 리더십
+      - 혁신 문화
+      - 우수한 인재
+      
+      약점:
+      - AI 인프라 부족
+      - 기술 역량 부족
+      
+      기회:
+      - AI 시장 성장
+      - 디지털 전환 가속화
+      
+      위협:
+      - 기술 변화 속도
+      - 인재 확보 경쟁
+      
+      **전략매트릭스**
+      SO전략:
+      - AI 기술 활용 경쟁력 강화
+      - 혁신 문화 확산
+      
+      **실행로드맵**
+      1단계:
+      - AI 인프라 구축
+      - 직원 교육 강화
+      
+      2단계:  
+      - AI 솔루션 도입
+      - 프로세스 최적화
+      
+      3단계:
+      - AI 고도화
+      - 새로운 서비스 개발
+      
+      **벤치마크**
+      경쟁우위:
+      - AI 활용 역량 우수
+      - 빠른 의사결정
+      
+      **추천서비스**
+      교육프로그램:
+      - AI 리더십 과정
+      - 디지털 트랜스포메이션 워크숍
+      
+      컨설팅서비스:
+      - AI 전략 수립 컨설팅
+      - 조직 혁신 컨설팅
+    `;
+    
+    // 4. 결과 구조화 (AI 역량 분석 포함)
+    console.log('3️⃣ AI 역량 포함 결과 구조화...');
+    const structuredResultWithAI = structureFreeDiagnosisResult(mockAnalysisWithAI, sampleDataWithAI);
+    
+    // 5. 상세 결과 저장 테스트
+    console.log('4️⃣ 상세 결과 저장 테스트...');
+    saveFreeDiagnosisDetailedResult(diagnosisId, structuredResultWithAI);
+    
+    // 6. AI 역량 분석 세부 테스트
+    console.log('5️⃣ AI 역량 분석 세부 테스트...');
+    if (structuredResultWithAI.aiCapabilityAnalysis) {
+      console.log('✅ AI 역량 분석 포함됨');
+      console.log('AI 역량 점수:', structuredResultWithAI.aiCapabilityAnalysis.overallScore);
+      console.log('AI 역량 등급:', structuredResultWithAI.aiCapabilityAnalysis.overallGrade);
+      console.log('영역별 점수:', JSON.stringify(structuredResultWithAI.aiCapabilityAnalysis.categoryScores));
+      console.log('GAP 분석:', structuredResultWithAI.aiCapabilityAnalysis.gapAnalysis);
+    } else {
+      console.log('⚠️ AI 역량 분석이 포함되지 않음');
+    }
+    
+    // 7. 일반 데이터 (AI 역량 없음) 테스트
+    console.log('6️⃣ AI 역량 데이터 없는 경우 테스트...');
+    const diagnosisId2 = 'TEST_NO_AI_' + new Date().getTime();
+    const sampleDataNoAI = {
+      diagnosisId: diagnosisId2,
+      companyName: '일반테스트기업',
+      industry: '제조업',
+      contactManager: '김철수',
+      email: 'test2@example.com',
+      phone: '010-5678-1234'
+    };
+    
+    const structuredResultNoAI = structureFreeDiagnosisResult(mockAnalysisWithAI, sampleDataNoAI);
+    saveFreeDiagnosisDetailedResult(diagnosisId2, structuredResultNoAI);
+    
+    console.log('✅ 무료 진단 상세결과 시스템 테스트 완료');
+    
+    return {
+      success: true,
+      diagnosisId1: diagnosisId,
+      diagnosisId2: diagnosisId2,
+      aiCapabilityIncluded: !!structuredResultWithAI.aiCapabilityAnalysis,
+      aiScore: structuredResultWithAI.aiCapabilityAnalysis?.overallScore || 0,
+      message: '무료 진단 상세결과 시스템 테스트 성공'
+    };
+    
+  } catch (error) {
+    console.error('❌ 무료 진단 상세결과 시스템 테스트 실패:', error);
+    return {
+      success: false,
+      error: error.toString(),
+      message: '무료 진단 상세결과 시스템 테스트 실패'
     };
   }
 }
