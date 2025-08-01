@@ -17,6 +17,7 @@ const envSchema = z.object({
   // Google Sheets & Apps Script (클라이언트 사이드 허용)
   NEXT_PUBLIC_GOOGLE_SHEETS_ID: z.string().min(1, 'Google Sheets ID는 필수입니다').optional(),
   NEXT_PUBLIC_GOOGLE_SCRIPT_URL: z.string().url('유효한 Google Script URL이 필요합니다').optional(),
+  NEXT_PUBLIC_GAS_URL: z.string().url('유효한 Google Apps Script URL이 필요합니다').optional(),
   NEXT_PUBLIC_BASE_URL: z.string().optional(),
   
   // 선택적 환경변수
@@ -36,6 +37,7 @@ export function getServerEnv(): EnvConfig {
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
+      NEXT_PUBLIC_GAS_URL: process.env.NEXT_PUBLIC_GAS_URL,
       NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
       NODE_ENV: process.env.NODE_ENV,
       VERCEL_URL: process.env.VERCEL_URL,
@@ -49,6 +51,7 @@ export function getServerEnv(): EnvConfig {
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
+      NEXT_PUBLIC_GAS_URL: process.env.NEXT_PUBLIC_GAS_URL || DEFAULT_GOOGLE_SCRIPT_URL,
       NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp-v3-0.vercel.app',
       NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
       VERCEL_URL: process.env.VERCEL_URL,
@@ -129,6 +132,21 @@ export function getGeminiKey(): string {
   
   console.log('✅ 고급 분석 API Key 검증 완료:', maskApiKey(key));
   return key;
+}
+
+/**
+ * Google Apps Script URL 가져오기 (무료 AI 진단용)
+ */
+export function getGasUrl(): string {
+  const url = process.env.NEXT_PUBLIC_GAS_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL;
+  
+  if (!url) {
+    console.warn('⚠️ Google Apps Script URL이 설정되지 않았습니다.');
+    console.info('💡 .env.local 파일에 NEXT_PUBLIC_GAS_URL=웹앱URL 을 추가하세요.');
+    return '';
+  }
+  
+  return url;
 }
 
 /**

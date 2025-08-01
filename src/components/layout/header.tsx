@@ -208,14 +208,14 @@ const Header = () => {
 
   return (
     <>
-      {/* 100% 화면 크기 자동 조절 헤더 */}
+      {/* 100% 화면 크기 자동 조절 헤더 - 모든 메뉴 표시 최적화 */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200/20' 
           : 'bg-white/95 backdrop-blur-xl'
       }`}>
-        <div className="w-full overflow-x-auto scrollbar-hide">
-          <nav className="flex items-center min-h-[44px] px-1 sm:px-2 lg:px-3 xl:px-4 2xl:px-6 min-w-max">
+        <div className="w-full overflow-x-auto navbar-scrollbar">
+          <nav className="flex items-center min-h-[44px]" style={{ minWidth: 'max-content', width: 'max-content', paddingLeft: '1cm', paddingRight: '1cm' }}>
             
             {/* 로고 - 왼쪽 고정 */}
             <Link 
@@ -232,95 +232,89 @@ const Header = () => {
               </div>
             </Link>
 
-            {/* 메인 네비게이션 - 가운데 영역 (스크롤 가능) */}
-            <div className="hidden md:block flex-1 mx-1 lg:mx-2 xl:mx-3">
-              <div className="flex items-center justify-center">
-                <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 overflow-x-auto scrollbar-hide max-w-full">
-                  <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-shrink-0">
-                    {navigationItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`relative px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0
-                          md:px-1 md:text-xs
-                          lg:px-1.5 lg:text-xs
-                          xl:px-2 xl:text-xs
-                          2xl:px-3 2xl:text-sm
-                          ${pathname === item.href
-                            ? (item.isSpecial 
-                                ? 'text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg ring-2 ring-purple-300' 
-                                : 'text-white bg-gray-800')
-                            : (item.isSpecial
-                                ? 'text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-md ring-1 ring-purple-200 font-medium'
-                                : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100')
-                        }`}
-                      >
-                        <div className="flex items-center gap-1">
-                          {item.icon && <item.icon className="w-3 h-3 lg:w-4 lg:h-4" />}
-                          <span>{item.label}</span>
-                          {item.badge && (
-                            <span className="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 ml-1">
-                              {item.badge}
-                            </span>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 액션 버튼들 - 오른쪽 (스크롤 가능) */}
-            <div className="hidden md:block flex-shrink-0 ml-1 lg:ml-2">
-              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 overflow-x-auto scrollbar-hide max-w-full">
-                <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-shrink-0">
-                  {actionButtons.map((button) => {
-                    const buttonClass = `inline-block px-1 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0
+            {/* 메인 네비게이션 - 가운데 영역 (전체 표시) */}
+            <div className="hidden md:flex flex-shrink-0 mx-1 lg:mx-2 xl:mx-3">
+              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2">
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`relative px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 nav-item-hover
                       md:px-1 md:text-xs
                       lg:px-1.5 lg:text-xs
                       xl:px-2 xl:text-xs
                       2xl:px-3 2xl:text-sm
-                      ${button.color === 'blue' 
-                        ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
-                        : button.color === 'green'
-                        ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
-                        : button.color === 'purple'
-                        ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
-                        : button.color === 'orange'
-                        ? 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
-                        : button.color === 'yellow'
-                        ? 'text-yellow-600 hover:text-white hover:bg-yellow-600 bg-yellow-100'
-                        : 'text-red-600 hover:text-white hover:bg-red-600 bg-red-100'
-                    }`;
+                      ${pathname === item.href
+                        ? (item.isSpecial 
+                            ? 'text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg ring-2 ring-purple-300' 
+                            : 'text-white bg-gray-800')
+                        : (item.isSpecial
+                            ? 'text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-md ring-1 ring-purple-200 font-medium'
+                            : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100')
+                    }`}
+                  >
+                    <div className="flex items-center gap-1">
+                      {item.icon && <item.icon className="w-3 h-3 lg:w-4 lg:h-4" />}
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 ml-1">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
 
-                    if ('external' in button && button.external) {
-                      return (
-                        <a
-                          key={button.href}
-                          href={button.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={buttonClass}
-                          aria-label={button.label}
-                        >
-                          {button.label}
-                        </a>
-                      );
-                    }
+            {/* 액션 버튼들 - 오른쪽 (전체 표시) */}
+            <div className="hidden md:flex flex-shrink-0 ml-1 lg:ml-2">
+              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2">
+                {actionButtons.map((button) => {
+                  const buttonClass = `inline-block px-1 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 nav-item-hover
+                    md:px-1 md:text-xs
+                    lg:px-1.5 lg:text-xs
+                    xl:px-2 xl:text-xs
+                    2xl:px-3 2xl:text-sm
+                    ${button.color === 'blue' 
+                      ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
+                      : button.color === 'green'
+                      ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
+                      : button.color === 'purple'
+                      ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
+                      : button.color === 'orange'
+                      ? 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
+                      : button.color === 'yellow'
+                      ? 'text-yellow-600 hover:text-white hover:bg-yellow-600 bg-yellow-100'
+                      : 'text-red-600 hover:text-white hover:bg-red-600 bg-red-100'
+                  }`;
 
+                  if ('external' in button && button.external) {
                     return (
-                      <Link
+                      <a
                         key={button.href}
                         href={button.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className={buttonClass}
                         aria-label={button.label}
                       >
                         {button.label}
-                      </Link>
+                      </a>
                     );
-                  })}
-                </div>
+                  }
+
+                  return (
+                    <Link
+                      key={button.href}
+                      href={button.href}
+                      className={buttonClass}
+                      aria-label={button.label}
+                    >
+                      {button.label}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 

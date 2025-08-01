@@ -566,16 +566,13 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ 응답 생성 오류:', error);
     
-    // body가 정의되지 않은 경우를 위한 안전장치
-    const fallbackMessage = body?.message || '일반 상담';
-    
+    // 폴백 답변 완전 제거 - 명확한 오류 메시지만 반환
     return NextResponse.json({
-      response: generateDirectResponse(fallbackMessage).response,
-      source: 'lee_hukyung_fallback',
-      error: error instanceof Error ? error.message : '알 수 없는 오류',
-      timestamp: new Date().toISOString(),
-      consultant: '이후경 경영지도사'
+      success: false,
+      error: 'AI 분석 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.\n\n직접 상담을 원하시면 010-9251-9743으로 연락주세요.',
+      timestamp: new Date().toISOString()
     }, {
+      status: 500,
       headers: getCorsHeaders()
     });
   }

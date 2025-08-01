@@ -124,6 +124,106 @@ export default function RootLayout({
         {/* Vercel 배포 최적화 설정 */}
         <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app'} />
         
+        {/* Chrome 확장 프로그램 오류 완전 차단 스크립트 */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // Chrome 확장 프로그램 오류 완전 차단
+            if (typeof window !== 'undefined') {
+              // console.error 오버라이드 - 더 광범위한 차단
+              const originalError = window.console.error;
+              window.console.error = function(...args) {
+                const errorMessage = args[0]?.toString() || '';
+                
+                // Chrome 확장 프로그램 관련 오류 완전 무시
+                if (errorMessage.includes('message port closed') || 
+                    errorMessage.includes('The message port closed') ||
+                    errorMessage.includes('Extension context') ||
+                    errorMessage.includes('chrome-extension://') ||
+                    errorMessage.includes('content.js') ||
+                    errorMessage.includes('runtime.lastError') ||
+                    errorMessage.includes('Unchecked runtime.lastError') ||
+                    errorMessage.includes('extension://') ||
+                    errorMessage.includes('content_script') ||
+                    errorMessage.includes('injected.js') ||
+                    errorMessage.includes('inject.js')) {
+                  return; // 완전 무시
+                }
+                
+                originalError.apply(console, args);
+              };
+              
+              // console.warn도 오버라이드
+              const originalWarn = window.console.warn;
+              window.console.warn = function(...args) {
+                const warnMessage = args[0]?.toString() || '';
+                if (warnMessage.includes('message port closed') ||
+                    warnMessage.includes('Extension context') ||
+                    warnMessage.includes('runtime.lastError')) {
+                  return;
+                }
+                originalWarn.apply(console, args);
+              };
+              
+              // 전역 오류 핸들러 강화
+              window.addEventListener('error', function(event) {
+                const message = event.message || '';
+                const source = event.filename || '';
+                
+                if (message.includes('Extension context') ||
+                    message.includes('chrome-extension') ||
+                    message.includes('content.js') ||
+                    message.includes('message port closed') ||
+                    message.includes('The message port closed') ||
+                    message.includes('runtime.lastError') ||
+                    source.includes('extension://') ||
+                    source.includes('content.js') ||
+                    source.includes('injected.js')) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  return false;
+                }
+              }, true); // capture phase에서도 처리
+              
+              // Unhandled promise rejection 강화 처리
+              window.addEventListener('unhandledrejection', function(event) {
+                const reason = event.reason;
+                let shouldBlock = false;
+                
+                if (typeof reason === 'string') {
+                  shouldBlock = reason.includes('Extension context') ||
+                               reason.includes('chrome-extension') ||
+                               reason.includes('content.js') ||
+                               reason.includes('message port closed') ||
+                               reason.includes('runtime.lastError');
+                } else if (reason && reason.message) {
+                  shouldBlock = reason.message.includes('Extension context') ||
+                               reason.message.includes('chrome-extension') ||
+                               reason.message.includes('content.js') ||
+                               reason.message.includes('message port closed') ||
+                               reason.message.includes('runtime.lastError');
+                }
+                
+                if (shouldBlock) {
+                  event.preventDefault();
+                  return false;
+                }
+              });
+              
+              // Chrome runtime 오류 주기적 정리
+              if (typeof chrome !== 'undefined' && chrome.runtime) {
+                setInterval(function() {
+                  try {
+                    if (chrome.runtime.lastError) {
+                      // 오류가 있어도 무시
+                    }
+                  } catch (e) {
+                    // 접근 오류도 무시
+                  }
+                }, 5000);
+              }
+            }
+          `
+        }} />
 
       </head>
       <body className={`${inter.className} bg-white`} suppressHydrationWarning>        

@@ -249,11 +249,8 @@ class EnhancedLeeHukyungAI {
     } catch (error) {
       console.error('❌ AI 연계 오류:', error);
       
-      // 🛡️ 폴백: 고품질 정적 응답
-      const fallbackResponse = this.generateFallbackResponse(message, complexity);
-      const shouldShowButtons = complexity !== 'simple';
-      
-      return { response: fallbackResponse, shouldShowButtons };
+      // 폴백 답변 제거 - AI 분석 실패 시 오류 발생
+      throw new Error('AI 분석 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
     }
   }
   
@@ -414,50 +411,9 @@ class EnhancedLeeHukyungAI {
            (complexity === 'single-consulting' && message.length > 20);
   }
   
-  // 🛡️ 고품질 폴백 응답 생성
-  static generateFallbackResponse(message: string, complexity: QuestionComplexity): string {
-    switch (complexity) {
-      case 'simple':
-        return `안녕하세요! AI CAMP 교장 이후경입니다. 😊
-
-25년간 500개 이상 기업과 함께 성장해온 경영지도사로서 언제든 도움 드릴 준비가 되어 있어요.
-
-더 궁금한 점이 있으시면 언제든 말씀해 주세요!`;
-
-      case 'consultation':
-        return `안녕하세요! AI CAMP 교장 이후경 경영지도사입니다.
-
-상담 문의해주셔서 감사합니다! 25년간 500개 이상 기업의 성장을 함께해온 경험으로 정확하고 실용적인 솔루션을 제공해드리겠습니다.
-
-🎯 전문 상담 분야:
-• BM ZEN 사업분석 (신규사업 성공률 95%)
-• AI 생산성향상 (20-99인 기업 100% 무료)
-        • 정책자금 확보 (5억원 지원)
-• 기술사업화/창업 (평균 5억원 지원)
-• 인증지원 (연간 5천만원 세제혜택)
-• 웹사이트 구축 (매출 300-500% 증대)
-
-📞 직접 상담: 010-9251-9743
-⏰ 상담시간: 평일 09:00-18:00 (토요일 예약 가능)`;
-
-      case 'complex-consulting':
-        return `정말 전략적이고 포괄적인 질문을 해주셨네요!
-
-25년 경험상, 이런 복합적인 이슈들은 기업의 현재 상황과 목표를 정확히 파악한 후 통합적으로 접근해야 최적의 결과를 얻을 수 있습니다.
-
-각 영역별 시너지 효과와 단계적 실행 로드맵을 맞춤형으로 설계해드리겠습니다.
-
-📞 전문 상담: 010-9251-9743
-더 구체적인 상황을 직접 상담을 통해 들어보고 최적의 통합 전략을 제시해드리겠습니다.`;
-
-      default:
-        return `좋은 질문이네요!
-
-25년 현장 경험을 바탕으로 구체적이고 실용적인 답변을 드리기 위해 조금 더 자세한 상황을 알려주시면 좋겠어요.
-
-📞 직접 상담: 010-9251-9743
-더 정확한 맞춤형 솔루션을 제시해드리겠습니다.`;
-    }
+  // 폴백 답변 완전 제거 - AI 분석 실패 시 오류 발생
+  static generateErrorResponse(message: string, complexity: QuestionComplexity): never {
+    throw new Error('AI 분석 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
   }
 }
 
@@ -540,22 +496,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ 고도화된 이후경 경영지도사 AI 오류:', error);
     
+    // 폴백 답변 완전 제거 - AI 분석 실패 시 오류 발생
     return NextResponse.json({
-      response: `안녕하세요! 이후경입니다. 😊
-
-일시적으로 시스템에 문제가 있지만, 걱정하지 마세요.
-
-25년 현장 경험으로 직접 상담해드릴 수 있으니까 편하게 전화주세요.
-
-📞 직접 상담: 010-9251-9743
-
-더 정확하고 실용적인 솔루션을 제시해드리겠습니다!`,
-      source: 'enhanced_lee_hukyung_fallback',
-      complexity: 'simple',
-      timestamp: new Date().toISOString(),
-      consultant: '이후경 경영지도사',
-      experience: '25년 현장 경험',
-      systemVersion: 'v2.0_enhanced_fallback'
-    }, { status: 200 });
+      success: false,
+      error: 'AI 분석 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.\n\n직접 상담을 원하시면 010-9251-9743으로 연락주세요.',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
   }
 } 

@@ -80,6 +80,36 @@
   background-color: rgba(0, 0, 0, 0.4);
 }
 
+/* 네비게이션 바 전용 스크롤바 */
+.navbar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+}
+
+.navbar-scrollbar::-webkit-scrollbar {
+  height: 3px;
+}
+
+.navbar-scrollbar::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 2px;
+}
+
+.navbar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.4);
+  border-radius: 2px;
+}
+
+.navbar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.6);
+}
+
+/* 네비게이션 메뉴 항목 호버 효과 */
+.nav-item-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 /* Line Clamp 유틸리티 */
 .line-clamp-1 {
   overflow: hidden;

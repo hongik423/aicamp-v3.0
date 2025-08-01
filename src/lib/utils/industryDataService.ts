@@ -618,13 +618,17 @@ export class IndustryDataService {
 }
 
 /**
- * 업종별 최신 정보를 활용한 진단 보고서 생성
+ * 🚫 업종별 특화 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API 전용
  */
 export function generateIndustryEnhancedReport(
   industry: string, 
   companyData: any, 
   diagnosisResult: any
 ): string {
+  // 🚨 폴백 보고서 생성 금지
+  throw new Error('업종별 특화 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
+  
+  /* 기존 폴백 로직 비활성화
   const insights = IndustryDataService.generateIndustryInsights(industry, {
     ...companyData,
     totalScore: diagnosisResult.totalScore
@@ -682,6 +686,7 @@ ${trendData ?
 
 *본 보고서는 2025년 최신 업종 데이터를 기반으로 한 맞춤형 분석 결과입니다.*
   `.trim();
+  */
 }
 
 export default IndustryDataService; 

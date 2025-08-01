@@ -399,7 +399,10 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
 
     console.log('📤 Google Apps Script로 완전한 진단 데이터 전송 시작 (개별점수 + 업종분석 포함)');
 
-    // POST 방식으로 전송
+    // POST 방식으로 전송 (타임아웃 설정 추가)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
+    
     const response = await fetch(googleScriptUrl, {
       method: 'POST',
       headers: {
@@ -407,8 +410,9 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
         'Accept': 'application/json',
       },
       body: JSON.stringify(requestData),
-      mode: 'cors'
-    });
+      mode: 'cors',
+      signal: controller.signal
+    }).finally(() => clearTimeout(timeoutId));
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -621,7 +625,8 @@ ${JSON.stringify(data, null, 2)}
  */
 export async function checkGoogleScriptStatus() {
   try {
-    const response = await fetch(GOOGLE_SCRIPT_CONFIG.SCRIPT_URL, {
+    // 프록시를 통해 Google Apps Script 연결 상태 확인
+    const response = await fetch('/api/google-script-proxy', {
       method: 'GET',
     });
 
@@ -630,14 +635,7 @@ export async function checkGoogleScriptStatus() {
     }
 
     const result = await response.json();
-    
-    return {
-      success: true,
-      status: 'connected',
-      message: 'Google Apps Script 연결 정상',
-      data: result,
-      timestamp: new Date().toISOString()
-    };
+    return result;
 
   } catch (error) {
     console.error('❌ Google Apps Script 연결 확인 실패:', error);

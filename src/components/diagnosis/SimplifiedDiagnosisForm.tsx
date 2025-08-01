@@ -506,13 +506,18 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         submitDate: new Date().toISOString()
       };
       
+      // 타임아웃 설정 (4분 50초 - 서버 타임아웃보다 약간 짧게)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 290000); // 290초
+      
       const response = await fetch('/api/simplified-diagnosis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestData)
-      });
+        body: JSON.stringify(requestData),
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
 
       if (!response.ok) {
         throw new Error(`진단 처리 실패: ${response.status}`);
@@ -562,7 +567,17 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       
       // 🎯 구체적인 오류 메시지 제공
       if (error instanceof Error) {
-        if (error.message.includes('diagnosis')) {
+        // 타임아웃 오류 처리
+        if (error.name === 'AbortError') {
+          errorTitle = "⏱️ 처리 시간 초과";
+          errorDescription = "진단 분석에 시간이 오래 걸리고 있습니다. 다시 시도하거나 간단한 정보로 진단을 진행해주세요.";
+        }
+        // 504 Gateway Timeout 오류 처리
+        else if (error.message.includes('504')) {
+          errorTitle = "⏱️ 서버 응답 지연";
+          errorDescription = "현재 많은 요청으로 인해 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.";
+        }
+        else if (error.message.includes('diagnosis')) {
           errorTitle = "진단 데이터 처리 오류";
           errorDescription = "진단 결과를 처리하는 중 문제가 발생했습니다. 다시 시도해주세요.";
         } else if (error.message.includes('네트워크') || error.message.includes('fetch')) {

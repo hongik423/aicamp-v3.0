@@ -301,39 +301,20 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
       }
     } catch (error) {
       console.error('❌ 이후경경영지도사 AI 오류:', error);
-      const fallbackResponse = generateFallbackResponse(message.trim());
-      const botMessage: Message = {
+      // 폴백 답변 제거 - 명확한 오류 메시지 표시
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: fallbackResponse,
+        content: 'AI 분석 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.\n\n직접 상담을 원하시면 010-9251-9743으로 연락주세요.',
         sender: 'bot',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, botMessage]);
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
     }
   };
 
-  // 폴백 응답 생성
-  const generateFallbackResponse = (message: string): string => {
-    return `안녕하세요! AI CAMP 교장 이후경입니다.
-
-28년간 500개 이상 기업과 함께 일해온 경험을 바탕으로 답변드리겠습니다.
-
-지금 AI 시스템에 일시적인 문제가 있지만, 괜찮아요. 제가 현장에서 직접 쌓은 노하우로 도와드릴 수 있거든요.
-
-저희 AICAMP에서 검증된 솔루션들이 있어요. BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성한 케이스들이 많아요. 
-
-AI 생산성향상 쪽은 요즘 정말 인기가 많아요. 20-99인 기업은 정부에서 100% 지원해주거든요. 기업 입장에서는 완전 무료로 받을 수 있어요.
-
-25년 넘게 해온 정책자금 확보는 평균 5억원 규모로 많은 기업들의 성장을 지원해서 많은 분들이 찾아오시죠.
-
-기술사업화나 창업 지원도 평균 5억원 정도 정부지원을 확보해드리고 있어요.
-
-더 구체적인 상담이 필요하시면 010-9251-9743으로 직접 전화주세요. 또는 저희 홈페이지에서 무료 진단을 받아보시는 것도 좋을 것 같아요.
-
-28년 현장 경험으로 확실한 성과를 만들어드릴 자신 있어요!`;
-  };
+  // 폴백 답변 완전 제거 - AI 분석 실패 시 오류 메시지만 표시
 
   return (
     <>

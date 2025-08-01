@@ -169,7 +169,7 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
     categoriesCount: diagnosis.categoryResults?.length || 0,
     swotComplete: !!(diagnosis.swotAnalysis?.strengths?.length && diagnosis.swotAnalysis?.weaknesses?.length),
     reportLength: diagnosis.comprehensiveReport?.length || 0,
-    emailSent: data.data.emailSent
+    emailSent: data.emailSent || false
   });
 
   // 등급 정보 계산

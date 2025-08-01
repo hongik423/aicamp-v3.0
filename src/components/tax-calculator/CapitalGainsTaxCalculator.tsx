@@ -1950,9 +1950,9 @@ export default function CapitalGainsTaxCalculatorComponent() {
               <div className="flex space-x-2 pt-4">
                 <Button 
                   onClick={calculate} 
-                  disabled={isCalculating || (!inputs.acquisitionPrice || !inputs.disposalPrice)}
+                  disabled={isCalculating || (!inputs.acquisitionPrice || !inputs.salePrice)}
                   className={`flex-1 transition-all duration-200 transform
-                    ${(!inputs.acquisitionPrice || !inputs.disposalPrice) ? 
+                    ${(!inputs.acquisitionPrice || !inputs.salePrice) ? 
                       'bg-gray-400 cursor-not-allowed' :
                       isCalculating ? 'animate-pulse' :
                       'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
@@ -1964,7 +1964,7 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
                       계산 중...
                     </>
-                  ) : (!inputs.acquisitionPrice || !inputs.disposalPrice) ? (
+                  ) : (!inputs.acquisitionPrice || !inputs.salePrice) ? (
                     <>
                       <Calculator className="w-4 h-4 mr-2 opacity-50" />
                       가격 정보 입력 필요

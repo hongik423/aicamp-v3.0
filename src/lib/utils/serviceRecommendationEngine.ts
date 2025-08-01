@@ -540,4 +540,51 @@ export class ServiceRecommendationEngine {
     
     return ['1. 상세 상담 진행', '2. 맞춤형 계획 수립', '3. 단계별 실행'];
   }
+}
+
+// MCENTER_SERVICES export 추가
+export { MCENTER_SERVICES };
+
+// GovernmentSupportReportGenerator 클래스 추가
+export class GovernmentSupportReportGenerator {
+  static generateReport(data: any): any {
+    const recommendations = ServiceRecommendationEngine.recommend(data);
+    
+    return {
+      companyName: data.companyName,
+      industry: data.industry,
+      recommendations: recommendations.map(rec => ({
+        primaryService: rec.service,
+        reason: rec.reason,
+        urgency: rec.urgency,
+        expectedImpact: rec.expectedImpact,
+        reasons: [rec.reason], // reasons 배열로 제공
+        secondaryServices: [], // 빈 배열로 초기화
+        actionPlan: {
+          phase1: {
+            period: '1-3개월',
+            tasks: ['기초 진단', '계획 수립'],
+            milestone: '기반 구축 완료'
+          },
+          phase2: {
+            period: '4-6개월',
+            tasks: ['본격 실행', '중간 점검'],
+            milestone: '핵심 성과 달성'
+          },
+          phase3: {
+            period: '7-12개월',
+            tasks: ['고도화', '확산'],
+            milestone: '전사 정착 완료'
+          }
+        }
+      })),
+      totalScore: 85,
+      grade: 'B+',
+      summary: '정부지원 프로그램을 통한 AI 도입으로 경쟁력 강화 가능'
+    };
+  }
+
+  static recommendForGovernmentSupport(data: any): any {
+    return this.generateReport(data);
+  }
 } 
