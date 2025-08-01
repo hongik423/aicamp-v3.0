@@ -29,7 +29,9 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ data }
 
   const handlePDFDownload = () => {
     // PDF 다운로드 로직
-    window.open(`/api/diagnosis/download/${data.diagnosisId}`, '_blank');
+    if (data?.diagnosisId) {
+      window.open(`/api/diagnosis/download/${data.diagnosisId}`, '_blank');
+    }
   };
 
   return (
@@ -104,26 +106,26 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ data }
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">핵심 요약</h3>
                 <p className="text-gray-700 leading-relaxed">
-                  {data.executiveSummary || '귀사는 현재 성장 잠재력이 높은 단계에 있으며, 디지털 전환과 프로세스 개선을 통해 경쟁력을 크게 향상시킬 수 있습니다.'}
+                  {data?.executiveSummary || '귀사는 현재 성장 잠재력이 높은 단계에 있으며, 디지털 전환과 프로세스 개선을 통해 경쟁력을 크게 향상시킬 수 있습니다.'}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4 text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-2">
-                    {data.overallScore || 75}점
+                    {data?.overallScore || 75}점
                   </div>
                   <div className="text-sm text-gray-600">종합 점수</div>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4 text-center">
                   <div className="text-3xl font-bold text-green-600 mb-2">
-                    {data.overallGrade || 'A'}
+                    {data?.overallGrade || 'A'}
                   </div>
                   <div className="text-sm text-gray-600">등급</div>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4 text-center">
                   <div className="text-3xl font-bold text-purple-600 mb-2">
-                    {data.reliabilityScore || 92}%
+                    {data?.reliabilityScore || 92}%
                   </div>
                   <div className="text-sm text-gray-600">신뢰도</div>
                 </div>
@@ -132,7 +134,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ data }
               <div>
                 <h3 className="text-lg font-semibold mb-4">주요 발견사항</h3>
                 <ul className="space-y-2">
-                  {(data.keyFindings || [
+                  {(data?.keyFindings || [
                     '디지털 전환 준비도가 업계 평균 대비 높음',
                     '고객 만족도 향상을 위한 체계적인 프로세스 필요',
                     '신규 시장 진출 가능성이 매우 높음'
