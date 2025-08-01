@@ -70,8 +70,9 @@ export default function DSCRChart({ dscrData }: DSCRChartProps) {
               />
               <Tooltip 
                 formatter={(value, name) => {
-                  if (name === 'DSCR') return [value.toFixed(2), name];
-                  return [`${value.toFixed(1)}억원`, name];
+                  const numValue = Number(value);
+                  if (name === 'DSCR') return [numValue.toFixed(2), name];
+                  return [`${numValue.toFixed(1)}억원`, name];
                 }}
               />
               <Legend />
@@ -160,7 +161,7 @@ export default function DSCRChart({ dscrData }: DSCRChartProps) {
                 label={{ value: 'DSCR', angle: -90, position: 'insideLeft' }}
                 domain={[0, 'dataMax + 0.3']}
               />
-              <Tooltip formatter={(value) => [value.toFixed(2), 'DSCR']} />
+              <Tooltip formatter={(value) => [Number(value).toFixed(2), 'DSCR']} />
               <Legend />
               
               {/* 안전도 구간별 배경 영역 */}

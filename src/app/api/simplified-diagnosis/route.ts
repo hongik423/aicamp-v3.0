@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = false;
 export const runtime = 'nodejs';
-export const maxDuration = 30; // 30초 타임아웃으로 Vercel 제한 해결
+export const maxDuration = 120; // 120초 타임아웃으로 Google Apps Script 안정성 확보
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -13,6 +13,12 @@ import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
 import { EnhancedDiagnosisEngine, DiagnosisReportGenerator, validateDiagnosisData } from '@/lib/utils/enhancedDiagnosisEngine';
 import { IndustryDataService, generateIndustryEnhancedReport } from '@/lib/utils/industryDataService';
 import { AdvancedSWOTEngine } from '@/lib/utils/advancedSWOTEngine';
+import { 
+  performAICapabilityGAPAnalysis, 
+  integrateAICapabilityWithSWOT,
+  generateHighEngagementStrategy,
+  AICapabilityScores 
+} from '@/lib/utils/aiCapabilityAnalysis';
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
@@ -59,6 +65,31 @@ interface SimplifiedDiagnosisRequest {
     weaknesses: any[];
     reportType: string;
   };
+  
+  // 🤖 AI 역량 진단 점수 (추가)
+  ceoAIVision?: number;
+  aiInvestment?: number;
+  aiStrategy?: number;
+  changeManagement?: number;
+  riskTolerance?: number;
+  itInfrastructure?: number;
+  dataManagement?: number;
+  securityLevel?: number;
+  aiToolsAdopted?: number;
+  digitalLiteracy?: number;
+  aiToolUsage?: number;
+  learningAgility?: number;
+  dataAnalysis?: number;
+  innovationCulture?: number;
+  collaborationLevel?: number;
+  experimentCulture?: number;
+  continuousLearning?: number;
+  processAutomation?: number;
+  decisionMaking?: number;
+  customerService?: number;
+  
+  // 인덱스 시그니처 추가로 동적 프로퍼티 접근 허용
+  [key: string]: any;
 }
 
 // 📊 신뢰할 수 있는 다중 지표 평가 체계
@@ -220,8 +251,12 @@ const mCenterServices = {
   }
 };
 
-// 🤖 안전한 AI 향상된 진단 (에러 발생시 폴백 처리)
+// 🚫 폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API 전용
 async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): Promise<string> {
+  // 🚨 폴백 보고서 생성 금지 - 에러 발생시 예외 던지기
+  throw new Error('폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
+  
+  /* 기존 폴백 로직 비활성화
   try {
     const {
       totalScore = 0,
@@ -416,9 +451,10 @@ ${actionPlan.longTerm?.map((action: string) => `  • ${action}`).join('\n') || 
 
   } catch (error) {
     console.error('❌ AI 강화 보고서 생성 중 오류:', error);
-    // 폴백으로 기본 보고서 반환
-    return generateFallbackReport(data, diagnosisData);
+    // 🚨 폴백 보고서 생성 금지 - 에러 던지기
+    throw new Error('폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
   }
+  */
 }
 
 // 📊 점수 기반 등급 함수
@@ -492,6 +528,32 @@ export async function POST(request: NextRequest) {
       완성도: Math.round((validScores.length / scoreFields.length) * 100) + '%',
       입력된점수: validScores.reduce((obj, field) => ({...obj, [field]: data[field]}), {})
     });
+    
+    // 🤖 AI 역량 진단 점수 수집
+    const aiCapabilityFields = [
+      'ceoAIVision', 'aiInvestment', 'aiStrategy', 'changeManagement', 'riskTolerance',
+      'itInfrastructure', 'dataManagement', 'securityLevel', 'aiToolsAdopted',
+      'digitalLiteracy', 'aiToolUsage', 'learningAgility', 'dataAnalysis',
+      'innovationCulture', 'collaborationLevel', 'experimentCulture', 'continuousLearning',
+      'processAutomation', 'decisionMaking', 'customerService'
+    ];
+    
+    const aiCapabilityScores: AICapabilityScores = {};
+    aiCapabilityFields.forEach(field => {
+      if (data[field] && typeof data[field] === 'number' && data[field] >= 1 && data[field] <= 5) {
+        aiCapabilityScores[field as keyof AICapabilityScores] = data[field];
+      }
+    });
+    
+    const hasAICapabilityData = Object.keys(aiCapabilityScores).length > 0;
+    
+    if (hasAICapabilityData) {
+      console.log('🤖 AI 역량 진단 데이터 확인:', {
+        입력된항목수: Object.keys(aiCapabilityScores).length,
+        총항목수: aiCapabilityFields.length,
+        완성도: Math.round((Object.keys(aiCapabilityScores).length / aiCapabilityFields.length) * 100) + '%'
+      });
+    }
 
     // 1단계: Enhanced 진단평가 엔진 v3.0 실행 (안전 모드)
     console.log('🚀 Enhanced 진단평가 엔진 v3.0 시작 (안전 모드)');
@@ -521,9 +583,9 @@ export async function POST(request: NextRequest) {
       });
       
     } catch (error) {
-      console.error('❌ Enhanced 진단 실패, 폴백 처리:', error);
-      // 폴백: 기본 진단 로직
-      enhancedResult = generateBasicDiagnosis(data);
+      console.error('❌ Enhanced 진단 실패:', error);
+      // 🚨 폴백 진단 로직 완전 차단 - Google Apps Script GEMINI 2.5 Flash API만 사용
+      throw new Error('진단 엔진 실패 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
     }
 
     // 2단계: SWOT 분석 생성 (안전 모드)
@@ -537,8 +599,57 @@ export async function POST(request: NextRequest) {
         threats: swotAnalysis.threats.length
       });
     } catch (error) {
-      console.error('❌ SWOT 분석 실패, 기본값 적용:', error);
-      swotAnalysis = generateBasicSWOT(data, enhancedResult.totalScore);
+      console.error('❌ SWOT 분석 실패:', error);
+      // 🚨 폴백 SWOT 완전 삭제 - Google Apps Script GEMINI 2.5 Flash API만 사용
+      throw new Error('SWOT 분석 실패 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
+    }
+    
+    // 🤖 AI 역량 GAP 분석 (선택적)
+    let aiCapabilityAnalysis = null;
+    let aiEnhancedSWOT = swotAnalysis;
+    
+    if (hasAICapabilityData) {
+      try {
+        console.log('🤖 AI 역량 GAP 분석 시작...');
+        
+        // AI 역량 GAP 분석 수행
+        const gapAnalysisResult = performAICapabilityGAPAnalysis(
+          aiCapabilityScores,
+          data.industry,
+          data.employeeCount
+        );
+        
+        // AI 고몰입 조직 구축 전략 생성
+        const highEngagementStrategies = generateHighEngagementStrategy(gapAnalysisResult);
+        
+        // SWOT와 AI 역량 분석 통합
+        aiEnhancedSWOT = integrateAICapabilityWithSWOT(gapAnalysisResult, swotAnalysis);
+        
+        aiCapabilityAnalysis = {
+          overallScore: gapAnalysisResult.overallScore,
+          overallBenchmark: gapAnalysisResult.overallBenchmark,
+          overallGap: gapAnalysisResult.overallGap,
+          maturityLevel: gapAnalysisResult.maturityLevel,
+          categoryScores: gapAnalysisResult.categoryScores,
+          categoryGaps: gapAnalysisResult.categoryGaps,
+          strengths: gapAnalysisResult.strengths,
+          weaknesses: gapAnalysisResult.weaknesses,
+          recommendations: gapAnalysisResult.recommendations,
+          highEngagementStrategies
+        };
+        
+        console.log('✅ AI 역량 GAP 분석 완료:', {
+          maturityLevel: aiCapabilityAnalysis.maturityLevel,
+          overallScore: aiCapabilityAnalysis.overallScore.toFixed(2),
+          overallGap: aiCapabilityAnalysis.overallGap.toFixed(2),
+          strengthsCount: aiCapabilityAnalysis.strengths.length,
+          weaknessesCount: aiCapabilityAnalysis.weaknesses.length
+        });
+        
+      } catch (error) {
+        console.error('❌ AI 역량 분석 실패:', error);
+        // AI 역량 분석 실패해도 진행
+      }
     }
 
     // 🎯 AI CAMP 교육 커리큘럼 기반 맞춤형 추천사항 생성
@@ -690,23 +801,21 @@ export async function POST(request: NextRequest) {
         }
       } else {
         console.log('📋 업종별 데이터 부족으로 기본 AI 보고서 생성');
-        throw new Error('Industry data unavailable, fallback to AI report');
+        comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
       }
       
     } catch (error) {
-      console.error('❌ 업종별 진단보고서 생성 실패, 기본 AI 보고서로 폴백:', error.message);
-    try {
-      comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
-        console.log('📋 기본 AI 보고서 생성 완료:', {
-        reportLength: comprehensiveReport.length
+      console.error('❌ 업종별 진단보고서 생성 실패:', error.message);
+      
+      // 🚨 폴백 보고서 생성 금지 - Google Apps Script GEMINI API만 사용
+      console.error('🚫 폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
+      
+      // 빈 보고서로 설정하여 Google Apps Script에서만 처리하도록 함
+      comprehensiveReport = '보고서는 Google Apps Script GEMINI 2.5 Flash API에서 생성됩니다.';
+      
+      console.log('📋 보고서 생성을 Google Apps Script로 위임:', {
+        message: 'GEMINI 2.5 Flash API 전용 처리'
       });
-      } catch (fallbackError) {
-        console.error('❌ AI 보고서도 실패, 기본 보고서로 최종 폴백:', fallbackError.message);
-      comprehensiveReport = generateFallbackReport(data, enhancedResult);
-        console.log('📋 최종 폴백 보고서 생성 완료:', {
-          reportLength: comprehensiveReport.length
-        });
-      }
     }
 
     // 4단계: 결과 ID 및 URL 생성
@@ -839,7 +948,20 @@ export async function POST(request: NextRequest) {
         reportSummary: comprehensiveReport.substring(0, 500) + '...',
         
         // 🚀 서비스 추천 데이터
-        serviceRecommendations: enhancedResult.recommendedActions || []
+        serviceRecommendations: enhancedResult.recommendedActions || [],
+        
+        // 🤖 AI 역량 진단 데이터 (선택적)
+        ...(hasAICapabilityData && aiCapabilityAnalysis ? {
+          aiCapabilityScores: aiCapabilityScores,
+          aiCapabilityAnalysis: aiCapabilityAnalysis,
+          aiMaturityLevel: aiCapabilityAnalysis.maturityLevel,
+          aiOverallScore: aiCapabilityAnalysis.overallScore,
+          aiOverallGap: aiCapabilityAnalysis.overallGap,
+          aiStrengths: aiCapabilityAnalysis.strengths,
+          aiWeaknesses: aiCapabilityAnalysis.weaknesses,
+          aiRecommendations: aiCapabilityAnalysis.recommendations,
+          aiHighEngagementStrategies: aiCapabilityAnalysis.highEngagementStrategies
+        } : {})
       };
 
       // Google Apps Script로 전송
@@ -849,16 +971,33 @@ export async function POST(request: NextRequest) {
         console.log('✅ Google Apps Script 전송 성공 (완전한 진단 데이터 포함)');
       } else {
         console.error('❌ Google Apps Script 전송 실패:', gasResult.error);
+        
+        // 504 오류의 경우 사용자에게 안내 메시지 표시
+        if (gasResult.error && gasResult.error.includes('504')) {
+          console.log('🕐 Google Apps Script 서버 응답 지연 감지 - 사용자에게 안내');
+        }
       }
       
     } catch (gasError) {
       console.error('❌ Google Apps Script 전송 중 오류:', gasError);
+      
+      // 타임아웃 오류인지 확인
+      if (gasError instanceof Error && gasError.message.includes('timeout')) {
+        console.log('🕐 Google Apps Script 타임아웃 오류 감지');
+      }
     }
 
     // 7단계: 최종 응답 생성 (CompleteDiagnosisResults 컴포넌트 호환)
+    let responseMessage = `🎉 ${data.companyName}의 업종별 특화 AI 진단이 완료되었습니다!`;
+    
+    // Google Apps Script 전송 실패 시 사용자 안내 추가
+    if (!gasResult.success) {
+      responseMessage += '\n\n⚠️ 이메일 발송이 지연될 수 있습니다. Google 서버 응답 지연으로 인한 일시적 현상입니다.';
+    }
+    
     const response = {
       success: true,
-      message: `🎉 ${data.companyName}의 업종별 특화 AI 진단이 완료되었습니다!`,
+      message: responseMessage,
       
       // 🎯 CompleteDiagnosisResults 컴포넌트가 기대하는 데이터 구조
       data: {
@@ -1114,15 +1253,17 @@ async function generateSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisR
     
   } catch (error) {
     console.error('❌ 고급 SWOT 분석 생성 실패:', error);
-    // 폴백으로 기존 함수 사용
-    return generateBasicSWOT(data, diagnosisResult.totalScore || 0);
+    // 🚨 폴백 SWOT 완전 삭제 - Google Apps Script GEMINI 2.5 Flash API만 사용
+    throw new Error('SWOT 분석 실패 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
   }
 }
 
 /**
- * 기본 진단 결과 생성 (폴백)
+ * 🚫 기본 진단 함수 완전 삭제됨 - Google Apps Script GEMINI 2.5 Flash API 전용
  */
 function generateBasicDiagnosis(data: SimplifiedDiagnosisRequest): any {
+  throw new Error('폴백 진단 함수 삭제됨 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
+  /* 완전 삭제된 폴백 로직
   console.log('🔄 기본 진단 로직 실행 (폴백 모드)');
   
   const scoreFields = [
@@ -1225,12 +1366,15 @@ function generateBasicDiagnosis(data: SimplifiedDiagnosisRequest): any {
       financialHealth: totalScore * 0.8
     }
   };
+  */
 }
 
 /**
- * 기본 SWOT 분석 생성
+ * 🚫 기본 SWOT 함수 완전 삭제됨 - Google Apps Script GEMINI 2.5 Flash API 전용
  */
 function generateBasicSWOT(data: SimplifiedDiagnosisRequest, totalScore: number): any {
+  throw new Error('폴백 SWOT 함수 삭제됨 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
+  /* 완전 삭제된 폴백 SWOT 로직
   const industry = data.industry || 'general';
   
   return {
@@ -1240,37 +1384,94 @@ function generateBasicSWOT(data: SimplifiedDiagnosisRequest, totalScore: number)
     threats: ['경쟁 심화', '비용 상승', '고객 요구 증가'],
     strategicMatrix: `${industry} 업종 기본 전략: 기존 역량을 바탕으로 디지털 전환과 마케팅 강화를 통한 경쟁력 확보 필요`
   };
+  */
 }
 
 /**
- * 폴백 보고서 생성
+ * 기본 템플릿 보고서 생성 (향상된 버전)
  */
-function generateFallbackReport(data: SimplifiedDiagnosisRequest, diagnosisResult: any): string {
+function generateBasicTemplateReport(data: SimplifiedDiagnosisRequest, diagnosisResult: any): string {
+  // 🚨 폴백 보고서 생성 금지
+  throw new Error('폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
+  
+  /* 기존 폴백 로직 비활성화
   const companyName = data.companyName || '귀사';
   const industry = data.industry || '업종';
   const totalScore = diagnosisResult.totalScore || 0;
+  const grade = getGradeFromScore(totalScore);
+  const currentDate = new Date().toLocaleDateString('ko-KR');
   
   return `
-${companyName}의 ${industry} 업종 진단 결과
+🏆 AI CAMP 경영진단 보고서
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+작성일: ${currentDate}
+기업명: ${companyName}
+업종: ${industry}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. 종합 진단 결과
-현재 ${totalScore}점의 진단 점수를 기록하여 ${totalScore >= 70 ? '우수한' : totalScore >= 50 ? '보통' : '개선이 필요한'} 수준의 경쟁력을 보유하고 있습니다.
+📊 종합 진단 결과
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-2. 주요 강점
-- ${industry} 업종에 대한 기본적인 이해와 경험을 보유하고 있습니다.
-- 고객 서비스에 대한 기본적인 의지와 역량이 있습니다.
-- 사업 운영에 필요한 기본 시설과 체계를 갖추고 있습니다.
+🎯 총점: ${totalScore}점 (100점 만점)
+🏅 등급: ${grade}
+📈 경쟁력 수준: ${totalScore >= 70 ? '우수' : totalScore >= 50 ? '보통' : '개선 필요'}
 
-3. 개선 방향
-- 디지털 마케팅 역량 강화를 통한 고객 접점 확대가 필요합니다.
-- 체계적인 고객 관리 시스템 도입을 통한 서비스 품질 향상이 권장됩니다.
-- 운영 효율성 개선을 통한 비용 절감과 수익성 향상을 추진해야 합니다.
+💪 주요 강점
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• ${industry} 업종에 대한 풍부한 경험과 노하우 보유
+• 고객 만족을 위한 서비스 품질 관리 역량
+• 안정적인 사업 운영을 위한 기본 인프라 구축
+• 시장 변화에 대응하는 유연한 사고방식
 
-4. 향후 전략
-${industry} 업종의 특성을 살린 차별화 전략 수립과 디지털 전환을 통한 경쟁력 강화가 필요합니다. 정부 지원 정책을 적극 활용하여 성장 기반을 마련하시기 바랍니다.
+🔧 개선 영역
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• 디지털 마케팅 전략 수립 및 온라인 고객 확보
+• 데이터 기반 의사결정을 위한 시스템 구축
+• 직원 역량 강화를 위한 체계적 교육 프로그램
+• 운영 효율성 향상을 통한 비용 최적화
 
-이상으로 ${companyName}의 기본 진단 결과를 마무리합니다.
+🚀 실행 전략
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📅 단기 목표 (3개월 이내):
+• 디지털 마케팅 채널 구축 (SNS, 홈페이지 개선)
+• 고객 데이터베이스 정리 및 관리 시스템 도입
+• 핵심 업무 프로세스 표준화
+
+📅 중기 목표 (6개월~1년):
+• AI 도구 활용한 업무 자동화 추진
+• 직원 교육 프로그램 운영
+• 새로운 수익원 발굴 및 사업 영역 확장
+
+📅 장기 비전 (1년 이상):
+• ${industry} 업종 내 디지털 혁신 선도 기업 도약
+• 지속 가능한 성장 기반 구축
+• 업계 표준을 선도하는 혁신 기업으로 발전
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 AI 전문가 상담 안내
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏆 이후경 경영지도사 (AI CAMP 대표)
+• 중소벤처기업부 등록 경영지도사
+• AI 경영혁신 전문가
+• 연락처: 010-9251-9743
+• 이메일: hongik423@gmail.com
+
+💎 AI CAMP 특별 혜택:
+• 무료 AI 진단 완료 기업 대상 30% 할인
+• 맞춤형 AI 도입 로드맵 제공
+• 정부 지원사업 매칭 서비스
+• 실무자 AI 교육 프로그램 제공
+
+🌐 홈페이지: https://aicamp.club
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+*본 보고서는 체계적인 진단 과정을 거쳐 작성되었습니다.*
+*${currentDate} 기준 최신 분석 결과입니다.*
   `.trim();
+  */
 }
 
 /**

@@ -2146,8 +2146,8 @@ function sendUserConfirmation(email, name, type) {
         '• 단계별 실행 계획'
       ) + '\n\n' +
       '📞 빠른 연락을 원하시면:\n' +
-      '전화: 010-9251-9743 (이후경 경영지도사)\n' +
-      '이메일: ' + ADMIN_EMAIL + '\n\n' +
+      '전화: 010-9251-9743 (이후경 교장)\n' +
+      '이메일: hongik423@gmail.com\n\n' +
       '🎯 AICAMP 서비스 소개:\n' +
       '• AI 기반 비즈니스 진단\n' +
       '• 전문가 1:1 맞춤 상담\n' +
@@ -2157,10 +2157,11 @@ function sendUserConfirmation(email, name, type) {
       '귀하의 비즈니스 성장을 위해 최선을 다하겠습니다.\n\n' +
       '감사합니다.\n\n' +
       '---\n' +
-      'AICAMP (AI기반 비즈니스 성장 솔루션)\n' +
-      '담당: 이후경 교장 (경영지도사)\n' +
+      'AICAMP AI 교육센터\n' +
+      'AI와 함께 성장하는 미래를 만들어갑니다\n' +
+      '담당: 이후경 교장\n' +
       '📞 010-9251-9743\n' +
-      '📧 ' + ADMIN_EMAIL + '\n' +
+      '📧 hongik423@gmail.com\n' +
       '🌐 https://aicamp.club';
 
     // HTML 버전 (간단한 스타일)

@@ -18,16 +18,27 @@ const STATIC_CACHE_URLS = [
 // Check if running in development
 const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
-// 🆕 완전한 메시지 포트 오류 방지 시스템
+// 🆕 완전한 메시지 포트 및 확장 프로그램 오류 방지 시스템
 self.addEventListener('error', (event) => {
-  if (event.error && event.error.message && 
-      (event.error.message.includes('port closed') || 
-       event.error.message.includes('message port closed'))) {
-    console.log('Message port error suppressed in SW');
+  const errorMessage = event.error?.message || event.message || '';
+  
+  // 메시지 포트 관련 오류
+  if (errorMessage.includes('port closed') || 
+      errorMessage.includes('message port closed') ||
+      errorMessage.includes('runtime.lastError') ||
+      errorMessage.includes('Extension context')) {
     event.preventDefault();
     return false;
   }
-  console.log('Service Worker error handled:', event.error);
+  
+  // 확장 프로그램 관련 오류
+  if (errorMessage.includes('chrome-extension://') ||
+      errorMessage.includes('extension://') ||
+      errorMessage.includes('content.js')) {
+    event.preventDefault();
+    return false;
+  }
+  
   event.preventDefault();
 });
 

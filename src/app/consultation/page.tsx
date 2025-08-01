@@ -58,6 +58,8 @@ export default function ConsultationPage() {
       formData.phone?.trim() && 
       formData.email?.trim() && 
       formData.company?.trim() && 
+      formData.inquiryContent?.trim() && 
+      formData.inquiryContent?.trim().length >= 10 &&
       formData.privacyConsent
     );
   }, [formData]);
@@ -133,9 +135,8 @@ export default function ConsultationPage() {
         submitDate: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
       };
 
-      // 메일 발송 시도 1: Google Apps Script
-      const googleScriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
-        'https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec';
+      // 메일 발송 시도 1: Google Apps Script (프록시 사용)
+      const proxyUrl = '/api/google-script-proxy';
       
       const postData = {
         제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
@@ -158,14 +159,20 @@ export default function ConsultationPage() {
       console.log('📤 Google Apps Script 데이터 전송:', postData);
 
       try {
-        const response = await fetch(googleScriptUrl, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
+
+        const response = await fetch(proxyUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
-          body: JSON.stringify(postData)
+          body: JSON.stringify(postData),
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const responseText = await response.text();
@@ -182,16 +189,29 @@ export default function ConsultationPage() {
           return;
         }
       } catch (error) {
-        console.warn('Google Apps Script 실패, 백업 시스템 시도:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        if (errorMessage.includes('aborted')) {
+          console.warn('Google Apps Script 타임아웃, 백업 시스템 시도');
+        } else if (errorMessage.includes('CORS')) {
+          console.warn('Google Apps Script CORS 오류, 백업 시스템 시도');
+        } else {
+          console.warn('Google Apps Script 실패, 백업 시스템 시도:', errorMessage);
+        }
       }
 
       // 메일 발송 시도 2: API Route 백업
       try {
+        const apiController = new AbortController();
+        const apiTimeoutId = setTimeout(() => apiController.abort(), 15000); // 15초 타임아웃
+
         const apiResponse = await fetch('/api/consultation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(consultationData)
+          body: JSON.stringify(consultationData),
+          signal: apiController.signal
         });
+
+        clearTimeout(apiTimeoutId);
 
         if (apiResponse.ok) {
           toast({
@@ -205,7 +225,12 @@ export default function ConsultationPage() {
           return;
         }
       } catch (error) {
-        console.warn('⚠️ API 백업도 실패:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        if (errorMessage.includes('aborted')) {
+          console.warn('⚠️ API 백업 타임아웃:', errorMessage);
+        } else {
+          console.warn('⚠️ API 백업도 실패:', errorMessage);
+        }
       }
 
       // 모든 방법 실패 시
@@ -228,16 +253,26 @@ export default function ConsultationPage() {
           if (!formData.phone?.trim()) missingFields.push("연락처");
           if (!formData.email?.trim()) missingFields.push("이메일");
           if (!formData.company?.trim()) missingFields.push("회사명");
+          if (!formData.inquiryContent?.trim()) missingFields.push("문의내용");
+          if (formData.inquiryContent?.trim() && formData.inquiryContent.trim().length < 10) {
+            missingFields.push("문의내용 10자 이상");
+          }
           if (!formData.privacyConsent) missingFields.push("개인정보 동의");
           
           if (missingFields.length > 0) {
             errorDescription = `다음 항목을 입력해 주세요: ${missingFields.join(", ")}`;
           } else {
-            errorDescription = "상담 유형, 성명, 연락처, 이메일, 회사명, 개인정보 동의는 필수 항목입니다";
+            errorDescription = "모든 필수 항목을 정확히 입력해 주세요";
           }
         } else if (error.message === 'ALL_METHODS_FAILED') {
-          errorTitle = "🔄 시스템 오류";
-          errorDescription = "네트워크 문제일 수 있습니다. 직접 연락해 주세요";
+          errorTitle = "🔄 시스템 연결 문제";
+          errorDescription = "일시적인 네트워크 문제입니다. 잠시 후 다시 시도하거나 직접 연락해 주세요";
+        } else if (error.message.includes('CORS')) {
+          errorTitle = "🌐 연결 설정 문제";
+          errorDescription = "시스템 설정을 확인 중입니다. 직접 연락해 주세요";
+        } else if (error.message.includes('timeout') || error.message.includes('aborted')) {
+          errorTitle = "⏱️ 응답 시간 초과";
+          errorDescription = "서버 응답이 지연되고 있습니다. 다시 시도하거나 직접 연락해 주세요";
         }
       }
 
@@ -279,18 +314,18 @@ export default function ConsultationPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       <Header />
       
-      {/* 🎯 간단한 타이틀 섹션 */}
+      {/* 🎯 간단한 타이틀 섹션 - 모바일 최적화 */}
       <section className="bg-white border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 pt-24 pb-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-6 sm:pb-8">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <MessageSquare className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+              <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               전문가 상담
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
               전문가 상담 신청
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
               25년 경험의 전문가가 <span className="font-semibold text-blue-600">24시간 내</span>에 연락드립니다
             </p>
             
@@ -310,31 +345,31 @@ export default function ConsultationPage() {
         </div>
       </section>
 
-      {/* 🎯 메인 콘텐츠 - 폼 중심 */}
-      <main className="py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* 🎯 메인 콘텐츠 - 폼 중심, 모바일 최적화 */}
+      <main className="py-6 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             
             {/* 🎯 상담신청 폼 (메인) */}
             <div className="lg:col-span-2 order-1">
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
                 
-                {/* 폼 헤더 */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <MessageSquare className="w-6 h-6 text-white" />
+                {/* 폼 헤더 - 모바일 최적화 */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
+                      <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900">상담 신청서</h2>
-                      <p className="text-gray-600">정확한 정보를 입력해주세요</p>
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900">상담 신청서</h2>
+                      <p className="text-sm sm:text-base text-gray-600">정확한 정보를 입력해주세요</p>
                     </div>
                   </div>
                 </div>
                 
-                {/* 폼 영역 */}
-                <div className="p-8">
-                  <form onSubmit={handleSubmit} className="space-y-8">
+                {/* 폼 영역 - 모바일 최적화 */}
+                <div className="p-4 sm:p-8">
+                  <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
                     
                     {/* 상담 유형 */}
                     <div className="space-y-3">
@@ -345,29 +380,29 @@ export default function ConsultationPage() {
                         value={formData.consultationType}
                         onValueChange={(value) => handleInputChange('consultationType', value)}
                       >
-                        <SelectTrigger className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base">
+                        <SelectTrigger className="h-12 sm:h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-[16px] sm:text-base touch-manipulation">
                           <SelectValue placeholder="상담 방식을 선택해주세요" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-gray-200 shadow-xl">
-                          <SelectItem value="phone" className="h-12 rounded-lg m-1">
+                        <SelectContent className="rounded-xl border-gray-200 shadow-xl max-h-[60vh] overflow-y-auto">
+                          <SelectItem value="phone" className="h-12 sm:h-14 rounded-lg m-1 cursor-pointer touch-manipulation">
                             <div className="flex items-center gap-3">
                               <Phone className="w-4 h-4 text-green-600" />
                               <span>전화 상담 (즉시 연결)</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="online" className="h-12 rounded-lg m-1">
+                          <SelectItem value="online" className="h-12 sm:h-14 rounded-lg m-1 cursor-pointer touch-manipulation">
                             <div className="flex items-center gap-3">
                               <MessageSquare className="w-4 h-4 text-blue-600" />
                               <span>화상 상담 (온라인)</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="visit" className="h-12 rounded-lg m-1">
+                          <SelectItem value="visit" className="h-12 sm:h-14 rounded-lg m-1 cursor-pointer touch-manipulation">
                             <div className="flex items-center gap-3">
                               <Building className="w-4 h-4 text-purple-600" />
                               <span>방문 상담 (직접 방문)</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="email" className="h-12 rounded-lg m-1">
+                          <SelectItem value="email" className="h-12 sm:h-14 rounded-lg m-1 cursor-pointer touch-manipulation">
                             <div className="flex items-center gap-3">
                               <Mail className="w-4 h-4 text-orange-600" />
                               <span>이메일 상담 (서면)</span>
@@ -377,11 +412,11 @@ export default function ConsultationPage() {
                       </Select>
                     </div>
 
-                    {/* 개인정보 그리드 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <label className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                          <User className="w-4 h-4 text-blue-500" />
+                    {/* 개인정보 그리드 - 모바일 최적화 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="space-y-2 sm:space-y-3">
+                        <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" />
                           성명 <span className="text-red-500">*</span>
                         </label>
                         <Input
@@ -389,25 +424,25 @@ export default function ConsultationPage() {
                           value={formData.name}
                           onChange={(e) => handleInputChange('name', e.target.value)}
                           placeholder="홍길동"
-                          className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base px-4"
+                          className="border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all"
                           required
                         />
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-2 sm:space-y-3">
                         <PhoneInput
                           label="연락처"
                           value={formData.phone}
                           onChange={(value) => handleInputChange('phone', value)}
                           placeholder="010-1234-5678"
                           required
-                          className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base px-4"
+                          className="border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                        <Mail className="w-4 h-4 text-purple-500" />
+                    <div className="space-y-2 sm:space-y-3">
+                      <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                        <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500" />
                         이메일 <span className="text-red-500">*</span>
                       </label>
                       <Input
@@ -415,15 +450,15 @@ export default function ConsultationPage() {
                         value={formData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
                         placeholder="example@company.com"
-                        className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base px-4"
+                        className="border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all"
                         required
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <label className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                          <Building className="w-4 h-4 text-orange-500" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="space-y-2 sm:space-y-3">
+                        <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                          <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500" />
                           회사명 <span className="text-red-500">*</span>
                         </label>
                         <Input
@@ -431,13 +466,13 @@ export default function ConsultationPage() {
                           value={formData.company}
                           onChange={(e) => handleInputChange('company', e.target.value)}
                           placeholder="(주)AICAMP"
-                          className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base px-4"
+                          className="border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all"
                           required
                         />
                       </div>
-                      <div className="space-y-3">
-                        <label className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                          <User className="w-4 h-4 text-teal-500" />
+                      <div className="space-y-2 sm:space-y-3">
+                        <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-500" />
                           직책/부서
                         </label>
                         <Input
@@ -445,77 +480,84 @@ export default function ConsultationPage() {
                           value={formData.position}
                           onChange={(e) => handleInputChange('position', e.target.value)}
                           placeholder="대표이사, 마케팅팀장 등"
-                          className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base px-4"
+                          className="border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all"
                         />
                       </div>
                     </div>
 
-                    {/* 상담 분야 */}
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                        <Zap className="w-4 h-4 text-yellow-500" />
+                    {/* 상담 분야 - 모바일 최적화 */}
+                    <div className="space-y-2 sm:space-y-3">
+                      <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                        <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500" />
                         관심 서비스
                       </label>
                       <Select 
                         value={formData.consultationArea}
                         onValueChange={(value) => handleInputChange('consultationArea', value)}
                       >
-                        <SelectTrigger className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base">
+                        <SelectTrigger className="h-12 sm:h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-[16px] sm:text-base touch-manipulation">
                           <SelectValue placeholder="관심 있는 서비스를 선택해주세요" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-gray-200 shadow-xl">
-                          <SelectItem value="business-analysis">📊 BM ZEN 사업분석</SelectItem>
-                          <SelectItem value="ai-productivity">🤖 AI실무활용 생산성향상</SelectItem>
-                          <SelectItem value="factory-auction">💰 정책자금 확보</SelectItem>
-                          <SelectItem value="tech-startup">🚀 기술사업화/기술창업</SelectItem>
-                          <SelectItem value="certification">🏆 인증지원</SelectItem>
-                          <SelectItem value="website">🌐 웹사이트 구축</SelectItem>
-                          <SelectItem value="comprehensive">📋 종합 컨설팅</SelectItem>
-                          <SelectItem value="diagnosis">🔍 진단 결과 상담</SelectItem>
-                          <SelectItem value="other">💬 기타 문의</SelectItem>
+                        <SelectContent className="rounded-xl border-gray-200 shadow-xl max-h-[60vh] overflow-y-auto">
+                          <SelectItem value="business-analysis" className="h-12 sm:h-14 cursor-pointer touch-manipulation">📊 BM ZEN 사업분석</SelectItem>
+                          <SelectItem value="ai-productivity" className="h-12 sm:h-14 cursor-pointer touch-manipulation">🤖 AI실무활용 생산성향상</SelectItem>
+                          <SelectItem value="factory-auction" className="h-12 sm:h-14 cursor-pointer touch-manipulation">💰 정책자금 확보</SelectItem>
+                          <SelectItem value="tech-startup" className="h-12 sm:h-14 cursor-pointer touch-manipulation">🚀 기술사업화/기술창업</SelectItem>
+                          <SelectItem value="certification" className="h-12 sm:h-14 cursor-pointer touch-manipulation">🏆 인증지원</SelectItem>
+                          <SelectItem value="website" className="h-12 sm:h-14 cursor-pointer touch-manipulation">🌐 웹사이트 구축</SelectItem>
+                          <SelectItem value="comprehensive" className="h-12 sm:h-14 cursor-pointer touch-manipulation">📋 종합 컨설팅</SelectItem>
+                          <SelectItem value="diagnosis" className="h-12 sm:h-14 cursor-pointer touch-manipulation">🔍 진단 결과 상담</SelectItem>
+                          <SelectItem value="other" className="h-12 sm:h-14 cursor-pointer touch-manipulation">💬 기타 문의</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* 문의 내용 */}
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                        <MessageSquare className="w-4 h-4 text-indigo-500" />
-                        문의 내용
+                    {/* 문의 내용 - 모바일 최적화 */}
+                    <div className="space-y-2 sm:space-y-3">
+                      <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                        <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500" />
+                        문의 내용 <span className="text-red-500">*</span>
+                        <span className="text-xs sm:text-sm text-gray-500 font-normal">(10자 이상)</span>
                       </label>
                       <Textarea
                         value={formData.inquiryContent}
                         onChange={(e) => handleInputChange('inquiryContent', e.target.value)}
-                        placeholder="상세한 문의 내용을 입력해주세요&#10;(현재 상황, 목표, 예산 등)"
-                        className="min-h-28 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base px-4 py-3 resize-none"
-                        rows={4}
+                        placeholder="상세한 문의 내용을 입력해주세요 (10자 이상 필수)&#10;&#10;예시:&#10;• 현재 비즈니스 상황과 주요 고민사항&#10;• 달성하고자 하는 구체적인 목표&#10;• AI 도입 관련 궁금한 점&#10;• 정부지원사업 활용 계획&#10;• 예산 규모 및 일정&#10;&#10;구체적으로 작성하실수록 더 정확한 상담이 가능합니다."
+                        className="border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all"
+                        required
+                        minLength={10}
                       />
+                      {formData.inquiryContent && formData.inquiryContent.length < 10 && (
+                        <p className="text-red-500 text-sm mt-1">
+                          문의내용은 10자 이상 입력해주세요. (현재 {formData.inquiryContent.length}자)
+                        </p>
+                      )}
                     </div>
 
-                    {/* 희망 상담 시간 */}
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                        <Calendar className="w-4 h-4 text-rose-500" />
+                    {/* 희망 상담 시간 - 모바일 최적화 */}
+                    <div className="space-y-2 sm:space-y-3">
+                      <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500" />
                         희망 상담 시간
                       </label>
                       <Select 
                         value={formData.preferredTime}
                         onValueChange={(value) => handleInputChange('preferredTime', value)}
                       >
-                        <SelectTrigger className="h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-base">
+                        <SelectTrigger className="h-12 sm:h-14 border-2 border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-500 transition-all text-[16px] sm:text-base touch-manipulation">
                           <SelectValue placeholder="편리한 시간대를 선택해주세요" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-gray-200 shadow-xl">
-                          <SelectItem value="morning">🌅 오전 (09:00-12:00)</SelectItem>
-                          <SelectItem value="afternoon">☀️ 오후 (13:00-18:00)</SelectItem>
-                          <SelectItem value="evening">🌆 저녁 (18:00-21:00)</SelectItem>
-                          <SelectItem value="flexible">⏰ 시간 협의</SelectItem>
+                        <SelectContent className="rounded-xl border-gray-200 shadow-xl max-h-[60vh] overflow-y-auto">
+                          <SelectItem value="morning" className="h-12 sm:h-14 cursor-pointer touch-manipulation">🌅 오전 (09:00-12:00)</SelectItem>
+                          <SelectItem value="afternoon" className="h-12 sm:h-14 cursor-pointer touch-manipulation">☀️ 오후 (13:00-18:00)</SelectItem>
+                          <SelectItem value="evening" className="h-12 sm:h-14 cursor-pointer touch-manipulation">🌆 저녁 (18:00-21:00)</SelectItem>
+                          <SelectItem value="flexible" className="h-12 sm:h-14 cursor-pointer touch-manipulation">⏰ 시간 협의</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* 개인정보 동의 */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-6">
+                    {/* 개인정보 동의 - 모바일 최적화 */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4 sm:p-6">
                       <PrivacyConsent
                         checked={formData.privacyConsent}
                         onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
@@ -523,15 +565,15 @@ export default function ConsultationPage() {
                       />
                     </div>
 
-                    {/* 제출 버튼 */}
-                    <div className="pt-4">
+                    {/* 제출 버튼 - 모바일 최적화 */}
+                    <div className="pt-2 sm:pt-4">
                       <button
                         type="submit"
                         disabled={!isFormValid || isSubmitting || !isOnline}
                         className={`
-                          w-full h-16 text-lg font-semibold rounded-xl transition-all duration-300
+                          w-full h-14 sm:h-16 text-base sm:text-lg font-semibold rounded-xl transition-all duration-300 touch-manipulation
                           ${isFormValid && !isSubmitting && isOnline
-                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-[0.98]'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }
                         `}
@@ -584,22 +626,22 @@ export default function ConsultationPage() {
               </div>
             </div>
 
-            {/* 🎯 사이드바 (간소화) */}
-            <div className="lg:col-span-1 order-2 space-y-6">
+            {/* 🎯 사이드바 (간소화) - 모바일 최적화 */}
+            <div className="lg:col-span-1 order-2 space-y-4 sm:space-y-6">
               
-              {/* 빠른 연락 */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                <div className="text-center mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mx-auto mb-4 flex items-center justify-center shadow-lg">
-                    <Phone className="w-6 h-6 text-white" />
+              {/* 빠른 연락 - 모바일 최적화 */}
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+                <div className="text-center mb-4 sm:mb-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl mx-auto mb-3 sm:mb-4 flex items-center justify-center shadow-lg">
+                    <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">빠른 연락</h3>
-                  <p className="text-gray-600">즉시 상담이 필요하시면</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">빠른 연락</h3>
+                  <p className="text-sm sm:text-base text-gray-600">즉시 상담이 필요하시면</p>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   <a href="tel:010-9251-9743">
-                    <button className="w-full bg-green-600 text-white hover:bg-green-700 py-3 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2">
+                    <button className="w-full bg-green-600 text-white hover:bg-green-700 py-3 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 touch-manipulation active:scale-[0.98]">
                       <Phone className="w-4 h-4" />
                       010-9251-9743
                     </button>

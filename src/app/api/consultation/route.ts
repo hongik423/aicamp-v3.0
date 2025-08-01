@@ -69,6 +69,9 @@ export async function POST(request: NextRequest) {
       'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec';
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8초 타임아웃
+
       const response = await fetch(googleScriptUrl, {
         method: 'POST',
         headers: {
@@ -80,8 +83,11 @@ export async function POST(request: NextRequest) {
           action: 'saveConsultation',
           dataSource: 'API_백업시스템',
           retryAttempt: true
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         console.log('✅ API 백업을 통한 Google Apps Script 성공');

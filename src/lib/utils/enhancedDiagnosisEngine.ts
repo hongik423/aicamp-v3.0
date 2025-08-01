@@ -5,6 +5,11 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getGeminiKey } from '@/lib/config/env';
+import { 
+  performAICapabilityGAPAnalysis, 
+  integrateAICapabilityWithSWOT,
+  generateHighEngagementStrategy 
+} from './aiCapabilityAnalysis';
 
 // 전문 분석 시스템 초기화 (안전한 방식으로)
 const getAnalysisClient = () => {
@@ -36,6 +41,30 @@ export interface EnhancedDiagnosisInput {
   futureGoals?: string[];
   budget?: string;
   timeline?: string;
+  
+  // 🤖 AI 역량 진단 점수
+  aiCapabilityScores?: {
+    ceoAIVision?: number;
+    aiInvestment?: number;
+    aiStrategy?: number;
+    changeManagement?: number;
+    riskTolerance?: number;
+    itInfrastructure?: number;
+    dataManagement?: number;
+    securityLevel?: number;
+    aiToolsAdopted?: number;
+    digitalLiteracy?: number;
+    aiToolUsage?: number;
+    learningAgility?: number;
+    dataAnalysis?: number;
+    innovationCulture?: number;
+    collaborationLevel?: number;
+    experimentCulture?: number;
+    continuousLearning?: number;
+    processAutomation?: number;
+    decisionMaking?: number;
+    customerService?: number;
+  };
 }
 
 export interface ProfessionalAnalysisResult {
@@ -98,6 +127,32 @@ export interface ProfessionalAnalysisResult {
     paybackPeriod: string;
     riskLevel: string;
     successProbability: number;
+  };
+  
+  // 🤖 AI 역량 GAP 분석
+  aiCapabilityAnalysis?: {
+    overallScore: number;
+    overallBenchmark: number;
+    overallGap: number;
+    maturityLevel: string;
+    categoryScores: {
+      leadership: number;
+      infrastructure: number;
+      employeeCapability: number;
+      culture: number;
+      implementation: number;
+    };
+    categoryGaps: {
+      leadership: number;
+      infrastructure: number;
+      employeeCapability: number;
+      culture: number;
+      implementation: number;
+    };
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+    highEngagementStrategies: string[];
   };
 }
 

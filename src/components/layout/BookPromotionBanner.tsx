@@ -211,6 +211,7 @@ const BookPromotionBanner: React.FC = () => {
             duration: shouldReduceMotion ? 0.3 : 0.8
           }}
           className="relative z-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl mx-auto"
+          // eslint-disable-next-line react/forbid-dom-props
           style={{ perspective: shouldReduceMotion ? "none" : "1000px" }}
           onClick={handleContentClick}
         >
@@ -263,7 +264,7 @@ const BookPromotionBanner: React.FC = () => {
                   style={{ transformStyle: shouldReduceMotion ? "flat" : "preserve-3d" }}
                 >
                   {/* 스파클 효과 - 이미지 로드 후에만 표시, 모바일에서는 성능상 제한 */}
-                  {isLoaded && !isMobile && <SparkleEffect reduceMotion={shouldReduceMotion} />}
+                  {isLoaded && !isMobile && <SparkleEffect reduceMotion={shouldReduceMotion || false} />}
                   
                   {/* 글로우 효과 - 모바일에서는 성능상 제한 */}
                   {!isMobile && (
