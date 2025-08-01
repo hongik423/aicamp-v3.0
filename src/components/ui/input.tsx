@@ -76,11 +76,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             "rounded-lg", // 더 큰 라운드
           ],
           
+          // 자동 확대 방지 및 iOS 최적화
+          "text-[16px]",
+          "shadow-none",
+          isFocused && "shadow-sm",
+          
           className
         )}
         ref={ref}
-        autoComplete={props.autoComplete || "off"}
-        // eslint-disable-next-line jsx-a11y/autocomplete-valid
+        autoComplete={props.autoComplete || "on"}
         autoCapitalize={props.autoCapitalize || "off"}
         autoCorrect={props.autoCorrect || "off"}
         spellCheck={props.spellCheck || false}
@@ -122,15 +126,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         onBlur={(e) => {
           setIsFocused(false);
           props.onBlur?.(e);
-        }}
-        // eslint-disable-next-line react/forbid-dom-props
-        style={{
-          // 자동 확대 방지
-          fontSize: '16px',
-          // iOS 그림자 제거
-          WebkitBoxShadow: 'none',
-          boxShadow: isFocused ? '0 1px 3px 0 rgba(0, 0, 0, 0.1)' : 'none',
-          ...props.style,
         }}
         {...props}
       />

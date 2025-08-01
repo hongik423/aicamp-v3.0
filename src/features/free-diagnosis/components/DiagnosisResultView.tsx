@@ -295,8 +295,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ data }
                           <div className="w-32 font-medium">{label}</div>
                           <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
                             <div 
-                              className="bg-blue-600 h-6 rounded-full flex items-center justify-center text-xs text-white font-semibold"
-                              style={{ width: `${(score / 5) * 100}%` }}
+                              className={`bg-blue-600 h-6 rounded-full flex items-center justify-center text-xs text-white font-semibold ${score === 0 ? 'w-0' : score <= 1 ? 'w-1/5' : score <= 2 ? 'w-2/5' : score <= 3 ? 'w-3/5' : score <= 4 ? 'w-4/5' : 'w-full'}`}
                             >
                               {score.toFixed(1)}
                             </div>
@@ -542,12 +541,10 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ data }
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div className="relative h-2">
                             <div 
-                              className="absolute bg-blue-600 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${Math.min(100, Math.max(0, item.yourScore))}%` }}
+                              className={`absolute bg-blue-600 h-2 rounded-full transition-all duration-300 ${item.yourScore <= 0 ? 'w-0' : item.yourScore <= 25 ? 'w-1/4' : item.yourScore <= 50 ? 'w-1/2' : item.yourScore <= 75 ? 'w-3/4' : 'w-full'}`}
                             />
                             <div 
-                              className="absolute bg-gray-400 h-2 rounded-full opacity-50 transition-all duration-300"
-                              style={{ width: `${Math.min(100, Math.max(0, item.avgScore))}%` }}
+                              className={`absolute bg-gray-400 h-2 rounded-full opacity-50 transition-all duration-300 ${item.avgScore <= 0 ? 'w-0' : item.avgScore <= 25 ? 'w-1/4' : item.avgScore <= 50 ? 'w-1/2' : item.avgScore <= 75 ? 'w-3/4' : 'w-full'}`}
                             />
                           </div>
                         </div>

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { 
   Menu, 
@@ -29,7 +30,8 @@ import {
   FileText,
   Crown,
   Lightbulb,
-  Beaker
+  Beaker,
+  Gift
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -98,104 +100,29 @@ const Header = () => {
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
     };
   }, [isMenuOpen]);
 
-  // 네비게이션 메뉴 데이터
+  // 네비게이션 아이템 정의
   const navigationItems = [
-    { href: '/', label: '홈', icon: Home },
-    { 
-      href: '/services/ai-curriculum', 
-      label: 'AI CAMP 커리큘럼', 
-      icon: Lightbulb,
-      isSpecial: true, // 특별 강조 표시
-      badge: 'NEW'
-    },
-    { href: '/services/business-analysis', label: '사업분석', icon: BarChart3 },
-    { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap },
-    { href: '/services/policy-funding', label: '정책자금', icon: Building2 },
-    { href: '/services/tech-startup', label: '기술창업', icon: Rocket },
-    { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield },
-    { href: '/services/website', label: '매출증대웹페이지', icon: Building },
-    { href: '/cases', label: '성공사례', icon: Trophy },
-    { href: '/center-leader', label: 'CEO&교장', icon: User },
-    { href: '/seminar', label: '세미나', icon: Video },
-    { href: '/support', label: '고객지원', icon: Headphones }
+    { href: '/', label: '홈', icon: Home, isSpecial: false, badge: undefined },
+    { href: '/about', label: '회사소개', icon: Building, isSpecial: false, badge: undefined },
+    { href: '/services', label: '서비스', icon: Rocket, isSpecial: false, badge: undefined },
+    { href: '/cases', label: '사례', icon: Trophy, isSpecial: false, badge: undefined },
+    { href: '/seminar', label: '세미나', icon: Video, isSpecial: false, badge: undefined },
+    { href: '/support', label: '고객지원', icon: Headphones, isSpecial: false, badge: undefined },
+    { href: '/privacy', label: '개인정보처리방침', icon: Shield, isSpecial: false, badge: undefined },
+    { href: '/terms', label: '이용약관', icon: FileText, isSpecial: false, badge: undefined }
   ];
 
-  // 세금계산기 메뉴 데이터
+  // 세금계산기 메뉴
   const taxCalculators = [
-    {
-      id: 'earned-income',
-      title: '근로소득세 계산기',
-      description: '급여 소득자를 위한 소득세 계산',
-      icon: User,
-      color: 'blue'
-    },
-    {
-      id: 'comprehensive-income',
-      title: '종합소득세 계산기',
-      description: '사업소득, 기타소득 포함 종합소득세',
-      icon: FileText,
-      color: 'green'
-    },
-    {
-      id: 'capital-gains',
-      title: '양도소득세 계산기',
-      description: '부동산, 주식 양도소득세 계산',
-      icon: TrendingUp,
-      color: 'purple'
-    },
-    {
-      id: 'inheritance',
-      title: '상속세 계산기',
-      description: '상속재산에 대한 상속세 계산',
-      icon: Building2,
-      color: 'orange'
-    },
-    {
-      id: 'gift',
-      title: '증여세 계산기',
-      description: '증여재산에 대한 증여세 계산',
-      icon: DollarSign,
-      color: 'pink'
-    },
-    {
-      id: 'corporate-tax',
-      title: '법인세 계산기',
-      description: '법인의 소득에 대한 법인세 계산',
-      icon: Building2,
-      color: 'indigo'
-    },
-    {
-      id: 'vat',
-      title: '부가가치세 계산기',
-      description: '매출, 매입세액 부가가치세 계산',
-      icon: Calculator,
-      color: 'cyan'
-    },
-    {
-      id: 'withholding',
-      title: '원천징수세 계산기',
-      description: '급여, 용역비 원천징수세 계산',
-      icon: FileText,
-      color: 'emerald'
-    },
-    {
-      id: 'business-inheritance',
-      title: '가업상속세 계산기',
-      description: '중소기업·중견기업 가업상속공제',
-      icon: Crown,
-      color: 'violet'
-    },
-    {
-      id: 'stock-transfer',
-      title: '주식이동세 계산기',
-      description: '주식 매매시 발생하는 양도소득세',
-      icon: TrendingUp,
-      color: 'pink'
-    }
+    { id: 'vat', title: '부가가치세 계산기', description: '매출/매입 세액 계산', icon: Calculator },
+    { id: 'income', title: '소득세 계산기', description: '연간 소득세 계산', icon: DollarSign },
+    { id: 'corporate', title: '법인세 계산기', description: '법인세율 계산', icon: Building2 },
+    { id: 'withholding', title: '원천징수 계산기', description: '원천세 계산', icon: TrendingUp },
+    { id: 'property', title: '재산세 계산기', description: '재산세율 계산', icon: Crown },
+    { id: 'gift', title: '증여세 계산기', description: '증여세율 계산', icon: Gift }
   ];
 
   const actionButtons = [
@@ -215,7 +142,7 @@ const Header = () => {
           : 'bg-white/95 backdrop-blur-xl'
       }`}>
         <div className="w-full overflow-x-auto navbar-scrollbar">
-          <nav className="flex items-center min-h-[44px]" style={{ minWidth: 'max-content', width: 'max-content', paddingLeft: '1cm', paddingRight: '1cm' }}>
+          <nav className="flex items-center justify-between min-h-[44px] px-4 w-full">
             
             {/* 로고 - 왼쪽 고정 */}
             <Link 
@@ -224,17 +151,19 @@ const Header = () => {
               aria-label="AICAMP 홈페이지로 이동"
             >
               <div className="w-5 h-5 lg:w-6 lg:h-6 flex items-center justify-center">
-                <img 
+                <Image 
                   src={getImagePath('/images/aicamp_logo_del_250726.png')}
                   alt="AICAMP" 
+                  width={24}
+                  height={24}
                   className="w-5 h-5 lg:w-6 lg:h-6 object-contain"
                 />
               </div>
             </Link>
 
             {/* 메인 네비게이션 - 가운데 영역 (전체 표시) */}
-            <div className="hidden md:flex flex-shrink-0 mx-1 lg:mx-2 xl:mx-3">
-              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2">
+            <div className="hidden md:flex flex-1 justify-center mx-1 lg:mx-2 xl:mx-3">
+              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-wrap justify-center">
                 {navigationItems.map((item) => (
                   <Link
                     key={item.href}
@@ -269,7 +198,7 @@ const Header = () => {
 
             {/* 액션 버튼들 - 오른쪽 (전체 표시) */}
             <div className="hidden md:flex flex-shrink-0 ml-1 lg:ml-2">
-              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2">
+              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-wrap">
                 {actionButtons.map((button) => {
                   const buttonClass = `inline-block px-1 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 nav-item-hover
                     md:px-1 md:text-xs
@@ -368,7 +297,7 @@ const Header = () => {
                           case '전문가상담': return '전문가 무료 상담';
                           case 'n8n책자구매': return 'AI 자동화 실무 가이드북';
                           case '세금계산기': return '10가지 세금 계산기';
-                          case '투자재무타당성분석기': return 'NPV/IRR 투자분석';
+                          case 'AI투자재무타당성분석기': return 'NPV/IRR 투자분석';
                           default: return '버그 및 개선사항 신고';
                         }
                       };
@@ -424,39 +353,17 @@ const Header = () => {
                                   }`}>
                                     {button.label}
                                   </div>
-                                  <div className={`text-sm ${
-                                    button.color === 'blue' 
-                                      ? 'text-blue-600 group-hover:text-blue-700'
-                                      : button.color === 'green'
-                                      ? 'text-green-600 group-hover:text-green-700'
-                                      : button.color === 'purple'
-                                      ? 'text-purple-600 group-hover:text-purple-700'
-                                      : button.color === 'orange'
-                                      ? 'text-orange-600 group-hover:text-orange-700'
-                                      : button.color === 'yellow'
-                                      ? 'text-yellow-600 group-hover:text-yellow-700'
-                                      : 'text-red-600 group-hover:text-red-700'
-                                  }`}>
+                                  <div className="text-sm text-gray-600 mt-1">
                                     {getDescription(button.label)}
                                   </div>
                                 </div>
-                                <ChevronRight className={`w-6 h-6 ${
-                                  button.color === 'blue' 
-                                    ? 'text-blue-400 group-hover:text-blue-600'
-                                    : button.color === 'green'
-                                    ? 'text-green-400 group-hover:text-green-600'
-                                    : button.color === 'purple'
-                                    ? 'text-purple-400 group-hover:text-purple-600'
-                                    : button.color === 'orange'
-                                    ? 'text-orange-400 group-hover:text-orange-600'
-                                    : button.color === 'yellow'
-                                    ? 'text-yellow-400 group-hover:text-yellow-600'
-                                    : 'text-red-400 group-hover:text-red-600'
-                                }`} />
                               </div>
                             </a>
                           ) : (
-                            <Link href={button.href} onClick={() => setIsMenuOpen(false)}>
+                            <Link 
+                              href={button.href}
+                              onClick={() => setIsMenuOpen(false)}
+                            >
                               <div className={`flex items-center p-4 rounded-xl transition-all duration-200 group ${
                                 button.color === 'blue' 
                                   ? 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-200'
@@ -499,35 +406,10 @@ const Header = () => {
                                   }`}>
                                     {button.label}
                                   </div>
-                                  <div className={`text-sm ${
-                                    button.color === 'blue' 
-                                      ? 'text-blue-600 group-hover:text-blue-700'
-                                      : button.color === 'green'
-                                      ? 'text-green-600 group-hover:text-green-700'
-                                      : button.color === 'purple'
-                                      ? 'text-purple-600 group-hover:text-purple-700'
-                                      : button.color === 'orange'
-                                      ? 'text-orange-600 group-hover:text-orange-700'
-                                      : button.color === 'yellow'
-                                      ? 'text-yellow-600 group-hover:text-yellow-700'
-                                      : 'text-red-600 group-hover:text-red-700'
-                                  }`}>
+                                  <div className="text-sm text-gray-600 mt-1">
                                     {getDescription(button.label)}
                                   </div>
                                 </div>
-                                <ChevronRight className={`w-6 h-6 ${
-                                  button.color === 'blue' 
-                                    ? 'text-blue-400 group-hover:text-blue-600'
-                                    : button.color === 'green'
-                                    ? 'text-green-400 group-hover:text-green-600'
-                                    : button.color === 'purple'
-                                    ? 'text-purple-400 group-hover:text-purple-600'
-                                    : button.color === 'orange'
-                                    ? 'text-orange-400 group-hover:text-orange-600'
-                                    : button.color === 'yellow'
-                                    ? 'text-yellow-400 group-hover:text-yellow-600'
-                                    : 'text-red-400 group-hover:text-red-600'
-                                }`} />
                               </div>
                             </Link>
                           )}
@@ -537,101 +419,63 @@ const Header = () => {
                   </div>
                 </div>
 
-                {/* 전체 서비스 메뉴 - 요청된 순서대로 배치 */}
-                <div className="pb-4">
-                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">📋 전체 서비스</div>
-                  {[
-                    { href: '/', label: '홈', icon: Home, description: '메인페이지' },
-                    { 
-                      href: '/services/ai-curriculum', 
-                      label: 'AI CAMP 커리큘럼', 
-                      icon: Lightbulb, 
-                      description: '7개 부서별 맞춤형 AI 자동화 교육',
-                      isSpecial: true,
-                      badge: 'NEW'
-                    },
-                    { href: '/services/business-analysis', label: '사업분석', icon: BarChart3, description: '비즈니스 컨설팅' },
-                    { href: '/services/ai-productivity', label: 'AI일터혁신', icon: Zap, description: 'AI 업무 자동화' },
-                    { href: '/services/website', label: '매출증대웹페이지', icon: Building, description: 'SEO 최적화 웹사이트' },
-                    { href: '/services/policy-funding', label: '정책자금', icon: Building2, description: '듀얼브레인 정책자금 컨설팅' },
-                    { href: '/services/tech-startup', label: '기술창업', icon: Rocket, description: '스타트업 지원' },
-                    { href: '/services/certification', label: '벤처/ISO/인증', icon: Shield, description: '각종 인증 획득' },
-                    { href: '/cases', label: '성공사례', icon: Trophy, description: '고객 성공 스토리' },
-                    { href: '/center-leader', label: 'CEO&교장', icon: User, description: '홍용기 CEO & 이후경 경영지도사' },
-                    { href: '/seminar', label: '세미나', icon: Video, description: '교육 프로그램' },
-                    { href: '/support', label: '고객지원', icon: Headphones, description: '문의 및 지원' }
-                  ].map((item) => (
-                    <motion.div key={item.href} whileHover={{ x: 8 }} className="group mb-2">
-                      <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
-                        <div className={`flex items-center p-3 rounded-xl transition-all duration-200 group relative ${
-                          item.isSpecial
-                            ? 'bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 border-2 border-purple-200'
-                            : 'hover:bg-blue-50'
-                        }`}>
-                          <item.icon className={`w-6 h-6 mr-4 ${
-                            item.isSpecial
-                              ? 'text-purple-600 group-hover:text-purple-700'
-                              : 'text-blue-600 group-hover:text-blue-700'
-                          }`} />
+                {/* 네비게이션 메뉴 */}
+                <div className="space-y-4">
+                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">📋 서비스 메뉴</div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {navigationItems.map((item) => (
+                      <motion.div key={item.href} whileHover={{ x: 8 }} className="group">
+                        <Link
+                          href={item.href}
+                          onClick={() => setIsMenuOpen(false)}
+                          className={`flex items-center p-3 rounded-lg transition-all duration-200 group ${
+                            pathname === item.href
+                              ? 'bg-gray-100 border-2 border-gray-300'
+                              : 'hover:bg-gray-50 border-2 border-transparent'
+                          }`}
+                        >
+                          {item.icon && (
+                            <item.icon className="w-5 h-5 mr-3 text-gray-600 group-hover:text-gray-800" />
+                          )}
                           <div className="flex-1">
-                            <div className={`font-semibold flex items-center gap-2 ${
-                              item.isSpecial
-                                ? 'text-purple-900 group-hover:text-purple-800'
-                                : 'text-gray-900 group-hover:text-blue-700'
-                            }`}>
-                              <span>{item.label}</span>
-                              {item.badge && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-800 ring-1 ring-yellow-300">
-                                  {item.badge}
-                                </span>
-                              )}
+                            <div className="font-medium text-gray-900 group-hover:text-gray-800">
+                              {item.label}
                             </div>
-                            <div className={`text-sm ${
-                              item.isSpecial
-                                ? 'text-purple-600 group-hover:text-purple-700'
-                                : 'text-gray-500 group-hover:text-blue-600'
-                            }`}>
-                              {item.description}
-                            </div>
+                            {item.badge && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 ml-2">
+                                {item.badge}
+                              </span>
+                            )}
                           </div>
-                          <ChevronRight className={`w-5 h-5 ${
-                            item.isSpecial
-                              ? 'text-purple-400 group-hover:text-purple-600'
-                              : 'text-gray-400 group-hover:text-blue-600'
-                          }`} />
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* 모바일 세금계산기 섹션 */}
-                <div className="pt-4 border-t border-gray-200">
+                {/* 세금계산기 메뉴 */}
+                <div className="space-y-4">
                   <div className="text-sm font-semibold text-gray-700 mb-3 px-1">🧮 세금계산기</div>
-                  {taxCalculators.map((calc) => (
-                    <motion.div key={calc.id} whileHover={{ x: 8 }} className="group mb-2">
-                      <button
-                        onClick={() => {
-                          handleTaxCalculatorSelect(calc.id);
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-left"
-                      >
-                        <div className="flex items-center p-3 rounded-xl hover:bg-green-50 transition-all duration-200 group">
-                          <calc.icon className="w-5 h-5 mr-4 text-green-600 group-hover:text-green-700" />
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900 group-hover:text-green-700 text-sm">
-                              {calc.title}
+                  <div className="grid grid-cols-1 gap-2">
+                    {taxCalculators.map((calculator) => (
+                      <motion.div key={calculator.id} whileHover={{ x: 8 }} className="group">
+                        <button
+                          onClick={() => handleTaxCalculatorSelect(calculator.id)}
+                          className="w-full flex items-center p-3 rounded-lg transition-all duration-200 group hover:bg-gray-50 border-2 border-transparent"
+                        >
+                          <calculator.icon className="w-5 h-5 mr-3 text-gray-600 group-hover:text-gray-800" />
+                          <div className="flex-1 text-left">
+                            <div className="font-medium text-gray-900 group-hover:text-gray-800">
+                              {calculator.title}
                             </div>
-                            <div className="text-xs text-gray-500 group-hover:text-green-600">
-                              {calc.description}
+                            <div className="text-sm text-gray-600 mt-1">
+                              {calculator.description}
                             </div>
                           </div>
-                          <Calculator className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
-                        </div>
-                      </button>
-                    </motion.div>
-                  ))}
+                        </button>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -642,4 +486,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

@@ -211,8 +211,10 @@ const BookPromotionBanner: React.FC = () => {
             duration: shouldReduceMotion ? 0.3 : 0.8
           }}
           className="relative z-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl mx-auto"
-          // eslint-disable-next-line react/forbid-dom-props
-          style={{ perspective: shouldReduceMotion ? "none" : "1000px" }}
+          className={cn(
+            "relative z-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl mx-auto",
+            shouldReduceMotion ? "" : "perspective-1000"
+          )}
           onClick={handleContentClick}
         >
           {/* 닫기 버튼 - 모바일에서 더 큰 터치 영역 */}
@@ -224,12 +226,11 @@ const BookPromotionBanner: React.FC = () => {
             } bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95 ${
               isMobile ? 'touch-manipulation' : ''
             }`}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation',
-              minHeight: isMobile ? '48px' : '40px',
-              minWidth: isMobile ? '48px' : '40px'
-            }}
+            className={cn(
+              "absolute -top-2 -right-2 sm:-top-4 sm:-right-4 z-20 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95",
+              isMobile ? "w-12 h-12 touch-manipulation" : "w-10 h-10",
+              "webkit-tap-highlight-transparent touch-manipulation"
+            )}
             aria-label="책 홍보 배너 닫기"
           >
             <X size={isMobile ? 24 : 20} />
@@ -244,10 +245,10 @@ const BookPromotionBanner: React.FC = () => {
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-blue-200"
-            style={{ 
-              transformStyle: shouldReduceMotion ? "flat" : "preserve-3d",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.5)"
-            }}
+            className={cn(
+              "bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-blue-200",
+              shouldReduceMotion ? "" : "transform-style-preserve-3d"
+            )}
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 p-4 sm:p-6 lg:p-8">
               {/* 책 표지 섹션 */}
@@ -261,7 +262,10 @@ const BookPromotionBanner: React.FC = () => {
                   whileTap={isMobile ? { scale: 0.95 } : {}}
                   transition={{ type: "spring", stiffness: 400, damping: 15 }}
                   className="relative group"
-                  style={{ transformStyle: shouldReduceMotion ? "flat" : "preserve-3d" }}
+                  className={cn(
+                    "relative group",
+                    shouldReduceMotion ? "" : "transform-style-preserve-3d"
+                  )}
                 >
                   {/* 스파클 효과 - 이미지 로드 후에만 표시, 모바일에서는 성능상 제한 */}
                   {isLoaded && !isMobile && <SparkleEffect reduceMotion={shouldReduceMotion || false} />}

@@ -49,7 +49,8 @@
 /* 네비게이션 스크롤바 스타일 */
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  /* -webkit-scrollbar-width: none; */ /* Safari - 브라우저 호환성을 위해 주석 처리 */
+  /* scrollbar-width: none; */ /* Firefox - 브라우저 호환성을 위해 주석 처리 */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -58,8 +59,9 @@
 
 /* 커스텀 스크롤바 (선택사항) */
 .scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  /* -webkit-scrollbar-width: thin; */ /* Safari - 브라우저 호환성을 위해 주석 처리 */
+  /* scrollbar-width: thin; */ /* Firefox - 브라우저 호환성을 위해 주석 처리 */
+  /* scrollbar-color: rgba(0, 0, 0, 0.2) transparent; */ /* Firefox - 브라우저 호환성을 위해 주석 처리 */
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -82,8 +84,9 @@
 
 /* 네비게이션 바 전용 스크롤바 */
 .navbar-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+  /* -webkit-scrollbar-width: thin; */ /* Safari - 브라우저 호환성을 위해 주석 처리 */
+  /* scrollbar-width: thin; */ /* Firefox - 브라우저 호환성을 위해 주석 처리 */
+  /* scrollbar-color: rgba(59, 130, 246, 0.3) transparent; */ /* Firefox - 브라우저 호환성을 위해 주석 처리 */
 }
 
 .navbar-scrollbar::-webkit-scrollbar {
@@ -454,8 +457,8 @@
   
   * {
     -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
     print-color-adjust: exact !important;
+    /* color-adjust: exact !important; */ /* 브라우저 호환성을 위해 주석 처리 */
   }
 }
 
@@ -476,7 +479,9 @@
 }
 
 .text-balance {
-  text-wrap: balance;
+  /* text-wrap: balance; */ /* 브라우저 호환성을 위해 주석 처리 */
+  text-align: justify;
+  /* text-justify: inter-word; */ /* 브라우저 호환성을 위해 주석 처리 */
 }
 
 /* ============================================
@@ -574,12 +579,12 @@
 /* 모바일 브라우저 호환성 개선 */
 @layer base {
   html {
-    /* iOS Safari에서 bounce 효과 방지 */
-    -webkit-overflow-scrolling: touch;
+    /* iOS Safari에서 bounce 효과 방지 - 브라우저 호환성을 위해 주석 처리 */
+    /* -webkit-overflow-scrolling: touch; */
     /* 모바일에서 텍스트 크기 자동 조정 방지 */
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+    /* -webkit-text-size-adjust: 100%; */ /* 브라우저 호환성을 위해 주석 처리 */
+    /* -ms-text-size-adjust: 100%; */ /* 브라우저 호환성을 위해 주석 처리 */
+    /* text-size-adjust: 100%; */ /* 브라우저 호환성을 위해 주석 처리 */
   }
   
   body {
@@ -618,10 +623,10 @@
     
     /* iOS에서 모달 뷰포트 높이 문제 해결 */
     .modal-container {
-      height: 100vh;
       height: -webkit-fill-available;
-      min-height: 100vh;
+      height: 100vh;
       min-height: -webkit-fill-available;
+      min-height: 100vh;
     }
   }
   
@@ -801,11 +806,11 @@
   }
 }
 
-/* Firefox Mobile */
-@-moz-document url-prefix() {
+/* Firefox Mobile - 브라우저 호환성을 위해 주석 처리 */
+/* @-moz-document url-prefix() {
   .firefox-mobile-fix {
     -moz-appearance: none;
   }
-}
+} */
 
 
