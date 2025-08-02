@@ -56,7 +56,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   handleGoDiagnosis = () => {
     if (typeof window !== 'undefined') {
-      window.location.href = '/services/diagnosis';
+              window.location.href = '/diagnosis';
     }
   };
 

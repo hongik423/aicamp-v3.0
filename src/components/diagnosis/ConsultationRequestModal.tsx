@@ -217,18 +217,14 @@ export default function ConsultationRequestModal({
         
         setSubmitSuccess(true);
         
-        // 성공 후 3초 뒤 모달 닫기
+        // 성공 후 1.5초 뒤 투자재무타당성분석기로 이동
         setTimeout(() => {
           onClose();
           setSubmitSuccess(false);
           
-          // 전화 연결 안내
-          if (formData.consultationType === 'phone') {
-            if (confirm('상담 신청이 완료되었습니다!\n지금 바로 전화 상담을 받으시겠습니까?')) {
-              window.open(`tel:010-9251-9743`);
-            }
-          }
-        }, 3000);
+          // 투자재무타당성분석기로 즉시 이동
+          window.location.href = '/services/policy-funding/investment-analysis';
+        }, 1500);
       } else {
         throw new Error('상담 신청 처리 실패: ' + result.errors.join(', '));
       }
@@ -251,12 +247,12 @@ export default function ConsultationRequestModal({
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              상담 신청 완료!
+              🎉 상담 신청 완료!
             </h3>
             <p className="text-gray-600 mb-4">
               상담 신청이 성공적으로 접수되었습니다.<br />
               📧 신청 확인 이메일을 발송해드렸습니다.<br />
-              담당자가 빠른 시일 내에 연락드리겠습니다.
+              <span className="font-semibold text-blue-600">투자재무타당성분석기로 이동합니다...</span>
             </p>
             <div className="bg-blue-50 p-4 rounded-lg text-left text-sm">
               <p className="font-semibold text-blue-900 mb-2">📞 담당자 정보</p>
@@ -395,6 +391,7 @@ export default function ConsultationRequestModal({
                 💼 상담 분야
               </Label>
               <select
+                title="상담 분야 선택"
                 value={formData.consultationArea}
                 onChange={(e) => handleInputChange('consultationArea', e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

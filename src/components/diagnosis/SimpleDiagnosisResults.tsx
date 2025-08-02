@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -183,13 +183,19 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
 
   const gradeInfo = getGradeInfo(diagnosis.totalScore);
 
-  // 완벽한 HTML 보고서 생성
-  const generatePerfectHTMLReport = (): string => {
-    const currentDate = new Date().toLocaleDateString('ko-KR', {
+  // 현재 날짜 (Hydration 안전)
+  const [currentDate, setCurrentDate] = useState('');
+  
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    });
+    }));
+  }, []);
+
+  // 완벽한 HTML 보고서 생성
+  const generatePerfectHTMLReport = (): string => {
 
     return `<!DOCTYPE html>
 <html lang="ko">
@@ -1036,7 +1042,7 @@ export default function CompleteDiagnosisResults({ data }: CompleteDiagnosisResu
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `완벽한AI진단결과보고서_${diagnosis.companyName}_${new Date().toISOString().slice(0, 10)}.html`;
+      link.download = `완벽한AI진단결과보고서_${diagnosis.companyName}_${currentDate.replace(/\./g, '-').replace(/ /g, '')}.html`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

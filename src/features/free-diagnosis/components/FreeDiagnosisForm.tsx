@@ -79,6 +79,35 @@ const diagnosisSchema = z.object({
   decisionMaking: z.number().min(1).max(5).optional(),     // 의사결정 활용
   customerService: z.number().min(1).max(5).optional(),    // 고객 서비스 적용
   
+  // 실무 역량 진단 (PDF 커리큘럼 기반)
+  // 업무 자동화 역량
+  rpaExperience: z.number().min(1).max(5).optional(),
+  workflowAutomation: z.number().min(1).max(5).optional(),
+  documentAutomation: z.number().min(1).max(5).optional(),
+  dataProcessing: z.number().min(1).max(5).optional(),
+  repetitiveTaskAuto: z.number().min(1).max(5).optional(),
+  
+  // 데이터 분석 실무
+  excelDataAnalysis: z.number().min(1).max(5).optional(),
+  dataVisualization: z.number().min(1).max(5).optional(),
+  basicStatistics: z.number().min(1).max(5).optional(),
+  reportGeneration: z.number().min(1).max(5).optional(),
+  insightExtraction: z.number().min(1).max(5).optional(),
+  
+  // AI 도구 활용
+  chatGPTUsage: z.number().min(1).max(5).optional(),
+  aiImageTools: z.number().min(1).max(5).optional(),
+  aiDataTools: z.number().min(1).max(5).optional(),
+  aiDocTools: z.number().min(1).max(5).optional(),
+  aiSearchTools: z.number().min(1).max(5).optional(),
+  
+  // 디지털 협업
+  cloudPlatforms: z.number().min(1).max(5).optional(),
+  projectManagement: z.number().min(1).max(5).optional(),
+  videoConference: z.number().min(1).max(5).optional(),
+  documentSharing: z.number().min(1).max(5).optional(),
+  teamCommunication: z.number().min(1).max(5).optional(),
+  
   // 개인정보 동의
   agreeToTerms: z.boolean().refine(val => val === true, {
     message: '개인정보 처리에 동의해주세요'
@@ -139,6 +168,27 @@ export const FreeDiagnosisForm: React.FC = () => {
       processAutomation: 3,
       decisionMaking: 3,
       customerService: 3,
+      // 실무 역량 진단 기본값
+      rpaExperience: 3,
+      workflowAutomation: 3,
+      documentAutomation: 3,
+      dataProcessing: 3,
+      repetitiveTaskAuto: 3,
+      excelDataAnalysis: 3,
+      dataVisualization: 3,
+      basicStatistics: 3,
+      reportGeneration: 3,
+      insightExtraction: 3,
+      chatGPTUsage: 3,
+      aiImageTools: 3,
+      aiDataTools: 3,
+      aiDocTools: 3,
+      aiSearchTools: 3,
+      cloudPlatforms: 3,
+      projectManagement: 3,
+      videoConference: 3,
+      documentSharing: 3,
+      teamCommunication: 3,
       agreeToTerms: false
     }
   });
@@ -158,6 +208,19 @@ export const FreeDiagnosisForm: React.FC = () => {
       const result = await submitDiagnosis(data);
       
       if (result.success) {
+        // 타임아웃이나 재시도 상황인 경우
+        if (result.isTimeout || result.isRetry) {
+          toast({
+            title: '📨 진단 신청 접수 완료',
+            description: `${result.message} 예상 소요 시간: ${result.estimatedTime || '5-10분'}`,
+          });
+          
+          // 홈페이지로 이동 (결과 페이지는 아직 생성되지 않았으므로)
+          window.location.href = '/';
+          return;
+        }
+        
+        // 정상 처리된 경우
         toast({
           title: '진단 신청이 완료되었습니다!',
           description: '5-10분 내에 진단 결과를 이메일로 발송해드립니다.',
@@ -811,6 +874,107 @@ export const FreeDiagnosisForm: React.FC = () => {
                   </FormItem>
                 )}
               />
+            </div>
+
+            {/* 실무 역량 진단 섹션 - PDF 커리큘럼 기반 */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Brain className="w-5 h-5 text-gray-600" />
+                실무 역량 진단 (선택사항)
+              </h3>
+              <p className="text-sm text-gray-600">
+                보다 정확한 맞춤형 커리큘럼 제공을 위해 현재 실무 역량을 평가해주세요.
+              </p>
+              
+              {/* 1. 업무 자동화 역량 */}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-700">1. 업무 자동화 역량</h4>
+                <div className="space-y-4 pl-4">
+                  <FormField
+                    control={form.control}
+                    name="rpaExperience"
+                    render={({ field }) => (
+                      <RatingScale
+                        label="RPA(업무자동화) 도구 활용 경험"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="workflowAutomation"
+                    render={({ field }) => (
+                      <RatingScale
+                        label="업무 프로세스 자동화 수준"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              
+              {/* 2. 데이터 분석 실무 */}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-700">2. 데이터 분석 실무</h4>
+                <div className="space-y-4 pl-4">
+                  <FormField
+                    control={form.control}
+                    name="excelDataAnalysis"
+                    render={({ field }) => (
+                      <RatingScale
+                        label="엑셀 데이터 분석 능력"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="dataVisualization"
+                    render={({ field }) => (
+                      <RatingScale
+                        label="데이터 시각화 능력"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              
+              {/* 3. AI 도구 활용 */}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-700">3. AI 도구 활용 역량</h4>
+                <div className="space-y-4 pl-4">
+                  <FormField
+                    control={form.control}
+                    name="chatGPTUsage"
+                    render={({ field }) => (
+                      <RatingScale
+                        label="ChatGPT/Claude 등 AI 활용도"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="aiImageTools"
+                    render={({ field }) => (
+                      <RatingScale
+                        label="AI 이미지 생성 도구 활용"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* 개인정보 동의 */}

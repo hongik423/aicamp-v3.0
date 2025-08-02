@@ -28,13 +28,19 @@
     "env:verify": "node -e \"const fs=require('fs');if(fs.existsSync('.env.local')){console.log('✅ .env.local 파일 존재');const content=fs.readFileSync('.env.local','utf8');console.log('📊 Google Script URL:',content.includes('AKfycbzMKcB94ld2xP6gu0xlRBf4hI16cRTZ8JhCQT0iG3QeToQt4VmZu5X7lYNV5YSgQaJB')?'✅ 정확함':'❌ 불일치');}else{console.log('❌ .env.local 파일 없음');}\"",
     "update:google-script": "node scripts/update-google-script-url.js",
     "test:beta-feedback": "node scripts/test-beta-feedback-system.js",
+    "verify:ai-diagnosis": "node scripts/verify-ai-diagnosis-setup.js",
+    "test:ai-capability": "node test-ai-capability-system.js",
     "init:report-folder": "node scripts/init-report-folder.js",
     "check:pdf-reports": "node -e \"const fs=require('fs');const path=require('path');const reportDir=path.join(process.cwd(),'report');if(fs.existsSync(reportDir)){const files=fs.readdirSync(reportDir).filter(f=>f.endsWith('.pdf'));console.log('📄 PDF 보고서:',files.length,'개');files.forEach(f=>console.log(' -',f));}else{console.log('❌ report 폴더 없음');}\"",
     "test:comprehensive": "node scripts/comprehensive-system-test.js",
     "test:full-system": "npm run test:comprehensive",
     "test:google-script": "npm run test:beta-feedback",
     "deploy:correct": "npm run setup:env-correct && npm run build && npm run vercel:deploy",
-    "deploy:complete": "npm run build && npm run vercel:deploy && npm run test:beta-feedback"
+    "deploy:complete": "npm run build && npm run vercel:deploy && npm run test:beta-feedback",
+    "test:gas-system": "node test-gas-system.js",
+    "test:premium-system": "npm run test:gas-system",
+    "deploy:premium": "npm run build && npm run vercel:deploy && npm run test:premium-system",
+    "setup:premium": "echo '🚀 AICAMP v3.0 프리미엄 시스템 설정 중...' && npm run env:verify && npm run test:gas-system"
   },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",

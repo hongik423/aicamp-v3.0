@@ -2,8 +2,7 @@
    AICAMP - 애플스토어 스타일 글로벌 CSS 
    ============================================ */
 
-/* 폰트 임포트 */
-@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+/* 폰트 임포트 - Pretendard만 사용 (성능 최적화) */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 
 @tailwind base;
@@ -41,9 +40,9 @@
   --aicamp-purple: #6f5a9c;
   --aicamp-orange: #c76d36;
   
-  /* 기본 폰트 설정 */
-  --font-family-primary: "SF Pro Display", "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-family-korean: "Pretendard", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* 기본 폰트 설정 - Pretendard 우선 */
+  --font-family-primary: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-korean: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* 네비게이션 스크롤바 스타일 */

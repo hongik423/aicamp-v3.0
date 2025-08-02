@@ -34,11 +34,17 @@ export default function FloatingChatbot() {
   const [screenSize, setScreenSize] = useState({ width: 1024, height: 768 });
   const [isMobile, setIsMobile] = useState(false);
 
-  // 환영 메시지 추가
+  // 환영 메시지 추가 (Hydration 안전)
+  const [isClient, setIsClient] = useState(false);
+  
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient && isOpen && messages.length === 0) {
       const welcomeMessage: Message = {
-        id: Date.now().toString(),
+        id: 'welcome-message-001',
         content: `안녕하세요! AICAMP AI교장 이후경입니다!
 
 28년간 500개 이상 기업의 성장을 함께해온 경험을 바탕으로 상담해드리겠습니다.
@@ -61,7 +67,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
       };
       setMessages([welcomeMessage]);
     }
-  }, [isOpen, messages.length]);
+  }, [isClient, isOpen, messages.length]);
 
   // 메시지 스크롤
   useEffect(() => {
@@ -254,7 +260,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     if (!message.trim()) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       content: message.trim(),
       sender: 'user',
       timestamp: new Date()
@@ -289,7 +295,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
         });
         
         const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
+          id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           content: data.response || '죄송합니다. 응답을 생성하는데 문제가 발생했습니다.',
           sender: 'bot',
           timestamp: new Date(),
@@ -303,7 +309,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
       console.error('❌ 이후경경영지도사 AI 오류:', error);
       // 폴백 답변 제거 - 명확한 오류 메시지 표시
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         content: 'AI 분석 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.\n\n직접 상담을 원하시면 010-9251-9743으로 연락주세요.',
         sender: 'bot',
         timestamp: new Date()

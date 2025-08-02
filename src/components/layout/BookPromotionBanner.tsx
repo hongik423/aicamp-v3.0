@@ -6,6 +6,7 @@ import { X, BookOpen, ExternalLink, Sparkles, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 // 파티클 컴포넌트
 const Particle: React.FC<{ delay: number; index: number; reduceMotion: boolean }> = ({ delay, index, reduceMotion }) => {

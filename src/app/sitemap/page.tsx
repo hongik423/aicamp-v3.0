@@ -25,7 +25,7 @@ const siteMapData = [
       { title: '기술사업화/기술창업', url: '/services/tech-startup' },
       { title: '인증지원', url: '/services/certification' },
       { title: '웹사이트 구축', url: '/services/website' },
-      { title: '무료 진단', url: '/services/diagnosis' }
+      { title: 'AI 무료진단', url: '/diagnosis' }
     ]
   },
   {

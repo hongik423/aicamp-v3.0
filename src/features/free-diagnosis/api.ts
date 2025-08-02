@@ -68,7 +68,16 @@ async function fetchWithRetry(
   
   for (let i = 0; i <= maxRetries; i++) {
     try {
-      const response = await fetch(url, options);
+      // 타임아웃 설정을 3분으로 증가 (AI 분석 시간 고려)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 180000);
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       
       // 504 Gateway Timeout의 경우 재시도
       if (response.status === 504 && i < maxRetries) {
@@ -80,6 +89,13 @@ async function fetchWithRetry(
       return response;
     } catch (error) {
       lastError = error as Error;
+      
+      // 타임아웃인 경우 재시도하지 않음 (백그라운드 처리 중)
+      if (lastError.name === 'AbortError') {
+        console.log('⏰ 타임아웃 발생 - 백그라운드 처리 모드');
+        break;
+      }
+      
       if (i < maxRetries) {
         console.log(`🔄 네트워크 오류, ${i + 1}/${maxRetries} 재시도 중...`);
         await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
@@ -183,6 +199,19 @@ export async function submitDiagnosis(
     }
 
     const result = await response.json();
+    
+    // 타임아웃이나 재시도 상황 처리
+    if (result.isTimeout || result.isRetry) {
+      return {
+        success: true,
+        message: result.message || '진단 신청이 접수되었습니다. 처리 완료 시 이메일로 안내드리겠습니다.',
+        diagnosisId: result.diagnosisId,
+        isTimeout: result.isTimeout,
+        isRetry: result.isRetry,
+        estimatedTime: result.estimatedTime,
+        error: undefined
+      };
+    }
     
     return {
       success: result.success || false,
