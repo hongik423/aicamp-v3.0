@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
 import Header from '@/components/layout/header';
@@ -7,8 +6,6 @@ import Footer from '@/components/layout/footer';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 import { InstallPrompt } from '@/components/ui/install-prompt';
 import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvider';
-
-const inter = Inter({ subsets: ['latin'] });
 
 // 안정성을 위한 단순화
 
@@ -98,11 +95,9 @@ export default function RootLayout({
         <meta name="version" content="2.0" />
         
         {/* 🔧 한글 폰트 최적화 - Pretendard만 사용 */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         
         {/* 🔧 성능 최적화: DNS 프리페치 - Google Apps Script 기반 */}
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
         <link rel="dns-prefetch" href="//script.google.com" />
         <link rel="dns-prefetch" href="//generativelanguage.googleapis.com" />
@@ -226,7 +221,7 @@ export default function RootLayout({
         }} />
 
       </head>
-      <body className={`${inter.className} bg-white`} suppressHydrationWarning>        
+      <body className="bg-white" suppressHydrationWarning>        
         <Providers>
           <RootLayoutContent>
             {children}

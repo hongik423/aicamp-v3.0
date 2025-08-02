@@ -62,15 +62,15 @@ export default async function ServicesPage() {
   const services: ServiceProps[] = [
     {
       title: 'AI 무료진단',
-      description: '20개 항목 정밀 진단으로 비즈니스 현황을 정확히 파악하세요',
+      description: 'GEMINI 2.5 Flash Model로 기업 AI 활용도를 정밀 진단하세요',
       icon: <Brain className="h-6 w-6 text-blue-600" />,
-      href: '/services/diagnosis',
-      badge: '무료',
+      href: '/diagnosis',
+      badge: 'GEMINI 2.5',
       features: [
-        '20개 항목 정밀 진단',
-        '실시간 AI 분석',
-        'PDF 결과보고서',
-        '전문가 해석'
+        'GEMINI 2.5 Flash AI 분석',
+        'AI 활용도 정밀 진단',
+        '실시간 맞춤형 보고서',
+        '이메일 자동 발송'
       ]
     },
     {
@@ -177,19 +177,19 @@ export default async function ServicesPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center bg-gradient-to-r from-blue-600 to-green-600 rounded-xl p-8 text-white">
+        <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-4">
-            🎯 지금 바로 AI 무료진단으로 시작하세요!
+            🤖 GEMINI 2.5 Flash AI 무료진단으로 시작하세요!
           </h2>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            20개 항목 정밀 진단을 통해 비즈니스 현황을 정확히 파악하고, 
-            전문가의 맞춤형 개선방안을 받아보세요.
+            최신 GEMINI 2.5 Flash Model로 기업의 AI 활용도를 정밀 분석하고, 
+            맞춤형 AI 도입 전략을 제공받으세요.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/diagnosis">
               <Button size="lg" variant="secondary" className="text-blue-600 hover:text-blue-700">
                 <Brain className="mr-2 h-5 w-5" />
-                AI 무료진단 시작
+                GEMINI AI 진단 시작
               </Button>
             </Link>
             <Link href="/consultation">

@@ -20,6 +20,7 @@ import {
   Table,
   MessageCircle
 } from 'lucide-react';
+import Link from 'next/link';
 import { 
   InvestmentInput, 
   InvestmentResult, 
@@ -403,17 +404,52 @@ export default function InvestmentAnalysisTool() {
                 </TabsContent>
               </Tabs>
               
-              {/* 상담신청 버튼 */}
-              <div className="mt-8 flex justify-center">
-                <Link href="/consultation">
-                  <Button 
-                    size="lg" 
-                    className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-6 text-lg font-semibold"
-                  >
-                    <MessageCircle className="mr-3 h-6 w-6" />
-                    전문가 상담 신청
-                  </Button>
-                </Link>
+              {/* 강화된 상담신청 CTA */}
+              <div className="mt-8 bg-gradient-to-br from-orange-50 via-white to-red-50 rounded-2xl p-8 border border-orange-200">
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                    <MessageCircle className="w-4 h-4" />
+                    분석 완료 → 전문가 상담 권장
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    🎯 더 정확한 분석이 필요하세요?
+                  </h3>
+                  <p className="text-gray-600 mb-6 text-lg">
+                    25년 경력 전문가가 <span className="font-semibold text-blue-600">맞춤형 투자 전략</span>과 
+                    <span className="font-semibold text-green-600"> 정부지원 방안</span>을 제안해드립니다
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Link href="/consultation">
+                      <Button 
+                        size="lg" 
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 px-8 py-4 text-lg font-bold"
+                      >
+                        <MessageCircle className="mr-3 h-6 w-6" />
+                        💬 전문가 상담 신청하기
+                      </Button>
+                    </Link>
+                    <div className="text-sm text-gray-500 max-w-xs">
+                      ⚡ 24시간 내 연락<br />
+                      📊 상세 분석 리포트 제공
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="font-semibold text-blue-900 mb-1">💰 정부지원</div>
+                      <div className="text-gray-600">최적의 정책자금 매칭</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="font-semibold text-green-900 mb-1">📈 투자전략</div>
+                      <div className="text-gray-600">리스크 최소화 방안</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <div className="font-semibold text-purple-900 mb-1">🎯 실행계획</div>
+                      <div className="text-gray-600">단계별 실행 로드맵</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

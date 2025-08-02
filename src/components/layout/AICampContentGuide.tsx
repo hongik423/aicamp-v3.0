@@ -124,8 +124,8 @@ const contentData: ContentItem[] = [
   {
     id: 'diagnosis',
     title: 'AI 무료진단',
-    subtitle: '3분 완료, 즉시 결과',
-    description: '8개 핵심정보로 전문가급 진단보고서',
+    subtitle: 'GEMINI 2.5 Flash, 즉시 결과',
+    description: 'AI 활용도 정밀분석으로 맞춤형 전략 제공',
     icon: Target,
     color: 'text-blue-600',
     bgColor: 'from-blue-50 to-blue-100',

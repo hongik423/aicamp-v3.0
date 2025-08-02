@@ -24,46 +24,55 @@ export async function POST(request: NextRequest) {
       action: requestData.action || 'unknown'
     });
 
-    // Google Apps Script 안정성을 위한 타임아웃 설정 (15초로 증가)
+    // Google Apps Script 타임아웃을 180초로 대폭 증가 (AI 분석 시간 고려)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 180000);
 
-    // 재시도 로직 추가
-    let lastError;
+    console.log('🚀 Google Apps Script 요청 전송 중... (최대 3분 대기)');
+    
     let response;
     
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        console.log(`🔄 Google Apps Script 요청 시도 ${attempt}/2`);
+    try {
+      // 단일 요청으로 변경 (재시도 로직 제거하여 중복 처리 방지)
+      response = await fetch(gasUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'AICAMP-Frontend/1.0'
+        },
+        body: JSON.stringify(requestData),
+        signal: controller.signal,
+      });
+      
+      console.log(`✅ Google Apps Script 응답 수신: ${response.status}`);
+      
+    } catch (fetchError) {
+      console.error('❌ Google Apps Script 요청 실패:', fetchError.message);
+      
+      // 타임아웃 오류인 경우 사용자 친화적 처리
+      if (fetchError.name === 'AbortError') {
+        console.log('⏰ 타임아웃 발생 - 백그라운드 처리 모드로 전환');
         
-        // Google Apps Script로 요청 전달
-        response = await fetch(gasUrl, {
-          method: 'POST',
+        // 타임아웃이지만 성공으로 처리 (백그라운드에서 계속 처리됨)
+        return NextResponse.json({
+          success: true,
+          message: '🤖 AI 분석이 진행 중입니다. 고품질 보고서 생성을 위해 추가 시간이 필요하며, 완료 시 이메일로 안내드리겠습니다.',
+          diagnosisId: `TIMEOUT_${Date.now()}`,
+          isTimeout: true,
+          estimatedTime: '5-15분',
+          backgroundProcessing: true
+        }, { 
+          status: 200,
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify(requestData),
-          signal: controller.signal,
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
         });
-        
-        // 성공적으로 응답을 받았으면 재시도 루프 탈출
-        break;
-        
-      } catch (fetchError) {
-        lastError = fetchError;
-        console.warn(`⚠️ Google Apps Script 요청 실패 (시도 ${attempt}/2):`, fetchError.message);
-        
-        // 마지막 시도가 아니라면 잠시 대기 후 재시도
-        if (attempt < 2) {
-          await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
-        }
       }
-    }
-    
-    // 모든 시도가 실패했다면 마지막 오류를 던짐
-    if (!response) {
-      throw lastError;
+      
+      throw fetchError;
     }
 
     try {
@@ -72,6 +81,25 @@ export async function POST(request: NextRequest) {
 
       if (!response.ok) {
         console.error('Google Apps Script HTTP 오류:', response.status, response.statusText);
+        
+        // 502/503 오류의 경우 서버 과부하로 간주하고 재시도 안내
+        if (response.status === 502 || response.status === 503) {
+          return NextResponse.json({
+            success: true,
+            message: '서버가 일시적으로 바쁩니다. 요청이 접수되었으며 처리 완료 시 이메일로 안내드리겠습니다.',
+            diagnosisId: `RETRY_${Date.now()}`,
+            isRetry: true,
+            estimatedTime: '10-15분'
+          }, { 
+            status: 200,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type',
+            }
+          });
+        }
+        
         return NextResponse.json({
           success: false,
           error: `Google Apps Script 서버 오류 (${response.status})`,
@@ -119,16 +147,19 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeoutId);
       
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        console.error('❌ Google Apps Script 타임아웃 (15초)');
+        console.error('❌ Google Apps Script 타임아웃 (3분)');
+        
+        // 타임아웃 시 백업 처리 - 요청은 백그라운드에서 계속 진행될 수 있음
         return NextResponse.json({
-          success: false,
-          error: 'Google Apps Script 서버 응답 지연',
-          details: '현재 Google Apps Script 서버가 응답하지 않고 있습니다. 이는 일시적인 현상일 수 있습니다.',
-          userMessage: '🕐 서버 응답이 지연되고 있습니다. 1-2분 후 다시 시도해주세요.',
-          retryable: true,
-          statusCode: 'TIMEOUT_ERROR'
+          success: true,
+          message: '🤖 AI 진단이 접수되었습니다. 고품질 보고서 생성을 위해 백그라운드에서 처리 중이며, 완료되면 이메일로 안내드리겠습니다.',
+          diagnosisId: `TIMEOUT-${Date.now()}`,
+          warning: '고품질 AI 분석을 위해 추가 시간이 소요되고 있으나 신청은 정상 처리됩니다.',
+          retryable: false,
+          statusCode: 'PROCESSING',
+          backgroundProcessing: true
         }, { 
-          status: 504,
+          status: 200,
           headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',

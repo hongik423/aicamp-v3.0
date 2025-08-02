@@ -35,6 +35,79 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  // 타임아웃/백그라운드 처리 상황 체크
+  if (data?.isTimeout || data?.data?.diagnosis?.backgroundProcessing) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <Card className="border-2 border-orange-200 shadow-lg bg-gradient-to-br from-orange-50 to-yellow-50">
+          <CardHeader className="text-center pb-6">
+            <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="w-10 h-10 text-orange-600 animate-pulse" />
+            </div>
+            <CardTitle className="text-2xl text-orange-900">
+              🤖 AI 분석이 진행 중입니다
+            </CardTitle>
+            <p className="text-orange-700 text-lg mt-2">
+              {data.data?.diagnosis?.companyName || '귀하의 기업'}에 대한 고품질 분석을 위해<br />
+              백그라운드에서 처리 중입니다
+            </p>
+          </CardHeader>
+          <CardContent className="text-center space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">📋 처리 현황</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <span className="font-medium text-blue-900">예상 완료 시간</span>
+                  <span className="text-blue-700 font-bold">
+                    {data.data?.diagnosis?.estimatedTime || '5-15분'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <span className="font-medium text-green-900">진단 ID</span>
+                  <span className="text-green-700 font-mono text-sm">
+                    {data.data?.diagnosis?.diagnosisId || 'PROCESSING'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-yellow-900 mb-3">⏰ 다음 단계</h3>
+              <div className="space-y-2 text-sm text-yellow-800">
+                <p>✅ 신청이 정상적으로 접수되었습니다</p>
+                <p>🤖 AI가 고품질 보고서를 생성하고 있습니다</p>
+                <p>📧 완료 시 이메일로 결과를 발송해드립니다</p>
+                <p>📞 필요시 전문가가 직접 연락드립니다</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => window.location.href = '/consultation'}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                <MessageCircle className="mr-2 h-5 w-5" />
+                전문가 상담 신청
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/'}
+                className="border-gray-300 hover:bg-gray-50"
+              >
+                홈으로 돌아가기
+              </Button>
+            </div>
+            
+            <div className="text-xs text-gray-500 mt-6">
+              💡 고품질 AI 분석을 위해 추가 시간이 소요되고 있습니다.<br />
+              결과는 이메일로 안전하게 전달됩니다.
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   // 데이터 안전성 검증
   if (!data) {
     console.warn('⚠️ SimplifiedDiagnosisResults: data가 undefined입니다');

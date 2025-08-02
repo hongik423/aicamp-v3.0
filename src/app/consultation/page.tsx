@@ -179,13 +179,18 @@ export default function ConsultationPage() {
           console.log('Google Apps Script 응답:', responseText);
           
           toast({
-            title: "상담 신청이 완료되었습니다!",
-            description: "24시간 내에 담당자가 연락드리겠습니다.",
-            duration: 5000,
+            title: "🎉 상담 신청 완료!",
+            description: "투자재무타당성분석기로 이동합니다...",
+            duration: 3000,
           });
 
           resetForm();
           setSubmitAttempts(0);
+          
+          // 투자재무타당성분석기로 즉시 이동
+          setTimeout(() => {
+            window.location.href = '/services/policy-funding/investment-analysis';
+          }, 1500);
           return;
         }
       } catch (error) {
@@ -215,13 +220,18 @@ export default function ConsultationPage() {
 
         if (apiResponse.ok) {
           toast({
-            title: "상담 신청이 완료되었습니다!",
-            description: "24시간 내에 담당자가 연락드리겠습니다.",
-            duration: 5000,
+            title: "🎉 상담 신청 완료!",
+            description: "투자재무타당성분석기로 이동합니다...",
+            duration: 3000,
           });
 
           resetForm();
           setSubmitAttempts(0);
+          
+          // 투자재무타당성분석기로 즉시 이동
+          setTimeout(() => {
+            window.location.href = '/services/policy-funding/investment-analysis';
+          }, 1500);
           return;
         }
       } catch (error) {

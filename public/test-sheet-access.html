@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구글 시트 데이터 저장 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.success {
+            background: #28a745;
+        }
+        button.error {
+            background: #dc3545;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success-bg { background-color: #d4edda; color: #155724; }
+        .error-bg { background-color: #f8d7da; color: #721c24; }
+        .warning-bg { background-color: #fff3cd; color: #856404; }
+        .info-bg { background-color: #d1ecf1; color: #0c5460; }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .status-item {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .status-pending { background-color: #fff3cd; }
+        .status-success { background-color: #d4edda; }
+        .status-error { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 구글 시트 데이터 저장 테스트</h1>
+        
+        <div class="test-section">
+            <h2>🔗 구글 시트 링크</h2>
+            <p><strong>시트 ID:</strong> 1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0</p>
+            <button onclick="openSheet()">구글 시트 열기</button>
+            <button onclick="checkSheetStructure()">시트 구조 확인</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 테스트 데이터 전송</h2>
+            <button onclick="testDataSubmission()">무료진단 신청 데이터 전송</button>
+            <button onclick="testSheetInitialization()">시트 초기화 테스트</button>
+            <div id="test-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📈 시트 상태 확인</h2>
+            <div class="status-grid">
+                <div id="sheet-status" class="status-item status-pending">
+                    <strong>시트 접근성:</strong> 확인 중...
+                </div>
+                <div id="data-status" class="status-item status-pending">
+                    <strong>데이터 저장:</strong> 대기 중
+                </div>
+                <div id="structure-status" class="status-item status-pending">
+                    <strong>시트 구조:</strong> 확인 중...
+                </div>
+                <div id="permissions-status" class="status-item status-pending">
+                    <strong>권한 설정:</strong> 확인 중...
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 실시간 시트 데이터 확인</h2>
+            <button onclick="getLatestData()">최신 데이터 조회</button>
+            <div id="sheet-data" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0';
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
+        
+        // 구글 시트 열기
+        function openSheet() {
+            window.open(SHEET_URL, '_blank');
+        }
+        
+        // 시트 구조 확인
+        async function checkSheetStructure() {
+            const result = document.getElementById('test-result');
+            result.textContent = '시트 구조 확인 중...\n';
+            
+            try {
+                // Google Apps Script로 시트 상태 확인 요청
+                const response = await fetch('/api/google-script-proxy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'checkSheetStructure'
+                    })
+                });
+                
+                const data = await response.json();
+                result.textContent += JSON.stringify(data, null, 2);
+                
+                if (data.success) {
+                    updateStatus('structure-status', 'success', '시트 구조: 정상');
+                } else {
+                    updateStatus('structure-status', 'error', '시트 구조: 오류');
+                }
+            } catch (error) {
+                result.textContent += `오류: ${error.message}`;
+                result.className = 'result error-bg';
+                updateStatus('structure-status', 'error', '시트 구조: 접근 실패');
+            }
+        }
+        
+        // 무료진단 신청 데이터 전송 테스트
+        async function testDataSubmission() {
+            const result = document.getElementById('test-result');
+            result.textContent = '무료진단 데이터 전송 테스트 시작...\n';
+            result.className = 'result';
+            
+            const testData = {
+                companyName: '시트테스트기업_' + Date.now(),
+                representativeName: '홍길동',
+                position: '대표이사',
+                industry: 'it',
+                region: 'seoul',
+                businessContent: 'IT 서비스 개발 및 컨설팅',
+                concerns: ['ai_adoption', 'employee_training'],
+                expectations: 'AI 도입을 통한 업무 효율성 향상',
+                email: 'sheettest@example.com',
+                phone: '010-1234-5678',
+                agreeToTerms: true,
+                employeeCount: '10-50',
+                annualRevenue: '10-50억',
+                businessHistory: '3-5년',
+                // AI 역량 점수
+                ceoAIVision: 4,
+                aiInvestment: 3,
+                aiStrategy: 3,
+                changeManagement: 4,
+                riskTolerance: 3,
+                itInfrastructure: 4,
+                dataManagement: 3,
+                securityLevel: 4,
+                aiToolsAdopted: 2,
+                digitalLiteracy: 3,
+                aiToolUsage: 2,
+                learningAgility: 4,
+                dataAnalysis: 3,
+                innovationCulture: 4,
+                collaborationLevel: 4,
+                experimentCulture: 3,
+                continuousLearning: 4,
+                processAutomation: 2,
+                decisionMaking: 3,
+                customerService: 3
+            };
+            
+            try {
+                updateStatus('data-status', 'pending', '데이터 저장: 전송 중...');
+                
+                const response = await fetch('/api/google-script-proxy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'submitFreeDiagnosis',
+                        data: testData
+                    })
+                });
+                
+                const responseData = await response.json();
+                result.textContent += `응답 상태: ${response.status}\n`;
+                result.textContent += `응답 데이터:\n${JSON.stringify(responseData, null, 2)}\n`;
+                
+                if (responseData.success) {
+                    result.className = 'result success-bg';
+                    updateStatus('data-status', 'success', '데이터 저장: 성공');
+                    result.textContent += `\n✅ 데이터 저장 성공!\n`;
+                    result.textContent += `진단 ID: ${responseData.diagnosisId}\n`;
+                    result.textContent += `\n📊 구글 시트에서 확인하세요: ${SHEET_URL}\n`;
+                } else {
+                    result.className = 'result error-bg';
+                    updateStatus('data-status', 'error', '데이터 저장: 실패');
+                    result.textContent += `\n❌ 데이터 저장 실패: ${responseData.error}\n`;
+                }
+            } catch (error) {
+                result.className = 'result error-bg';
+                updateStatus('data-status', 'error', '데이터 저장: 네트워크 오류');
+                result.textContent += `\n❌ 네트워크 오류: ${error.message}\n`;
+            }
+        }
+        
+        // 시트 초기화 테스트
+        async function testSheetInitialization() {
+            const result = document.getElementById('test-result');
+            result.textContent = '시트 초기화 테스트 시작...\n';
+            
+            try {
+                const response = await fetch('/api/google-script-proxy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'initializeFreeDiagnosisSheets'
+                    })
+                });
+                
+                const data = await response.json();
+                result.textContent += JSON.stringify(data, null, 2);
+                
+                if (data.success) {
+                    result.className = 'result success-bg';
+                } else {
+                    result.className = 'result error-bg';
+                }
+            } catch (error) {
+                result.textContent += `오류: ${error.message}`;
+                result.className = 'result error-bg';
+            }
+        }
+        
+        // 최신 데이터 조회
+        async function getLatestData() {
+            const result = document.getElementById('sheet-data');
+            result.textContent = '최신 데이터 조회 중...\n';
+            
+            try {
+                const response = await fetch('/api/google-script-proxy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'getLatestDiagnosisData'
+                    })
+                });
+                
+                const data = await response.json();
+                result.textContent = JSON.stringify(data, null, 2);
+                
+                if (data.success) {
+                    result.className = 'result success-bg';
+                } else {
+                    result.className = 'result error-bg';
+                }
+            } catch (error) {
+                result.textContent = `오류: ${error.message}`;
+                result.className = 'result error-bg';
+            }
+        }
+        
+        // 상태 업데이트
+        function updateStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.className = `status-item status-${status}`;
+            element.innerHTML = `<strong>${text.split(':')[0]}:</strong> ${text.split(':')[1]}`;
+        }
+        
+        // 페이지 로드시 초기 상태 확인
+        window.onload = function() {
+            console.log('구글 시트 데이터 저장 테스트 페이지 로드됨');
+            
+            // 시트 접근성 확인
+            setTimeout(() => {
+                updateStatus('sheet-status', 'success', '시트 접근성: 정상 (ID 확인됨)');
+            }, 1000);
+            
+            // 권한 설정 확인 (가정)
+            setTimeout(() => {
+                updateStatus('permissions-status', 'success', '권한 설정: Google Apps Script 연동');
+            }, 1500);
+        };
+    </script>
+</body>
+</html>

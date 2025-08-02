@@ -251,10 +251,10 @@ const mCenterServices = {
   }
 };
 
-// 🚫 폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API 전용
+// 🚨 폴백 보고서 생성 완전 금지 - Google Apps Script GEMINI 2.5 Flash API 전용
 async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): Promise<string> {
-  // 🚨 폴백 보고서 생성 금지 - 에러 발생시 예외 던지기
-  throw new Error('폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
+  // 🚨 폴백 보고서 생성 완전 금지 - 에러 발생시 예외 던지기
+  throw new Error('AI 분석 실패 - Google Apps Script GEMINI 2.5 Flash API 전용 시스템');
   
   /* 기존 폴백 로직 비활성화
   try {
@@ -451,8 +451,8 @@ ${actionPlan.longTerm?.map((action: string) => `  • ${action}`).join('\n') || 
 
   } catch (error) {
     console.error('❌ AI 강화 보고서 생성 중 오류:', error);
-    // 🚨 폴백 보고서 생성 금지 - 에러 던지기
-    throw new Error('폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
+    // 🚨 폴백 보고서 생성 완전 금지 - 에러 던지기
+    throw new Error('AI 분석 실패 - Google Apps Script GEMINI 2.5 Flash API 전용 시스템');
   }
   */
 }
@@ -807,8 +807,8 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.error('❌ 업종별 진단보고서 생성 실패:', error.message);
       
-      // 🚨 폴백 보고서 생성 금지 - Google Apps Script GEMINI API만 사용
-      console.error('🚫 폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
+          // 🚨 폴백 보고서 생성 완전 금지 - Google Apps Script GEMINI API만 사용
+    console.error('🚫 폴백 시스템 완전 제거 - Google Apps Script GEMINI 2.5 Flash API 전용');
       
       // 빈 보고서로 설정하여 Google Apps Script에서만 처리하도록 함
       comprehensiveReport = '보고서는 Google Apps Script GEMINI 2.5 Flash API에서 생성됩니다.';

@@ -90,16 +90,15 @@ export default function InvestmentAnalysisPage() {
                 정확한 분석 가이드와 함께 제공됩니다.
               </p>
               <div className="space-y-3">
-                <Button 
-                  size="lg" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  asChild
-                >
-                  <Link href="/consultation">
+                <Link href="/consultation" className="w-full">
+                  <Button 
+                    size="lg" 
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
                     <MessageCircle className="mr-2 h-5 w-5" />
                     무료 상담 신청하기
-                  </Link>
-                </Button>
+                  </Button>
+                </Link>
                 <p className="text-sm text-gray-500">
                   상담 접수 후 즉시 분석기 이용 가능
                 </p>
@@ -198,16 +197,15 @@ export default function InvestmentAnalysisPage() {
             </div>
             
             <div className="mt-8 text-center">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6"
-                asChild
-              >
-                <Link href="/consultation">
+              <Link href="/consultation">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6"
+                >
                   지금 바로 상담 신청하기
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+                </Button>
+              </Link>
               <p className="text-sm text-gray-600 mt-3">
                 평균 응답 시간: 30분 이내 | 상담 비용: 완전 무료
               </p>
@@ -376,28 +374,86 @@ export default function InvestmentAnalysisPage() {
           </CardContent>
         </Card>
 
-        {/* CTA */}
-        <div className="text-center py-8">
-          <h2 className="text-2xl font-bold mb-4">지금 바로 투자재무타당성분석을 시작하세요</h2>
-          <p className="text-lg text-gray-600 mb-6">
-            전문가 상담을 통해 정확한 분석과 맞춤형 전략을 제공받으실 수 있습니다
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              asChild
-            >
+        {/* 강화된 CTA - 상담신청 우선 */}
+        <div className="text-center py-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-2xl border border-blue-100">
+          <div className="max-w-3xl mx-auto px-6">
+            <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <TrendingUp className="w-4 h-4" />
+              AI투자분석기 → 상담신청 → 투자재무타당성분석
+            </div>
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
+              🚀 지금 바로 투자재무타당성분석을 시작하세요
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              <span className="font-semibold text-blue-600">상담신청 → 즉시 투자분석 도구 접근</span><br />
+              25년 경력 전문가가 정확한 분석과 맞춤형 전략을 제공합니다
+            </p>
+            
+            {/* 주요 CTA - 상담신청 강조 */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
               <Link href="/consultation">
-                <MessageCircle className="mr-2 h-5 w-5" />
-                무료 상담 신청
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-8 text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+                >
+                  <MessageCircle className="mr-3 h-6 w-6" />
+                  💬 상담신청 → 투자분석 도구 바로가기
+                </Button>
               </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/services/policy-funding">
-                정책자금 안내 보기
-              </Link>
-            </Button>
+              <div className="text-sm text-gray-500">
+                ⚡ 상담신청 완료 즉시 투자분석기 접근 가능
+              </div>
+            </div>
+            
+            {/* 보조 CTA */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button size="lg" variant="outline" asChild className="border-blue-200 hover:bg-blue-50">
+                <Link href="/services/policy-funding">
+                  <DollarSign className="mr-2 h-5 w-5" />
+                  정책자금 안내 보기
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="border-purple-200 hover:bg-purple-50">
+                <Link href="/diagnosis">
+                  <Zap className="mr-2 h-5 w-5" />
+                  AI 무료진단 받기
+                </Link>
+              </Button>
+            </div>
+            
+            {/* 프로세스 안내 */}
+            <div className="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 className="font-bold text-gray-900 mb-4">📋 간단한 3단계 프로세스</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 font-bold">1</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold">상담신청</div>
+                    <div className="text-gray-600">기본정보 입력 (2분)</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                    <span className="text-orange-600 font-bold">2</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold">즉시 이동</div>
+                    <div className="text-gray-600">투자분석기 접근</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <span className="text-green-600 font-bold">3</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold">전문가 상담</div>
+                    <div className="text-gray-600">24시간 내 연락</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
