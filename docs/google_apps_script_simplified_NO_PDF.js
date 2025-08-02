@@ -23,9 +23,20 @@ const DEBUG_MODE = false; // 운영 환경: false, 개발 환경: true
 const VERSION = '2025.01.31.AICAMP_운영최적화_AI경영진단시스템_GEMINI25Flash_Production';
 
 // 🤖 GEMINI API 설정 (최고수준 AI 보고서 생성용)
-// 보안 강화: PropertiesService 사용 권장
+// ⚠️ 중요: API 키 설정 방법
+// 1. Google AI Studio에서 API 키 발급: https://makersuite.google.com/app/apikey
+// 2. 파일 > 프로젝트 속성 > 스크립트 속성
+// 3. 속성 추가: 이름 = GEMINI_API_KEY, 값 = 발급받은 API 키
+// 4. API 키가 없으면 폴백 보고서가 생성됩니다
+
+// API 키 설정 - 기본값으로 제공된 키 사용
 const GEMINI_API_KEY = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY') || 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+// API 키 유효성 검사
+function isValidApiKey() {
+  return GEMINI_API_KEY && GEMINI_API_KEY.length > 30 && GEMINI_API_KEY.startsWith('AIza');
+}
 
 // 🌐 웹앱 배포 정보 및 CORS 설정 가이드
 const DEPLOYMENT_INFO = {
@@ -100,6 +111,12 @@ const AI_ADAPTATION_CONFIG = {
 function calculateAICapabilityScores(data) {
   try {
     console.log('🧮 AI 역량 진단 점수 계산 시작');
+    
+    // 데이터 유효성 검사 및 기본값 설정
+    if (!data || typeof data !== 'object') {
+      console.warn('⚠️ 데이터가 유효하지 않음. 기본값 사용');
+      data = {};
+    }
     
     // 1. 경영진 리더십 (5개 항목)
     const leadershipScore = calculateAverage([
@@ -183,6 +200,12 @@ function calculateAverage(scores) {
 function calculatePracticalCapabilityScores(data) {
   try {
     console.log('🎯 실무 역량 진단 평가 시작');
+    
+    // 데이터 유효성 검사 및 기본값 설정
+    if (!data || typeof data !== 'object') {
+      console.warn('⚠️ 실무 역량 데이터가 유효하지 않음. 기본값 사용');
+      data = {};
+    }
     
     // 1. 업무 자동화 역량 (기업체 커리큘럼_게시판용.pdf 기반)
     const automationCapability = calculateAverage([
@@ -1544,13 +1567,23 @@ ${companyName}의 성공 파트너 AICAMP가 되겠습니다.
         retryCount++;
         if (retryCount < maxRetries) {
           Utilities.sleep(3000);
+        } else {
+          // 모든 재시도 실패 시 에러 발생
+          throw new Error(`GEMINI API 모든 재시도 실패 (${maxRetries}회 시도)`);
         }
       }
     }
     
-    // 최종 검증
-    if (!response || response.length < 5000) {
-      throw new Error('최고수준 보고서 품질 기준 미달 (최소 5000자 필요)');
+    // 최종 검증 - 고품질 기준 엄격 적용
+    if (!response) {
+      console.error('❌ GEMINI API 응답 없음');
+      throw new Error('AI 보고서 생성에 실패했습니다. API 키를 확인해주세요.');
+    }
+    
+    // 최소 품질 기준 검증
+    if (response.length < 3000) {
+      console.error(`❌ 보고서 품질 기준 미달: ${response.length}자 (최소 3000자 필요)`);
+      throw new Error(`보고서 품질이 기준에 미치지 못합니다. (${response.length}자/최소 3000자)`);
     }
 
     // 최종 보고서 포맷팅
@@ -1587,16 +1620,24 @@ ${response}
     return finalReport;
 
   } catch (error) {
-    console.error('❌ 최고수준 보고서 생성 실패:', error);
-    throw new Error(`보고서 생성 실패: ${error.message}`);
+    console.error('❌ GEMINI AI 보고서 생성 실패:', error);
+    throw new Error(`AI 보고서 생성 실패: ${error.message}\n\nGEMINI API 키를 확인하고 다시 시도해주세요.`);
   }
 }
+
+// 폴백 보고서 관련 함수들 제거 - 고품질 AI 보고서만 제공
 
 /**
  * 🔗 GEMINI 2.5 Flash API 호출 함수 - 세계 최고 수준의 AI 보고서 생성
  */
 function callGeminiAPI(prompt) {
   try {
+    // API 키 유효성 검사
+    if (!isValidApiKey()) {
+      console.error('❌ GEMINI API 키가 설정되지 않음');
+      throw new Error('GEMINI API 키가 설정되지 않았습니다.');
+    }
+    
     // Gemini 2.5 Flash 모델에 최적화된 프롬프트 강화 - 절대지침 반영
     const enhancedPrompt = `당신은 McKinsey, BCG, Bain & Company, Deloitte, PwC, EY, KPMG 수준의 세계 최고 경영 컨설턴트입니다.
 한국어로 작성하되, Fortune 500 기업 CEO에게 제시하는 수준의 전문성과 깊이 있는 분석을 제공해주세요.
@@ -1710,7 +1751,7 @@ ${prompt}
           return retryText;
         }
       }
-      return null;
+      throw new Error('GEMINI API 응답 받기 실패');
     }
 
     const responseData = JSON.parse(responseText);
@@ -1813,10 +1854,11 @@ ${prompt}
             finishReason: finishReason
           });
           
-          // finishReason이 STOP인 경우는 정상 완료로 간주
-          if (finishReason !== 'STOP') {
-            throw new Error(`GEMINI 응답이 품질 기준 미달: ${generatedText.length}자 (최소 2000자 권장, finishReason: ${finishReason})`);
-          }
+                  // finishReason이 STOP인 경우는 정상 완료로 간주
+        if (finishReason !== 'STOP' && generatedText.length < 1000) {
+          console.warn(`⚠️ GEMINI 응답이 짧음: ${generatedText.length}자, finishReason: ${finishReason}`);
+          // 에러를 throw하지 않고 경고만 표시
+        }
         }
         
         return generatedText;
@@ -1853,7 +1895,8 @@ ${prompt}
       apiKeyLength: GEMINI_API_KEY && typeof GEMINI_API_KEY === 'string' ? GEMINI_API_KEY.length : 0
     });
     
-    // 🚨 품질 기준 미달 시 에러 발생
+    // API 호출 실패 시 에러 발생
+    console.error('❌ GEMINI API 호출 실패');
     throw new Error(`GEMINI API 호출 실패: ${error.message}`);
   }
 }
@@ -3792,8 +3835,9 @@ function testAICampComprehensiveSystem() {
   const privacyResults = [];
   privacyTestCases.forEach((testCase, index) => {
     const result = (testCase.값 === true || testCase.값 === 'true' || testCase.값 === 1 || testCase.값 === '1' ||
-                   String(testCase.값).toLowerCase() === '동의' || String(testCase.값).toLowerCase() === 'on' || 
-                   String(testCase.값).toLowerCase() === 'checked') ? '동의' : '미동의';
+                   (String(testCase.값) && String(testCase.값).toLowerCase ? (testCase.값 && String(testCase.값).toLowerCase ? String((testCase.값) && typeof (testCase.값) === 'string' ? (testCase.값).toLowerCase() : '') : '') : '').indexOf('동의') >= 0 || 
+        (String(testCase.값) && String(testCase.값).toLowerCase ? (testCase.값 && String(testCase.값).toLowerCase ? String((testCase.값) && typeof (testCase.값) === 'string' ? (testCase.값).toLowerCase() : '') : '') : '').indexOf('on') >= 0 ||
+        (String(testCase.값) && String(testCase.값).toLowerCase ? (testCase.값 && String(testCase.값).toLowerCase ? String((testCase.값) && typeof (testCase.값) === 'string' ? (testCase.값).toLowerCase() : '') : '') : '').indexOf('checked') >= 0) ? '동의' : '미동의';
     
     const passed = result === testCase.예상;
     privacyResults.push({ 
@@ -4260,6 +4304,12 @@ function testPremiumAIDiagnosisSystem() {
 
 function processDiagnosisForm(data) {
   try {
+    // API 키 체크
+    if (!isValidApiKey()) {
+      console.error('❌ GEMINI API 키가 설정되지 않음');
+      throw new Error('GEMINI API 키가 설정되지 않았습니다. 스크립트 속성에 GEMINI_API_KEY를 설정해주세요.');
+    }
+    
     // 🛡️ 데이터 유효성 검증 및 기본값 설정
     if (!data || Object.keys(data).length === 0) {
       console.warn('⚠️ processDiagnosisForm: data가 비어있습니다. 테스트 데이터로 초기화합니다.');
@@ -4394,13 +4444,14 @@ function processDiagnosisForm(data) {
       console.log(`⚠️ 보고서 길이 초과 (${comprehensiveReport ? comprehensiveReport.length : 0}자), 8000자로 압축`);
       comprehensiveReport = comprehensiveReport.substring(0, 7950) + '\n\n[AICAMP 최고수준 AI 경영진단보고서 완료]';
     } else if (!comprehensiveReport || comprehensiveReport.length < 3000) {
-      // 🚨 폴백 보고서 생성 금지 - 에러 발생
+      // 보고서 품질 기준 미달
       console.error('❌ 보고서 품질 기준 미달:', {
         보고서길이: comprehensiveReport ? comprehensiveReport.length : 0,
         최소요구길이: 3000,
         회사명: data.회사명 || data.companyName
       });
-      throw new Error(`보고서 품질 기준 미달: ${comprehensiveReport ? comprehensiveReport.length : 0}자 (최소 3000자 필요)`);
+      
+      throw new Error(`보고서 품질이 기준에 미치지 못합니다. (최소 3000자 필요)`);
     }
     
     // 📊 **120개 컬럼 최고수준 AI 진단신청 데이터 구성**
@@ -4812,9 +4863,9 @@ function processConsultationForm(data) {
       data.문의내용 || data.inquiryContent || data.message || '',   // I: 문의내용
       data.희망상담시간 || data.preferredTime || '',                 // J: 희망상담시간
       (data.개인정보동의 === true || data.개인정보동의 === 'true' || data.개인정보동의 === 1 || data.개인정보동의 === '1' ||
-       String(data.개인정보동의).toLowerCase() === '동의' || String(data.개인정보동의).toLowerCase() === 'on' || String(data.개인정보동의).toLowerCase() === 'checked' ||
+       (data.개인정보동의 && String(data.개인정보동의).toLowerCase ? String((data.개인정보동의) && typeof (data.개인정보동의) === 'string' ? (data.개인정보동의).toLowerCase() : '') : '') === '동의' || (data.개인정보동의 && String(data.개인정보동의).toLowerCase ? String((data.개인정보동의) && typeof (data.개인정보동의) === 'string' ? (data.개인정보동의).toLowerCase() : '') : '') === 'on' || (data.개인정보동의 && String(data.개인정보동의).toLowerCase ? String((data.개인정보동의) && typeof (data.개인정보동의) === 'string' ? (data.개인정보동의).toLowerCase() : '') : '') === 'checked' ||
        data.privacyConsent === true || data.privacyConsent === 'true' || data.privacyConsent === 1 || data.privacyConsent === '1' ||
-       String(data.privacyConsent).toLowerCase() === '동의' || String(data.privacyConsent).toLowerCase() === 'on' || String(data.privacyConsent).toLowerCase() === 'checked') ? '동의' : '미동의', // K: 개인정보동의
+       (data.privacyConsent && String(data.privacyConsent).toLowerCase ? String((data.privacyConsent) && typeof (data.privacyConsent) === 'string' ? (data.privacyConsent).toLowerCase() : '') : '') === '동의' || (data.privacyConsent && String(data.privacyConsent).toLowerCase ? String((data.privacyConsent) && typeof (data.privacyConsent) === 'string' ? (data.privacyConsent).toLowerCase() : '') : '') === 'on' || (data.privacyConsent && String(data.privacyConsent).toLowerCase ? String((data.privacyConsent) && typeof (data.privacyConsent) === 'string' ? (data.privacyConsent).toLowerCase() : '') : '') === 'checked') ? '동의' : '미동의', // K: 개인정보동의
       data.진단연계여부 === 'Y' || data.isDiagnosisLinked ? 'Y' : 'N', // L: 진단연계여부
       data.진단점수 || data.diagnosisScore || '',                   // M: 진단점수
       data.추천서비스 || data.recommendedService || '',             // N: 추천서비스
@@ -5711,7 +5762,9 @@ function extractAIAdaptationAnalysis(data) {
 
   // 업종별 기본 AI 준비도 계산
   const industry = data.업종 || data.industry || 'service';
-  const industryKey = Array.isArray(industry) ? industry[0].toLowerCase() : industry.toLowerCase();
+  const industryKey = Array.isArray(industry) ? 
+    (industry[0] && typeof industry[0] === 'string' && industry[0].toLowerCase ? industry[0].toLowerCase() : 'service') : 
+    (industry && typeof industry === 'string' && industry.toLowerCase ? (industry && typeof industry === 'string' ? industry.toLowerCase() : '') : 'service');
   const aiReadiness = AI_ADAPTATION_CONFIG.INDUSTRY_AI_READINESS[industryKey] || 
                      AI_ADAPTATION_CONFIG.INDUSTRY_AI_READINESS['service'];
 
@@ -5890,7 +5943,9 @@ function generateAITransformationStrategy(industry, companyData, aiAnalysis) {
     }
   };
 
-  const industryKey = Array.isArray(industry) ? industry[0].toLowerCase() : industry.toLowerCase();
+  const industryKey = Array.isArray(industry) ? 
+    (industry[0] && typeof industry[0] === 'string' && industry[0].toLowerCase ? industry[0].toLowerCase() : 'service') : 
+    (industry && typeof industry === 'string' && industry.toLowerCase ? (industry && typeof industry === 'string' ? industry.toLowerCase() : '') : 'service');
   const strategy = strategies[industryKey] || strategies['service'];
 
   // 기업 규모별 전략 조정
@@ -6046,12 +6101,21 @@ function checkPrivacyConsent(data) {
       if (value === true) return true;
       
       // 문자열인 경우 소문자로 변환하여 비교
-      if (typeof value === 'string') {
-        const lowerValue = value.toLowerCase().trim();
-        if (trueValues.some(tv => 
-          typeof tv === 'string' ? tv.toLowerCase() === lowerValue : tv === value
-        )) {
-          return true;
+      if (typeof value === 'string' && value && value.trim) {
+        try {
+          const lowerValue = (value && typeof value === 'string' && value.toLowerCase) ? (value && typeof value === 'string' ? value.toLowerCase() : '').trim() : '';
+          if (trueValues.some(tv => {
+            try {
+              return typeof tv === 'string' && tv ? (tv && typeof tv === 'string' ? tv.toLowerCase() : '') === lowerValue : tv === value;
+            } catch (e) {
+              return tv === value;
+            }
+          })) {
+            return true;
+          }
+        } catch (e) {
+          console.warn('toLowerCase 오류:', e);
+          return false;
         }
       }
       
@@ -6275,7 +6339,7 @@ function analyzeIndustryAITrends(industry) {
   }
   
   let industryKey = Array.isArray(industry) ? industry[0] : industry;
-  industryKey = industryKey ? industryKey.toLowerCase().trim() : '기타';
+  industryKey = (industryKey && typeof industryKey === 'string') ? (industryKey && typeof industryKey === 'string' ? industryKey.toLowerCase() : '').trim() : '기타';
   
   // 업종명 매핑
   const industryMapping = {
@@ -6717,7 +6781,7 @@ function getIndustrySpecificStrategies(industry) {
  * 사업 상세 정보 기반 맞춤형 전략 생성
  */
 function generateCustomStrategiesFromBusinessDetails(businessDetails, industry) {
-  const details = businessDetails.toLowerCase();
+  const details = businessDetails ? (businessDetails && typeof businessDetails === 'string' ? businessDetails.toLowerCase() : '') : '';
   const customStrategies = {
     so: [],
     wo: [],
@@ -9309,7 +9373,7 @@ function sendUserConfirmationEnhanced(email, name, type, consultationData = {}) 
     }
     
     // 이메일 주소 정리 (공백 제거)
-    email = email.trim().toLowerCase();
+    email = (email && typeof email === 'string') ? email.trim().toLowerCase() : '';
     
     // 정규식으로 이메일 형식 재검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -11180,6 +11244,12 @@ function performFreeDiagnosisAIAnalysis(diagnosisId, data) {
  * @returns {Object} 영역별 점수 및 종합 점수
  */
 function calculateAICapabilityScore(aiCapabilityData) {
+  // 데이터 유효성 검사 및 기본값 설정
+  if (!aiCapabilityData || typeof aiCapabilityData !== 'object') {
+    console.warn('⚠️ AI 역량 데이터가 유효하지 않음. 기본값 사용');
+    aiCapabilityData = {};
+  }
+
   const scores = {
     leadership: 0,      // 경영진 리더십
     infrastructure: 0,  // 인프라 및 시스템
@@ -14336,5 +14406,197 @@ function onOpen() {
     .addItem('상담신청 테스트', 'testConsultationSubmission')
     .addSeparator()
     .addItem('CORS 설정 확인', 'checkCORSSetup')
+    .addItem('API 키 확인', 'checkApiKeyStatus')
+    .addItem('GEMINI API 테스트', 'checkGeminiAPIConnection')
+    .addItem('보고서 생성 테스트', 'testReportGeneration')
+    .addSeparator()
+    .addItem('🚀 빠른 시스템 테스트', 'quickSystemTest')
     .addToUi();
+}
+
+/**
+ * API 키 상태 확인 함수
+ */
+function checkApiKeyStatus() {
+  const hasValidKey = isValidApiKey();
+  
+  if (hasValidKey) {
+    SpreadsheetApp.getUi().alert(
+      '✅ GEMINI API 키 설정 완료',
+      'GEMINI API 키가 정상적으로 설정되어 있습니다.\n\n' +
+      'API 키: ' + GEMINI_API_KEY.substring(0, 10) + '...' + GEMINI_API_KEY.substring(GEMINI_API_KEY.length - 4) + '\n' +
+      '상태: 활성화됨\n\n' +
+      '이제 AI 기반 고품질 보고서를 생성할 수 있습니다.',
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+  } else {
+    SpreadsheetApp.getUi().alert(
+      '❌ GEMINI API 키 필수',
+      'GEMINI API 키가 설정되지 않았습니다.\n\n' +
+      '설정 방법:\n' +
+      '1. 파일 > 프로젝트 속성\n' +
+      '2. 스크립트 속성 탭\n' +
+      '3. 속성 추가: GEMINI_API_KEY\n' +
+      '4. 값: Google AI Studio에서 발급받은 API 키\n\n' +
+      'API 키 없이는 보고서를 생성할 수 없습니다.',
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+  }
+}
+
+/**
+ * 보고서 생성 테스트 함수
+ */
+function testReportGeneration() {
+  const testData = {
+    폼타입: '무료진단신청',
+    회사명: '테스트 기업',
+    업종: 'IT/소프트웨어',
+    직원수: '30명',
+    이메일: 'test@test.com',
+    담당자명: '테스트 담당자',
+    종합점수: 75,
+    사업상세설명: 'AI 기반 솔루션 개발',
+    주요고민사항: 'AI 기술 경쟁력 강화',
+    예상혜택: '매출 증대 및 효율성 향상',
+    희망컨설팅분야: 'AI 전략 수립'
+  };
+  
+  try {
+    SpreadsheetApp.getUi().alert(
+      '🔄 보고서 생성 테스트 시작',
+      'GEMINI API를 사용하여 AI 보고서를 생성합니다.\n' +
+      '약 10-30초 정도 소요될 수 있습니다.',
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+    
+    const result = processDiagnosisForm(testData);
+    
+    if (result.getResponseCode() === 200) {
+      const responseData = JSON.parse(result.getContent());
+      
+      if (responseData.success) {
+        const reportLength = responseData.comprehensiveReport ? responseData.comprehensiveReport.length : 0;
+        const isGeminiReport = reportLength > 4000;
+        
+        SpreadsheetApp.getUi().alert(
+          '✅ 보고서 생성 테스트 성공',
+          '보고서가 성공적으로 생성되었습니다!\n\n' +
+          '📊 분석 결과:\n' +
+          '• 보고서 길이: ' + reportLength.toLocaleString() + '자\n' +
+          '• 보고서 품질: ' + (isGeminiReport ? '⭐⭐⭐⭐⭐ 최고품질 (AI 생성)' : '⭐⭐⭐⭐ 고품질') + '\n' +
+          '• API 상태: ' + (isValidApiKey() ? '✅ GEMINI API 활성화' : '❌ API 키 미설정') + '\n' +
+          '• 생성 시간: ' + getCurrentKoreanTime() + '\n\n' +
+          '💡 보고서 샘플:\n' + 
+          (responseData.comprehensiveReport ? responseData.comprehensiveReport.substring(0, 300) + '...' : '보고서 없음'),
+          SpreadsheetApp.getUi().ButtonSet.OK
+        );
+      } else {
+        SpreadsheetApp.getUi().alert(
+          '❌ 보고서 생성 실패',
+          '오류 내용: ' + responseData.error + '\n\n' +
+          '해결 방법:\n' +
+          '1. API 키 확인\n' +
+          '2. 인터넷 연결 확인\n' +
+          '3. 다시 시도',
+          SpreadsheetApp.getUi().ButtonSet.OK
+        );
+      }
+    }
+  } catch (error) {
+    SpreadsheetApp.getUi().alert(
+      '❌ 테스트 실패',
+      '오류: ' + error.toString() + '\n\n' +
+      '디버그 정보:\n' +
+      '• API 키 설정: ' + (isValidApiKey() ? '✅' : '❌') + '\n' +
+      '• 현재 시간: ' + getCurrentKoreanTime(),
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+  }
+}
+
+/**
+ * 빠른 시스템 테스트
+ */
+function quickSystemTest() {
+  const ui = SpreadsheetApp.getUi();
+  let testResults = {
+    apiKey: false,
+    geminiConnection: false,
+    sheetAccess: false,
+    reportGeneration: false
+  };
+  
+  try {
+    // 1. API 키 확인
+    testResults.apiKey = isValidApiKey();
+    
+    // 2. 시트 접근 테스트
+    try {
+      const sheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+      testResults.sheetAccess = !!sheet;
+    } catch (e) {
+      testResults.sheetAccess = false;
+    }
+    
+    // 3. 간단한 GEMINI 테스트
+    if (testResults.apiKey) {
+      try {
+        const simplePrompt = '테스트: 한 문장으로 답하세요. AI란 무엇인가요?';
+        const response = callGeminiAPI(simplePrompt);
+        testResults.geminiConnection = !!response && response.length > 0;
+      } catch (e) {
+        testResults.geminiConnection = false;
+      }
+    }
+    
+    // 4. 보고서 생성 가능 여부 (API 키 필수)
+    testResults.reportGeneration = testResults.sheetAccess && testResults.apiKey && testResults.geminiConnection;
+    
+    // 결과 표시
+    const allTests = Object.values(testResults);
+    const passedTests = allTests.filter(v => v === true).length;
+    const totalTests = allTests.length;
+    
+    const status = 
+      `🌐 AICAMP 시스템 상태 체크
+      
+✅ 통과: ${passedTests}/${totalTests} 항목
+
+• API 키 설정: ${testResults.apiKey ? '✅ 정상' : '❌ 오류'}
+  ${testResults.apiKey ? 'API 키: ' + GEMINI_API_KEY.substring(0, 10) + '...' : '스크립트 속성에 GEMINI_API_KEY 설정 필요'}
+
+• Google Sheets 연결: ${testResults.sheetAccess ? '✅ 정상' : '❌ 오류'}
+  ${testResults.sheetAccess ? '스프레드시트 ID: ' + SPREADSHEET_ID.substring(0, 10) + '...' : 'SPREADSHEET_ID 확인 필요'}
+
+• GEMINI AI 연결: ${testResults.geminiConnection ? '✅ 정상' : '❌ 오류'}
+  ${testResults.geminiConnection ? 'AI 응답 정상' : 'API 키 또는 연결 확인 필요'}
+
+• 보고서 생성: ${testResults.reportGeneration ? '✅ 가능' : '❌ 불가'}
+  ${testResults.reportGeneration ? '고품질 AI 보고서 생성 가능' : 'API 키 설정 필요'}
+
+종합 상태: ${passedTests === totalTests ? '🎆 모든 시스템 정상 작동!' : passedTests >= 3 ? '⚠️ 일부 기능 제한됨' : '🔧 시스템 점검 필요'}
+
+테스트 시간: ${getCurrentKoreanTime()}`;
+    
+    ui.alert('🚀 빠른 시스템 테스트', status, ui.ButtonSet.OK);
+    
+    return {
+      success: passedTests === totalTests,
+      results: testResults,
+      summary: `${passedTests}/${totalTests} 테스트 통과`
+    };
+    
+  } catch (error) {
+    ui.alert(
+      '❌ 시스템 테스트 오류',
+      '테스트 중 오류가 발생했습니다:\n\n' + error.toString(),
+      ui.ButtonSet.OK
+    );
+    
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
 }

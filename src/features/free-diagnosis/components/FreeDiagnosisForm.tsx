@@ -12,12 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Building, MapPin, Target, Mail, User, Brain } from 'lucide-react';
+import { Loader2, Building, MapPin, Target, Mail, User, Brain, Cog, MessageSquare, CheckCircle } from 'lucide-react';
 import { submitDiagnosis } from '@/features/free-diagnosis/api';
 import { industryOptions, regionOptions, concernOptions } from '@/features/free-diagnosis/constants/options';
 import RatingScale from '@/components/ui/rating-scale';
 
-// 진단 신청 폼 스키마
+// 통합된 진단 신청 폼 스키마
 const diagnosisSchema = z.object({
   // 기본 정보
   companyName: z.string().min(2, '기업명을 입력해주세요').max(100, '100자 이내로 입력해주세요'),
@@ -26,87 +26,81 @@ const diagnosisSchema = z.object({
   industry: z.string().min(1, '업종을 선택해주세요'),
   customIndustry: z.string().optional(),
   region: z.string().min(1, '지역을 선택해주세요'),
-  
-  // 사업 정보
   businessContent: z.string()
     .min(20, '사업 내용을 20자 이상 작성해주세요')
     .max(1000, '1000자 이내로 작성해주세요'),
-  
-  // 경영 진단 정보
-  concerns: z.array(z.string()).min(1, '최소 1개 이상의 고민사항을 선택해주세요'),
-  customConcern: z.string().optional(),
-  expectations: z.string()
-    .min(20, '기대 효과를 20자 이상 작성해주세요')
-    .max(500, '500자 이내로 작성해주세요'),
-  
-  // 연락처
   email: z.string().email('올바른 이메일 주소를 입력해주세요'),
   phone: z.string().optional(),
-  
-  // 기업 규모 정보
   employeeCount: z.string().optional(),
   annualRevenue: z.string().optional(),
   businessHistory: z.string().optional(),
   
-  // AI 역량 진단 (5개 영역)
+  // AI 활용 역량 진단 - 필수 응답
   // 1. 경영진 리더십
-  ceoAIVision: z.number().min(1).max(5).optional(),        // CEO AI 비전
-  aiInvestment: z.number().min(1).max(5).optional(),       // AI 투자 의지
-  aiStrategy: z.number().min(1).max(5).optional(),         // AI 전략 수립
-  changeManagement: z.number().min(1).max(5).optional(),   // 변화 관리
-  riskTolerance: z.number().min(1).max(5).optional(),      // 리스크 수용도
+  ceoAIVision: z.number().min(1, 'CEO AI 비전 점수를 선택해주세요').max(5),
+  aiInvestment: z.number().min(1, 'AI 투자 의지 점수를 선택해주세요').max(5),
+  aiStrategy: z.number().min(1, 'AI 전략 수립 점수를 선택해주세요').max(5),
+  changeManagement: z.number().min(1, '변화 관리 점수를 선택해주세요').max(5),
+  riskTolerance: z.number().min(1, '리스크 수용도 점수를 선택해주세요').max(5),
   
   // 2. 인프라/시스템
-  itInfrastructure: z.number().min(1).max(5).optional(),   // IT 인프라
-  dataManagement: z.number().min(1).max(5).optional(),     // 데이터 관리
-  securityLevel: z.number().min(1).max(5).optional(),      // 보안 수준
-  aiToolsAdopted: z.number().min(1).max(5).optional(),     // AI 도구 도입
+  itInfrastructure: z.number().min(1, 'IT 인프라 점수를 선택해주세요').max(5),
+  dataManagement: z.number().min(1, '데이터 관리 점수를 선택해주세요').max(5),
+  securityLevel: z.number().min(1, '보안 수준 점수를 선택해주세요').max(5),
+  aiToolsAdopted: z.number().min(1, 'AI 도구 도입 점수를 선택해주세요').max(5),
   
   // 3. 직원 역량
-  digitalLiteracy: z.number().min(1).max(5).optional(),    // 디지털 리터러시
-  aiToolUsage: z.number().min(1).max(5).optional(),        // AI 도구 활용
-  learningAgility: z.number().min(1).max(5).optional(),    // 학습 민첩성
-  dataAnalysis: z.number().min(1).max(5).optional(),       // 데이터 분석 능력
+  digitalLiteracy: z.number().min(1, '디지털 리터러시 점수를 선택해주세요').max(5),
+  aiToolUsage: z.number().min(1, 'AI 도구 활용 점수를 선택해주세요').max(5),
+  learningAgility: z.number().min(1, '학습 민첩성 점수를 선택해주세요').max(5),
+  dataAnalysis: z.number().min(1, '데이터 분석 능력 점수를 선택해주세요').max(5),
   
   // 4. 조직 문화
-  innovationCulture: z.number().min(1).max(5).optional(),  // 혁신 문화
-  collaborationLevel: z.number().min(1).max(5).optional(), // 협업 수준
-  experimentCulture: z.number().min(1).max(5).optional(),  // 실험 문화
-  continuousLearning: z.number().min(1).max(5).optional(), // 지속 학습
+  innovationCulture: z.number().min(1, '혁신 문화 점수를 선택해주세요').max(5),
+  collaborationLevel: z.number().min(1, '협업 수준 점수를 선택해주세요').max(5),
+  experimentCulture: z.number().min(1, '실험 문화 점수를 선택해주세요').max(5),
+  continuousLearning: z.number().min(1, '지속 학습 점수를 선택해주세요').max(5),
   
   // 5. 실무 적용도
-  processAutomation: z.number().min(1).max(5).optional(),  // 프로세스 자동화
-  decisionMaking: z.number().min(1).max(5).optional(),     // 의사결정 활용
-  customerService: z.number().min(1).max(5).optional(),    // 고객 서비스 적용
+  processAutomation: z.number().min(1, '프로세스 자동화 점수를 선택해주세요').max(5),
+  decisionMaking: z.number().min(1, '의사결정 활용 점수를 선택해주세요').max(5),
+  customerService: z.number().min(1, '고객 서비스 활용 점수를 선택해주세요').max(5),
   
-  // 실무 역량 진단 (PDF 커리큘럼 기반)
+  // 실무 역량 진단 - 필수 응답
   // 업무 자동화 역량
-  rpaExperience: z.number().min(1).max(5).optional(),
-  workflowAutomation: z.number().min(1).max(5).optional(),
-  documentAutomation: z.number().min(1).max(5).optional(),
-  dataProcessing: z.number().min(1).max(5).optional(),
-  repetitiveTaskAuto: z.number().min(1).max(5).optional(),
+  rpaExperience: z.number().min(1, 'RPA 경험 점수를 선택해주세요').max(5),
+  workflowAutomation: z.number().min(1, '워크플로우 자동화 점수를 선택해주세요').max(5),
+  documentAutomation: z.number().min(1, '문서 자동화 점수를 선택해주세요').max(5),
+  dataProcessing: z.number().min(1, '데이터 처리 점수를 선택해주세요').max(5),
+  repetitiveTaskAuto: z.number().min(1, '반복 업무 자동화 점수를 선택해주세요').max(5),
   
   // 데이터 분석 실무
-  excelDataAnalysis: z.number().min(1).max(5).optional(),
-  dataVisualization: z.number().min(1).max(5).optional(),
-  basicStatistics: z.number().min(1).max(5).optional(),
-  reportGeneration: z.number().min(1).max(5).optional(),
-  insightExtraction: z.number().min(1).max(5).optional(),
+  excelDataAnalysis: z.number().min(1, '엑셀 데이터 분석 점수를 선택해주세요').max(5),
+  dataVisualization: z.number().min(1, '데이터 시각화 점수를 선택해주세요').max(5),
+  basicStatistics: z.number().min(1, '기초 통계 점수를 선택해주세요').max(5),
+  reportGeneration: z.number().min(1, '보고서 생성 점수를 선택해주세요').max(5),
+  insightExtraction: z.number().min(1, '인사이트 추출 점수를 선택해주세요').max(5),
   
   // AI 도구 활용
-  chatGPTUsage: z.number().min(1).max(5).optional(),
-  aiImageTools: z.number().min(1).max(5).optional(),
-  aiDataTools: z.number().min(1).max(5).optional(),
-  aiDocTools: z.number().min(1).max(5).optional(),
-  aiSearchTools: z.number().min(1).max(5).optional(),
+  chatGPTUsage: z.number().min(1, 'ChatGPT 사용 점수를 선택해주세요').max(5),
+  aiImageTools: z.number().min(1, 'AI 이미지 도구 점수를 선택해주세요').max(5),
+  aiDataTools: z.number().min(1, 'AI 데이터 도구 점수를 선택해주세요').max(5),
+  aiDocTools: z.number().min(1, 'AI 문서 도구 점수를 선택해주세요').max(5),
+  aiSearchTools: z.number().min(1, 'AI 검색 도구 점수를 선택해주세요').max(5),
   
   // 디지털 협업
-  cloudPlatforms: z.number().min(1).max(5).optional(),
-  projectManagement: z.number().min(1).max(5).optional(),
-  videoConference: z.number().min(1).max(5).optional(),
-  documentSharing: z.number().min(1).max(5).optional(),
-  teamCommunication: z.number().min(1).max(5).optional(),
+  cloudPlatforms: z.number().min(1, '클라우드 플랫폼 점수를 선택해주세요').max(5),
+  projectManagement: z.number().min(1, '프로젝트 관리 점수를 선택해주세요').max(5),
+  videoConference: z.number().min(1, '화상 회의 점수를 선택해주세요').max(5),
+  documentSharing: z.number().min(1, '문서 공유 점수를 선택해주세요').max(5),
+  teamCommunication: z.number().min(1, '팀 커뮤니케이션 점수를 선택해주세요').max(5),
+  
+  // 경영 진단 정보
+  concerns: z.array(z.string()).min(1, '최소 1개 이상의 주요 고민사항을 선택해주세요'),
+  customConcern: z.string().optional(),
+  expectations: z.string()
+    .min(20, '기대 효과를 20자 이상 작성해주세요')
+    .max(500, '500자 이내로 작성해주세요'),
   
   // 개인정보 동의
   agreeToTerms: z.boolean().refine(val => val === true, {
@@ -139,56 +133,55 @@ export const FreeDiagnosisForm: React.FC = () => {
       customIndustry: '',
       region: '',
       businessContent: '',
-      concerns: [],
-      customConcern: '',
-      expectations: '',
       email: '',
       phone: '',
       employeeCount: '',
       annualRevenue: '',
       businessHistory: '',
-      // AI 역량 진단 기본값
-      ceoAIVision: 3,
-      aiInvestment: 3,
-      aiStrategy: 3,
-      changeManagement: 3,
-      riskTolerance: 3,
-      itInfrastructure: 3,
-      dataManagement: 3,
-      securityLevel: 3,
-      aiToolsAdopted: 3,
-      digitalLiteracy: 3,
-      aiToolUsage: 3,
-      learningAgility: 3,
-      dataAnalysis: 3,
-      innovationCulture: 3,
-      collaborationLevel: 3,
-      experimentCulture: 3,
-      continuousLearning: 3,
-      processAutomation: 3,
-      decisionMaking: 3,
-      customerService: 3,
-      // 실무 역량 진단 기본값
-      rpaExperience: 3,
-      workflowAutomation: 3,
-      documentAutomation: 3,
-      dataProcessing: 3,
-      repetitiveTaskAuto: 3,
-      excelDataAnalysis: 3,
-      dataVisualization: 3,
-      basicStatistics: 3,
-      reportGeneration: 3,
-      insightExtraction: 3,
-      chatGPTUsage: 3,
-      aiImageTools: 3,
-      aiDataTools: 3,
-      aiDocTools: 3,
-      aiSearchTools: 3,
-      cloudPlatforms: 3,
-      projectManagement: 3,
-      videoConference: 3,
-      documentSharing: 3,
-      teamCommunication: 3,
+      // AI/실무 역량 진단 - 필수 선택 (기본값 없음)
+      ceoAIVision: undefined,
+      aiInvestment: undefined,
+      aiStrategy: undefined,
+      changeManagement: undefined,
+      riskTolerance: undefined,
+      itInfrastructure: undefined,
+      dataManagement: undefined,
+      securityLevel: undefined,
+      aiToolsAdopted: undefined,
+      digitalLiteracy: undefined,
+      aiToolUsage: undefined,
+      learningAgility: undefined,
+      dataAnalysis: undefined,
+      innovationCulture: undefined,
+      collaborationLevel: undefined,
+      experimentCulture: undefined,
+      continuousLearning: undefined,
+      processAutomation: undefined,
+      decisionMaking: undefined,
+      customerService: undefined,
+      rpaExperience: undefined,
+      workflowAutomation: undefined,
+      documentAutomation: undefined,
+      dataProcessing: undefined,
+      repetitiveTaskAuto: undefined,
+      excelDataAnalysis: undefined,
+      dataVisualization: undefined,
+      basicStatistics: undefined,
+      reportGeneration: undefined,
+      insightExtraction: undefined,
+      chatGPTUsage: undefined,
+      aiImageTools: undefined,
+      aiDataTools: undefined,
+      aiDocTools: undefined,
+      aiSearchTools: undefined,
+      cloudPlatforms: undefined,
+      projectManagement: undefined,
+      videoConference: undefined,
+      documentSharing: undefined,
+      teamCommunication: undefined,
+      concerns: [],
+      customConcern: '',
+      expectations: '',
       agreeToTerms: false
     }
   });
@@ -265,15 +258,16 @@ export const FreeDiagnosisForm: React.FC = () => {
       
       <CardContent className="p-6 lg:p-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* 기본 정보 섹션 */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+            
+            {/* 1. 기본 정보 섹션 */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Building className="w-5 h-5 text-gray-600" />
-                기본 정보
+              <h3 className="text-xl font-semibold flex items-center gap-2 border-b pb-2">
+                <Building className="w-6 h-6 text-blue-600" />
+                1. 기본 정보
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="companyName"
@@ -341,24 +335,16 @@ export const FreeDiagnosisForm: React.FC = () => {
                   )}
                 />
                 
-                {/* 업종 직접입력 필드 (조건부 표시) */}
                 {selectedIndustry === 'custom' && (
                   <FormField
                     control={form.control}
                     name="customIndustry"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>업종 직접입력 <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>기타 업종 입력 <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="예: 스마트팜, 드론제조, 블록체인, NFT, 메타버스, K-뷰티 등" 
-                            {...field}
-                            maxLength={50}
-                          />
+                          <Input placeholder="업종을 직접 입력해주세요" {...field} />
                         </FormControl>
-                        <FormDescription className="text-sm text-gray-600">
-                          💡 위 선택지에 없는 특수한 업종이나 신산업 분야를 정확히 입력해주세요 (최대 50자)
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -404,15 +390,21 @@ export const FreeDiagnosisForm: React.FC = () => {
                     </FormItem>
                   )}
                 />
+                
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>연락처</FormLabel>
+                      <FormControl>
+                        <Input placeholder="010-1234-5678" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            </div>
-
-            {/* 사업 내용 섹션 */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Target className="w-5 h-5 text-gray-600" />
-                사업 내용
-              </h3>
               
               <FormField
                 control={form.control}
@@ -435,14 +427,6 @@ export const FreeDiagnosisForm: React.FC = () => {
                   </FormItem>
                 )}
               />
-            </div>
-
-            {/* 기업 규모 정보 섹션 */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Building className="w-5 h-5 text-gray-600" />
-                기업 규모 정보
-              </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
@@ -522,327 +506,652 @@ export const FreeDiagnosisForm: React.FC = () => {
               </div>
             </div>
 
-            {/* AI 역량 진단 섹션 */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Brain className="w-5 h-5 text-gray-600" />
-                AI 활용 역량 진단
+            {/* 2. AI 및 실무 역량 진단 통합 섹션 */}
+            <div className="space-y-8">
+              <h3 className="text-xl font-semibold flex items-center gap-2 border-b pb-2">
+                <Brain className="w-6 h-6 text-purple-600" />
+                2. AI 및 실무 역량 진단 <span className="text-red-500 text-sm">*모든 항목 필수</span>
               </h3>
-              <p className="text-sm text-gray-600">
-                각 항목에 대해 현재 귀사의 수준을 1-5점으로 평가해주세요. (1점: 매우 낮음, 5점: 매우 높음)
+              <p className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
+                각 항목에 대해 현재 귀사의 수준을 1-5점으로 평가해주세요.<br/>
+                <strong>1점: 매우 낮음/경험 없음</strong> | <strong>3점: 보통</strong> | <strong>5점: 매우 높음/전문가 수준</strong>
               </p>
               
-              {/* 1. 경영진 리더십 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">1. 경영진 리더십</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="ceoAIVision"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="CEO의 AI 비전과 추진 의지"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="aiInvestment"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="AI 투자 의지와 예산 확보"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="aiStrategy"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="AI 전략 수립 수준"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="changeManagement"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="변화 관리 역량"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="riskTolerance"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="리스크 수용도"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
+              {/* 2-1. AI 활용 역량 */}
+              <div className="space-y-6">
+                <h4 className="text-lg font-medium text-purple-700 flex items-center gap-2">
+                  <Brain className="w-5 h-5" />
+                  2-1. AI 활용 역량
+                </h4>
+                
+                {/* 경영진 리더십 */}
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">① 경영진 리더십</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="ceoAIVision"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="CEO의 AI 비전과 추진 의지"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiInvestment"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 투자 의지와 예산 확보"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiStrategy"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 전략 수립 수준"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="changeManagement"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="변화 관리 역량"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="riskTolerance"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="리스크 수용도"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* 인프라/시스템 */}
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">② 인프라/시스템</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="itInfrastructure"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="IT 인프라 수준"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="dataManagement"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="데이터 관리 체계"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="securityLevel"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="보안 수준"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiToolsAdopted"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 도구 도입 현황"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* 직원 역량 */}
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">③ 직원 역량</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="digitalLiteracy"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="디지털 리터러시"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiToolUsage"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 도구 활용 능력"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="learningAgility"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="학습 민첩성"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="dataAnalysis"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="데이터 분석 능력"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* 조직 문화 */}
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">④ 조직 문화</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="innovationCulture"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="혁신 문화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="collaborationLevel"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="협업 수준"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="experimentCulture"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="실험 문화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="continuousLearning"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="지속적 학습 문화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                
+                {/* 실무 적용도 */}
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">⑤ 실무 적용도</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="processAutomation"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="프로세스 자동화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="decisionMaking"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="데이터 기반 의사결정"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="customerService"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="고객 서비스 AI 적용"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
               
-              {/* 2. 인프라/시스템 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">2. 인프라/시스템</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="itInfrastructure"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="IT 인프라 수준"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="dataManagement"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="데이터 관리 체계"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="securityLevel"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="보안 수준"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="aiToolsAdopted"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="AI 도구 도입 수준"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
+              {/* 2-2. 실무 역량 */}
+              <div className="space-y-6">
+                <h4 className="text-lg font-medium text-purple-700 flex items-center gap-2">
+                  <Cog className="w-5 h-5" />
+                  2-2. 실무 역량
+                </h4>
+                
+                {/* 업무 자동화 역량 */}
+                <div className="space-y-4 bg-orange-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">① 업무 자동화 역량</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="rpaExperience"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="RPA 경험"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="workflowAutomation"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="워크플로우 자동화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="documentAutomation"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="문서 자동화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="dataProcessing"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="데이터 처리 자동화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="repetitiveTaskAuto"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="반복 업무 자동화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              {/* 3. 직원 역량 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">3. 직원 역량</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="digitalLiteracy"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="디지털 리터러시"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="aiToolUsage"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="AI 도구 활용 능력"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="learningAgility"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="학습 민첩성"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="dataAnalysis"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="데이터 분석 능력"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
+                
+                {/* 데이터 분석 실무 */}
+                <div className="space-y-4 bg-orange-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">② 데이터 분석 실무</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="excelDataAnalysis"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="엑셀 데이터 분석"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="dataVisualization"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="데이터 시각화"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="basicStatistics"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="기초 통계 분석"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="reportGeneration"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="보고서 생성"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="insightExtraction"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="인사이트 추출"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              {/* 4. 조직 문화 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">4. 조직 문화</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="innovationCulture"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="혁신 문화"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="collaborationLevel"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="협업 수준"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="experimentCulture"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="실험 문화"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="continuousLearning"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="지속 학습 문화"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
+                
+                {/* AI 도구 활용 */}
+                <div className="space-y-4 bg-orange-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">③ AI 도구 활용</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="chatGPTUsage"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="ChatGPT 활용"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiImageTools"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 이미지 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiDataTools"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 데이터 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiDocTools"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 문서 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="aiSearchTools"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="AI 검색 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              {/* 5. 실무 적용도 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">5. 실무 적용도</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="processAutomation"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="프로세스 자동화"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="decisionMaking"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="AI 기반 의사결정"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="customerService"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="고객 서비스 AI 활용"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
+                
+                {/* 디지털 협업 */}
+                <div className="space-y-4 bg-orange-50 p-4 rounded-lg">
+                  <h5 className="font-medium text-gray-700">④ 디지털 협업</h5>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="cloudPlatforms"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="클라우드 플랫폼"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="projectManagement"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="프로젝트 관리 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="videoConference"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="화상 회의 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="documentSharing"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="문서 공유 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="teamCommunication"
+                      render={({ field }) => (
+                        <RatingScale
+                          label="팀 커뮤니케이션 도구"
+                          value={field.value}
+                          onChange={field.onChange}
+                          required
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* 경영 진단 정보 섹션 */}
+            {/* 3. 주요 고민사항 */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold">주요 고민사항</h3>
+              <h3 className="text-xl font-semibold flex items-center gap-2 border-b pb-2">
+                <MessageSquare className="w-6 h-6 text-green-600" />
+                3. 주요 고민사항 <span className="text-red-500">*</span>
+              </h3>
               
               <FormField
                 control={form.control}
                 name="concerns"
                 render={() => (
                   <FormItem>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormLabel>현재 경영상 가장 큰 고민은 무엇인가요? (복수 선택 가능)</FormLabel>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {concernOptions.map((item) => (
                         <FormField
-                          key={item.id}
+                          key={item.value}
                           control={form.control}
                           name="concerns"
                           render={({ field }) => {
                             return (
                               <FormItem
-                                key={item.id}
+                                key={item.value}
                                 className="flex flex-row items-start space-x-3 space-y-0"
                               >
                                 <FormControl>
                                   <Checkbox
-                                    checked={field.value?.includes(item.id)}
+                                    checked={field.value?.includes(item.value)}
                                     onCheckedChange={(checked) => {
                                       return checked
-                                        ? field.onChange([...field.value, item.id])
+                                        ? field.onChange([...field.value, item.value])
                                         : field.onChange(
                                             field.value?.filter(
-                                              (value) => value !== item.id
+                                              (value) => value !== item.value
                                             )
-                                          );
+                                          )
                                     }}
                                   />
                                 </FormControl>
-                                <FormLabel className="font-normal cursor-pointer">
+                                <FormLabel className="text-sm font-normal">
                                   {item.label}
                                 </FormLabel>
                               </FormItem>
-                            );
+                            )
                           }}
                         />
                       ))}
@@ -851,30 +1160,51 @@ export const FreeDiagnosisForm: React.FC = () => {
                   </FormItem>
                 )}
               />
+            </div>
+
+            {/* 4. 기타 고민사항 */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold flex items-center gap-2 border-b pb-2">
+                <MessageSquare className="w-6 h-6 text-yellow-600" />
+                4. 기타 고민사항
+              </h3>
               
               <FormField
                 control={form.control}
                 name="customConcern"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>기타 고민사항</FormLabel>
+                    <FormLabel>위 항목 외 추가 고민사항이 있으시면 작성해주세요</FormLabel>
                     <FormControl>
-                      <Input placeholder="위 항목 외 고민사항이 있으시면 작성해주세요" {...field} />
+                      <Textarea 
+                        placeholder="위 선택지에 없는 고민사항이나 구체적인 상황을 자유롭게 작성해주세요."
+                        className="min-h-[100px]"
+                        {...field}
+                      />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
+            </div>
+
+            {/* 5. 기대 효과 */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold flex items-center gap-2 border-b pb-2">
+                <Target className="w-6 h-6 text-blue-600" />
+                5. 기대 효과 <span className="text-red-500">*</span>
+              </h3>
               
               <FormField
                 control={form.control}
                 name="expectations"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>기대 효과 <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>이번 진단을 통해 얻고자 하는 구체적인 목표나 기대효과를 작성해주세요</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="진단을 통해 얻고자 하는 구체적인 목표나 기대효과를 작성해주세요.&#10;예) 디지털 전환 로드맵 수립, 매출 증대 방안 모색"
-                        className="min-h-[100px]"
+                        placeholder="진단을 통해 얻고자 하는 구체적인 목표나 기대효과를 작성해주세요.&#10;예) 디지털 전환 로드맵 수립, 매출 증대 방안 모색, AI 도입 우선순위 파악"
+                        className="min-h-[120px]"
                         {...field}
                       />
                     </FormControl>
@@ -888,159 +1218,71 @@ export const FreeDiagnosisForm: React.FC = () => {
               />
             </div>
 
-            {/* 실무 역량 진단 섹션 - PDF 커리큘럼 기반 */}
+            {/* 6. 개인정보 동의 */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Brain className="w-5 h-5 text-gray-600" />
-                실무 역량 진단 (선택사항)
+              <h3 className="text-xl font-semibold flex items-center gap-2 border-b pb-2">
+                <CheckCircle className="w-6 h-6 text-red-600" />
+                6. 개인정보 처리 동의 <span className="text-red-500">*</span>
               </h3>
-              <p className="text-sm text-gray-600">
-                보다 정확한 맞춤형 커리큘럼 제공을 위해 현재 실무 역량을 평가해주세요.
-              </p>
               
-              {/* 1. 업무 자동화 역량 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">1. 업무 자동화 역량</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="rpaExperience"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="RPA(업무자동화) 도구 활용 경험"
-                        value={field.value}
-                        onChange={field.onChange}
+              <FormField
+                control={form.control}
+                name="agreeToTerms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
                       />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="workflowAutomation"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="업무 프로세스 자동화 수준"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-              
-              {/* 2. 데이터 분석 실무 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">2. 데이터 분석 실무</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="excelDataAnalysis"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="엑셀 데이터 분석 능력"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="dataVisualization"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="데이터 시각화 능력"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-              
-              {/* 3. AI 도구 활용 */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700">3. AI 도구 활용 역량</h4>
-                <div className="space-y-4 pl-4">
-                  <FormField
-                    control={form.control}
-                    name="chatGPTUsage"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="ChatGPT/Claude 등 AI 활용도"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="aiImageTools"
-                    render={({ field }) => (
-                      <RatingScale
-                        label="AI 이미지 생성 도구 활용"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-base">
+                        개인정보 수집 및 이용에 동의합니다 <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormDescription className="text-sm text-gray-600">
+                        수집항목: 기업명, 대표자명, 연락처, 이메일 등<br/>
+                        이용목적: AI 경영진단 서비스 제공 및 결과 발송<br/>
+                        보유기간: 서비스 완료 후 1년
+                        <br/>
+                        <a 
+                          href="/privacy" 
+                          target="_blank" 
+                          className="text-blue-600 hover:underline"
+                        >
+                          개인정보 수집 및 이용 상세내용 보기 →
+                        </a>
+                      </FormDescription>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* 개인정보 동의 */}
-            <FormField
-              control={form.control}
-              name="agreeToTerms"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      개인정보 수집 및 이용에 동의합니다 <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormDescription>
-                      진단 결과 발송 및 서비스 제공을 위해 필요한 최소한의 정보만 수집합니다.
-                      <br />
-                      <a 
-                        href="/privacy/enhanced" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline text-sm font-medium"
-                      >
-                        개인정보 수집 및 이용 상세내용 보기 →
-                      </a>
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-
             {/* 제출 버튼 */}
-            <Button 
-              type="submit" 
-              size="lg"
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  진단 신청 중...
-                </>
-              ) : (
-                '무료 진단 신청하기'
-              )}
-            </Button>
+            <div className="flex justify-center pt-6">
+              <Button 
+                type="submit" 
+                size="lg" 
+                disabled={isSubmitting}
+                className="w-full max-w-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 text-lg"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    진단 신청 처리 중...
+                  </>
+                ) : (
+                  '🚀 무료 AI 경영진단 신청하기'
+                )}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
     </Card>
   );
 };
+
+export default FreeDiagnosisForm;
