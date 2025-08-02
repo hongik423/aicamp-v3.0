@@ -998,6 +998,7 @@ export async function POST(request: NextRequest) {
     const response = {
       success: true,
       message: responseMessage,
+      diagnosisId: resultId, // 진단 ID 추가
       
       // 🎯 CompleteDiagnosisResults 컴포넌트가 기대하는 데이터 구조
       data: {
