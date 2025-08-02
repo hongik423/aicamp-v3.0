@@ -222,7 +222,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     
     try {
       toast({
-        title: "📋 AI 무료진단 접수 중...",
+        title: "📋 AI 역량진단 접수 중...",
         description: "진단 결과를 저장하고 접수 확인 메일을 발송하고 있습니다.",
         duration: 4000,
       });
@@ -247,7 +247,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       if (result.success) {
         toast({
           title: "🎉 접수 완료!",
-          description: "AI 무료진단 접수가 완료되었습니다. 접수 확인 메일을 확인해주세요.",
+          description: "AI 역량진단 접수가 완료되었습니다. 접수 확인 메일을 확인해주세요.",
           duration: 6000,
         });
       } else {
@@ -273,7 +273,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       {/* 헤더 */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          🎉 AI 무료진단 결과
+                      🎉 AI 역량진단 결과
         </h1>
         <p className="text-gray-600">
           <strong>{companyName}</strong>의 종합 진단 결과입니다
@@ -380,7 +380,7 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           ) : (
             <>
               <Mail className="w-5 h-5" />
-              📋 AI 무료진단 접수 신청
+              📋 AI 역량진단 접수 신청
             </>
           )}
         </Button>

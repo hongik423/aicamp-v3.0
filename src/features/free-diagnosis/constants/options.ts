@@ -1,5 +1,5 @@
 /**
- * AICAMP 무료 AI 경영진단 시스템 - 옵션 상수
+ * AICAMP AI 역량진단 시스템 - 옵션 상수
  */
 
 // 업종 옵션 (확장된 버전)
@@ -106,16 +106,16 @@ export const regionOptions = [
 
 // 주요 고민사항 옵션
 export const concernOptions = [
-  { id: 'digital_transformation', label: '디지털 전환' },
-  { id: 'sales_growth', label: '매출 성장' },
-  { id: 'cost_reduction', label: '비용 절감' },
-  { id: 'market_expansion', label: '시장 확대' },
-  { id: 'talent_management', label: '인재 관리' },
-  { id: 'process_improvement', label: '프로세스 개선' },
-  { id: 'customer_satisfaction', label: '고객 만족도 향상' },
-  { id: 'investment_funding', label: '투자/자금 조달' },
-  { id: 'new_business', label: '신사업 개발' },
-  { id: 'compliance', label: '규제 대응' },
-  { id: 'sustainability', label: 'ESG/지속가능경영' },
-  { id: 'global_expansion', label: '해외 진출' }
+  { value: 'digital_transformation', label: '디지털 전환' },
+  { value: 'sales_growth', label: '매출 성장' },
+  { value: 'cost_reduction', label: '비용 절감' },
+  { value: 'market_expansion', label: '시장 확대' },
+  { value: 'talent_management', label: '인재 관리' },
+  { value: 'process_improvement', label: '프로세스 개선' },
+  { value: 'customer_satisfaction', label: '고객 만족도 향상' },
+  { value: 'investment_funding', label: '투자/자금 조달' },
+  { value: 'new_business', label: '신사업 개발' },
+  { value: 'compliance', label: '규제 대응' },
+  { value: 'sustainability', label: 'ESG/지속가능경영' },
+  { value: 'global_expansion', label: '해외 진출' }
 ] as const;

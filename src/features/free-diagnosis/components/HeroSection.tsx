@@ -10,8 +10,8 @@ export const HeroSection: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-            AI가 분석하는<br />
-            <span className="text-gray-600">최고수준 경영진단</span>
+            이후경 교장이 분석하는<br />
+            <span className="text-gray-600">조직 AI 역량진단</span>
           </h1>
           <p className="text-lg lg:text-xl text-gray-700 mb-8 leading-relaxed">
             28년 전문가 경험과 최신 AI 기술의 만남<br />

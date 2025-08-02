@@ -1,5 +1,5 @@
 /**
- * AICAMP 무료 AI 경영진단 시스템 - API 함수
+ * AICAMP AI 역량진단 시스템 - API 함수
  */
 
 import { getGasUrl } from '@/lib/config/env';

@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 /**
- * AICAMP 무료 AI 경영진단 결과 페이지
+ * AICAMP AI 역량진단 결과 페이지
  */
 export default function DiagnosisResultPage() {
   const params = useParams();

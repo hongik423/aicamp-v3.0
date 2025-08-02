@@ -8,7 +8,7 @@ import { ValueProposition } from '@/features/free-diagnosis/components/ValueProp
 import { CTASection } from '@/features/free-diagnosis/components/CTASection';
 
 /**
- * AICAMP 무료 AI 경영진단 메인 페이지
+ * AICAMP AI 역량진단 메인 페이지
  * PRD 기반 완전 재구축 버전
  */
 export default function DiagnosisPage() {

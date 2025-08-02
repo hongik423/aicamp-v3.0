@@ -61,7 +61,7 @@ const ServiceCard = ({ title, description, icon, href, badge, features }: Servic
 export default async function ServicesPage() {
   const services: ServiceProps[] = [
     {
-      title: 'AI 무료진단',
+      title: 'AI 역량진단',
       description: 'GEMINI 2.5 Flash Model로 기업 AI 활용도를 정밀 진단하세요',
       icon: <Brain className="h-6 w-6 text-blue-600" />,
       href: '/diagnosis',
@@ -179,7 +179,7 @@ export default async function ServicesPage() {
         {/* CTA Section */}
         <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-4">
-            🤖 GEMINI 2.5 Flash AI 무료진단으로 시작하세요!
+            🤖 GEMINI 2.5 Flash AI 역량진단으로 시작하세요!
           </h2>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
             최신 GEMINI 2.5 Flash Model로 기업의 AI 활용도를 정밀 분석하고, 

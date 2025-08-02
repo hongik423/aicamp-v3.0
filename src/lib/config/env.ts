@@ -135,7 +135,7 @@ export function getGeminiKey(): string {
 }
 
 /**
- * Google Apps Script URL 가져오기 (무료 AI 진단용)
+    * Google Apps Script URL 가져오기 (AI 역량진단용)
  */
 export function getGasUrl(): string {
   const url = process.env.NEXT_PUBLIC_GAS_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL;

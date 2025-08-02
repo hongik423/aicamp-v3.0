@@ -16,6 +16,7 @@ import { Loader2, Building, MapPin, Target, Mail, User, Brain, Cog, MessageSquar
 import { submitDiagnosis } from '@/features/free-diagnosis/api';
 import { industryOptions, regionOptions, concernOptions } from '@/features/free-diagnosis/constants/options';
 import RatingScale from '@/components/ui/rating-scale';
+import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
 
 // 통합된 진단 신청 폼 스키마
 const diagnosisSchema = z.object({
@@ -121,6 +122,15 @@ type DiagnosisFormData = z.infer<typeof diagnosisSchema>;
 
 export const FreeDiagnosisForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [diagnosisResult, setDiagnosisResult] = useState<{
+    diagnosisId?: string;
+    companyName?: string;
+    email?: string;
+    hasError?: boolean;
+    errorMessage?: string;
+    errorStep?: string;
+  }>({});
   const { toast } = useToast();
   
   const form = useForm<DiagnosisFormData>({
@@ -197,60 +207,77 @@ export const FreeDiagnosisForm: React.FC = () => {
     try {
       setIsSubmitting(true);
       
+      // 진행상황 모달 열기
+      setDiagnosisResult({
+        companyName: data.companyName,
+        email: data.email
+      });
+      setShowProgressModal(true);
+      
       // API 호출
       const result = await submitDiagnosis(data);
       
       if (result.success) {
+        // 진단 ID 업데이트
+        setDiagnosisResult(prev => ({
+          ...prev,
+          diagnosisId: result.diagnosisId
+        }));
+        
         // 타임아웃이나 재시도 상황인 경우
         if (result.isTimeout || result.isRetry) {
-          toast({
-            title: '📨 진단 신청 접수 완료',
-            description: `${result.message} 예상 소요 시간: ${result.estimatedTime || '5-10분'}`,
-          });
-          
-          // 홈페이지로 이동 (결과 페이지는 아직 생성되지 않았으므로)
-          window.location.href = '/';
+          // 모달은 그대로 두고 완료 상태로 표시
           return;
         }
         
-        // 정상 처리된 경우
-        toast({
-          title: '진단 신청이 완료되었습니다!',
-          description: '5-10분 내에 진단 결과를 이메일로 발송해드립니다.',
-        });
-        
-        // 진단 ID가 있는 경우에만 결과 페이지로 이동
-        if (result.diagnosisId && result.diagnosisId !== 'undefined') {
-          window.location.href = `/diagnosis/result/${result.diagnosisId}`;
-        } else {
-          // 진단 ID가 없으면 홈으로 이동하고 이메일 안내
-          toast({
-            title: '📧 이메일로 결과를 확인해주세요',
-            description: '진단 결과가 준비되면 이메일로 상세 보고서를 보내드립니다.',
-            duration: 5000,
-          });
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 2000);
-        }
+        // 정상 처리된 경우 - 모달에서 완료 상태 표시
       } else {
-        throw new Error(result.message || '진단 신청 중 오류가 발생했습니다');
+        // 오류 발생시 모달에 오류 정보 설정
+        setDiagnosisResult(prev => ({
+          ...prev,
+          hasError: true,
+          errorMessage: result.message || '진단 신청 중 오류가 발생했습니다',
+          errorStep: 'validation' // API 호출 자체 실패는 검증 단계로 분류
+        }));
+        return; // 모달은 계속 열어두고 오류 상태 표시
       }
     } catch (error) {
-      toast({
-        title: '진단 신청 실패',
-        description: error instanceof Error ? error.message : '잠시 후 다시 시도해주세요.',
-        variant: 'destructive'
-      });
+      // 네트워크 오류 등 예외 상황
+      const errorMessage = error instanceof Error ? error.message : '네트워크 오류가 발생했습니다';
+      
+      setDiagnosisResult(prev => ({
+        ...prev,
+        hasError: true,
+        errorMessage: errorMessage,
+        errorStep: 'validation'
+      }));
+      
+      // 모달이 열려있지 않으면 토스트로 표시
+      if (!showProgressModal) {
+        toast({
+          title: '진단 신청 실패',
+          description: errorMessage,
+          variant: 'destructive'
+        });
+        setShowProgressModal(false);
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleProgressModalClose = () => {
+    setShowProgressModal(false);
+    // 모달이 닫히면 홈으로 이동
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 500);
+  };
+
   return (
     <Card id="diagnosis-form" className="max-w-4xl mx-auto">
       <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
-        <CardTitle className="text-2xl lg:text-3xl text-center">무료 AI 경영진단 신청</CardTitle>
+        <CardTitle className="text-2xl lg:text-3xl text-center">AI 역량진단 신청</CardTitle>
         <CardDescription className="text-center text-lg">
           귀사의 정보를 입력해주시면 맞춤형 경영진단 보고서를 제공해드립니다
         </CardDescription>
@@ -1275,13 +1302,25 @@ export const FreeDiagnosisForm: React.FC = () => {
                     진단 신청 처리 중...
                   </>
                 ) : (
-                  '🚀 무료 AI 경영진단 신청하기'
+                  '🚀 AI 역량진단 신청하기'
                 )}
               </Button>
             </div>
           </form>
         </Form>
       </CardContent>
+
+      {/* 진행상황 모달 */}
+      <DiagnosisProgressModal
+        isOpen={showProgressModal}
+        onClose={handleProgressModalClose}
+        diagnosisId={diagnosisResult.diagnosisId}
+        companyName={diagnosisResult.companyName}
+        email={diagnosisResult.email}
+        hasError={diagnosisResult.hasError}
+        errorMessage={diagnosisResult.errorMessage}
+        errorStep={diagnosisResult.errorStep}
+      />
     </Card>
   );
 };

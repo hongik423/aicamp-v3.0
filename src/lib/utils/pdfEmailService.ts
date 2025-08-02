@@ -1,6 +1,6 @@
 /**
  * 📧 PDF 이메일 발송 서비스
- * AI 무료진단 결과보고서를 PDF로 생성해서 이메일로 발송하는 통합 서비스
+ * AI 역량진단 결과보고서를 PDF로 생성해서 이메일로 발송하는 통합 서비스
  * 
  * ✅ 주요 기능:
  * 1. 진단 결과를 HTML로 변환
@@ -60,7 +60,7 @@ function generateDiagnosisReportHTML(data: DiagnosisReportData): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 무료진단 결과보고서 - ${data.companyName}</title>
+    <title>AI 역량진단 결과보고서 - ${data.companyName}</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
         
@@ -458,7 +458,7 @@ function generateDiagnosisReportHTML(data: DiagnosisReportData): string {
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 AI 무료진단 결과보고서</h1>
+            <h1>🤖 AI 역량진단 결과보고서</h1>
             <div class="subtitle">AICAMP AI 교육센터 - 전문 기업 진단 서비스</div>
             <div style="color: #666; font-size: 14px;">진단일: ${data.diagnosisDate}</div>
         </div>
