@@ -1,5 +1,5 @@
 /**
- * AICAMP 무료 AI 경영진단 API 엔드포인트
+ * AICAMP AI 역량진단 API 엔드포인트
  * Google Apps Script와 연동하여 진단 신청을 처리합니다
  */
 

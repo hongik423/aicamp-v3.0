@@ -129,7 +129,7 @@ const GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
  */
 export async function saveDiagnosisToGoogleSheets(
   data: DiagnosisFormData,
-  formType: string = 'AI_무료진단'
+  formType: string = 'AI_역량진단'
 ): Promise<GoogleSheetsResponse> {
   try {
     const envCheck = validateEnvironment();

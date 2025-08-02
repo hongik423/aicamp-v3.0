@@ -9,7 +9,7 @@ const siteMapData = [
     category: '메인 서비스',
     links: [
       { title: '홈페이지', url: '/' },
-      { title: '무료 AI 진단', url: '/diagnosis' },
+      { title: 'AI 역량진단', url: '/diagnosis' },
       { title: '챗봇', url: '/chatbot' },
       { title: '상담 신청', url: '/consultation' },
       { title: '회사 소개', url: '/about' },
@@ -25,7 +25,7 @@ const siteMapData = [
       { title: '기술사업화/기술창업', url: '/services/tech-startup' },
       { title: '인증지원', url: '/services/certification' },
       { title: '웹사이트 구축', url: '/services/website' },
-      { title: 'AI 무료진단', url: '/diagnosis' }
+      { title: 'AI 역량진단', url: '/diagnosis' }
     ]
   },
   {

@@ -123,7 +123,7 @@ const contentData: ContentItem[] = [
   // 주요 액션
   {
     id: 'diagnosis',
-    title: 'AI 무료진단',
+    title: 'AI 역량진단',
     subtitle: 'GEMINI 2.5 Flash, 즉시 결과',
     description: 'AI 활용도 정밀분석으로 맞춤형 전략 제공',
     icon: Target,
@@ -440,7 +440,7 @@ const AICampContentGuide: React.FC = () => {
                   <Link href="/diagnosis" className="flex-1">
                     <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2">
                       <Target className="w-5 h-5" />
-                      <span>3분 무료 AI 진단</span>
+                      <span>3분 AI 역량진단</span>
                     </button>
                   </Link>
                   <Link href="/consultation" className="flex-1">

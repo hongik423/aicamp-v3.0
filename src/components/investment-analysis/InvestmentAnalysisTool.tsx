@@ -21,11 +21,11 @@ import {
   MessageCircle
 } from 'lucide-react';
 import Link from 'next/link';
-import { 
-  InvestmentInput, 
-  InvestmentResult, 
+import {
+  InvestmentInput,
+  InvestmentResult,
   InvestmentGrade,
-  AIEvaluation 
+  AIEvaluation
 } from '@/types/investment.types';
 import { performInvestmentAnalysis } from '@/lib/utils/investment-analysis';
 import { calculateInvestmentGrade } from '@/lib/utils/investment-grade';
@@ -39,7 +39,6 @@ import DSCRChart from './DSCRChart';
 import InvestmentRadarChart from './InvestmentRadarChart';
 import InvestmentScoreBreakdown from './InvestmentScoreBreakdown';
 import ComprehensiveFinancialTable from './ComprehensiveFinancialTable';
-import Link from 'next/link';
 
 export default function InvestmentAnalysisTool() {
   // 초기 입력값 설정 - useMemo로 안정화

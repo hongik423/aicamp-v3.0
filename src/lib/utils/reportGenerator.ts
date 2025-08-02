@@ -305,7 +305,7 @@ export class VisualReportGenerator {
             <div class="header-content">
               <div class="logo">🎯</div>
               <div class="company-name">${data.companyName}</div>
-              <div class="report-title">AI 무료진단 결과보고서</div>
+              <div class="report-title">AI 역량진단 결과보고서</div>
               <div class="report-date">${new Date(data.timestamp).toLocaleDateString('ko-KR')} 발행</div>
             </div>
           </div>
@@ -501,7 +501,7 @@ export class VisualReportGenerator {
           <div class="header">
             <div class="logo">🎯</div>
             <div class="company-name">${data.companyName}</div>
-            <div class="subtitle">AI 무료진단 결과가 도착했습니다!</div>
+            <div class="subtitle">AI 역량진단 결과가 도착했습니다!</div>
           </div>
           
           <div class="content">
@@ -595,7 +595,7 @@ export class VisualReportGenerator {
           <div class="header">
             <div class="logo">🎯</div>
             <div class="company-name">${data.companyName}</div>
-            <div style="opacity: 0.9; font-size: 12px;">AI 무료진단 결과</div>
+            <div style="opacity: 0.9; font-size: 12px;">AI 역량진단 결과</div>
           </div>
           
           <div class="content">
