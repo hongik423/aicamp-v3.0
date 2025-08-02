@@ -106,7 +106,7 @@ const Header = () => {
 
   // 네비게이션 아이템 정의 - 고객 중심 메뉴 구성 (전환율 최적화)
   const navigationItems = [
-    { href: '/services/diagnosis', label: 'AI진단', icon: Zap, isSpecial: true, badge: '무료' },
+    { href: '/diagnosis-form', label: 'AI진단', icon: Zap, isSpecial: true, badge: '무료' },
     { href: '/services', label: 'AI서비스', icon: Rocket, isSpecial: false, badge: '인기' },
     { href: '/services/ai-curriculum', label: 'AI교육', icon: Brain, isSpecial: false, badge: 'NEW' },
     { href: '/services/policy-funding', label: '정책자금', icon: DollarSign, isSpecial: false, badge: '추천' },
@@ -126,7 +126,7 @@ const Header = () => {
   ];
 
   const actionButtons = [
-    { href: '/diagnosis', label: 'AI 무료진단', color: 'blue', icon: Building },
+    { href: '/diagnosis-form', label: 'AI 무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '전문가상담', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
     { href: '/services/policy-funding/investment-analysis', label: 'AI투자분석기', color: 'orange', icon: TrendingUp }
@@ -292,7 +292,7 @@ const Header = () => {
                     {actionButtons.map((button) => {
                       const getDescription = (label: string) => {
                         switch(label) {
-                          case 'AI 무료진단': return 'GEMINI 2.5 Flash AI 활용진단';
+                          case 'AI 무료진단': return 'AI 무료 경영진단 신청서 보기';
                           case '전문가상담': return '전문가 무료 상담';
                           case 'n8n책자구매': return 'AI 자동화 실무 가이드북';
                           case '세금계산기': return '10가지 세금 계산기';
