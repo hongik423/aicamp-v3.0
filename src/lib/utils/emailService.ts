@@ -315,6 +315,13 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
       console.log('✅ 업종 배열을 문자열로 변환:', processedIndustry);
     }
     
+    // 📝 주요고민사항 배열 처리 (🔥 업그레이드: 배열 처리)
+    let processedMainConcerns = diagnosisData.mainConcerns || diagnosisData.주요고민사항 || '';
+    if (Array.isArray(processedMainConcerns)) {
+      processedMainConcerns = processedMainConcerns.join(', ');
+      console.log('✅ 주요고민사항 배열을 문자열로 변환:', processedMainConcerns);
+    }
+    
     const industryAnalysis = {
       업종: processedIndustry,
       업종특화분석: diagnosisData.industrySpecificAnalysis || '',
@@ -336,7 +343,7 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
       사업담당자: diagnosisData.businessManager || diagnosisData.사업담당자 || '',
       직원수: diagnosisData.employeeCount || diagnosisData.직원수 || '',
       사업성장단계: diagnosisData.growthStage || diagnosisData.사업성장단계 || '',
-      주요고민사항: diagnosisData.mainConcerns || diagnosisData.주요고민사항 || '',
+      주요고민사항: processedMainConcerns,
       예상혜택: diagnosisData.expectedBenefits || diagnosisData.예상혜택 || '',
       소재지: diagnosisData.businessLocation || diagnosisData.소재지 || diagnosisData.진행사업장 || '', // 🔥 업그레이드: 소재지 필드로 변경
       담당자명: diagnosisData.contactName || diagnosisData.contactManager || diagnosisData.담당자명 || '',

@@ -29,7 +29,7 @@ interface SimplifiedDiagnosisRequest {
   employeeCount: string;
   growthStage: string;
   businessLocation: string;
-  mainConcerns: string;
+  mainConcerns: string | string[]; // 배열 지원 추가
   expectedBenefits: string;
   privacyConsent: boolean;
   submitDate: string;
@@ -558,7 +558,7 @@ export async function POST(request: NextRequest) {
     // 1단계: Enhanced 진단평가 엔진 v3.0 실행 (안전 모드)
     console.log('🚀 Enhanced 진단평가 엔진 v3.0 시작 (안전 모드)');
     
-    let enhancedResult;
+    let enhancedResult: any;
     try {
       const diagnosisEngine = new EnhancedDiagnosisEngine();
       
@@ -759,29 +759,31 @@ export async function POST(request: NextRequest) {
     let industryTrends = null;
     let industryInsights = null;
     
+    const processedIndustry = Array.isArray(data.industry) ? data.industry[0] : (data.industry || 'general');
+    
     try {
-      console.log('🏭 업종별 최신정보 검색 시작:', data.industry);
+      console.log('🏭 업종별 최신정보 검색 시작:', processedIndustry);
       
       // 안전한 IndustryDataService 호출
       try {
-        industryTrends = IndustryDataService.getIndustryTrends(data.industry);
+        industryTrends = IndustryDataService.getIndustryTrends(processedIndustry);
         console.log('📊 업종 트렌드 데이터 조회 완료:', {
           hasData: !!industryTrends,
-          industry: data.industry
+          industry: processedIndustry
         });
-      } catch (industryError) {
+      } catch (industryError: any) {
         console.warn('⚠️ IndustryDataService.getIndustryTrends 실패:', industryError.message);
         industryTrends = null;
       }
 
       // 안전한 업종별 인사이트 생성
       try {
-        industryInsights = IndustryDataService.generateIndustryInsights(data.industry, {
+        industryInsights = IndustryDataService.generateIndustryInsights(processedIndustry, {
           ...data,
           totalScore: enhancedResult.totalScore
         });
         console.log('🎯 업종별 특화 인사이트 생성 완료');
-      } catch (insightError) {
+      } catch (insightError: any) {
         console.warn('⚠️ IndustryDataService.generateIndustryInsights 실패:', insightError.message);
         industryInsights = null;
       }
@@ -930,9 +932,9 @@ export async function POST(request: NextRequest) {
         work_flow: data.work_flow || 0,
         
         // 📈 업종별 특화 분석 데이터
-        industrySpecificAnalysis: generateIndustrySpecificAnalysis(data.industry, enhancedResult),
-        marketPosition: calculateMarketPosition(data.industry, enhancedResult.totalScore),
-        competitiveAnalysis: generateCompetitiveAnalysis(data.industry, data.companyName, enhancedResult),
+        industrySpecificAnalysis: generateIndustrySpecificAnalysis(processedIndustry, enhancedResult),
+        marketPosition: calculateMarketPosition(processedIndustry, enhancedResult.totalScore),
+        competitiveAnalysis: generateCompetitiveAnalysis(processedIndustry, data.companyName, enhancedResult),
         growthPotential: calculateGrowthPotential(data.growthStage, enhancedResult.totalScore),
         
         // 🎯 6가지 핵심 지표 (Enhanced 진단 엔진 결과 활용)
@@ -1208,7 +1210,7 @@ async function generateSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisR
   try {
     console.log('🎯 고급 SWOT 분석 생성 시작');
     
-    const industry = data.industry || 'general';
+    const industry = Array.isArray(data.industry) ? data.industry[0] : (data.industry || 'general');
     const totalScore = diagnosisResult.totalScore || 0;
     
     // 🔥 새로운 고급 SWOT 엔진 사용
@@ -1218,7 +1220,7 @@ async function generateSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisR
         companyName: data.companyName,
         employeeCount: data.employeeCount,
         growthStage: data.growthStage,
-        mainChallenges: data.mainConcerns,
+        mainChallenges: Array.isArray(data.mainConcerns) ? data.mainConcerns.join(', ') : data.mainConcerns,
         expectedBenefits: data.expectedBenefits
       },
       {

@@ -62,7 +62,7 @@ const advancedDiagnosisFormSchema = z.object({
   employeeCount: z.string().min(1, '직원수를 선택해주세요'),
   
   // 추가 정보 (주요 고민사항, 예상 혜택)
-  mainConcerns: z.string().min(4, '주요 고민사항을 4자 이상 입력해주세요'),
+  mainConcerns: z.array(z.string()).min(1, '최소 1개 이상의 주요 고민사항을 선택해주세요'),
   expectedBenefits: z.string().min(4, '예상 혜택을 4자 이상 입력해주세요'),
   
   // 🔶 상품/서비스 관리 역량 (5개, 가중치 25%)
@@ -106,6 +106,22 @@ interface SimplifiedDiagnosisFormProps {
   onComplete: (data: any) => void;
   onBack?: () => void;
 }
+
+// 주요 고민사항 옵션
+const concernOptions = [
+  { value: '디지털 전환', label: '디지털 전환 (AI, 자동화, 디지털화)' },
+  { value: '비용 절감', label: '비용 절감 (운영비, 인건비 등)' },
+  { value: '인재 관리', label: '인재 관리 (채용, 교육, 유지)' },
+  { value: '고객 만족도 향상', label: '고객 만족도 향상' },
+  { value: '신사업 개발', label: '신사업 개발' },
+  { value: 'ESG/지속가능경영', label: 'ESG/지속가능경영' },
+  { value: '매출 성장', label: '매출 성장' },
+  { value: '시장 확대', label: '시장 확대' },
+  { value: '프로세스 개선', label: '프로세스 개선' },
+  { value: '투자/자금 조달', label: '투자/자금 조달' },
+  { value: '규제 대응', label: '규제 대응' },
+  { value: '해외 진출', label: '해외 진출' },
+];
 
 // 🍎 업종 옵션 (체크박스용) - 세분화 및 고도화
 const industryOptions = [
@@ -617,7 +633,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           if (!formValues.phone?.trim()) missingFields.push("연락처");
           if (!formValues.email?.trim()) missingFields.push("이메일");
           if (!formValues.employeeCount?.trim()) missingFields.push("직원수");
-          if (!formValues.mainConcerns || formValues.mainConcerns.length < 4) missingFields.push("주요 고민사항 (4자 이상)");
+          if (!formValues.mainConcerns || formValues.mainConcerns.length < 1) missingFields.push("주요 고민사항 (최소 1개 선택)");
           if (!formValues.expectedBenefits || formValues.expectedBenefits.length < 4) missingFields.push("예상 혜택 (4자 이상)");
           
           if (missingFields.length > 0) {
@@ -1027,19 +1043,48 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                   <FormField
                     control={form.control}
                     name="mainConcerns"
-                    render={({ field }) => (
+                    render={() => (
                       <FormItem>
                         <FormLabel className="flex items-center text-base font-semibold">
                           <AlertCircle className="w-5 h-5 mr-2 text-yellow-600" />
-                          주요 고민사항 *
+                          주요 고민사항 * (복수 선택 가능)
                         </FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="현재 겪고 있는 경영상의 주요 문제점이나 고민사항을 구체적으로 작성해주세요. (예: 매출 정체, 인력 부족, 마케팅 효과 미흡 등)" 
-                            className="min-h-[100px] border-2 hover:border-blue-400 focus:border-blue-500 transition-all resize-none"
-                            {...field} 
-                          />
-                        </FormControl>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                          {concernOptions.map((item) => (
+                            <FormField
+                              key={item.value}
+                              control={form.control}
+                              name="mainConcerns"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={item.value}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(item.value) ?? false}
+                                        onCheckedChange={(checked) => {
+                                          const currentValue = field.value || [];
+                                          return checked
+                                            ? field.onChange([...currentValue, item.value])
+                                            : field.onChange(
+                                                currentValue.filter(
+                                                  (value) => value !== item.value
+                                                )
+                                              )
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="text-sm font-normal cursor-pointer">
+                                      {item.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )
+                              }}
+                            />
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
