@@ -12,9 +12,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import InvestmentAnalysisTool from '@/components/investment-analysis/InvestmentAnalysisTool';
 
 export default function InvestmentAnalysisPage() {
-  const [showAnalysisTool, setShowAnalysisTool] = useState(false);
+  const [showAnalysisTool, setShowAnalysisTool] = useState(true); // 기본값을 true로 변경하여 바로 사용 가능
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,15 +30,15 @@ export default function InvestmentAnalysisPage() {
           <p className="text-lg sm:text-xl text-gray-600">AI 기반 5구간 투자규모별 평가와 8개 지표 종합분석 도구</p>
         </div>
 
-        {/* 상담신청 필수 안내 - 더 강조 */}
-        <Alert className="mb-8 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-300">
-          <AlertCircle className="h-6 w-6 text-red-600" />
+        {/* 사용 안내 */}
+        <Alert className="mb-8 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300">
+          <Zap className="h-6 w-6 text-blue-600" />
           <AlertDescription className="text-base sm:text-lg">
-            <strong className="text-red-900 text-lg sm:text-xl">⚠️ 중요: AI투자재무타당성분석기는 상담신청 필수입니다!</strong>
+            <strong className="text-blue-900 text-lg sm:text-xl">✨ AI투자재무타당성분석기를 바로 사용하실 수 있습니다!</strong>
             <br />
-            <span className="text-red-800">전문가 상담을 통해 정확한 분석과 맞춤형 가이드를 제공합니다.</span>
+            <span className="text-blue-800">AI 기반 정밀 분석으로 투자 타당성을 즉시 확인해보세요.</span>
             <br />
-            <strong className="text-red-900">상담신청서 작성 완료 후 분석기를 사용하실 수 있습니다.</strong>
+            <strong className="text-blue-900">더 자세한 컨설팅이 필요하시면 언제든 상담신청 가능합니다.</strong>
           </AlertDescription>
         </Alert>
 
@@ -72,61 +73,26 @@ export default function InvestmentAnalysisPage() {
           </CardContent>
         </Card>
 
-        {/* 투자분석 도구 - 잠긴 상태 */}
-        <Card className="mb-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gray-900/10 backdrop-blur-sm z-10 flex items-center justify-center">
-            <motion.div 
-              className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="h-10 w-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3">상담신청이 필요합니다</h3>
-              <p className="text-gray-600 mb-6">
-                투자재무타당성분석기는 전문가 상담을 통해 
-                정확한 분석 가이드와 함께 제공됩니다.
-              </p>
-              <div className="space-y-3">
-                <Link href="/consultation" className="w-full">
-                  <Button 
-                    size="lg" 
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  >
-                    <MessageCircle className="mr-2 h-5 w-5" />
-                    무료 상담 신청하기
-                  </Button>
-                </Link>
-                <p className="text-sm text-gray-500">
-                  상담 접수 후 즉시 분석기 이용 가능
-                </p>
-              </div>
-            </motion.div>
-          </div>
-          
+        {/* 투자분석 도구 - 바로 사용 가능 */}
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5" />
-              투자재무타당성분석기
+              AI투자재무타당성분석기
             </CardTitle>
-            <CardDescription>상담신청 후 실제 분석을 진행하실 수 있습니다</CardDescription>
+            <CardDescription>AI 기반 정밀 분석으로 투자 타당성을 즉시 확인하세요</CardDescription>
           </CardHeader>
-          <CardContent className="opacity-50">
-            <div className="bg-gray-100 rounded-lg p-8 text-center">
-              <Calculator className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">분석 도구는 상담신청 후 활성화됩니다</p>
-            </div>
+          <CardContent>
+            <InvestmentAnalysisTool />
           </CardContent>
         </Card>
 
-        {/* 상담신청 혜택 */}
+        {/* 전문가 상담 혜택 */}
         <Card className="mb-8 border-2 border-blue-200">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Star className="h-6 w-6 text-yellow-500" />
-              상담신청 시 제공되는 혜택
+              전문가 상담을 통한 추가 혜택
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -137,8 +103,8 @@ export default function InvestmentAnalysisPage() {
                     <Calculator className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1">투자재무타당성분석기 즉시 이용</h4>
-                    <p className="text-sm text-gray-600">상담 접수 즉시 분석기 사용 권한 부여</p>
+                    <h4 className="font-semibold mb-1">맞춤형 투자 전략 수립</h4>
+                    <p className="text-sm text-gray-600">업종별 특화된 투자 전략 제안</p>
                   </div>
                 </div>
                 
@@ -374,34 +340,34 @@ export default function InvestmentAnalysisPage() {
           </CardContent>
         </Card>
 
-        {/* 강화된 CTA - 상담신청 우선 */}
+        {/* 강화된 CTA - 전문가 상담 안내 */}
         <div className="text-center py-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-2xl border border-blue-100">
           <div className="max-w-3xl mx-auto px-6">
             <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <TrendingUp className="w-4 h-4" />
-              AI투자분석기 → 상담신청 → 투자재무타당성분석
+              AI투자분석기 이용 중 → 전문가 상담 가능
             </div>
             <h2 className="text-3xl font-bold mb-4 text-gray-900">
-              🚀 지금 바로 투자재무타당성분석을 시작하세요
+              🚀 더 정밀한 분석과 전략이 필요하신가요?
             </h2>
             <p className="text-lg text-gray-600 mb-8">
-              <span className="font-semibold text-blue-600">상담신청 → 즉시 투자분석 도구 접근</span><br />
+              <span className="font-semibold text-blue-600">전문가 상담으로 맞춤형 투자 전략 수립</span><br />
               25년 경력 전문가가 정확한 분석과 맞춤형 전략을 제공합니다
             </p>
             
-            {/* 주요 CTA - 상담신청 강조 */}
+            {/* 주요 CTA - 전문가 상담 */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
               <Link href="/consultation">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-8 text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
                 >
                   <MessageCircle className="mr-3 h-6 w-6" />
-                  💬 상담신청 → 투자분석 도구 바로가기
+                  💬 전문가 무료 상담 신청하기
                 </Button>
               </Link>
               <div className="text-sm text-gray-500">
-                ⚡ 상담신청 완료 즉시 투자분석기 접근 가능
+                ⚡ 24시간 내 전문가가 직접 연락드립니다
               </div>
             </div>
             
@@ -423,15 +389,15 @@ export default function InvestmentAnalysisPage() {
             
             {/* 프로세스 안내 */}
             <div className="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h3 className="font-bold text-gray-900 mb-4">📋 간단한 3단계 프로세스</h3>
+              <h3 className="font-bold text-gray-900 mb-4">📋 AI 투자분석 활용 프로세스</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                     <span className="text-blue-600 font-bold">1</span>
                   </div>
                   <div>
-                    <div className="font-semibold">상담신청</div>
-                    <div className="text-gray-600">기본정보 입력 (2분)</div>
+                    <div className="font-semibold">즉시 분석</div>
+                    <div className="text-gray-600">AI 투자분석기 이용</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -439,8 +405,8 @@ export default function InvestmentAnalysisPage() {
                     <span className="text-orange-600 font-bold">2</span>
                   </div>
                   <div>
-                    <div className="font-semibold">즉시 이동</div>
-                    <div className="text-gray-600">투자분석기 접근</div>
+                    <div className="font-semibold">결과 확인</div>
+                    <div className="text-gray-600">8개 지표 종합분석</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -449,7 +415,7 @@ export default function InvestmentAnalysisPage() {
                   </div>
                   <div>
                     <div className="font-semibold">전문가 상담</div>
-                    <div className="text-gray-600">24시간 내 연락</div>
+                    <div className="text-gray-600">필요시 상담신청</div>
                   </div>
                 </div>
               </div>
