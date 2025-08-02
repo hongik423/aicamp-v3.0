@@ -1135,12 +1135,13 @@ export const FreeDiagnosisForm: React.FC = () => {
                               >
                                 <FormControl>
                                   <Checkbox
-                                    checked={field.value?.includes(item.value)}
+                                    checked={field.value?.includes(item.value) ?? false}
                                     onCheckedChange={(checked) => {
+                                      const currentValue = field.value || [];
                                       return checked
-                                        ? field.onChange([...field.value, item.value])
+                                        ? field.onChange([...currentValue, item.value])
                                         : field.onChange(
-                                            field.value?.filter(
+                                            currentValue.filter(
                                               (value) => value !== item.value
                                             )
                                           )
