@@ -18,6 +18,26 @@ export default function DiagnosisResultPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resultData, setResultData] = useState<any>(null);
+  
+  // undefined ID 체크
+  if (!diagnosisId || diagnosisId === 'undefined') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="max-w-md w-full">
+            <CardContent className="text-center py-8">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">😕 진단 결과를 찾을 수 없습니다</h1>
+              <p className="text-gray-600 mb-6">진단 ID가 올바르지 않습니다.</p>
+              <a href="/services/diagnosis" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                새로운 진단 시작하기
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchResult = async () => {

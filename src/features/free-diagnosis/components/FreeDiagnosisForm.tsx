@@ -226,8 +226,20 @@ export const FreeDiagnosisForm: React.FC = () => {
           description: '5-10분 내에 진단 결과를 이메일로 발송해드립니다.',
         });
         
-        // 결과 페이지로 이동
-        window.location.href = `/diagnosis/result/${result.diagnosisId}`;
+        // 진단 ID가 있는 경우에만 결과 페이지로 이동
+        if (result.diagnosisId && result.diagnosisId !== 'undefined') {
+          window.location.href = `/diagnosis/result/${result.diagnosisId}`;
+        } else {
+          // 진단 ID가 없으면 홈으로 이동하고 이메일 안내
+          toast({
+            title: '📧 이메일로 결과를 확인해주세요',
+            description: '진단 결과가 준비되면 이메일로 상세 보고서를 보내드립니다.',
+            duration: 5000,
+          });
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        }
       } else {
         throw new Error(result.message || '진단 신청 중 오류가 발생했습니다');
       }
