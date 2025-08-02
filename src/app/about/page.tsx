@@ -202,40 +202,89 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* 인증 및 파트너십 */}
+          {/* 핵심 인재 소개 */}
           <div className="bg-gray-50 rounded-2xl p-8">
             <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
-              인증 및 파트너십
+              핵심 인재 소개
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div>
-                <div className="bg-white rounded-lg p-4 mb-2">
-                  <Award className="w-12 h-12 text-primary mx-auto" />
-                </div>
-                <h4 className="font-semibold text-gray-900">벤처기업</h4>
-                <p className="text-sm text-gray-600">2020.12 인증</p>
-              </div>
-              <div>
-                <div className="bg-white rounded-lg p-4 mb-2">
-                  <Award className="w-12 h-12 text-primary mx-auto" />
-                </div>
-                <h4 className="font-semibold text-gray-900">이노비즈</h4>
-                <p className="text-sm text-gray-600">2021.03 인증</p>
-              </div>
-              <div>
-                <div className="bg-white rounded-lg p-4 mb-2">
-                  <Award className="w-12 h-12 text-primary mx-auto" />
-                </div>
-                <h4 className="font-semibold text-gray-900">ISO 9001</h4>
-                <p className="text-sm text-gray-600">2021.06 인증</p>
-              </div>
-              <div>
-                <div className="bg-white rounded-lg p-4 mb-2">
-                  <Award className="w-12 h-12 text-primary mx-auto" />
-                </div>
-                <h4 className="font-semibold text-gray-900">정부 협력기관</h4>
-                <p className="text-sm text-gray-600">2022.01 지정</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* CEO 홍용기 */}
+              <Card className="text-center hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-10 h-10 text-blue-600" />
+                  </div>
+                  <h3 className="font-bold text-xl text-gray-900 mb-2">
+                    홍용기 대표이사
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    컨설팅학 박사 · 국제공인컨설턴트 CMC
+                  </p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>• 25년 글로벌 비즈니스 경험</p>
+                    <p>• AI CAMP CEO</p>
+                    <p>• 컨설팅 3관왕 (CMC·박사·경영지도사)</p>
+                  </div>
+                  <a 
+                    href="/center-leader"
+                    className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                  >
+                    상세 프로필 보기
+                  </a>
+                </CardContent>
+              </Card>
+
+              {/* 이후경 교장 */}
+              <Card className="text-center hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-10 h-10 text-green-600" />
+                  </div>
+                  <h3 className="font-bold text-xl text-gray-900 mb-2">
+                    이후경 교장
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    경영지도사 · M-CENTER 경영지도센터
+                  </p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>• 28년 실무경험 전문가</p>
+                    <p>• 현대그룹·삼성생명 출신</p>
+                    <p>• 200개사+ 지원 실적</p>
+                  </div>
+                  <a 
+                    href="/center-leader"
+                    className="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                  >
+                    상세 프로필 보기
+                  </a>
+                </CardContent>
+              </Card>
+
+              {/* 박상준 영업이사 */}
+              <Card className="text-center hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-10 h-10 text-purple-600" />
+                  </div>
+                  <h3 className="font-bold text-xl text-gray-900 mb-2">
+                    박상준 영업이사
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    고려대 경영학 석사 · AI CAMP 이사
+                  </p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>• 고려대학교 경영학 석사</p>
+                    <p>• 재무관련전문인력 1급</p>
+                    <p>• 교육 전문 자격</p>
+                  </div>
+                  <a 
+                    href="/center-leader"
+                    className="inline-block mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
+                  >
+                    상세 프로필 보기
+                  </a>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
