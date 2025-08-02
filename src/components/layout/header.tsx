@@ -106,7 +106,7 @@ const Header = () => {
 
   // 네비게이션 아이템 정의 - 고객 중심 메뉴 구성 (전환율 최적화)
   const navigationItems = [
-    { href: '/diagnosis-form', label: 'AI진단', icon: Zap, isSpecial: true, badge: '무료' },
+    { href: '/diagnosis', label: 'AI무료진단', icon: Zap, isSpecial: true, badge: '무료' },
     { href: '/services', label: 'AI서비스', icon: Rocket, isSpecial: false, badge: '인기' },
     { href: '/services/ai-curriculum', label: 'AI교육', icon: Brain, isSpecial: false, badge: 'NEW' },
     { href: '/services/policy-funding', label: '정책자금', icon: DollarSign, isSpecial: false, badge: '추천' },
@@ -144,21 +144,36 @@ const Header = () => {
           <nav className="flex items-center justify-between min-h-[44px] px-4 w-full">
             
             {/* 로고 - 왼쪽 고정 */}
-            <Link 
-              href="/"
-              className="flex items-center hover:opacity-70 transition-opacity duration-200 flex-shrink-0 mr-1 sm:mr-2"
-              aria-label="AICAMP 홈페이지로 이동"
-            >
-              <div className="w-5 h-5 lg:w-6 lg:h-6 flex items-center justify-center">
-                <Image 
-                  src={getImagePath('/images/aicamp_logo_del_250726.png')}
-                  alt="AICAMP" 
-                  width={24}
-                  height={24}
-                  className="w-5 h-5 lg:w-6 lg:h-6 object-contain"
-                />
-              </div>
-            </Link>
+            <div className="flex items-center flex-shrink-0">
+              <Link 
+                href="/"
+                className="flex items-center hover:opacity-70 transition-opacity duration-200 mr-1"
+                aria-label="AICAMP 홈페이지로 이동"
+              >
+                <div className="w-5 h-5 lg:w-6 lg:h-6 flex items-center justify-center">
+                  <Image 
+                    src={getImagePath('/images/aicamp_logo_del_250726.png')}
+                    alt="AICAMP" 
+                    width={24}
+                    height={24}
+                    className="w-5 h-5 lg:w-6 lg:h-6 object-contain"
+                  />
+                </div>
+              </Link>
+              
+              {/* 홈 버튼 */}
+              <Link
+                href="/"
+                className={`px-2 py-1 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap flex items-center gap-1 ml-1
+                  ${pathname === '/'
+                    ? 'text-white bg-gray-800'
+                    : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100'
+                  }`}
+              >
+                <Home className="w-3 h-3" />
+                <span>홈</span>
+              </Link>
+            </div>
 
             {/* 메인 네비게이션 - 가운데 영역 (전체 표시) */}
             <div className="hidden md:flex flex-1 justify-center mx-1 lg:mx-2 xl:mx-3">
@@ -422,6 +437,26 @@ const Header = () => {
                 <div className="space-y-4">
                   <div className="text-sm font-semibold text-gray-700 mb-3 px-1">📋 서비스 메뉴</div>
                   <div className="grid grid-cols-1 gap-2">
+                    {/* 홈 버튼 */}
+                    <motion.div whileHover={{ x: 8 }} className="group">
+                      <Link
+                        href="/"
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center p-3 rounded-lg transition-all duration-200 group ${
+                          pathname === '/'
+                            ? 'bg-gray-100 border-2 border-gray-300'
+                            : 'hover:bg-gray-50 border-2 border-transparent'
+                        }`}
+                      >
+                        <Home className="w-5 h-5 mr-3 text-gray-600 group-hover:text-gray-800" />
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 group-hover:text-gray-800">
+                            홈
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                    
                     {navigationItems.map((item) => (
                       <motion.div key={item.href} whileHover={{ x: 8 }} className="group">
                         <Link
