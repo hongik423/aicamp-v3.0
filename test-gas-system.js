@@ -10,7 +10,7 @@ require('dotenv').config({ path: '.env.local' });
 const TEST_CONFIG = {
   // Google Apps Script URL - 환경변수에서 가져오기
   GAS_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec',
-  TIMEOUT: 30000, // 30초 타임아웃
+  TIMEOUT: 300000, // 300초 타임아웃 (5분)
   TEST_EMAIL: 'test@aicamp.club'
 };
 

@@ -524,7 +524,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       
       // 타임아웃 설정 (4분 50초 - 서버 타임아웃보다 약간 짧게)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 290000); // 290초
+      const timeoutId = setTimeout(() => controller.abort(), 900000); // 15분 타임아웃 (전체 진단 과정 고려) // 290초
       
       const response = await fetch('/api/simplified-diagnosis', {
         method: 'POST',

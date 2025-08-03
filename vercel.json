@@ -1,41 +1,13 @@
 {
-  "version": 2,
   "functions": {
-    "src/app/api/**": {
-      "maxDuration": 60
+    "src/app/api/**/*.ts": {
+      "maxDuration": 900
     }
   },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        }
-      ]
-    }
-  ],
   "rewrites": [
     {
-      "source": "/api/check-gas-status",
-      "destination": "/api/check-gas-status"
-    },
-    {
-      "source": "/api/simplified-diagnosis",
-      "destination": "/api/simplified-diagnosis"
-    },
-    {
-      "source": "/api/chat-ai",
-      "destination": "/api/chat-ai"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     }
   ]
-} 
+}

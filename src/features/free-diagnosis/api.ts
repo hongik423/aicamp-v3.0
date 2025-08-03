@@ -70,7 +70,7 @@ async function fetchWithRetry(
     try {
       // 타임아웃 설정을 3분으로 증가 (AI 분석 시간 고려)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 180000);
+      const timeoutId = setTimeout(() => controller.abort(), 900000); // 15분 타임아웃 (AI 역량진단 복잡성 고려)
       
       const response = await fetch(url, {
         ...options,

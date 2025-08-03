@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Google Apps Script 타임아웃을 180초로 대폭 증가 (AI 분석 시간 고려)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 180000);
+    const timeoutId = setTimeout(() => controller.abort(), 900000); // 15분 타임아웃
 
     console.log('🚀 Google Apps Script 요청 전송 중... (최대 3분 대기)');
     
