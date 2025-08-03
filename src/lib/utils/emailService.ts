@@ -408,7 +408,7 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
 
     // POST 방식으로 전송 (타임아웃 설정 추가)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
+    const timeoutId = setTimeout(() => controller.abort(), 180000); // 3분 타임아웃 (복잡한 이메일 생성 고려) // 30초 타임아웃
     
     const response = await fetch(googleScriptUrl, {
       method: 'POST',
