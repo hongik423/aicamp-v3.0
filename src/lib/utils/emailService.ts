@@ -72,9 +72,12 @@ export async function submitConsultationToGoogle(consultationData: any) {
     // 🔄 3단계 백업 시스템: POST → GET → 백업
     let lastError = null;
     
-    // 1단계: 표준 POST 요청 시도
+    // 1단계: 표준 POST 요청 시도 (타임아웃 3분으로 확장)
     try {
-      console.log('🔄 1단계: POST 방식 시도');
+      console.log('🔄 1단계: POST 방식 시도 (3분 타임아웃)');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3분 타임아웃
+      
       const response = await fetch(GOOGLE_SCRIPT_CONFIG.SCRIPT_URL, {
         method: 'POST',
         headers: {
@@ -82,8 +85,11 @@ export async function submitConsultationToGoogle(consultationData: any) {
           'Accept': 'application/json',
         },
         body: JSON.stringify(requestData),
-        mode: 'cors'
+        mode: 'cors',
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const result = await response.text();
@@ -408,7 +414,7 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
 
     // POST 방식으로 전송 (타임아웃 설정 추가)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 180000); // 3분 타임아웃 (복잡한 이메일 생성 고려) // 30초 타임아웃
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
     
     const response = await fetch(googleScriptUrl, {
       method: 'POST',

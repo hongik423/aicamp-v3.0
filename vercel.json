@@ -1,13 +1,96 @@
 {
+  "version": 2,
+  "regions": ["icn1"],
   "functions": {
-    "src/app/api/**/*.ts": {
-      "maxDuration": 900
+    "src/app/api/google-script-proxy/route.ts": {
+      "maxDuration": 800
+    },
+    "src/app/api/simplified-diagnosis/route.ts": {
+      "maxDuration": 800
+    },
+    "src/app/api/ai-capability-diagnosis/route.ts": {
+      "maxDuration": 800
+    },
+    "src/app/api/consultation/route.ts": {
+      "maxDuration": 800
+    },
+    "src/app/api/beta-feedback/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/chat/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/chat-ai/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/chat-lee-hukyung/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/save-pdf-report/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/check-gas-status/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/test-system/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/test-env/route.ts": {
+      "maxDuration": 60
+    },
+    "api/diagnosis/submit.js": {
+      "maxDuration": 800
+    },
+    "api/health/check.js": {
+      "maxDuration": 5
     }
   },
-  "rewrites": [
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "headers": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "s-maxage=300, stale-while-revalidate=60"
+        }
+      ]
     }
-  ]
+  ],
+  "rewrites": [
+    {
+      "source": "/diagnosis/submit",
+      "destination": "/api/diagnosis/submit"
+    },
+    {
+      "source": "/diagnosis/process",
+      "destination": "/api/diagnosis/process"
+    },
+    {
+      "source": "/diagnosis/result/:id",
+      "destination": "/api/diagnosis/result?id=:id"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/health/check"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }

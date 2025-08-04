@@ -50,7 +50,7 @@ async function runTests() {
 
     const response = await axios.post(GAS_URL, testData, {
       headers: { 'Content-Type': 'application/json' },
-      timeout: 300000
+      timeout: 300000 // 5분 - 로컬 테스트용
     });
 
     results.총테스트++;
@@ -101,7 +101,7 @@ async function runTests() {
 
     const response = await axios.post(GAS_URL, testData, {
       headers: { 'Content-Type': 'application/json' },
-      timeout: 300000
+      timeout: 300000 // 5분 - 로컬 테스트용
     });
 
     results.총테스트++;
@@ -140,7 +140,7 @@ async function runTests() {
 
     const response = await axios.post(GAS_URL, testData, {
       headers: { 'Content-Type': 'application/json' },
-      timeout: 300000
+      timeout: 300000 // 5분 - 로컬 테스트용
     });
 
     results.총테스트++;
@@ -176,7 +176,7 @@ async function runTests() {
 
     const response = await axios.post(GAS_URL, testData, {
       headers: { 'Content-Type': 'application/json' },
-      timeout: 300000
+      timeout: 300000 // 5분 - 로컬 테스트용
     });
 
     results.총테스트++;
