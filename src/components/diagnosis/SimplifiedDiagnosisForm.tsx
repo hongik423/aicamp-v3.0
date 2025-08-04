@@ -522,9 +522,9 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         submitDate: new Date().toISOString()
       };
       
-      // 타임아웃 설정 (4분 50초 - 서버 타임아웃보다 약간 짧게)
+      // 타임아웃 설정 (13.3분 - Vercel 800초 제한에 맞춤)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 900000); // 15분 타임아웃 (전체 진단 과정 고려) // 290초
+      const timeoutId = setTimeout(() => controller.abort(), 800000); // 13.33분 타임아웃 (Vercel 최대 제한)
       
       const response = await fetch('/api/simplified-diagnosis', {
         method: 'POST',

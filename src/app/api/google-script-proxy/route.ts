@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
       action: requestData.action || 'unknown'
     });
 
-    // Google Apps Script 타임아웃을 180초로 대폭 증가 (AI 분석 시간 고려)
+    // Google Apps Script 타임아웃을 800초로 설정 (Vercel 최대 제한)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 900000); // 15분 타임아웃
+    const timeoutId = setTimeout(() => controller.abort(), 800000); // 13.33분 타임아웃 (Vercel 800초 제한)
 
-    console.log('🚀 Google Apps Script 요청 전송 중... (최대 3분 대기)');
+    console.log('🚀 Google Apps Script 요청 전송 중... (최대 13.33분 대기)');
     
     let response;
     
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeoutId);
       
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        console.error('❌ Google Apps Script 타임아웃 (3분)');
+        console.error('❌ Google Apps Script 타임아웃 (13.33분)');
         
         // 타임아웃 시 백업 처리 - 요청은 백그라운드에서 계속 진행될 수 있음
         return NextResponse.json({

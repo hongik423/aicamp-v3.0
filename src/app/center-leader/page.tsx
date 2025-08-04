@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 import {
   User,
   Phone,
@@ -31,8 +31,8 @@ import {
   Sparkles,
   Cpu
 } from 'lucide-react';
-import Header from '@/components/layout/header';
-import { getSessionLeaderImage } from '@/lib/utils';
+import Header from '../../components/layout/header';
+import { getSessionLeaderImage } from '../../lib/utils';
 
 export default function CenterLeaderPage() {
   const [selectedTab, setSelectedTab] = useState('overview');

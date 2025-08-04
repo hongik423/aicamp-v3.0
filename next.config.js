@@ -10,12 +10,12 @@ const nextConfig = {
     buildActivityPosition: 'bottom-right',
   },
   
-  // ESLint 빌드 시 비활성화 (배포용)
+  // ESLint 빌드 시 무시 (배포용)
   eslint: {
     ignoreDuringBuilds: true,
   },
   
-  // TypeScript 빌드 시 비활성화 (배포용) 
+  // TypeScript 빌드 시 에러 무시 (배포용)
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -64,6 +64,10 @@ const nextConfig = {
     // 모든 환경에서 적용
     config.resolve = {
       ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        '@': require('path').resolve(__dirname, 'src'),
+      },
       fallback: {
         ...config.resolve?.fallback,
         fs: false,
