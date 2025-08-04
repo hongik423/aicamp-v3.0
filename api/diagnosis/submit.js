@@ -245,7 +245,7 @@ export default async function handler(req, res) {
 
 // 🏥 헬스체크 엔드포인트
 export const config = {
-  runtime: 'nodejs18.x',
+  runtime: 'nodejs',
   maxDuration: 10,
   regions: ['icn1']
 };
