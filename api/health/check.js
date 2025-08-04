@@ -197,7 +197,7 @@ export default async function handler(req, res) {
 
 // Vercel 설정
 export const config = {
-  runtime: 'nodejs18.x',
+  runtime: 'nodejs',
   maxDuration: 5,
   regions: ['icn1']
 };
