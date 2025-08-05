@@ -142,8 +142,14 @@ export default function AboutPage() {
                   <div className="h-2 bg-gradient-to-r from-blue-500 to-blue-600"></div>
                   <CardHeader className="text-center pb-0 pt-8">
                     <div className="w-32 h-32 mx-auto mb-6 relative">
-                      <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
-                        <Users className="w-16 h-16 text-blue-600" />
+                      <div className="w-full h-full rounded-full overflow-hidden shadow-lg">
+                        <Image
+                          src="/images/ceo_hong2.jpg"
+                          alt="홍용기 대표이사"
+                          width={128}
+                          height={128}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     </div>
                     <CardTitle className="text-2xl font-bold text-gray-900">홍용기</CardTitle>
@@ -215,8 +221,14 @@ export default function AboutPage() {
                   <div className="h-2 bg-gradient-to-r from-green-500 to-green-600"></div>
                   <CardHeader className="text-center pb-0 pt-8">
                     <div className="w-32 h-32 mx-auto mb-6 relative">
-                      <div className="w-full h-full bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center">
-                        <GraduationCap className="w-16 h-16 text-green-600" />
+                      <div className="w-full h-full rounded-full overflow-hidden shadow-lg">
+                        <Image
+                          src="/images/aicamp_leader.png"
+                          alt="이후경 교장"
+                          width={128}
+                          height={128}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     </div>
                     <CardTitle className="text-2xl font-bold text-gray-900">이후경</CardTitle>
