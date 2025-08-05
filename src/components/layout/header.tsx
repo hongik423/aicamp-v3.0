@@ -490,7 +490,7 @@ const Header = () => {
 
                 {/* 세금계산기 메뉴 */}
                 <div className="space-y-4">
-                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">🧮 세금계산기</div>
+                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">세금계산기</div>
                   <div className="grid grid-cols-1 gap-2">
                     {taxCalculators.map((calculator) => (
                       <motion.div key={calculator.id} whileHover={{ x: 8 }} className="group">
