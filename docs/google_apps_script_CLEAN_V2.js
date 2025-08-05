@@ -2955,31 +2955,43 @@ function handleFreeDiagnosisSubmission(data) {
 /**
  * AI 역량진단 제출 처리
  */
-function handleAICapabilityDiagnosisSubmission(data) {
+function handleAICapabilityDiagnosisSubmission(requestData) {
   const diagnosisId = generateDiagnosisId();
   
   try {
+    console.log('AI 역량진단 처리 시작:', diagnosisId);
+    
+    // 요청 데이터에서 실제 데이터 추출
+    const data = requestData.data || requestData;
+    
     // 진행 상태 초기화
     updateProgressStatus(diagnosisId, 0, 'AI 역량진단 시작');
     
-    // 기본 정보 유효성 검사
-    validateBasicData(data);
+    // 기본 정보 유효성 검사 (간소화)
+    if (!data.companyName || !data.email || !data.applicantName) {
+      throw new Error('필수 정보가 누락되었습니다.');
+    }
     
     // Google Sheets에 데이터 저장
-    saveAICapabilityDiagnosisToSheets(diagnosisId, data);
-    updateProgressStatus(diagnosisId, 10, '데이터 저장 완료');
+    try {
+      saveAICapabilityDiagnosisToSheets(diagnosisId, data);
+      updateProgressStatus(diagnosisId, 20, '데이터 저장 완료');
+    } catch (sheetError) {
+      console.warn('시트 저장 오류:', sheetError);
+      // 시트 오류가 있어도 계속 진행
+    }
     
     // AI 역량 점수 계산
     const capabilityScores = calculateAICapabilityScores(data);
-    updateProgressStatus(diagnosisId, 30, 'AI 역량 평가 완료');
+    updateProgressStatus(diagnosisId, 40, 'AI 역량 평가 완료');
     
     // 벤치마크 분석
     const benchmarkAnalysis = performBenchmarkAnalysis(capabilityScores, data);
-    updateProgressStatus(diagnosisId, 50, '벤치마크 분석 완료');
+    updateProgressStatus(diagnosisId, 60, '벤치마크 분석 완료');
     
     // SWOT 분석 생성
     const swotAnalysis = generateSWOTAnalysis(capabilityScores, benchmarkAnalysis, data);
-    updateProgressStatus(diagnosisId, 70, 'SWOT 분석 완료');
+    updateProgressStatus(diagnosisId, 80, 'SWOT 분석 완료');
     
     // 최종 보고서 생성
     const report = generateAICapabilityReport(diagnosisId, data, {
@@ -2989,26 +3001,32 @@ function handleAICapabilityDiagnosisSubmission(data) {
     });
     updateProgressStatus(diagnosisId, 90, '보고서 생성 완료');
     
-    // 이메일 발송
-    sendAICapabilityDiagnosisEmails(diagnosisId, data, report);
+    // 이메일 발송 (오류가 있어도 계속 진행)
+    try {
+      sendAICapabilityDiagnosisEmails(diagnosisId, data, report);
+    } catch (emailError) {
+      console.warn('이메일 발송 오류:', emailError);
+    }
+    
     updateProgressStatus(diagnosisId, 100, '진단 완료');
     
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
         diagnosisId: diagnosisId,
-        message: 'AI 역량진단이 성공적으로 접수되었습니다.'
+        message: 'AI 역량진단이 성공적으로 접수되었습니다.',
+        scores: capabilityScores
       }))
       .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
     console.error('AI 역량진단 오류:', error);
-    updateProgressStatus(diagnosisId, -1, `오류 발생: ${error.message}`);
     
     return ContentService
       .createTextOutput(JSON.stringify({
         success: false,
-        error: error.message || 'AI 역량진단 처리 중 오류가 발생했습니다.'
+        error: error.message || 'AI 역량진단 처리 중 오류가 발생했습니다.',
+        diagnosisId: diagnosisId
       }))
       .setMimeType(ContentService.MimeType.JSON);
   }

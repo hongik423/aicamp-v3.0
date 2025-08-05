@@ -3,11 +3,5 @@
     "src/app/api/**/*": {
       "maxDuration": 800
     }
-  },
-  "env": {
-    "GEMINI_API_KEY": "@gemini-api-key",
-    "GEMINI_MODEL": "gemini-2.5-flash",
-    "GOOGLE_APPS_SCRIPT_URL": "@google-apps-script-url",
-    "ADMIN_EMAIL": "@admin-email"
   }
 }
