@@ -403,8 +403,8 @@ export default function InvestmentAnalysisTool() {
                 </TabsContent>
               </Tabs>
               
-              {/* 강화된 상담신청 CTA */}
-              <div className="mt-8 bg-gradient-to-br from-orange-50 via-white to-red-50 rounded-2xl p-8 border border-orange-200">
+              {/* 독립된 상담신청 안내 */}
+              <div className="mt-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-2xl p-8 border border-blue-200">
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
                     <MessageCircle className="w-4 h-4" />

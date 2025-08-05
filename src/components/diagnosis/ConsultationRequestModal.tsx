@@ -217,14 +217,13 @@ export default function ConsultationRequestModal({
         
         setSubmitSuccess(true);
         
-        // 성공 후 1.5초 뒤 투자재무타당성분석기로 이동
+        // 성공 후 3초 뒤 모달 닫기 (독립적 운영)
         setTimeout(() => {
           onClose();
           setSubmitSuccess(false);
           
-          // 투자재무타당성분석기로 즉시 이동
-          window.location.href = '/services/policy-funding/investment-analysis';
-        }, 1500);
+          // 상담 신청 완료 후 현재 페이지에 머무르기
+        }, 3000);
       } else {
         throw new Error('상담 신청 처리 실패: ' + result.errors.join(', '));
       }
