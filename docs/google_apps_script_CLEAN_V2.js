@@ -861,8 +861,199 @@ function generateAIReportForced(data, aiScores, benchmarkData) {
     }
   }
   
-  console.error('❌ 모든 재시도 실패, 고품질 폴백 보고서 생성');
-  return generateHighQualityFallbackReport(data, aiScores, benchmarkData);
+  console.error('❌ 모든 재시도 실패');
+  
+  // 폴백 원칙적 금지 - 추가 시도
+  console.log('🔄 최종 AI 보고서 생성 시도 중...');
+  try {
+    // 간소화된 프롬프트로 최종 시도
+    const fallbackPrompt = `
+${data.companyName}의 고몰입조직구축 AI역량강화 진단보고서를 작성하세요.
+업종: ${data.industry}
+지역: ${data.region}
+주요 고민: ${data.concerns}
+
+반드시 다음 형식으로 10,000자 이상 작성:
+1. 종합진단개요 (AI 6대 영역 평가)
+2. ${data.industry} 업종 AI 트렌드 분석
+3. SWOT 분석
+4. 전략 매트릭스
+5. 3단계 실행 로드맵
+6. 벤치마크 분석
+7. AI 역량 매트릭스
+8. 중요도-긴급성 매트릭스
+9. 투자 효과 분석
+10. AICAMP 교육 프로그램
+11. 실행 단계
+
+마크다운 특수문자 사용 금지. 구체적이고 실행 가능한 내용만 포함.`;
+    
+    const finalReport = callGeminiAPI(fallbackPrompt);
+    if (finalReport && finalReport.length > 5000) {
+      console.log('✅ 최종 AI 보고서 생성 성공');
+      return finalReport;
+    }
+  } catch (finalError) {
+    console.error('❌ 최종 시도도 실패:', finalError);
+  }
+  
+  // 그래도 실패 시 에러 발생
+  throw new Error('AI 보고서 생성에 실패했습니다. 시스템 관리자에게 문의해주세요.');
+}
+
+/**
+ * 업종별 인사이트 검색 (AI 강화용)
+ */
+function searchIndustryInsights(industry) {
+  const insights = {
+    '제조업': {
+      trends: '스마트팩토리, 예지보전, 품질검사 자동화가 핵심',
+      challenges: '숙련 인력 부족, 설비 노후화, 품질 관리 복잡성',
+      opportunities: 'AI 기반 불량 예측 99% 정확도, 생산성 30% 향상 가능'
+    },
+    'IT/소프트웨어': {
+      trends: '코드 자동생성, DevOps AI, 보안 자동화 급성장',
+      challenges: '기술 부채, 인재 확보 경쟁, 빠른 기술 변화',
+      opportunities: 'AI 코딩 어시스턴트로 개발속도 2배, 버그 50% 감소'
+    },
+    '서비스업': {
+      trends: 'AI 챗봇, 개인화 추천, 자동 스케줄링 보편화',
+      challenges: '고객 데이터 파편화, 서비스 표준화 어려움',
+      opportunities: '고객만족도 40% 상승, 운영비용 25% 절감 가능'
+    },
+    '유통/물류': {
+      trends: '수요예측 AI, 라스트마일 최적화, 무인매장 확산',
+      challenges: '재고관리 복잡성, 배송 최적화, 수요 변동성',
+      opportunities: '재고회전율 35% 개선, 배송시간 30% 단축 가능'
+    },
+    '금융/보험': {
+      trends: 'AI 신용평가, 로보어드바이저, 사기탐지 고도화',
+      challenges: '규제 대응, 레거시 시스템, 보안 위협',
+      opportunities: '심사시간 80% 단축, 사기탐지 정확도 95% 달성'
+    },
+    '교육': {
+      trends: '맞춤형 학습 AI, 자동 평가, 몰입형 교육 콘텐츠',
+      challenges: '디지털 격차, 콘텐츠 품질, 학습 효과 측정',
+      opportunities: '학습효율 45% 향상, 중도탈락률 60% 감소'
+    },
+    '헬스케어': {
+      trends: 'AI 진단보조, 신약개발 AI, 원격 환자 모니터링',
+      challenges: '의료 데이터 표준화, 규제 준수, 의료진 수용성',
+      opportunities: '진단정확도 30% 향상, 의료비용 20% 절감'
+    }
+  };
+  
+  return insights[industry] || {
+    trends: 'AI 도입 가속화, 자동화 확산, 데이터 기반 의사결정',
+    challenges: 'AI 인재 부족, 초기 투자 부담, 변화 저항',
+    opportunities: '생산성 25% 향상, 비용 20% 절감, 신규 수익원 창출'
+  };
+}
+
+/**
+ * 경쟁사 벤치마크 데이터 조회
+ */
+function getCompetitorBenchmarks(industry, region) {
+  const benchmarks = {
+    aiAdoptionRate: industry === 'IT/소프트웨어' ? '78%' : 
+                     industry === '제조업' ? '62%' : 
+                     industry === '금융/보험' ? '71%' : '55%',
+    averageROI: '185%',
+    implementationTime: '6-12개월',
+    topUseCases: getIndustryUseCases(industry),
+    regionalLeaders: `${region} 지역 상위 20% 기업`
+  };
+  
+  return benchmarks;
+}
+
+/**
+ * 2025년 시장 트렌드 분석
+ */
+function getMarketTrends(industry, year) {
+  return {
+    globalTrends: [
+      'Generative AI 전면 도입',
+      'AI Agent 시스템 보편화',
+      'MLOps 자동화 가속',
+      'Edge AI 확산'
+    ],
+    industrySpecific: getIndustrySpecificTrends(industry),
+    expectedGrowth: '연평균 35% 성장',
+    keyDrivers: [
+      'AI 기술 성숙도 향상',
+      '도입 비용 감소',
+      '성공 사례 증가',
+      '경쟁 압력 증대'
+    ]
+  };
+}
+
+/**
+ * 업종별 AI 활용 사례
+ */
+function getIndustryUseCases(industry) {
+  const useCases = {
+    '제조업': ['품질검사 자동화', '예지보전', '생산계획 최적화', '에너지 효율화'],
+    'IT/소프트웨어': ['코드 자동생성', '버그 예측', '테스트 자동화', '보안 취약점 탐지'],
+    '서비스업': ['고객상담 자동화', '수요예측', '가격 최적화', '맞춤형 마케팅'],
+    '유통/물류': ['재고 최적화', '배송경로 최적화', '수요예측', '창고 자동화'],
+    '금융/보험': ['신용평가 자동화', '사기탐지', '투자 자문', '리스크 관리'],
+    '교육': ['맞춤형 학습경로', '자동 평가', '학습 분석', '콘텐츠 추천'],
+    '헬스케어': ['진단 보조', '약물 상호작용 예측', '환자 위험도 평가', '치료 최적화']
+  };
+  
+  return useCases[industry] || ['프로세스 자동화', '데이터 분석', '의사결정 지원', '고객경험 개선'];
+}
+
+/**
+ * 업종별 특화 트렌드
+ */
+function getIndustrySpecificTrends(industry) {
+  const trends = {
+    '제조업': ['디지털 트윈 확산', 'Co-bot 협업 증가', '탄소중립 AI'],
+    'IT/소프트웨어': ['AI 페어 프로그래밍', 'AIOps 고도화', 'AI 보안 강화'],
+    '서비스업': ['하이퍼 개인화', '감정 AI 도입', '무인화 가속'],
+    '유통/물류': ['자율주행 배송', '무인 매장 확산', '실시간 최적화'],
+    '금융/보험': ['AI 규제 대응', '설명가능 AI', '양자 컴퓨팅 준비'],
+    '교육': ['메타버스 교육', 'AI 튜터 일반화', '역량 기반 평가'],
+    '헬스케어': ['정밀의료 AI', '디지털 치료제', 'AI 신약개발']
+  };
+  
+  return trends[industry] || ['AI 민주화', '자동화 확산', '인간-AI 협업'];
+}
+
+/**
+ * 간소화된 AI 프롬프트 생성 (폴백 방지용)
+ */
+function createSimplifiedAIPrompt(data, aiScores) {
+  const industryInsights = searchIndustryInsights(data.industry);
+  
+  return `
+${data.companyName}의 AI 진단보고서를 작성하세요.
+
+기업정보:
+- 업종: ${data.industry}
+- 지역: ${data.region}
+- 규모: ${data.employeeCount}
+- 주요고민: ${data.concerns}
+
+AI 역량점수:
+- 총점: ${aiScores.totalScore}점
+- 경영진리더십: ${aiScores.categories.leadership}점
+- AI인프라: ${aiScores.categories.infrastructure}점
+- 직원역량: ${aiScores.categories.employeeCapability}점
+- 조직문화: ${aiScores.categories.culture}점
+- 실무적용: ${aiScores.categories.practicalApplication}점
+- 데이터역량: ${aiScores.categories.dataCapability}점
+
+업종 인사이트:
+- 트렌드: ${industryInsights.trends}
+- 도전과제: ${industryInsights.challenges}
+- 기회: ${industryInsights.opportunities}
+
+10,000자 이상으로 11개 섹션 모두 작성하세요. 마크다운 금지.
+`;
 }
 
 /**
@@ -931,14 +1122,14 @@ function generateHighQualityFallbackReport(data, aiScores, benchmarkData) {
 【투자 계획】
 
 • 총 투자액: ${data.budget || '7,000만원'}
-• 정부 지원: 최대 1억원 (AI 바우처 등)
+• 투자 가치: 즉각적 업무 효율 개선
 • 예상 ROI: 12개월 내 200%, 24개월 내 400%
 
 【AICAMP 지원 프로그램】
 
 ✓ ${data.industry} 특화 AI 교육
 ✓ 1:1 맞춤 컨설팅
-✓ 정부 지원사업 연계
+✓ 실무 중심 프로젝트
 ✓ 성과 보장 프로그램
 
 문의: 010-9251-9743 (이후경 교장)
@@ -1153,12 +1344,12 @@ SO 전략 (강점-기회 결합) - "AI로 도약하는 ${data.industry} 선도 �
    - 예상 투자: ${data.budget === '3천만원 미만' ? '2,500만원' : data.budget === '1억원 미만' ? '5,000만원' : '8,000만원'}
    - ROI: 6개월 내 투자 회수, 연간 ${data.annualRevenue ? '매출의 15-20% 추가 수익' : '30% 수익성 개선'}
 
-2) [강점: ${data.region} 네트워크] + [기회: 정부 AI 지원 정책]
-   = "정부 지원 활용한 AI 혁신 가속화"
-   - AI 바우처 사업 신청 (최대 1억원)
-   - 지역 AI 허브 연계 프로그램 참여
-   - 예상 지원금: 프로젝트 비용의 50-70%
-   - 신청 시기: 2025년 2-3월
+2) [강점: ${data.region} 네트워크] + [기회: AI 기술 발전]
+   = "지역 네트워크 활용한 AI 생태계 구축"
+   - 지역 기업과 AI 협업 프로젝트
+   - AI 성공 사례 공유회 개최
+   - 공동 AI 인재 양성 프로그램
+   - 투자 효과: 네트워크 시너지로 30% 비용 절감
 
 WO 전략 (약점 보완-기회 활용) - "AI 역량 급속 성장":
 1) [약점: AI 점수 ${totalScore}점] + [기회: AI 교육 프로그램 다양화]
@@ -1402,7 +1593,7 @@ WT 전략 (약점 최소화-위협 회피) - "리스크 최소화 전환":
 [AICAMP만의 차별화된 교육 특징]
 ✓ 부서별 맞춤 교육: AI가 각 부서에서 어떻게 적용되는지 실무 중심 교육
 ✓ 실무 적용: 이론이 아닌 실제 업무에 즉시 적용 가능한 실습
-✓ 정부 지원 활용: AI 바우처, HRD-Net 등 정부 지원금 최대 활용
+✓ 투자 효과 극대화: ROI 기반 단계별 투자로 빠른 성과 창출
 ✓ 수료증 발급: AICAMP 공식 수료증으로 전문성 인증
 
 귀사를 위한 ${data.industry} 특화 고몰입 AI 조직 구축 체계:
@@ -1444,11 +1635,11 @@ WT 전략 (약점 최소화-위협 회피) - "리스크 최소화 전환":
 3) 실습 중심: 70% 실습, 30% 이론
 4) 사후 관리: 3개월 간 월 1회 팔로우업
 
-[정부 지원 활용]
-- HRD-Net 과정: 교육비 최대 90% 환급
-- AI 바우처: 최대 1억원 지원
-- 지역 특화 사업: ${data.region} 지원 프로그램
-- 예상 자부담: 전체 교육비의 10-30%
+[교육 투자 가치]
+- 즉각적인 업무 효율 개선: 20-30%
+- AI 도구 활용으로 인건비 절감
+- 혁신적 비즈니스 모델 창출
+- 업계 선도 기업으로 도약
 
 【11. 실행을 위한 다음 단계】
 
@@ -1627,8 +1818,8 @@ function generateSOStrategies(strengths, opportunities, data) {
     strategies.push('구축된 AI 인프라를 활용한 디지털 혁신 서비스 출시');
   }
   
-  if (strengths.includes('직원 역량') && opportunities.includes('정부 지원 정책')) {
-    strategies.push('우수한 인력을 활용하여 정부 AI 프로젝트 참여 확대');
+  if (strengths.includes('직원 역량') && opportunities.includes('AI 기술 발전')) {
+    strategies.push('우수한 인력의 AI 역량 강화로 혁신 프로젝트 주도');
   }
   
   // 기본 SO 전략
@@ -1724,7 +1915,7 @@ function getIndustryOpportunities(industry) {
     '서비스업': ['디지털 고객 경험', '자동화 기술 발전', '개인화 서비스', 'O2O 플랫폼'],
     '헬스케어': ['디지털 헬스케어', 'AI 진단 기술', '원격 의료', '개인 맞춤 치료'],
     '교육': ['에듀테크 확산', '개인화 학습', '원격 교육', 'AI 튜터링'],
-    '기타': ['AI 기술 발전', '디지털 전환 가속화', '정부 지원 정책', '글로벌 시장 확대']
+    '기타': ['AI 기술 발전', '디지털 전환 가속화', '신규 비즈니스 모델', '글로벌 시장 확대']
   };
   
   return opportunities[industry] || opportunities['기타'];
@@ -4329,13 +4520,21 @@ function performFreeDiagnosisAnalysis() {
         };
         const benchmarkData = performBenchmarkAnalysis(data, aiScores);
         
-        // AI 보고서 생성 (폴백 금지)
+        // AI 보고서 생성 (폴백 금지) - 업종별 데이터 강화
         let aiReport = null;
         const maxRetries = 5;
         
+        // 업종별 추가 데이터 검색 및 강화
+        const enhancedData = {
+          ...data,
+          industryInsights: searchIndustryInsights(data.industry),
+          competitorAnalysis: getCompetitorBenchmarks(data.industry, data.region),
+          marketTrends: getMarketTrends(data.industry, 2025)
+        };
+        
         for (let retry = 0; retry < maxRetries; retry++) {
           try {
-            const prompt = createAIReportPrompt(data, aiScores, benchmarkData);
+            const prompt = createAIReportPrompt(enhancedData, aiScores, benchmarkData);
             const apiKey = CONFIG.GEMINI_API_KEY;
             
             if (!apiKey || apiKey.length === 0) {
@@ -4388,7 +4587,43 @@ function performFreeDiagnosisAnalysis() {
         }
         
         if (!aiReport || aiReport.length < 3000) {
-          throw new Error('AI 보고서 생성 품질 기준 미달 - 폴백 금지');
+          // 폴백 방지 - 최종 시도
+          console.log('🔄 최종 AI 보고서 생성 시도...');
+          try {
+            const simplifiedPrompt = createSimplifiedAIPrompt(data, aiScores);
+            const response = UrlFetchApp.fetch(CONFIG.GEMINI_API_URL + '?key=' + CONFIG.GEMINI_API_KEY, {
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              payload: JSON.stringify({
+                contents: [{
+                  parts: [{
+                    text: simplifiedPrompt
+                  }]
+                }],
+                generationConfig: {
+                  temperature: 0.8,
+                  topK: 50,
+                  topP: 0.95,
+                  maxOutputTokens: 8192
+                }
+              }),
+              muteHttpExceptions: true
+            });
+            
+            const result = JSON.parse(response.getContentText());
+            if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+              aiReport = result.candidates[0].content.parts[0].text;
+              console.log('✅ 최종 시도 성공');
+            }
+          } catch (finalError) {
+            console.error('❌ 최종 시도도 실패:', finalError);
+          }
+          
+          if (!aiReport || aiReport.length < 3000) {
+            throw new Error('AI 보고서 생성 실패 - 시스템 관리자에게 문의하세요');
+          }
         }
         
         // 진행 상태 업데이트
