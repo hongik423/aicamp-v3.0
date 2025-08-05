@@ -14,6 +14,10 @@ const TEST_CONFIG = {
   TEST_EMAIL: 'test@aicamp.club'
 };
 
+if (!TEST_CONFIG.GAS_URL) {
+  throw new Error('NEXT_PUBLIC_GOOGLE_SCRIPT_URL이 설정되지 않았습니다. .env.local 파일을 확인하세요.');
+}
+
 console.log('🚀 AICAMP v3.0 Google Apps Script 통합 테스트 시작');
 console.log('📍 테스트 URL:', TEST_CONFIG.GAS_URL);
 console.log('==========================================\n');
@@ -109,7 +113,7 @@ async function testSystemStatus() {
 // 2. 무료 AI 진단 테스트
 async function testFreeDiagnosis() {
   const testData = {
-    action: 'submitFreeDiagnosis',
+    action: 'submitDiagnosis',
     data: {
       companyName: 'AI테스트기업',
       representativeName: '김테스트',
@@ -176,6 +180,15 @@ async function testBetaFeedback() {
   return await makeRequest(testData, '베타 피드백');
 }
 
+// After testBetaFeedback function
+async function testEmailAndSheet() {
+  const testData = {
+    action: 'testEmailAndSheet', // 가정: GAS에 이 액션을 처리하는 코드 필요
+    data: { /* 모의 데이터 */ }
+  };
+  return await makeRequest(testData, '이메일 및 시트 테스트');
+}
+
 // 메인 테스트 실행
 async function runAllTests() {
   console.log('🔍 1. 시스템 상태 확인');
@@ -191,7 +204,8 @@ async function runAllTests() {
   const tests = [
     { name: '무료 AI 진단', func: testFreeDiagnosis },
     { name: '상담신청', func: testConsultation },
-    { name: '베타 피드백', func: testBetaFeedback }
+    { name: '베타 피드백', func: testBetaFeedback },
+    { name: '이메일 및 시트', func: testEmailAndSheet }
   ];
 
   let successCount = 0;
