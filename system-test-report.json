@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-08-05T03:17:54.117Z",
+  "testResults": {
+    "localServer": {
+      "success": true
+    },
+    "aiDiagnosis": {
+      "success": false,
+      "diagnosisId": null
+    },
+    "educationPages": {
+      "success": false
+    },
+    "gasTest": {
+      "success": false,
+      "diagnosisId": null
+    },
+    "productionTest": {
+      "success": false,
+      "diagnosisId": null
+    }
+  },
+  "summary": {
+    "totalTests": 5,
+    "passedTests": 1,
+    "failedTests": 4
+  },
+  "recommendations": [
+    "Google Apps Script 배포 상태를 확인하세요",
+    "Vercel 환경 변수 설정을 확인하세요"
+  ]
+}
