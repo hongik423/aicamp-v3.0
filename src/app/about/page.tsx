@@ -159,25 +159,42 @@ export default function AboutPage() {
                 <CardContent className="px-8 pb-8">
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <Briefcase className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <GraduationCap className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-1">주요 경력</h4>
+                        <h4 className="font-semibold text-gray-900 mb-1">학력 및 자격</h4>
                         <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• 다수 기업 경영 전략 컨설팅</li>
-                          <li>• 디지털 전환 프로젝트 총괄</li>
-                          <li>• AI 도입 전략 수립 및 실행</li>
+                          <li>• 컨설팅학 박사</li>
+                          <li>• CMC (국제공인컨설턴트)</li>
+                          <li>• 빅데이터분석기사</li>
+                          <li>• 기업가치평가사</li>
                         </ul>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-3">
-                      <GraduationCap className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <Briefcase className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-1">현재 주요 직책</h4>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          <li>• AI CAMP 대표이사</li>
+                          <li>• 여주대학교 창업과경영 출강</li>
+                          <li>• ISP 컨설팅 전문가</li>
+                          <li>• ODA 프로젝트 총괄</li>
+                          <li>• AI 데이터구축사업 평가위원</li>
+                          <li>• 데이터가치평가 컨설턴트</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <Star className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-1">전문 분야</h4>
                         <ul className="text-sm text-gray-600 space-y-1">
                           <li>• 기업 AI 전략 수립</li>
                           <li>• 디지털 혁신 리더십</li>
                           <li>• 조직 변화 관리</li>
+                          <li>• 데이터 분석 및 AI 컨설팅</li>
                         </ul>
                       </div>
                     </div>
@@ -215,13 +232,42 @@ export default function AboutPage() {
                 <CardContent className="px-8 pb-8">
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
+                      <GraduationCap className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-1">학력 및 자격</h4>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          <li>• 대전대학교 기술경영 석사</li>
+                          <li>• 경영지도사 (인적자원)</li>
+                          <li>• 온실가스관리기사</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <Briefcase className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-1">현재 주요 직책</h4>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          <li>• AI CAMP 교장 겸 CTO</li>
+                          <li>• 아이엔제이컨설팅 책임컨설턴트</li>
+                          <li>• 월드클래스코리아 HRD실장</li>
+                          <li>• ESG인증원 책임컨설턴트</li>
+                          <li>• 한국능률협회컨설팅 EXPERT</li>
+                          <li>• IBK미래성장성 심의회 전문가</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
                       <BookOpen className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-1">주요 경력</h4>
+                        <h4 className="font-semibold text-gray-900 mb-1">주요 경력 (28년)</h4>
                         <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• 20년 이상 기업 교육 경험</li>
-                          <li>• AI/디지털 교육 커리큘럼 설계</li>
-                          <li>• 1000+ 기업 교육 프로그램 운영</li>
+                          <li>• 2014년~현재: 경영지도사/전문 컨설턴트</li>
+                          <li>• 2010년~2014년: 엠오티랩 대표 컨설턴트</li>
+                          <li>• 2000년~2010년: 영업조직 관리 (지점장 역임)</li>
+                          <li>• 1993년~2000년: 현대그룹 고려산업개발</li>
+                          <li>• 200개사 이상 조직/인사 컨설팅 수행</li>
                         </ul>
                       </div>
                     </div>
@@ -234,6 +280,8 @@ export default function AboutPage() {
                           <li>• AI 역량 진단 및 평가</li>
                           <li>• 맞춤형 교육 프로그램 설계</li>
                           <li>• 조직 학습 문화 구축</li>
+                          <li>• 인사노무 및 조직관리</li>
+                          <li>• 고용노동부 일터혁신 컨설팅</li>
                         </ul>
                       </div>
                     </div>

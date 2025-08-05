@@ -112,7 +112,6 @@ const Header = () => {
     { href: '/services/policy-funding', label: '정책자금', icon: DollarSign, isSpecial: false, badge: '추천' },
     { href: '/seminar', label: '세미나', icon: Video, isSpecial: false, badge: '개최중' },
     { href: '/cases', label: '성공사례', icon: Trophy, isSpecial: false, badge: undefined },
-    { href: '/consultation', label: '상담신청', icon: MessageSquare, isSpecial: false, badge: undefined },
     { href: '/about', label: '회사소개', icon: Building, isSpecial: false, badge: undefined }
   ];
 
@@ -127,7 +126,6 @@ const Header = () => {
   ];
 
   const actionButtons = [
-    { href: '/diagnosis-form', label: 'AI 무료진단', color: 'blue', icon: Building },
     { href: '/consultation', label: '전문가상담', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
     { href: '/services/policy-funding/investment-analysis', label: 'AI투자분석기', color: 'orange', icon: TrendingUp }
