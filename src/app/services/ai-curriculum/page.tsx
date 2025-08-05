@@ -268,26 +268,57 @@ const curriculumDetail = {
 
 export default function AICurriculumPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* 히어로 섹션 */}
-      <section className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white py-24">
-        <div className="container mx-auto px-4">
+    <main className="min-h-screen bg-white">
+      {/* 애플 스타일 히어로 섹션 */}
+      <section className="relative bg-white py-20 lg:py-32 overflow-hidden">
+        {/* 배경 그라데이션 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/30"></div>
+        
+        {/* 플로팅 요소들 */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-100/20 rounded-full blur-xl"></div>
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-100/20 rounded-full blur-xl"></div>
+        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-green-100/20 rounded-full blur-lg"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="mb-4 bg-white/10 text-white border-white/20">AI CAMP 교육 프로그램</Badge>
-            <h1 className="text-5xl font-bold mb-6 text-white">
-              기업체 AI & n8n 자동화 교육
+            {/* 미니멀 배지 */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-8">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              AI CAMP 교육 프로그램
+            </div>
+            
+            {/* 메인 타이틀 - 애플 스타일 */}
+            <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight">
+              기업체 AI & n8n
+              <br className="hidden sm:block" />
+              자동화 교육
             </h1>
-            <p className="text-xl mb-8 text-white/90">
-              부서별 맞춤형 AI 자동화 교육으로 업무 생산성을 혁신하세요
+            
+            {/* 서브타이틀 */}
+            <p className="text-xl lg:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
+              부서별 맞춤형 AI 자동화 교육으로
+              <br className="hidden sm:block" />
+              업무 생산성을 혁신하세요
             </p>
-            <div className="flex gap-4 justify-center">
-              <Button size="lg" variant="secondary" asChild>
+            
+            {/* CTA 버튼 - 애플 스타일 */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                size="lg" 
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                asChild
+              >
                 <Link href="/consultation">
                   <BookOpen className="mr-2 h-5 w-5" />
                   교육 문의하기
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10" asChild>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-600 px-8 py-4 rounded-xl font-semibold transition-all duration-300"
+                asChild
+              >
                 <Link href="#tracks">
                   트랙별 과정 보기
                 </Link>
@@ -297,78 +328,110 @@ export default function AICurriculumPage() {
         </div>
       </section>
 
-      {/* 핵심 특징 */}
-      <section className="py-16 border-b">
+      {/* 핵심 특징 - 애플 스타일 */}
+      <section className="py-20 bg-gray-50/50">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="h-8 w-8 text-blue-600" />
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              왜 AI CAMP인가요?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              실무에 바로 적용할 수 있는 체계적인 AI 교육 프로그램
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* 특징 카드들 - 애플 스타일 */}
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Target className="h-8 w-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2">부서별 맞춤형</h3>
-              <p className="text-gray-600 text-sm">7개 부서별 특화된 교육 커리큘럼</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">부서별 맞춤형</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">7개 부서별 특화된 교육 커리큘럼으로 실무에 최적화</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-green-600" />
+            
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Zap className="h-8 w-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2">실무 중심</h3>
-              <p className="text-gray-600 text-sm">즉시 적용 가능한 자동화 실습</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">실무 중심</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">즉시 적용 가능한 자동화 실습과 실제 사례 중심</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-purple-600" />
+            
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Users className="h-8 w-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2">입문/심화 과정</h3>
-              <p className="text-gray-600 text-sm">수준별 체계적인 교육 프로그램</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">입문/심화 과정</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">수준별 체계적인 교육 프로그램으로 단계적 성장</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="h-8 w-8 text-orange-600" />
+            
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Award className="h-8 w-8 text-white" />
               </div>
-              <h3 className="font-semibold mb-2">수료증 발급</h3>
-              <p className="text-gray-600 text-sm">AI CAMP 공식 수료증 제공</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">수료증 발급</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">AI CAMP 공식 수료증으로 역량 인증</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 부서별 트랙 개요 */}
-      <section id="tracks" className="py-20">
+      {/* 부서별 트랙 개요 - 애플 스타일 */}
+      <section id="tracks" className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">부서별 교육 트랙</h2>
-            <p className="text-xl text-gray-600">각 부서의 실무에 최적화된 AI 자동화 교육 프로그램</p>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6">
+              부서별 교육 트랙
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              각 부서의 실무에 최적화된 AI 자동화 교육 프로그램으로
+              <br className="hidden sm:block" />
+              업무 효율성을 극대화하세요
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {trackData.map((track) => (
               <Link key={track.id} href={`/services/ai-curriculum/tracks/${track.id}`}>
-                <Card className="hover:shadow-lg transition-all hover:scale-105 cursor-pointer h-full">
-                  <CardHeader>
-                    <div className={`h-2 w-full bg-gradient-to-r ${track.color} rounded-t-lg -mt-6 -mx-6 mb-4`} />
-                    <CardTitle className="text-lg">{track.title}</CardTitle>
-                    <CardDescription>{track.target}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
-                      <Clock className="h-4 w-4" />
+                <div className="group bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:border-blue-200 transition-all duration-500 transform hover:scale-105 cursor-pointer h-full">
+                  {/* 그라데이션 헤더 */}
+                  <div className={`h-1 w-full bg-gradient-to-r ${track.color} rounded-full mb-6`} />
+                  
+                  {/* 트랙 정보 */}
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {track.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                      {track.target}
+                    </p>
+                    
+                    {/* 시간 정보 */}
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full text-xs font-medium text-gray-700">
+                      <Clock className="h-3 w-3" />
                       <span>{track.duration}</span>
                     </div>
-                    <ul className="space-y-2">
-                      {track.highlights.map((highlight, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm">
-                          <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-4 flex items-center text-sm font-medium text-blue-600">
+                  </div>
+
+                  {/* 하이라이트 */}
+                  <ul className="space-y-3 mb-6">
+                    {track.highlights.map((highlight, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-sm">
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700 leading-relaxed">{highlight}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <span className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">
                       자세히 보기
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </div>
-                  </CardContent>
-                </Card>
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-blue-600 group-hover:text-blue-700 group-hover:translate-x-1 transition-all duration-300" />
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

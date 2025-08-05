@@ -1,0 +1,127 @@
+{
+  "timestamp": "2025-08-05T03:52:56.870Z",
+  "testData": {
+    "companyName": "AI CAMP 테스트 기업",
+    "industry": "it",
+    "companySize": "50-199",
+    "applicantName": "홍용기",
+    "position": "대표이사",
+    "email": "test@aicamp.club",
+    "phone": "010-9251-9743",
+    "assessmentResponses": {
+      "q1": "4",
+      "q2": "3",
+      "q3": "4",
+      "q4": "5",
+      "q5": "3",
+      "q6": "4",
+      "q7": "3",
+      "q8": "4",
+      "q9": "2",
+      "q10": "3",
+      "q11": "3",
+      "q12": "4",
+      "q13": "4",
+      "q14": "3",
+      "q15": "4",
+      "q16": "3",
+      "q17": "5",
+      "q18": "4",
+      "q19": "3",
+      "q20": "4",
+      "q21": "3",
+      "q22": "4",
+      "q23": "3",
+      "q24": "4"
+    }
+  },
+  "results": {
+    "application": {
+      "success": false,
+      "error": "Google Apps Script 오류: 500"
+    },
+    "scoreCalculation": {
+      "success": true,
+      "localScores": {
+        "leadership": 80,
+        "infrastructure": 70,
+        "employeeCapability": 60,
+        "culture": 70,
+        "practicalApplication": 80,
+        "dataCapability": 70,
+        "total": 72,
+        "grade": "B"
+      },
+      "categories": 6
+    },
+    "gasTest": {
+      "success": false,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+    },
+    "emailNotification": {
+      "success": true,
+      "emailContent": {
+        "applicant": {
+          "to": "test@aicamp.club",
+          "subject": "[AI CAMP] AI CAMP 테스트 기업님의 AI 역량진단 결과",
+          "body": "안녕하세요 홍용기님,\n\nAI CAMP의 AI 역량진단 결과를 안내드립니다."
+        },
+        "admin": {
+          "to": "hongik423@gmail.com",
+          "subject": "[AI CAMP] 새로운 AI 역량진단 신청 - AI CAMP 테스트 기업",
+          "body": "새로운 AI 역량진단 신청이 접수되었습니다.\n기업명: AI CAMP 테스트 기업"
+        }
+      }
+    },
+    "googleSheetsStorage": {
+      "success": true,
+      "sheetData": {
+        "sheetName": "AI역량진단",
+        "headers": [
+          "진단ID",
+          "제출시간",
+          "기업명",
+          "업종",
+          "규모",
+          "신청자",
+          "직급",
+          "이메일",
+          "연락처",
+          "리더십점수",
+          "인프라점수",
+          "직원역량점수",
+          "문화점수",
+          "실무적용점수",
+          "데이터역량점수",
+          "종합점수",
+          "등급"
+        ],
+        "data": [
+          "TEST-ID",
+          "2025. 8. 5. 오후 12:52:55",
+          "AI CAMP 테스트 기업",
+          "it",
+          "50-199",
+          "홍용기",
+          "대표이사",
+          "test@aicamp.club",
+          "010-9251-9743",
+          80,
+          70,
+          60,
+          70,
+          80,
+          70,
+          72,
+          "B"
+        ]
+      }
+    }
+  },
+  "summary": {
+    "totalSteps": 5,
+    "successCount": 3,
+    "failureCount": 2,
+    "successRate": 60
+  }
+}
