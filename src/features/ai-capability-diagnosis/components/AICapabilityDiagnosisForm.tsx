@@ -64,7 +64,7 @@ const diagnosisSchema = z.object({
   expectedBenefits: z.array(z.string()).min(1, '최소 1개 이상의 기대효과를 선택해주세요'),
   
   // AI 역량 평가
-  assessmentResponses: z.record(z.number().min(1).max(5)),
+  assessmentResponses: z.record(z.string(), z.number().min(1).max(5)),
   
   // 추가 정보
   currentAIUsage: z.string().optional(),
