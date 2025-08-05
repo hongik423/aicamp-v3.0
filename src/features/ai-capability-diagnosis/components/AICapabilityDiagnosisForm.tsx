@@ -340,7 +340,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormControl>
                         <Textarea 
                           placeholder="귀사의 주요 사업 내용과 제품/서비스를 간략히 설명해주세요"
-                          className="min-h-[100px] placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 resize-none"
+                          className="min-h-[100px] placeholder:text-gray-400 focus:placeholder:opacity-0 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -364,7 +364,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                         <FormControl>
                           <Input 
                             placeholder="홍길동" 
-                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            className="placeholder:text-gray-400 focus:placeholder:opacity-0 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
                             {...field} 
                           />
                         </FormControl>
@@ -382,7 +382,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                         <FormControl>
                           <Input 
                             placeholder="대표이사" 
-                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            className="placeholder:text-gray-400 focus:placeholder:opacity-0 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
                             {...field} 
                           />
                         </FormControl>
@@ -401,7 +401,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                           <Input 
                             type="email" 
                             placeholder="example@company.com" 
-                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            className="placeholder:text-gray-400 focus:placeholder:opacity-0 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
                             {...field} 
                           />
                         </FormControl>
@@ -419,7 +419,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                         <FormControl>
                           <Input 
                             placeholder="010-1234-5678" 
-                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            className="placeholder:text-gray-400 focus:placeholder:opacity-0 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
                             {...field} 
                           />
                         </FormControl>
@@ -562,7 +562,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormControl>
                         <Textarea 
                           placeholder="AI 진단과 관련하여 특별히 확인하고 싶은 사항이 있다면 자유롭게 작성해주세요"
-                          className="min-h-[100px] placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 resize-none"
+                          className="min-h-[100px] placeholder:text-gray-400 focus:placeholder:opacity-0 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 resize-none"
                           {...field}
                         />
                       </FormControl>

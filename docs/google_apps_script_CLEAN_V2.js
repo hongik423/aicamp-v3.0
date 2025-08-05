@@ -181,6 +181,7 @@ function doPost(e) {
       case 'taxCalculatorError':
         return handleTaxCalculatorError(requestData);
       case 'saveConsultation':
+      case 'submitConsultation':
         return handleConsultationSubmission(requestData);
       case 'submitFreeDiagnosis':
         return handleFreeDiagnosisSubmission(requestData);
@@ -200,7 +201,7 @@ function doPost(e) {
  * 진단 신청 처리
  */
 function handleDiagnosisSubmission(data) {
-  const diagnosisId = generateDiagnosisId();
+  const diagnosisId = generateDiagnosisId(data.email);
   
   try {
     // 1. 진행 상태 초기화
@@ -2901,9 +2902,16 @@ function handleStatusCheck(diagnosisId) {
 // ============================================================================
 
 /**
- * 진단 ID 생성
+ * 진단 ID 생성 (이메일 기반)
  */
-function generateDiagnosisId() {
+function generateDiagnosisId(email = null) {
+  if (email && typeof email === 'string') {
+    const emailPrefix = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    const timestamp = Date.now();
+    return `${emailPrefix}-${timestamp}`;
+  }
+  
+  // 기본 방식 (이메일이 없는 경우)
   const timestamp = new Date().getTime();
   const random = Math.random().toString(36).substr(2, 5);
   return `DIAG_${timestamp}_${random}`;
@@ -3838,204 +3846,356 @@ function runSystemTests() {
 }
 
 /**
- * 상담 신청 처리
+ * 상담 신청 처리 - 개선된 버전
  */
 function handleConsultationSubmission(data) {
-  const consultationId = generateDiagnosisId(); // Reuse ID generator
-
   try {
-    // 진행 상태 초기화 (optional for consultation)
-    updateProgressStatus(consultationId, 0, '상담 요청 접수');
-
-    // 기본 정보 유효성 검사 (adjust as needed)
-    // validateBasicData(data); // May need custom validation
-
-    // Google Sheets에 데이터 저장
-    saveConsultationToSheets(consultationId, data);
-
-    // 확인 이메일 발송
-    sendConsultationConfirmationEmail(data.email, data.company, consultationId);
-
-    // 관리자 알림 발송
-    sendConsultationAdminNotification(data, consultationId);
-
-    // 응답 반환
+    console.log('🏢 상담신청 처리 시작:', data.성명 || data.name);
+    
+    // 1. 상담 ID 생성 (이메일 기반)
+    const consultationId = generateConsultationId(data.이메일 || data.email);
+    
+    // 2. 구글시트에 데이터 저장
+    const sheetsResult = saveConsultationToSheets(consultationId, data);
+    
+    // 3. 이메일 발송 (요청된 경우)
+    if (data.sendEmails) {
+      sendConsultationAdminNotification(data, consultationId);
+      sendConsultationConfirmationEmail(data, consultationId);
+    }
+    
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
         consultationId: consultationId,
-        message: '상담 신청이 접수되었습니다.'
+        message: '상담신청이 성공적으로 처리되었습니다',
+        timestamp: getCurrentKoreanTime(),
+        sheetsRowId: sheetsResult.rowId
       }))
       .setMimeType(ContentService.MimeType.JSON);
-
+    
   } catch (error) {
-    console.error('❌ 상담 신청 처리 오류:', error);
-    return createErrorResponse(error.message, consultationId);
+    console.error('❌ 상담신청 처리 오류:', error);
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: error.message,
+        timestamp: getCurrentKoreanTime()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
 /**
- * 상담 데이터를 Google Sheets에 저장
+ * 상담신청 ID 생성 (이메일 기반)
  */
-function saveConsultationToSheets(id, data) {
-  const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
-  let sheet = spreadsheet.getSheetByName('상담신청');
-
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet('상담신청');
-    // Add headers
-    sheet.appendRow(['ID', 'Company', 'Name', 'Email', 'Phone', 'ConsultationType', 'InquiryContent', 'Timestamp']);
+function generateConsultationId(email) {
+  if (email && typeof email === 'string') {
+    const emailPrefix = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    const timestamp = Date.now();
+    return `CONS-${emailPrefix}-${timestamp}`;
   }
-
-  sheet.appendRow([
-    id,
-    data.company,
-    data.name,
-    data.email,
-    data.phone,
-    data.consultationType,
-    data.inquiryContent,
-    new Date()
-  ]);
+  
+  // 기본 방식
+  const timestamp = Date.now();
+  return `CONS-${timestamp}`;
 }
 
 /**
- * 상담 확인 이메일
+ * 상담신청 데이터를 구글시트에 저장 (한글 컬럼명)
  */
-function sendConsultationConfirmationEmail(email, company, id) {
+function saveConsultationToSheets(consultationId, data) {
   try {
-    const subject = `[AICAMP] ${company}님의 전문가 상담 신청이 접수되었습니다`;
+    const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    let sheet = spreadsheet.getSheetByName('상담신청');
+    
+    // 시트가 없으면 생성
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('상담신청');
+      
+      // 헤더 설정 (한글 컬럼명)
+      const headers = [
+        '신청일시', '상담ID', '상담유형', '성명', '연락처', '이메일', '회사명', '직책',
+        '상담분야', '문의내용', '희망상담시간', '개인정보동의', '처리상태', '담당자',
+        '상담일정', '상담결과', '후속조치', '완료일시', '비고'
+      ];
+      
+      sheet.appendRow(headers);
+      
+      // 헤더 스타일 설정
+      const headerRange = sheet.getRange(1, 1, 1, headers.length);
+      headerRange.setBackground('#2563eb');
+      headerRange.setFontColor('#ffffff');
+      headerRange.setFontWeight('bold');
+      headerRange.setFontSize(11);
+    }
+    
+    // 데이터 저장
+    const rowData = [
+      getCurrentKoreanTime(),                  // 신청일시
+      consultationId,                          // 상담ID
+      data.상담유형 || data.consultationType || '',  // 상담유형
+      data.성명 || data.name || '',           // 성명
+      data.연락처 || data.phone || '',        // 연락처
+      data.이메일 || data.email || '',        // 이메일
+      data.회사명 || data.company || '',      // 회사명
+      data.직책 || data.position || '',       // 직책
+      data.상담분야 || data.consultationArea || '',  // 상담분야
+      data.문의내용 || data.inquiryContent || '',    // 문의내용
+      data.희망상담시간 || data.preferredTime || '', // 희망상담시간
+      data.개인정보동의 || (data.privacyConsent ? '동의' : '미동의'), // 개인정보동의
+      '신규신청',                              // 처리상태
+      '이후경',                               // 담당자
+      '',                                     // 상담일정
+      '',                                     // 상담결과
+      '',                                     // 후속조치
+      '',                                     // 완료일시
+      `API를 통한 자동 등록`                   // 비고
+    ];
+    
+    sheet.appendRow(rowData);
+    const lastRow = sheet.getLastRow();
+    
+    console.log(`✅ 상담신청 데이터 저장 완료: ${consultationId} (행 ${lastRow})`);
+    
+    return {
+      success: true,
+      rowId: lastRow,
+      sheetName: '상담신청'
+    };
+    
+  } catch (error) {
+    console.error('❌ 상담신청 시트 저장 오류:', error);
+    throw new Error(`시트 저장 실패: ${error.message}`);
+  }
+}
+
+/**
+ * 신청자에게 상담신청 확인 이메일 발송
+ */
+function sendConsultationConfirmationEmail(data, consultationId) {
+  try {
+    const subject = `[AICAMP] ${data.성명 || data.name}님의 상담신청이 접수되었습니다`;
     
     const htmlBody = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-    .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
-    .info-box { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .button { display: inline-block; padding: 12px 30px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-    .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>전문가 상담 신청 확인</h1>
-    </div>
-    <div class="content">
-      <h2>${company}님, 안녕하세요!</h2>
-      
-      <p>AICAMP 전문가 상담 신청이 정상적으로 접수되었습니다.</p>
-      
-      <div class="info-box">
-        <h3>📋 신청 정보</h3>
-        <p><strong>신청번호:</strong> ${id}</p>
-        <p><strong>회사명:</strong> ${company}</p>
-        <p><strong>신청일시:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 28px;">AICAMP</h1>
+          <p style="margin: 10px 0 0 0; font-size: 18px;">전문가 상담신청 접수완료</p>
+        </div>
+        
+        <div style="padding: 40px 20px; background-color: #f7f7f7;">
+          <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            
+            <h2 style="color: #333; margin: 0 0 20px 0;">안녕하세요, ${data.성명 || data.name}님</h2>
+            
+            <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+              AICAMP 전문가 상담신청이 정상적으로 접수되었습니다.<br>
+              담당자가 <strong>24시간 내</strong>에 연락드리겠습니다.
+            </p>
+            
+            <!-- 접수 정보 -->
+            <div style="background: #f0f9ff; border: 1px solid #0ea5e9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin: 0 0 15px 0; color: #0c4a6e;">📋 접수 정보</h3>
+              <table style="width: 100%; line-height: 1.8;">
+                <tr>
+                  <td style="color: #374151; font-weight: bold; width: 100px;">상담 ID</td>
+                  <td style="color: #1f2937;">${consultationId}</td>
+                </tr>
+                <tr>
+                  <td style="color: #374151; font-weight: bold;">접수일시</td>
+                  <td style="color: #1f2937;">${getCurrentKoreanTime()}</td>
+                </tr>
+                <tr>
+                  <td style="color: #374151; font-weight: bold;">상담유형</td>
+                  <td style="color: #1f2937;">${data.상담유형 || data.consultationType}</td>
+                </tr>
+                <tr>
+                  <td style="color: #374151; font-weight: bold;">상담분야</td>
+                  <td style="color: #1f2937;">${data.상담분야 || data.consultationArea || '협의 후 결정'}</td>
+                </tr>
+              </table>
+            </div>
+            
+            <!-- 상담 프로세스 -->
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin: 0 0 15px 0; color: #92400e;">🔄 상담 진행 프로세스</h3>
+              <div style="color: #92400e; line-height: 1.8;">
+                <div style="margin-bottom: 8px;">1️⃣ <strong>24시간 내</strong> - 담당자 1차 연락</div>
+                <div style="margin-bottom: 8px;">2️⃣ <strong>상담 일정 협의</strong> - 편리한 시간 조율</div>
+                <div style="margin-bottom: 8px;">3️⃣ <strong>전문가 상담 진행</strong> - 맞춤형 솔루션 제공</div>
+                <div>4️⃣ <strong>후속 지원</strong> - 지속적인 성장 파트너십</div>
+              </div>
+            </div>
+            
+            <!-- 연락처 정보 -->
+            <div style="text-align: center; margin: 30px 0; padding: 20px; background: #f8fafc; border-radius: 8px;">
+              <h3 style="margin: 0 0 15px 0; color: #1e293b;">📞 직접 연락</h3>
+              <p style="margin: 5px 0; color: #475569;"><strong>이후경 교장</strong> (AI CAMP 대표)</p>
+              <p style="margin: 5px 0; color: #475569;">전화: <a href="tel:010-9251-9743" style="color: #2563eb; text-decoration: none;">010-9251-9743</a></p>
+              <p style="margin: 5px 0; color: #475569;">이메일: <a href="mailto:hongik423@gmail.com" style="color: #2563eb; text-decoration: none;">hongik423@gmail.com</a></p>
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 14px; text-align: center;">
+              <p>본 메일은 발신 전용입니다. 궁금한 사항은 위 연락처로 문의해 주세요.</p>
+              <p>© 2025 AICAMP. All rights reserved.</p>
+            </div>
+            
+          </div>
+        </div>
       </div>
-      
-      <div class="info-box">
-        <h3>🚀 다음 단계</h3>
-        <p>1. 전문 컨설턴트가 영업일 기준 1일 이내에 연락드립니다</p>
-        <p>2. 귀사의 현황과 니즈를 파악하여 맞춤형 상담을 진행합니다</p>
-        <p>3. AI 도입 전략과 실행 방안을 제시해드립니다</p>
-      </div>
-      
-      <center>
-        <a href="https://ai-camp-landingpage.vercel.app" class="button">AICAMP 홈페이지 방문</a>
-      </center>
-      
-      <p>궁금하신 사항이 있으시면 언제든지 문의해주세요.</p>
-      
-      <div class="footer">
-        <p>AICAMP - AI로 만드는 비즈니스 혁신</p>
-        <p>이메일: hongik423@gmail.com | 전화: 010-9251-9743</p>
-        <p>© 2025 AICAMP. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>
     `;
     
-    MailApp.sendEmail({
-      to: email,
-      subject: subject,
-      htmlBody: htmlBody
-    });
+    GmailApp.sendEmail(
+      data.이메일 || data.email,
+      subject,
+      '',
+      {
+        htmlBody: htmlBody,
+        name: 'AICAMP 전문가 상담',
+        replyTo: 'hongik423@gmail.com'
+      }
+    );
     
-    console.log('✅ 상담 신청 확인 이메일 발송 완료:', email);
+    console.log('✅ 신청자 확인 이메일 발송 완료:', data.이메일 || data.email);
+    
   } catch (error) {
-    console.error('❌ 상담 신청 확인 이메일 발송 실패:', error);
+    console.error('❌ 신청자 확인 이메일 발송 오류:', error);
+    // 이메일 발송 실패해도 전체 프로세스는 계속 진행
   }
 }
 
 /**
- * 관리자 상담 알림
+ * 관리자에게 상담신청 알림 이메일 발송 - 개선된 버전
  */
-function sendConsultationAdminNotification(data, id) {
+function sendConsultationAdminNotification(data, consultationId) {
   try {
-    const subject = `[신규 상담신청] ${data.company} - ${data.name}`;
+    const subject = `[새로운 상담신청] ${data.회사명 || data.company} - ${data.성명 || data.name}님 (${data.상담유형 || data.consultationType})`;
+    
+    const googleSheetsUrl = data.googleSheetsUrl || CONFIG.SPREADSHEET_URL || 'https://docs.google.com/spreadsheets/d/1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0/edit';
     
     const htmlBody = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; }
-    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-    .header { background: #28a745; color: white; padding: 20px; border-radius: 5px; }
-    .info-section { background: #f8f9fa; padding: 20px; margin: 20px 0; border-left: 4px solid #28a745; }
-    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .data-table th, .data-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-    .data-table th { background: #e9ecef; font-weight: bold; }
-    .button { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2>🔔 신규 상담 신청 알림</h2>
-    </div>
-    
-    <div class="info-section">
-      <h3>📋 신청 정보</h3>
-      <table class="data-table">
-        <tr><th>신청번호</th><td>${id}</td></tr>
-        <tr><th>신청일시</th><td>${new Date().toLocaleString('ko-KR')}</td></tr>
-        <tr><th>회사명</th><td>${data.company || '미입력'}</td></tr>
-        <tr><th>신청자명</th><td>${data.name || '미입력'}</td></tr>
-        <tr><th>연락처</th><td>${data.phone || '미입력'}</td></tr>
-        <tr><th>이메일</th><td>${data.email || '미입력'}</td></tr>
-        <tr><th>상담 희망 분야</th><td>${data.consultingArea || '미입력'}</td></tr>
-        <tr><th>메시지</th><td>${data.message || '미입력'}</td></tr>
-      </table>
-    </div>
-    
-    <p><strong>빠른 연락 부탁드립니다!</strong></p>
-    
-    <center>
-      <a href="${CONFIG.SPREADSHEET_URL}" class="button">Google Sheets에서 전체 데이터 보기</a>
-    </center>
-  </div>
-</body>
-</html>
+      <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 30px 20px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 24px;">🏢 새로운 상담신청 알림</h1>
+          <p style="margin: 10px 0 0 0; opacity: 0.9;">AICAMP 전문가 상담신청이 접수되었습니다</p>
+        </div>
+        
+        <div style="padding: 30px 20px; background-color: #f8fafc;">
+          <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            
+            <!-- 긴급 처리 알림 -->
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="margin: 0; color: #92400e; font-weight: bold;">⚡ 신속 처리 요청</p>
+              <p style="margin: 5px 0 0 0; color: #92400e; font-size: 14px;">24시간 내 연락 진행 바랍니다</p>
+            </div>
+            
+            <!-- 기본 정보 -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <tr>
+                <td style="padding: 12px; background: #f1f5f9; font-weight: bold; width: 120px; border: 1px solid #e2e8f0;">상담 ID</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${consultationId}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; background: #f1f5f9; font-weight: bold; border: 1px solid #e2e8f0;">신청일시</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;">${getCurrentKoreanTime()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; background: #f1f5f9; font-weight: bold; border: 1px solid #e2e8f0;">상담유형</td>
+                <td style="padding: 12px; border: 1px solid #e2e8f0;"><span style="background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${data.상담유형 || data.consultationType}</span></td>
+              </tr>
+            </table>
+            
+            <!-- 신청자 정보 -->
+            <h3 style="color: #1e293b; margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0;">👤 신청자 정보</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold; width: 120px;">성명</td>
+                <td style="padding: 10px;"><strong>${data.성명 || data.name}</strong></td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold;">회사명</td>
+                <td style="padding: 10px;">${data.회사명 || data.company}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold;">직책</td>
+                <td style="padding: 10px;">${data.직책 || data.position || '미기재'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold;">연락처</td>
+                <td style="padding: 10px;"><a href="tel:${data.연락처 || data.phone}" style="color: #2563eb; text-decoration: none;">${data.연락처 || data.phone}</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold;">이메일</td>
+                <td style="padding: 10px;"><a href="mailto:${data.이메일 || data.email}" style="color: #2563eb; text-decoration: none;">${data.이메일 || data.email}</a></td>
+              </tr>
+            </table>
+            
+            <!-- 상담 상세 정보 -->
+            <h3 style="color: #1e293b; margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0;">💼 상담 상세 정보</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold; width: 120px;">상담분야</td>
+                <td style="padding: 10px;">${data.상담분야 || data.consultationArea || '미지정'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold;">희망시간</td>
+                <td style="padding: 10px;">${data.희망상담시간 || data.preferredTime || '협의 후 결정'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; background: #f8fafc; font-weight: bold; vertical-align: top;">문의내용</td>
+                <td style="padding: 10px; line-height: 1.6;">${(data.문의내용 || data.inquiryContent || '').replace(/\n/g, '<br>')}</td>
+              </tr>
+            </table>
+            
+            <!-- 액션 버튼들 -->
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${googleSheetsUrl}" 
+                 style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 0 10px; font-weight: bold;">
+                📊 구글시트에서 관리하기
+              </a>
+              <a href="tel:${data.연락처 || data.phone}" 
+                 style="display: inline-block; background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 0 10px; font-weight: bold;">
+                📞 즉시 전화하기
+              </a>
+            </div>
+            
+            <!-- 처리 가이드 -->
+            <div style="background: #f0f9ff; border: 1px solid #0ea5e9; padding: 15px; border-radius: 8px; margin-top: 20px;">
+              <h4 style="margin: 0 0 10px 0; color: #0c4a6e;">📋 처리 가이드</h4>
+              <ul style="margin: 0; padding-left: 20px; color: #0c4a6e; line-height: 1.6;">
+                <li>24시간 내 1차 연락 (전화 우선)</li>
+                <li>상담 일정 협의 및 확정</li>
+                <li>구글시트에서 처리상태 업데이트</li>
+                <li>상담 완료 후 후속조치 계획 수립</li>
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; color: #64748b; font-size: 12px;">
+          <p>본 메일은 AICAMP 상담신청 시스템에서 자동 발송되었습니다.</p>
+          <p>문의: hongik423@gmail.com | 전화: 010-9251-9743</p>
+        </div>
+      </div>
     `;
     
-    MailApp.sendEmail({
-      to: CONFIG.ADMIN_EMAIL,
-      subject: subject,
-      htmlBody: htmlBody
-    });
+    GmailApp.sendEmail(
+      data.adminEmail || CONFIG.ADMIN_EMAIL,
+      subject,
+      '',
+      {
+        htmlBody: htmlBody,
+        name: 'AICAMP 상담신청 시스템'
+      }
+    );
     
-    console.log('✅ 관리자 상담 알림 이메일 발송 완료');
+    console.log('✅ 관리자 알림 이메일 발송 완료:', data.adminEmail || CONFIG.ADMIN_EMAIL);
+    
   } catch (error) {
-    console.error('❌ 관리자 상담 알림 이메일 발송 실패:', error);
+    console.error('❌ 관리자 알림 이메일 발송 오류:', error);
+    // 이메일 발송 실패해도 전체 프로세스는 계속 진행
   }
 }
 
@@ -4068,7 +4228,7 @@ function handleFreeDiagnosisSubmission(data) {
     }
     
     // 1. 고유 ID 생성
-    const diagnosisId = generateDiagnosisId();
+    const diagnosisId = generateDiagnosisId(data.email);
     const timestamp = new Date();
     
     console.log('✅ 진단 신청 정보:', {
@@ -4125,7 +4285,7 @@ function handleFreeDiagnosisSubmission(data) {
  * AI 역량진단 제출 처리
  */
 function handleAICapabilityDiagnosisSubmission(requestData) {
-  const diagnosisId = generateDiagnosisId();
+  const diagnosisId = generateDiagnosisId(data.email);
   
   try {
     console.log('AI 역량진단 처리 시작:', diagnosisId);
@@ -4816,4 +4976,19 @@ function createErrorResponse(message) {
     error: message,
     timestamp: new Date().toISOString()
   })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * 현재 한국 시간 반환
+ */
+function getCurrentKoreanTime() {
+  return new Date().toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
 }

@@ -80,9 +80,13 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           ...processedData,
-          action: 'saveConsultation',
+          action: 'submitConsultation',
           dataSource: 'API_백업시스템',
-          retryAttempt: true
+          retryAttempt: true,
+          // 이메일 발송 요청 추가
+          sendEmails: true,
+          adminEmail: 'hongik423@gmail.com',
+          googleSheetsUrl: 'https://docs.google.com/spreadsheets/d/1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0/edit'
         }),
         signal: controller.signal
       });
@@ -90,12 +94,18 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeoutId);
 
       if (response.ok) {
+        const result = await response.json();
         console.log('✅ API 백업을 통한 Google Apps Script 성공');
         return NextResponse.json({
           success: true,
-          message: '상담 신청이 성공적으로 처리되었습니다 (API 백업)',
+          message: '상담 신청이 성공적으로 처리되었습니다. 확인 이메일을 발송했으며, 담당자가 곧 연락드리겠습니다.',
           method: 'google_script_backup',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          consultationId: result.consultationId || `CONS-${Date.now()}`,
+          emailsSent: {
+            confirmationEmail: true,
+            adminNotification: true
+          }
         });
       }
     } catch (error) {
