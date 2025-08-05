@@ -180,17 +180,14 @@ export default function ConsultationPage() {
           
           toast({
             title: "🎉 상담 신청 완료!",
-            description: "투자재무타당성분석기로 이동합니다...",
-            duration: 3000,
+            description: "빠른 시일 내에 연락드리겠습니다. 감사합니다.",
+            duration: 5000,
           });
 
           resetForm();
           setSubmitAttempts(0);
           
-          // 투자재무타당성분석기로 즉시 이동
-          setTimeout(() => {
-            window.location.href = '/services/policy-funding/investment-analysis';
-          }, 1500);
+          // 상담 신청 완료 후 페이지에 머무르기 (독립적 운영)
           return;
         }
       } catch (error) {

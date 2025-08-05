@@ -67,8 +67,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           // 트랜지션
           "transition-all duration-200",
           
-          // 포커스 시 배경색
-          isFocused && "bg-background/95 border-ring shadow-sm",
+          // 포커스 시 배경색 - 완전 불투명
+          isFocused && "bg-background border-ring shadow-sm",
           
           // 모바일 특화 스타일
           isMobile && [
