@@ -316,7 +316,104 @@ function generateAIReportAsync(diagnosisId, data, aiScores, benchmarkData) {
 // ============================================================================
 
 /**
- * AI 역량 점수 계산
+ * 개인정보 동의 확인
+ */
+function checkPrivacyConsent(data) {
+  return data.privacyConsent === true || data.privacyConsent === 'true' || data.privacyConsent === '동의';
+}
+
+/**
+ * 이메일 유효성 검사
+ */
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/**
+ * 분야별 상세 점수 계산 및 벤치마크 분석
+ */
+function calculateDetailedScores(data) {
+  const responses = data.assessmentResponses || {};
+  
+  // 6개 영역별 문항 매핑 (AI 역량진단표 기준)
+  const categories = {
+    leadership: ['L1', 'L2', 'L3', 'L4'],      // 경영진 리더십
+    infrastructure: ['I1', 'I2', 'I3', 'I4'],  // AI 인프라
+    employeeCapability: ['E1', 'E2', 'E3', 'E4'], // 직원 역량
+    culture: ['C1', 'C2', 'C3', 'C4'],         // 조직 문화
+    practicalApplication: ['P1', 'P2', 'P3', 'P4'], // 실무 적용
+    dataCapability: ['D1', 'D2', 'D3', 'D4']   // 데이터 역량
+  };
+  
+  // 각 영역별 평가 기준 설명
+  const categoryDescriptions = {
+    leadership: '경영진의 AI 이해도, 투자 의지, 전략적 비전',
+    infrastructure: 'AI 도구 보유, 클라우드 환경, 보안 체계',
+    employeeCapability: '직원 AI 활용 능력, 교육 참여도, 학습 의지',
+    culture: 'AI 수용 문화, 혁신 분위기, 실패 허용도',
+    practicalApplication: '업무 AI 적용, 프로세스 자동화, 성과 창출',
+    dataCapability: '데이터 수집/관리, 분석 역량, 활용도'
+  };
+  
+  const scores = {};
+  const details = {};
+  let totalScore = 0;
+  let categoryCount = 0;
+  
+  // 각 카테고리별 점수 계산
+  for (const [category, questions] of Object.entries(categories)) {
+    let categorySum = 0;
+    let validCount = 0;
+    const questionScores = [];
+    
+    questions.forEach(q => {
+      const value = responses[q];
+      if (value && value >= 1 && value <= 5) {
+        categorySum += parseInt(value);
+        validCount++;
+        questionScores.push({ question: q, score: value });
+      }
+    });
+    
+    if (validCount > 0) {
+      // 5점 만점을 100점 만점으로 변환
+      const categoryScore = Math.round((categorySum / validCount) * 20);
+      scores[category] = categoryScore;
+      details[category] = {
+        score: categoryScore,
+        average: categorySum / validCount,
+        questions: questionScores,
+        validCount: validCount
+      };
+      totalScore += categoryScore;
+      categoryCount++;
+    } else {
+      scores[category] = 0;
+      details[category] = {
+        score: 0,
+        average: 0,
+        questions: [],
+        validCount: 0
+      };
+    }
+  }
+  
+  // 전체 평균 점수
+  const avgScore = categoryCount > 0 ? Math.round(totalScore / categoryCount) : 0;
+  
+  return {
+    categories: scores,
+    categoryDetails: details,
+    totalScore: avgScore,
+    grade: calculateGrade(avgScore),
+    categoryCount: categoryCount,
+    totalQuestions: Object.keys(responses).length
+  };
+}
+
+/**
+ * AI 역량 점수 계산 (개선된 버전)
  */
 function calculateAICapabilityScores(data) {
   console.log('📊 AI 역량 점수 계산 시작');
@@ -769,119 +866,637 @@ function generateAIReportForced(data, aiScores, benchmarkData) {
 }
 
 /**
- * AI 보고서 프롬프트 생성 (GEMINI 2.5 Flash 최적화)
+ * 고품질 폴백 보고서 생성 (고몰입조직구축 버전)
+ */
+function generateHighQualityFallbackReport(data, aiScores, benchmarkData) {
+  console.log('📄 고품질 폴백 보고서 생성 시작');
+  
+  const totalScore = aiScores.totalScore || 70;
+  const grade = aiScores.grade || 'B';
+  const industryAvg = benchmarkData?.industryBenchmark || 65;
+  const gap = totalScore - industryAvg;
+  
+  return `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    고몰입조직구축 AI역량강화 진단보고서
+    
+    기업명: ${data.companyName}
+    진단일: ${new Date().toLocaleDateString('ko-KR')}
+    작성자: 이후경 교장 (AI CAMP)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【종합 진단 결과】
+
+• 종합 점수: ${totalScore}/100점 (${grade}등급)
+• 업계 평균: ${industryAvg}점 (${gap > 0 ? '+' : ''}${gap}점)
+• AI 준비도: ${totalScore >= 80 ? '매우 높음' : totalScore >= 70 ? '높음' : totalScore >= 60 ? '보통' : '개선 필요'}
+
+【6대 영역 평가】
+
+1. 경영진 AI 리더십: ${aiScores.categories?.leadership || 60}점
+   → ${aiScores.categories?.leadership >= 70 ? '경영진의 AI 비전과 투자 의지 우수' : '경영진 AI 인식 제고 프로그램 필요'}
+
+2. AI 인프라 구축: ${aiScores.categories?.infrastructure || 55}점
+   → ${aiScores.categories?.infrastructure >= 60 ? '기본 인프라 구축, 고도화 필요' : 'AI 도구 및 시스템 도입 시급'}
+
+3. 직원 AI 역량: ${aiScores.categories?.employeeCapability || 50}점
+   → ${aiScores.categories?.employeeCapability >= 60 ? '기본 역량 보유, 심화 교육 필요' : '전사 AI 역량 강화 교육 시급'}
+
+4. AI 조직 문화: ${aiScores.categories?.culture || 55}점
+   → ${aiScores.categories?.culture >= 65 ? '혁신 문화 형성 중, 확산 필요' : 'AI 수용 문화 조성 프로그램 필요'}
+
+5. 실무 적용도: ${aiScores.categories?.practicalApplication || 45}점
+   → ${aiScores.categories?.practicalApplication >= 50 ? '일부 적용 중, 전사 확대 필요' : 'Quick Win 프로젝트로 즉시 시작'}
+
+6. 데이터 활용: ${aiScores.categories?.dataCapability || 50}점
+   → ${aiScores.categories?.dataCapability >= 60 ? '데이터 활용 중, 고도화 필요' : '데이터 거버넌스 체계 구축 필요'}
+
+【고몰입 조직 구축 전략】
+
+[1단계] AI 인식 전환 (1-3개월)
+• ${data.concerns || '핵심 문제'} 해결을 위한 AI 활용 방안 도출
+• 전직원 AI 기초 교육 실시
+• 부서별 AI 챔피언 선정
+
+[2단계] AI 역량 강화 (4-9개월)
+• AICAMP ${data.industry} 특화 교육 프로그램
+• 파일럿 프로젝트 3개 동시 추진
+• 성과 공유회 및 확산
+
+[3단계] AI 문화 정착 (10-12개월)
+• 전사 AI 플랫폼 구축
+• AI 기반 성과 관리 체계
+• 지속적 혁신 프로세스 정립
+
+【투자 계획】
+
+• 총 투자액: ${data.budget || '7,000만원'}
+• 정부 지원: 최대 1억원 (AI 바우처 등)
+• 예상 ROI: 12개월 내 200%, 24개월 내 400%
+
+【AICAMP 지원 프로그램】
+
+✓ ${data.industry} 특화 AI 교육
+✓ 1:1 맞춤 컨설팅
+✓ 정부 지원사업 연계
+✓ 성과 보장 프로그램
+
+문의: 010-9251-9743 (이후경 교장)
+이메일: hongik423@gmail.com
+홈페이지: https://ai-camp-landingpage.vercel.app
+
+본 보고서는 ${data.companyName}의 고몰입 AI 조직 구축을 위한
+맞춤형 진단 보고서입니다.
+
+© 2025 AI CAMP. All rights reserved.
+`;
+}
+
+/**
+ * AI 보고서 프롬프트 생성 (GEMINI 2.5 Flash 최적화 - 2025년 최신 트렌드 반영)
  */
 function createAIReportPrompt(data, aiScores, benchmarkData) {
+  // AI 점수 계산 및 벤치마크 갭 분석
+  const totalScore = aiScores ? aiScores.totalScore : 70;
+  const grade = aiScores ? aiScores.grade : 'B';
+  const industryAvg = benchmarkData ? benchmarkData.industryBenchmark : 65;
+  const gap = totalScore - industryAvg;
+  
+  // 2025년 업종별 AI 트렌드 정보
+  const industryTrends = {
+    'IT/소프트웨어': {
+      aiAdoption: '85%',
+      trend: '멀티모달 AI와 에이전트 AI 도입 가속화, 소규모 언어모델(SLM) 활용 증가',
+      impact: '개발 생산성 40% 향상, AI 기반 자율 운영 시스템 구축',
+      challenges: 'AI 인재 확보 경쟁 심화, 클라우드 비용 관리',
+      opportunities: 'AI 네이티브 제품 개발, B2B SaaS AI 통합'
+    },
+    '제조업': {
+      aiAdoption: '65%',
+      trend: '스마트팩토리 고도화, 예측 유지보수 AI, 디지털 트윈 확산',
+      impact: '운영 효율 30% 개선, 품질 불량률 50% 감소',
+      challenges: '레거시 시스템 통합, 현장 인력 AI 교육',
+      opportunities: '공급망 최적화, AI 기반 제품 설계'
+    },
+    '서비스업': {
+      aiAdoption: '60%',
+      trend: 'AI 챗봇 고도화, 초개인화 서비스, 멀티채널 통합',
+      impact: '고객 만족도 25% 향상, 운영 비용 20% 절감',
+      challenges: '고객 데이터 보안, 서비스 품질 일관성',
+      opportunities: '24/7 AI 상담, 예측 기반 서비스 제공'
+    },
+    '금융업': {
+      aiAdoption: '80%',
+      trend: 'AI 기반 리스크 관리, 로보어드바이저 고도화, 이상거래 탐지',
+      impact: '리스크 예측 정확도 60% 향상, 운영 효율 35% 개선',
+      challenges: '규제 준수, AI 윤리 및 설명가능성',
+      opportunities: '초개인화 금융 서비스, AI 투자 분석'
+    },
+    '유통/이커머스': {
+      aiAdoption: '75%',
+      trend: 'AI 추천 시스템 고도화, 재고 최적화, 동적 가격 책정',
+      impact: '매출 전환율 30% 증가, 재고 비용 25% 감소',
+      challenges: '옴니채널 통합, 실시간 데이터 처리',
+      opportunities: '예측 기반 수요 관리, AI 기반 마케팅'
+    },
+    '의료/헬스케어': {
+      aiAdoption: '70%',
+      trend: 'AI 진단 보조, 신약 개발 가속화, 개인 맞춤 의료',
+      impact: '진단 정확도 40% 향상, 신약 개발 기간 30% 단축',
+      challenges: '의료 데이터 보안, 규제 승인',
+      opportunities: '원격 진료 AI, 예방 의학 서비스'
+    }
+  };
+  
+  const industryInfo = industryTrends[data.industry] || {
+    aiAdoption: '60%',
+    trend: 'AI 도입 초기 단계, 업무 자동화 중심',
+    impact: '생산성 20% 향상, 비용 15% 절감',
+    challenges: 'AI 이해도 부족, 초기 투자 비용',
+    opportunities: 'AI 선도 기업 도약, 신규 비즈니스 모델'
+  };
+  
   return `
-당신은 28년 경력의 AI 교육 전문가 이후경 교장입니다. 다음 기업의 AI 역량진단 결과를 바탕으로 전문적이고 실무적인 진단 보고서를 작성해주세요.
+당신은 이후경 교장의 고몰입조직구축 AI역량강화 진단보고서 전문가입니다. ${data.industry} 업종의 ${data.companyName}을 위한 최고 수준의 맞춤형 진단보고서를 작성해주세요.
 
-🏢 **기업 정보**
-• 기업명: ${data.companyName}
-• 업종: ${data.industry}
-• 규모: ${data.companySize}
-• 지역: ${data.region}
+[작성 원칙]
+1. 마크다운 특수문자(#, *, -, \`\`\` 등) 절대 사용 금지
+2. 최소 10,000자 이상 상세 작성 (고몰입 조직 구축 전략 포함)
+3. ${data.companyName}만을 위한 100% 맞춤형 내용
+4. 모든 제안에 구체적 수치와 실행 방법 포함
+5. 폴백 답변 절대 금지 - 반드시 2025년 최신 산업 트렌드 반영
+6. ${data.industry} 업종의 AI 트렌드와 변화 상세 분석
+7. 고몰입 조직 구축을 위한 구체적 방법론 제시
 
-📊 **AI 역량 진단 결과**
-• 종합 점수: ${aiScores.totalScore}/100점 (${aiScores.grade}등급)
-• 분야별 점수:
-  - 경영진 리더십: ${Math.round(aiScores.categories.leadership * 20)}점
-  - AI 인프라: ${Math.round(aiScores.categories.infrastructure * 20)}점
-  - 직원 역량: ${Math.round(aiScores.categories.employeeCapability * 20)}점
-  - 조직 문화: ${Math.round(aiScores.categories.culture * 20)}점
-  - 실무 적용: ${Math.round(aiScores.categories.practicalApplication * 20)}점
-  - 데이터 역량: ${Math.round(aiScores.categories.dataCapability * 20)}점
+[기업 정보]
+- 기업명: ${data.companyName}
+- 대표자: ${data.representativeName}
+- 직책: ${data.position}
+- 업종: ${data.industry}
+- 지역: ${data.region}
+- 사업 내용: ${data.businessContent || '미제공'}
+- 직원수: ${data.employeeCount || data.companySize || '미제공'}
+- 연매출: ${data.annualRevenue || '미제공'}
+- 사업연수: ${data.businessHistory || '미제공'}
+- 주요 제품/서비스: ${data.mainProducts || data.businessContent || '미제공'}
+- 주요 고객층: ${data.targetCustomers || '미제공'}
+- 경쟁 강도: ${data.competitionLevel || '보통'}
+- 디지털화 수준: ${data.digitalizationLevel || '초기'}
+- AI 도입 경험: ${data.aiExperience || '없음'}
+- 주요 고민사항: ${data.concerns || '경영 효율화'}
+- 추가 고민사항: ${data.customConcern || '없음'}
+- 기대 효과: ${data.expectations || '생산성 향상'}
+- 시급성: ${data.urgency || '보통'}
+- 예산 범위: ${data.budget || '미정'}
 
-📈 **업종 벤치마크 비교**
-• 업종 평균: ${benchmarkData.industryBenchmark}점
-• 차이: ${benchmarkData.gap > 0 ? '+' : ''}${benchmarkData.gap}점 (${benchmarkData.gapAnalysis})
-• 업종 내 위치: 상위 ${100 - benchmarkData.percentile}%
+[AI 역량 평가 결과]
+- 종합 점수: ${totalScore}점 / 100점
+- 등급: ${grade} (S: 90-100점, A: 80-89점, B: 70-79점, C: 60-69점, D: 60점 미만)
+- 업계 평균: ${industryAvg}점
+- 벤치마크 갭: ${gap > 0 ? '+' : ''}${gap}점
 
-**다음 구조에 따라 상세하고 실무적인 보고서를 작성해주세요:**
+[2025년 ${data.industry} 업종 AI 트렌드]
+- AI 도입률: ${industryInfo.aiAdoption}
+- 핵심 트렌드: ${industryInfo.trend}
+- 비즈니스 영향: ${industryInfo.impact}
+- 주요 도전과제: ${industryInfo.challenges}
+- 기회 요인: ${industryInfo.opportunities}
 
-# 🎯 ${data.companyName} AI 역량진단 종합 보고서
+반드시 다음 보고서를 작성하세요:
 
-## 📋 1. 진단 결과 종합
-### 1.1 전체 평가
-- ${aiScores.grade}등급 (${aiScores.totalScore}점)에 대한 상세한 해석
-- 업종 평균 대비 현재 위치와 의미
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    고몰입조직구축 AI역량강화 진단보고서
+    
+    기업명: ${data.companyName}
+    진단일: ${new Date().toLocaleDateString('ko-KR')}
+    작성자: 이후경 교장 (AI CAMP)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### 1.2 핵심 강점 (Top 3)
-- 가장 높은 점수를 받은 분야들의 구체적 분석
-- 각 강점이 비즈니스에 미치는 긍정적 영향
+【1. 종합 진단 개요】
+귀사는 ${data.region}에서 ${data.businessHistory || '여러 해 동안'} ${data.businessContent || data.industry + ' 사업'}을 영위하는 ${data.industry} 분야의 
+${data.employeeCount || data.companySize ? `${data.employeeCount || data.companySize} 규모의` : ''} 기업으로서, ${data.annualRevenue ? `연매출 ${data.annualRevenue}의 실적을 보이고 있으며,` : ''}
+특히 ${data.concerns || '경영 효율화'}에 대한 해결책이 ${data.urgency === '매우시급' ? '매우 시급한' : data.urgency === '시급' ? '시급한' : '필요한'} 상황입니다.
 
-### 1.3 개선 필요 영역 (Top 3)
-- 낮은 점수 분야의 원인 분석
-- 개선하지 않을 경우의 리스크
+- 핵심 요약: ${data.companyName}은 ${data.mainProducts || data.businessContent || data.industry + ' 분야'}를 주력으로 ${data.targetCustomers || '다양한 고객'}을 대상으로 
+  사업을 영위하고 있으며, ${data.competitionLevel === '매우높음' ? '치열한 경쟁 환경' : data.competitionLevel === '높음' ? '경쟁이 심한 시장' : '안정적인 시장'}에서 
+  ${data.digitalizationLevel === '고급' ? '높은 디지털 역량' : data.digitalizationLevel === '중급' ? '적절한 디지털 인프라' : '디지털 전환의 초기 단계'}를 보유하고 있습니다.
+  
+- 종합 점수: ${totalScore}점 / 100점 (업계 평균: ${industryAvg}점)
+- 등급: ${grade} (업계 대비 ${gap > 0 ? '+' : ''}${gap}점)
+- AI 도입 잠재력: ${totalScore >= 80 ? '매우 높음' : totalScore >= 70 ? '높음' : totalScore >= 60 ? '보통' : '개선 필요'}
 
-## 🔍 2. 분야별 상세 분석
-### 2.1 경영진 리더십 (${Math.round(aiScores.categories.leadership * 20)}점)
-- 현재 수준 평가 및 업종 대비 위치
-- 구체적 개선 방안과 실행 가이드
+주요 발견사항:
+1) 2025년 ${data.industry} 업계 AI 도입률 ${industryInfo.aiAdoption} 대비 귀사의 AI 준비도 평가
+2) ${industryInfo.trend}에 따른 귀사의 대응 전략 수립 필요
+3) ${data.concerns || '경영 효율화'} 해결을 위한 AI 활용 방안 도출
 
-### 2.2 AI 인프라 (${Math.round(aiScores.categories.infrastructure * 20)}점)
-- 기술적 현황과 개선 포인트
-- 투자 우선순위와 예상 비용
+[AICAMP 6대 영역 AI 역량 평가 결과]
+┌─────────────────────────────────────────────────────────────────────┐
+│ 평가 영역              │ 점수  │ 수준              │ 개선 방향      │
+├─────────────────────────────────────────────────────────────────────┤
+│ 1. 경영진 AI 리더십    │ ${aiScores.categories.leadership || 60}점 │ ${aiScores.categories.leadership >= 70 ? '우수' : aiScores.categories.leadership >= 50 ? '보통' : '미흡'} │ ${aiScores.categories.leadership >= 70 ? '지속 강화' : '인식 개선'}    │
+│ 2. AI 인프라 구축      │ ${aiScores.categories.infrastructure || 55}점 │ ${aiScores.categories.infrastructure >= 60 ? '양호' : aiScores.categories.infrastructure >= 40 ? '보통' : '미흡'} │ ${aiScores.categories.infrastructure >= 60 ? '고도화' : '구축 필요'}      │
+│ 3. 직원 AI 역량        │ ${aiScores.categories.employeeCapability || 50}점 │ ${aiScores.categories.employeeCapability >= 60 ? '양호' : aiScores.categories.employeeCapability >= 40 ? '보통' : '부족'} │ ${aiScores.categories.employeeCapability >= 60 ? '심화 교육' : '전사 교육'} │
+│ 4. AI 조직 문화        │ ${aiScores.categories.culture || 55}점 │ ${aiScores.categories.culture >= 65 ? '긍정적' : aiScores.categories.culture >= 45 ? '형성 중' : '미흡'} │ ${aiScores.categories.culture >= 65 ? '확산' : '혁신 필요'}        │
+│ 5. 실무 적용도         │ ${aiScores.categories.practicalApplication || 45}점 │ ${aiScores.categories.practicalApplication >= 50 ? '진행 중' : aiScores.categories.practicalApplication >= 30 ? '초기' : '미적용'} │ ${aiScores.categories.practicalApplication >= 50 ? '확대' : '즉시 도입'}  │
+│ 6. 데이터 활용         │ ${aiScores.categories.dataCapability || 50}점 │ ${aiScores.categories.dataCapability >= 60 ? '활용 중' : aiScores.categories.dataCapability >= 40 ? '기초' : '미흡'} │ ${aiScores.categories.dataCapability >= 60 ? '고도화' : '체계 구축'}     │
+└─────────────────────────────────────────────────────────────────────┘
 
-### 2.3 직원 역량 (${Math.round(aiScores.categories.employeeCapability * 20)}점)
-- 교육 필요도와 맞춤형 교육 방안
-- 역량 개발 로드맵
+【2. 2025년 ${data.industry} 업종 AI 변화 분석】
 
-### 2.4 조직 문화 (${Math.round(aiScores.categories.culture * 20)}점)
-- 문화적 변화 필요성과 방법론
-- 조직 저항 최소화 전략
+업계 현황:
+- 현재 AI 도입률: ${industryInfo.aiAdoption}
+- 주요 트렌드: ${industryInfo.trend}
+- 예상 영향: ${industryInfo.impact}
 
-### 2.5 실무 적용 (${Math.round(aiScores.categories.practicalApplication * 20)}점)
-- 즉시 적용 가능한 AI 도구와 활용법
-- 업무 프로세스 개선 방안
+AI로 인한 업종별 변화 예측:
+1) 비즈니스 모델 혁신: ${data.industry === 'IT/소프트웨어' ? 'AI 네이티브 제품 개발, SaaS의 AI 에이전트화' : data.industry === '제조업' ? '스마트팩토리 고도화, 예측 유지보수 일반화' : data.industry === '서비스업' ? 'AI 기반 초개인화 서비스 표준화' : 'AI 기반 운영 자동화'}
+2) 고객 경험 변화: ${data.industry === '유통/이커머스' ? 'AI 추천의 정확도 90% 이상, 실시간 개인화' : data.industry === '금융업' ? '24/7 AI 상담원, 초개인화 금융 상품' : '고객 응대의 80% AI 처리'}
+3) 운영 효율화: 평균 ${industryInfo.impact} 수준의 생산성 향상 예상
+4) 일자리 변화: AI 협업 능력이 핵심 역량으로 부상, 재교육 필요성 증대
 
-### 2.6 데이터 역량 (${Math.round(aiScores.categories.dataCapability * 20)}점)
-- 데이터 관리 현황과 개선책
-- 데이터 기반 의사결정 체계 구축
+【3. SWOT 분석 (AI 시대 관점)】
 
-## 🗺️ 3. 단계별 실행 로드맵
-### 3.1 즉시 실행 (1-3개월)
-- 투자 비용이 적고 효과가 큰 3-5개 액션 아이템
-- 각 항목별 구체적 실행 방법과 책임자
+강점 (Strengths):
+1) ${data.businessContent || data.industry + ' 분야'}에서 축적된 도메인 전문성 - AI와 결합 시 시너지 창출 가능
+2) ${data.region} 지역 ${data.targetCustomers || '고객'}과의 관계 - AI 기반 서비스 테스트베드 활용 가능
+3) ${data.employeeCount === '10명 미만' ? '신속한 의사결정과 실행력' : data.employeeCount === '50명 미만' ? '유연한 조직 구조' : '안정적인 자원과 인프라'}
+4) ${data.digitalizationLevel === '고급' || data.digitalizationLevel === '중급' ? '기존 디지털 역량을 AI로 확장 가능' : '백지 상태에서 최신 AI 시스템 구축 가능'}
 
-### 3.2 단기 목표 (3-6개월)
-- 기반 구축 완료 후 실행할 5-7개 과제
-- 예상 투자 비용과 ROI
+약점 (Weaknesses):
+1) AI 역량 점수 ${totalScore}점으로 업계 평균 대비 ${gap}점 ${gap > 0 ? '높지만 지속적 개선 필요' : '낮아 집중 투자 필요'}
+2) ${data.concerns} 문제 해결을 위한 체계적 접근 부족
+3) ${data.aiExperience === '없음' ? 'AI 도입 경험 전무로 학습 곡선 예상' : 'AI 활용 범위 제한적, 전사 확산 필요'}
+4) AI 전문 인력 부족 (업계 공통 과제)
 
-### 3.3 중기 전략 (6-12개월)
-- 전사적 AI 도입을 위한 주요 프로젝트
-- 조직 변화 관리 방안
+기회 (Opportunities):
+1) ${industryInfo.opportunities} - 귀사에 특히 유리한 기회
+2) 정부 AI 바우처 사업 등 최대 1억원 지원 활용 가능
+3) ${data.expectations} 달성을 위한 AI 솔루션 다양화
+4) 2025년 소규모 언어모델(SLM) 활용으로 비용 효율적 AI 도입 가능
 
-### 3.4 장기 비전 (1-3년)
-- AI 기반 비즈니스 혁신 방향
-- 경쟁 우위 확보 전략
+위협 (Threats):
+1) ${industryInfo.challenges} - 업계 공통 도전 과제
+2) ${data.competitionLevel === '매우높음' || data.competitionLevel === '높음' ? '경쟁사의 AI 선점 효과로 시장 점유율 위협' : 'AI 도입 지연 시 경쟁력 급속 저하'}
+3) AI 인재 확보 경쟁 심화 (연봉 상승률 30% 이상)
+4) AI 규제 강화 (EU AI Act 등) 대응 필요
 
-## 💡 4. 맞춤형 솔루션 제안
-### 4.1 AICAMP 교육 프로그램
-- 기업 규모와 수준에 맞는 맞춤형 교육 과정
-- 교육 일정과 예상 효과
+【4. SWOT 기반 전략 매트릭스 (구체적 실행 방안)】
 
-### 4.2 투자 계획 및 예산
-- 단계별 투자 계획 (총 예상 비용: ${data.companySize === '10명 미만' ? '3천-1억원' : data.companySize === '50명 미만' ? '5천-2억원' : '1-5억원'})
-- ROI 분석 및 회수 기간
+SO 전략 (강점-기회 결합) - "AI로 도약하는 ${data.industry} 선도 기업":
+1) [강점: ${data.businessContent} 전문성] + [기회: ${industryInfo.opportunities}]
+   = "${data.industry} 특화 AI 솔루션으로 시장 선점"
+   - 구체적 실행: ${data.industry === 'IT/소프트웨어' ? 'AI 코파일럿 도입으로 개발 생산성 40% 향상' : data.industry === '제조업' ? 'AI 품질 예측 시스템으로 불량률 50% 감소' : 'AI 자동화로 운영 효율 30% 개선'}
+   - 1단계 (1개월): 현재 프로세스 분석 및 AI 적용 포인트 도출
+   - 2단계 (2-3개월): 파일럿 프로젝트 실행 (1개 핵심 업무)
+   - 3단계 (4-6개월): 성과 검증 후 전사 확대
+   - 예상 투자: ${data.budget === '3천만원 미만' ? '2,500만원' : data.budget === '1억원 미만' ? '5,000만원' : '8,000만원'}
+   - ROI: 6개월 내 투자 회수, 연간 ${data.annualRevenue ? '매출의 15-20% 추가 수익' : '30% 수익성 개선'}
 
-### 4.3 성공 지표 (KPI)
-- 단계별 성과 측정 지표
-- 모니터링 방법론
+2) [강점: ${data.region} 네트워크] + [기회: 정부 AI 지원 정책]
+   = "정부 지원 활용한 AI 혁신 가속화"
+   - AI 바우처 사업 신청 (최대 1억원)
+   - 지역 AI 허브 연계 프로그램 참여
+   - 예상 지원금: 프로젝트 비용의 50-70%
+   - 신청 시기: 2025년 2-3월
 
-## 🚀 5. 결론 및 다음 단계
-### 5.1 핵심 메시지
-- 진단 결과의 핵심 요약
-- 가장 중요한 실행 과제 3가지
+WO 전략 (약점 보완-기회 활용) - "AI 역량 급속 성장":
+1) [약점: AI 점수 ${totalScore}점] + [기회: AI 교육 프로그램 다양화]
+   = "AICAMP 맞춤형 교육으로 AI 역량 도약"
+   - 경영진 과정: AI 리더십과 전략 수립 (2일)
+   - 실무진 과정: ${data.industry} 특화 AI 활용 실습 (5일)
+   - 전직원 과정: AI 기초와 협업 방법 (온라인 3시간)
+   - 투자비용: 1,500만원 (직원 ${data.employeeCount || '20명'} 기준)
+   - 목표: 6개월 내 AI 역량 점수 15점 향상
 
-### 5.2 즉시 시작할 액션
-- 내일부터 바로 시작할 수 있는 구체적 행동
-- 첫 달 안에 달성해야 할 목표
+2) [약점: ${data.concerns}] + [기회: AI 솔루션 다양화]
+   = "핵심 문제 해결형 AI 도입"
+   - ${data.concerns === '인력 부족' ? 'AI 업무 자동화로 1인당 생산성 40% 향상' : data.concerns === '매출 정체' ? 'AI 마케팅으로 신규 고객 30% 확대' : 'AI 최적화로 비용 25% 절감'}
+   - Quick Win 프로젝트로 3개월 내 가시적 성과
+   - 성공 후 확대 적용 전략
 
----
-**💬 추가 컨설팅 문의: hongik423@gmail.com**
-**🌐 AICAMP: https://ai-camp-landingpage.vercel.app**
+ST 전략 (강점 활용-위협 대응) - "AI 경쟁 우위 확보":
+1) [강점: 도메인 전문성] + [위협: 경쟁사 AI 도입]
+   = "차별화된 AI 서비스로 경쟁력 방어"
+   - ${data.industry} 특화 AI 모델 개발
+   - 고객 데이터 기반 초개인화 서비스
+   - 경쟁사 대비 6개월 먼저 시장 출시
 
-보고서는 경영진의 의사결정을 돕고, 실무진이 즉시 실행할 수 있는 구체적이고 실용적인 내용으로 작성해주세요. 업종별 특성과 기업 규모를 고려한 맞춤형 제안을 포함해주세요.
+2) [강점: ${data.employeeCount === '10명 미만' ? '빠른 의사결정' : '조직 역량'}] + [위협: AI 인재 부족]
+   = "내부 인재 AI 전문가화"
+   - 핵심 인재 AI 심화 교육 (3개월)
+   - 외부 전문가 멘토링 프로그램
+   - AI 프로젝트 기반 학습
+
+WT 전략 (약점 최소화-위협 회피) - "리스크 최소화 전환":
+1) [약점: AI 경험 부족] + [위협: 투자 실패 리스크]
+   = "단계적 접근으로 안전한 AI 도입"
+   - 1단계: 저위험 업무부터 AI 적용
+   - 2단계: 성과 검증 후 핵심 업무 확대
+   - 3단계: 전사적 AI 플랫폼 구축
+   - 각 단계별 Go/No-go 의사결정
+
+2) [약점: 자원 한계] + [위협: 급변하는 AI 기술]
+   = "전략적 파트너십으로 리스크 분산"
+   - AICAMP와 장기 파트너십 체결
+   - AI 구독형 서비스 우선 활용
+   - 핵심 역량만 내재화 전략
+
+【5. 고몰입조직구축을 위한 AI역량강화 3단계 실행로드맵】
+
+[고몰입 조직의 핵심 요소]
+1) 명확한 AI 비전과 전략 공유
+2) 전 구성원의 AI 역량 강화
+3) AI 기반 협업 문화 조성
+4) 성과 중심의 AI 활용
+5) 지속적 학습과 혁신
+
+1단계 (1-3개월) - AI 인식 전환과 기반 구축:
+1) 현황 진단과 목표 설정
+   - AI 준비도 평가 워크숍 (2일)
+   - ${data.concerns} 해결을 위한 AI 활용 포인트 도출
+   - 부서별 AI 챔피언 선정 (각 부서 1-2명)
+   - 목표: 3개월 내 가시적 성과 1건 이상
+
+2) 즉시 활용 가능한 AI 도구 도입
+   - 업무별 최적 AI 도구 선정:
+     ㆍ문서 작성: Claude 3 (월 20달러/인)
+     ㆍ데이터 분석: ChatGPT Plus + Code Interpreter
+     ㆍ이미지 생성: DALL-E 3 또는 Midjourney
+     ㆍ${data.industry} 특화: ${data.industry === 'IT/소프트웨어' ? 'GitHub Copilot' : data.industry === '제조업' ? '품질 예측 AI' : '고객 분석 AI'}
+   - 예상 비용: 월 100-200만원
+   - 즉시 효과: 반복 업무 시간 30% 절감
+
+3) AI 기초 교육 실시
+   - 전직원 대상 AI 이해도 향상 교육 (3시간)
+   - 실습 중심 워크숍 (부서별 2일)
+   - AICAMP 온라인 과정 수강권 제공
+
+2단계 (4-9개월) - AI 역량 강화와 확산:
+1) AICAMP 맞춤형 교육 프로그램
+   - 경영진 AI 리더십 과정 (16시간)
+     ㆍAI 시대 경영 전략
+     ㆍAI 투자 의사결정
+     ㆍ조직 변화 관리
+   - 중간관리자 AI 매니지먼트 과정 (40시간)
+     ㆍAI 프로젝트 관리
+     ㆍ팀 AI 역량 개발
+     ㆍ성과 측정과 개선
+   - 실무진 ${data.industry} AI 전문가 과정 (80시간)
+     ㆍ${data.industry} 특화 AI 활용법
+     ㆍ실제 업무 적용 프로젝트
+     ㆍ1:1 멘토링
+
+2) AI 프로젝트 본격 추진
+   - 파일럿 프로젝트 3개 동시 진행
+   - 프로젝트별 전담팀 구성 (3-5명)
+   - 외부 전문가 자문 지원
+   - 중간 성과 공유회 개최
+
+3) 데이터 인프라 구축
+   - 데이터 거버넌스 체계 수립
+   - AI 학습용 데이터 수집/정제
+   - 클라우드 인프라 최적화
+
+3단계 (10-12개월) - AI 문화 정착과 혁신:
+1) AI 경영 시스템 완성
+   - 전사 AI 대시보드 구축
+   - 실시간 의사결정 지원 체계
+   - AI 성과 관리 시스템
+
+2) 혁신 문화 확산
+   - AI 혁신 아이디어 공모전
+   - 우수 사례 시상 및 공유
+   - AI 커뮤니티 활성화
+
+3) 지속 성장 체계
+   - AI 역량 인증 제도 도입
+   - 지속 교육 프로그램 운영
+   - 차세대 AI 기술 도입 준비
+
+【6. 벤치마크 갭 분석과 우선순위】
+
+현재 AI 역량 vs 업계 선도기업:
+- 귀사 점수: ${totalScore}점
+- 업계 평균: ${industryAvg}점
+- 업계 최고: ${industryAvg + 20}점
+- 개선 필요 갭: ${industryAvg + 20 - totalScore}점
+
+우선 개선 영역 (Gap이 큰 순서):
+1) ${totalScore < 60 ? 'AI 인프라 구축 (Gap: 25점)' : 'AI 활용 고도화 (Gap: 15점)'}
+   - 현재: 기초 수준
+   - 목표: 6개월 내 업계 평균 도달
+   - 핵심 과제: ${data.industry} 특화 AI 시스템 구축
+
+2) ${data.aiExperience === '없음' ? 'AI 인재 육성 (Gap: 20점)' : 'AI 인재 고도화 (Gap: 10점)'}
+   - 현재: ${data.aiExperience === '없음' ? 'AI 전문 인력 0명' : 'AI 활용 인력 일부'}
+   - 목표: 전직원의 50% AI 활용 가능
+   - 핵심 과제: AICAMP 교육 프로그램 이수
+
+3) 데이터 역량 강화 (Gap: 18점)
+   - 현재: 데이터 산재, 활용도 낮음
+   - 목표: 통합 데이터 플랫폼 구축
+   - 핵심 과제: 데이터 거버넌스 체계 수립
+
+【7. AI 역량진단 결과 매트릭스】
+
+[현재 수준 vs 목표 수준 매트릭스]
+
+                     현재 수준                 목표 수준 (1년 후)
+┌─────────────────────────────────────────────────────────────────┐
+│ 경영진 리더십     │ ${aiScores.categories.leadership || 60}점    │ 85점          │
+│ AI 인프라        │ ${aiScores.categories.infrastructure || 55}점 │ 80점          │
+│ 직원 AI 역량     │ ${aiScores.categories.employeeCapability || 50}점 │ 85점       │
+│ AI 조직문화      │ ${aiScores.categories.culture || 55}점        │ 90점          │
+│ 실무 적용        │ ${aiScores.categories.practicalApplication || 45}점 │ 85점     │
+│ 데이터 역량      │ ${aiScores.categories.dataCapability || 50}점 │ 80점          │
+└─────────────────────────────────────────────────────────────────┘
+
+[고몰입 조직 구축을 위한 핵심 개선 영역]
+
+1) 최우선 개선 영역 (Gap > 30점)
+   - ${aiScores.categories.practicalApplication < 50 ? '실무 적용: AI 도구 즉시 도입 필요' : aiScores.categories.employeeCapability < 50 ? '직원 역량: 전사 AI 교육 시급' : 'AI 인프라: 시스템 구축 필요'}
+   - 목표: 3개월 내 20점 향상
+
+2) 중점 개선 영역 (Gap 20-30점)
+   - ${aiScores.categories.culture < 60 ? 'AI 조직문화: 변화관리 프로그램 필요' : 'AI 리더십: 경영진 인식 개선'}
+   - 목표: 6개월 내 25점 향상
+
+3) 지속 개선 영역 (Gap < 20점)
+   - 현재 강점 영역의 지속적 고도화
+   - 목표: 12개월 내 업계 최고 수준 도달
+
+【8. 중요도-긴급성 매트릭스 (실행 우선순위)】
+
+높은 중요도 + 높은 긴급성 [즉시 실행]
+┌─────────────────────────────────────────┐
+│ 1. ${data.concerns} 해결을 위한 AI 도입  │
+│ 2. 핵심 인재 AI 교육 실시              │
+│ 3. Quick Win 프로젝트 착수             │
+└─────────────────────────────────────────┘
+
+높은 중요도 + 낮은 긴급성 [전략적 추진]
+┌─────────────────────────────────────────┐
+│ 1. 전사 AI 플랫폼 구축                 │
+│ 2. AI 거버넌스 체계 수립               │
+│ 3. 장기 인재 육성 계획                 │
+└─────────────────────────────────────────┘
+
+낮은 중요도 + 높은 긴급성 [효율적 처리]
+┌─────────────────────────────────────────┐
+│ 1. 업무 자동화 도구 도입               │
+│ 2. 기초 AI 교육 실시                   │
+│ 3. 데이터 정리 작업                    │
+└─────────────────────────────────────────┘
+
+낮은 중요도 + 낮은 긴급성 [선택적 실행]
+┌─────────────────────────────────────────┐
+│ 1. AI 커뮤니티 참여                    │
+│ 2. 추가 인증 획득                      │
+│ 3. 부가 서비스 개발                    │
+└─────────────────────────────────────────┘
+
+실행 용이성 평가:
+- 즉시 가능 (1개월): AI 도구 도입, 기초 교육
+- 단기 실행 (3개월): 파일럿 프로젝트, 프로세스 개선
+- 중기 실행 (6개월): 시스템 구축, 조직 변화
+- 장기 실행 (12개월): 문화 혁신, 전사 확산
+
+【9. 투자 대비 효과 분석】
+
+투자 규모와 단계별 효과:
+- 1단계 투자 (1-3개월): ${data.budget === '3천만원 미만' ? '1,500만원' : '3,000만원'}
+  ㆍAI 도구 도입 및 기초 교육
+  ㆍ즉시 효과: 업무 효율 20% 향상
+  
+- 2단계 투자 (4-9개월): ${data.budget === '1억원 미만' ? '3,500만원' : '5,000만원'}
+  ㆍAI 시스템 구축 및 전문 교육
+  ㆍ누적 효과: 생산성 40% 향상
+  
+- 3단계 투자 (10-12개월): ${data.budget === '1억원 이상' ? '3,000만원' : '2,000만원'}
+  ㆍAI 플랫폼 완성 및 문화 정착
+  ㆍ최종 효과: 경영 성과 50% 개선
+
+투자 대비 효과 (ROI):
+- 6개월: 투자금 회수 시작
+- 12개월: 투자금 100% 회수 + 추가 수익 창출
+- 24개월: 투자금의 250% 수익 실현
+- 36개월: 투자금의 400% 수익 달성
+
+정량적 효과:
+1) 매출 증대: ${data.annualRevenue ? `연매출 ${data.annualRevenue}의 25% 증가` : '매출 25% 성장'} 예상
+2) 비용 절감: 
+   - 인건비: 자동화로 20% 절감
+   - 운영비: 효율화로 15% 절감
+   - 마케팅비: AI 최적화로 30% 절감
+3) 생산성: 직원 1인당 산출 40% 증가
+
+정성적 효과:
+1) 직원 만족도 향상 (단순 업무 감소)
+2) 고객 경험 개선 (응답 시간 80% 단축)
+3) 의사결정 속도 향상 (데이터 기반)
+4) 혁신 문화 조성 (AI 네이티브 조직)
+
+【10. AICAMP 맞춤형 고몰입조직 구축 프로그램】
+
+[AICAMP만의 차별화된 교육 특징]
+✓ 부서별 맞춤 교육: AI가 각 부서에서 어떻게 적용되는지 실무 중심 교육
+✓ 실무 적용: 이론이 아닌 실제 업무에 즉시 적용 가능한 실습
+✓ 정부 지원 활용: AI 바우처, HRD-Net 등 정부 지원금 최대 활용
+✓ 수료증 발급: AICAMP 공식 수료증으로 전문성 인증
+
+귀사를 위한 ${data.industry} 특화 고몰입 AI 조직 구축 체계:
+
+[기업체 맞춤 프로그램]
+┌────────────────────────────────────────────────────────────┐
+│ 기초 과정 (전직원)        │ 심화 과정 (핵심인재)      │
+├────────────────────────────────────────────────────────────┤
+│ • AI 기본 이해            │ • ${data.industry} AI 전문가 │
+│ • ChatGPT 업무 활용       │ • AI 프로젝트 실습        │
+│ • AI 도구 실습            │ • 데이터 분석 고급        │
+│ • 윤리와 보안             │ • AI 솔루션 개발          │
+│ • 16시간 (2일)            │ • 40시간 (5일)            │
+└────────────────────────────────────────────────────────────┘
+
+[맞춤형 교육 트랙]
+1) 경영진 트랙: AI 전략과 의사결정 (8시간)
+   - CEO/임원진 대상 AI 인사이트
+   - AI 투자 ROI 분석
+   - 조직 변화 관리
+   - 성공 사례 벤치마킹
+
+2) 부서별 맞춤 트랙:
+   - 영업/마케팅: AI 고객 분석, 마케팅 자동화
+   - 인사/총무: AI 채용, 직원 관리 시스템
+   - 재무/회계: AI 재무 분석, 리스크 관리
+   - 생산/품질: AI 품질 예측, 공정 최적화
+   - 연구개발: AI 연구 지원, 특허 분석
+
+3) 프로젝트 트랙: 실제 문제 해결 (24시간)
+   - ${data.concerns} 해결 프로젝트
+   - 팀 단위 실습
+   - 멘토링 지원
+   - 성과 발표회
+
+[교육 효과 극대화 방안]
+1) 사전 진단: 부서별/개인별 AI 역량 진단
+2) 맞춤 설계: ${data.companyName} 전용 커리큘럼
+3) 실습 중심: 70% 실습, 30% 이론
+4) 사후 관리: 3개월 간 월 1회 팔로우업
+
+[정부 지원 활용]
+- HRD-Net 과정: 교육비 최대 90% 환급
+- AI 바우처: 최대 1억원 지원
+- 지역 특화 사업: ${data.region} 지원 프로그램
+- 예상 자부담: 전체 교육비의 10-30%
+
+【11. 실행을 위한 다음 단계】
+
+고몰입 AI 조직으로의 전환 시작:
+
+1주차: 무료 진단 상담
+- 현재 AI 역량 정밀 진단
+- 맞춤형 로드맵 초안 제시
+- ROI 시뮬레이션 제공
+
+2주차: 경영진 워크숍
+- AI 비전 수립 워크숍 (1일)
+- 투자 계획 수립
+- 추진 조직 구성
+
+3주차: 파일럿 프로젝트 착수
+- Quick Win 과제 선정
+- 프로젝트팀 구성
+- 목표 및 일정 확정
+
+4주차: 전사 킥오프
+- 전직원 AI 비전 공유
+- 교육 일정 안내
+- 변화 관리 시작
+
+성공 보장 프로그램:
+- 3개월 내 가시적 성과 미달성 시 컨설팅 비용 50% 환불
+- 6개월 내 ROI 미달성 시 추가 컨설팅 무료 제공
+- 12개월 간 지속적인 사후 관리
+
+지금이 바로 AI 혁신을 시작할 최적의 시기입니다.
+${data.competitionLevel === '매우높음' || data.competitionLevel === '높음' ? '경쟁사보다 한 발 앞서' : '업계를 선도하는 기업으로'} 도약할 기회를 놓치지 마세요.
+
+연락처:
+- 이후경 교장 직통: 010-9251-9743
+- 이메일: hongik423@gmail.com
+- 홈페이지: https://ai-camp-landingpage.vercel.app
+- 카카오톡 채널: @aicamp
+
+"AI는 더 이상 선택이 아닌 필수입니다.
+${data.companyName}의 고몰입 AI 조직으로의 성공적인 전환을 AICAMP가 함께하겠습니다."
+
+본 보고서는 ${data.companyName}을 위한 맞춤형 고몰입조직구축 AI역량강화 진단보고서입니다.
+
+- 이후경 교장
+  AI CAMP 대표 교육 전문가
+  28년 경력의 검증된 전문성
+  고몰입 조직 구축 전문가
 `;
 }
 
@@ -1838,6 +2453,161 @@ function saveToGoogleSheets(diagnosisId, data, aiScores, benchmarkData) {
     }));
     
     throw error;
+  }
+}
+
+/**
+ * 무료 진단 신청자 확인 이메일 발송
+ * @param {string} email - 수신자 이메일
+ * @param {string} companyName - 회사명
+ * @param {string} diagnosisId - 진단 ID
+ */
+function sendFreeDiagnosisConfirmationEmail(email, companyName, diagnosisId) {
+  try {
+    const subject = `[AICAMP] ${companyName}님의 AI 경영진단보고서 신청이 접수되었습니다`;
+    
+    const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+    .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .highlight { color: #667eea; font-weight: bold; }
+    .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>AI 경영진단보고서 신청 접수 완료</h1>
+      <p style="margin: 0;">이후경 교장의 맞춤형 경영진단 서비스</p>
+    </div>
+    
+    <div class="content">
+      <p>안녕하세요, <strong>${companyName}</strong> 담당자님</p>
+      
+      <p>귀사의 AI 경영진단보고서 신청이 정상적으로 접수되었습니다.</p>
+      
+      <div class="info-box">
+        <h3 style="margin-top: 0;">📋 신청 정보</h3>
+        <p><strong>진단 ID:</strong> <span class="highlight">${diagnosisId}</span></p>
+        <p><strong>신청 기업:</strong> ${companyName}</p>
+        <p><strong>신청 일시:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+        <p><strong>예상 소요시간:</strong> 10-15분</p>
+      </div>
+      
+      <div class="info-box">
+        <h3 style="margin-top: 0;">🔍 분석 진행 프로세스</h3>
+        <ol>
+          <li>귀사의 정보를 바탕으로 AI 심층 분석 진행</li>
+          <li>업종별 맞춤형 전략 수립</li>
+          <li>실행 가능한 로드맵 작성</li>
+          <li>이메일로 상세 보고서 발송</li>
+        </ol>
+      </div>
+      
+      <p><strong>💡 참고사항:</strong></p>
+      <ul>
+        <li>보고서는 입력하신 이메일로 자동 발송됩니다</li>
+        <li>스팸함도 확인해 주시기 바랍니다</li>
+        <li>문의사항은 010-9251-9743으로 연락주세요</li>
+      </ul>
+      
+      <div class="footer">
+        <p>본 메일은 발신전용입니다.</p>
+        <p>© 2025 AICAMP. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+    
+    console.log('✅ 신청자 확인 이메일 발송 완료:', email);
+  } catch (error) {
+    console.error('❌ 확인 이메일 발송 실패:', error);
+  }
+}
+
+/**
+ * 무료 진단 관리자 알림 이메일 발송
+ * @param {Object} data - 신청 데이터
+ * @param {string} diagnosisId - 진단 ID
+ */
+function sendFreeDiagnosisAdminNotification(data, diagnosisId) {
+  try {
+    const subject = `[신규신청] ${data.companyName} - AI 경영진단보고서`;
+    
+    const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; }
+    .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+    .header { background: #2c3e50; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #34495e; color: white; }
+    .highlight { background-color: #fffacd; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>AI 경영진단보고서 신청 알림</h2>
+    </div>
+    
+    <table>
+      <tr><th width="30%">항목</th><th>내용</th></tr>
+      <tr><td><strong>진단 ID</strong></td><td class="highlight">${diagnosisId}</td></tr>
+      <tr><td><strong>신청일시</strong></td><td>${new Date().toLocaleString('ko-KR')}</td></tr>
+      <tr><td><strong>기업명</strong></td><td><strong>${data.companyName}</strong></td></tr>
+      <tr><td><strong>대표자</strong></td><td>${data.representativeName} (${data.position})</td></tr>
+      <tr><td><strong>업종</strong></td><td>${data.industry}</td></tr>
+      <tr><td><strong>지역</strong></td><td>${data.region}</td></tr>
+      <tr><td><strong>연락처</strong></td><td>${data.email}<br>${data.phone || '미제공'}</td></tr>
+      <tr><td><strong>직원수</strong></td><td>${data.employeeCount || '미제공'}</td></tr>
+      <tr><td><strong>연매출</strong></td><td>${data.annualRevenue || '미제공'}</td></tr>
+      <tr><td><strong>사업내용</strong></td><td>${data.businessContent || '미제공'}</td></tr>
+      <tr><td><strong>주요 고민사항</strong></td><td class="highlight">${data.concerns || '미제공'}</td></tr>
+      <tr><td><strong>기대효과</strong></td><td>${data.expectations || '미제공'}</td></tr>
+      <tr><td><strong>시급성</strong></td><td>${data.urgency || '보통'}</td></tr>
+      <tr><td><strong>예산</strong></td><td>${data.budget || '미정'}</td></tr>
+    </table>
+    
+    <p><strong>📊 Google Sheets 링크:</strong><br>
+    <a href="https://docs.google.com/spreadsheets/d/1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0/edit">진단 신청 데이터 확인</a></p>
+    
+    <p style="color: #666; font-size: 14px;">
+      * AI 분석이 자동으로 진행되며, 완료되면 신청자에게 보고서가 발송됩니다.
+    </p>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: CONFIG.ADMIN_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+    
+    console.log('✅ 관리자 알림 이메일 발송 완료');
+  } catch (error) {
+    console.error('❌ 관리자 알림 이메일 발송 실패:', error);
   }
 }
 
@@ -2935,21 +3705,222 @@ function saveConsultationToSheets(id, data) {
  * 상담 확인 이메일
  */
 function sendConsultationConfirmationEmail(email, company, id) {
-  MailApp.sendEmail(email, '[AICAMP] 상담 신청 확인', `Your consultation for ${company} with ID ${id} has been received.`);
+  try {
+    const subject = `[AICAMP] ${company}님의 전문가 상담 신청이 접수되었습니다`;
+    
+    const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+    .info-box { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .button { display: inline-block; padding: 12px 30px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+    .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>전문가 상담 신청 확인</h1>
+    </div>
+    <div class="content">
+      <h2>${company}님, 안녕하세요!</h2>
+      
+      <p>AICAMP 전문가 상담 신청이 정상적으로 접수되었습니다.</p>
+      
+      <div class="info-box">
+        <h3>📋 신청 정보</h3>
+        <p><strong>신청번호:</strong> ${id}</p>
+        <p><strong>회사명:</strong> ${company}</p>
+        <p><strong>신청일시:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+      </div>
+      
+      <div class="info-box">
+        <h3>🚀 다음 단계</h3>
+        <p>1. 전문 컨설턴트가 영업일 기준 1일 이내에 연락드립니다</p>
+        <p>2. 귀사의 현황과 니즈를 파악하여 맞춤형 상담을 진행합니다</p>
+        <p>3. AI 도입 전략과 실행 방안을 제시해드립니다</p>
+      </div>
+      
+      <center>
+        <a href="https://ai-camp-landingpage.vercel.app" class="button">AICAMP 홈페이지 방문</a>
+      </center>
+      
+      <p>궁금하신 사항이 있으시면 언제든지 문의해주세요.</p>
+      
+      <div class="footer">
+        <p>AICAMP - AI로 만드는 비즈니스 혁신</p>
+        <p>이메일: hongik423@gmail.com | 전화: 010-9251-9743</p>
+        <p>© 2025 AICAMP. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+    
+    console.log('✅ 상담 신청 확인 이메일 발송 완료:', email);
+  } catch (error) {
+    console.error('❌ 상담 신청 확인 이메일 발송 실패:', error);
+  }
 }
 
 /**
  * 관리자 상담 알림
  */
 function sendConsultationAdminNotification(data, id) {
-  MailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Admin] New Consultation', `New consultation from ${data.company}, ID: ${id}`);
+  try {
+    const subject = `[신규 상담신청] ${data.company} - ${data.name}`;
+    
+    const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .header { background: #28a745; color: white; padding: 20px; border-radius: 5px; }
+    .info-section { background: #f8f9fa; padding: 20px; margin: 20px 0; border-left: 4px solid #28a745; }
+    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .data-table th, .data-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+    .data-table th { background: #e9ecef; font-weight: bold; }
+    .button { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>🔔 신규 상담 신청 알림</h2>
+    </div>
+    
+    <div class="info-section">
+      <h3>📋 신청 정보</h3>
+      <table class="data-table">
+        <tr><th>신청번호</th><td>${id}</td></tr>
+        <tr><th>신청일시</th><td>${new Date().toLocaleString('ko-KR')}</td></tr>
+        <tr><th>회사명</th><td>${data.company || '미입력'}</td></tr>
+        <tr><th>신청자명</th><td>${data.name || '미입력'}</td></tr>
+        <tr><th>연락처</th><td>${data.phone || '미입력'}</td></tr>
+        <tr><th>이메일</th><td>${data.email || '미입력'}</td></tr>
+        <tr><th>상담 희망 분야</th><td>${data.consultingArea || '미입력'}</td></tr>
+        <tr><th>메시지</th><td>${data.message || '미입력'}</td></tr>
+      </table>
+    </div>
+    
+    <p><strong>빠른 연락 부탁드립니다!</strong></p>
+    
+    <center>
+      <a href="${CONFIG.SPREADSHEET_URL}" class="button">Google Sheets에서 전체 데이터 보기</a>
+    </center>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: CONFIG.ADMIN_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+    
+    console.log('✅ 관리자 상담 알림 이메일 발송 완료');
+  } catch (error) {
+    console.error('❌ 관리자 상담 알림 이메일 발송 실패:', error);
+  }
 }
 
 /**
  * 무료 진단 제출 처리 (호환성)
  */
 function handleFreeDiagnosisSubmission(data) {
-  return handleDiagnosisSubmission(data); // 기존 진단 핸들러 호출
+  try {
+    console.log('📋 이후경 교장의 AI 경영진단보고서 신청 처리 시작');
+    
+    // 개인정보 동의 확인
+    if (!checkPrivacyConsent(data)) {
+      console.error('❌ 개인정보 동의 미동의');
+      return createErrorResponse('개인정보 수집 및 이용에 동의해주세요.');
+    }
+    
+    // 이메일 유효성 검사
+    if (!data.email || !isValidEmail(data.email)) {
+      console.error('❌ 무효한 이메일 주소:', data.email);
+      return createErrorResponse('유효한 이메일 주소를 입력해주세요.');
+    }
+    
+    // 필수 필드 검증
+    const requiredFields = ['companyName', 'representativeName', 'position', 'industry', 'region', 'email'];
+    for (const field of requiredFields) {
+      if (!data[field] || data[field].trim() === '') {
+        console.error(`❌ 필수 필드 누락: ${field}`);
+        return createErrorResponse(`필수 정보가 누락되었습니다: ${field}`);
+      }
+    }
+    
+    // 1. 고유 ID 생성
+    const diagnosisId = generateDiagnosisId();
+    const timestamp = new Date();
+    
+    console.log('✅ 진단 신청 정보:', {
+      diagnosisId: diagnosisId,
+      companyName: data.companyName,
+      industry: data.industry,
+      region: data.region,
+      businessContent: data.businessContent,
+      concerns: data.concerns,
+      expectations: data.expectations
+    });
+    
+    // 2. Google Sheets에 신청 데이터 저장
+    saveFreeDiagnosisApplication(diagnosisId, data, timestamp);
+    
+    // 3. 진행 상태 업데이트
+    updateProgressStatus(diagnosisId, '신청접수', '신청이 정상적으로 접수되었습니다');
+    
+    // 4. 신청자에게 접수 확인 이메일 발송
+    sendFreeDiagnosisConfirmationEmail(data.email, data.companyName, diagnosisId);
+    
+    // 5. 관리자에게 신청 알림 이메일 발송
+    sendFreeDiagnosisAdminNotification(data, diagnosisId);
+    
+    // 6. AI 분석 시작 (비동기 처리)
+    data.diagnosisId = diagnosisId;
+    
+    // 타임아웃 방지를 위해 별도 트리거로 실행
+    ScriptApp.newTrigger('performFreeDiagnosisAnalysis')
+      .timeBased()
+      .after(1000) // 1초 후 실행
+      .create();
+    
+    // 트리거에서 사용할 데이터를 PropertiesService에 저장
+    PropertiesService.getScriptProperties().setProperty(
+      `diagnosis_${diagnosisId}`, 
+      JSON.stringify(data)
+    );
+    
+    return {
+      success: true,
+      message: '이후경 교장의 AI 경영진단보고서 신청이 완료되었습니다',
+      diagnosisId: diagnosisId,
+      estimatedTime: '10-15분 이내에 결과를 이메일로 발송해드립니다'
+    };
+    
+  } catch (error) {
+    console.error('❌ 진단 신청 처리 오류:', error);
+    return createErrorResponse('진단 신청 처리 중 오류가 발생했습니다: ' + error.toString());
+  }
 }
 
 /**
@@ -3328,4 +4299,151 @@ function sendBetaFeedbackConfirmationEmail(email, id) {
  */
 function sendBetaFeedbackAdminNotification(data, id) {
   MailApp.sendEmail(CONFIG.ADMIN_EMAIL, '[Admin] New Beta Feedback', `New feedback received, ID: ${id}`);
+}
+
+/**
+ * 무료 진단 AI 분석 수행 (트리거에서 호출)
+ */
+function performFreeDiagnosisAnalysis() {
+  // PropertiesService에서 저장된 진단 ID들을 확인
+  const properties = PropertiesService.getScriptProperties().getProperties();
+  
+  for (const key in properties) {
+    if (key.startsWith('diagnosis_')) {
+      const diagnosisId = key.replace('diagnosis_', '');
+      
+      try {
+        console.log('🤖 AI 분석 시작:', diagnosisId);
+        const data = JSON.parse(properties[key]);
+        
+        // 진행 상태 업데이트
+        updateProgressStatus(diagnosisId, 'AI분석중', 'AI가 귀사의 데이터를 심층 분석하고 있습니다');
+        
+        // AI 분석 수행 (상세 점수 계산)
+        const detailedScores = calculateDetailedScores(data);
+        const aiScores = {
+          totalScore: detailedScores.totalScore,
+          grade: detailedScores.grade,
+          categories: detailedScores.categories,
+          categoryDetails: detailedScores.categoryDetails
+        };
+        const benchmarkData = performBenchmarkAnalysis(data, aiScores);
+        
+        // AI 보고서 생성 (폴백 금지)
+        let aiReport = null;
+        const maxRetries = 5;
+        
+        for (let retry = 0; retry < maxRetries; retry++) {
+          try {
+            const prompt = createAIReportPrompt(data, aiScores, benchmarkData);
+            const apiKey = CONFIG.GEMINI_API_KEY;
+            
+            if (!apiKey || apiKey.length === 0) {
+              throw new Error('GEMINI API 키가 설정되지 않았습니다');
+            }
+            
+            const response = UrlFetchApp.fetch(CONFIG.GEMINI_API_URL + '?key=' + apiKey, {
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              payload: JSON.stringify({
+                contents: [{
+                  parts: [{
+                    text: prompt
+                  }]
+                }],
+                generationConfig: {
+                  temperature: 0.7,
+                  topK: 40,
+                  topP: 0.95,
+                  maxOutputTokens: 8192
+                }
+              }),
+              muteHttpExceptions: true
+            });
+            
+            const result = JSON.parse(response.getContentText());
+            
+            if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+              aiReport = result.candidates[0].content.parts[0].text;
+              
+              // 품질 검증 - 최소 5000자 이상
+              if (aiReport && aiReport.length >= 5000) {
+                console.log('✅ 고품질 보고서 생성 성공:', aiReport.length, '자');
+                break;
+              }
+            }
+            
+            if (retry < maxRetries - 1) {
+              console.log(`🔄 품질 향상을 위한 재생성... (${retry + 1}/${maxRetries})`);
+              Utilities.sleep(5000);
+            }
+          } catch (error) {
+            console.error(`❌ AI 보고서 생성 실패 (시도 ${retry + 1}):`, error);
+            if (retry < maxRetries - 1) {
+              Utilities.sleep(10000);
+            }
+          }
+        }
+        
+        if (!aiReport || aiReport.length < 3000) {
+          throw new Error('AI 보고서 생성 품질 기준 미달 - 폴백 금지');
+        }
+        
+        // 진행 상태 업데이트
+        updateProgressStatus(diagnosisId, '보고서발송중', '작성된 보고서를 이메일로 발송하고 있습니다');
+        
+        // 이메일 발송
+        sendDiagnosisEmail(data, aiScores, benchmarkData, aiReport);
+        
+        // 진행 상태 최종 업데이트
+        updateProgressStatus(diagnosisId, '완료', '보고서 발송이 완료되었습니다');
+        
+        // 완료된 데이터 삭제
+        PropertiesService.getScriptProperties().deleteProperty(key);
+        
+        console.log('✅ AI 분석 및 보고서 발송 완료:', diagnosisId);
+        
+      } catch (error) {
+        console.error('❌ AI 분석 오류:', diagnosisId, error);
+        updateProgressStatus(diagnosisId, '오류', error.toString());
+        
+        // 오류 알림 이메일 발송
+        notifyAdminFreeDiagnosisError(diagnosisId, error);
+        
+        // 오류 발생한 데이터도 삭제 (재시도 방지)
+        PropertiesService.getScriptProperties().deleteProperty(key);
+      }
+    }
+  }
+}
+
+/**
+ * 시트 가져오기 또는 생성
+ */
+function getOrCreateSheet(sheetName) {
+  const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  let sheet = spreadsheet.getSheetByName(sheetName);
+  
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(sheetName);
+  }
+  
+  return sheet;
+}
+
+/**
+ * 이메일 발송 헬퍼 함수
+ */
+function sendEmail(to, subject, body) {
+  try {
+    MailApp.sendEmail({
+      to: to,
+      subject: subject,
+      body: body
+    });
+  } catch (error) {
+    console.error('이메일 발송 오류:', error);
+  }
 }
