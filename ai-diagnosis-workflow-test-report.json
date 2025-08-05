@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-05T03:52:56.870Z",
+  "timestamp": "2025-08-05T08:25:44.813Z",
   "testData": {
     "companyName": "AI CAMP 테스트 기업",
     "industry": "it",
@@ -38,7 +38,7 @@
   "results": {
     "application": {
       "success": false,
-      "error": "Google Apps Script 오류: 500"
+      "error": "Google Apps Script 오류: 404"
     },
     "scoreCalculation": {
       "success": true,
@@ -98,7 +98,7 @@
         ],
         "data": [
           "TEST-ID",
-          "2025. 8. 5. 오후 12:52:55",
+          "2025. 8. 5. 오후 5:25:43",
           "AI CAMP 테스트 기업",
           "it",
           "50-199",

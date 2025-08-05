@@ -338,7 +338,7 @@ const trackDetails = {
       }
     ],
     curriculum: {
-      basic: {
+      beginner: {
         title: '입문 과정',
         duration: '12시간 (2일)',
         objectives: [
@@ -368,9 +368,41 @@ const trackDetails = {
           }
         ]
       },
+      intermediate: {
+        title: '중급 과정',
+        duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★☆ | ROI 기대: 중기 경쟁력 강화',
+        objectives: [
+          '데이터 기반 마케팅 전략 수립',
+          '고급 캠페인 자동화 시스템 구축',
+          '고객 여정 최적화',
+          'ROI 측정 체계 구축'
+        ],
+        modules: [
+          {
+            title: '1일차: 고급 마케팅 자동화',
+            topics: [
+              '멀티채널 캠페인 통합 관리',
+              '고객 세그먼테이션 자동화',
+              '리타겟팅 캠페인 최적화',
+              'A/B 테스트 자동 실행'
+            ]
+          },
+          {
+            title: '2일차: 성과 분석 시스템',
+            topics: [
+              'GA4와 광고 플랫폼 연동',
+              '마케팅 ROI 자동 계산',
+              '성과 예측 모델 구축',
+              '실시간 마케팅 대시보드'
+            ]
+          }
+        ]
+      },
       advanced: {
         title: '심화 과정',
         duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★★ | ROI 기대: 장기 시장 지배력',
         objectives: [
           '멀티채널 마케팅 자동화',
           'AI 기반 고객 세분화',
@@ -435,7 +467,7 @@ const trackDetails = {
       }
     ],
     curriculum: {
-      basic: {
+      beginner: {
         title: '입문 과정',
         duration: '12시간 (2일)',
         objectives: [
@@ -465,9 +497,41 @@ const trackDetails = {
           }
         ]
       },
+      intermediate: {
+        title: '중급 과정',
+        duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★☆ | ROI 기대: 중기 생산성 향상',
+        objectives: [
+          '생산 데이터 분석 고도화',
+          '품질 관리 시스템 자동화',
+          '공급망 연동 시스템',
+          '생산 예측 모델 구축'
+        ],
+        modules: [
+          {
+            title: '1일차: 고급 생산 분석',
+            topics: [
+              '생산 성과 지표 자동 분석',
+              '품질 트렌드 예측 시스템',
+              '설비 효율성 모니터링',
+              '불량률 예측 모델'
+            ]
+          },
+          {
+            title: '2일차: 생산 최적화 시스템',
+            topics: [
+              '생산 계획 자동 수립',
+              '재고 최적화 알고리즘',
+              '공급업체 연동 시스템',
+              '생산 비용 분석 자동화'
+            ]
+          }
+        ]
+      },
       advanced: {
         title: '심화 과정',
         duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★★ | ROI 기대: 장기 경쟁력 확보',
         objectives: [
           'IoT 데이터 연동 자동화',
           '예측 기반 생산 계획',
@@ -532,7 +596,7 @@ const trackDetails = {
       }
     ],
     curriculum: {
-      basic: {
+      beginner: {
         title: '입문 과정',
         duration: '12시간 (2일)',
         objectives: [
@@ -562,9 +626,41 @@ const trackDetails = {
           }
         ]
       },
+      intermediate: {
+        title: '중급 과정',
+        duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★☆ | ROI 기대: 중기 고객만족도 향상',
+        objectives: [
+          '고급 VOC 분석 시스템',
+          '고객 감정 분석 자동화',
+          '개인화된 응대 시스템',
+          '고객 이탈 예방 시스템'
+        ],
+        modules: [
+          {
+            title: '1일차: 고급 고객 분석',
+            topics: [
+              '고객 행동 패턴 분석',
+              '감정 분석 기반 응대 전략',
+              '고객 만족도 예측 모델',
+              'VIP 고객 자동 식별'
+            ]
+          },
+          {
+            title: '2일차: 개인화 응대 시스템',
+            topics: [
+              '고객별 맞춤 응대 시나리오',
+              '채널별 응대 전략 수립',
+              '응대 품질 자동 평가',
+              '고객 여정 분석 자동화'
+            ]
+          }
+        ]
+      },
       advanced: {
         title: '심화 과정',
         duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★★ | ROI 기대: 장기 고객 로열티 확보',
         objectives: [
           '멀티채널 통합 응대 시스템',
           '감정 분석 기반 응대',
@@ -629,7 +725,7 @@ const trackDetails = {
       }
     ],
     curriculum: {
-      basic: {
+      beginner: {
         title: '입문 과정',
         duration: '12시간 (2일)',
         objectives: [
@@ -659,9 +755,41 @@ const trackDetails = {
           }
         ]
       },
+      intermediate: {
+        title: '중급 과정',
+        duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★☆ | ROI 기대: 중기 조직 효율성 향상',
+        objectives: [
+          '고급 인사 데이터 분석',
+          '성과 관리 시스템 자동화',
+          '인재 개발 프로그램 최적화',
+          '조직 진단 자동화'
+        ],
+        modules: [
+          {
+            title: '1일차: 고급 인사 분석',
+            topics: [
+              '직원 성과 예측 모델',
+              '이직률 분석 및 예방',
+              '팀 역학 분석 자동화',
+              '인재 역량 갭 분석'
+            ]
+          },
+          {
+            title: '2일차: 조직 최적화 시스템',
+            topics: [
+              '조직 구조 최적화 분석',
+              '인재 배치 최적화',
+              '교육 효과 측정 자동화',
+              '직원 경험 개선 시스템'
+            ]
+          }
+        ]
+      },
       advanced: {
         title: '심화 과정',
         duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★★ | ROI 기대: 장기 인재 경쟁력 확보',
         objectives: [
           '예측적 HR 분석 시스템',
           '인재 관리 최적화',
@@ -726,7 +854,7 @@ const trackDetails = {
       }
     ],
     curriculum: {
-      basic: {
+      beginner: {
         title: '입문 과정',
         duration: '12시간 (2일)',
         objectives: [
@@ -756,9 +884,41 @@ const trackDetails = {
           }
         ]
       },
+      intermediate: {
+        title: '중급 과정',
+        duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★☆ | ROI 기대: 중기 재무 효율성 향상',
+        objectives: [
+          '고급 재무 분석 자동화',
+          '예산 관리 시스템 고도화',
+          '재무 예측 모델 구축',
+          '비용 최적화 시스템'
+        ],
+        modules: [
+          {
+            title: '1일차: 고급 재무 분석',
+            topics: [
+              '수익성 분석 자동화',
+              '현금 흐름 예측 시스템',
+              '재무 비율 분석 자동화',
+              '투자 효율성 분석'
+            ]
+          },
+          {
+            title: '2일차: 재무 최적화 시스템',
+            topics: [
+              '예산 편성 자동화',
+              '비용 절감 기회 발굴',
+              '재무 리스크 조기 경보',
+              '자금 운용 최적화'
+            ]
+          }
+        ]
+      },
       advanced: {
         title: '심화 과정',
         duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★★ | ROI 기대: 장기 재무 경쟁력 확보',
         objectives: [
           '예측적 재무 분석',
           '리스크 관리 자동화',
