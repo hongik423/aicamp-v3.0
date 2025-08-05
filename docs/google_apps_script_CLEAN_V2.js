@@ -100,6 +100,13 @@ function doGet(e) {
       response.healthCheck = healthStatus;
     }
     
+    // 진단 결과 조회 처리
+    if (action === 'getDiagnosisResult') {
+      const resultId = e.parameter.resultId;
+      console.log('📊 진단 결과 조회 요청:', resultId);
+      return handleGetFreeDiagnosisResult(resultId);
+    }
+    
     return ContentService.createTextOutput(JSON.stringify(response))
       .setMimeType(ContentService.MimeType.JSON);
       
@@ -4681,4 +4688,132 @@ function sendEmail(to, subject, body) {
   } catch (error) {
     console.error('이메일 발송 오류:', error);
   }
+}
+
+/**
+ * 📊 무료 진단 결과 조회
+ * @param {string} diagnosisId - 진단 ID
+ * @returns {Object} 진단 결과 또는 오류 응답
+ */
+function handleGetFreeDiagnosisResult(diagnosisId) {
+  try {
+    console.log('📊 무료 진단 결과 조회 시작:', diagnosisId);
+    
+    if (!diagnosisId) {
+      return createErrorResponse('진단 ID가 필요합니다');
+    }
+    
+    // 먼저 AI역량진단상세결과 시트에서 조회 시도
+    try {
+      const detailedSheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName('AI역량진단상세결과');
+      if (detailedSheet) {
+        const detailedData = detailedSheet.getDataRange().getValues();
+        
+        for (let i = 1; i < detailedData.length; i++) {
+          const row = detailedData[i];
+          if (row[0] === diagnosisId) {
+            console.log('✅ 상세결과에서 발견:', diagnosisId);
+            
+            const resultData = {
+              diagnosisId: row[0],
+              analysisDate: row[1],
+              companyName: row[2],
+              industry: row[3],
+              contactManager: row[23] || '', // 담당자명
+              email: row[24] || '', // 이메일
+              employeeCount: row[25] || '', // 직원수
+              overallScore: row[4],
+              overallGrade: row[5],
+              aiCapabilityScore: row[6],
+              aiCapabilityGrade: row[7],
+              swotAnalysis: row[8] ? JSON.parse(row[8]) : null,
+              recommendations: row[9] ? row[9] : '',
+              aiRecommendations: row[10] ? JSON.parse(row[10]) : null,
+              summaryReport: row[56] || '', // AI 보고서
+              categoryResults: row[11] ? JSON.parse(row[11]) : [],
+              reportStatus: row[12] || '완료',
+              emailSent: row[13] || false,
+              timestamp: row[1] || new Date().toISOString()
+            };
+            
+            return ContentService.createTextOutput(JSON.stringify({
+              success: true,
+              message: '진단 결과 조회 성공',
+              data: resultData
+            })).setMimeType(ContentService.MimeType.JSON);
+          }
+        }
+      }
+    } catch (detailedError) {
+      console.warn('⚠️ 상세결과 시트 조회 실패:', detailedError);
+    }
+    
+    // 기본 AI역량진단결과 시트에서 조회
+    try {
+      const sheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName('AI역량진단결과');
+      if (sheet) {
+        const data = sheet.getDataRange().getValues();
+        
+        for (let i = 1; i < data.length; i++) {
+          if (data[i][0] === diagnosisId) {
+            console.log('✅ 기본결과에서 발견:', diagnosisId);
+            
+            try {
+              const resultData = JSON.parse(data[i][2]); // 결과 JSON 컬럼
+              return ContentService.createTextOutput(JSON.stringify({
+                success: true,
+                message: '진단 결과 조회 성공',
+                data: resultData
+              })).setMimeType(ContentService.MimeType.JSON);
+            } catch (parseError) {
+              console.error('❌ 진단 결과 JSON 파싱 오류:', parseError);
+              return createErrorResponse('진단 결과 데이터가 손상되었습니다');
+            }
+          }
+        }
+      }
+    } catch (basicError) {
+      console.error('❌ 기본결과 시트 조회 실패:', basicError);
+    }
+    
+    // 진단 신청 시트에서 진단 ID 존재 여부 확인
+    try {
+      const applicationSheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName('AI역량진단신청');
+      if (applicationSheet) {
+        const appData = applicationSheet.getDataRange().getValues();
+        
+        for (let i = 1; i < appData.length; i++) {
+          const row = appData[i];
+          if (row[1] === diagnosisId) { // 두 번째 열이 진단 ID
+            console.log('📋 진단 신청은 존재하지만 결과 미생성:', diagnosisId);
+            
+            // 진행상태 확인 (마지막 컬럼)
+            const progressStatus = row[row.length - 1] || '신청완료';
+            
+            return createErrorResponse(`진단이 진행 중입니다. 현재 상태: ${progressStatus}. 잠시 후 다시 확인해주세요.`);
+          }
+        }
+      }
+    } catch (appError) {
+      console.warn('⚠️ 신청 시트 확인 실패:', appError);
+    }
+    
+    console.log('❌ 진단 ID를 찾을 수 없음:', diagnosisId);
+    return createErrorResponse('해당 진단 ID의 결과를 찾을 수 없습니다. 진단 ID를 다시 확인해주세요.');
+    
+  } catch (error) {
+    console.error('❌ 진단 결과 조회 오류:', error);
+    return createErrorResponse('진단 결과 조회 중 오류가 발생했습니다: ' + error.toString());
+  }
+}
+
+/**
+ * 🚨 오류 응답 생성 (GET 요청용)
+ */
+function createErrorResponse(message) {
+  return ContentService.createTextOutput(JSON.stringify({
+    success: false,
+    error: message,
+    timestamp: new Date().toISOString()
+  })).setMimeType(ContentService.MimeType.JSON);
 }
