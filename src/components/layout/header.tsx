@@ -126,7 +126,7 @@ const Header = () => {
   ];
 
   const actionButtons = [
-    { href: '/consultation', label: '전문가상담', color: 'green', icon: MessageSquare },
+    { href: '/consultation', label: '상담신청', color: 'green', icon: MessageSquare },
     { href: '/tax-calculator', label: '세금계산기', color: 'purple', icon: Calculator },
     { href: '/services/policy-funding/investment-analysis', label: 'AI투자분석기', color: 'orange', icon: TrendingUp }
   ];
@@ -307,7 +307,7 @@ const Header = () => {
                       const getDescription = (label: string) => {
                         switch(label) {
                           case 'AI 무료진단': return 'AI 무료 경영진단 신청서 보기';
-                          case '전문가상담': return '전문가 무료 상담';
+                          case '상담신청': return '전문가 무료 상담신청';
                           case 'n8n책자구매': return 'AI 자동화 실무 가이드북';
                           case '세금계산기': return '10가지 세금 계산기';
                           case 'AI투자재무타당성분석기': return 'NPV/IRR 투자분석';

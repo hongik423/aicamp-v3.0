@@ -56,43 +56,51 @@ export const DiagnosisProgressModal: React.FC<DiagnosisProgressModalProps> = ({
   const [steps, setSteps] = useState<DiagnosisStep[]>([
     {
       id: 'validation',
-      title: '신청서 검증',
-      description: '개인정보 동의 및 필수 정보 확인',
+      title: '신청서 검증 및 데이터 저장',
+      description: '개인정보 동의 확인 및 구글시트 저장',
       icon: CheckCircle,
       status: 'pending',
-      estimatedTime: '즉시'
-    },
-    {
-      id: 'saving',
-      title: '데이터 저장',
-      description: '진단 신청 정보를 안전하게 저장',
-      icon: Database,
-      status: 'pending',
-      estimatedTime: '1-2초'
+      estimatedTime: '5-10초'
     },
     {
       id: 'email_confirmation',
-      title: '접수 확인 이메일',
-      description: '신청 접수 확인 이메일 발송',
+      title: '접수 확인 이메일 발송',
+      description: '신청 접수 확인 이메일 자동 발송',
       icon: Mail,
       status: 'pending',
-      estimatedTime: '2-3초'
+      estimatedTime: '10-15초'
     },
     {
-      id: 'ai_analysis',
-      title: 'AI 경영진단 분석',
-      description: '이후경 교장의 AI 기반 맞춤 분석',
+      id: 'gemini_analysis',
+      title: 'GEMINI 2.5 Flash AI 분석',
+      description: 'AI 역량 6분야 종합 평가 및 업종별 벤치마크 비교',
       icon: Brain,
       status: 'pending',
-      estimatedTime: '3-5분'
+      estimatedTime: '2-3분'
     },
     {
-      id: 'report_delivery',
-      title: '결과보고서 전송',
-      description: '완성된 진단 보고서 이메일 발송',
+      id: 'swot_analysis',
+      title: 'SWOT 전략 분석',
+      description: '강점/약점/기회/위협 요인 분석 및 전략 도출',
       icon: FileText,
       status: 'pending',
       estimatedTime: '1-2분'
+    },
+    {
+      id: 'report_generation',
+      title: '맞춤형 보고서 생성',
+      description: '실행 로드맵 및 개선방안 포함 종합 보고서 작성',
+      icon: FileText,
+      status: 'pending',
+      estimatedTime: '2-3분'
+    },
+    {
+      id: 'report_delivery',
+      title: '완성된 보고서 이메일 전송',
+      description: 'PDF 형태의 최종 진단보고서 이메일 발송',
+      icon: Mail,
+      status: 'pending',
+      estimatedTime: '30-60초'
     }
   ]);
 
@@ -191,15 +199,17 @@ export const DiagnosisProgressModal: React.FC<DiagnosisProgressModalProps> = ({
   const getCompletionMessage = (stepId: string): string => {
     switch (stepId) {
       case 'validation':
-        return '모든 필수 정보가 확인되었습니다';
-      case 'saving':
-        return `진단 ID: ${diagnosisId} 생성 완료`;
+        return `진단 ID: ${diagnosisId} 생성 및 구글시트 저장 완료`;
       case 'email_confirmation':
-        return `${email}로 접수 확인 이메일이 발송되었습니다`;
-      case 'ai_analysis':
-        return '이후경 교장의 AI 분석이 완료되었습니다';
+        return `${email}로 진단 접수 확인 이메일이 발송되었습니다`;
+      case 'gemini_analysis':
+        return 'GEMINI 2.5 Flash를 통한 AI 역량 6분야 분석 완료';
+      case 'swot_analysis':
+        return '강점/약점/기회/위협 요인 분석 및 4전략 도출 완료';
+      case 'report_generation':
+        return '업종별 맞춤 분석 및 4단계 실행 로드맵 생성 완료';
       case 'report_delivery':
-        return '맞춤형 경영진단 보고서가 이메일로 전송되었습니다';
+        return 'PDF 형태의 최종 진단보고서가 이메일로 전송되었습니다';
       default:
         return '완료되었습니다';
     }
@@ -398,11 +408,13 @@ export const DiagnosisProgressModal: React.FC<DiagnosisProgressModalProps> = ({
                   </div>
 
                   <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                    <h4 className="font-semibold text-blue-800 mb-2">📧 결과보고서 전달방식</h4>
+                    <h4 className="font-semibold text-blue-800 mb-2">📧 결과보고서 상세내용</h4>
                     <div className="text-sm text-blue-700 space-y-2">
-                      <p>• <strong>이메일 발송:</strong> 신청하신 이메일로 PDF 보고서 전송</p>
-                      <p>• <strong>내용:</strong> AI 역량 분석, SWOT 분석, 개선방안, 로드맵</p>
-                      <p>• <strong>후속지원:</strong> 전문가 상담 및 교육과정 안내</p>
+                      <p>• <strong>AI 역량 6분야 분석:</strong> 경영진 리더십, AI 인프라, 직원 역량, 조직 문화, 실무 활용, 데이터 역량</p>
+                      <p>• <strong>업종별 벤치마크:</strong> 80+ 업종 대비 상대적 위치 분석</p>
+                      <p>• <strong>SWOT 4전략 분석:</strong> 강점/약점/기회/위협 기반 전략 제시</p>
+                      <p>• <strong>4단계 실행 로드맵:</strong> 단기/중기/장기 개선 계획</p>
+                      <p>• <strong>교육과정 추천:</strong> AICAMP 맞춤형 교육 프로그램 안내</p>
                     </div>
                   </div>
 

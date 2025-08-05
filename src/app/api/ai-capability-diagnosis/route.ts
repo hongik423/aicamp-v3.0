@@ -1,7 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// 진단 상태 추적을 위한 인메모리 저장소 (실제 서비스에서는 Redis나 DB 사용)
+interface DiagnosisStatus {
+  diagnosisId: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  progress: number;
+  currentStep: string;
+  message: string;
+  steps: Array<{
+    id: string;
+    name: string;
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    message?: string;
+    startTime?: number;
+    endTime?: number;
+  }>;
+  startTime: number;
+  lastUpdate: number;
+}
+
+const diagnosisStatusMap = new Map<string, DiagnosisStatus>();
+
 const GOOGLE_APPS_SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL || 
-  'https://script.google.com/macros/s/AKfycbyZQpjTdXQ7hDWFlhMO0XAH_W-Jf-tRgYs8EZnGX9O0HkJdcGGhxGa3BXJSCBJnCUZb/exec';
+  process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
+  'https://script.google.com/macros/s/AKfycbzE4eVxGetQ3Z_xsikwoonK45T4wtryGLorQ4UmGaGRAz-BuZQIzm2VgXcxmJoQ04WX/exec';
 
 // CORS 헤더 설정
 const corsHeaders = {
@@ -43,8 +65,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 진단 ID 생성
-    const diagnosisId = `ACD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // 진단 ID 생성 (이메일 기반)
+    const emailPrefix = body.email.split('@')[0].toLowerCase();
+    const timestamp = Date.now();
+    const diagnosisId = `${emailPrefix}-${timestamp}`;
 
     console.log('🔄 Google Apps Script로 진단 데이터 전송 중...');
     
