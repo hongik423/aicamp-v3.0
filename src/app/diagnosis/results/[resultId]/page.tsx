@@ -137,7 +137,7 @@ export default function DiagnosisResultPage() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 진단 결과보고서 - ${result.companyName}</title>
+    <title>고몰입조직구축 AI역량강화 진단보고서 - ${result.companyName}</title>
     <style>
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
@@ -635,6 +635,63 @@ export default function DiagnosisResultPage() {
             </CardContent>
           </Card>
 
+          {/* AI 역량진단 보고서 배너 */}
+          <Card className="mb-8 bg-gradient-to-r from-purple-600 to-indigo-600 text-white overflow-hidden relative">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
+            <CardContent className="p-8 relative z-10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-2xl font-bold mb-3 flex items-center gap-3 justify-center md:justify-start">
+                    <Brain className="w-8 h-8" />
+                    고몰입조직구축 AI역량강화 진단보고서
+                  </h3>
+                  <p className="text-lg opacity-90 mb-4">
+                    {result.companyName}의 AI 도입 전략과 실행 로드맵이 담긴<br />
+                    맞춤형 진단보고서를 확인하세요.
+                  </p>
+                  <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                    <Badge className="bg-white/20 text-white border-white/30 text-sm px-3 py-1">
+                      ✓ 6대 영역 AI 역량 평가
+                    </Badge>
+                    <Badge className="bg-white/20 text-white border-white/30 text-sm px-3 py-1">
+                      ✓ SWOT 전략 분석
+                    </Badge>
+                    <Badge className="bg-white/20 text-white border-white/30 text-sm px-3 py-1">
+                      ✓ 3단계 실행 로드맵
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Button 
+                    size="lg"
+                    className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8"
+                    onClick={() => {
+                      const reportSection = document.getElementById('ai-report-section');
+                      reportSection?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <FileText className="w-5 h-5 mr-2" />
+                    AI 보고서 보기
+                  </Button>
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    className="text-white border-white hover:bg-white/10"
+                    onClick={handleDownloadHTML}
+                    disabled={isDownloading}
+                  >
+                    {isDownloading ? (
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    ) : (
+                      <Download className="w-5 h-5 mr-2" />
+                    )}
+                    HTML 다운로드
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* 기업 정보 */}
           <Card className="mb-8">
             <CardHeader>
@@ -746,20 +803,117 @@ export default function DiagnosisResultPage() {
             </CardContent>
           </Card>
 
-          {/* 상세 분석 보고서 */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Award className="w-6 h-6 text-purple-600" />
-                상세 분석 보고서
+          {/* AI 역량강화 진단보고서 */}
+          <Card id="ai-report-section" className="mb-8 border-2 border-purple-200">
+            <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+              <CardTitle className="flex items-center gap-3 text-2xl">
+                <Brain className="w-8 h-8" />
+                고몰입조직구축 AI역량강화 진단보고서
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="prose max-w-none text-gray-700 leading-relaxed">
-                <div className="whitespace-pre-line text-base">
-                  {result.summaryReport}
+            <CardContent className="p-8">
+              {result.summaryReport ? (
+                <div className="space-y-6">
+                  {/* 보고서 헤더 정보 */}
+                  <div className="text-center border-b border-gray-200 pb-6 mb-6">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                      {result.companyName} AI 역량 진단보고서
+                    </h2>
+                    <p className="text-gray-600">
+                      작성일: {new Date().toLocaleDateString('ko-KR')} | 작성자: 이후경 교장 (AI CAMP)
+                    </p>
+                  </div>
+
+                  {/* 보고서 내용 파싱 및 표시 */}
+                  <div className="space-y-8">
+                    {result.summaryReport.split(/【\d+\./).filter(Boolean).map((section, index) => {
+                      const titleEndIndex = section.indexOf('】');
+                      if (titleEndIndex === -1) {
+                        // 【 없이 시작하는 경우 전체를 내용으로 표시
+                        return (
+                          <div key={index} className="whitespace-pre-line text-gray-700">
+                            {section.trim()}
+                          </div>
+                        );
+                      }
+                      
+                      const title = section.substring(0, titleEndIndex).trim();
+                      const content = section.substring(titleEndIndex + 1).trim();
+                      
+                      // 섹션별 아이콘 매핑
+                      const sectionIcons: {[key: string]: any} = {
+                        '종합 진단 개요': Brain,
+                        'SWOT 분석': Target,
+                        '전략 매트릭스': TrendingUp,
+                        '실행 로드맵': Award,
+                        'AI 역량진단 결과': Star,
+                        '투자 대비 효과': Trophy
+                      };
+                      
+                      const Icon = sectionIcons[title] || FileText;
+                      
+                      return (
+                        <div key={index} className="bg-gray-50 rounded-lg p-6">
+                          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                            <Icon className="w-6 h-6 text-purple-600" />
+                            <span className="text-purple-600">{index + 1}.</span>
+                            {title}
+                          </h3>
+                          <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                            {content}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* 보고서 하단 액션 */}
+                  <div className="mt-10 p-8 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg">
+                    <div className="text-center">
+                      <h4 className="text-xl font-bold text-gray-900 mb-3">
+                        이 보고서를 활용하여 AI 전환을 시작하세요
+                      </h4>
+                      <p className="text-gray-700 mb-6">
+                        {result.companyName}만을 위해 작성된 맞춤형 진단보고서입니다.
+                      </p>
+                      <div className="flex gap-4 justify-center flex-wrap">
+                        <Button
+                          onClick={handleDownloadHTML}
+                          disabled={isDownloading}
+                          size="lg"
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          {isDownloading ? (
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          ) : (
+                            <Download className="w-5 h-5 mr-2" />
+                          )}
+                          보고서 다운로드 (HTML)
+                        </Button>
+                        <Button
+                          onClick={() => router.push('/consultation')}
+                          size="lg"
+                          variant="outline"
+                          className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                        >
+                          <Phone className="w-5 h-5 mr-2" />
+                          전문가 상담 예약
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="text-center py-16">
+                  <Brain className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">
+                    AI 진단보고서가 생성 중입니다...
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    잠시 후 다시 확인해주세요.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
