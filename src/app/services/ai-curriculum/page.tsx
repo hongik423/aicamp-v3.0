@@ -274,7 +274,7 @@ export default function AICurriculumPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="mb-4 bg-white/10 text-white border-white/20">AI CAMP 교육 프로그램</Badge>
-            <h1 className="text-5xl font-bold mb-6">
+            <h1 className="text-5xl font-bold mb-6 text-white">
               기업체 AI & n8n 자동화 교육
             </h1>
             <p className="text-xl mb-8 text-white/90">
@@ -343,27 +343,33 @@ export default function AICurriculumPage() {
 
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
             {trackData.map((track) => (
-              <Card key={track.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className={`h-2 w-full bg-gradient-to-r ${track.color} rounded-t-lg -mt-6 -mx-6 mb-4`} />
-                  <CardTitle className="text-lg">{track.title}</CardTitle>
-                  <CardDescription>{track.target}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
-                    <Clock className="h-4 w-4" />
-                    <span>{track.duration}</span>
-                  </div>
-                  <ul className="space-y-2">
-                    {track.highlights.map((highlight, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span>{highlight}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <Link key={track.id} href={`/services/ai-curriculum/tracks/${track.id}`}>
+                <Card className="hover:shadow-lg transition-all hover:scale-105 cursor-pointer h-full">
+                  <CardHeader>
+                    <div className={`h-2 w-full bg-gradient-to-r ${track.color} rounded-t-lg -mt-6 -mx-6 mb-4`} />
+                    <CardTitle className="text-lg">{track.title}</CardTitle>
+                    <CardDescription>{track.target}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
+                      <Clock className="h-4 w-4" />
+                      <span>{track.duration}</span>
+                    </div>
+                    <ul className="space-y-2">
+                      {track.highlights.map((highlight, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm">
+                          <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-4 flex items-center text-sm font-medium text-blue-600">
+                      자세히 보기
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>

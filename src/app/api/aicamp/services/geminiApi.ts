@@ -1,6 +1,8 @@
 // GEMINI API 서비스
+// GEMINI 2.5 Flash 모델 설정 - 환경변수 우선 사용
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 interface GeminiResponse {
   candidates?: Array<{
@@ -33,32 +35,41 @@ function isValidApiKey(): boolean {
 }
 
 // GEMINI API 호출
-export async function callGeminiAPI(prompt: string): Promise<any> {
-  try {
-    // API 키 검증
-    if (!isValidApiKey()) {
-      console.warn('⚠️ GEMINI API 키가 유효하지 않음, 폴백 사용');
-      return generateFallbackResponse(prompt);
-    }
+export async function callGeminiAPI(prompt: string, retryCount: number = 3): Promise<any> {
+  console.log('🚀 GEMINI 2.5 Flash API 호출 시작');
+  console.log('🔧 모델:', GEMINI_MODEL);
+  
+  // 재시도 로직
+  for (let attempt = 1; attempt <= retryCount; attempt++) {
+    try {
+      // API 키 검증
+      if (!isValidApiKey()) {
+        console.error('❌ GEMINI API 키가 유효하지 않음');
+        throw new Error('GEMINI API 키가 설정되지 않았거나 유효하지 않습니다.');
+      }
 
-    console.log('🤖 GEMINI API 호출 시작');
+      console.log(`📡 시도 ${attempt}/${retryCount}`);
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5분 타임아웃
+      
+      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
         contents: [{
           parts: [{
             text: prompt
           }]
         }],
         generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
+          temperature: 0.85,      // GEMINI 2.5 Flash 최적화
+          topK: 60,               // 더 다양한 표현력
+          topP: 0.98,             // 최고 품질 응답
+          maxOutputTokens: 65536, // GEMINI 2.5 Flash 최대 토큰 (8배 증가)
         },
         safetySettings: [
           {
@@ -78,14 +89,16 @@ export async function callGeminiAPI(prompt: string): Promise<any> {
             threshold: "BLOCK_NONE"
           }
         ]
-      })
-    });
+        })
+      });
+      
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('❌ GEMINI API 오류:', errorData);
-      throw new Error(errorData.error?.message || 'API 호출 실패');
-    }
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error(`❌ GEMINI API 오류 (${response.status}):`, errorData);
+        throw new Error(errorData.error?.message || `API 호출 실패: ${response.status}`);
+      }
 
     const data: GeminiResponse = await response.json();
 
@@ -99,29 +112,43 @@ export async function callGeminiAPI(prompt: string): Promise<any> {
       throw new Error('응답에서 텍스트를 찾을 수 없습니다');
     }
 
-    // JSON 응답 파싱 시도
-    try {
-      // JSON 블록 추출 (```json ... ``` 형식 처리)
-      const jsonMatch = textContent.match(/```json\s*([\s\S]*?)\s*```/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : textContent;
-      
-      const parsedResponse = JSON.parse(jsonStr);
-      console.log('✅ GEMINI API 응답 파싱 성공');
-      return parsedResponse;
-    } catch (parseError) {
-      console.warn('⚠️ JSON 파싱 실패, 텍스트로 반환');
-      return { rawText: textContent };
-    }
+      console.log('✅ GEMINI 2.5 Flash 응답 수신 - 길이:', textContent.length);
 
-  } catch (error) {
-    console.error('❌ GEMINI API 호출 오류:', error);
-    return generateFallbackResponse(prompt);
+      // JSON 응답 파싱 시도
+      try {
+        // JSON 블록 추출 (```json ... ``` 형식 처리)
+        const jsonMatch = textContent.match(/```json\s*([\s\S]*?)\s*```/);
+        const jsonStr = jsonMatch ? jsonMatch[1] : textContent;
+        
+        const parsedResponse = JSON.parse(jsonStr);
+        console.log('✅ GEMINI API 응답 파싱 성공');
+        return parsedResponse;
+      } catch (parseError) {
+        console.log('📝 텍스트 형식 응답 반환');
+        return { 
+          executiveSummary: textContent,
+          rawText: textContent,
+          success: true 
+        };
+      }
+
+    } catch (error) {
+      console.error(`❌ 시도 ${attempt} 실패:`, error);
+      
+      if (attempt < retryCount) {
+        console.log(`⏳ ${2000 * attempt}ms 후 재시도...`);
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+      } else {
+        console.error('❌ 모든 재시도 실패, 고품질 폴백 사용');
+        return generateEnhancedFallbackResponse(prompt);
+      }
+    }
   }
 }
 
-// 폴백 응답 생성
-function generateFallbackResponse(prompt: string): any {
-  console.log('🔄 폴백 응답 생성 중...');
+// 향상된 폴백 응답 생성
+function generateEnhancedFallbackResponse(prompt: string): any {
+  console.log('🔄 고품질 폴백 응답 생성 중...');
 
   // 프롬프트에서 기업 정보 추출
   const companyMatch = prompt.match(/기업명:\s*([^\n]+)/);

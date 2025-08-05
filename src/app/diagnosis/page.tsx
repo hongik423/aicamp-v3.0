@@ -19,13 +19,13 @@ export default function DiagnosisPage() {
       <section className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6">
+            <h1 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
               이후경 교장의 AI 역량진단
             </h1>
-            <p className="text-xl lg:text-2xl mb-4 text-gray-200">
+            <p className="text-xl lg:text-2xl mb-4 text-white">
               고몰입 조직구축을 위한 AI 역량 진단시스템
             </p>
-            <p className="text-lg text-gray-300 mb-8">
+            <p className="text-lg text-white mb-8">
               28년 교육 전문가의 노하우로 귀사의 AI 역량을 정밀 진단하고<br />
               맞춤형 고몰입 조직 구축 전략을 제시합니다
             </p>
@@ -133,10 +133,10 @@ export default function DiagnosisPage() {
       <section className="py-16 bg-gray-900 text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">
+            <h2 className="text-3xl font-bold mb-6 text-white">
               지금 바로 AI 역량을 진단하세요
             </h2>
-            <p className="text-lg mb-8 text-gray-300">
+            <p className="text-lg mb-8 text-white">
               이후경 교장의 28년 교육 노하우가 담긴 맞춤형 AI 성장 전략을 받아보세요
             </p>
             <Button

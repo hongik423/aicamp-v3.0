@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Google Apps Script 타임아웃을 800초로 설정 (Vercel 최대 제한)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 800000); // 13.33분 타임아웃 (Vercel 800초 제한)
+    const timeoutId = setTimeout(() => controller.abort(), 800000); // 800초 타임아웃 [[memory:5039126]]
 
     console.log('🚀 Google Apps Script 요청 전송 중... (최대 13.33분 대기)');
     

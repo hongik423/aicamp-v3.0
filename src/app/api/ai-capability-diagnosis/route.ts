@@ -46,19 +46,30 @@ export async function POST(request: NextRequest) {
     // 진단 ID 생성
     const diagnosisId = `ACD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // Google Apps Script로 데이터 전송
+    console.log('🔄 Google Apps Script로 진단 데이터 전송 중...');
+    
+    // Google Apps Script로 데이터 전송 (타임아웃 설정)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 800000); // 800초 타임아웃
+    
     const scriptResponse = await fetch(GOOGLE_APPS_SCRIPT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        ...body,
-        diagnosisId,
-        formType: 'ai-capability-diagnosis',
-        submittedAt: new Date().toISOString()
-      })
+        action: 'submitAICapabilityDiagnosis',
+        data: {
+          ...body,
+          diagnosisId,
+          formType: 'ai-capability-diagnosis',
+          submittedAt: new Date().toISOString()
+        }
+      }),
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (!scriptResponse.ok) {
       throw new Error(`Google Apps Script 오류: ${scriptResponse.status}`);
@@ -67,15 +78,26 @@ export async function POST(request: NextRequest) {
     const scriptResult = await scriptResponse.json();
     
     if (scriptResult.success) {
+      console.log('✅ 진단 신청 처리 완료:', diagnosisId);
+      
       return NextResponse.json(
         { 
           success: true, 
           diagnosisId,
-          message: 'AI 역량진단이 시작되었습니다'
+          message: 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
+          estimatedTime: '10-15분',
+          features: [
+            'GEMINI 2.5 Flash AI 분석',
+            'AI 역량 6분야 종합 평가',
+            '업종별 맞춤 분석',
+            'SWOT 전략 분석',
+            '실행 로드맵 제공'
+          ]
         },
         { headers: corsHeaders }
       );
     } else {
+      console.error('❌ Google Apps Script 처리 실패:', scriptResult.error);
       throw new Error(scriptResult.error || '진단 처리 중 오류 발생');
     }
 

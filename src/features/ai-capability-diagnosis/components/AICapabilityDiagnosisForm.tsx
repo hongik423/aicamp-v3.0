@@ -41,6 +41,7 @@ import { submitDiagnosis } from '../api';
 import { EnhancedAssessmentForm } from './EnhancedAssessmentForm';
 import { UnifiedAssessmentMatrix } from './UnifiedAssessmentMatrix';
 import { IndustrySelect } from './IndustrySelect';
+import { DiagnosisProgressModal } from '@/components/diagnosis/DiagnosisProgressModal';
 
 // 폼 검증 스키마
 const diagnosisSchema = z.object({
@@ -81,6 +82,8 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [highlightUnanswered, setHighlightUnanswered] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [diagnosisId, setDiagnosisId] = useState<string>('');
   const totalSteps = 4;
 
   const form = useForm<DiagnosisFormData>({
@@ -112,12 +115,12 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
     try {
       const result = await submitDiagnosis(data);
       if (result.success && result.diagnosisId) {
+        setDiagnosisId(result.diagnosisId);
+        setShowProgressModal(true);
         toast({
           title: "진단 신청 완료",
           description: "AI 역량진단이 시작되었습니다. 결과는 이메일로 발송됩니다.",
         });
-        // 결과 페이지로 이동
-        window.location.href = `/diagnosis/result/${result.diagnosisId}`;
       } else {
         throw new Error(result.message || '진단 신청 중 오류가 발생했습니다');
       }
@@ -197,6 +200,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
   const progress = (currentStep / totalSteps) * 100;
 
   return (
+    <>
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="text-2xl">이후경 교장의 AI 역량 진단</CardTitle>
@@ -223,7 +227,11 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                     <FormItem>
                       <FormLabel>기업명 *</FormLabel>
                       <FormControl>
-                        <Input placeholder="예: 주식회사 에이아이캠프" {...field} />
+                        <Input 
+                          placeholder="예: 주식회사 에이아이캠프" 
+                          className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -258,7 +266,8 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                   <FormLabel>기타 업종 (직접 입력) *</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="구체적인 업종을 입력해주세요"
+                      placeholder="구체적인 업종을 입력해주세요" 
+                      className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
                       {...field}
                     />
                   </FormControl>
@@ -279,7 +288,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                         <FormLabel>기업 규모 *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="placeholder:text-gray-800 placeholder:font-bold placeholder:opacity-100 bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 hover:border-gray-400 transition-all duration-300 text-gray-900 font-medium h-12">
                               <SelectValue placeholder="규모를 선택하세요" />
                             </SelectTrigger>
                           </FormControl>
@@ -305,7 +314,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormLabel>지역 *</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="placeholder:text-gray-800 placeholder:font-bold placeholder:opacity-100 bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 hover:border-gray-400 transition-all duration-300 text-gray-900 font-medium h-12">
                             <SelectValue placeholder="지역을 선택하세요" />
                           </SelectTrigger>
                         </FormControl>
@@ -331,7 +340,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormControl>
                         <Textarea 
                           placeholder="귀사의 주요 사업 내용과 제품/서비스를 간략히 설명해주세요"
-                          className="min-h-[100px]"
+                          className="min-h-[100px] placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -353,7 +362,11 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormItem>
                         <FormLabel>성명 *</FormLabel>
                         <FormControl>
-                          <Input placeholder="홍길동" {...field} />
+                          <Input 
+                            placeholder="홍길동" 
+                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -367,7 +380,11 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormItem>
                         <FormLabel>직책 *</FormLabel>
                         <FormControl>
-                          <Input placeholder="대표이사" {...field} />
+                          <Input 
+                            placeholder="대표이사" 
+                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -381,7 +398,12 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormItem>
                         <FormLabel>이메일 *</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="example@company.com" {...field} />
+                          <Input 
+                            type="email" 
+                            placeholder="example@company.com" 
+                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -395,7 +417,11 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormItem>
                         <FormLabel>연락처 *</FormLabel>
                         <FormControl>
-                          <Input placeholder="010-1234-5678" {...field} />
+                          <Input 
+                            placeholder="010-1234-5678" 
+                            className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -536,7 +562,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                       <FormControl>
                         <Textarea 
                           placeholder="AI 진단과 관련하여 특별히 확인하고 싶은 사항이 있다면 자유롭게 작성해주세요"
-                          className="min-h-[100px]"
+                          className="min-h-[100px] placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200 resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -719,5 +745,13 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
         </Form>
       </CardContent>
     </Card>
+    <DiagnosisProgressModal
+      isOpen={showProgressModal}
+      onClose={() => setShowProgressModal(false)}
+      diagnosisId={diagnosisId}
+      companyName={form.watch('companyName')}
+      email={form.watch('email')}
+    />
+    </>
   );
 };

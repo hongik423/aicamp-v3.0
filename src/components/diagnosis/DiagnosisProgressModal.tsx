@@ -100,62 +100,93 @@ export const DiagnosisProgressModal: React.FC<DiagnosisProgressModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    // 외부에서 오류가 전달된 경우
-    if (hasError && errorStep) {
-      const errorStepIndex = steps.findIndex(step => step.id === errorStep);
-      if (errorStepIndex !== -1) {
-        setSteps(prev => prev.map((step, index) => {
-          if (index < errorStepIndex) {
-            return { ...step, status: 'completed', message: getCompletionMessage(step.id) };
-          } else if (index === errorStepIndex) {
-            return { ...step, status: 'error', message: errorMessage };
-          }
-          return step;
-        }));
-        setCurrentStep(errorStepIndex);
-        setOverallProgress(((errorStepIndex + 0.5) / steps.length) * 100);
+    if (hasError) {
+      const errorIndex = steps.findIndex(s => s.id === errorStep);
+      if (errorIndex !== -1) {
+        setSteps(prev => prev.map((step, index) => ({
+          ...step,
+          status: index < errorIndex ? 'completed' : index === errorIndex ? 'error' : 'pending',
+          message: index === errorIndex ? errorMessage : undefined
+        })));
+        setCurrentStep(errorIndex);
+        setOverallProgress((errorIndex / steps.length) * 100);
         setInternalError(true);
         return;
       }
     }
 
-    const simulateProgress = async () => {
-      // 단계별 진행
+    const fetchProgress = async () => {
+      try {
+        // 실제 진행상황 확인 API 호출
+        const response = await fetch(`/api/ai-capability-diagnosis/status?diagnosisId=${diagnosisId}`);
+        if (response.ok) {
+          const data = await response.json();
+          
+          // 진행상황에 따른 단계 업데이트
+          if (data.status === 'completed') {
+            setSteps(prev => prev.map(step => ({
+              ...step,
+              status: 'completed',
+              message: getCompletionMessage(step.id)
+            })));
+            setOverallProgress(100);
+            setIsCompleted(true);
+          } else if (data.status === 'processing') {
+            // 현재 진행 중인 단계 표시
+            const currentStepIndex = Math.min(Math.floor((data.progress || 0) / 20), steps.length - 1);
+            setSteps(prev => prev.map((step, index) => ({
+              ...step,
+              status: index < currentStepIndex ? 'completed' : 
+                     index === currentStepIndex ? 'processing' : 'pending',
+              message: index < currentStepIndex ? getCompletionMessage(step.id) : 
+                      index === currentStepIndex ? '처리 중...' : undefined
+            })));
+            setOverallProgress(data.progress || 0);
+          } else if (data.status === 'failed') {
+            setInternalError(true);
+          }
+        } else {
+          // API가 없으면 시뮬레이션 모드로 진행
+          simulateProgressFallback();
+        }
+      } catch (error) {
+        console.error('Progress fetch error:', error);
+        // 오류 시 시뮬레이션 모드로 진행
+        simulateProgressFallback();
+      }
+    };
+
+    const simulateProgressFallback = async () => {
+      // 기존 시뮬레이션 로직
       for (let i = 0; i < steps.length; i++) {
-        // 현재 단계를 'processing'으로 변경
         setSteps(prev => prev.map((step, index) => 
-          index === i 
-            ? { ...step, status: 'processing' }
-            : step
+          index === i ? { ...step, status: 'processing' } : step
         ));
         setCurrentStep(i);
         setOverallProgress(((i + 0.5) / steps.length) * 100);
 
-        // 각 단계별 처리 시간 시뮬레이션
         const processingTime = i === 0 ? 1000 : i === 1 ? 2000 : i === 2 ? 2000 : i === 3 ? 8000 : 3000;
         await new Promise(resolve => setTimeout(resolve, processingTime));
 
-        // 현재 단계를 'completed'로 변경
         setSteps(prev => prev.map((step, index) => 
-          index === i 
-            ? { 
-                ...step, 
-                status: 'completed',
-                message: getCompletionMessage(step.id)
-              }
-            : step
+          index === i ? { 
+            ...step, 
+            status: 'completed',
+            message: getCompletionMessage(step.id)
+          } : step
         ));
         setOverallProgress(((i + 1) / steps.length) * 100);
 
-        // 마지막 단계 완료시
         if (i === steps.length - 1) {
           setIsCompleted(true);
         }
       }
     };
 
-    simulateProgress();
-  }, [isOpen, hasError, errorStep, errorMessage]);
+    fetchProgress();
+    const interval = setInterval(fetchProgress, 5000);
+    return () => clearInterval(interval);
+  }, [isOpen, hasError, errorStep, errorMessage, diagnosisId]);
 
   const getCompletionMessage = (stepId: string): string => {
     switch (stepId) {

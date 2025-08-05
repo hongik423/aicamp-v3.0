@@ -58,25 +58,43 @@ export async function processDiagnosisForm(data: any) {
       enhancementDirection
     });
 
-    // 6. GEMINI AI 보고서 생성
+    // 6. GEMINI 2.5 Flash AI 보고서 생성 - 필수 실행
     let aiReport = null;
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const aiPrompt = generateAIReportPrompt(data, {
-          aiCapabilityScores,
-          practicalCapabilityScores,
-          comprehensiveScores,
-          gapAnalysis,
-          strategicAnalysis,
-          enhancementDirection,
-          executionRoadmap
-        });
+    console.log('🚀 GEMINI 2.5 Flash 보고서 생성 시작');
+    
+    try {
+      const aiPrompt = generateAIReportPrompt(data, {
+        aiCapabilityScores,
+        practicalCapabilityScores,
+        comprehensiveScores,
+        gapAnalysis,
+        strategicAnalysis,
+        enhancementDirection,
+        executionRoadmap
+      });
 
-        aiReport = await callGeminiAPI(aiPrompt);
-        console.log('✅ AI 보고서 생성 성공');
-      } catch (aiError) {
-        console.error('⚠️ AI 보고서 생성 실패, 폴백 사용:', aiError);
+      // GEMINI API 호출 (재시도 3회)
+      const geminiResponse = await callGeminiAPI(aiPrompt, 3);
+      
+      // 응답 처리
+      if (geminiResponse.rawText) {
+        aiReport = {
+          executiveSummary: geminiResponse.executiveSummary || geminiResponse.rawText.substring(0, 500),
+          fullReport: geminiResponse.rawText,
+          success: true
+        };
+      } else {
+        aiReport = geminiResponse;
       }
+      
+      console.log('✅ GEMINI 2.5 Flash 보고서 생성 성공');
+    } catch (aiError) {
+      console.error('❌ GEMINI API 보고서 생성 실패:', aiError);
+      // 실패 시에도 기본 보고서는 생성
+      aiReport = {
+        executiveSummary: `${data.companyName}의 AI 역량진단 결과, 종합점수 ${totalScore.toFixed(1)}점을 획득하셨습니다. 자세한 분석 보고서는 추가 처리 중입니다.`,
+        error: aiError.message
+      };
     }
 
     // 7. 진단 데이터 구성
@@ -108,31 +126,53 @@ export async function processDiagnosisForm(data: any) {
 
     // 9. 이메일 발송
     // 사용자 확인 이메일
-    await sendEmail({
-      to: data.email,
-      subject: `[AICAMP] ${data.companyName}님의 AI 경영진단 결과`,
-      type: 'diagnosisResult',
-      data: {
-        companyName: data.companyName,
-        contactManager: data.contactManager,
-        totalScore,
-        industry: data.industry,
-        strategicDirection: enhancementDirection.strategicDirection,
-        aiReport: aiReport?.executiveSummary || strategicAnalysis.swot.strengths[0]
+    let emailRetries = 3;
+    while (emailRetries > 0) {
+      try {
+        await sendEmail({
+          to: data.email,
+          subject: `[AICAMP] ${data.companyName}님의 AI 경영진단 결과`,
+          type: 'diagnosisResult',
+          data: {
+            companyName: data.companyName,
+            contactManager: data.contactManager,
+            totalScore,
+            industry: data.industry,
+            strategicDirection: enhancementDirection.strategicDirection,
+            aiReport: aiReport?.executiveSummary || strategicAnalysis.swot.strengths[0]
+          }
+        });
+        break;
+      } catch (error) {
+        console.error('User email send failed (retry ' + (4 - emailRetries) + '):', error);
+        emailRetries--;
+        if (emailRetries === 0) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
       }
-    });
+    }
 
     // 관리자 알림 이메일
-    await sendEmail({
-      to: process.env.ADMIN_EMAIL || 'hongik423@gmail.com',
-      subject: `[진단 완료] ${data.companyName} - ${data.industry} (${totalScore.toFixed(1)}점)`,
-      type: 'diagnosisAdminNotification',
-      data: {
-        ...diagnosisData,
-        rowNumber,
-        fullReport: aiReport
+    emailRetries = 3;
+    while (emailRetries > 0) {
+      try {
+        await sendEmail({
+          to: process.env.ADMIN_EMAIL || 'hongik423@gmail.com',
+          subject: `[진단 완료] ${data.companyName} - ${data.industry} (${totalScore.toFixed(1)}점)`,
+          type: 'diagnosisAdminNotification',
+          data: {
+            ...diagnosisData,
+            rowNumber,
+            fullReport: aiReport
+          }
+        });
+        break;
+      } catch (error) {
+        console.error('Admin email send failed (retry ' + (4 - emailRetries) + '):', error);
+        emailRetries--;
+        if (emailRetries === 0) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-    });
+    }
 
     console.log('✅ 진단 처리 완료:', data.companyName);
 
