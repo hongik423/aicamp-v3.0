@@ -27,23 +27,24 @@ import {
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils/imagePath';
 
-// 부서별 상세 데이터
+// 부서별 상세 데이터 - CEO 전략 관점 강화
 const trackDetails = {
   planning: {
     id: 'planning',
     title: '기획/전략 트랙',
-    subtitle: '데이터 기반 전략 수립과 보고서 자동화',
-    description: '시장 분석부터 전략 보고서까지, AI로 기획 업무를 혁신하세요',
-    target: '기획팀, 전략기획팀, 사업기획팀, 경영기획팀',
-    duration: '12시간 (입문) / 12시간 (심화)',
+    subtitle: 'CEO 의사결정을 지원하는 AI 기반 전략 수립',
+    description: '경영진 의사결정 속도를 10배 향상시키는 AI 전략 기획 시스템',
+    target: '기획팀, 전략기획팀, 사업기획팀, 경영기획팀, C-Level 보좌진',
+    duration: '초급 8시간 / 중급 12시간 / 고급 16시간',
     color: 'from-blue-600 to-cyan-600',
     bgColor: 'from-blue-50 to-cyan-50',
     icon: Target,
+    strategicValue: 'CEO 핵심 관심사: 시장 선점을 위한 신속한 전략 수립과 실행',
     benefits: [
-      '시장 동향 분석 시간 80% 단축',
-      '보고서 작성 속도 3배 향상',
-      'KPI 모니터링 자동화로 실시간 의사결정',
-      '회의록 정리 시간 90% 절감'
+      '경영진 의사결정 속도 10배 향상',
+      '시장 기회 발견 및 대응 시간 80% 단축',
+      '전략 실행 모니터링 실시간화',
+      '경쟁사 대비 전략적 우위 확보'
     ],
     realCases: [
       {
@@ -58,62 +59,104 @@ const trackDetails = {
       }
     ],
     curriculum: {
-      basic: {
-        title: '입문 과정',
-        duration: '12시간 (2일)',
+      beginner: {
+        title: '초급 과정 - AI 기획 기초',
+        duration: '8시간 (1일 집중)',
+        level: 'CEO 관심도: ★★☆☆☆ | ROI 기대: 단기 효율성 향상',
         objectives: [
-          'ChatGPT를 활용한 기획 문서 작성법 습득',
-          'n8n 기본 사용법과 자동화 워크플로 이해',
-          '시장 분석 및 보고서 자동화 실습',
-          '실무 적용 가능한 템플릿 제작'
+          'AI 도구를 활용한 기본 기획 업무 자동화',
+          '경영진 보고서 작성 시간 50% 단축',
+          '시장 정보 수집 및 요약 자동화',
+          '일상 기획 업무 생산성 2배 향상'
         ],
         modules: [
           {
-            title: '1일차: AI 기초와 기획 업무 적용',
+            title: '모듈 1: CEO가 원하는 보고서 만들기 (2시간)',
             topics: [
-              'ChatGPT 개념과 기획업무 활용 사례',
-              '효과적인 프롬프트 작성법',
-              '시장 분석 자동화 실습',
-              '보고서 요약 및 인사이트 도출'
+              '경영진이 선호하는 보고서 구조 이해',
+              'ChatGPT로 임팩트 있는 요약문 작성',
+              '핵심 지표 중심의 대시보드형 보고서',
+              '실습: 주간 경영 보고서 자동 생성'
             ]
           },
           {
-            title: '2일차: n8n 자동화 실습',
+            title: '모듈 2: 시장 정보 자동 수집 (3시간)',
             topics: [
-              'n8n 기본 구조와 노드 이해',
-              '뉴스/트렌드 수집 자동화',
-              'KPI 리포트 자동 생성',
-              '회의록 요약 및 공유 자동화'
+              '경쟁사 동향 모니터링 자동화',
+              '업계 뉴스 및 트렌드 요약',
+              '고객 피드백 분석 및 인사이트 도출',
+              '실습: 일일 시장 브리핑 시스템 구축'
+            ]
+          },
+          {
+            title: '모듈 3: 기획 업무 효율화 (3시간)',
+            topics: [
+              '회의록 자동 정리 및 액션 아이템 추출',
+              '프로젝트 진행 현황 자동 업데이트',
+              '기획안 초안 자동 생성',
+              '실습: 개인별 업무 자동화 설계'
+            ]
+          }
+        ]
+      },
+      intermediate: {
+        title: '중급 과정 - 전략적 AI 활용',
+        duration: '12시간 (2일)',
+        level: 'CEO 관심도: ★★★★☆ | ROI 기대: 중기 경쟁력 강화',
+        objectives: [
+          '데이터 기반 전략 수립 시스템 구축',
+          '경영진 의사결정 지원 AI 시스템 개발',
+          '전사 KPI 모니터링 자동화',
+          '시장 예측 및 기회 발굴 시스템'
+        ],
+        modules: [
+          {
+            title: '1일차: 데이터 기반 전략 수립',
+            topics: [
+              'CEO 의사결정을 위한 데이터 분석 자동화',
+              '시장 기회 발굴을 위한 AI 분석',
+              '경쟁사 전략 분석 및 대응 방안 도출',
+              '리스크 분석 및 시나리오 플래닝'
+            ]
+          },
+          {
+            title: '2일차: 전략 실행 모니터링',
+            topics: [
+              '전사 KPI 실시간 모니터링 시스템',
+              '전략 실행 성과 자동 분석',
+              '이상 징후 조기 경보 시스템',
+              '프로젝트: 경영 대시보드 구축'
             ]
           }
         ]
       },
       advanced: {
-        title: '심화 과정',
-        duration: '12시간 (2일)',
+        title: '고급 과정 - AI 전략 리더십',
+        duration: '16시간 (2일)',
+        level: 'CEO 관심도: ★★★★★ | ROI 기대: 장기 시장 지배력',
         objectives: [
-          '복잡한 데이터 분석 자동화 구현',
-          'API 연동을 통한 고급 자동화',
-          '전사적 리포팅 시스템 구축',
-          'AI 기반 의사결정 지원 시스템 설계'
+          'AI 기반 경영 전략 수립 체계 구축',
+          '예측적 경영을 위한 AI 시스템 설계',
+          '전사 AI 혁신 로드맵 수립',
+          'AI 기반 신사업 기회 발굴'
         ],
         modules: [
           {
-            title: '1일차: 고급 자동화 기법',
+            title: '1일차: AI 전략 경영',
             topics: [
-              'ChatGPT API 고급 활용법',
-              '복잡한 조건 분기와 데이터 처리',
-              '외부 데이터 소스 통합',
-              '실시간 대시보드 구축'
+              'AI 기반 시장 예측 및 기회 발굴',
+              '고객 행동 예측을 통한 전략 수립',
+              '신사업 아이디어 발굴 및 검증',
+              'AI 기반 M&A 타겟 발굴'
             ]
           },
           {
-            title: '2일차: 전략적 자동화 시스템',
+            title: '2일차: 전사 AI 혁신 설계',
             topics: [
-              'KPI 이상 감지 및 알림 시스템',
-              '경쟁사 모니터링 자동화',
-              '전략 문서 자동 생성 시스템',
-              '팀 프로젝트: 맞춤형 자동화 구축'
+              '조직 전체 AI 역량 진단 및 로드맵',
+              'AI 기반 조직 혁신 전략',
+              '경쟁사 대비 AI 우위 확보 방안',
+              '최종 프로젝트: AI 혁신 전략 발표'
             ]
           }
         ]
@@ -817,55 +860,97 @@ export default async function TrackDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* 커리큘럼 상세 */}
+      {/* CEO 전략적 가치 */}
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-6">CEO 전략적 가치</h2>
+          <p className="text-xl mb-4 max-w-4xl mx-auto">
+            {track.strategicValue}
+          </p>
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 rounded-full">
+            <Target className="w-5 h-5" />
+            <span className="font-semibold">경영진 의사결정 지원 시스템 구축</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 커리큘럼 상세 - 3단계 */}
       <section id="curriculum" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">커리큘럼 상세</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">3단계 전략적 커리큘럼</h2>
+            <p className="text-lg text-gray-600">CEO 관심도와 ROI 기대치에 따른 체계적 교육 과정</p>
+          </div>
           
-          <Tabs defaultValue="basic" className="max-w-6xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="basic" className="text-lg">
-                <Building2 className="w-5 h-5 mr-2" />
-                입문 과정
+          <Tabs defaultValue="beginner" className="max-w-7xl mx-auto">
+            <TabsList className="grid w-full grid-cols-3 mb-8 h-auto p-2">
+              <TabsTrigger value="beginner" className="text-sm p-4 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                <div className="text-center">
+                  <Building2 className="w-6 h-6 mx-auto mb-2" />
+                  <div className="font-semibold">초급 과정</div>
+                  <div className="text-xs">효율성 향상</div>
+                </div>
               </TabsTrigger>
-              <TabsTrigger value="advanced" className="text-lg">
-                <Cpu className="w-5 h-5 mr-2" />
-                심화 과정
+              <TabsTrigger value="intermediate" className="text-sm p-4 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <div className="text-center">
+                  <Target className="w-6 h-6 mx-auto mb-2" />
+                  <div className="font-semibold">중급 과정</div>
+                  <div className="text-xs">경쟁력 강화</div>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger value="advanced" className="text-sm p-4 data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+                <div className="text-center">
+                  <Cpu className="w-6 h-6 mx-auto mb-2" />
+                  <div className="font-semibold">고급 과정</div>
+                  <div className="text-xs">시장 지배력</div>
+                </div>
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="basic">
-              <Card>
+            {/* 초급 과정 */}
+            <TabsContent value="beginner">
+              <Card className="border-l-4 border-green-500">
                 <CardHeader>
-                  <CardTitle className="text-2xl">{track.curriculum.basic.title}</CardTitle>
-                  <CardDescription className="text-lg">
-                    {track.curriculum.basic.duration}
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl text-green-700">{track.curriculum.beginner.title}</CardTitle>
+                    <Badge variant="secondary" className="bg-green-100 text-green-700">
+                      {track.curriculum.beginner.duration}
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-lg font-medium text-green-600">
+                    {track.curriculum.beginner.level}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">학습 목표</h3>
-                    <ul className="space-y-2">
-                      {track.curriculum.basic.objectives.map((objective, idx) => (
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-green-600" />
+                      학습 목표
+                    </h3>
+                    <ul className="space-y-3">
+                      {track.curriculum.beginner.objectives.map((objective, idx) => (
                         <li key={idx} className="flex items-start gap-3">
                           <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>{objective}</span>
+                          <span className="text-gray-700">{objective}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">교육 모듈</h3>
+                    <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-green-600" />
+                      교육 모듈
+                    </h3>
                     <div className="space-y-6">
-                      {track.curriculum.basic.modules.map((module, idx) => (
-                        <div key={idx} className="border-l-4 border-blue-500 pl-6">
-                          <h4 className="font-semibold mb-3">{module.title}</h4>
-                          <ul className="space-y-2">
+                      {track.curriculum.beginner.modules.map((module, idx) => (
+                        <div key={idx} className="bg-green-50 rounded-lg p-6 border-l-4 border-green-500">
+                          <h4 className="font-semibold text-green-800 mb-4">{module.title}</h4>
+                          <ul className="space-y-3">
                             {module.topics.map((topic, topicIdx) => (
-                              <li key={topicIdx} className="flex items-center gap-2 text-gray-600">
-                                <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                                {topic}
+                              <li key={topicIdx} className="flex items-start gap-3 text-gray-700">
+                                <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                                <span>{topic}</span>
                               </li>
                             ))}
                           </ul>
@@ -876,39 +961,106 @@ export default async function TrackDetailPage({ params }: PageProps) {
                 </CardContent>
               </Card>
             </TabsContent>
-            
-            <TabsContent value="advanced">
-              <Card>
+
+            {/* 중급 과정 */}
+            <TabsContent value="intermediate">
+              <Card className="border-l-4 border-blue-500">
                 <CardHeader>
-                  <CardTitle className="text-2xl">{track.curriculum.advanced.title}</CardTitle>
-                  <CardDescription className="text-lg">
-                    {track.curriculum.advanced.duration}
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl text-blue-700">{track.curriculum.intermediate.title}</CardTitle>
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      {track.curriculum.intermediate.duration}
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-lg font-medium text-blue-600">
+                    {track.curriculum.intermediate.level}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">학습 목표</h3>
-                    <ul className="space-y-2">
-                      {track.curriculum.advanced.objectives.map((objective, idx) => (
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-blue-600" />
+                      학습 목표
+                    </h3>
+                    <ul className="space-y-3">
+                      {track.curriculum.intermediate.objectives.map((objective, idx) => (
                         <li key={idx} className="flex items-start gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>{objective}</span>
+                          <CheckCircle2 className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-700">{objective}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">교육 모듈</h3>
+                    <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-blue-600" />
+                      교육 모듈
+                    </h3>
+                    <div className="space-y-6">
+                      {track.curriculum.intermediate.modules.map((module, idx) => (
+                        <div key={idx} className="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
+                          <h4 className="font-semibold text-blue-800 mb-4">{module.title}</h4>
+                          <ul className="space-y-3">
+                            {module.topics.map((topic, topicIdx) => (
+                              <li key={topicIdx} className="flex items-start gap-3 text-gray-700">
+                                <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                                <span>{topic}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* 고급 과정 */}
+            <TabsContent value="advanced">
+              <Card className="border-l-4 border-purple-500">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl text-purple-700">{track.curriculum.advanced.title}</CardTitle>
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                      {track.curriculum.advanced.duration}
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-lg font-medium text-purple-600">
+                    {track.curriculum.advanced.level}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-purple-600" />
+                      학습 목표
+                    </h3>
+                    <ul className="space-y-3">
+                      {track.curriculum.advanced.objectives.map((objective, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-700">{objective}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-purple-600" />
+                      교육 모듈
+                    </h3>
                     <div className="space-y-6">
                       {track.curriculum.advanced.modules.map((module, idx) => (
-                        <div key={idx} className="border-l-4 border-purple-500 pl-6">
-                          <h4 className="font-semibold mb-3">{module.title}</h4>
-                          <ul className="space-y-2">
+                        <div key={idx} className="bg-purple-50 rounded-lg p-6 border-l-4 border-purple-500">
+                          <h4 className="font-semibold text-purple-800 mb-4">{module.title}</h4>
+                          <ul className="space-y-3">
                             {module.topics.map((topic, topicIdx) => (
-                              <li key={topicIdx} className="flex items-center gap-2 text-gray-600">
-                                <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                                {topic}
+                              <li key={topicIdx} className="flex items-start gap-3 text-gray-700">
+                                <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                                <span>{topic}</span>
                               </li>
                             ))}
                           </ul>
