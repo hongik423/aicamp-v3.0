@@ -276,28 +276,61 @@ function getSheetHeaders(sheetKey) {
 // ================================================================================
 
 /**
- * AI 역량 자동 평가
+ * AI 역량 자동 평가 (개선된 버전)
  */
 function autoEvaluateAICapabilities(applicationData) {
   console.log('🤖 AI 역량 자동 평가 시작');
   
   try {
-    const evaluation = {
-      scores: {
-        aiCapability: evaluateAICapabilities(applicationData),
-        practicalCapability: evaluatePracticalCapabilities(applicationData),
-      }
+    // assessmentResponses에서 실제 응답값 추출
+    const responses = applicationData.assessmentResponses || {};
+    
+    // 6개 영역별 점수 계산 (실제 평가표 기반)
+    const categoryScores = {
+      leadership: calculateLeadershipScore(responses), // 경영진 리더십 및 AI 이해도
+      infrastructure: calculateInfrastructureScore(responses), // AI 인프라 및 시스템
+      employeeCapability: calculateEmployeeCapabilityScore(responses), // 직원 AI 역량
+      culture: calculateCultureScore(responses), // AI 활용 조직문화
+      practicalApplication: calculatePracticalApplicationScore(responses), // 실무 AI 적용
+      dataCapability: calculateDataCapabilityScore(responses) // 데이터 활용 역량
     };
     
-    // 종합 점수 계산
-    const comprehensiveScores = calculateComprehensiveScores(evaluation);
-    evaluation.scores = { ...evaluation.scores, ...comprehensiveScores };
+    // 가중평균으로 종합 점수 계산
+    const weights = {
+      leadership: 1.2, // 경영진 리더십 중요도 높음
+      infrastructure: 1.0,
+      employeeCapability: 1.1,
+      culture: 1.0,
+      practicalApplication: 1.2, // 실무 적용 중요도 높음
+      dataCapability: 1.1 // 데이터 역량 중요도 높음
+    };
+    
+    const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+    const weightedScore = Object.entries(categoryScores).reduce((sum, [category, score]) => {
+      return sum + (score * weights[category]);
+    }, 0);
+    
+    const totalScore = Math.round(weightedScore / totalWeight);
+    
+    // 등급 산정
+    const grade = getGradeFromScore(totalScore);
     
     // 성숙도 레벨 판정
-    evaluation.maturityLevel = getAIMaturityLevel(comprehensiveScores.totalScore);
+    const maturityLevel = getAIMaturityLevel(totalScore);
     
-    // 벤치마크 비교
-    evaluation.benchmark = compareToBenchmark(applicationData.industry, comprehensiveScores);
+    // 업종별 벤치마크 비교
+    const benchmark = compareToBenchmark(applicationData.industry, totalScore);
+    
+    const evaluation = {
+      scores: {
+        ...categoryScores,
+        totalScore: totalScore,
+        grade: grade,
+        weightedAverage: Math.round(weightedScore / totalWeight * 10) / 10
+      },
+      maturityLevel: maturityLevel,
+      benchmark: benchmark
+    };
     
     console.log('✅ AI 역량 평가 완료:', evaluation.scores.totalScore);
     return evaluation;
@@ -308,20 +341,173 @@ function autoEvaluateAICapabilities(applicationData) {
   }
 }
 
+// ================================================================================
+// 실제 평가표 기반 점수 계산 함수들
+// ================================================================================
+
 /**
- * AI 역량 평가
+ * 1. 경영진 리더십 및 AI 이해도 점수 계산
  */
-function evaluateAICapabilities(data) {
-  const scores = {
-    aiUnderstanding: evaluateAITechUnderstanding(data),
-    dataManagement: evaluateDataManagement(data),
-    processOptimization: evaluateProcessOptimization(data),
-    talentDevelopment: evaluateTalentDevelopment(data),
-    customerExperience: evaluateCustomerExperience(data)
+function calculateLeadershipScore(responses) {
+  const questions = ['L1', 'L2', 'L3', 'L4'];
+  const weights = [1.2, 1.0, 1.1, 1.0]; // 각 문항별 가중치
+  
+  let totalScore = 0;
+  let totalWeight = 0;
+  
+  questions.forEach((qId, index) => {
+    const response = responses[qId] || responses[`leadership_${index + 1}`] || 3; // 기본값 3점
+    const score = convertResponseToScore(response);
+    totalScore += score * weights[index];
+    totalWeight += weights[index];
+  });
+  
+  return Math.round((totalScore / totalWeight) * 20); // 100점 만점으로 환산
+}
+
+/**
+ * 2. AI 인프라 및 시스템 점수 계산
+ */
+function calculateInfrastructureScore(responses) {
+  const questions = ['I1', 'I2', 'I3', 'I4'];
+  const weights = [1.0, 1.1, 0.9, 0.8];
+  
+  let totalScore = 0;
+  let totalWeight = 0;
+  
+  questions.forEach((qId, index) => {
+    const response = responses[qId] || responses[`infrastructure_${index + 1}`] || 3;
+    const score = convertResponseToScore(response);
+    totalScore += score * weights[index];
+    totalWeight += weights[index];
+  });
+  
+  return Math.round((totalScore / totalWeight) * 20);
+}
+
+/**
+ * 3. 직원 AI 역량 점수 계산
+ */
+function calculateEmployeeCapabilityScore(responses) {
+  const questions = ['E1', 'E2', 'E3', 'E4'];
+  const weights = [1.0, 1.1, 0.9, 1.0];
+  
+  let totalScore = 0;
+  let totalWeight = 0;
+  
+  questions.forEach((qId, index) => {
+    const response = responses[qId] || responses[`employee_${index + 1}`] || 3;
+    const score = convertResponseToScore(response);
+    totalScore += score * weights[index];
+    totalWeight += weights[index];
+  });
+  
+  return Math.round((totalScore / totalWeight) * 20);
+}
+
+/**
+ * 4. AI 활용 조직문화 점수 계산
+ */
+function calculateCultureScore(responses) {
+  const questions = ['C1', 'C2', 'C3', 'C4'];
+  const weights = [1.0, 1.1, 0.9, 0.8];
+  
+  let totalScore = 0;
+  let totalWeight = 0;
+  
+  questions.forEach((qId, index) => {
+    const response = responses[qId] || responses[`culture_${index + 1}`] || 3;
+    const score = convertResponseToScore(response);
+    totalScore += score * weights[index];
+    totalWeight += weights[index];
+  });
+  
+  return Math.round((totalScore / totalWeight) * 20);
+}
+
+/**
+ * 5. 실무 AI 적용 점수 계산
+ */
+function calculatePracticalApplicationScore(responses) {
+  const questions = ['P1', 'P2', 'P3', 'P4'];
+  const weights = [1.1, 1.0, 1.2, 1.0];
+  
+  let totalScore = 0;
+  let totalWeight = 0;
+  
+  questions.forEach((qId, index) => {
+    const response = responses[qId] || responses[`practical_${index + 1}`] || 3;
+    const score = convertResponseToScore(response);
+    totalScore += score * weights[index];
+    totalWeight += weights[index];
+  });
+  
+  return Math.round((totalScore / totalWeight) * 20);
+}
+
+/**
+ * 6. 데이터 활용 역량 점수 계산
+ */
+function calculateDataCapabilityScore(responses) {
+  const questions = ['D1', 'D2', 'D3', 'D4'];
+  const weights = [1.1, 1.2, 0.9, 0.8];
+  
+  let totalScore = 0;
+  let totalWeight = 0;
+  
+  questions.forEach((qId, index) => {
+    const response = responses[qId] || responses[`data_${index + 1}`] || 3;
+    const score = convertResponseToScore(response);
+    totalScore += score * weights[index];
+    totalWeight += weights[index];
+  });
+  
+  return Math.round((totalScore / totalWeight) * 20);
+}
+
+/**
+ * 응답값을 점수로 변환 (1-5 척도)
+ */
+function convertResponseToScore(response) {
+  // 문자열 응답을 숫자로 변환
+  const scoreMap = {
+    '전혀 그렇지 않다': 1,
+    '그렇지 않다': 2,
+    '보통이다': 3,
+    '그렇다': 4,
+    '매우 그렇다': 5,
+    '매우부족': 1,
+    '부족': 2,
+    '보통': 3,
+    '우수': 4,
+    '매우우수': 5,
+    'very_poor': 1,
+    'poor': 2,
+    'average': 3,
+    'good': 4,
+    'excellent': 5
   };
   
-  scores.average = Object.values(scores).reduce((a, b) => a + b, 0) / Object.keys(scores).length;
-  return scores;
+  // 숫자인 경우 그대로 반환
+  if (typeof response === 'number') {
+    return Math.max(1, Math.min(5, response));
+  }
+  
+  // 문자열인 경우 매핑
+  const mapped = scoreMap[response] || scoreMap[response?.toLowerCase()] || 3;
+  return mapped;
+}
+
+/**
+ * 점수를 등급으로 변환
+ */
+function getGradeFromScore(score) {
+  if (score >= 90) return 'S';
+  if (score >= 80) return 'A';
+  if (score >= 70) return 'B';
+  if (score >= 60) return 'C';
+  if (score >= 40) return 'D';
+  return 'F';
 }
 
 /**
@@ -2362,7 +2548,7 @@ function handleAIDiagnosisSubmission(requestData) {
 }
 
 /**
- * 데이터 검증 및 정규화
+ * 데이터 검증 및 정규화 (개선된 버전)
  */
 function validateAndNormalizeData(rawData, diagnosisId) {
   const normalized = {
@@ -2370,14 +2556,17 @@ function validateAndNormalizeData(rawData, diagnosisId) {
     timestamp: getCurrentKoreanTime(),
     companyName: rawData.companyName || '',
     industry: rawData.industry || '기타',
-    contactName: rawData.contactManager || rawData.contactName || '',
+    contactName: rawData.contactManager || rawData.contactName || rawData.applicantName || '',
     email: rawData.email || '',
     phone: rawData.phone || '',
     employeeCount: rawData.employeeCount || '',
     annualRevenue: rawData.annualRevenue || '',
     mainChallenges: rawData.mainChallenges || '',
     expectedBenefits: rawData.expectedBenefits || '',
-    consultingArea: rawData.consultingArea || ''
+    consultingArea: rawData.consultingArea || '',
+    privacyConsent: rawData.privacyConsent || false,
+    // 평가 응답 데이터 추가
+    assessmentResponses: rawData.assessmentResponses || {}
   };
   
   // 필수 필드 검증
@@ -2385,7 +2574,34 @@ function validateAndNormalizeData(rawData, diagnosisId) {
     throw new Error('필수 정보가 누락되었습니다');
   }
   
+  // 평가 응답 데이터 검증 및 정규화
+  if (Object.keys(normalized.assessmentResponses).length === 0) {
+    console.log('⚠️ 평가 응답 데이터가 없습니다. 기본값을 사용합니다.');
+    // 기본 응답값 설정 (모든 항목을 "보통"으로 설정)
+    normalized.assessmentResponses = generateDefaultAssessmentResponses();
+  }
+  
   return normalized;
+}
+
+/**
+ * 기본 평가 응답 생성 (평가 데이터가 없을 경우)
+ */
+function generateDefaultAssessmentResponses() {
+  return {
+    // 경영진 리더십 및 AI 이해도
+    L1: 3, L2: 3, L3: 3, L4: 3,
+    // AI 인프라 및 시스템
+    I1: 3, I2: 3, I3: 3, I4: 3,
+    // 직원 AI 역량
+    E1: 3, E2: 3, E3: 3, E4: 3,
+    // AI 활용 조직문화
+    C1: 3, C2: 3, C3: 3, C4: 3,
+    // 실무 AI 적용
+    P1: 3, P2: 3, P3: 3, P4: 3,
+    // 데이터 활용 역량
+    D1: 3, D2: 3, D3: 3, D4: 3
+  };
 }
 
 /**
