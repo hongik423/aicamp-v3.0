@@ -21,8 +21,33 @@ import { getImagePath } from '@/lib/utils';
 const registerServiceWorker = async () => {
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      // 기존 Service Worker 제거
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+      }
+      
+      // 새로운 Service Worker 등록
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none'
+      });
+      
       console.log('AICAMP Service Worker registered:', registration.scope);
+      
+      // Service Worker 업데이트 처리
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // 새 Service Worker가 설치되었지만 아직 활성화되지 않음
+              console.log('New Service Worker available');
+            }
+          });
+        }
+      });
+      
     } catch (error) {
       console.warn('Service Worker registration failed:', error);
     }
@@ -34,8 +59,10 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    // Service Worker 등록
-    registerServiceWorker();
+    // Service Worker 등록을 지연시켜 안전하게 처리
+    const timer = setTimeout(() => {
+      registerServiceWorker();
+    }, 1000);
 
     // 스크롤 이벤트 리스너
     const handleScroll = () => {
@@ -43,7 +70,11 @@ export default function Header() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const navigation = [

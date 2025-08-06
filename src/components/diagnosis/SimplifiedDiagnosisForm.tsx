@@ -493,7 +493,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
 
     setIsSubmitting(true);
     
-    // 실시간 진행상황 공유 시작
+    // 실시간 진행상황 공유 시작 (오류 무시)
     const shareProgress = async () => {
       try {
         const response = await fetch('/api/ai-capability-diagnosis/share-progress', {
@@ -512,12 +512,13 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           console.log('📊 실시간 진행상황 공유 시작:', result.shareCode);
         }
       } catch (error) {
-        console.error('진행상황 공유 실패:', error);
+        // 진행상황 공유 실패는 무시하고 계속 진행
+        console.warn('진행상황 공유 실패 (무시됨):', error);
       }
     };
 
-    // 진행상황 공유 시작
-    shareProgress();
+    // 진행상황 공유 시작 (비동기로 실행, 결과 무시)
+    shareProgress().catch(() => {});
     
     toast({
       title: "🔮 고급 AI 진단 분석 중...",
@@ -616,7 +617,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
     }
   };
 
-  // 폼 제출 핸들러 개선
+  // 폼 제출 핸들러 개선 - Service Worker 오류 무시
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -649,9 +650,9 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       duration: 2000
     });
 
-    // 폼 데이터 제출
+    // 폼 데이터로 onSubmit 호출
     const formData = form.getValues();
-    await onSubmit(formData);
+    onSubmit(formData);
   };
 
   // 🎯 **단계 이동 함수**
