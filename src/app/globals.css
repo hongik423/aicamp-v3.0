@@ -2,6 +2,35 @@
    AICAMP - 애플스토어 스타일 글로벌 CSS 
    ============================================ */
 
+/* AICAMP 라운드 디자인 시스템 - 사용자 친화적 UI */
+@layer base {
+  /* 모든 박스 요소에 라운드 처리 */
+  div[class*="border"],
+  div[class*="bg-"],
+  button,
+  input,
+  textarea,
+  select,
+  .card,
+  .modal {
+    border-radius: 0.75rem !important; /* 12px */
+  }
+  
+  /* 작은 요소들은 약간 작은 라운드 */
+  .badge,
+  .chip,
+  .tag {
+    border-radius: 0.5rem !important; /* 8px */
+  }
+  
+  /* 버튼은 풀 라운드 */
+  .btn-primary,
+  .btn-secondary,
+  button[class*="rounded-full"] {
+    border-radius: 9999px !important;
+  }
+}
+
 /* 폰트 임포트 - Pretendard만 사용 (성능 최적화) */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 

@@ -27,9 +27,9 @@ const path = require('path');
 // 🌐 Google Apps Script와 완전 동기화된 환경변수 (2025.01.27)
 const SYNCHRONIZED_ENV_VARS = {
   // ✅ Google Apps Script 완전 동기화
-  'NEXT_PUBLIC_GOOGLE_SCRIPT_URL': 'https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec',
+      'NEXT_PUBLIC_GOOGLE_SCRIPT_URL': 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec',
   'NEXT_PUBLIC_GOOGLE_SCRIPT_ID': '1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj',
-  'NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID': 'AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0',
+      'NEXT_PUBLIC_GOOGLE_SCRIPT_DEPLOYMENT_ID': 'AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj',
   
   // ✅ Google Sheets 완전 동기화
   'NEXT_PUBLIC_GOOGLE_SHEETS_ID': '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0',

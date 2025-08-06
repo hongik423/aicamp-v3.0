@@ -16,7 +16,7 @@ function getEnvironmentVariables() {
     
     // 배포 정보
     SCRIPT_ID: scriptProperties.getProperty('SCRIPT_ID') || '1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj',
-    DEPLOYMENT_ID: scriptProperties.getProperty('DEPLOYMENT_ID') || 'AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0',
+    DEPLOYMENT_ID: scriptProperties.getProperty('DEPLOYMENT_ID') || 'AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj',
     
     // 운영 설정
     DEBUG_MODE: scriptProperties.getProperty('DEBUG_MODE') === 'true',
