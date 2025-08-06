@@ -27,7 +27,7 @@ export interface ScoreCalculationResult {
 }
 
 /**
- * 1단계: 평가 점수 계산 및 검증
+ * 1단계: 평가 점수 계산 및 검증 (수정된 버전)
  */
 export function calculateAndValidateScores(
   assessmentResponses: Record<string, number>
@@ -36,11 +36,14 @@ export function calculateAndValidateScores(
   const weightedScores: Record<string, number> = {};
   const categoryScores: Record<string, number> = {};
   
+  console.log('🔢 점수 계산 시작 - 입력 데이터:', assessmentResponses);
+  
   // 카테고리별 점수 계산
   for (const [categoryKey, category] of Object.entries(AI_CAPABILITY_ASSESSMENT_ITEMS)) {
     let categoryTotal = 0;
     let categoryWeightSum = 0;
     let validResponseCount = 0;
+    let categoryRawScores: number[] = [];
     
     for (const item of category.items) {
       const responseKey = `${categoryKey}_${item.id}`;
@@ -49,6 +52,8 @@ export function calculateAndValidateScores(
       if (score > 0) {
         validResponseCount++;
         rawScores[item.id] = score;
+        categoryRawScores.push(score);
+        
         const weightedScore = score * item.weight;
         weightedScores[item.id] = weightedScore;
         categoryTotal += weightedScore;
@@ -56,20 +61,40 @@ export function calculateAndValidateScores(
       }
     }
     
-    // 카테고리 평균 계산
-    if (categoryWeightSum > 0) {
-      categoryScores[categoryKey] = (categoryTotal / categoryWeightSum);
+    // 카테고리 평균 계산 (수정된 로직)
+    if (validResponseCount > 0) {
+      // 실제 응답된 점수들의 평균을 계산
+      const categoryAverage = categoryRawScores.reduce((a, b) => a + b, 0) / categoryRawScores.length;
+      categoryScores[categoryKey] = categoryAverage;
+      
+      console.log(`📊 ${category.title}:`, {
+        응답수: validResponseCount,
+        총점수: categoryTotal,
+        가중치합: categoryWeightSum,
+        평균점수: categoryAverage.toFixed(2),
+        원점수들: categoryRawScores
+      });
     } else {
       categoryScores[categoryKey] = 0;
+      console.log(`📊 ${category.title}: 응답 없음`);
     }
   }
   
-  // 전체 점수 계산 (0-100 변환)
+  // 전체 점수 계산 (수정된 로직)
   const validCategoryScores = Object.values(categoryScores).filter(s => s > 0);
   const avgScore = validCategoryScores.length > 0 
     ? validCategoryScores.reduce((a, b) => a + b, 0) / validCategoryScores.length
     : 0;
-  const overallScore = Math.round(avgScore * 20); // 1-5점을 0-100점으로
+  
+  // 1-5점을 0-100점으로 변환 (수정된 공식)
+  const overallScore = Math.round(avgScore * 20); // 1점=20점, 2점=40점, 3점=60점, 4점=80점, 5점=100점
+  
+  console.log('🎯 전체 점수 계산:', {
+    유효카테고리수: validCategoryScores.length,
+    카테고리점수들: validCategoryScores,
+    평균점수: avgScore.toFixed(2),
+    전체점수: overallScore
+  });
   
   // 백분위 계산 (업종별 벤치마크 대비)
   const percentile = calculatePercentile(overallScore);
@@ -83,7 +108,7 @@ export function calculateAndValidateScores(
   const answeredItems = Object.keys(rawScores).length;
   const reliability = Math.round((answeredItems / totalItems) * 100);
   
-  return {
+  const result = {
     rawScores,
     weightedScores,
     categoryScores,
@@ -92,6 +117,15 @@ export function calculateAndValidateScores(
     grade,
     reliability
   };
+  
+  console.log('✅ 점수 계산 완료:', {
+    전체점수: result.overallScore,
+    등급: result.grade,
+    신뢰도: result.reliability,
+    카테고리점수: result.categoryScores
+  });
+  
+  return result;
 }
 
 /**
