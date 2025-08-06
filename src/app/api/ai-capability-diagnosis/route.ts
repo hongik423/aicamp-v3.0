@@ -83,12 +83,10 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         action: 'diagnosis',
-        data: {
-          ...body,
-          diagnosisId,
-          formType: 'ai-capability-diagnosis',
-          submittedAt: new Date().toISOString()
-        }
+        ...body,
+        diagnosisId,
+        formType: 'ai-capability-diagnosis',
+        submittedAt: new Date().toISOString()
       }),
       signal: controller.signal
     });
