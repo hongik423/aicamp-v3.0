@@ -106,8 +106,9 @@ const Textarea = React.forwardRef<
         // 스크롤바 스타일
         'scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent',
         
-        // 포커스 시 배경색 변경 - 완전 불투명
-        isFocused && 'bg-background border-ring',
+        // 배경색 - 완전 불투명 (투명도 제거)
+        'bg-white',
+        isFocused && 'bg-white border-ring',
         
         // 리사이즈 비활성화 및 오버플로우 숨김
         'resize-none overflow-hidden',

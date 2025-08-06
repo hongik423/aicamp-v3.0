@@ -2292,6 +2292,8 @@ function saveDiagnosisApplication(spreadsheet, diagnosisId, appData, evalData) {
     appData.mainChallenges || '',
     appData.expectedBenefits || '',
     appData.consultingArea || '',
+    appData.privacyConsent === true ? '동의' : '미동의',
+    appData.privacyConsent === true ? getCurrentKoreanTime() : '',
     '완료'
   ];
   
@@ -2641,6 +2643,8 @@ function handleConsultationRequest(data) {
         '상담유형',
         '상담분야',
         '문의내용',
+        '개인정보동의',
+        '개인정보동의일시',
         '처리상태',
         '데이터소스',
         '관리자메모'
@@ -2658,6 +2662,8 @@ function handleConsultationRequest(data) {
       data.consultationType || '',
       data.consultationArea || '',
       data.inquiryContent || '',
+      data.privacyConsent === true ? '동의' : '미동의',
+      data.privacyConsent === true ? getCurrentKoreanTime() : '',
       '신규',
       'API_백업시스템',
       ''
