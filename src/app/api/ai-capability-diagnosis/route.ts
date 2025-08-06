@@ -83,7 +83,17 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         action: 'diagnosis',
-        ...body,
+        companyName: body.companyName,
+        industry: body.industry || '기타',
+        contactManager: body.applicantName,
+        email: body.email,
+        phone: body.phone || '',
+        employeeCount: body.employeeCount || '',
+        annualRevenue: body.annualRevenue || '',
+        mainChallenges: body.mainChallenges || '',
+        expectedBenefits: body.expectedBenefits || '',
+        consultingArea: body.consultingArea || '',
+        assessmentResponses: body.assessmentResponses,
         diagnosisId,
         formType: 'ai-capability-diagnosis',
         submittedAt: new Date().toISOString()
