@@ -1612,7 +1612,8 @@ function handleEnhancedAIDiagnosisSubmission(requestData) {
 const SHEETS = {
   AI_DIAGNOSIS: 'AI역량진단',
   CONSULTATION: '상담신청',
-  TAX_ERROR_REPORT: '세금계산기오류신고'
+  TAX_ERROR_REPORT: '세금계산기오류신고',
+  ERROR_REPORTS: '오류신고'
 };
 
 /**
@@ -1637,29 +1638,116 @@ function generateUniqueId(prefix = 'ID') {
  * 데이터 검증 및 정규화
  */
 function validateAndNormalizeData(rawData, diagnosisId) {
-  const normalized = {
-    diagnosisId: diagnosisId,
-    timestamp: getCurrentKoreanTime(),
-    companyName: rawData.companyName || rawData.company || '',
-    industry: rawData.industry || rawData.businessType || '기타',
-    contactName: rawData.contactName || rawData.applicantName || '',
-    email: rawData.email || '',
-    phone: rawData.phone || '',
-    employeeCount: rawData.employeeCount || '',
-    annualRevenue: rawData.annualRevenue || '',
-    businessContent: rawData.businessContent || '',
-    mainChallenges: rawData.mainChallenges || '',
-    expectedBenefits: rawData.expectedBenefits || '',
-    consultingArea: rawData.consultingArea || '',
-    privacyConsent: rawData.privacyConsent === true,
-    privacyConsentTime: rawData.privacyConsent === true ? getCurrentKoreanTime() : '',
-    dataSource: 'API_V5.0_Enhanced',
-    
-    // 24개 평가 응답 데이터
-    assessmentScores: rawData.assessmentScores || rawData.responses || {}
-  };
+  console.log('🔍 데이터 검증 및 정규화 시작');
   
-  return normalized;
+  try {
+    // 필수 기본 정보 검증
+    const requiredBasicInfo = {
+      companyName: rawData.companyName,
+      contactName: rawData.contactManager || rawData.contactName,
+      email: rawData.email,
+      phone: rawData.phone,
+      industry: rawData.industry,
+      employeeCount: rawData.employeeCount
+    };
+    
+    // 필수 정보 누락 체크
+    const missingFields = [];
+    Object.entries(requiredBasicInfo).forEach(([field, value]) => {
+      if (!value || value.toString().trim() === '') {
+        missingFields.push(field);
+      }
+    });
+    
+    if (missingFields.length > 0) {
+      console.error('❌ 필수 기본 정보 누락:', missingFields);
+      throw new Error(`필수 정보가 누락되었습니다: ${missingFields.join(', ')}`);
+    }
+    
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(requiredBasicInfo.email)) {
+      throw new Error('올바른 이메일 형식이 아닙니다');
+    }
+    
+    // 전화번호 형식 검증 (한국 전화번호)
+    const phoneRegex = /^[0-9-+\s()]{10,15}$/;
+    if (!phoneRegex.test(requiredBasicInfo.phone)) {
+      console.warn('⚠️ 전화번호 형식이 표준과 다를 수 있습니다:', requiredBasicInfo.phone);
+    }
+    
+    console.log('✅ 필수 기본 정보 검증 완료:', {
+      회사명: requiredBasicInfo.companyName,
+      담당자명: requiredBasicInfo.contactName,
+      이메일: requiredBasicInfo.email,
+      연락처: requiredBasicInfo.phone,
+      업종: requiredBasicInfo.industry,
+      직원수: requiredBasicInfo.employeeCount
+    });
+    
+    // 평가 응답 데이터 검증
+    const assessmentResponses = {};
+    let validResponseCount = 0;
+    
+    // 24개 평가 항목 검증
+    Object.entries(AI_CAPABILITY_ASSESSMENT_ITEMS).forEach(([categoryKey, category]) => {
+      category.items.forEach(item => {
+        const responseKey = item.id;
+        const score = rawData[responseKey] || rawData[`${categoryKey}_${item.id}`];
+        
+        if (score !== undefined && score !== null && score >= 0 && score <= 5) {
+          assessmentResponses[responseKey] = parseInt(score);
+          validResponseCount++;
+        }
+      });
+    });
+    
+    console.log(`📊 평가 응답 검증 완료: ${validResponseCount}/24 문항`);
+    
+    // AI 도입 관련 정보 처리
+    const aiIntroductionInfo = {
+      mainConcerns: rawData.mainConcerns || [],
+      expectedEffects: rawData.expectedEffects || rawData.expectedBenefits || [],
+      currentAIUsage: rawData.currentAIUsage || '',
+      aiInvestmentPlan: rawData.aiInvestmentPlan || ''
+    };
+    
+    // 정규화된 데이터 반환
+    const normalizedData = {
+      // 기본 정보
+      companyName: requiredBasicInfo.companyName.trim(),
+      contactName: requiredBasicInfo.contactName.trim(),
+      email: requiredBasicInfo.email.trim().toLowerCase(),
+      phone: requiredBasicInfo.phone.trim(),
+      industry: requiredBasicInfo.industry.trim(),
+      employeeCount: requiredBasicInfo.employeeCount,
+      businessDetails: rawData.businessDetails || '',
+      region: rawData.region || '',
+      
+      // AI 도입 관련 정보
+      aiIntroductionInfo: aiIntroductionInfo,
+      
+      // 평가 응답
+      assessmentScores: assessmentResponses,
+      
+      // 메타데이터
+      diagnosisId: diagnosisId,
+      timestamp: getCurrentKoreanTime(),
+      source: 'API_V5.0_Enhanced'
+    };
+    
+    console.log('✅ 데이터 정규화 완료:', {
+      진단ID: diagnosisId,
+      응답문항수: validResponseCount,
+      AI도입정보: Object.keys(aiIntroductionInfo).length
+    });
+    
+    return normalizedData;
+    
+  } catch (error) {
+    console.error('❌ 데이터 검증 실패:', error);
+    throw error;
+  }
 }
 
 /**
@@ -2888,6 +2976,34 @@ function saveDiagnosisData(orchestrationResult, reportData) {
   console.log('💾 진단 데이터 저장');
   
   try {
+    // 필수 정보 검증
+    const requiredFields = {
+      companyName: orchestrationResult.companyInfo.name,
+      contactName: orchestrationResult.companyInfo.contactName,
+      email: orchestrationResult.companyInfo.email,
+      phone: orchestrationResult.companyInfo.phone
+    };
+    
+    // 필수 정보 누락 체크
+    const missingFields = [];
+    Object.entries(requiredFields).forEach(([field, value]) => {
+      if (!value || value.trim() === '') {
+        missingFields.push(field);
+      }
+    });
+    
+    if (missingFields.length > 0) {
+      console.error('❌ 필수 정보 누락:', missingFields);
+      throw new Error(`필수 정보가 누락되었습니다: ${missingFields.join(', ')}`);
+    }
+    
+    console.log('✅ 필수 정보 검증 완료:', {
+      회사명: requiredFields.companyName,
+      담당자명: requiredFields.contactName,
+      이메일: requiredFields.email,
+      연락처: requiredFields.phone
+    });
+    
     const spreadsheet = SpreadsheetApp.openById(ENV.SPREADSHEET_ID);
     let sheet = spreadsheet.getSheetByName(SHEETS.AI_DIAGNOSIS);
     
@@ -2902,6 +3018,11 @@ function saveDiagnosisData(orchestrationResult, reportData) {
         '이메일',
         '연락처',
         '직원수',
+        '사업내용',
+        '주요고민사항',
+        '기대효과',
+        '현재AI사용수준',
+        'AI투자계획',
         '전체점수',
         '등급',
         '성숙도',
@@ -2929,15 +3050,27 @@ function saveDiagnosisData(orchestrationResult, reportData) {
         .setFontWeight('bold');
     }
     
+    // AI 도입 관련 정보 처리
+    const aiIntroductionInfo = orchestrationResult.aiIntroductionInfo || {};
+    const mainConcerns = aiIntroductionInfo.mainConcerns ? aiIntroductionInfo.mainConcerns.join(', ') : '';
+    const expectedEffects = aiIntroductionInfo.expectedEffects ? aiIntroductionInfo.expectedEffects.join(', ') : '';
+    const currentAIUsage = aiIntroductionInfo.currentAIUsage || '';
+    const aiInvestmentPlan = aiIntroductionInfo.aiInvestmentPlan || '';
+    
     const rowData = [
       orchestrationResult.diagnosisId,
       orchestrationResult.timestamp,
-      orchestrationResult.companyInfo.name,
+      requiredFields.companyName,
       orchestrationResult.companyInfo.industry,
-      orchestrationResult.companyInfo.contactName || '',
-      orchestrationResult.companyInfo.email || '',
-      orchestrationResult.companyInfo.phone || '',
+      requiredFields.contactName,
+      requiredFields.email,
+      requiredFields.phone,
       orchestrationResult.companyInfo.employees,
+      orchestrationResult.companyInfo.businessDetails || '',
+      mainConcerns,
+      expectedEffects,
+      currentAIUsage,
+      aiInvestmentPlan,
       orchestrationResult.scoreAnalysis.overallScore,
       orchestrationResult.scoreAnalysis.grade,
       getMaturityLevel(orchestrationResult.scoreAnalysis.overallScore).name,
@@ -2961,7 +3094,17 @@ function saveDiagnosisData(orchestrationResult, reportData) {
     
     sheet.appendRow(rowData);
     
-    console.log('✅ 진단 데이터 저장 완료:', orchestrationResult.diagnosisId);
+    // 저장 확인 로그
+    console.log('✅ 진단 데이터 저장 완료:', {
+      진단ID: orchestrationResult.diagnosisId,
+      회사명: requiredFields.companyName,
+      담당자명: requiredFields.contactName,
+      이메일: requiredFields.email,
+      연락처: requiredFields.phone,
+      전체점수: orchestrationResult.scoreAnalysis.overallScore,
+      등급: orchestrationResult.scoreAnalysis.grade
+    });
+    
     return orchestrationResult.diagnosisId;
     
   } catch (error) {
@@ -2977,40 +3120,61 @@ function handleConsultationRequest(data) {
   console.log('📞 상담신청 처리 시작');
   
   try {
-    if (!data.companyName || !data.contactName || !data.email) {
-      throw new Error('필수 정보가 누락되었습니다');
+    // 필수 정보 검증
+    const requiredFields = {
+      companyName: data.companyName,
+      contactName: data.contactName || data.contactManager,
+      email: data.email,
+      phone: data.phone
+    };
+    
+    // 필수 정보 누락 체크
+    const missingFields = [];
+    Object.entries(requiredFields).forEach(([field, value]) => {
+      if (!value || value.toString().trim() === '') {
+        missingFields.push(field);
+      }
+    });
+    
+    if (missingFields.length > 0) {
+      console.error('❌ 상담신청 필수 정보 누락:', missingFields);
+      throw new Error(`상담신청 필수 정보가 누락되었습니다: ${missingFields.join(', ')}`);
     }
+    
+    console.log('✅ 상담신청 필수 정보 검증 완료:', {
+      회사명: requiredFields.companyName,
+      담당자명: requiredFields.contactName,
+      이메일: requiredFields.email,
+      연락처: requiredFields.phone
+    });
     
     const consultationId = generateUniqueId('CONS');
     
-    // 접수확인 이메일 발송
-    sendConsultationConfirmationEmails(data, consultationId);
-    
-    // 구글시트에 저장
+    // Google Sheets에 상담신청 데이터 저장
     const spreadsheet = SpreadsheetApp.openById(ENV.SPREADSHEET_ID);
     let sheet = spreadsheet.getSheetByName(SHEETS.CONSULTATION);
     
     if (!sheet) {
       sheet = spreadsheet.insertSheet(SHEETS.CONSULTATION);
       const headers = [
-        '상담신청ID',
-        '접수일시',
+        '상담ID',
+        '신청일시',
         '회사명',
-        '신청자명',
+        '담당자명',
         '이메일',
         '연락처',
-        '상담유형',
+        '업종',
+        '직원수',
         '상담분야',
-        '문의내용',
-        '개인정보동의',
-        '개인정보동의일시',
+        '상담내용',
+        '희망일정',
+        '예산범위',
         '처리상태',
-        '데이터소스',
-        '관리자메모'
+        '데이터소스'
       ];
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       sheet.getRange(1, 1, 1, headers.length)
-        .setBackground('#667eea')
+        .setBackground('#10b981')
         .setFontColor('#ffffff')
         .setFontWeight('bold');
     }
@@ -3018,23 +3182,32 @@ function handleConsultationRequest(data) {
     const rowData = [
       consultationId,
       getCurrentKoreanTime(),
-      data.companyName || '',
-      data.contactName || '',
-      data.email || '',
-      data.phone || '',
-      data.consultationType || '',
-      data.consultationArea || '',
-      data.inquiryContent || '',
-      data.privacyConsent === true ? '동의' : '미동의',
-      data.privacyConsent === true ? getCurrentKoreanTime() : '',
-      '신규',
-      'API_V5.0_Enhanced',
-      ''
+      requiredFields.companyName,
+      requiredFields.contactName,
+      requiredFields.email,
+      requiredFields.phone,
+      data.industry || '',
+      data.employeeCount || '',
+      data.consultingArea || '',
+      data.consultingContent || '',
+      data.preferredSchedule || '',
+      data.budgetRange || '',
+      '신청접수',
+      'API_V5.0_Enhanced'
     ];
     
     sheet.appendRow(rowData);
     
-    console.log('✅ 상담신청 처리 완료:', consultationId);
+    console.log('✅ 상담신청 데이터 저장 완료:', {
+      상담ID: consultationId,
+      회사명: requiredFields.companyName,
+      담당자명: requiredFields.contactName,
+      이메일: requiredFields.email,
+      연락처: requiredFields.phone
+    });
+    
+    // 접수확인 이메일 발송
+    sendConsultationConfirmationEmails(data, consultationId);
     
     return {
       success: true,
@@ -3043,60 +3216,69 @@ function handleConsultationRequest(data) {
     };
     
   } catch (error) {
-    console.error('❌ 상담신청 처리 오류:', error);
-    logError(error, { context: 'consultation_request' });
-    
-    return {
-      success: false,
-      error: error.toString(),
-      errorCode: 'CONSULTATION_FAILED'
-    };
+    console.error('❌ 상담신청 처리 실패:', error);
+    throw error;
   }
 }
 
 /**
- * 세금계산기 오류 신고 처리
+ * 세금계산기 오류신고 처리
  */
 function handleTaxCalculatorErrorReport(data) {
-  console.log('🚨 세금계산기 오류 신고 처리 시작');
+  console.log('🐛 세금계산기 오류신고 처리 시작');
   
   try {
-    if (!data.name || !data.email || !data.calculatorType || !data.errorDescription) {
-      throw new Error('필수 정보가 누락되었습니다');
+    // 필수 정보 검증
+    const requiredFields = {
+      reporterName: data.reporterName || data.contactName,
+      email: data.email,
+      phone: data.phone || data.contactPhone
+    };
+    
+    // 필수 정보 누락 체크
+    const missingFields = [];
+    Object.entries(requiredFields).forEach(([field, value]) => {
+      if (!value || value.toString().trim() === '') {
+        missingFields.push(field);
+      }
+    });
+    
+    if (missingFields.length > 0) {
+      console.error('❌ 오류신고 필수 정보 누락:', missingFields);
+      throw new Error(`오류신고 필수 정보가 누락되었습니다: ${missingFields.join(', ')}`);
     }
     
-    const reportId = generateUniqueId('TAX_ERROR');
+    console.log('✅ 오류신고 필수 정보 검증 완료:', {
+      신고자명: requiredFields.reporterName,
+      이메일: requiredFields.email,
+      연락처: requiredFields.phone
+    });
     
-    // 접수확인 이메일 발송
-    sendErrorReportConfirmationEmails(data, reportId);
+    const reportId = generateUniqueId('ERR');
     
-    // 구글시트에 저장
+    // Google Sheets에 오류신고 데이터 저장
     const spreadsheet = SpreadsheetApp.openById(ENV.SPREADSHEET_ID);
-    let sheet = spreadsheet.getSheetByName(SHEETS.TAX_ERROR_REPORT);
+    let sheet = spreadsheet.getSheetByName(SHEETS.ERROR_REPORTS);
     
     if (!sheet) {
-      sheet = spreadsheet.insertSheet(SHEETS.TAX_ERROR_REPORT);
+      sheet = spreadsheet.insertSheet(SHEETS.ERROR_REPORTS);
       const headers = [
-        '오류신고ID',
+        '오류ID',
         '신고일시',
         '신고자명',
         '이메일',
         '연락처',
-        '계산기유형',
-        '오류설명',
-        '예상동작',
-        '실제동작',
-        '재현단계',
+        '계산기종류',
+        '오류내용',
+        '재현방법',
         '브라우저정보',
-        '디바이스정보',
-        '추가정보',
+        '오류발생시간',
         '처리상태',
-        '데이터소스',
-        '관리자메모'
+        '데이터소스'
       ];
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       sheet.getRange(1, 1, 1, headers.length)
-        .setBackground('#dc2626')
+        .setBackground('#ef4444')
         .setFontColor('#ffffff')
         .setFontWeight('bold');
     }
@@ -3104,41 +3286,39 @@ function handleTaxCalculatorErrorReport(data) {
     const rowData = [
       reportId,
       getCurrentKoreanTime(),
-      data.name || '',
-      data.email || '',
-      data.phone || '',
+      requiredFields.reporterName,
+      requiredFields.email,
+      requiredFields.phone,
       data.calculatorType || '',
       data.errorDescription || '',
-      data.expectedBehavior || '',
-      data.actualBehavior || '',
-      data.stepsToReproduce || '',
+      data.reproductionSteps || '',
       data.browserInfo || '',
-      data.deviceInfo || '',
-      data.additionalInfo || '',
-      '신규',
-      'API_V5.0_Enhanced',
-      ''
+      data.errorTime || '',
+      '신고접수',
+      'API_V5.0_Enhanced'
     ];
     
     sheet.appendRow(rowData);
     
-    console.log('✅ 세금계산기 오류 신고 처리 완료:', reportId);
+    console.log('✅ 오류신고 데이터 저장 완료:', {
+      오류ID: reportId,
+      신고자명: requiredFields.reporterName,
+      이메일: requiredFields.email,
+      연락처: requiredFields.phone
+    });
+    
+    // 접수확인 이메일 발송
+    sendErrorReportConfirmationEmails(data, reportId);
     
     return {
       success: true,
       reportId: reportId,
-      message: '오류 신고가 성공적으로 접수되었습니다.'
+      message: '오류신고가 성공적으로 접수되었습니다.'
     };
     
   } catch (error) {
-    console.error('❌ 세금계산기 오류 신고 처리 오류:', error);
-    logError(error, { context: 'tax_calculator_error_report' });
-    
-    return {
-      success: false,
-      error: error.toString(),
-      errorCode: 'TAX_ERROR_REPORT_FAILED'
-    };
+    console.error('❌ 오류신고 처리 실패:', error);
+    throw error;
   }
 }
 

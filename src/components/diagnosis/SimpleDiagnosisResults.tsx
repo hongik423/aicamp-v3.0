@@ -149,7 +149,7 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
           <CardHeader className="text-center pb-6">
             <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock className="w-10 h-10 text-orange-600 animate-pulse" />
-            </div>
+      </div>
             <CardTitle className="text-2xl text-orange-900">
               🤖 AI 분석이 진행 중입니다
             </CardTitle>
@@ -166,16 +166,16 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span>데이터 검증 완료</span>
-                </div>
+            </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                   <span>AI 분석 엔진 실행 중...</span>
-                </div>
+        </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                   <span>결과 생성 대기 중</span>
+                    </div>
                 </div>
-              </div>
             </div>
             
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
@@ -201,10 +201,10 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 새로운 진단 시작
               </Button>
-            </div>
+                            </div>
           </CardContent>
         </Card>
-      </div>
+                            </div>
     );
   }
 
@@ -216,7 +216,7 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
           <CardHeader className="text-center pb-6">
             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-10 h-10 text-red-600" />
-            </div>
+                                    </div>
             <CardTitle className="text-2xl text-red-900">
               ❌ 진단 처리 중 오류가 발생했습니다
             </CardTitle>
@@ -234,7 +234,7 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                 <div>• 다른 브라우저로 접속 시도</div>
                 <div>• 인터넷 연결 상태 확인</div>
                 <div>• 전문가 상담 신청</div>
-              </div>
+                </div>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3">
@@ -252,10 +252,10 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                 <MessageSquare className="w-4 h-4 mr-2" />
                 전문가 상담 신청
               </Button>
-            </div>
+                    </div>
           </CardContent>
         </Card>
-      </div>
+                    </div>
     );
   }
 
@@ -264,14 +264,14 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
   const grade = diagnosis.overallGrade || 'C';
   const percentile = diagnosis.comparisonMetrics?.industryPercentile || 50;
 
-  return (
+        return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* 성공 메시지 */}
       <Card className="border-2 border-green-200 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
         <CardHeader className="text-center pb-6">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-10 h-10 text-green-600" />
-          </div>
+                </div>
           <CardTitle className="text-2xl text-green-900">
             🎉 AI 역량진단이 완료되었습니다!
           </CardTitle>
@@ -280,49 +280,49 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
             전문가 수준의 AI 역량 분석이 완료되었습니다
           </p>
         </CardHeader>
-      </Card>
+            </Card>
 
       {/* 주요 결과 */}
       <Card className="border-0 shadow-xl">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
           <CardTitle className="text-xl">📊 AI 역량 진단 결과</CardTitle>
-        </CardHeader>
+              </CardHeader>
         <CardContent className="p-6">
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <div className="text-3xl font-bold text-blue-600 mb-2">{totalScore}점</div>
               <div className="text-sm text-blue-700">종합 점수</div>
-            </div>
+                    </div>
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-3xl font-bold text-purple-600 mb-2">{grade}등급</div>
               <div className="text-sm text-purple-700">AI 성숙도</div>
-            </div>
+                  </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-3xl font-bold text-green-600 mb-2">상위 {percentile}%</div>
               <div className="text-sm text-green-700">업계 순위</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
       {/* 상세 분석 */}
       <Card className="border-0 shadow-xl">
         <CardHeader>
           <CardTitle className="text-xl">🔍 상세 분석 결과</CardTitle>
-        </CardHeader>
+                  </CardHeader>
         <CardContent className="space-y-4">
           {diagnosis.categoryResults?.map((category: any, index: number) => (
             <div key={index} className="p-4 border rounded-lg">
               <div className="flex justify-between items-center mb-2">
                 <h4 className="font-semibold">{category.category}</h4>
                 <span className="text-lg font-bold text-blue-600">{category.score.toFixed(1)}점</span>
-              </div>
+                      </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${(category.score / 5) * 100}%` }}
                 ></div>
-              </div>
+                      </div>
               <p className="text-sm text-gray-600 mt-2">
                 현재 점수: {category.score.toFixed(1)}점 (5점 만점)
                 <br />100점 환산: {category.score100}점
@@ -331,43 +331,43 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                 <br />가중치: {Math.round(category.weight * 100)}%
               </p>
               
-              {category.strengths.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-green-700 mb-2 flex items-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" />
-                    주요 강점
-                  </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                      {category.strengths.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-green-700 mb-2 flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4" />
+                            주요 강점
+                          </h4>
+                          <ul className="text-sm text-gray-600 space-y-1">
                     {category.strengths.slice(0, 2).map((strength: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-green-500 mt-1">•</span>
-                        <span>{strength}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {category.weaknesses.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-orange-700 mb-2 flex items-center gap-1">
-                    <AlertTriangle className="w-4 h-4" />
-                    개선 필요사항
-                  </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                              <li key={i} className="flex items-start gap-2">
+                                <span className="text-green-500 mt-1">•</span>
+                                <span>{strength}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {category.weaknesses.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-orange-700 mb-2 flex items-center gap-1">
+                            <AlertTriangle className="w-4 h-4" />
+                            개선 필요사항
+                          </h4>
+                          <ul className="text-sm text-gray-600 space-y-1">
                     {category.weaknesses.slice(0, 2).map((weakness: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-orange-500 mt-1">•</span>
-                        <span>{weakness}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+                              <li key={i} className="flex items-start gap-2">
+                                <span className="text-orange-500 mt-1">•</span>
+                                <span>{weakness}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
           ))}
-        </CardContent>
-      </Card>
+                  </CardContent>
+                </Card>
 
       {/* 액션 버튼 */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -392,7 +392,7 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
           <RefreshCw className="w-4 h-4 mr-2" />
           새로운 진단 시작
         </Button>
-      </div>
+            </div>
 
       {/* 상세 보고서 모달 */}
       {showFullReport && (
@@ -407,9 +407,9 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                 >
                   <X className="w-4 h-4" />
                 </Button>
-              </div>
-              
-              <div className="space-y-6">
+          </div>
+
+          <div className="space-y-6">
                 {/* 기업 정보 */}
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h3 className="font-semibold mb-2">🏢 기업 정보</h3>
@@ -435,56 +435,56 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                         <ul className="text-sm text-green-700 space-y-1">
                           {diagnosis.swotAnalysis.strengths?.map((item: string, index: number) => (
                             <li key={index}>• {item}</li>
-                          ))}
-                        </ul>
+                    ))}
+                  </ul>
                       </div>
                       <div className="p-4 bg-red-50 rounded-lg">
                         <h4 className="font-semibold text-red-800 mb-2">약점 (Weaknesses)</h4>
                         <ul className="text-sm text-red-700 space-y-1">
                           {diagnosis.swotAnalysis.weaknesses?.map((item: string, index: number) => (
                             <li key={index}>• {item}</li>
-                          ))}
-                        </ul>
+                    ))}
+                  </ul>
                       </div>
                       <div className="p-4 bg-blue-50 rounded-lg">
                         <h4 className="font-semibold text-blue-800 mb-2">기회 (Opportunities)</h4>
                         <ul className="text-sm text-blue-700 space-y-1">
                           {diagnosis.swotAnalysis.opportunities?.map((item: string, index: number) => (
                             <li key={index}>• {item}</li>
-                          ))}
-                        </ul>
+                    ))}
+                  </ul>
                       </div>
                       <div className="p-4 bg-orange-50 rounded-lg">
                         <h4 className="font-semibold text-orange-800 mb-2">위협 (Threats)</h4>
                         <ul className="text-sm text-orange-700 space-y-1">
                           {diagnosis.swotAnalysis.threats?.map((item: string, index: number) => (
                             <li key={index}>• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
+                    ))}
+                  </ul>
+            </div>
                     </div>
                   </div>
                 )}
 
-                {/* SWOT 전략 매트릭스 */}
+            {/* SWOT 전략 매트릭스 */}
                 {diagnosis.swotAnalysis?.strategies && (
                   <div className="p-4 bg-purple-50 rounded-lg">
                     <h3 className="font-semibold text-purple-800 mb-2">🔍 SWOT 전략 매트릭스</h3>
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="bg-white p-4 rounded-lg">
-                        <strong className="text-green-600">SO 전략:</strong> 강점을 활용하여 기회를 극대화
-                      </div>
-                      <div className="bg-white p-4 rounded-lg">
-                        <strong className="text-blue-600">WO 전략:</strong> 약점을 보완하여 기회를 선점
-                      </div>
-                      <div className="bg-white p-4 rounded-lg">
-                        <strong className="text-purple-600">ST 전략:</strong> 강점으로 위협을 방어
-                      </div>
-                      <div className="bg-white p-4 rounded-lg">
-                        <strong className="text-orange-600">WT 전략:</strong> 약점 개선으로 위협을 최소화
-                      </div>
-                    </div>
+                  <div className="bg-white p-4 rounded-lg">
+                    <strong className="text-green-600">SO 전략:</strong> 강점을 활용하여 기회를 극대화
                   </div>
+                  <div className="bg-white p-4 rounded-lg">
+                    <strong className="text-blue-600">WO 전략:</strong> 약점을 보완하여 기회를 선점
+                  </div>
+                  <div className="bg-white p-4 rounded-lg">
+                    <strong className="text-purple-600">ST 전략:</strong> 강점으로 위협을 방어
+                  </div>
+                  <div className="bg-white p-4 rounded-lg">
+                    <strong className="text-orange-600">WT 전략:</strong> 약점 개선으로 위협을 최소화
+                  </div>
+                </div>
+          </div>
                 )}
 
                 {/* AI 트렌드 분석 */}
@@ -507,7 +507,7 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                             <li key={index}>• {item}</li>
                           ))}
                         </ul>
-                      </div>
+                    </div>
                       <div className="bg-white p-4 rounded-lg">
                         <h4 className="font-semibold text-blue-700 mb-2">AI 적응 전략</h4>
                         <ul className="text-sm text-blue-600 space-y-1">
@@ -524,8 +524,8 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                           ))}
                         </ul>
                       </div>
+                      </div>
                     </div>
-                  </div>
                 )}
 
                 {/* 개선 방안 */}
@@ -541,22 +541,22 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
                         </li>
                       ))}
                     </ul>
-                  </div>
+            </div>
                 )}
 
                 {/* 종합 경영진단보고서 */}
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h3 className="font-semibold text-gray-800 mb-2">📋 종합 경영진단보고서</h3>
-                  <div className="prose max-w-none text-gray-700 leading-relaxed">
-                    <div className="whitespace-pre-line text-base">
-                      {diagnosis.comprehensiveReport}
-                    </div>
-                  </div>
-                  <div className="mt-6 text-sm text-gray-500 text-right">
-                    보고서 길이: {diagnosis.comprehensiveReport?.length || 0}자
+                <div className="prose max-w-none text-gray-700 leading-relaxed">
+                  <div className="whitespace-pre-line text-base">
+                    {diagnosis.comprehensiveReport}
                   </div>
                 </div>
-              </div>
+                <div className="mt-6 text-sm text-gray-500 text-right">
+                    보고서 길이: {diagnosis.comprehensiveReport?.length || 0}자
+                </div>
+          </div>
+          </div>
             </div>
           </div>
         </div>

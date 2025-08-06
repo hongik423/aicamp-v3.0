@@ -1,186 +1,166 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+// Service Worker 등록 상태를 전역으로 관리
+let serviceWorkerRegistered = false;
 
 export function ServiceWorkerProvider() {
+  const errorHandlersSetup = useRef(false);
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // 🆕 완전한 전역 오류 핸들러 - 모든 메시지 포트 오류 차단
+    if (typeof window === 'undefined' || errorHandlersSetup.current) {
+      return;
+    }
+
+    // 🔧 통합된 오류 핸들러 - 한 번만 설정
+    const setupErrorHandlers = () => {
+      // Chrome 확장 프로그램 오류 패턴
+      const extensionErrorPatterns = [
+        'message port closed',
+        'The message port closed',
+        'port closed',
+        'runtime.lastError',
+        'Unchecked runtime.lastError',
+        'Extension context',
+        'chrome-extension://',
+        'extension://',
+        'content.js',
+        'content_script',
+        'injected.js',
+        'inject.js',
+        'Cannot access'
+      ];
+
+      const isExtensionError = (message: string, source?: string): boolean => {
+        return extensionErrorPatterns.some(pattern => 
+          message.includes(pattern) || (source && source.includes(pattern))
+        );
+      };
+
+      // 전역 오류 핸들러
       const handleGlobalError = (event: ErrorEvent) => {
-        const errorMessage = event.message || '';
-        const errorSource = event.filename || '';
-        
-        // 메시지 포트 및 확장 프로그램 관련 오류 처리
-        if (errorMessage.includes('message port closed') || 
-            errorMessage.includes('port closed') ||
-            errorMessage.includes('The message port closed') ||
-            errorMessage.includes('runtime.lastError') ||
-            errorMessage.includes('Unchecked runtime.lastError') ||
-            errorMessage.includes('Extension context invalidated') ||
-            errorMessage.includes('Cannot access') ||
-            errorMessage.includes('Script error')) {
+        if (isExtensionError(event.message || '', event.filename || '')) {
           event.preventDefault();
           event.stopPropagation();
-          console.log('🔇 메시지 포트/확장 프로그램 오류 무시됨:', errorMessage);
-          return false;
-        }
-        
-        // Chrome 확장 프로그램 관련 오류 처리
-        if (errorSource.includes('extension://') || 
-            errorSource.includes('chrome-extension://') ||
-            errorMessage.includes('Extension context invalidated') ||
-            errorMessage.includes('chrome-extension://') ||
-            errorMessage.includes('content.js') ||
-            errorMessage.includes('content_script')) {
-          event.preventDefault();
-          event.stopPropagation();
-          console.log('🔇 Chrome 확장 프로그램 오류 무시됨:', errorSource);
-          return false;
-        }
-        
-        // 추가 확장 프로그램 스크립트 오류 처리
-        if (errorSource.includes('injected.js') || 
-            errorSource.includes('inject.js') ||
-            errorMessage.includes('Cannot access') ||
-            errorMessage.includes('Script error')) {
-          event.preventDefault();
-          event.stopPropagation();
-          console.log('🔇 확장 프로그램 스크립트 오류 무시됨:', errorSource);
           return false;
         }
       };
-      
+
+      // Promise rejection 핸들러
       const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
         const reason = event.reason;
-        
-        // 문자열 타입 오류 처리
-        if (reason && typeof reason === 'string') {
-          if (reason.includes('message port closed') || 
-              reason.includes('port closed') ||
-              reason.includes('The message port closed') ||
-              reason.includes('runtime.lastError') ||
-              reason.includes('Extension context invalidated') ||
-              reason.includes('chrome-extension://') ||
-              reason.includes('Cannot access')) {
-            console.log('🔇 Promise rejection for extension/port error suppressed');
-            event.preventDefault();
-            event.stopPropagation();
-            return;
-          }
+        let shouldSuppress = false;
+
+        if (typeof reason === 'string') {
+          shouldSuppress = isExtensionError(reason);
+        } else if (reason && typeof reason === 'object' && reason.message) {
+          shouldSuppress = isExtensionError(reason.message);
+        } else if (reason instanceof Error && reason.message) {
+          shouldSuppress = isExtensionError(reason.message);
         }
-        
-        // 객체 타입 오류 처리
-        if (reason && typeof reason === 'object' && reason.message) {
-          if (reason.message.includes('port closed') ||
-              reason.message.includes('message port closed') ||
-              reason.message.includes('runtime.lastError') ||
-              reason.message.includes('Extension context') ||
-              reason.message.includes('Cannot access')) {
-            console.log('🔇 Object-type extension error rejection suppressed');
-            event.preventDefault();
-            event.stopPropagation();
-            return;
-          }
-        }
-        
-        // Error 객체 타입 처리
-        if (reason instanceof Error && reason.message) {
-          if (reason.message.includes('port closed') ||
-              reason.message.includes('message port closed') ||
-              reason.message.includes('runtime.lastError') ||
-              reason.message.includes('Cannot access')) {
-            console.log('🔇 Error object extension rejection suppressed');
-            event.preventDefault();
-            event.stopPropagation();
-            return;
-          }
-        }
-      };
-      
-      // 🆕 런타임 오류도 처리
-      const handleRuntimeError = () => {
-        // Chrome 확장 프로그램 관련 오류 무시
-        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
-          const error = chrome.runtime.lastError;
-          if (error.message && (error.message.includes('message port closed') || 
-                               error.message.includes('Cannot access'))) {
-            console.log('🔇 Chrome runtime error suppressed');
-            return;
-          }
-        }
-      };
-      
-      // 🆕 추가: Service Worker 관련 오류 처리
-      const handleServiceWorkerError = (event: any) => {
-        const message = event.message || event.error?.message || '';
-        if (message.includes('port closed') || 
-            message.includes('message port closed') ||
-            message.includes('Service Worker') ||
-            message.includes('sw.js')) {
-          console.log('🔇 Service Worker 오류 무시됨:', message);
+
+        if (shouldSuppress) {
           event.preventDefault();
-          event.stopPropagation();
-          return false;
+          return;
         }
       };
-      
-      window.addEventListener('error', handleGlobalError);
-      window.addEventListener('unhandledrejection', handleUnhandledRejection);
-      
-      // 🆕 Service Worker 오류 이벤트 리스너 추가
-      window.addEventListener('message', handleServiceWorkerError);
-      
-      // 🆕 Chrome 확장 프로그램 오류 처리 (안전한 버전)
-      let runtimeErrorInterval: NodeJS.Timeout | null = null;
-      if (typeof chrome !== 'undefined' && chrome.runtime) {
-        runtimeErrorInterval = setInterval(() => {
-          try {
-            handleRuntimeError();
-          } catch (e) {
-            // 오류 처리 중 발생하는 오류도 무시
+
+      // Console 오버라이드 - 한 번만 실행
+      if (!window.__aicampConsoleOverridden) {
+        const originalError = window.console.error;
+        const originalWarn = window.console.warn;
+
+        window.console.error = function(...args: any[]) {
+          const errorMessage = args[0]?.toString() || '';
+          if (!isExtensionError(errorMessage)) {
+            originalError.apply(console, args);
           }
-        }, 3000); // 3초로 간격 증가
+        };
+
+        window.console.warn = function(...args: any[]) {
+          const warnMessage = args[0]?.toString() || '';
+          if (!isExtensionError(warnMessage)) {
+            originalWarn.apply(console, args);
+          }
+        };
+
+        window.__aicampConsoleOverridden = true;
       }
 
-      // Service Worker 등록 (안전한 버전)
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then((registration) => {
-            console.log('AICAMP Service Worker registered:', registration.scope);
-            
-            // 업데이트 확인
-            registration.addEventListener('updatefound', () => {
-              const newWorker = registration.installing;
-              if (newWorker) {
-                newWorker.addEventListener('statechange', () => {
-                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('New AICAMP version available');
-                  }
-                });
+      // 이벤트 리스너 등록
+      window.addEventListener('error', handleGlobalError, true);
+      window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
+
+      return () => {
+        window.removeEventListener('error', handleGlobalError, true);
+        window.removeEventListener('unhandledrejection', handleUnhandledRejection, true);
+      };
+    };
+
+    // 🔧 Service Worker 등록 - 중복 방지
+    const registerServiceWorker = async () => {
+      if (!('serviceWorker' in navigator) || serviceWorkerRegistered) {
+        return;
+      }
+
+      try {
+        // 기존 등록 확인
+        const existingRegistration = await navigator.serviceWorker.getRegistration('/sw.js');
+        if (existingRegistration) {
+          console.log('🚀 Google Apps Script 시스템 초기화 완료');
+          console.log('📧 이메일 서비스: Google Apps Script');
+          console.log('🔗 연결 상태: disconnected');
+          serviceWorkerRegistered = true;
+          return;
+        }
+
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/',
+          updateViaCache: 'none' // 캐시 우회하여 업데이트 확인
+        });
+
+        console.log('🚀 Google Apps Script 시스템 초기화 완료');
+        console.log('📧 이메일 서비스: Google Apps Script');
+        console.log('🔗 연결 상태: disconnected');
+
+        serviceWorkerRegistered = true;
+
+        // 업데이트 확인
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('New AICAMP version available');
               }
             });
-            
-          })
-          .catch((error) => {
-            // Service Worker 등록 실패도 안전하게 처리
-            if (!error.message.includes('port closed') && !error.message.includes('Cannot access')) {
-              console.log('Service Worker registration failed (safe):', error);
-            }
-          });
-      }
+          }
+        });
 
-      // 🆕 정리 함수 - 메모리 누수 방지
-      return () => {
-        window.removeEventListener('error', handleGlobalError);
-        window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-        window.removeEventListener('message', handleServiceWorkerError);
-        if (runtimeErrorInterval) {
-          clearInterval(runtimeErrorInterval);
+      } catch (error: any) {
+        if (!error.message?.includes('port closed') && 
+            !error.message?.includes('Extension context') &&
+            !error.message?.includes('chrome-extension://')) {
+          console.warn('Service Worker registration failed:', error);
         }
-      };
-    }
+      }
+    };
+
+    // 설정 실행
+    const cleanup = setupErrorHandlers();
+    registerServiceWorker();
+    errorHandlersSetup.current = true;
+
+    return cleanup;
   }, []);
 
   return null;
+}
+
+// 전역 타입 확장
+declare global {
+  interface Window {
+    __aicampConsoleOverridden?: boolean;
+  }
 } 

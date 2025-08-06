@@ -1,32 +1,50 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
-import Providers from './providers';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import FloatingChatbot from '@/components/layout/floating-chatbot';
-import { InstallPrompt } from '@/components/ui/install-prompt';
-import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvider';
+import { Providers } from './providers';
 
-// 안정성을 위한 단순화
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NODE_ENV === 'production' 
-            ? process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app'
-    : 'http://localhost:3000'
-  ),
-  title: {
-    default: 'AICAMP | AI 프로세스 자동화 컨설팅 및 교육',
-    template: '%s | AICAMP'
-  },
-  description: 'AICAMP AI 교육센터 - AI 기반 무료 진단과 전문 교육으로 기업과 개인의 AI 역량 강화를 지원합니다.',
-  keywords: [
-    'AICAMP', 'AI교육', 'AI진단', 'AI컨설팅', 'AI역량강화', 
-    'AI교육센터', 'AI생산성', 'AI기술교육', 'AI혁신', 
-    'AI전문가', 'AI개발', '디지털혁신'
-  ],
-  authors: [{ name: 'AICAMP AI 교육센터' }],
+  title: 'AICAMP - AI 역량진단 및 컨설팅',
+  description: 'AI 역량진단, 상담신청, 세금계산기 등 다양한 서비스를 제공하는 AICAMP입니다.',
+  keywords: 'AI 역량진단, 상담신청, 세금계산기, AICAMP',
+  authors: [{ name: 'AICAMP' }],
   creator: 'AICAMP',
   publisher: 'AICAMP',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://aicamp.club'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'AICAMP - AI 역량진단 및 컨설팅',
+    description: 'AI 역량진단, 상담신청, 세금계산기 등 다양한 서비스를 제공하는 AICAMP입니다.',
+    url: 'https://aicamp.club',
+    siteName: 'AICAMP',
+    images: [
+      {
+        url: '/images/aicamp_logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'AICAMP 로고',
+      },
+    ],
+    locale: 'ko_KR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AICAMP - AI 역량진단 및 컨설팅',
+    description: 'AI 역량진단, 상담신청, 세금계산기 등 다양한 서비스를 제공하는 AICAMP입니다.',
+    images: ['/images/aicamp_logo.png'],
+  },
   robots: {
     index: true,
     follow: true,
@@ -38,194 +56,113 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  openGraph: {
-    type: 'website',
-    locale: 'ko_KR',
-    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app',
-    title: 'AI-CAMP | AI 기업진단 및 경영컨설팅',
-    description: 'AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
-    siteName: 'AI-CAMP',
-  },
-  twitter: {
-    card: 'summary_large_image',
-          title: 'AI-CAMP | AI 기업진단 및 경영컨설팅',
-    description: 'AI 기반 무료 진단과 전문 컨설팅으로 중소기업 성장을 지원합니다.',
-  },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
+    google: 'your-google-verification-code',
   },
 };
 
-function RootLayoutContent({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="min-h-screen flex flex-col bg-white" suppressHydrationWarning>
-      <ServiceWorkerProvider />
-      <Header />
-      <main className="flex-1" suppressHydrationWarning>
-        {children}
-      </main>
-      <Footer />
-      <FloatingChatbot />
-      <InstallPrompt />
-    </div>
-  );
-}
+// Service Worker 오류 방지를 위한 안전한 등록 함수
+const registerServiceWorkerSafely = () => {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    // 브라우저 확장 프로그램 오류 방지
+    const originalConsoleWarn = console.warn;
+    console.warn = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('port closed') || 
+          message.includes('Extension context') ||
+          message.includes('chrome-extension://') ||
+          message.includes('content.js') ||
+          message.includes('runtime.lastError') ||
+          message.includes('The message port closed')) {
+        return; // 확장 프로그램 오류 무시
+      }
+      originalConsoleWarn.apply(console, args);
+    };
+
+    // Service Worker 등록을 지연시켜 안전하게 처리
+    setTimeout(async () => {
+      try {
+        // 기존 Service Worker 제거
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+        
+        // 새로운 Service Worker 등록
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/',
+          updateViaCache: 'none'
+        });
+        
+        console.log('AICAMP Service Worker registered:', registration.scope);
+        
+        // Service Worker 업데이트 처리
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('New Service Worker available');
+              }
+            });
+          }
+        });
+        
+      } catch (error) {
+        console.warn('Service Worker registration failed:', error);
+      } finally {
+        // 원래 console.warn 복원
+        console.warn = originalConsoleWarn;
+      }
+    }, 2000); // 2초 지연
+  }
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Service Worker 안전 등록
+  if (typeof window !== 'undefined') {
+    registerServiceWorkerSafely();
+  }
+
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* UTF-8 인코딩 명시적 설정 - GitHub Pages 한글 깨짐 방지 */}
-        <meta charSet="UTF-8" />
-        <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta httpEquiv="Content-Language" content="ko" />
-        
-                  {/* 모바일 뷰포트 최적화 */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-        
-                  {/* 최적화된 캐시 설정 */}
-        <meta name="version" content="2.0" />
-        
-        {/* 🔧 한글 폰트 최적화 - Pretendard만 사용 */}
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-        
-        {/* 🔧 성능 최적화: DNS 프리페치 - Google Apps Script 기반 */}
-        <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-        <link rel="dns-prefetch" href="//script.google.com" />
-        <link rel="dns-prefetch" href="//generativelanguage.googleapis.com" />
-        
-        {/* PWA 메타 태그 */}
-        <meta name="theme-color" content="#ffffff" />
-        <meta name="mobile-web-app-capable" content="yes" />
+        {/* 브라우저 확장 프로그램 오류 방지 메타 태그 */}
+        <meta name="robots" content="noindex,nofollow" />
+        <meta name="googlebot" content="noindex,nofollow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="format-detection" content="telephone=no, email=no, address=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="AICAMP" />
+        <meta name="msapplication-TileColor" content="#3b82f6" />
+        <meta name="theme-color" content="#3b82f6" />
         
-        {/* PWA Manifest */}
+        {/* PWA 매니페스트 */}
         <link rel="manifest" href="/manifest.json" />
         
-        {/* Apple PWA 설정 */}
-        <link rel="apple-touch-icon" href="/images/aicamp_logo.png" />
-        <link rel="apple-touch-startup-image" href="/images/aicamp_logo.png" />
+        {/* 아이콘 */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         
-        {/* Vercel 배포 최적화 설정 */}
-        <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://ai-camp-landingpage.vercel.app'} />
-        
-        {/* Chrome 확장 프로그램 오류 완전 차단 스크립트 */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            // Chrome 확장 프로그램 오류 완전 차단
-            if (typeof window !== 'undefined') {
-              // console.error 오버라이드 - 더 광범위한 차단
-              const originalError = window.console.error;
-              window.console.error = function(...args) {
-                const errorMessage = args[0]?.toString() || '';
-                
-                // Chrome 확장 프로그램 관련 오류 완전 무시
-                if (errorMessage.includes('message port closed') || 
-                    errorMessage.includes('The message port closed') ||
-                    errorMessage.includes('Extension context') ||
-                    errorMessage.includes('chrome-extension://') ||
-                    errorMessage.includes('content.js') ||
-                    errorMessage.includes('runtime.lastError') ||
-                    errorMessage.includes('Unchecked runtime.lastError') ||
-                    errorMessage.includes('extension://') ||
-                    errorMessage.includes('content_script') ||
-                    errorMessage.includes('injected.js') ||
-                    errorMessage.includes('inject.js')) {
-                  return; // 완전 무시
-                }
-                
-                originalError.apply(console, args);
-              };
-              
-              // console.warn도 오버라이드
-              const originalWarn = window.console.warn;
-              window.console.warn = function(...args) {
-                const warnMessage = args[0]?.toString() || '';
-                if (warnMessage.includes('message port closed') ||
-                    warnMessage.includes('Extension context') ||
-                    warnMessage.includes('runtime.lastError')) {
-                  return;
-                }
-                originalWarn.apply(console, args);
-              };
-              
-              // 전역 오류 핸들러 강화
-              window.addEventListener('error', function(event) {
-                const message = event.message || '';
-                const source = event.filename || '';
-                
-                if (message.includes('Extension context') ||
-                    message.includes('chrome-extension') ||
-                    message.includes('content.js') ||
-                    message.includes('message port closed') ||
-                    message.includes('The message port closed') ||
-                    message.includes('runtime.lastError') ||
-                    source.includes('extension://') ||
-                    source.includes('content.js') ||
-                    source.includes('injected.js')) {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  return false;
-                }
-              }, true); // capture phase에서도 처리
-              
-              // Unhandled promise rejection 강화 처리
-              window.addEventListener('unhandledrejection', function(event) {
-                const reason = event.reason;
-                let shouldBlock = false;
-                
-                if (typeof reason === 'string') {
-                  shouldBlock = reason.includes('Extension context') ||
-                               reason.includes('chrome-extension') ||
-                               reason.includes('content.js') ||
-                               reason.includes('message port closed') ||
-                               reason.includes('runtime.lastError');
-                } else if (reason && reason.message) {
-                  shouldBlock = reason.message.includes('Extension context') ||
-                               reason.message.includes('chrome-extension') ||
-                               reason.message.includes('content.js') ||
-                               reason.message.includes('message port closed') ||
-                               reason.message.includes('runtime.lastError');
-                }
-                
-                if (shouldBlock) {
-                  event.preventDefault();
-                  return false;
-                }
-              });
-              
-              // Chrome runtime 오류 주기적 정리
-              if (typeof chrome !== 'undefined' && chrome.runtime) {
-                setInterval(function() {
-                  try {
-                    if (chrome.runtime.lastError) {
-                      // 오류가 있어도 무시
-                    }
-                  } catch (e) {
-                    // 접근 오류도 무시
-                  }
-                }, 5000);
-              }
-            }
-          `
-        }} />
-
+        {/* 폰트 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-white" suppressHydrationWarning>        
+      <body className={inter.className}>
         <Providers>
-          <RootLayoutContent>
-            {children}
-          </RootLayoutContent>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1 pt-16">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>
