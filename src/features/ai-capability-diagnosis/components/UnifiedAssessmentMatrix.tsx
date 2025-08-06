@@ -251,14 +251,15 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
     const answeredQuestions = Object.keys(responses).length;
     setOverallProgress((answeredQuestions / totalQuestions) * 100);
 
-    // 카테고리별 점수 계산
+    // 카테고리별 점수 계산 (수정된 로직)
     const scores: Record<string, number> = {};
     Object.entries(AI_CAPABILITY_QUESTIONS).forEach(([categoryKey, category]) => {
       const categoryResponses = category.questions.filter(q => responses[q.id] !== undefined);
       if (categoryResponses.length > 0) {
-        const totalScore = categoryResponses.reduce((sum, q) => sum + (responses[q.id] * q.weight), 0);
-        const maxScore = categoryResponses.reduce((sum, q) => sum + (5 * q.weight), 0);
-        scores[categoryKey] = Math.round((totalScore / maxScore) * 100);
+        // 실제 응답된 점수들의 평균을 계산 (5점 기준)
+        const responseScores = categoryResponses.map(q => responses[q.id]);
+        const averageScore = responseScores.reduce((sum, score) => sum + score, 0) / responseScores.length;
+        scores[categoryKey] = Math.round(averageScore * 10) / 10; // 소수점 1자리까지 표시
       } else {
         scores[categoryKey] = 0;
       }
@@ -339,9 +340,10 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
   }, [onChange, autoSave]);
 
   const getOverallScore = () => {
-    const scores = Object.values(responses);
+    const scores = Object.values(responses).filter(score => score !== undefined);
     if (scores.length === 0) return 0;
-    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length * 20);
+    const averageScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    return Math.round(averageScore * 10) / 10; // 소수점 1자리까지 표시
   };
 
   return (
@@ -470,13 +472,14 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
           const totalCount = category.questions.length;
           const completionRate = (answeredCount / totalCount) * 100;
           
-          // 점수에 따른 상태 결정
+          // 점수에 따른 상태 결정 (수정된 로직)
           const getScoreStatus = (score: number) => {
             if (score === 0) return { label: '미평가', color: 'text-gray-500' };
-            if (score <= 2) return { label: '개선 필요', color: 'text-red-600' };
-            if (score === 3) return { label: '보통', color: 'text-yellow-600' };
-            if (score === 4) return { label: '우수', color: 'text-blue-600' };
-            return { label: '최고', color: 'text-green-600' };
+            if (score <= 1.5) return { label: '매우 부족', color: 'text-red-600' };
+            if (score <= 2.5) return { label: '부족', color: 'text-orange-600' };
+            if (score <= 3.5) return { label: '보통', color: 'text-yellow-600' };
+            if (score <= 4.5) return { label: '우수', color: 'text-blue-600' };
+            return { label: '매우 우수', color: 'text-green-600' };
           };
           
           const status = getScoreStatus(score);
@@ -496,24 +499,24 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
                 <div className="text-xs text-gray-600 mb-2">{answeredCount}/{totalCount} 완료</div>
                 <Progress value={completionRate} className="h-2 mb-2" />
                 
-                {/* 점수와 상태 표시 */}
+                {/* 점수와 상태 표시 (수정된 로직) */}
                 <div className="space-y-1">
                   <div className={`text-lg font-bold ${config.textColor}`}>
-                    {score > 0 ? `${score}점` : '-'}
+                    {score > 0 ? `${score.toFixed(1)}점` : '-'}
                   </div>
                   <div className={`text-xs font-medium ${status.color}`}>
                     {status.label}
                   </div>
                 </div>
                 
-                {/* 별점 표시 */}
+                {/* 별점 표시 (수정된 로직) */}
                 {score > 0 && (
                   <div className="flex justify-center mt-1 space-x-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
                         className={`w-3 h-3 transition-colors ${
-                          star <= score
+                          star <= Math.round(score)
                             ? 'text-yellow-400 fill-yellow-400'
                             : 'text-gray-200'
                         }`}
