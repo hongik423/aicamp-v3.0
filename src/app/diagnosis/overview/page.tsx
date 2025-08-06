@@ -156,7 +156,7 @@ export default function DiagnosisServiceOverviewPage() {
           <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30">
               <Award className="w-4 h-4 mr-2" />
-              AI 기반 무료 경영진단 시스템
+              AI 기반 역량진단 시스템
             </Badge>
             
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
@@ -179,7 +179,7 @@ export default function DiagnosisServiceOverviewPage() {
                 className="bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 font-semibold shadow-lg"
               >
                 <Zap className="w-5 h-5 mr-2" />
-                무료 진단 시작하기
+                AI역량진단 시작하기
               </Button>
               <Link href="/services">
                 <Button variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
@@ -455,7 +455,7 @@ export default function DiagnosisServiceOverviewPage() {
                   className="bg-white text-blue-600 hover:bg-gray-50 text-xl px-10 py-5 font-bold shadow-lg"
                 >
                   <Zap className="w-6 h-6 mr-2" />
-                  무료 진단 시작하기
+                  AI역량진단 시작하기
                 </Button>
               </div>
               

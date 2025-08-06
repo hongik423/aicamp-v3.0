@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import { Providers } from './providers';
+import Providers from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -134,8 +134,11 @@ export default function RootLayout({
         {/* 브라우저 확장 프로그램 오류 방지 메타 태그 */}
         <meta name="robots" content="noindex,nofollow" />
         <meta name="googlebot" content="noindex,nofollow" />
+        <meta name="chrome-extension-compatibility" content="disabled" />
+        <meta name="extension-message-port" content="disabled" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="format-detection" content="telephone=no, email=no, address=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="AICAMP" />

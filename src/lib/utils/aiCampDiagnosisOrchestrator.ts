@@ -515,9 +515,10 @@ export function generateHighEngagementStrategy(
   const maturityLevel = scoreResult.overallScore;
   
   // 성숙도에 따른 비전 설정
+  const companyName = company.name || company.industry || '귀하의 기업';
   const vision = maturityLevel > 60 
-    ? `${company.name}을 업계 최고의 AI 혁신 기업으로 발전`
-    : `${company.name}의 AI 기반 디지털 전환 성공`;
+    ? `${companyName}을 업계 최고의 AI 혁신 기업으로 발전`
+    : `${companyName}의 AI 기반 디지털 전환 성공`;
   
   // 핵심 가치
   const coreValues = [

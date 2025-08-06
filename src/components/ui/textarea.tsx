@@ -73,8 +73,8 @@ const Textarea = React.forwardRef<
     <textarea
       className={cn(
         // 기본 스타일
-        'flex w-full rounded-xl border bg-background ring-offset-background',
-        'placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+        'flex w-full rounded-xl border ring-offset-background',
+        'placeholder:text-muted-foreground/0 placeholder:opacity-0 disabled:cursor-not-allowed disabled:opacity-50',
         
         // 패딩 및 폰트 크기 - 모바일 최적화
         'px-3 py-3 text-base leading-relaxed',
@@ -106,9 +106,9 @@ const Textarea = React.forwardRef<
         // 스크롤바 스타일
         'scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent',
         
-        // 배경색 - 완전 불투명 (투명도 제거)
-        'bg-white',
-        isFocused && 'bg-white border-ring',
+        // 배경색 - 완전 불투명하고 선명한 배경
+        'bg-white/100 backdrop-blur-sm border-input/60',
+        isFocused && 'bg-white/100 border-ring shadow-md backdrop-blur-none',
         
         // 리사이즈 비활성화 및 오버플로우 숨김
         'resize-none overflow-hidden',

@@ -252,7 +252,7 @@ export default function AICapabilityReportDisplay({
     
     <div class="footer">
       <p>본 보고서는 AICAMP AI 역량진단 시스템을 통해 자동 생성되었습니다.</p>
-      <p>문의: hongik423@gmail.com | 전화: 02-123-4567</p>
+              <p>문의: hongik423@gmail.com | 웹사이트: aicamp.club</p>
       <p>© 2024 AICAMP. All rights reserved.</p>
     </div>
   </div>

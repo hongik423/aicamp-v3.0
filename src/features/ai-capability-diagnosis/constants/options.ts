@@ -183,11 +183,11 @@ export const industryOptions = [
 
 // 기업 규모 옵션
 export const companySizeOptions = [
-  { value: '1-9', label: '1-9명 (소기업)' },
-  { value: '10-49', label: '10-49명 (중소기업)' },
-  { value: '50-199', label: '50-199명 (중기업)' },
-  { value: '200-999', label: '200-999명 (중견기업)' },
-  { value: '1000+', label: '1000명 이상 (대기업)' }
+  { value: '1-10', label: '1-10명' },
+  { value: '11-50', label: '11-50명' },
+  { value: '51-100', label: '51-100명' },
+  { value: '101-300', label: '101명-300명' },
+  { value: '301+', label: '301명 이상' }
 ];
 
 // 지역 옵션

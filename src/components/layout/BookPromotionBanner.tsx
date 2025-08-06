@@ -387,7 +387,7 @@ const BookPromotionBanner: React.FC = () => {
                   >
                     <div className="text-center">
                       <p className="text-base sm:text-lg font-bold text-green-700 mb-1">
-                        🎉 무료 진단+ AI CAMP 교육비 20% 할인
+                        🎉 AI역량진단+ AI CAMP 교육비 20% 할인
                       </p>
                       <p className="text-xs sm:text-sm text-gray-600">
                         출간 기념 할인 - 30일 한정
@@ -448,7 +448,7 @@ const BookPromotionBanner: React.FC = () => {
                     </Button>
                   </motion.div>
 
-                  {/* AI 무료 경영진단 버튼 */}
+                  {/* AI 역량진단 버튼 */}
                   <motion.div 
                     whileHover={isMobile ? {} : { scale: 1.05 }} 
                     whileTap={{ scale: 0.95 }}
@@ -470,13 +470,13 @@ const BookPromotionBanner: React.FC = () => {
                       <Link 
                         href="/diagnosis"
                         className="flex items-center justify-center min-h-[44px] min-w-[44px]"
-                        aria-label="AI 무료 경영진단 시작하기"
+                        aria-label="AI 역량진단 시작하기"
                         style={{
                           WebkitTapHighlightColor: 'transparent'
                         }}
                       >
                         <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
-                        <span className="text-sm sm:text-base">AI 무료 경영진단</span>
+                        <span className="text-sm sm:text-base">AI 역량진단</span>
                       </Link>
                     </Button>
                   </motion.div>

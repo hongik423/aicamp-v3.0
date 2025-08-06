@@ -257,7 +257,8 @@ export default function ConsultationRequestModal({
               <p className="font-semibold text-blue-900 mb-2">📞 담당자 정보</p>
               <p className="text-blue-800">이후경 경영지도사</p>
               <p className="text-blue-800">📱 010-9251-9743</p>
-              <p className="text-blue-800">📧 hongik423@gmail.com</p>
+                              <p className="text-blue-800">📧 hongik423@gmail.com</p>
+                <p className="text-blue-800">🌐 aicamp.club</p>
             </div>
           </CardContent>
         </Card>

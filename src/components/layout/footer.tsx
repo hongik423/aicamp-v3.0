@@ -87,7 +87,8 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-white mb-4">연락처</h3>
             <div className="space-y-2 text-sm">
               <p className="text-gray-300 dark:text-gray-400">
-                이메일: hongik423@gmail.com
+                이메일: hongik423@gmail.com<br />
+                웹사이트: aicamp.club
               </p>
               <p className="text-gray-300 dark:text-gray-400">
                 전화: 010-9251-9743

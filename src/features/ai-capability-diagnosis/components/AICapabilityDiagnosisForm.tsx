@@ -41,7 +41,7 @@ import { submitDiagnosis } from '../api';
 import { EnhancedAssessmentForm } from './EnhancedAssessmentForm';
 import { UnifiedAssessmentMatrix } from './UnifiedAssessmentMatrix';
 import { IndustrySelect } from './IndustrySelect';
-import { DiagnosisProgressModal } from '@/components/diagnosis/DiagnosisProgressModal';
+import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
 
 // 폼 검증 스키마
 const diagnosisSchema = z.object({
@@ -116,6 +116,12 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
       const result = await submitDiagnosis(data);
       if (result.success && result.diagnosisId) {
         setDiagnosisId(result.diagnosisId);
+        
+        // 로컬 스토리지에 최근 진단 결과 ID 저장
+        const recentIds = JSON.parse(localStorage.getItem('recentDiagnosisIds') || '[]');
+        const newIds = [result.diagnosisId, ...recentIds.filter((id: string) => id !== result.diagnosisId)].slice(0, 5); // 최대 5개까지 저장
+        localStorage.setItem('recentDiagnosisIds', JSON.stringify(newIds));
+        
         setShowProgressModal(true);
         toast({
           title: "진단 신청 완료",
@@ -751,6 +757,76 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
       diagnosisId={diagnosisId}
       companyName={form.watch('companyName')}
       email={form.watch('email')}
+      onComplete={(result) => {
+        console.log('🎉 진단 완료 결과:', result);
+        setShowProgressModal(false);
+        
+        // 임시 결과 데이터 생성 (실제로는 API에서 받아와야 함)
+        const mockReportData = {
+          overallScore: 75,
+          grade: 'B',
+          categoryScores: {
+            leadership: 4.2,
+            infrastructure: 3.8,
+            employeeCapability: 3.5,
+            culture: 4.0,
+            practicalApplication: 3.7,
+            dataCapability: 3.3
+          },
+          recommendations: [
+            'AI 기초 교육 프로그램 도입',
+            '데이터 관리 체계 구축',
+            '조직 문화 개선 방안 수립'
+          ],
+          strengths: ['경영진의 강한 의지', '혁신적 조직문화'],
+          improvements: ['AI 전문 인력 확보', '데이터 인프라 구축'],
+          roadmap: {
+            phase1: '기초 역량 구축 (1-3개월)',
+            phase2: '실무 적용 확산 (4-6개월)', 
+            phase3: '고도화 및 최적화 (7-12개월)'
+          }
+        };
+
+        const mockCompanyInfo = {
+          companyName: form.watch('companyName'),
+          contactName: form.watch('contactName'),
+          email: form.watch('email'),
+          industry: form.watch('industry'),
+          employeeCount: form.watch('employeeCount')
+        };
+
+        // 로컬 스토리지에 결과 저장
+        if (diagnosisId) {
+          localStorage.setItem(`diagnosis_result_${diagnosisId}`, JSON.stringify({
+            reportData: mockReportData,
+            companyInfo: mockCompanyInfo,
+            timestamp: new Date().toISOString()
+          }));
+        }
+        
+        // 성공 메시지와 함께 결과 표시
+        toast({
+          title: "🎉 AI 역량진단 완료!",
+          description: `${result.message} 결과를 확인하세요.`,
+          duration: 5000,
+        });
+
+        // 결과 페이지로 이동
+        if (diagnosisId) {
+          setTimeout(() => {
+            window.open(`/diagnosis/result/${diagnosisId}`, '_blank');
+          }, 1500);
+        }
+      }}
+      onError={(error) => {
+        console.error('❌ 진단 처리 오류:', error);
+        toast({
+          title: "처리 중 오류 발생",
+          description: error,
+          variant: "destructive",
+          duration: 5000,
+        });
+      }}
     />
     </>
   );

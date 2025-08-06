@@ -161,21 +161,48 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
           
           <CardContent className="space-y-4">
             <div className="bg-white p-4 rounded-lg border border-orange-200">
-              <h4 className="font-semibold text-orange-800 mb-2">📊 현재 진행 상황</h4>
-              <div className="space-y-2 text-sm text-orange-700">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>데이터 검증 완료</span>
-            </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  <span>AI 분석 엔진 실행 중...</span>
-        </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <span>결과 생성 대기 중</span>
-                    </div>
+              <h4 className="font-semibold text-orange-800 mb-3">📊 AI 분석 진행 상황</h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <span className="font-medium text-green-700">✅ 데이터 검증 완료</span>
+                    <p className="text-green-600 text-xs mt-1">제출된 정보의 완성도와 유효성 검증 완료</p>
+                  </div>
                 </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <span className="font-medium text-blue-700">🤖 GEMINI 2.5 Flash AI 분석 중...</span>
+                    <p className="text-blue-600 text-xs mt-1">AI 역량 6분야 종합 평가 및 업종별 벤치마크 비교 (2-3분 소요)</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <span className="font-medium text-yellow-700">🎯 SWOT 전략 분석 대기 중</span>
+                    <p className="text-yellow-600 text-xs mt-1">강점/약점/기회/위협 요인 분석 및 전략 도출 (1-2분 소요)</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-600">📄 맞춤형 보고서 생성 대기 중</span>
+                    <p className="text-gray-500 text-xs mt-1">실행 로드맵 및 개선방안 포함 종합 보고서 작성 (2-3분 소요)</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-600">📧 이메일 전송 대기 중</span>
+                    <p className="text-gray-500 text-xs mt-1">PDF 형태의 최종 진단보고서 이메일 발송 (30-60초 소요)</p>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">

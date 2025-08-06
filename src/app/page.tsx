@@ -316,7 +316,7 @@ export default function Home() {
               
               <Link href="/diagnosis">
                 <button className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
-                  무료 전문가 진단
+                  AI역량진단
                 </button>
               </Link>
               
@@ -966,7 +966,7 @@ export default function Home() {
                   
                   <Link href="/diagnosis">
                     <button className="px-8 py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-900 text-lg font-medium rounded-full transition-all duration-200">
-                      무료진단
+                      AI역량진단
                     </button>
                   </Link>
                 </div>
@@ -979,7 +979,7 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span>무료 진단</span>
+                    <span>AI역량진단</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -1128,7 +1128,7 @@ export default function Home() {
                     className="bg-gradient-to-r from-green-500 to-emerald-600 
                               hover:from-green-600 hover:to-emerald-700 text-white shadow-xl w-full sm:w-auto px-6 py-3 rounded-lg font-medium"
                   >
-                    3분 무료 AI 진단
+                    3분 AI역량진단
                   </Button>
                 </Link>
                 
@@ -1144,7 +1144,7 @@ export default function Home() {
               <div className="flex items-center justify-center gap-6 mt-6 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>무료 진단</span>
+                  <span>AI역량진단</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
@@ -1336,7 +1336,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 무료 전문가 진단 섹션 - 프리미엄 표현 */}
+      {/* AI역량진단 섹션 - 프리미엄 표현 */}
       <section id="ai-diagnosis" className="py-20 lg:py-32 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -1346,7 +1346,7 @@ export default function Home() {
             </div>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6">
-              무료 전문가 진단 신청
+              AI역량진단 신청
             </h2>
             
             <p className="text-xl md:text-2xl max-w-4xl mx-auto text-blue-100">
@@ -1383,7 +1383,7 @@ export default function Home() {
             <Card className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
               <CardContent className="p-8 text-center">
                 <h3 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-4 text-white">
-                  지금 바로 무료 전문가 진단을 신청하세요!
+                  지금 바로 AI역량진단을 신청하세요!
                 </h3>
                 <p className="text-blue-100 mb-8 text-lg">
                   8개 정보만 입력하면 2-3분 내에 전문가 수준의 진단 보고서를 받아볼 수 있습니다.
@@ -1391,13 +1391,13 @@ export default function Home() {
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
                   <Link href="/diagnosis">
-                    {/* 개선된 무료 전문가 진단 신청하기 버튼 */}
+                    {/* 개선된 AI역량진단 신청하기 버튼 */}
                     <Button 
                       className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
                     >
                       <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                       <span className="relative flex items-center">
-                        무료 전문가 진단 신청하기
+                        AI역량진단 신청하기
                       </span>
                     </Button>
                   </Link>

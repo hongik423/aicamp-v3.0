@@ -1,26 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { submitDiagnosisToGoogle } from '@/lib/utils/emailService';
 
-// 진단 상태 추적을 위한 인메모리 저장소 (실제 서비스에서는 Redis나 DB 사용)
-interface DiagnosisStatus {
-  diagnosisId: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  progress: number;
-  currentStep: string;
-  message: string;
-  steps: Array<{
-    id: string;
-    name: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
-    message?: string;
-    startTime?: number;
-    endTime?: number;
-  }>;
-  startTime: number;
-  lastUpdate: number;
-}
-
-const diagnosisStatusMap = new Map<string, DiagnosisStatus>();
+// Google Apps Script URL (환경변수에서 가져오기)
+const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || process.env.GOOGLE_SCRIPT_URL;
 
 // CORS 헤더 설정
 const corsHeaders = {
@@ -83,67 +64,114 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 진단 ID 생성 (이메일 기반)
-    const emailPrefix = body.email.split('@')[0].toLowerCase();
-    const timestamp = Date.now();
-    const diagnosisId = `${emailPrefix}-${timestamp}`;
+    // Google Apps Script 연결 확인
+    if (!GOOGLE_SCRIPT_URL) {
+      console.error('❌ Google Apps Script URL 미설정');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Google Apps Script 설정이 필요합니다' 
+        },
+        { status: 500, headers: corsHeaders }
+      );
+    }
 
-    console.log('🔄 Google Apps Script로 진단 데이터 전송 중...', { diagnosisId });
+    console.log('🔄 Google Apps Script로 진단 데이터 전송 중...');
     
-    // Google Apps Script로 데이터 전송 (emailService.ts 사용)
-    const scriptResult = await submitDiagnosisToGoogle({
-      action: 'saveDiagnosis',
-      폼타입: 'AI_역량진단',
-      제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
-      timestamp: Date.now(),
+    // Google Apps Script 호출을 위한 데이터 구성 (V8.0 PERFECT 형식에 맞춤)
+    const gasPayload = {
+      action: 'diagnosis',
       
-      // 기본 정보
-      회사명: body.companyName,
-      업종: body.industry || '기타',
-      사업담당자: body.applicantName,
-      직원수: body.employeeCount || '',
-      사업성장단계: body.growthStage || 'growth',
-      주요고민사항: body.mainConcerns?.join(', ') || '',
-      예상혜택: body.expectedBenefits?.join(', ') || '',
-      소재지: body.region || '',
-      담당자명: body.applicantName,
-      연락처: body.phone || '',
-      이메일: body.email,
-      개인정보동의: body.privacyConsent ? '동의' : '미동의',
+      // 기본 정보 (Google Apps Script의 normalizeApplicationData 함수와 일치)
+      companyName: body.companyName,
+      contactName: body.applicantName,
+      email: body.email,
+      phone: body.phone || '',
       
-      // AI 역량 평가 응답
-      assessmentResponses: body.assessmentResponses,
+      // 기업 속성
+      industry: body.industry || '기타',
+      employeeCount: body.companySize || '1-10명',
       
-      // 진단 ID
-      diagnosisId,
+      // AI 역량 평가 응답 (배열 형태로 전송)
+      assessmentResponses: Object.entries(body.assessmentResponses || {}).map(([questionId, value]) => ({
+        questionId,
+        value: parseInt(String(value)) || 3
+      })),
       
-      // 이메일 발송 플래그
-      sendConfirmationEmail: true,
-      sendAdminNotification: true
+      // 추가 정보
+      region: body.region,
+      businessDetails: body.businessDetails,
+      mainConcerns: body.mainConcerns,
+      expectedBenefits: body.expectedBenefits,
+      currentAIUsage: body.currentAIUsage,
+      aiInvestmentPlan: body.aiInvestmentPlan,
+      additionalRequests: body.additionalRequests,
+      
+      // 동의 사항
+      privacyConsent: body.privacyConsent,
+      marketingConsent: body.marketingConsent || false,
+      
+      // 메타데이터
+      submittedAt: new Date().toISOString(),
+      formType: 'ai-capability-diagnosis'
+    };
+
+    console.log('📤 GAS로 전송할 데이터:', {
+      companyName: gasPayload.companyName,
+      email: gasPayload.email,
+      assessmentCount: gasPayload.assessmentResponses.length
+    });
+
+    // Google Apps Script로 POST 요청
+    const scriptResponse = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(gasPayload)
+    });
+
+    if (!scriptResponse.ok) {
+      const errorText = await scriptResponse.text();
+      console.error('❌ Google Apps Script 응답 오류:', {
+        status: scriptResponse.status,
+        statusText: scriptResponse.statusText,
+        response: errorText
+      });
+      throw new Error(`Google Apps Script 오류: ${scriptResponse.status} - ${errorText}`);
+    }
+
+    const scriptResult = await scriptResponse.json();
+    console.log('📥 Google Apps Script 응답:', {
+      success: scriptResult.success,
+      diagnosisId: scriptResult.diagnosisId,
+      message: scriptResult.message
     });
 
     if (scriptResult.success) {
-      console.log('✅ AI 역량진단 신청 처리 완료:', diagnosisId);
+      console.log('✅ AI 역량진단 신청 처리 완료:', scriptResult.diagnosisId);
       
       return NextResponse.json(
         { 
           success: true, 
-          diagnosisId,
-          message: 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
-          estimatedTime: '10-15분',
+          diagnosisId: scriptResult.diagnosisId,
+          processingTime: scriptResult.processingTime,
+          message: scriptResult.message || 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
+          estimatedTime: '5-10분',
           features: [
-            'GEMINI 2.5 Flash AI 분석',
+            'GEMINI 2.0 Flash AI 분석',
             'AI 역량 6분야 종합 평가',
             '업종별 맞춤 분석',
             'SWOT 전략 분석',
-            '실행 로드맵 제공'
+            '3단계 실행 로드맵',
+            'ROI 분석 및 투자 계획'
           ]
         },
         { headers: corsHeaders }
       );
     } else {
       console.error('❌ Google Apps Script 처리 실패:', scriptResult.error);
-      throw new Error(scriptResult.error || '진단 처리 중 오류 발생');
+      throw new Error(scriptResult.error || scriptResult.message || '진단 처리 중 오류 발생');
     }
 
   } catch (error) {
@@ -174,8 +202,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (!GOOGLE_SCRIPT_URL) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Google Apps Script 설정이 필요합니다' 
+        },
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
     // Google Apps Script에서 결과 조회
-    const scriptResponse = await fetch(`${process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL}?diagnosisId=${diagnosisId}`, {
+    const scriptResponse = await fetch(`${GOOGLE_SCRIPT_URL}?diagnosisId=${diagnosisId}&action=getResult`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -200,7 +238,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        data: result.data 
+        data: result.data || result
       },
       { headers: corsHeaders }
     );
