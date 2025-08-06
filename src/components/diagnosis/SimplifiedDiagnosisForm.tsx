@@ -493,6 +493,32 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
 
     setIsSubmitting(true);
     
+    // 실시간 진행상황 공유 시작
+    const shareProgress = async () => {
+      try {
+        const response = await fetch('/api/ai-capability-diagnosis/share-progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            responses: data,
+            progress: 0,
+            totalScore: 0,
+            timestamp: new Date().toISOString()
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('📊 실시간 진행상황 공유 시작:', result.shareCode);
+        }
+      } catch (error) {
+        console.error('진행상황 공유 실패:', error);
+      }
+    };
+
+    // 진행상황 공유 시작
+    shareProgress();
+    
     toast({
       title: "🔮 고급 AI 진단 분석 중...",
       description: "Enhanced 진단평가 엔진 v3.0으로 정교한 분석을 진행합니다.",
@@ -578,39 +604,54 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         });
       }
       
-      let errorTitle = "진단 처리 중 오류가 발생했습니다";
-      let errorDescription = "잠시 후 다시 시도해주시거나 전문가 상담을 신청해주세요.";
-      
-      // 🎯 구체적인 오류 메시지 제공
-      if (error instanceof Error) {
-        // 타임아웃 오류 처리
-        if (error.name === 'AbortError') {
-          errorTitle = "⏱️ 처리 시간 초과";
-          errorDescription = "진단 분석에 시간이 오래 걸리고 있습니다. 다시 시도하거나 간단한 정보로 진단을 진행해주세요.";
-        }
-        // 504 Gateway Timeout 오류 처리
-        else if (error.message.includes('504')) {
-          errorTitle = "⏱️ 서버 응답 지연";
-          errorDescription = "현재 많은 요청으로 인해 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.";
-        }
-        else if (error.message.includes('diagnosis')) {
-          errorTitle = "진단 데이터 처리 오류";
-          errorDescription = "진단 결과를 처리하는 중 문제가 발생했습니다. 다시 시도해주세요.";
-        } else if (error.message.includes('네트워크') || error.message.includes('fetch')) {
-          errorTitle = "네트워크 연결 오류";
-          errorDescription = "인터넷 연결을 확인하고 다시 시도해주세요.";
-        }
-      }
-      
+      // 사용자에게 오류 알림
       toast({
-        title: errorTitle,
-        description: errorDescription,
+        title: "❌ 진단 처리 실패",
+        description: error instanceof Error ? error.message : "진단 처리 중 오류가 발생했습니다.",
         variant: "destructive",
-        duration: 7000,
+        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // 폼 제출 핸들러 개선
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // 폼 유효성 검사
+    const isValid = await form.trigger();
+    if (!isValid) {
+      toast({
+        title: "입력 정보를 확인해주세요",
+        description: "모든 필수 항목을 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 개인정보 동의 확인
+    const privacyConsent = form.getValues('privacyConsent');
+    if (!privacyConsent) {
+      toast({
+        title: "개인정보 동의가 필요합니다",
+        description: "개인정보 수집 및 이용에 동의해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 진단 시작 확인
+    toast({
+      title: "🔮 고급 AI 진단 시작",
+      description: "Enhanced 진단평가 엔진 v3.0으로 분석을 시작합니다.",
+      duration: 2000
+    });
+
+    // 폼 데이터 제출
+    const formData = form.getValues();
+    await onSubmit(formData);
   };
 
   // 🎯 **단계 이동 함수**
@@ -778,7 +819,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
   return (
     <div className="max-w-5xl mx-auto">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleFormSubmit} className="space-y-8">
           
           {renderStepIndicator()}
 
@@ -1223,6 +1264,21 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                             </>
                           )}
                         </Button>
+                        
+                        {/* 실시간 진행상황 표시 */}
+                        {isSubmitting && (
+                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                              <span className="text-sm font-medium text-blue-700">실시간 진행상황</span>
+                            </div>
+                            <div className="space-y-2 text-xs text-blue-600">
+                              <div>✅ 데이터 검증 완료</div>
+                              <div>🔄 AI 분석 엔진 실행 중...</div>
+                              <div>⏳ 결과 생성 중 (예상 2-3분)</div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
