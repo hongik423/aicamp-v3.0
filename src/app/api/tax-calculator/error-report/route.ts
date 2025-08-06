@@ -48,7 +48,17 @@ export async function POST(request: NextRequest) {
     
     const reportData = {
       action: 'feedback',
-      ...data,
+      name: data.name,
+      email: data.email,
+      phone: data.phone || '',
+      calculatorType: data.calculatorType,
+      errorDescription: data.errorDescription,
+      expectedBehavior: data.expectedBehavior || '',
+      actualBehavior: data.actualBehavior || '',
+      stepsToReproduce: data.stepsToReproduce || '',
+      browserInfo: data.browserInfo || '',
+      deviceInfo: data.deviceInfo || '',
+      additionalInfo: data.additionalInfo || '',
       reportType: 'tax_calculator_error',
       status: '신규'
     };

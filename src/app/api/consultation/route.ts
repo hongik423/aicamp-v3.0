@@ -79,8 +79,14 @@ export async function POST(request: NextRequest) {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          ...processedData,
           action: 'consultation',
+          companyName: processedData.회사명,
+          contactName: processedData.성명,
+          email: processedData.이메일,
+          phone: processedData.연락처,
+          consultationType: processedData.상담유형,
+          consultationArea: processedData.상담분야,
+          inquiryContent: processedData.문의내용,
           dataSource: 'API_백업시스템',
           retryAttempt: true,
           // 이메일 발송 요청 추가
