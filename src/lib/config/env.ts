@@ -83,11 +83,12 @@ export const appConfig = {
   isProduction: process.env.NODE_ENV === 'production',
   isDevelopment: process.env.NODE_ENV === 'development',
   
-  // 회사 정보
+  // 회사 정보 (시스템 통일)
   company: {
     name: 'AICAMP',
     email: 'hongik423@gmail.com', // 관리자 이메일
     phone: '010-9251-9743',
+    website: 'aicamp.club', // 통일된 웹사이트
   },
   
   // 기본 URL

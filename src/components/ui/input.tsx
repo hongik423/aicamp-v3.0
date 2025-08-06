@@ -38,9 +38,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         inputMode={getInputMode()}
         className={cn(
           // 기본 스타일
-          "flex w-full rounded-xl border bg-background ring-offset-background",
+          "flex w-full rounded-xl border ring-offset-background",
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
-          "placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          "placeholder:text-muted-foreground/0 placeholder:opacity-0 disabled:cursor-not-allowed disabled:opacity-50",
           
           // 높이 및 패딩 - 모바일 최적화
           "h-12 sm:h-10",
@@ -67,9 +67,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           // 트랜지션
           "transition-all duration-200",
           
-          // 배경색 - 완전 불투명 (투명도 제거)
-          "bg-white",
-          isFocused && "bg-white border-ring shadow-sm",
+          // 배경색 - 완전 불투명하고 선명한 배경
+          "bg-white/100 backdrop-blur-sm",
+          "border-input/60",
+          isFocused && "bg-white/100 border-ring shadow-md backdrop-blur-none",
           
           // 모바일 특화 스타일
           isMobile && [

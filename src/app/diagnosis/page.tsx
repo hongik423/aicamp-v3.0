@@ -1,19 +1,85 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/header';
 import { AICapabilityDiagnosisForm } from '@/features/ai-capability-diagnosis/components/AICapabilityDiagnosisForm';
-import { Brain, Target, TrendingUp, Users, Award, BarChart3 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Brain, Target, TrendingUp, Users, Award, BarChart3, FileText, ExternalLink, X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 /**
  * 이후경 교장의 AI 역량 고몰입조직구축 진단시스템
  */
+// 최근 진단 결과 배너 컴포넌트
+const RecentResultsBanner = () => {
+  const [recentResults, setRecentResults] = useState<any[]>([]);
+  const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    // 로컬 스토리지에서 최근 진단 결과 ID들을 가져오기
+    const recentIds = localStorage.getItem('recentDiagnosisIds');
+    if (recentIds) {
+      const ids = JSON.parse(recentIds);
+      if (ids.length > 0) {
+        setRecentResults(ids.slice(0, 3)); // 최근 3개만
+        setShowBanner(true);
+      }
+    }
+  }, []);
+
+  if (!showBanner || recentResults.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <FileText className="w-6 h-6" />
+            <div>
+              <h3 className="font-bold text-lg">최근 AI역량진단 결과</h3>
+              <p className="text-blue-100 text-sm">완료된 진단 결과를 확인하세요</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex gap-2">
+              {recentResults.map((resultId, index) => (
+                <Link
+                  key={index}
+                  href={`/diagnosis/result/${resultId}`}
+                  className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  결과 {index + 1}
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              ))}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowBanner(false)}
+              className="text-white hover:bg-white/20"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function DiagnosisPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <Header />
+      
+      {/* 최근 결과 배너 */}
+      <RecentResultsBanner />
       
       {/* 히어로 섹션 */}
       <section className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20">
@@ -147,7 +213,7 @@ export default function DiagnosisPage() {
                 formSection?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              무료 진단 시작하기
+              AI역량진단 시작하기
             </Button>
           </div>
         </div>

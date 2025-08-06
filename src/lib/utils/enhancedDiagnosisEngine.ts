@@ -574,7 +574,7 @@ export class EnhancedDiagnosisEngine {
 
       return {
         categoryId: category.id,
-        categoryName: category.name,
+        categoryName: category.name || category.id || '알 수 없는 카테고리', // 🔧 오류 방지: name이 없을 경우 fallback
         currentScore: Math.round(currentScore * 10) / 10, // 소수점 1자리
         targetScore: category.targetScore,
         benchmarkScore: category.benchmarkScore,
@@ -601,7 +601,7 @@ export class EnhancedDiagnosisEngine {
 
       return {
         itemId: item.id,
-        itemName: item.name,
+        itemName: item.name || item.id || '알 수 없는 항목', // 🔧 오류 방지: name이 없을 경우 fallback
         currentScore: item.currentScore,
         targetScore: item.targetScore,
         gap: Math.round(gap * 10) / 10,
@@ -617,7 +617,7 @@ export class EnhancedDiagnosisEngine {
   private identifyStrengths(itemResults: ItemResult[], benchmarkScore: number): string[] {
     return itemResults
       .filter(item => item.currentScore !== null && item.currentScore >= benchmarkScore + 0.5)
-      .map(item => `${item.itemName}: ${item.currentScore}점 (업계평균 대비 우수)`)
+      .map(item => `${item.itemName || item.itemId || '항목'}: ${item.currentScore}점 (업계평균 대비 우수)`)
       .slice(0, 3); // 상위 3개만
   }
 
@@ -628,7 +628,7 @@ export class EnhancedDiagnosisEngine {
     return itemResults
       .filter(item => item.currentScore !== null && item.gap >= 1.0)
       .sort((a, b) => b.gap - a.gap)
-      .map(item => `${item.itemName}: ${item.currentScore}점 (목표 ${item.targetScore}점 대비 -${item.gap}점)`)
+      .map(item => `${item.itemName || item.itemId || '항목'}: ${item.currentScore}점 (목표 ${item.targetScore}점 대비 -${item.gap}점)`)
       .slice(0, 3); // 상위 3개만
   }
 

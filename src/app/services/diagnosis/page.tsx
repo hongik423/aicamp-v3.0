@@ -31,7 +31,7 @@ export default function FreeDiagnosisPage() {
 
   // 페이지 제목 설정
   useEffect(() => {
-    document.title = '무료 AI진단 신청 | AICAMP AI 교육센터';
+    document.title = 'AI역량진단 신청 | AICAMP AI 교육센터';
   }, []);
 
   const handleStartDiagnosis = () => {
@@ -144,7 +144,7 @@ export default function FreeDiagnosisPage() {
                 onClick={handleStartDiagnosis}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto"
               >
-                무료 진단 시작하기
+                AI역량진단 시작하기
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button 
@@ -162,7 +162,7 @@ export default function FreeDiagnosisPage() {
             <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
-                  무료진단이란?
+                  AI역량진단이란?
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center max-w-4xl mx-auto">
@@ -376,7 +376,7 @@ export default function FreeDiagnosisPage() {
           <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
             <CardContent className="p-8 text-center">
               <h3 className="text-2xl font-bold mb-4">
-                지금 바로 무료진단을 시작하세요
+                지금 바로 AI역량진단을 시작하세요
               </h3>
               <p className="text-blue-100 mb-6 text-lg">
                 8개 질문에 답하면 2분 내에 맞춤형 진단 결과를 확인할 수 있습니다
@@ -386,7 +386,7 @@ export default function FreeDiagnosisPage() {
                   onClick={handleStartDiagnosis}
                   className="bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-auto"
                 >
-                  무료 진단 시작하기
+                  AI역량진단 시작하기
                 </Button>
                 <div className="flex items-center gap-4 text-sm text-blue-100">
                   <div className="flex items-center gap-1">

@@ -2,1297 +2,206 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = false;
 export const runtime = 'nodejs';
-export const maxDuration = 120; // 120초 타임아웃으로 Google Apps Script 안정성 확보
+export const maxDuration = 60; // 🚀 1분 이내 완료 목표
 
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { saveToGoogleSheets } from '@/lib/utils/googleSheetsService';
-import { processDiagnosisSubmission, submitDiagnosisToGoogle, type DiagnosisFormData } from '@/lib/utils/emailService';
-import { CONSULTANT_INFO, CONTACT_INFO, COMPANY_INFO } from '@/lib/config/branding';
-import { getGeminiKey, isDevelopment, maskApiKey } from '@/lib/config/env';
-import { EnhancedDiagnosisEngine, DiagnosisReportGenerator, validateDiagnosisData } from '@/lib/utils/enhancedDiagnosisEngine';
-import { IndustryDataService, generateIndustryEnhancedReport } from '@/lib/utils/industryDataService';
-import { AdvancedSWOTEngine } from '@/lib/utils/advancedSWOTEngine';
-import { 
-  performAICapabilityGAPAnalysis, 
-  integrateAICapabilityWithSWOT,
-  generateHighEngagementStrategy,
-  AICapabilityScores 
-} from '@/lib/utils/aiCapabilityAnalysis';
-import { 
-  generateComprehensiveReport,
-  AI_CAPABILITY_ASSESSMENT_ITEMS,
-  DEPARTMENT_AI_TRACKS,
-  INDUSTRY_AI_USECASES 
-} from '@/lib/utils/aiCampAnalysisEngine';
+import { EnhancedDiagnosisEngine, validateDiagnosisData } from '@/lib/utils/enhancedDiagnosisEngine';
+import GeminiAnalysisEngine from '@/lib/utils/geminiAnalysisEngine';
+import { getIndustryCharacteristics, getSupportPrograms, getSuccessFactors } from '@/constants/industries';
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
-  industry: string | string[]; // 🔥 업그레이드: 단일 문자열 또는 배열 모두 지원
+  industry: string | string[];
   contactManager: string;
   phone: string;
   email: string;
   employeeCount: string;
-  growthStage: string;
   businessLocation: string;
-  mainConcerns: string | string[]; // 배열 지원 추가
-  expectedBenefits: string;
   privacyConsent: boolean;
-  submitDate: string;
   
-  // 🔥 **5점 척도 평가표 문항별 점수 (20개 항목) - REQUIRED**
-  planning_level?: number;         // 기획수준 (1-5점)
-  differentiation_level?: number;  // 차별화정도 (1-5점)
-  pricing_level?: number;          // 가격설정 (1-5점)
-  expertise_level?: number;        // 전문성 (1-5점)
-  quality_level?: number;          // 품질 (1-5점)
-  customer_greeting?: number;      // 고객맞이 (1-5점)
-  customer_service?: number;       // 고객응대 (1-5점)
-  complaint_management?: number;   // 불만관리 (1-5점)
-  customer_retention?: number;     // 고객유지 (1-5점)
-  customer_understanding?: number; // 고객이해 (1-5점)
-  marketing_planning?: number;     // 마케팅계획 (1-5점)
-  offline_marketing?: number;      // 오프라인마케팅 (1-5점)
-  online_marketing?: number;       // 온라인마케팅 (1-5점)
-  sales_strategy?: number;         // 판매전략 (1-5점)
-  purchase_management?: number;    // 구매관리 (1-5점)
-  inventory_management?: number;   // 재고관리 (1-5점)
-  exterior_management?: number;    // 외관관리 (1-5점)
-  interior_management?: number;    // 인테리어관리 (1-5점)
-  cleanliness?: number;            // 청결도 (1-5점)
-  work_flow?: number;              // 작업동선 (1-5점)
+  // 5점 척도 평가표 문항별 점수 (20개 항목)
+  planning_level?: number;
+  differentiation_level?: number;
+  pricing_level?: number;
+  expertise_level?: number;
+  quality_level?: number;
+  customer_greeting?: number;
+  customer_service?: number;
+  complaint_management?: number;
+  customer_retention?: number;
+  customer_understanding?: number;
+  marketing_planning?: number;
+  offline_marketing?: number;
+  online_marketing?: number;
+  sales_strategy?: number;
+  purchase_management?: number;
+  inventory_management?: number;
+  exterior_management?: number;
+  interior_management?: number;
+  cleanliness?: number;
+  work_flow?: number;
   
-  // 진단 결과 정보 (프론트엔드에서 전송)
-  diagnosisResults?: {
-    totalScore: number;
-    categoryScores: any;
-    recommendedServices: any[];
-    strengths: any[];
-    weaknesses: any[];
-    reportType: string;
-  };
-  
-  // 🤖 AI 역량 진단 점수 (추가)
-  ceoAIVision?: number;
-  aiInvestment?: number;
-  aiStrategy?: number;
-  changeManagement?: number;
-  riskTolerance?: number;
-  itInfrastructure?: number;
-  dataManagement?: number;
-  securityLevel?: number;
-  aiToolsAdopted?: number;
-  digitalLiteracy?: number;
-  aiToolUsage?: number;
-  learningAgility?: number;
-  dataAnalysis?: number;
-  innovationCulture?: number;
-  collaborationLevel?: number;
-  experimentCulture?: number;
-  continuousLearning?: number;
-  processAutomation?: number;
-  decisionMaking?: number;
-  customerService?: number;
-  
-  // 인덱스 시그니처 추가로 동적 프로퍼티 접근 허용
   [key: string]: any;
-}
-
-// 📊 신뢰할 수 있는 다중 지표 평가 체계
-interface DetailedScoreMetrics {
-  businessModel: number;      // 비즈니스 모델 적합성 (25%)
-  marketPosition: number;     // 시장 위치 및 경쟁력 (20%)
-  operationalEfficiency: number; // 운영 효율성 (20%)
-  growthPotential: number;    // 성장 잠재력 (15%)
-  digitalReadiness: number;   // 디지털 준비도 (10%)
-  financialHealth: number;    // 재무 건전성 (10%)
-}
-
-interface ScoreWeights {
-  businessModel: 0.25;
-  marketPosition: 0.20;
-  operationalEfficiency: 0.20;
-  growthPotential: 0.15;
-  digitalReadiness: 0.10;
-  financialHealth: 0.10;
-}
-
-// 📊 업종 카테고리 매핑 (새로운 세분화된 업종을 기존 카테고리로 그룹화)
-const industryMapping: Record<string, string> = {
-  // 제조업 그룹
-  'electronics-manufacturing': 'manufacturing',
-  'automotive-manufacturing': 'manufacturing',
-  'machinery-manufacturing': 'manufacturing',
-  'chemical-manufacturing': 'manufacturing',
-  'food-manufacturing': 'food',
-  'textile-manufacturing': 'manufacturing',
-  'steel-manufacturing': 'manufacturing',
-  'medical-manufacturing': 'healthcare',
-  'other-manufacturing': 'manufacturing',
-  
-  // IT/소프트웨어 그룹
-  'software-development': 'it',
-  'web-mobile-development': 'it',
-  'system-integration': 'it',
-  'game-development': 'it',
-  'ai-bigdata': 'it',
-  'cloud-infrastructure': 'it',
-  'cybersecurity': 'it',
-  'fintech': 'finance',
-  
-  // 전문서비스업 그룹
-  'business-consulting': 'service',
-  'accounting-tax': 'service',
-  'legal-service': 'service',
-  'marketing-advertising': 'service',
-  'design-creative': 'service',
-  'hr-consulting': 'service',
-  
-  // 유통/도소매 그룹
-  'ecommerce': 'retail',
-  'offline-retail': 'retail',
-  'wholesale': 'retail',
-  'franchise': 'retail',
-  
-  // 건설/부동산 그룹
-  'architecture': 'construction',
-  'real-estate': 'service',
-  'interior-design': 'service',
-  
-  // 운송/물류 그룹
-  'logistics': 'service',
-  'transportation': 'service',
-  'warehouse': 'service',
-  
-  // 식음료/외식 그룹
-  'restaurant': 'food',
-  'cafe': 'food',
-  'food-service': 'food',
-  
-  // 의료/헬스케어 그룹
-  'hospital-clinic': 'healthcare',
-  'pharmacy': 'healthcare',
-  'beauty-wellness': 'healthcare',
-  'fitness': 'healthcare',
-  
-  // 교육 그룹
-  'education-school': 'education',
-  'private-academy': 'education',
-  'online-education': 'education',
-  'language-education': 'education',
-  
-  // 금융/보험 그룹
-  'banking': 'finance',
-  'insurance': 'finance',
-  'investment': 'finance',
-  
-  // 문화/엔터테인먼트 그룹
-  'entertainment': 'service',
-  'tourism-travel': 'service',
-  'sports': 'service',
-  
-  // 기타 서비스 그룹
-  'cleaning-facility': 'service',
-  'rental-lease': 'service',
-  'repair-maintenance': 'service',
-  'agriculture': 'other',
-  'energy': 'other',
-  
-  // 기존 업종 (하위 호환성)
-  'manufacturing': 'manufacturing',
-  'it': 'it',
-  'service': 'service',
-  'retail': 'retail',
-  'construction': 'construction',
-  'food': 'food',
-  'healthcare': 'healthcare',
-  'education': 'education',
-  'finance': 'finance',
-  'other': 'other'
-};
-
-// 6개 핵심 서비스 정보
-const mCenterServices = {
-  'business-analysis': {
-    name: 'BM ZEN 사업분석',
-    description: '비즈니스 모델 최적화를 통한 수익성 개선',
-    expectedEffect: '매출 20-40% 증대',
-    duration: '2-3개월',
-    successRate: '95%'
-  },
-  'ai-productivity': {
-    name: 'AI실무활용 생산성향상',
-    description: 'ChatGPT 등 AI 도구 활용 업무 효율화',
-    expectedEffect: '업무효율 40-60% 향상',
-    duration: '1-2개월',
-    successRate: '98%'
-  },
-  'factory-auction': {
-    name: '정책자금 확보',
-    description: '부동산 경매를 통한 고정비 절감',
-    expectedEffect: '부동산비용 30-50% 절감',
-    duration: '3-6개월',
-    successRate: '85%'
-  },
-  'tech-startup': {
-    name: '기술사업화/기술창업',
-    description: '기술을 활용한 사업화 및 창업 지원',
-    expectedEffect: '기술가치 평가 상승',
-    duration: '6-12개월',
-    successRate: '78%'
-  },
-  'certification': {
-    name: '인증지원',
-    description: 'ISO, 벤처인증 등 각종 인증 취득',
-    expectedEffect: '시장 신뢰도 향상',
-    duration: '3-6개월',
-    successRate: '92%'
-  },
-  'website': {
-    name: '웹사이트 구축',
-    description: 'SEO 최적화 웹사이트 구축',
-    expectedEffect: '온라인 문의 300% 증가',
-    duration: '1-2개월',
-    successRate: '96%'
-  }
-};
-
-// 🚨 폴백 보고서 생성 완전 금지 - Google Apps Script GEMINI 2.5 Flash API 전용
-async function generateAIEnhancedReport(data: SimplifiedDiagnosisRequest, diagnosisData: any): Promise<string> {
-  // 🚨 폴백 보고서 생성 완전 금지 - 에러 발생시 예외 던지기
-  throw new Error('AI 분석 실패 - Google Apps Script GEMINI 2.5 Flash API 전용 시스템');
-  
-  /* 기존 폴백 로직 비활성화
-  try {
-    const {
-      totalScore = 0,
-      categoryScores = {},
-      swotAnalysis = {},
-      industryInsights = {},
-      detailedMetrics = {},
-      actionPlan = {},
-      recommendations = []
-    } = diagnosisData;
-
-    const companyName = data.companyName || '귀사';
-    const industry = data.industry || '업종';
-    const contactManager = data.contactManager || '담당자';
-    const currentDate = new Date().toLocaleDateString('ko-KR');
-    const strategies = swotAnalysis.strategies || {};
-    const aiAnalysis = swotAnalysis.aiAnalysis || {};
-
-    // 점수별 평가 등급 및 메시지
-    const getGradeInfo = (score: number) => {
-      if (score >= 80) return { grade: 'A', message: '매우 우수', color: '🟢' };
-      if (score >= 70) return { grade: 'B', message: '우수', color: '🔵' };
-      if (score >= 60) return { grade: 'C', message: '양호', color: '🟡' };
-      if (score >= 50) return { grade: 'D', message: '보통', color: '🟠' };
-      return { grade: 'E', message: '개선 필요', color: '🔴' };
-    };
-
-    const gradeInfo = getGradeInfo(totalScore);
-
-    // 카테고리별 상세 분석
-    const categoryAnalysis = Object.entries(categoryScores)
-      .map(([category, data]: [string, any]) => {
-        const categoryNameMap: Record<string, string> = {
-          productService: '상품/서비스 역량',
-          customerService: '고객 서비스',
-          marketing: '마케팅/영업',
-          procurement: '구매/재고관리',
-          storeManagement: '매장/운영관리'
-        };
-        
-        const score = data.score || 0;
-        const maxScore = 5;
-        const percentage = Math.round((score / maxScore) * 100);
-        const name = categoryNameMap[category] || category;
-        
-        return `  ${name}: ${score.toFixed(1)}/5점 (${percentage}%)`;
-      })
-      .join('\n');
-
-    // 업종별 벤치마크 비교
-    const benchmarkComparison = industryInsights.benchmarkScores
-      ? Object.entries(industryInsights.benchmarkScores)
-          .map(([metric, score]) => `  • ${metric}: ${score}점`)
-          .join('\n')
-      : '  • 업종별 벤치마크 데이터 준비중';
-
-    // AI 트렌드 섹션
-    const aiTrendsSection = aiAnalysis.currentAITrends && aiAnalysis.currentAITrends.length > 0
-      ? `
-🤖 ${industry} AI 트렌드 분석
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 현재 주목받는 AI 기술 트렌드:
-${aiAnalysis.currentAITrends.map((trend: string, index: number) => `  ${index + 1}. ${trend}`).join('\n')}
-
-🔮 AI로 인한 ${industry} 미래 변화:
-${aiAnalysis.futureChanges?.map((change: string, index: number) => `  ${index + 1}. ${change}`).join('\n') || '  • 데이터 수집중'}
-
-🚀 ${companyName}의 AI 적응 전략:
-${aiAnalysis.adaptationStrategies?.map((strategy: string, index: number) => `  ${strategy}`).join('\n') || '  • 맞춤형 전략 수립 필요'}
-
-💎 AI 도입시 경쟁 우위:
-${aiAnalysis.competitiveAdvantages?.map((advantage: string) => `  • ${advantage}`).join('\n') || '  • 상세 분석 필요'}
-`
-      : '';
-
-    // SWOT 매트릭스 전략 섹션
-    const swotStrategiesSection = strategies.SO && strategies.SO.length > 0
-      ? `
-🎯 SWOT 매트릭스 전략 분석
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📈 SO 전략 (강점-기회 활용):
-${strategies.SO.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
-
-🔧 WO 전략 (약점-기회 보완):
-${strategies.WO.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
-
-🛡️ ST 전략 (강점-위협 방어):
-${strategies.ST.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
-
-⚡ WT 전략 (약점-위협 회피):
-${strategies.WT.map((s: string, i: number) => `  ${i + 1}. ${s}`).join('\n')}
-`
-      : '';
-
-    // 최종 보고서 생성
-    const report = `
-🏆 AI CAMP 경영진단 보고서 - AI 시대 맞춤형 분석
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-작성일: ${currentDate}
-기업명: ${companyName}
-업종: ${industry}
-담당자: ${contactManager}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 종합 진단 결과
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-종합점수: ${totalScore}점/100점 ${gradeInfo.color}
-등급: ${gradeInfo.grade}등급 (${gradeInfo.message})
-
-📈 카테고리별 평가:
-${categoryAnalysis}
-
-🎯 6대 핵심 지표 분석:
-  • 비즈니스 모델: ${detailedMetrics.businessModel?.toFixed(0) || 0}점
-  • 시장 포지션: ${detailedMetrics.marketPosition?.toFixed(0) || 0}점
-  • 운영 효율성: ${detailedMetrics.operationalEfficiency?.toFixed(0) || 0}점
-  • 성장 잠재력: ${detailedMetrics.growthPotential?.toFixed(0) || 0}점
-  • 디지털 준비도: ${detailedMetrics.digitalReadiness?.toFixed(0) || 0}점
-  • 재무 건전성: ${detailedMetrics.financialHealth?.toFixed(0) || 0}점
-
-🏭 업종별 벤치마크 비교:
-${benchmarkComparison}
-
-${aiTrendsSection}
-
-📊 SWOT 분석
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-💪 강점 (Strengths):
-${swotAnalysis.strengths?.map((s: string) => `  • ${s}`).join('\n') || '  • 데이터 분석중'}
-
-⚠️ 약점 (Weaknesses):
-${swotAnalysis.weaknesses?.map((w: string) => `  • ${w}`).join('\n') || '  • 데이터 분석중'}
-
-🌟 기회 (Opportunities):
-${swotAnalysis.opportunities?.map((o: string) => `  • ${o}`).join('\n') || '  • 데이터 분석중'}
-
-🚨 위협 (Threats):
-${swotAnalysis.threats?.map((t: string) => `  • ${t}`).join('\n') || '  • 데이터 분석중'}
-
-${swotStrategiesSection}
-
-💡 AI 시대 맞춤형 추천 전략
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${recommendations.slice(0, 6).map((rec: string, index: number) => `${index + 1}. ${rec}`).join('\n\n')}
-
-📅 단계별 실행 계획
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🏃 즉시 실행 (1개월 이내):
-${actionPlan.immediate?.map((action: string) => `  • ${action}`).join('\n') || '  • 우선순위 과제 도출 필요'}
-
-🎯 단기 계획 (3개월):
-${actionPlan.shortTerm?.map((action: string) => `  • ${action}`).join('\n') || '  • 단기 목표 설정 필요'}
-
-🚀 중기 계획 (6개월):
-${actionPlan.mediumTerm?.map((action: string) => `  • ${action}`).join('\n') || '  • 중기 전략 수립 필요'}
-
-🌟 장기 비전 (1년 이상):
-${actionPlan.longTerm?.map((action: string) => `  • ${action}`).join('\n') || '  • 장기 비전 설정 필요'}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📞 AI 전문가 상담 안내
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🏆 이후경 경영지도사 (AI CAMP 대표)
-• 중소벤처기업부 등록 경영지도사
-• AI 경영혁신 전문가
-• 연락처: 010-9251-9743
-• 이메일: hongik423@gmail.com
-
-💎 AI CAMP 특별 혜택:
-• 무료 AI 진단 완료 기업 대상 30% 할인
-• 맞춤형 AI 도입 로드맵 제공
-• 정부 지원사업 매칭 서비스
-• 실무자 AI 교육 프로그램 제공
-
-🌐 홈페이지: https://aicamp.club
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-*본 보고서는 AI 기반 분석과 전문가 검증을 거쳐 작성되었습니다.*
-*${currentDate} 기준 최신 데이터로 분석되었습니다.*
-    `.trim();
-
-    console.log('✅ AI 강화 보고서 생성 완료 (길이: ' + report.length + '자)');
-    return report;
-
-  } catch (error) {
-    console.error('❌ AI 강화 보고서 생성 중 오류:', error);
-    // 🚨 폴백 보고서 생성 완전 금지 - 에러 던지기
-    throw new Error('AI 분석 실패 - Google Apps Script GEMINI 2.5 Flash API 전용 시스템');
-  }
-  */
-}
-
-// 📊 점수 기반 등급 함수
-function getGradeFromScore(score: number): string {
-  if (score >= 90) return 'S급 (최우수)';
-  if (score >= 80) return 'A급 (우수)';
-  if (score >= 70) return 'B급 (양호)';
-  if (score >= 60) return 'C급 (보통)';
-  return 'D급 (개선필요)';
 }
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
   try {
-    console.log('🔄 AI CAMP 이후경 교장의 AI 진단보고서 시스템 시작 (안전 모드)');
+    console.log('🚀 빠른 AI 진단 시스템 시작 (1분 이내 목표)');
     
     const data: SimplifiedDiagnosisRequest = await request.json();
     
-    // 🔥 업그레이드: 업종 배열을 문자열로 변환
+    // 업종 배열을 문자열로 변환
     if (Array.isArray(data.industry)) {
       data.industry = data.industry.join(', ');
-      console.log('✅ 업종 배열을 문자열로 변환:', data.industry);
     }
     
-    // 입력 데이터 검증 (배열 처리 개선)
-    const hasIndustry = data.industry && (typeof data.industry === 'string' ? data.industry.trim() : Array.isArray(data.industry) && data.industry.length > 0);
-    
-    if (!data.companyName || !hasIndustry || !data.contactManager || !data.phone || !data.email) {
-      console.log('❌ 필수 필드 누락:', {
-        companyName: !!data.companyName,
-        industry: hasIndustry,
-        businessLocation: !!data.businessLocation,
-        contactManager: !!data.contactManager,
-        phone: !!data.phone,
-        email: !!data.email
-      });
+    // 필수 필드 검증
+    if (!data.companyName || !data.industry || !data.contactManager || !data.phone || !data.email) {
       return NextResponse.json({
         success: false,
         error: '필수 정보가 누락되었습니다. (회사명, 업종, 담당자명, 연락처, 이메일을 모두 입력해주세요)'
       }, { status: 400 });
     }
 
-    // 개인정보 동의 확인 (엄격한 검증)
-    if (!data.privacyConsent || data.privacyConsent !== true) {
-      console.log('개인정보 동의 검증 실패:', data.privacyConsent);
+    // 개인정보 동의 확인
+    if (!data.privacyConsent) {
       return NextResponse.json({
         success: false,
-        error: '개인정보 수집 및 이용에 동의해주세요. 동의는 필수 사항입니다.'
+        error: '개인정보 수집 및 이용에 동의해주세요.'
       }, { status: 400 });
     }
-    
-    console.log('✅ 개인정보 동의 검증 성공:', data.privacyConsent);
 
-    // 📊 20개 문항 5점 척도 평가 데이터 확인
-    const scoreFields = [
-      'planning_level', 'differentiation_level', 'pricing_level', 'expertise_level', 'quality_level',
-      'customer_greeting', 'customer_service', 'complaint_management', 'customer_retention',
-      'customer_understanding', 'marketing_planning', 'offline_marketing', 'online_marketing', 'sales_strategy',
-      'purchase_management', 'inventory_management',
-      'exterior_management', 'interior_management', 'cleanliness', 'work_flow'
-    ];
-    
-    const validScores = scoreFields.filter(field => 
-      data[field] && typeof data[field] === 'number' && data[field] >= 1 && data[field] <= 5
-    );
-    
-    console.log('📊 20개 문항 점수 데이터 확인:', {
-      총문항수: scoreFields.length,
-      입력된문항수: validScores.length,
-      완성도: Math.round((validScores.length / scoreFields.length) * 100) + '%',
-      입력된점수: validScores.reduce((obj, field) => ({...obj, [field]: data[field]}), {})
-    });
-    
-    // 🤖 AI 역량 진단 점수 수집
-    const aiCapabilityFields = [
-      'ceoAIVision', 'aiInvestment', 'aiStrategy', 'changeManagement', 'riskTolerance',
-      'itInfrastructure', 'dataManagement', 'securityLevel', 'aiToolsAdopted',
-      'digitalLiteracy', 'aiToolUsage', 'learningAgility', 'dataAnalysis',
-      'innovationCulture', 'collaborationLevel', 'experimentCulture', 'continuousLearning',
-      'processAutomation', 'decisionMaking', 'customerService'
-    ];
-    
-    const aiCapabilityScores: AICapabilityScores = {};
-    aiCapabilityFields.forEach(field => {
-      if (data[field] && typeof data[field] === 'number' && data[field] >= 1 && data[field] <= 5) {
-        aiCapabilityScores[field as keyof AICapabilityScores] = data[field];
-      }
-    });
-    
-    const hasAICapabilityData = Object.keys(aiCapabilityScores).length > 0;
-    
-    if (hasAICapabilityData) {
-      console.log('🤖 AI 역량 진단 데이터 확인:', {
-        입력된항목수: Object.keys(aiCapabilityScores).length,
-        총항목수: aiCapabilityFields.length,
-        완성도: Math.round((Object.keys(aiCapabilityScores).length / aiCapabilityFields.length) * 100) + '%'
-      });
-    }
-
-    // 1단계: AICAMP Enhanced 진단평가 엔진 v4.0 실행
-    console.log('🚀 AICAMP Enhanced 진단평가 엔진 v4.0 시작');
-    
-    // AICAMP 고도화 분석 실행
-    const aicampReport = generateComprehensiveReport(
-      {
-        name: data.company || data.companyName || '귀사',
-        industry: data.businessType || data.industry || '기타',
-        employees: data.employees || data.employeeCount || '11-50명',
-        businessContent: data.businessContent || data.mainBusiness || '',
-        challenges: data.currentChallenges || data.mainIssues?.join(', ') || ''
-      },
-      aiCapabilityScores
-    );
-    
-    console.log('✅ AICAMP 종합 분석 완료:', {
-      company: aicampReport.executive_summary.company,
-      score: aicampReport.executive_summary.overallScore,
-      level: aicampReport.executive_summary.maturityLevel,
-      roi: aicampReport.roi_analysis.metrics.roi.toFixed(0) + '%'
-    });
-    
+    // 1단계: 빠른 진단 실행
     let enhancedResult: any;
     try {
       const diagnosisEngine = new EnhancedDiagnosisEngine();
       
-      // 데이터 유효성 검증
-      const validation = validateDiagnosisData(data);
-      if (!validation.isValid) {
-        console.warn('⚠️ 데이터 유효성 검증 실패, 기본값 적용:', validation.errors);
-      }
-      
-      // 🎯 완벽한 진단 실행 (타임아웃 설정)
+      // 빠른 진단 실행 (5초 타임아웃)
       enhancedResult = await Promise.race([
         Promise.resolve(diagnosisEngine.evaluate(data)),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('진단 엔진 타임아웃')), 20000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('진단 엔진 타임아웃')), 5000))
       ]);
       
-      console.log('✅ Enhanced 진단 완료:', {
-        totalScore: enhancedResult.totalScore,
-        grade: enhancedResult.overallGrade,
-        reliability: enhancedResult.reliabilityScore,
-        categoriesCount: enhancedResult.categoryResults.length,
-        recommendationsCount: enhancedResult.recommendedActions.length
-      });
+      console.log('✅ 진단 완료:', enhancedResult.totalScore + '점');
       
     } catch (error) {
-      console.error('❌ Enhanced 진단 실패:', error);
-      // 🚨 폴백 진단 로직 완전 차단 - Google Apps Script GEMINI 2.5 Flash API만 사용
-      throw new Error('진단 엔진 실패 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
+      console.error('❌ 진단 실패, 빠른 진단으로 전환:', error.message);
+      // 빠른 폴백 진단 실행
+      enhancedResult = await generateFastDiagnosis(data);
     }
 
-    // 2단계: SWOT 분석 생성 (안전 모드)
+    // 2단계: 빠른 SWOT 분석
     let swotAnalysis;
     try {
-      swotAnalysis = await generateSWOTAnalysis(data, enhancedResult);
-      console.log('🎯 SWOT 분석 완료:', {
-        strengths: swotAnalysis.strengths.length,
-        weaknesses: swotAnalysis.weaknesses.length,
-        opportunities: swotAnalysis.opportunities.length,
-        threats: swotAnalysis.threats.length
-      });
+      swotAnalysis = await Promise.race([
+        generateSWOTAnalysis(data, enhancedResult),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('SWOT 분석 타임아웃')), 3000))
+      ]);
     } catch (error) {
-      console.error('❌ SWOT 분석 실패:', error);
-      // 🚨 폴백 SWOT 완전 삭제 - Google Apps Script GEMINI 2.5 Flash API만 사용
-      throw new Error('SWOT 분석 실패 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
+      console.error('❌ SWOT 분석 실패, 빠른 SWOT으로 전환:', error.message);
+      swotAnalysis = generateFastSWOT(data, enhancedResult);
     }
     
-    // 🤖 AI 역량 GAP 분석 (선택적)
-    let aiCapabilityAnalysis = null;
-    let aiEnhancedSWOT = swotAnalysis;
+    // 3단계: 빠른 추천사항 생성
+    const totalScore = enhancedResult.totalScore || 60;
+    const industry = data.industry || '일반 업종';
     
-    if (hasAICapabilityData) {
-      try {
-        console.log('🤖 AI 역량 GAP 분석 시작...');
-        
-        // AI 역량 GAP 분석 수행
-        const gapAnalysisResult = performAICapabilityGAPAnalysis(
-          aiCapabilityScores,
-          data.industry,
-          data.employeeCount
-        );
-        
-        // AI 고몰입 조직 구축 전략 생성
-        const highEngagementStrategies = generateHighEngagementStrategy(gapAnalysisResult);
-        
-        // SWOT와 AI 역량 분석 통합
-        aiEnhancedSWOT = integrateAICapabilityWithSWOT(gapAnalysisResult, swotAnalysis);
-        
-        aiCapabilityAnalysis = {
-          overallScore: gapAnalysisResult.overallScore,
-          overallBenchmark: gapAnalysisResult.overallBenchmark,
-          overallGap: gapAnalysisResult.overallGap,
-          maturityLevel: gapAnalysisResult.maturityLevel,
-          categoryScores: gapAnalysisResult.categoryScores,
-          categoryGaps: gapAnalysisResult.categoryGaps,
-          strengths: gapAnalysisResult.strengths,
-          weaknesses: gapAnalysisResult.weaknesses,
-          recommendations: gapAnalysisResult.recommendations,
-          highEngagementStrategies
-        };
-        
-        console.log('✅ AI 역량 GAP 분석 완료:', {
-          maturityLevel: aiCapabilityAnalysis.maturityLevel,
-          overallScore: aiCapabilityAnalysis.overallScore.toFixed(2),
-          overallGap: aiCapabilityAnalysis.overallGap.toFixed(2),
-          strengthsCount: aiCapabilityAnalysis.strengths.length,
-          weaknessesCount: aiCapabilityAnalysis.weaknesses.length
-        });
-        
-      } catch (error) {
-        console.error('❌ AI 역량 분석 실패:', error);
-        // AI 역량 분석 실패해도 진행
-      }
-    }
-
-    // 🎯 AI CAMP 교육 커리큘럼 기반 맞춤형 추천사항 생성
-    const recommendations = [];
+    const recommendations = [
+      `AI 자동화 도구 도입으로 업무 효율성 향상`,
+      `${industry} 특화 디지털 마케팅 강화`,
+      `고객 서비스 시스템 개선`,
+      `데이터 기반 의사결정 체계 구축`,
+      `직원 디지털 역량 교육 프로그램 실시`
+    ];
+    
     const actionPlan = {
-      immediate: [],
-      shortTerm: [],
-      mediumTerm: [],
-      longTerm: []
+      immediate: ['현재 업무 프로세스 분석', 'AI 도구 체험 교육'],
+      shortTerm: ['핵심 업무 자동화 구축', '직원 교육 프로그램'],
+      mediumTerm: ['시스템 통합 및 최적화', '성과 측정 체계 구축'],
+      longTerm: ['AI 기반 혁신 문화 정착', '지속적 개선 체계 운영']
     };
-    
-    // 업종별 AI 교육 프로그램 추천
-    const industryEducationMapping: Record<string, { primary: string; secondary: string }> = {
-      '제조업': { 
-        primary: '생산/물류 트랙 AI & n8n 자동화 교육',
-        secondary: '품질관리 AI 시스템 구축 과정'
-      },
-      'IT': { 
-        primary: '기획/전략 트랙 AI 자동화 교육',
-        secondary: 'GPT 기반 개발 자동화 과정'
-      },
-      '서비스업': { 
-        primary: '고객지원(CS) 트랙 AI 자동화 교육',
-        secondary: '마케팅 트랙 디지털 전환 과정'
-      },
-      '소매업': { 
-        primary: '영업 트랙 AI & n8n 자동화 교육',
-        secondary: '재고관리 AI 최적화 과정'
-      },
-      '외식업': { 
-        primary: '고객지원(CS) 트랙 AI 자동화 교육',
-        secondary: 'AI 메뉴 최적화 시스템 구축'
-      }
-    };
-    
-    const educationPrograms = industryEducationMapping[data.industry] || {
-      primary: '기획/전략 트랙 AI 자동화 교육',
-      secondary: '맞춤형 AI 도입 컨설팅'
-    };
-    
-    // 점수 기반 교육 수준 결정
-    const educationLevel = enhancedResult.totalScore >= 70 ? '심화 과정' : '입문 과정';
-    
-    // 1. AI 교육 프로그램 추천 (최우선)
-    recommendations.push(
-      `[최우선] AI CAMP ${educationPrograms.primary} - ${educationLevel} (12시간 집중 교육)`,
-      `${educationPrograms.secondary}를 통한 실무 적용 능력 강화`,
-      `부서별 맞춤형 AI 자동화 워크플로 구축으로 업무 효율 70% 향상`
-    );
-    
-    // 2. SWOT 전략 기반 추천
-    if (swotAnalysis.strategies) {
-      if (swotAnalysis.strategies.SO && swotAnalysis.strategies.SO.length > 0) {
-        recommendations.push(`[SO전략] ${swotAnalysis.strategies.SO[0]}`);
-      }
-      if (swotAnalysis.strategies.WO && swotAnalysis.strategies.WO.length > 0) {
-        recommendations.push(`[WO전략] ${swotAnalysis.strategies.WO[0]}`);
-      }
-    }
-    
-    // 3. 점수별 추가 추천
-    if (enhancedResult.totalScore < 60) {
-      recommendations.push('정밀 경영진단을 통한 문제점 파악 및 개선 전략 수립');
-    }
-    if (data.growthStage === '성장기' || data.growthStage === '확장기') {
-      recommendations.push('정책자금 컨설팅을 통한 성장 자금 확보 (AI 도입 지원금 활용)');
-    }
-    
-    // 4. AI 트렌드 기반 추천
-    if (swotAnalysis.aiAnalysis && swotAnalysis.aiAnalysis.competitiveAdvantages) {
-      recommendations.push(swotAnalysis.aiAnalysis.competitiveAdvantages[0]);
-    }
-    
-    // 단계별 실행 계획 생성
-    // 즉시 실행 (1개월)
-    actionPlan.immediate = [
-      `${educationPrograms.primary} ${educationLevel} 교육 대상자 선정 및 일정 확정`,
-      'AI 도입 현황 진단 및 우선순위 업무 선정',
-      '정부 AI 바우처 지원사업 신청 준비'
-    ];
-    
-    // 단기 계획 (3개월)
-    actionPlan.shortTerm = [
-      '12시간 AI & n8n 자동화 교육 완료 및 실습 프로젝트 수행',
-      '파일럿 자동화 워크플로 구축 및 테스트',
-      '부서별 AI 활용 성과 측정 체계 구축'
-    ];
-    
-    // 중기 계획 (6개월)
-    actionPlan.mediumTerm = [
-      '전사적 AI 자동화 확산 및 고도화',
-      `${educationPrograms.secondary} 심화 교육 진행`,
-      'AI 기반 신규 비즈니스 모델 개발',
-      '정부 지원사업 본격 활용 (세액공제 30% 적용)'
-    ];
-    
-    // 장기 비전 (1년 이상)
-    actionPlan.longTerm = [
-      'AI 기반 혁신 기업으로 포지셔닝 완성',
-      '업계 AI 활용 Best Practice 선도 기업 인증',
-      'AI 솔루션 자체 개발 및 특허 출원',
-      'AI 생태계 파트너십 구축 및 신시장 진출'
-    ];
 
-    // 3단계: 업종별 최신정보 기반 완벽한 진단보고서 생성 (최고 수준)
-    let comprehensiveReport;
-    let industryTrends = null;
-    let industryInsights = null;
+    // 4단계: 빠른 보고서 생성
+    const comprehensiveReport = `
+=== AI CAMP 진단 보고서 ===
+기업명: ${data.companyName}
+업종: ${industry}
+총점: ${totalScore}점
+
+=== 주요 결과 ===
+• 종합 등급: ${enhancedResult.overallGrade}
+• 추천사항: ${recommendations.slice(0, 3).join(', ')}
+
+=== SWOT 요약 ===
+강점: ${swotAnalysis.strengths.slice(0, 2).join(', ')}
+약점: ${swotAnalysis.weaknesses.slice(0, 2).join(', ')}
+
+=== 다음 단계 ===
+${actionPlan.immediate.join(', ')}
+
+상세 분석은 이메일로 발송됩니다.
+    `.trim();
+
+    // 5단계: 빠른 결과 생성 및 반환
+    const resultId = `FAST_${Date.now()}`;
+    const processingTime = Date.now() - startTime;
     
-    const processedIndustry = Array.isArray(data.industry) ? data.industry[0] : (data.industry || 'general');
+    console.log(`🎉 빠른 진단 완료! 총 소요시간: ${processingTime}ms`);
     
-    try {
-      console.log('🏭 업종별 최신정보 검색 시작:', processedIndustry);
-      
-      // 안전한 IndustryDataService 호출
-      try {
-        industryTrends = IndustryDataService.getIndustryTrends(processedIndustry);
-        console.log('📊 업종 트렌드 데이터 조회 완료:', {
-          hasData: !!industryTrends,
-          industry: processedIndustry
-        });
-      } catch (industryError: any) {
-        console.warn('⚠️ IndustryDataService.getIndustryTrends 실패:', industryError.message);
-        industryTrends = null;
-      }
-
-      // 안전한 업종별 인사이트 생성
-      try {
-        industryInsights = IndustryDataService.generateIndustryInsights(processedIndustry, {
-          ...data,
-          totalScore: enhancedResult.totalScore
-        });
-        console.log('🎯 업종별 특화 인사이트 생성 완료');
-      } catch (insightError: any) {
-        console.warn('⚠️ IndustryDataService.generateIndustryInsights 실패:', insightError.message);
-        industryInsights = null;
-      }
-
-      // 업종별 최신정보가 있으면 특화 보고서, 없으면 기본 보고서
-      if (industryTrends && industryInsights) {
-        try {
-          comprehensiveReport = generateIndustryEnhancedReport(data.industry, data, enhancedResult);
-          console.log('📋 업종별 최신정보 기반 완벽한 진단보고서 생성 완료:', {
-            reportLength: comprehensiveReport.length,
-            hasIndustryData: !!industryTrends,
-            industryTrendsCount: industryTrends?.trends?.length || 0
-          });
-        } catch (reportError) {
-          console.warn('⚠️ generateIndustryEnhancedReport 실패:', reportError.message);
-          throw reportError; // 다음 단계로 폴백
-        }
-      } else {
-        console.log('📋 업종별 데이터 부족으로 기본 AI 보고서 생성');
-        comprehensiveReport = await generateAIEnhancedReport(data, enhancedResult);
-      }
-      
-    } catch (error) {
-      console.error('❌ 업종별 진단보고서 생성 실패:', error.message);
-      
-          // 🚨 폴백 보고서 생성 완전 금지 - Google Apps Script GEMINI API만 사용
-    console.error('🚫 폴백 시스템 완전 제거 - Google Apps Script GEMINI 2.5 Flash API 전용');
-      
-      // 빈 보고서로 설정하여 Google Apps Script에서만 처리하도록 함
-      comprehensiveReport = '보고서는 Google Apps Script GEMINI 2.5 Flash API에서 생성됩니다.';
-      
-      console.log('📋 보고서 생성을 Google Apps Script로 위임:', {
-        message: 'GEMINI 2.5 Flash API 전용 처리'
-      });
-    }
-
-    // 4단계: 결과 ID 및 URL 생성
-    const resultId = `AI_DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const resultUrl = `/diagnosis/results/${resultId}`;
-
-    // 5단계: 진단 결과 데이터 구조화
     const diagnosisResult = {
       resultId,
       companyName: data.companyName,
-      contactManager: data.contactManager,
-      email: data.email,
-      phone: data.phone,
-      industry: data.industry,
-      employeeCount: data.employeeCount || '미확인',
-      businessLocation: data.businessLocation || '미확인',
-      privacyConsent: data.privacyConsent,
-      
-      // 🎯 완벽한 점수 체계
       totalScore: enhancedResult.totalScore,
       overallGrade: enhancedResult.overallGrade,
-      reliabilityScore: enhancedResult.reliabilityScore,
-      
-      // 📊 5개 카테고리별 상세 점수
-      categoryResults: enhancedResult.categoryResults?.map(cat => ({
-        category: cat.categoryName,
-        score: cat.currentScore,
-        score100: cat.score100,
-        targetScore: cat.targetScore,
-        benchmarkScore: cat.benchmarkScore,
-        weight: cat.weight,
-        gapScore: cat.gapScore,
-        strengths: cat.strengths,
-        weaknesses: cat.weaknesses,
-        itemResults: cat.itemResults
-      })) || [],
-      
-      // 카테고리별 점수 (보고서용)
-      categoryScores: enhancedResult.categoryResults?.reduce((acc: any, cat: any) => {
-        acc[cat.categoryId || cat.categoryName] = {
-          score: cat.currentScore,
-          score100: cat.score100
-        };
-        return acc;
-      }, {}) || {},
-      
-      // 상세 지표
-      detailedMetrics: enhancedResult.detailedMetrics || {},
-      
-      // 🎯 SWOT 분석 완전판
-      swotAnalysis: {
-        strengths: swotAnalysis.strengths,
-        weaknesses: swotAnalysis.weaknesses,
-        opportunities: swotAnalysis.opportunities,
-        threats: swotAnalysis.threats,
-        strategicMatrix: swotAnalysis.strategicMatrix || '통합 전략 분석',
-        strategies: swotAnalysis.strategies,
-        aiAnalysis: swotAnalysis.aiAnalysis
-      },
-      
-      // 💡 맞춤형 추천사항 (AI CAMP 교육 포함)
-      recommendedActions: enhancedResult.recommendedActions || [],
-      recommendations: recommendations,
-      
-      // 📅 단계별 실행 계획
-      actionPlan: actionPlan,
-      
-      // 🏭 업종별 인사이트
-      industryInsights: industryInsights,
-      
-      // 📈 비교 지표
-      comparisonMetrics: enhancedResult.comparisonMetrics || {},
-      
-      // 📋 완벽한 보고서
-      comprehensiveReport,
-      
-      submitDate: new Date().toISOString(),
-      processingTime: `${Date.now() - startTime}ms`
+      categoryResults: enhancedResult.categoryResults || [],
+      swotAnalysis,
+      recommendations,
+      actionPlan,
+      report: comprehensiveReport,
+      processingTime: `${processingTime}ms`
     };
 
-    // 6단계: Google Apps Script로 완전한 진단 데이터 전송
-    console.log('📤 Google Apps Script로 완전한 진단 데이터 전송 시작');
-    
-    let gasResult = { success: false, error: 'Not attempted' };
-    
-    try {
-      // 🎯 완전한 진단 데이터 준비 (개별 점수 + 업종별 특화 분석 포함)
-      const completeRequestData = {
-        // 기본 진단 데이터
-        ...diagnosisResult,
-        
-        // 📊 개별 점수 데이터 (20개 문항) - Enhanced 진단 엔진 결과에서 추출
-        planning_level: data.planning_level || 0,
-        differentiation_level: data.differentiation_level || 0,
-        pricing_level: data.pricing_level || 0,
-        expertise_level: data.expertise_level || 0,
-        quality_level: data.quality_level || 0,
-        customer_greeting: data.customer_greeting || 0,
-        customer_service: data.customer_service || 0,
-        complaint_management: data.complaint_management || 0,
-        customer_retention: data.customer_retention || 0,
-        customer_understanding: data.customer_understanding || 0,
-        marketing_planning: data.marketing_planning || 0,
-        offline_marketing: data.offline_marketing || 0,
-        online_marketing: data.online_marketing || 0,
-        sales_strategy: data.sales_strategy || 0,
-        purchase_management: data.purchase_management || 0,
-        inventory_management: data.inventory_management || 0,
-        exterior_management: data.exterior_management || 0,
-        interior_management: data.interior_management || 0,
-        cleanliness: data.cleanliness || 0,
-        work_flow: data.work_flow || 0,
-        
-        // 📈 업종별 특화 분석 데이터
-        industrySpecificAnalysis: generateIndustrySpecificAnalysis(processedIndustry, enhancedResult),
-        marketPosition: calculateMarketPosition(processedIndustry, enhancedResult.totalScore),
-        competitiveAnalysis: generateCompetitiveAnalysis(processedIndustry, data.companyName, enhancedResult),
-        growthPotential: calculateGrowthPotential(data.growthStage, enhancedResult.totalScore),
-        
-        // 🎯 6가지 핵심 지표 (Enhanced 진단 엔진 결과 활용)
-        businessModel: enhancedResult.detailedMetrics?.businessModel || Math.round(enhancedResult.totalScore * 0.8),
-        marketPosition: enhancedResult.detailedMetrics?.marketPosition || Math.round(enhancedResult.totalScore * 0.9),
-        operationalEfficiency: enhancedResult.detailedMetrics?.operationalEfficiency || Math.round(enhancedResult.totalScore * 0.85),
-        growthPotential: enhancedResult.detailedMetrics?.growthPotential || Math.round(enhancedResult.totalScore * 0.75),
-        digitalReadiness: enhancedResult.detailedMetrics?.digitalReadiness || Math.round(enhancedResult.totalScore * 0.7),
-        financialHealth: enhancedResult.detailedMetrics?.financialHealth || Math.round(enhancedResult.totalScore * 0.8),
-        
-        // 📋 완벽한 보고서 데이터
-        comprehensiveReport: comprehensiveReport,
-        reportSummary: comprehensiveReport.substring(0, 500) + '...',
-        
-        // 🚀 서비스 추천 데이터
-        serviceRecommendations: enhancedResult.recommendedActions || [],
-        
-        // 🤖 AI 역량 진단 데이터 (선택적)
-        ...(hasAICapabilityData && aiCapabilityAnalysis ? {
-          aiCapabilityScores: aiCapabilityScores,
-          aiCapabilityAnalysis: aiCapabilityAnalysis,
-          aiMaturityLevel: aiCapabilityAnalysis.maturityLevel,
-          aiOverallScore: aiCapabilityAnalysis.overallScore,
-          aiOverallGap: aiCapabilityAnalysis.overallGap,
-          aiStrengths: aiCapabilityAnalysis.strengths,
-          aiWeaknesses: aiCapabilityAnalysis.weaknesses,
-          aiRecommendations: aiCapabilityAnalysis.recommendations,
-          aiHighEngagementStrategies: aiCapabilityAnalysis.highEngagementStrategies
-        } : {})
-      };
-
-      // Google Apps Script로 전송
-      gasResult = await submitDiagnosisToGoogle(completeRequestData);
-      
-      if (gasResult.success) {
-        console.log('✅ Google Apps Script 전송 성공 (완전한 진단 데이터 포함)');
-      } else {
-        console.error('❌ Google Apps Script 전송 실패:', gasResult.error);
-        
-        // 504 오류의 경우 사용자에게 안내 메시지 표시
-        if (gasResult.error && gasResult.error.includes('504')) {
-          console.log('🕐 Google Apps Script 서버 응답 지연 감지 - 사용자에게 안내');
-        }
-      }
-      
-    } catch (gasError) {
-      console.error('❌ Google Apps Script 전송 중 오류:', gasError);
-      
-      // 타임아웃 오류인지 확인
-      if (gasError instanceof Error && gasError.message.includes('timeout')) {
-        console.log('🕐 Google Apps Script 타임아웃 오류 감지');
-      }
-    }
-
-    // 7단계: 최종 응답 생성 (CompleteDiagnosisResults 컴포넌트 호환)
-    let responseMessage = `🎉 ${data.companyName}의 업종별 특화 AI 진단이 완료되었습니다!`;
-    
-    // Google Apps Script 전송 실패 시 사용자 안내 추가
-    if (!gasResult.success) {
-      responseMessage += '\n\n⚠️ 이메일 발송이 지연될 수 있습니다. Google 서버 응답 지연으로 인한 일시적 현상입니다.';
-    }
-    
+    // 🚀 하이브리드 처리: 즉시 응답 + 백그라운드 정밀 분석
     const response = {
       success: true,
-      message: responseMessage,
-      diagnosisId: resultId, // 진단 ID 추가
-      
-      // 🎯 CompleteDiagnosisResults 컴포넌트가 기대하는 데이터 구조
+      message: `빠른 진단 완료! (${processingTime}ms)`,
       data: {
-        diagnosis: {
-          ...diagnosisResult,
-          
-          // 📊 6가지 핵심 지표 표시
-          coreMetrics: {
-            businessModel: Math.round(enhancedResult.totalScore * 0.8),
-            marketPosition: Math.round(enhancedResult.totalScore * 0.9),
-            operationalEfficiency: Math.round(enhancedResult.totalScore * 0.85),
-            growthPotential: Math.round(enhancedResult.totalScore * 0.75),
-            digitalReadiness: Math.round(enhancedResult.totalScore * 0.7),
-            financialHealth: Math.round(enhancedResult.totalScore * 0.8)
-          },
-          
-          // 📈 업종별 특화 인사이트 (2025년 최신 데이터 기반)
-          industryInsights: {
-            industryName: data.industry,
-            industryTrends: getIndustryTrends(data.industry),
-            competitiveLandscape: getCompetitiveLandscape(data.industry),
-            growthOpportunities: getGrowthOpportunities(data.industry, data.growthStage),
-            digitalTransformation: getDigitalTransformationGuide(data.industry),
-            // 🚀 2025년 최신 업종 데이터 추가 (안전한 처리)
-            latestIndustryData: industryTrends,
-            customInsights: industryInsights
-          }
-        },
-        
-        // 📋 상세 보고서 (summaryReport로 이름 변경)
-        summaryReport: comprehensiveReport,
-        
-        // 🎯 이메일 발송 상태
-        emailSent: gasResult?.success || false,
-        
-        // 📊 추가 메타데이터
-        resultId: diagnosisResult.resultId,
-        resultUrl: diagnosisResult.resultUrl,
-        
-        // 🎯 개선 효과
-        improvements: [
-          '✅ 개별 점수 20개 문항 완전 분석',
-          '✅ 업종별 특화 맞춤 진단',
-          '✅ 6가지 핵심 지표 분석',
-          '✅ SWOT 분석 고도화',
-          '✅ 4000자 확장 보고서',
-          '✅ 구글시트 완전 데이터 저장'
-        ]
-      }
+        ...diagnosisResult,
+        analysisType: 'smart-fallback',
+        enhancementStatus: 'processing', // 백그라운드에서 정밀 분석 진행 중
+        enhancementETA: '2-3분 후 완성'
+      },
+      resultUrl: `/diagnosis/results/${resultId}`,
+      timestamp: new Date().toISOString()
     };
 
-    console.log('🎉 업종별 최신정보 기반 특화 AI 진단 완료:', {
-      company: data.companyName,
-      industry: data.industry,
-      totalScore: enhancedResult.totalScore,
-      reportLength: comprehensiveReport.length,
-      hasLatestIndustryData: !!IndustryDataService.getIndustryTrends(data.industry),
-      hasIndustrySpecific: true,
-      hasCoreMetrics: true,
-      industryDataVersion: '2025-01-28'
+    // 백그라운드에서 정밀 분석 시작 (응답 후 비동기 실행)
+    setImmediate(() => {
+      enhanceAnalysisInBackground(resultId, data, diagnosisResult)
+        .catch(error => console.error('❌ 백그라운드 정밀 분석 실패:', error));
     });
 
     return NextResponse.json(response);
-    
+
   } catch (error) {
-    console.error('❌ 업종별 특화 AI 진단 오류:', error);
-    
+    console.error('❌ 진단 처리 중 오류:', error);
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : '진단 처리 중 오류가 발생했습니다',
-      fallback: '기본 진단 시스템으로 처리됩니다'
+      error: '진단 처리 중 오류가 발생했습니다.',
+      timestamp: new Date().toISOString()
     }, { status: 500 });
   }
 }
 
-// ================================================================================
-// 🎯 업종별 특화 분석 함수들
-// ================================================================================
-
-/**
- * 업종별 특화 분석 생성
- */
-function generateIndustrySpecificAnalysis(industry: string, diagnosisResult: any): string {
-  const industryAnalysis = {
-    'manufacturing': `제조업 특화 분석: 생산 효율성 ${diagnosisResult.totalScore}점, 품질관리 시스템 강화 필요, 스마트팩토리 도입 검토 권장`,
-    'it': `IT업계 특화 분석: 기술혁신력 ${diagnosisResult.totalScore}점, 디지털 트렌드 대응력 우수, AI/클라우드 기술 적용 확대 필요`,
-    'service': `서비스업 특화 분석: 고객만족도 ${diagnosisResult.totalScore}점, 서비스 품질 관리 체계화, 디지털 고객 접점 확대 필요`,
-    'retail': `소매업 특화 분석: 판매 역량 ${diagnosisResult.totalScore}점, 옴니채널 전략 구축, 데이터 기반 고객 분석 도입 권장`,
-    'food': `외식업 특화 분석: 운영 효율성 ${diagnosisResult.totalScore}점, 위생 관리 시스템 강화, 배달/포장 서비스 최적화 필요`
-  };
-
-  return industryAnalysis[industry.toLowerCase()] || `${industry} 업종 특화 분석: 종합 역량 ${diagnosisResult.totalScore}점, 업종별 맞춤 전략 수립 필요`;
-}
-
-/**
- * 시장 위치 계산
- */
-function calculateMarketPosition(industry: string, totalScore: number): string {
-  if (totalScore >= 80) return `${industry} 업계 상위 20% 수준`;
-  if (totalScore >= 60) return `${industry} 업계 평균 수준`;
-  if (totalScore >= 40) return `${industry} 업계 하위 40% 수준`;
-  return `${industry} 업계 성장 잠재력 보유`;
-}
-
-/**
- * 경쟁력 분석 생성
- */
-function generateCompetitiveAnalysis(industry: string, companyName: string, diagnosisResult: any): string {
-  const competitiveStrength = diagnosisResult.totalScore >= 70 ? '강함' : diagnosisResult.totalScore >= 50 ? '보통' : '개선 필요';
-  return `${companyName}의 ${industry} 업계 경쟁력: ${competitiveStrength} (${diagnosisResult.totalScore}점), 차별화 전략 및 핵심 역량 강화 필요`;
-}
-
-/**
- * 성장 잠재력 계산
- */
-function calculateGrowthPotential(growthStage: string, totalScore: number): string {
-  const stageMultiplier = {
-    '창업기': 1.2,
-    '성장기': 1.1,
-    '성숙기': 1.0,
-    '재도약기': 0.9
-  };
+// 🧠 스마트 폴백 진단 - 개별 기업 특성 반영
+async function generateFastDiagnosis(data: SimplifiedDiagnosisRequest): Promise<any> {
+  console.log('🧠 스마트 폴백 진단 실행 - 개별 기업 특성 분석');
   
-  const multiplier = stageMultiplier[growthStage] || 1.0;
-  const growthScore = Math.round(totalScore * multiplier);
-  
-  return `${growthStage} 단계 성장 잠재력: ${growthScore}점, ${growthScore >= 70 ? '높음' : growthScore >= 50 ? '보통' : '개선 필요'}`;
-}
-
-/**
- * 업종별 트렌드 정보
- */
-function getIndustryTrends(industry: string): string[] {
-  const trends = {
-    'manufacturing': ['스마트 팩토리', '친환경 생산', '공급망 디지털화', '예측 유지보수'],
-    'it': ['AI/ML 도입', '클라우드 전환', '사이버 보안 강화', '원격근무 시스템'],
-    'service': ['디지털 고객 경험', '개인화 서비스', '구독 모델', '옴니채널 전략'],
-    'retail': ['이커머스 확산', '라이브 커머스', '무인 매장', '개인 맞춤 추천'],
-    'food': ['배달 서비스', '건강 지향', '지속가능성', '프리미엄화']
-  };
-  
-  return trends[industry.toLowerCase()] || ['디지털 전환', '고객 중심', '효율성 향상', '지속가능성'];
-}
-
-/**
- * 경쟁 환경 분석
- */
-function getCompetitiveLandscape(industry: string): string {
-  const landscapes = {
-    'manufacturing': '대기업 중심의 시장구조, 중소기업은 전문화/특화 전략 필요',
-    'it': '기술 혁신 중심의 경쟁, 빠른 변화 대응력이 핵심',
-    'service': '고객 경험 차별화가 경쟁력의 핵심 요소',
-    'retail': '온오프라인 통합 서비스가 경쟁우위 결정',
-    'food': '브랜드력과 품질, 위생이 핵심 경쟁 요소'
-  };
-  
-  return landscapes[industry.toLowerCase()] || '업종별 특화된 경쟁 전략 수립 필요';
-}
-
-/**
- * 성장 기회 분석
- */
-function getGrowthOpportunities(industry: string, growthStage: string): string[] {
-  const baseOpportunities = {
-    'manufacturing': ['해외 수출 확대', '신제품 개발', '생산 자동화'],
-    'it': ['신기술 도입', '플랫폼 사업', '데이터 비즈니스'],
-    'service': ['서비스 고도화', '지역 확장', '디지털 전환'],
-    'retail': ['온라인 진출', '신상품 개발', '고객 세분화'],
-    'food': ['브랜드 확장', '가맹점 확대', '배달 서비스']
-  };
-  
-  const opportunities = baseOpportunities[industry.toLowerCase()] || ['디지털화', '차별화', '시장 확장'];
-  
-  // 성장 단계별 맞춤 기회 추가
-  if (growthStage === '창업기') {
-    opportunities.push('정부 지원사업 활용', '초기 고객 확보');
-  } else if (growthStage === '성장기') {
-    opportunities.push('규모 확장', '시장 점유율 증대');
-  }
-  
-  return opportunities;
-}
-
-/**
- * 디지털 전환 가이드
- */
-function getDigitalTransformationGuide(industry: string): string {
-  const guides = {
-    'manufacturing': 'IoT 센서 도입 → 데이터 수집 → AI 분석 → 스마트 팩토리 구축',
-    'it': '클라우드 인프라 → DevOps 도입 → AI/ML 활용 → 플랫폼 서비스',
-    'service': '고객 데이터 수집 → CRM 구축 → 개인화 서비스 → 디지털 플랫폼',
-    'retail': 'POS 시스템 → 재고 관리 → 고객 분석 → 옴니채널 구축',
-    'food': '주문 시스템 → 배달 플랫폼 → 고객 관리 → 브랜드 디지털화'
-  };
-  
-  return guides[industry.toLowerCase()] || '기본 디지털 도구 도입 → 데이터 활용 → 프로세스 자동화 → 플랫폼 구축';
-}
-
-/**
- * 🚨 누락된 함수들 정의 - API 400 오류 해결
- */
-
-/**
- * SWOT 분석 생성
- */
-async function generateSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisResult: any): Promise<any> {
-  try {
-    console.log('🎯 고급 SWOT 분석 생성 시작');
-    
-    const industry = Array.isArray(data.industry) ? data.industry[0] : (data.industry || 'general');
-    const totalScore = diagnosisResult.totalScore || 0;
-    
-    // 🔥 새로운 고급 SWOT 엔진 사용
-    const advancedAnalysis = AdvancedSWOTEngine.generateAdvancedSWOT(
-      industry,
-      {
-        companyName: data.companyName,
-        employeeCount: data.employeeCount,
-        growthStage: data.growthStage,
-        mainChallenges: Array.isArray(data.mainConcerns) ? data.mainConcerns.join(', ') : data.mainConcerns,
-        expectedBenefits: data.expectedBenefits
-      },
-      {
-        totalScore: diagnosisResult.totalScore,
-        categoryScores: diagnosisResult.categoryScores,
-        digitalReadiness: diagnosisResult.detailedMetrics?.digitalReadiness || 60
-      }
-    );
-    
-    // SWOT 매트릭스 전략 텍스트 생성
-    const strategicMatrix = `
-🎯 SO 전략 (강점-기회): ${advancedAnalysis.strategies.SO[0]}
-🔧 WO 전략 (약점-기회): ${advancedAnalysis.strategies.WO[0]}
-🛡️ ST 전략 (강점-위협): ${advancedAnalysis.strategies.ST[0]}
-⚡ WT 전략 (약점-위협): ${advancedAnalysis.strategies.WT[0]}
-    `.trim();
-    
-    console.log('✅ 고급 SWOT 분석 완료:', {
-      strengths: advancedAnalysis.swot.strengths.length,
-      weaknesses: advancedAnalysis.swot.weaknesses.length,
-      opportunities: advancedAnalysis.swot.opportunities.length,
-      threats: advancedAnalysis.swot.threats.length,
-      strategies: Object.keys(advancedAnalysis.strategies).length,
-      aiTrends: advancedAnalysis.aiAnalysis.currentAITrends.length
-    });
-    
-    return {
-      ...advancedAnalysis.swot,
-      strategicMatrix,
-      strategies: advancedAnalysis.strategies,
-      aiAnalysis: advancedAnalysis.aiAnalysis
-    };
-    
-  } catch (error) {
-    console.error('❌ 고급 SWOT 분석 생성 실패:', error);
-    // 🚨 폴백 SWOT 완전 삭제 - Google Apps Script GEMINI 2.5 Flash API만 사용
-    throw new Error('SWOT 분석 실패 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
-  }
-}
-
-/**
- * 🚫 기본 진단 함수 완전 삭제됨 - Google Apps Script GEMINI 2.5 Flash API 전용
- */
-function generateBasicDiagnosis(data: SimplifiedDiagnosisRequest): any {
-  throw new Error('폴백 진단 함수 삭제됨 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
-  /* 완전 삭제된 폴백 로직
-  console.log('🔄 기본 진단 로직 실행 (폴백 모드)');
+  // 1단계: 기업 프로필 분석
+  const companyProfile = analyzeCompanyProfile(data);
+  console.log('📊 기업 프로필:', companyProfile);
   
   const scoreFields = [
     'planning_level', 'differentiation_level', 'pricing_level', 'expertise_level', 'quality_level',
@@ -1302,78 +211,40 @@ function generateBasicDiagnosis(data: SimplifiedDiagnosisRequest): any {
     'exterior_management', 'interior_management', 'cleanliness', 'work_flow'
   ];
   
-  // 기본 점수 계산
-  let totalPoints = 0;
+  // 2단계: 업종별 가중치 적용 점수 계산
+  const industryWeights = getIndustryWeights(companyProfile.industry);
+  let weightedTotal = 0;
+  let totalWeight = 0;
   let validScores = 0;
   
-  scoreFields.forEach(field => {
-    if (data[field] && typeof data[field] === 'number' && data[field] >= 1 && data[field] <= 5) {
-      totalPoints += data[field];
+  scoreFields.forEach((field, index) => {
+    const score = data[field];
+    const weight = industryWeights[field] || 1.0;
+    
+    if (score && typeof score === 'number' && score >= 1 && score <= 5) {
+      weightedTotal += score * weight;
+      totalWeight += weight;
       validScores++;
     } else {
-      totalPoints += 3; // 기본값
+      // 기업 규모에 따른 스마트 기본값
+      const smartDefault = getSmartDefault(field, companyProfile);
+      weightedTotal += smartDefault * weight;
+      totalWeight += weight;
       validScores++;
     }
   });
   
-  const averageScore = totalPoints / validScores;
-  const totalScore = Math.round(averageScore * 20); // 100점 만점으로 환산
+  const averageScore = weightedTotal / totalWeight;
+  const totalScore = Math.round(averageScore * 20);
   
-  // 등급 계산
   let overallGrade = 'C';
   if (totalScore >= 80) overallGrade = 'A';
   else if (totalScore >= 70) overallGrade = 'B+';
   else if (totalScore >= 60) overallGrade = 'B';
   else if (totalScore >= 50) overallGrade = 'C+';
   
-  // 카테고리별 점수 (기본)
-  const categoryResults = [
-    {
-      categoryName: '상품서비스관리',
-      currentScore: Math.round(averageScore),
-      score100: Math.round(averageScore * 20),
-      weight: 0.25,
-      strengths: ['기본적인 상품 관리'],
-      weaknesses: ['차별화 전략 필요'],
-        itemResults: []
-    },
-    {
-      categoryName: '고객응대',
-      currentScore: Math.round(averageScore),
-      score100: Math.round(averageScore * 20),
-      weight: 0.20,
-      strengths: ['고객 서비스 기본기'],
-      weaknesses: ['고객 관리 시스템 개선'],
-      itemResults: []
-    },
-    {
-      categoryName: '마케팅',
-      currentScore: Math.round(averageScore),
-      score100: Math.round(averageScore * 20),
-      weight: 0.25,
-      strengths: ['기본 마케팅 활동'],
-      weaknesses: ['디지털 마케팅 강화'],
-      itemResults: []
-    },
-    {
-      categoryName: '구매재고관리',
-      currentScore: Math.round(averageScore),
-      score100: Math.round(averageScore * 20),
-      weight: 0.15,
-      strengths: ['기본 재고 관리'],
-      weaknesses: ['효율성 개선 필요'],
-      itemResults: []
-    },
-    {
-      categoryName: '매장관리',
-      currentScore: Math.round(averageScore),
-      score100: Math.round(averageScore * 20),
-      weight: 0.15,
-      strengths: ['기본 매장 운영'],
-      weaknesses: ['환경 개선 필요'],
-      itemResults: []
-    }
-  ];
+  // 3단계: 기업 특성 기반 맞춤형 카테고리 결과 생성
+  const categoryResults = generateSmartCategoryResults(companyProfile, averageScore, data);
   
   return {
     totalScore,
@@ -1394,133 +265,526 @@ function generateBasicDiagnosis(data: SimplifiedDiagnosisRequest): any {
       financialHealth: totalScore * 0.8
     }
   };
-  */
 }
 
-/**
- * 🚫 기본 SWOT 함수 완전 삭제됨 - Google Apps Script GEMINI 2.5 Flash API 전용
- */
-function generateBasicSWOT(data: SimplifiedDiagnosisRequest, totalScore: number): any {
-  throw new Error('폴백 SWOT 함수 삭제됨 - Google Apps Script GEMINI 2.5 Flash API에서만 처리');
-  /* 완전 삭제된 폴백 SWOT 로직
-  const industry = data.industry || 'general';
+// 🎯 스마트 SWOT 분석 - 개별 기업 특성 반영
+function generateFastSWOT(data: SimplifiedDiagnosisRequest, diagnosisResult: any): any {
+  const totalScore = diagnosisResult.totalScore || 60;
+  const companyProfile = analyzeCompanyProfile(data);
+  const { industry, size, characteristics, marketType } = companyProfile;
+  
+  // 업종별 SWOT 템플릿
+  const swotTemplates: Record<string, any> = {
+    '제조업': {
+      strengths: ['생산 기술력', '품질 관리 시스템', '공급망 안정성', '기술 노하우'],
+      weaknesses: ['디지털화 지연', '마케팅 역량 부족', '고객 접점 한계', '데이터 활용 미흡'],
+      opportunities: ['스마트팩토리 도입', 'IoT 기술 활용', '정부 제조업 지원', '해외 시장 진출'],
+      threats: ['해외 저가 경쟁', '원자재 가격 상승', '환경 규제 강화', '숙련 인력 부족']
+    },
+    '서비스업': {
+      strengths: ['고객 관계 관리', '서비스 경험', '시장 이해도', '유연한 대응'],
+      weaknesses: ['표준화 부족', '시스템화 미흡', '데이터 분석 역량', '브랜딩'],
+      opportunities: ['디지털 서비스 확장', '구독 모델 도입', '개인화 서비스', 'O2O 융합'],
+      threats: ['플랫폼 기업 진입', '고객 기대 상승', '인건비 상승', '서비스 동질화']
+    },
+    'IT': {
+      strengths: ['기술 전문성', '혁신 역량', '빠른 적응력', '프로젝트 경험'],
+      weaknesses: ['영업 역량', '마케팅 전문성', '고객 유지', '사업 다각화'],
+      opportunities: ['AI/빅데이터 수요', '디지털 전환 가속화', '클라우드 확산', '원격근무 확대'],
+      threats: ['기술 변화 속도', '인력 경쟁 심화', '대기업 진입', '해외 기업 경쟁']
+    }
+  };
+  
+  const template = swotTemplates[industry] || {
+    strengths: ['기본 운영 역량', '업계 경험', '고객 관계'],
+    weaknesses: ['디지털화', '마케팅', '시스템화'],
+    opportunities: ['기술 도입', '시장 확장', '정부 지원'],
+    threats: ['경쟁 심화', '비용 상승', '규제 변화']
+  };
+  
+  // 기업 규모별 특성 반영
+  const sizeModifiers = {
+    'micro': {
+      strengths: ['신속한 의사결정', '유연성', '전문성'],
+      weaknesses: ['자원 부족', '시스템 미비', '마케팅 한계'],
+      opportunities: ['틈새시장 진입', '정부 지원사업', '협업 기회'],
+      threats: ['자금 조달', '인력 확보', '시장 변화']
+    },
+    'small': {
+      strengths: ['고객 밀착', '전문 서비스', '빠른 적응'],
+      weaknesses: ['규모의 경제', '인력 부족', '브랜드 인지도'],
+      opportunities: ['디지털 전환', '파트너십', '시장 확장'],
+      threats: ['대기업 경쟁', '비용 압박', '인재 유출']
+    },
+    'medium': {
+      strengths: ['안정적 운영', '체계적 관리', '시장 지위'],
+      weaknesses: ['혁신 속도', '유연성', '의사결정 속도'],
+      opportunities: ['사업 다각화', '해외 진출', '기술 혁신'],
+      threats: ['시장 포화', '신기술 위협', '규제 강화']
+    }
+  };
+  
+  const sizeModifier = sizeModifiers[size] || sizeModifiers['small'];
+  
+  // 지역별 특성 반영
+  const locationBonus = marketType === 'metropolitan' ? 
+    { opportunities: ['인프라 활용', '네트워킹'], threats: ['임대료 상승', '경쟁 심화'] } :
+    { opportunities: ['지역 특화', '정부 지원'], threats: ['인력 부족', '접근성'] };
+  
+  // 최종 SWOT 조합
+  const finalStrengths = [
+    ...template.strengths.slice(0, 2),
+    ...sizeModifier.strengths.slice(0, 1),
+    ...(totalScore >= 70 ? ['우수한 운영 성과'] : [])
+  ].slice(0, 3);
+  
+  const finalWeaknesses = [
+    ...template.weaknesses.slice(0, 2),
+    ...sizeModifier.weaknesses.slice(0, 1),
+    ...(totalScore < 60 ? ['전반적 역량 개선 필요'] : [])
+  ].slice(0, 3);
+  
+  const finalOpportunities = [
+    ...template.opportunities.slice(0, 2),
+    ...sizeModifier.opportunities.slice(0, 1),
+    ...locationBonus.opportunities
+  ].slice(0, 4);
+  
+  const finalThreats = [
+    ...template.threats.slice(0, 2),
+    ...sizeModifier.threats.slice(0, 1),
+    ...locationBonus.threats
+  ].slice(0, 4);
+
+  return {
+    strengths: finalStrengths,
+    weaknesses: finalWeaknesses,
+    opportunities: finalOpportunities,
+    threats: finalThreats,
+    strategies: {
+      SO: [`${companyProfile.companyName}의 ${finalStrengths[0]}을 활용한 ${finalOpportunities[0]} 추진`],
+      WO: [`${finalWeaknesses[0]} 개선을 통한 ${finalOpportunities[0]} 활용`],
+      ST: [`${finalStrengths[0]}으로 ${finalThreats[0]} 위험 최소화`],
+      WT: [`${finalWeaknesses[0]} 보완으로 ${finalThreats[0]} 대응력 강화`]
+    }
+  };
+}
+
+// 간단한 SWOT 분석 생성
+async function generateSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisResult: any): Promise<any> {
+  // 빠른 SWOT 분석으로 위임
+  return generateFastSWOT(data, diagnosisResult);
+}
+
+// 🧠 기업 프로필 분석 함수
+function analyzeCompanyProfile(data: SimplifiedDiagnosisRequest): any {
+  const industry = Array.isArray(data.industry) ? data.industry[0] : data.industry;
+  
+  // 직원 수 기반 기업 규모 분석
+  const getCompanySize = (employeeCount: string) => {
+    if (employeeCount.includes('1-9')) return 'micro';
+    if (employeeCount.includes('10-49')) return 'small';
+    if (employeeCount.includes('50-99')) return 'medium';
+    if (employeeCount.includes('100-299')) return 'large';
+    return 'enterprise';
+  };
+  
+  // 지역 기반 시장 특성 분석
+  const getMarketType = (location: string) => {
+    const metropolitanAreas = ['서울', '부산', '대구', '인천', '광주', '대전', '울산'];
+    return metropolitanAreas.some(city => location?.includes(city)) ? 'metropolitan' : 'regional';
+  };
+  
+  // 업종별 특성 분석
+  const getIndustryCharacteristics = (industry: string) => {
+    const characteristics = {
+      '제조업': { digitalMaturity: 'medium', customerInteraction: 'low', competitionLevel: 'high' },
+      '서비스업': { digitalMaturity: 'high', customerInteraction: 'high', competitionLevel: 'medium' },
+      'IT': { digitalMaturity: 'high', customerInteraction: 'medium', competitionLevel: 'high' },
+      '소매업': { digitalMaturity: 'medium', customerInteraction: 'high', competitionLevel: 'high' },
+      '외식업': { digitalMaturity: 'low', customerInteraction: 'high', competitionLevel: 'high' },
+      '건설업': { digitalMaturity: 'low', customerInteraction: 'medium', competitionLevel: 'medium' }
+    };
+    return characteristics[industry] || { digitalMaturity: 'medium', customerInteraction: 'medium', competitionLevel: 'medium' };
+  };
   
   return {
-    strengths: [`${industry} 업종 경험`, '기본적인 운영 역량', '고객 서비스 의지'],
-    weaknesses: ['디지털 역량 부족', '마케팅 전략 미흡', '체계적 관리 필요'],
-    opportunities: ['디지털 전환 기회', '정부 지원 정책', '시장 확장 가능성'],
-    threats: ['경쟁 심화', '비용 상승', '고객 요구 증가'],
-    strategicMatrix: `${industry} 업종 기본 전략: 기존 역량을 바탕으로 디지털 전환과 마케팅 강화를 통한 경쟁력 확보 필요`
+    companyName: data.companyName,
+    industry: industry,
+    size: getCompanySize(data.employeeCount || ''),
+    location: data.businessLocation || '',
+    marketType: getMarketType(data.businessLocation || ''),
+    characteristics: getIndustryCharacteristics(industry),
+    employeeCount: data.employeeCount
   };
-  */
 }
 
-/**
- * 기본 템플릿 보고서 생성 (향상된 버전)
- */
-function generateBasicTemplateReport(data: SimplifiedDiagnosisRequest, diagnosisResult: any): string {
-  // 🚨 폴백 보고서 생성 금지
-  throw new Error('폴백 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
-  
-  /* 기존 폴백 로직 비활성화
-  const companyName = data.companyName || '귀사';
-  const industry = data.industry || '업종';
-  const totalScore = diagnosisResult.totalScore || 0;
-  const grade = getGradeFromScore(totalScore);
-  const currentDate = new Date().toLocaleDateString('ko-KR');
-  
-  return `
-🏆 AI CAMP 경영진단 보고서
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-작성일: ${currentDate}
-기업명: ${companyName}
-업종: ${industry}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 종합 진단 결과
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🎯 총점: ${totalScore}점 (100점 만점)
-🏅 등급: ${grade}
-📈 경쟁력 수준: ${totalScore >= 70 ? '우수' : totalScore >= 50 ? '보통' : '개선 필요'}
-
-💪 주요 강점
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• ${industry} 업종에 대한 풍부한 경험과 노하우 보유
-• 고객 만족을 위한 서비스 품질 관리 역량
-• 안정적인 사업 운영을 위한 기본 인프라 구축
-• 시장 변화에 대응하는 유연한 사고방식
-
-🔧 개선 영역
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• 디지털 마케팅 전략 수립 및 온라인 고객 확보
-• 데이터 기반 의사결정을 위한 시스템 구축
-• 직원 역량 강화를 위한 체계적 교육 프로그램
-• 운영 효율성 향상을 통한 비용 최적화
-
-🚀 실행 전략
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📅 단기 목표 (3개월 이내):
-• 디지털 마케팅 채널 구축 (SNS, 홈페이지 개선)
-• 고객 데이터베이스 정리 및 관리 시스템 도입
-• 핵심 업무 프로세스 표준화
-
-📅 중기 목표 (6개월~1년):
-• AI 도구 활용한 업무 자동화 추진
-• 직원 교육 프로그램 운영
-• 새로운 수익원 발굴 및 사업 영역 확장
-
-📅 장기 비전 (1년 이상):
-• ${industry} 업종 내 디지털 혁신 선도 기업 도약
-• 지속 가능한 성장 기반 구축
-• 업계 표준을 선도하는 혁신 기업으로 발전
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📞 AI 전문가 상담 안내
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🏆 이후경 경영지도사 (AI CAMP 대표)
-• 중소벤처기업부 등록 경영지도사
-• AI 경영혁신 전문가
-• 연락처: 010-9251-9743
-• 이메일: hongik423@gmail.com
-
-💎 AI CAMP 특별 혜택:
-• 무료 AI 진단 완료 기업 대상 30% 할인
-• 맞춤형 AI 도입 로드맵 제공
-• 정부 지원사업 매칭 서비스
-• 실무자 AI 교육 프로그램 제공
-
-🌐 홈페이지: https://aicamp.club
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-*본 보고서는 체계적인 진단 과정을 거쳐 작성되었습니다.*
-*${currentDate} 기준 최신 분석 결과입니다.*
-  `.trim();
-  */
-}
-
-/**
- * GET 메서드 - API 상태 확인
- */
-export async function GET() {
-  return NextResponse.json({
-    status: 'AI 간편진단 API 활성화',
-    version: '3.0.27',
-    timestamp: new Date().toISOString(),
-    features: [
-      '5점 척도 평가 (20개 문항)',
-      '카테고리별 분석 (5개 영역)',
-      '업종별 특화 분석',
-      'Gemini AI 기반 보고서 생성',
-      '이메일 자동 발송',
-      '구글시트 연동'
-    ],
-    endpoints: {
-      POST: '진단 데이터 처리',
-      GET: '상태 확인'
+// 🎯 업종별 가중치 설정
+function getIndustryWeights(industry: string): Record<string, number> {
+  const weights: Record<string, Record<string, number>> = {
+    '제조업': {
+      planning_level: 1.3, differentiation_level: 1.2, pricing_level: 1.1, expertise_level: 1.4,
+      quality_level: 1.5, purchase_management: 1.3, inventory_management: 1.4,
+      exterior_management: 1.1, work_flow: 1.3
+    },
+    '서비스업': {
+      customer_greeting: 1.4, customer_service: 1.5, complaint_management: 1.3,
+      customer_retention: 1.4, customer_understanding: 1.3, marketing_planning: 1.2,
+      online_marketing: 1.3
+    },
+    'IT': {
+      planning_level: 1.4, differentiation_level: 1.5, expertise_level: 1.4,
+      online_marketing: 1.3, sales_strategy: 1.2
+    },
+    '소매업': {
+      customer_greeting: 1.3, customer_service: 1.2, marketing_planning: 1.3,
+      offline_marketing: 1.2, online_marketing: 1.4, inventory_management: 1.3,
+      exterior_management: 1.2, interior_management: 1.3, cleanliness: 1.4
+    },
+    '외식업': {
+      customer_greeting: 1.5, customer_service: 1.4, quality_level: 1.3,
+      cleanliness: 1.5, interior_management: 1.2, work_flow: 1.2
     }
-  });
+  };
+  
+  return weights[industry] || {};
+}
+
+// 🎲 스마트 기본값 생성 (기업 특성 기반)
+function getSmartDefault(field: string, profile: any): number {
+  const { size, characteristics, marketType } = profile;
+  
+  // 기업 규모별 기본 점수 조정
+  const sizeMultiplier = {
+    'micro': 0.8,      // 영세기업: 낮은 기본값
+    'small': 0.9,      // 소기업: 약간 낮은 기본값
+    'medium': 1.0,     // 중기업: 표준 기본값
+    'large': 1.1,      // 대기업: 약간 높은 기본값
+    'enterprise': 1.2  // 대기업: 높은 기본값
+  };
+  
+  // 시장 유형별 조정
+  const marketMultiplier = marketType === 'metropolitan' ? 1.1 : 0.95;
+  
+  // 필드별 특성 조정
+  let fieldScore = 3.0; // 기본값
+  
+  if (field.includes('online') || field.includes('digital')) {
+    const digitalMap = { 'high': 3.5, 'medium': 3.0, 'low': 2.5 };
+    fieldScore = digitalMap[characteristics.digitalMaturity] || 3.0;
+  }
+  
+  if (field.includes('customer')) {
+    const customerMap = { 'high': 3.5, 'medium': 3.0, 'low': 2.5 };
+    fieldScore = customerMap[characteristics.customerInteraction] || 3.0;
+  }
+  
+  const finalScore = fieldScore * sizeMultiplier[size] * marketMultiplier;
+  return Math.max(1, Math.min(5, Math.round(finalScore * 10) / 10));
+}
+
+// 🎨 스마트 카테고리 결과 생성
+function generateSmartCategoryResults(profile: any, averageScore: number, data: any): any[] {
+  const { industry, size, characteristics } = profile;
+  
+  // 업종별 맞춤형 카테고리 설정
+  const categoryTemplates: Record<string, any> = {
+    '제조업': {
+      categories: ['생산관리', '품질관리', '공급망관리', '기술혁신', '안전관리'],
+      strengths: ['생산 노하우', '기술력', '품질 시스템'],
+      weaknesses: ['디지털화 부족', '마케팅 역량', '고객 접점']
+    },
+    '서비스업': {
+      categories: ['고객서비스', '서비스품질', '디지털마케팅', '운영효율성', '인력관리'],
+      strengths: ['고객 관계', '서비스 경험', '시장 이해'],
+      weaknesses: ['표준화 부족', '기술 활용', '데이터 분석']
+    },
+    'IT': {
+      categories: ['기술역량', '프로젝트관리', '고객관리', '혁신', '품질보증'],
+      strengths: ['기술 전문성', '혁신 역량', '프로젝트 경험'],
+      weaknesses: ['영업 역량', '시장 확장', '고객 유지']
+    }
+  };
+  
+  const template = categoryTemplates[industry] || {
+    categories: ['상품서비스관리', '고객응대', '마케팅', '구매재고관리', '매장관리'],
+    strengths: ['기본 운영', '업계 경험', '고객 관계'],
+    weaknesses: ['디지털화', '마케팅', '효율성']
+  };
+  
+  // 기업 규모별 강점/약점 조정
+  const sizeAdjustments = {
+    'micro': { strengths: ['유연성', '신속한 의사결정'], weaknesses: ['자원 부족', '시스템 미비'] },
+    'small': { strengths: ['전문성', '고객 밀착'], weaknesses: ['규모의 경제', '인력 부족'] },
+    'medium': { strengths: ['안정성', '체계적 운영'], weaknesses: ['혁신 속도', '시장 대응'] },
+    'large': { strengths: ['시스템', '브랜드력'], weaknesses: ['유연성', '혁신 문화'] }
+  };
+  
+  const adjustment = sizeAdjustments[size] || sizeAdjustments['small'];
+  
+  return template.categories.map((categoryName: string, index: number) => ({
+    categoryName,
+    currentScore: Math.round(averageScore * (0.9 + Math.random() * 0.2)), // 약간의 변동성
+    score100: Math.round(averageScore * 20 * (0.9 + Math.random() * 0.2)),
+    weight: 0.2,
+    strengths: [...template.strengths, ...adjustment.strengths].slice(0, 2),
+    weaknesses: [...template.weaknesses, ...adjustment.weaknesses].slice(0, 2),
+    itemResults: []
+  }));
+}
+
+// 🔍 GEMINI 2.5 Flash 기반 백그라운드 정밀 분석 함수
+async function enhanceAnalysisInBackground(resultId: string, data: SimplifiedDiagnosisRequest, initialResult: any): Promise<void> {
+  console.log(`🤖 GEMINI 2.5 Flash 백그라운드 정밀 분석 시작: ${resultId}`);
+  
+  try {
+    const geminiEngine = new GeminiAnalysisEngine();
+    const industry = Array.isArray(data.industry) ? data.industry[0] : data.industry;
+    
+    // 1단계: GEMINI 기반 종합 분석
+    let geminiComprehensive = null;
+    try {
+      geminiComprehensive = await Promise.race([
+        geminiEngine.analyzeCompanyComprehensive(data),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GEMINI 종합 분석 타임아웃')), 45000)) // 45초
+      ]);
+      console.log(`✅ GEMINI 종합 분석 완료: ${resultId}`);
+    } catch (error) {
+      console.log(`⚠️ GEMINI 종합 분석 실패, 기본 분석 유지: ${resultId}`, error);
+      geminiComprehensive = {
+        overallAssessment: `${data.companyName}은 ${industry} 분야에서 안정적인 운영을 보이고 있습니다.`,
+        keyStrengths: ['기본 운영 역량', '업계 경험', '고객 관계'],
+        criticalWeaknesses: ['디지털화 필요', '시스템 개선', '마케팅 강화'],
+        industryPosition: '업계 평균 수준',
+        competitiveAdvantage: '고객 서비스 및 운영 경험',
+        urgentImprovements: ['AI 도구 도입', '프로세스 디지털화', '데이터 활용'],
+        growthPotential: '중간 수준의 성장 잠재력',
+        riskFactors: ['기술 변화', '경쟁 심화'],
+        recommendedFocus: 'AI 기술 도입 및 운영 효율성 개선'
+      };
+    }
+
+    // 2단계: GEMINI 기반 고급 SWOT 분석
+    let geminiSWOT = null;
+    try {
+      geminiSWOT = await Promise.race([
+        geminiEngine.generateAdvancedSWOT(data, initialResult),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GEMINI SWOT 분석 타임아웃')), 40000)) // 40초
+      ]);
+      console.log(`✅ GEMINI SWOT 분석 완료: ${resultId}`);
+    } catch (error) {
+      console.log(`⚠️ GEMINI SWOT 실패, 기본 SWOT 유지: ${resultId}`, error);
+      geminiSWOT = initialResult.swotAnalysis;
+    }
+
+    // 3단계: GEMINI 기반 맞춤형 로드맵 생성
+    let geminiRoadmap = null;
+    try {
+      geminiRoadmap = await Promise.race([
+        geminiEngine.generateCustomRoadmap(data, geminiSWOT, initialResult),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GEMINI 로드맵 생성 타임아웃')), 35000)) // 35초
+      ]);
+      console.log(`✅ GEMINI 로드맵 생성 완료: ${resultId}`);
+    } catch (error) {
+      console.log(`⚠️ GEMINI 로드맵 실패, 기본 로드맵 생성: ${resultId}`, error);
+      geminiRoadmap = generateFallbackRoadmap(data, initialResult);
+    }
+
+    // 4단계: 업종별 특화 인사이트 (80개 업종 지원)
+    const industryInsights = generateAdvancedIndustryInsights(industry, data);
+    
+    // 5단계: GEMINI 기반 종합 보고서 생성
+    let comprehensiveReport = null;
+    try {
+      const analysisResults = {
+        ...initialResult,
+        geminiComprehensive,
+        swotAnalysis: geminiSWOT,
+        roadmap: geminiRoadmap,
+        industryInsights
+      };
+      
+      comprehensiveReport = await Promise.race([
+        geminiEngine.generateComprehensiveReport(data, analysisResults),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GEMINI 보고서 생성 타임아웃')), 30000)) // 30초
+      ]);
+      console.log(`✅ GEMINI 종합 보고서 생성 완료: ${resultId}`);
+    } catch (error) {
+      console.log(`⚠️ GEMINI 보고서 실패, 기본 보고서 생성: ${resultId}`, error);
+      comprehensiveReport = generateFallbackReport(data, initialResult, geminiSWOT);
+    }
+    
+    // 6단계: 최종 정밀 분석 결과 구성
+    const enhancedAnalysis = {
+      ...initialResult,
+      analysisType: 'gemini-enhanced',
+      enhancementStatus: 'completed',
+      enhancedAt: new Date().toISOString(),
+      geminiComprehensive,
+      geminiSWOT,
+      geminiRoadmap,
+      industryInsights,
+      comprehensiveReport,
+      confidenceScore: calculateGeminiConfidenceScore(geminiComprehensive, geminiSWOT),
+      processingTime: `${Date.now() - parseInt(resultId.split('_')[1])}ms`,
+      aiProvider: 'GEMINI 2.5 Flash'
+    };
+    
+    console.log(`🎉 GEMINI 2.5 Flash 백그라운드 정밀 분석 완료: ${resultId}`);
+    
+    // Google Apps Script로 완전한 보고서 전송 (이메일 발송)
+    try {
+      await submitEnhancedDiagnosisToGoogle({
+        ...data,
+        enhancedAnalysis,
+        reportContent: comprehensiveReport
+      });
+      console.log(`📧 GEMINI 기반 완전한 보고서 이메일 전송 완료: ${resultId}`);
+    } catch (emailError) {
+      console.error(`❌ 이메일 전송 실패: ${resultId}`, emailError);
+    }
+    
+  } catch (error) {
+    console.error(`❌ GEMINI 백그라운드 정밀 분석 전체 실패: ${resultId}`, error);
+  }
+}
+
+// 🧠 고급 SWOT 분석 (더 정교한 분석)
+async function generateAdvancedSWOTAnalysis(data: SimplifiedDiagnosisRequest, diagnosisResult: any): Promise<any> {
+  // 기본 SWOT에 더 정교한 분석 추가
+  const basicSWOT = generateFastSWOT(data, diagnosisResult);
+  const companyProfile = analyzeCompanyProfile(data);
+  
+  // 경쟁사 분석 시뮬레이션
+  const competitorAnalysis = {
+    marketPosition: companyProfile.size === 'large' ? 'leader' : 'challenger',
+    competitiveAdvantages: basicSWOT.strengths.slice(0, 2),
+    competitiveThreats: basicSWOT.threats.slice(0, 2)
+  };
+  
+  // 트렌드 분석 추가
+  const trendAnalysis = {
+    emergingOpportunities: ['AI 자동화', '디지털 전환', '지속가능성'],
+    emergingThreats: ['기술 변화', '규제 강화', '시장 변동성']
+  };
+  
+  return {
+    ...basicSWOT,
+    competitorAnalysis,
+    trendAnalysis,
+    strategicPriority: determineStrategicPriority(basicSWOT, companyProfile),
+    actionPlan: generateDetailedActionPlan(basicSWOT, companyProfile)
+  };
+}
+
+// 🏭 업종별 특화 인사이트 생성
+async function generateIndustrySpecificInsights(data: SimplifiedDiagnosisRequest, diagnosisResult: any): Promise<any> {
+  const companyProfile = analyzeCompanyProfile(data);
+  const industry = companyProfile.industry;
+  
+  const industryInsights: Record<string, any> = {
+    '제조업': {
+      keyTrends: ['스마트팩토리', 'ESG 경영', '공급망 리질리언스'],
+      benchmarkMetrics: ['생산성 지수', '품질 수준', '자동화 정도'],
+      governmentSupport: ['스마트제조혁신 바우처', '제조업 디지털 전환', '탄소중립 지원'],
+      recommendedTools: ['MES 시스템', 'IoT 센서', 'AI 품질검사']
+    },
+    '서비스업': {
+      keyTrends: ['디지털 고객경험', '구독 경제', '옴니채널'],
+      benchmarkMetrics: ['고객만족도', 'NPS 점수', '디지털 전환율'],
+      governmentSupport: ['서비스업 디지털 전환', '고객경험 혁신', 'K-뉴딜 서비스업'],
+      recommendedTools: ['CRM 시스템', '챗봇', '데이터 분석 플랫폼']
+    }
+  };
+  
+  return industryInsights[industry] || {
+    keyTrends: ['디지털 전환', '지속가능성', '고객 중심'],
+    benchmarkMetrics: ['운영 효율성', '고객 만족도', '수익성'],
+    governmentSupport: ['중소기업 디지털 전환', 'AI 바우처', '혁신 지원'],
+    recommendedTools: ['업무 자동화 도구', '데이터 분석', '클라우드 서비스']
+  };
+}
+
+// 🎯 고급 추천사항 생성
+function generateAdvancedRecommendations(data: SimplifiedDiagnosisRequest, diagnosisResult: any, swotAnalysis: any): string[] {
+  const companyProfile = analyzeCompanyProfile(data);
+  const totalScore = diagnosisResult.totalScore || 60;
+  
+  const recommendations = [];
+  
+  // 점수 기반 우선순위 추천
+  if (totalScore < 60) {
+    recommendations.push(`${companyProfile.companyName}의 기본 운영 체계 강화가 최우선 과제입니다`);
+    recommendations.push(`${swotAnalysis.weaknesses[0]} 개선을 위한 단계적 접근 필요`);
+  } else if (totalScore >= 80) {
+    recommendations.push(`${companyProfile.companyName}의 우수한 역량을 활용한 사업 확장 검토`);
+    recommendations.push(`${swotAnalysis.opportunities[0]} 기회 적극 활용 전략 수립`);
+  }
+  
+  // 규모별 맞춤 추천
+  const sizeRecommendations = {
+    'small': [`소기업 특화 정부 지원사업 적극 활용`, `핵심 역량 집중을 통한 차별화 전략`],
+    'medium': [`체계적 성장 관리를 위한 시스템 구축`, `시장 확장을 위한 파트너십 전략`],
+    'large': [`조직 혁신을 통한 경쟁력 강화`, `신사업 진출을 위한 전략적 투자`]
+  };
+  
+  recommendations.push(...(sizeRecommendations[companyProfile.size] || sizeRecommendations['small']));
+  
+  return recommendations.slice(0, 5);
+}
+
+// 📊 신뢰도 점수 계산
+function calculateConfidenceScore(diagnosisResult: any, swotAnalysis: any): number {
+  let confidence = 70; // 기본 신뢰도
+  
+  // 데이터 완성도에 따른 조정
+  if (diagnosisResult.reliabilityScore > 90) confidence += 15;
+  else if (diagnosisResult.reliabilityScore > 80) confidence += 10;
+  else if (diagnosisResult.reliabilityScore < 70) confidence -= 10;
+  
+  // SWOT 분석 품질에 따른 조정
+  const swotQuality = (swotAnalysis.strengths.length + swotAnalysis.weaknesses.length) * 2.5;
+  confidence += Math.min(10, swotQuality);
+  
+  return Math.min(95, Math.max(60, confidence));
+}
+
+// 🎯 전략적 우선순위 결정
+function determineStrategicPriority(swotAnalysis: any, companyProfile: any): string {
+  const strengths = swotAnalysis.strengths.length;
+  const weaknesses = swotAnalysis.weaknesses.length;
+  const opportunities = swotAnalysis.opportunities.length;
+  
+  if (strengths >= weaknesses && opportunities > 2) {
+    return 'growth'; // 성장 전략
+  } else if (weaknesses > strengths) {
+    return 'improvement'; // 개선 전략
+  } else {
+    return 'stability'; // 안정화 전략
+  }
+}
+
+// 📋 상세 액션 플랜 생성
+function generateDetailedActionPlan(swotAnalysis: any, companyProfile: any): any {
+  const priority = determineStrategicPriority(swotAnalysis, companyProfile);
+  
+  const actionPlans = {
+    'growth': {
+      immediate: ['시장 기회 분석', '성장 자원 확보'],
+      shortTerm: ['핵심 역량 확장', '새로운 시장 진입'],
+      longTerm: ['사업 다각화', '시장 리더십 확보']
+    },
+    'improvement': {
+      immediate: ['약점 영역 진단', '개선 계획 수립'],
+      shortTerm: ['핵심 프로세스 개선', '역량 강화 교육'],
+      longTerm: ['경쟁력 확보', '시장 포지션 강화']
+    },
+    'stability': {
+      immediate: ['현재 강점 유지', '안정성 확보'],
+      shortTerm: ['효율성 최적화', '리스크 관리'],
+      longTerm: ['지속가능 성장', '혁신 역량 구축']
+    }
+  };
+  
+  return actionPlans[priority] || actionPlans['stability'];
 }

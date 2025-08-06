@@ -41,12 +41,13 @@ function getEnvironmentVariables() {
     AUTO_REPLY_ENABLED: scriptProperties.getProperty('AUTO_REPLY_ENABLED') !== 'false',
     
     // API 설정
-    AI_MODEL: scriptProperties.getProperty('AI_MODEL') || 'gemini-2.0-flash-exp',
-    MAX_RETRIES: parseInt(scriptProperties.getProperty('MAX_RETRIES') || '3'),
+    AI_MODEL: scriptProperties.getProperty('AI_MODEL') || 'gemini-1.5-flash',
+    MAX_RETRIES: parseInt(scriptProperties.getProperty('MAX_RETRIES') || '5'),
     REPORT_LANGUAGE: scriptProperties.getProperty('REPORT_LANGUAGE') || 'ko',
+    TIMEOUT_MS: parseInt(scriptProperties.getProperty('TIMEOUT_MS') || '800000'), // 800초 (Vercel 제한)
     
-    // AICAMP 로고 URL
-    LOGO_URL: 'https://cdn.jsdelivr.net/gh/aicamp/assets@main/logo/aicamp_logo_del_250726.png'
+    // AICAMP 로고 URL (절대 URL 사용)
+    LOGO_URL: 'https://aicamp-v3-0.vercel.app/images/aicamp_logo_del_250726.png'
   };
 }
 
@@ -1185,19 +1186,23 @@ function generateEnhancedAIReport(orchestrationResult) {
   console.log('📄 AI 보고서 생성 시작');
   
   const prompt = `
-당신은 AI 역량진단 전문가입니다. 다음 기업의 AI 역량진단 결과를 분석하여 맞춤형 보고서를 생성해주세요.
+당신은 AICAMP의 AI 역량진단 전문가로서 28년의 교육 노하우를 바탕으로 기업의 AI 역량 강화와 고몰입 조직 구축을 위한 최강 최적의 맞춤형 보고서를 작성해야 합니다.
 
-[기업 정보]
+**절대 금지사항: 폴백 답변이나 일반적인 답변은 절대 금지입니다. 반드시 신청기업의 구체적인 정보를 최대한 활용하여 개별화된 분석과 제안을 제공해야 합니다.**
+
+[신청 기업 상세 정보]
 - 기업명: ${orchestrationResult.companyInfo.name}
 - 업종: ${orchestrationResult.companyInfo.industry}
-- 직원수: ${orchestrationResult.companyInfo.employees}
-- 주요 과제: ${orchestrationResult.companyInfo.challenges || '업무 효율화, AI 도입'}
+- 직원수: ${orchestrationResult.companyInfo.employees}명
+- 사업 내용: ${orchestrationResult.companyInfo.businessDescription || '정보 없음'}
+- 현재 직면한 주요 과제: ${orchestrationResult.companyInfo.challenges || '정보 없음'}
+- 지역: ${orchestrationResult.companyInfo.location || '정보 없음'}
 
-[진단 결과]
-- 전체 점수: ${orchestrationResult.scoreAnalysis.overallScore}/100점
-- 등급: ${orchestrationResult.scoreAnalysis.grade}
-- 성숙도: ${getMaturityLevel(orchestrationResult.scoreAnalysis.overallScore).name}
-- 신뢰도: ${orchestrationResult.scoreAnalysis.reliability}%
+[AI 역량진단 평가 결과 상세]
+- 전체 AI 역량 점수: ${orchestrationResult.scoreAnalysis.overallScore}/100점
+- 역량 등급: ${orchestrationResult.scoreAnalysis.grade}
+- AI 성숙도 단계: ${getMaturityLevel(orchestrationResult.scoreAnalysis.overallScore).name}
+- 평가 신뢰도: ${orchestrationResult.scoreAnalysis.reliability}%
 
 [카테고리별 점수]
 - 리더십: ${(orchestrationResult.scoreAnalysis.categoryScores.leadership * 25).toFixed(0)}점
@@ -1220,58 +1225,187 @@ function generateEnhancedAIReport(orchestrationResult) {
 - 예상 ROI: ${orchestrationResult.roiProjection.metrics.roi.toFixed(0)}%
 - 투자회수기간: ${orchestrationResult.roiProjection.metrics.paybackPeriod.toFixed(1)}개월
 
-이 기업을 위한 맞춤형 AI 역량 강화 전략을 다음 형식으로 작성해주세요:
+**중요: ${orchestrationResult.companyInfo.industry} 업종의 특성을 반드시 분석에 반영하세요.**
+
+업종별 상세 특성 분석 가이드:
+
+**IT/기술 업종:**
+- 핵심 AI 활용: 코드 자동생성, 버그 탐지, 개발 생산성 향상, 시스템 모니터링
+- 주요 과제: 기술 부채 관리, 보안 강화, 개발 속도 향상, 품질 보증
+- 투자 우선순위: DevOps 자동화, 코드 리뷰 AI, 테스트 자동화, 성능 최적화
+
+**제조/생산 업종:**
+- 핵심 AI 활용: 예측 유지보수, 품질 검사 자동화, 공급망 최적화, 생산 계획 최적화
+- 주요 과제: 설비 가동률 향상, 불량률 감소, 안전사고 예방, 에너지 효율성
+- 투자 우선순위: 스마트 팩토리, IoT 센서, 머신러닝 품질 검사, 로봇 자동화
+
+**금융/보험 업종:**
+- 핵심 AI 활용: 사기 탐지, 신용평가, 개인화 상품 추천, 리스크 관리
+- 주요 과제: 규제 준수, 고객 신뢰, 디지털 전환, 경쟁 심화
+- 투자 우선순위: 고객 분석, 자동화된 언더라이팅, 챗봇 상담, 투자 자문
+
+**유통/서비스 업종:**
+- 핵심 AI 활용: 수요 예측, 재고 최적화, 개인화 마케팅, 고객 서비스 자동화
+- 주요 과제: 옴니채널 통합, 고객 경험 향상, 운영 효율성, 마진 개선
+- 투자 우선순위: 추천 시스템, 챗봇, 가격 최적화, 배송 최적화
+
+**의료/헬스케어 업종:**
+- 핵심 AI 활용: 의료 영상 분석, 진단 보조, 약물 발견, 환자 모니터링
+- 주요 과제: 환자 안전, 의료 오류 감소, 효율성 향상, 규제 준수
+- 투자 우선순위: 진단 정확도 향상, 환자 관리 시스템, 원격 진료, 데이터 보안
+
+**교육/연구 업종:**
+- 핵심 AI 활용: 개인화 학습, 자동 채점, 학습 분석, 연구 지원
+- 주요 과제: 학습 효과 향상, 교육 격차 해소, 교사 업무 경감, 연구 효율성
+- 투자 우선순위: 적응형 학습 플랫폼, 자동 평가, 학습자 분석, 연구 도구
+
+**건설/부동산 업종:**
+- 핵심 AI 활용: 프로젝트 관리, 안전 모니터링, 시장 분석, 자산 평가
+- 주요 과제: 안전 관리, 비용 통제, 일정 관리, 품질 보증
+- 투자 우선순위: 안전 모니터링, 공정 관리, 시장 예측, 자산 관리
+
+**운송/물류 업종:**
+- 핵심 AI 활용: 경로 최적화, 배송 예측, 창고 자동화, 수요 예측
+- 주요 과제: 배송 효율성, 비용 절감, 고객 만족도, 환경 규제
+- 투자 우선순위: 경로 최적화, 자동화 창고, 배송 추적, 수요 예측
+
+**미디어/콘텐츠 업종:**
+- 핵심 AI 활용: 콘텐츠 추천, 자동 편집, 타겟 광고, 저작권 보호
+- 주요 과제: 콘텐츠 개인화, 제작 효율성, 수익화, 저작권 관리
+- 투자 우선순위: 추천 알고리즘, 자동 편집, 광고 최적화, 콘텐츠 분석
+
+**전문서비스 업종:**
+- 핵심 AI 활용: 문서 자동화, 법률 검색, 회계 자동화, 고객 관리
+- 주요 과제: 업무 효율성, 정확성 향상, 고객 서비스, 전문성 강화
+- 투자 우선순위: 문서 처리 자동화, 지식 관리, 고객 분석, 업무 지원
+
+**에너지/환경 업종:**
+- 핵심 AI 활용: 에너지 최적화, 환경 모니터링, 예측 분석, 설비 관리
+- 주요 과제: 효율성 향상, 환경 규제, 안전 관리, 비용 절감
+- 투자 우선순위: 에너지 관리, 환경 모니터링, 예측 유지보수, 최적화
+
+**농업/수산업 업종:**
+- 핵심 AI 활용: 스마트 농업, 작물 모니터링, 생산량 예측, 품질 관리
+- 주요 과제: 생산성 향상, 품질 개선, 비용 절감, 지속가능성
+- 투자 우선순위: 정밀 농업, 자동화, 품질 검사, 시장 예측
+
+**통신/네트워크 업종:**
+- 핵심 AI 활용: 네트워크 최적화, 장애 예측, 고객 서비스, 보안 강화
+- 주요 과제: 서비스 품질, 네트워크 안정성, 고객 만족도, 보안
+- 투자 우선순위: 네트워크 관리, 고객 분석, 보안 강화, 서비스 최적화
+
+**공공/비영리 업종:**
+- 핵심 AI 활용: 공공 서비스 개선, 정책 분석, 시민 서비스, 투명성 강화
+- 주요 과제: 서비스 효율성, 시민 만족도, 투명성, 예산 효율성
+- 투자 우선순위: 시민 서비스, 데이터 분석, 업무 자동화, 의사결정 지원
+
+**요구사항: 다음 필수 구성 요소들을 모두 포함하여 ${orchestrationResult.companyInfo.name}(${orchestrationResult.companyInfo.industry})에 특화된 맞춤형 보고서를 작성하세요:**
+
+1. **AI역량진단표 평가 결과 피드백** - 각 평가항목별 상세 분석
+2. **신청기업 업종 특화 SWOT 분석** - SO, WO, ST, WT 전략 포함  
+3. **AI 역량진단 결과 매트릭스** - 전략과 평가결과 반영
+4. **중요도 × 긴급성(실행용이성) 매트릭스**
+5. **고몰입조직구축을 위한 AI역량강화 3단계 실행로드맵**
+6. **투자대비효과분석(ROI)**
+7. **AICAMP 맞춤형 교육 제안**
+
+다음 JSON 형식으로 작성해주세요:
 
 {
-  "executiveSummary": {
-    "keyMessage": "핵심 메시지 (1-2문장)",
-    "currentStatus": "현재 상태 요약",
-    "mainChallenges": ["주요 과제 3개"],
-    "criticalActions": ["즉시 실행 과제 3개"]
-  },
-  "detailedAnalysis": {
-    "strengthsAnalysis": "강점 분석 (2-3문장)",
-    "weaknessesAnalysis": "약점 분석 (2-3문장)",
-    "industryPosition": "업계 내 포지션 분석",
-    "improvementPotential": "개선 잠재력 평가"
-  },
-  "strategicRecommendations": {
-    "shortTerm": ["단기 전략 3개 (3개월 내)"],
-    "mediumTerm": ["중기 전략 3개 (3-6개월)"],
-    "longTerm": ["장기 전략 3개 (6-12개월)"]
-  },
-  "implementationRoadmap": {
-    "phase1": {
-      "title": "기초 구축 단계",
-      "actions": ["구체적 실행 과제 3개"],
-      "expectedResults": ["기대 성과 2개"]
-    },
-    "phase2": {
-      "title": "확산 가속화 단계",
-      "actions": ["구체적 실행 과제 3개"],
-      "expectedResults": ["기대 성과 2개"]
-    },
-    "phase3": {
-      "title": "지속 성장 단계",
-      "actions": ["구체적 실행 과제 3개"],
-      "expectedResults": ["기대 성과 2개"]
+  "assessmentFeedback": {
+    "overallScore": "${orchestrationResult.scoreAnalysis.overallScore}점 (${orchestrationResult.scoreAnalysis.grade}등급)",
+    "categoryAnalysis": {
+      "leadership": "리더십 영역 상세 분석 및 개선방안",
+      "infrastructure": "인프라 영역 상세 분석 및 개선방안", 
+      "talent": "직원역량 영역 상세 분석 및 개선방안",
+      "culture": "조직문화 영역 상세 분석 및 개선방안",
+      "application": "실무적용 영역 상세 분석 및 개선방안",
+      "data": "데이터 영역 상세 분석 및 개선방안"
     }
   },
-  "aicampPrograms": {
-    "recommendedCourses": ${JSON.stringify(orchestrationResult.aicampRecommendation.programs)},
-    "customizedApproach": "맞춤형 접근 방법 (2-3문장)",
-    "expectedOutcomes": ["기대 효과 3개"]
+  "industrySpecificSWOT": {
+    "industryContext": "${orchestrationResult.companyInfo.industry} 업종의 AI 도입 현황과 트렌드 분석",
+    "strengths": ["${orchestrationResult.companyInfo.industry} 업종 특화 강점 3-5개 (업종 고유의 데이터, 프로세스, 자산 등)"],
+    "weaknesses": ["${orchestrationResult.companyInfo.industry} 업종 특화 약점 3-5개 (디지털화 수준, 인력, 시스템 등)"],
+    "opportunities": ["${orchestrationResult.companyInfo.industry} 업종 특화 기회요인 3-5개 (AI 기술 적용 가능 영역)"],
+    "threats": ["${orchestrationResult.companyInfo.industry} 업종 특화 위협요인 3-5개 (경쟁, 규제, 기술 변화 등)"],
+    "strategies": {
+      "SO": ["${orchestrationResult.companyInfo.industry} 업종 강점-기회 활용 전략 3개 (구체적 AI 활용 방안)"],
+      "WO": ["${orchestrationResult.companyInfo.industry} 업종 약점-기회 개선 전략 3개 (AI로 약점 보완)"],
+      "ST": ["${orchestrationResult.companyInfo.industry} 업종 강점-위협 대응 전략 3개 (강점으로 위협 대응)"],
+      "WT": ["${orchestrationResult.companyInfo.industry} 업종 약점-위협 최소화 전략 3개 (리스크 완화)"]
+    },
+    "industryBenchmark": "${orchestrationResult.companyInfo.industry} 업종 내 AI 도입 벤치마크 및 경쟁사 분석"
   },
-  "successFactors": ["성공 요인 5개"],
-  "riskMitigation": ["리스크 완화 방안 3개"],
-  "nextSteps": [
-    "1. AICAMP 무료 상담 신청",
-    "2. AI 추진 TF 구성",
-    "3. 파일럿 프로젝트 선정",
-    "4. 전사 교육 계획 수립",
-    "5. 성과 측정 체계 구축"
-  ]
+  "capabilityMatrix": {
+    "currentLevel": "${getMaturityLevel(orchestrationResult.scoreAnalysis.overallScore).name}",
+    "targetLevel": "목표 수준",
+    "gapAnalysis": "현재-목표 간 격차 분석",
+    "improvementAreas": ["핵심 개선 영역 5개"]
+  },
+  "priorityMatrix": {
+    "highImportanceHighUrgency": ["${orchestrationResult.companyInfo.industry} 업종 즉시 실행 과제 3-5개 (업종 특성 반영)"],
+    "highImportanceLowUrgency": ["${orchestrationResult.companyInfo.industry} 업종 전략적 중요 과제 3-5개 (장기적 경쟁력)"], 
+    "lowImportanceHighUrgency": ["${orchestrationResult.companyInfo.industry} 업종 단순 처리 과제 2-3개 (효율성 개선)"],
+    "lowImportanceLowUrgency": ["${orchestrationResult.companyInfo.industry} 업종 장기 검토 과제 2-3개 (미래 대비)"],
+    "industryPriorities": "${orchestrationResult.companyInfo.industry} 업종에서 AI 도입 시 가장 우선해야 할 3가지 핵심 영역"
+  },
+  "threePhaseRoadmap": {
+    "industryContext": "${orchestrationResult.companyInfo.industry} 업종 특성을 고려한 단계별 AI 도입 전략",
+    "phase1": {
+      "title": "1단계: ${orchestrationResult.companyInfo.industry} 업종 AI 기초 역량 구축 (1-3개월)",
+      "objectives": ["${orchestrationResult.companyInfo.industry} 업종 1단계 목표 3개 (업종별 우선순위 반영)"],
+      "keyActivities": ["${orchestrationResult.companyInfo.industry} 업종 핵심 활동 5개 (업종 특화 AI 도구/기술)"],
+      "expectedOutcomes": ["${orchestrationResult.companyInfo.industry} 업종 기대 성과 3개 (업종별 KPI)"],
+      "successMetrics": ["${orchestrationResult.companyInfo.industry} 업종 성공 지표 3개 (측정 가능한 지표)"],
+      "industryFocus": "${orchestrationResult.companyInfo.industry} 업종에서 1단계에 집중해야 할 핵심 영역"
+    },
+    "phase2": {
+      "title": "2단계: ${orchestrationResult.companyInfo.industry} 업종 AI 활용 확산 (4-8개월)", 
+      "objectives": ["${orchestrationResult.companyInfo.industry} 업종 2단계 목표 3개 (확산 전략)"],
+      "keyActivities": ["${orchestrationResult.companyInfo.industry} 업종 핵심 활동 5개 (고도화 및 확산)"],
+      "expectedOutcomes": ["${orchestrationResult.companyInfo.industry} 업종 기대 성과 3개 (규모 확대)"],
+      "successMetrics": ["${orchestrationResult.companyInfo.industry} 업종 성공 지표 3개 (확산 지표)"],
+      "industryFocus": "${orchestrationResult.companyInfo.industry} 업종에서 2단계에 집중해야 할 확산 영역"
+    },
+    "phase3": {
+      "title": "3단계: ${orchestrationResult.companyInfo.industry} 업종 고몰입 조직 완성 (9-12개월)",
+      "objectives": ["${orchestrationResult.companyInfo.industry} 업종 3단계 목표 3개 (조직 혁신)"],
+      "keyActivities": ["${orchestrationResult.companyInfo.industry} 업종 핵심 활동 5개 (조직 문화 변화)"],
+      "expectedOutcomes": ["${orchestrationResult.companyInfo.industry} 업종 기대 성과 3개 (조직 변화)"],
+      "successMetrics": ["${orchestrationResult.companyInfo.industry} 업종 성공 지표 3개 (몰입도 지표)"],
+      "industryFocus": "${orchestrationResult.companyInfo.industry} 업종에서 3단계에 집중해야 할 조직 혁신 영역"
+    }
+  },
+  "roiAnalysis": {
+    "industryContext": "${orchestrationResult.companyInfo.industry} 업종의 AI 투자 트렌드 및 ROI 벤치마크",
+    "investmentRequired": "${orchestrationResult.companyInfo.industry} 업종 특성을 고려한 필요 투자 규모 (구체적 금액 및 단계별 분배)",
+    "expectedBenefits": ["${orchestrationResult.companyInfo.industry} 업종 특화 기대 효익 5개 (정량적, 업종별 KPI 기준)"],
+    "paybackPeriod": "${orchestrationResult.roiProjection.metrics.paybackPeriod.toFixed(1)}개월",
+    "roi": "${orchestrationResult.roiProjection.metrics.roi.toFixed(0)}%",
+    "riskFactors": ["${orchestrationResult.companyInfo.industry} 업종 투자 리스크 요인 3개 (업종별 특수성 반영)"],
+    "mitigationStrategies": ["${orchestrationResult.companyInfo.industry} 업종 리스크 완화 방안 3개 (업종 경험 기반)"],
+    "industryBenchmark": "${orchestrationResult.companyInfo.industry} 업종 내 AI 투자 성공사례 및 실패사례 분석"
+  },
+  "aicampCustomizedProposal": {
+    "industrySpecialization": "${orchestrationResult.companyInfo.industry} 업종 전문성을 바탕으로 한 AICAMP 맞춤형 솔루션",
+    "recommendedPrograms": ${JSON.stringify(orchestrationResult.aicampRecommendation.programs)},
+    "customCurriculum": "${orchestrationResult.companyInfo.industry} 업종 특화 커리큘럼 제안 (업종별 AI 활용사례, 도구, 기법 포함)",
+    "trainingApproach": "${orchestrationResult.companyInfo.industry} 업종 맞춤형 교육 접근 방법 (업종 특성 고려한 학습 방식)",
+    "expectedLearningOutcomes": ["${orchestrationResult.companyInfo.industry} 업종 학습 성과 5개 (업종별 역량 향상 목표)"],
+    "implementationSupport": ["${orchestrationResult.companyInfo.industry} 업종 구현 지원 방안 3개 (업종 경험 기반 지원)"],
+    "industryMentoring": "${orchestrationResult.companyInfo.industry} 업종 전문가 멘토링 및 네트워킹 지원 방안",
+    "successCases": "${orchestrationResult.companyInfo.industry} 업종 내 AICAMP 교육 성공사례 및 적용 결과"
+  }
 }
+
+**필수 지침:**
+1. ${orchestrationResult.companyInfo.industry} 업종의 특성을 모든 분석에 반드시 반영
+2. 업종별 AI 활용 사례와 성공/실패 경험을 구체적으로 언급
+3. ${orchestrationResult.companyInfo.employees} 규모에 적합한 단계별 접근 방법 제시 (1-10명: 소규모, 11-50명: 중소규모, 51-100명: 중간규모, 101-300명: 중견규모, 301명 이상: 대규모)
+4. 업종 내 경쟁사 대비 차별화 전략 포함
+5. 업종 특화 KPI와 성과 지표 활용
+6. 업종별 규제, 표준, 관행을 고려한 실현 가능한 제안
 
 업종 특성과 기업 규모를 고려하여 실용적이고 구체적인 내용으로 작성해주세요.
 반드시 유효한 JSON 형식으로만 응답하고, 추가 설명은 포함하지 마세요.
@@ -1306,67 +1440,13 @@ function generateEnhancedAIReport(orchestrationResult) {
 /**
  * 폴백 보고서 생성
  */
+/**
+ * 폴백 보고서 생성 (폐기됨 - GEMINI 기반 보고서만 사용)
+ * 이 함수는 더 이상 사용되지 않습니다.
+ */
 function createFallbackReport(orchestrationResult) {
-  return {
-    executiveSummary: {
-      keyMessage: `${orchestrationResult.companyInfo.name}의 AI 역량은 ${orchestrationResult.scoreAnalysis.grade}등급으로, 체계적인 개선이 필요합니다.`,
-      currentStatus: `현재 ${getMaturityLevel(orchestrationResult.scoreAnalysis.overallScore).name} 수준`,
-      mainChallenges: orchestrationResult.gapAnalysis.criticalGaps.slice(0, 3).map(g => `${g.title} 개선`),
-      criticalActions: orchestrationResult.priorityMatrix.quadrants.quickWins.slice(0, 3)
-    },
-    detailedAnalysis: {
-      strengthsAnalysis: orchestrationResult.swotGapIntegration.strengths.items.join(', '),
-      weaknessesAnalysis: orchestrationResult.swotGapIntegration.weaknesses.items.join(', '),
-      industryPosition: `업계 평균 대비 ${orchestrationResult.gapAnalysis.gap > 0 ? '개선 필요' : '우수'} 수준`,
-      improvementPotential: `ROI ${orchestrationResult.roiProjection.metrics.roi.toFixed(0)}% 달성 가능`
-    },
-    strategicRecommendations: {
-      shortTerm: orchestrationResult.engagementStrategy.implementationPhases.foundation.keyActions,
-      mediumTerm: orchestrationResult.engagementStrategy.implementationPhases.acceleration.keyActions,
-      longTerm: orchestrationResult.engagementStrategy.implementationPhases.sustainability.keyActions
-    },
-    implementationRoadmap: {
-      phase1: {
-        title: "기초 구축 단계",
-        actions: orchestrationResult.engagementStrategy.implementationPhases.foundation.keyActions,
-        expectedResults: orchestrationResult.engagementStrategy.implementationPhases.foundation.successMetrics.slice(0, 2)
-      },
-      phase2: {
-        title: "확산 가속화 단계",
-        actions: orchestrationResult.engagementStrategy.implementationPhases.acceleration.keyActions,
-        expectedResults: orchestrationResult.engagementStrategy.implementationPhases.acceleration.successMetrics.slice(0, 2)
-      },
-      phase3: {
-        title: "지속 성장 단계",
-        actions: orchestrationResult.engagementStrategy.implementationPhases.sustainability.keyActions,
-        expectedResults: orchestrationResult.engagementStrategy.implementationPhases.sustainability.successMetrics.slice(0, 2)
-      }
-    },
-    aicampPrograms: {
-      recommendedCourses: orchestrationResult.aicampRecommendation.programs,
-      customizedApproach: `${orchestrationResult.companyInfo.industry} 특화 프로그램과 실무 프로젝트 중심 교육`,
-      expectedOutcomes: ["AI 역량 50% 향상", "업무 효율 30% 개선", "혁신 문화 정착"]
-    },
-    successFactors: [
-      "경영진의 적극적 지원",
-      "전사적 참여",
-      "단계적 접근",
-      "지속적 교육",
-      "성과 측정"
-    ],
-    riskMitigation: [
-      "변화 저항 관리",
-      "기술 격차 해소",
-      "투자 리스크 분산"
-    ],
-    nextSteps: [
-      "1. AICAMP 무료 상담 신청",
-      "2. AI 추진 TF 구성",
-      "3. 파일럿 프로젝트 선정",
-      "4. 전사 교육 계획 수립",
-      "5. 성과 측정 체계 구축"
-    ]
-  };
+  // 폴백 보고서는 금지됨 - 항상 GEMINI 기반 맞춤형 보고서만 사용
+  throw new Error('폴백 보고서는 금지되었습니다. GEMINI 기반 맞춤형 보고서만 사용해야 합니다.');
 }
 
 // ================================================================================
@@ -1810,26 +1890,43 @@ function calculateFeasibility(category, resources) {
 }
 
 /**
- * 예산 결정
+ * 예산 결정 (새로운 인원 구간 반영)
  */
 function determineBudget(employees) {
+  // 새로운 인원 구간: 1-10명, 11-50명, 51-100명, 101-300명, 301명 이상
+  if (employees === '301+') return '3억원 이상';
+  if (employees === '101-300') return '1-3억원';
+  if (employees === '51-100') return '5000만원-1억원';
+  if (employees === '11-50') return '2000-5000만원';
+  if (employees === '1-10') return '1000-2000만원';
+  
+  // 기존 방식과의 호환성을 위한 fallback
   const employeeCount = parseInt(employees.split('-')[0]) || 10;
-  if (employeeCount >= 300) return '3억원 이상';
-  if (employeeCount >= 100) return '1-3억원';
-  if (employeeCount >= 50) return '5000만원-1억원';
-  if (employeeCount >= 10) return '2000-5000만원';
+  if (employeeCount >= 301) return '3억원 이상';
+  if (employeeCount >= 101) return '1-3억원';
+  if (employeeCount >= 51) return '5000만원-1억원';
+  if (employeeCount >= 11) return '2000-5000만원';
   return '1000-2000만원';
 }
 
 /**
- * 팀 규모 결정
+ * 팀 규모 결정 (새로운 인원 구간 반영)
  */
 function determineTeamSize(employees) {
+  // 새로운 인원 구간: 1-10명, 11-50명, 51-100명, 101-300명, 301명 이상
+  if (employees === '301+') return '20명';
+  if (employees === '101-300') return '10명';
+  if (employees === '51-100') return '5명';
+  if (employees === '11-50') return '3명';
+  if (employees === '1-10') return '2명';
+  
+  // 기존 방식과의 호환성을 위한 fallback
   const employeeCount = parseInt(employees.split('-')[0]) || 10;
-  if (employeeCount >= 300) return '20';
-  if (employeeCount >= 100) return '10';
-  if (employeeCount >= 50) return '5';
-  return '3';
+  if (employeeCount >= 301) return '20명';
+  if (employeeCount >= 101) return '10명';
+  if (employeeCount >= 51) return '5명';
+  if (employeeCount >= 11) return '3명';
+  return '2명';
 }
 
 /**

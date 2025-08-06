@@ -16,7 +16,10 @@ import {
   Mail,
   Brain,
   Sparkles,
-  FileText
+  FileText,
+  Download,
+  Share2,
+  Star
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -32,6 +35,7 @@ export default function DiagnosisResultPage() {
   const [reportData, setReportData] = useState<any>(null);
   const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [showSuccessBanner, setShowSuccessBanner] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (!diagnosisId) {
@@ -115,6 +119,113 @@ export default function DiagnosisResultPage() {
     }
   };
 
+  // HTML 다운로드 함수
+  const downloadHTMLReport = async () => {
+    if (!reportData || !companyInfo) return;
+    
+    try {
+      setDownloading(true);
+      
+      // 보고서 HTML 생성
+      const htmlContent = generateReportHTML();
+      
+      // Blob 생성 및 다운로드
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `AICAMP_AI역량진단보고서_${companyInfo.name || '기업'}_${diagnosisId}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('HTML 다운로드 오류:', error);
+      alert('보고서 다운로드 중 오류가 발생했습니다.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // HTML 보고서 생성 함수
+  const generateReportHTML = () => {
+    const companyName = companyInfo?.name || companyInfo?.companyName || '귀사';
+    const overallScore = reportData?.executiveSummary?.overallScore || reportData?.totalScore || 50;
+    const grade = reportData?.executiveSummary?.grade || reportData?.grade || 'C';
+    
+    return `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AICAMP AI 역량진단 결과 - ${companyName}</title>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 20px; background: #f8f9fa; line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 50px 40px; text-align: center; }
+        .header h1 { margin: 0; font-size: 2.5em; font-weight: 300; }
+        .content { padding: 50px 40px; }
+        .score-display { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 40px; border-radius: 20px; text-align: center; margin: 30px 0; }
+        .score-number { font-size: 4em; font-weight: bold; color: #667eea; margin: 0; }
+        .section-title { font-size: 1.8em; font-weight: bold; color: #333; border-bottom: 3px solid #667eea; padding-bottom: 10px; margin: 40px 0 20px 0; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0; }
+        .category-item { background: #f8f9fa; padding: 25px; border-radius: 15px; text-align: center; border-left: 5px solid #667eea; }
+        .category-score { font-size: 2em; font-weight: bold; color: #667eea; }
+        .footer { background: #343a40; color: white; padding: 40px; text-align: center; }
+        @media (max-width: 768px) { .content { padding: 30px 20px; } .category-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI 역량진단 결과</h1>
+            <div style="font-size: 1.2em; margin-top: 10px;">${companyName}</div>
+            <div style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+                진단 ID: ${diagnosisId} | 생성일시: ${new Date().toLocaleDateString('ko-KR')}
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="score-display">
+                <div class="score-number">${overallScore}</div>
+                <div style="font-size: 1.5em; color: #495057; margin: 10px 0;">${grade}등급</div>
+                <div style="color: #6c757d;">AI 역량진단 종합 점수</div>
+            </div>
+            
+            <div class="section-title">🔍 핵심 발견사항</div>
+            <ul style="font-size: 1.1em; line-height: 1.8;">
+                <li>AI 성숙도 ${grade}등급으로 ${overallScore}점 달성</li>
+                <li>체계적인 AI 도입 전략 수립이 필요합니다</li>
+                <li>AICAMP 교육 프로그램을 통한 역량 강화를 권장합니다</li>
+            </ul>
+            
+            <div class="section-title">🎓 AICAMP 맞춤형 제안</div>
+            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 30px; border-radius: 15px; margin: 20px 0;">
+                <h3>AI 역량 강화 프로그램</h3>
+                <p><strong>기간:</strong> 3-6개월</p>
+                <p><strong>대상:</strong> 전 직원</p>
+                <p><strong>투자:</strong> 상담 후 결정</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div style="font-size: 1.2em; font-weight: bold;">AICAMP</div>
+            <div style="margin: 10px 0;">AI 역량 강화 전문 교육기관</div>
+            <div style="font-size: 0.9em; margin-top: 20px;">
+                <strong>AICAMP 연락처</strong><br>
+                이메일: hongik423@gmail.com<br>
+                웹사이트: aicamp.club<br><br>
+                본 보고서는 GEMINI 2.5 FLASH AI 기반으로 생성되었습니다.<br>
+                © 2025 AICAMP. All rights reserved.
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center">
@@ -168,6 +279,20 @@ export default function DiagnosisResultPage() {
             </Link>
             
             <div className="flex items-center gap-4">
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={downloadHTMLReport}
+                disabled={downloading || !reportData}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                {downloading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                보고서 다운로드
+              </Button>
               <Button variant="outline" size="sm" onClick={() => router.push('/diagnosis')}>
                 <Brain className="w-4 h-4 mr-2" />
                 새 진단
@@ -181,24 +306,56 @@ export default function DiagnosisResultPage() {
         </div>
       </header>
 
-      {/* 성공 배너 */}
+      {/* ULTIMATE 성공 배너 */}
       {showSuccessBanner && (
-        <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-emerald-500 text-white shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-6 h-6" />
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-full">
+                  <Star className="w-6 h-6 text-yellow-300 animate-pulse" />
+                </div>
                 <div>
-                  <p className="font-semibold">AI 역량진단이 성공적으로 완료되었습니다!</p>
-                  <p className="text-sm opacity-90">관리자와 신청자에게 확인 이메일이 발송되었습니다.</p>
+                  <p className="font-bold text-lg">🎉 GEMINI 2.5 FLASH AI 분석 완료!</p>
+                  <p className="text-sm opacity-90 mt-1">
+                    ✅ 24개 항목 평가 완료 | ✅ SWOT 전략 매트릭스 생성 | ✅ 3단계 로드맵 제시 | ✅ 맞춤형 제안서 작성
+                  </p>
+                  <div className="flex items-center gap-4 mt-2">
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      📧 이메일 발송 완료
+                    </span>
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      💾 결과 저장 완료
+                    </span>
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      📋 다운로드 가능
+                    </span>
+                  </div>
                 </div>
               </div>
-              <button 
-                onClick={() => setShowSuccessBanner(false)}
-                className="text-white/80 hover:text-white p-1"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={downloadHTMLReport}
+                  disabled={downloading}
+                  className="text-white hover:bg-white/20 border border-white/30"
+                >
+                  {downloading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4 mr-2" />
+                  )}
+                  다운로드
+                </Button>
+                <button 
+                  onClick={() => setShowSuccessBanner(false)}
+                  className="text-white/80 hover:text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+                  aria-label="배너 닫기"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -201,11 +201,14 @@
     @apply text-blue-600 hover:text-blue-800 transition-colors;
   }
   
-  /* 폼 요소 기본 스타일 */
+  /* 폼 요소 기본 스타일 - 뒷면 글씨 비침 완전 방지 */
   input, textarea, select {
     @apply border-gray-300 text-gray-900;
     @apply focus:border-blue-500 focus:ring-blue-500/20;
-    background-color: white;
+    @apply placeholder-invisible;
+    background-color: rgba(255, 255, 255, 1) !important;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
   }
   
   /* 버튼 기본 스타일 */
@@ -259,12 +262,14 @@
     @apply hover:shadow-lg hover:-translate-y-1 transition-all duration-200;
   }
   
-  /* 폼 스타일 */
+  /* 폼 스타일 - 뒷면 글씨 비침 완전 방지 */
   .form-input {
     @apply border border-gray-300 rounded-xl px-4 py-3 text-gray-900;
     @apply focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
-    @apply placeholder:text-gray-500 transition-all duration-200;
-    background-color: white;
+    @apply placeholder-invisible transition-all duration-200;
+    background-color: rgba(255, 255, 255, 1) !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
   }
   
   .form-label {
@@ -846,4 +851,35 @@
   }
 } */
 
+/* ============================================
+   완전 투명한 Placeholder 유틸리티
+   ============================================ */
+
+@layer utilities {
+  /* 완전 투명한 placeholder - 모든 브라우저 지원 */
+  .placeholder-invisible::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+  
+  .placeholder-invisible::-webkit-input-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+  
+  .placeholder-invisible::-moz-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+  
+  .placeholder-invisible:-ms-input-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+  
+  .placeholder-invisible:-moz-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+}
 
