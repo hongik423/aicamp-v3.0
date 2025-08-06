@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        action: 'submitAICapabilityDiagnosis',
+        action: 'diagnosis',
         data: {
           ...body,
           diagnosisId,

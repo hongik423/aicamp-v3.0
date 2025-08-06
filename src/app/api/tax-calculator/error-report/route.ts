@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
     
     const reportData = {
-      action: 'taxCalculatorErrorReport',
+      action: 'feedback',
       ...data,
       reportType: 'tax_calculator_error',
       status: '신규'
