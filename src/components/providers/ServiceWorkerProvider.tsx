@@ -16,9 +16,12 @@ export function ServiceWorkerProvider() {
             errorMessage.includes('The message port closed') ||
             errorMessage.includes('runtime.lastError') ||
             errorMessage.includes('Unchecked runtime.lastError') ||
-            errorMessage.includes('Extension context invalidated')) {
+            errorMessage.includes('Extension context invalidated') ||
+            errorMessage.includes('Cannot access') ||
+            errorMessage.includes('Script error')) {
           event.preventDefault();
           event.stopPropagation();
+          console.log('🔇 메시지 포트/확장 프로그램 오류 무시됨:', errorMessage);
           return false;
         }
         
@@ -31,6 +34,7 @@ export function ServiceWorkerProvider() {
             errorMessage.includes('content_script')) {
           event.preventDefault();
           event.stopPropagation();
+          console.log('🔇 Chrome 확장 프로그램 오류 무시됨:', errorSource);
           return false;
         }
         
@@ -41,6 +45,7 @@ export function ServiceWorkerProvider() {
             errorMessage.includes('Script error')) {
           event.preventDefault();
           event.stopPropagation();
+          console.log('🔇 확장 프로그램 스크립트 오류 무시됨:', errorSource);
           return false;
         }
       };
@@ -55,8 +60,9 @@ export function ServiceWorkerProvider() {
               reason.includes('The message port closed') ||
               reason.includes('runtime.lastError') ||
               reason.includes('Extension context invalidated') ||
-              reason.includes('chrome-extension://')) {
-            console.log('Promise rejection for extension/port error suppressed');
+              reason.includes('chrome-extension://') ||
+              reason.includes('Cannot access')) {
+            console.log('🔇 Promise rejection for extension/port error suppressed');
             event.preventDefault();
             event.stopPropagation();
             return;
@@ -68,8 +74,9 @@ export function ServiceWorkerProvider() {
           if (reason.message.includes('port closed') ||
               reason.message.includes('message port closed') ||
               reason.message.includes('runtime.lastError') ||
-              reason.message.includes('Extension context')) {
-            console.log('Object-type extension error rejection suppressed');
+              reason.message.includes('Extension context') ||
+              reason.message.includes('Cannot access')) {
+            console.log('🔇 Object-type extension error rejection suppressed');
             event.preventDefault();
             event.stopPropagation();
             return;
@@ -80,8 +87,9 @@ export function ServiceWorkerProvider() {
         if (reason instanceof Error && reason.message) {
           if (reason.message.includes('port closed') ||
               reason.message.includes('message port closed') ||
-              reason.message.includes('runtime.lastError')) {
-            console.log('Error object extension rejection suppressed');
+              reason.message.includes('runtime.lastError') ||
+              reason.message.includes('Cannot access')) {
+            console.log('🔇 Error object extension rejection suppressed');
             event.preventDefault();
             event.stopPropagation();
             return;
@@ -92,17 +100,35 @@ export function ServiceWorkerProvider() {
       // 🆕 런타임 오류도 처리
       const handleRuntimeError = () => {
         // Chrome 확장 프로그램 관련 오류 무시
-        if (chrome && chrome.runtime && chrome.runtime.lastError) {
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
           const error = chrome.runtime.lastError;
-          if (error.message && error.message.includes('message port closed')) {
-            console.log('Chrome runtime error suppressed');
+          if (error.message && (error.message.includes('message port closed') || 
+                               error.message.includes('Cannot access'))) {
+            console.log('🔇 Chrome runtime error suppressed');
             return;
           }
         }
       };
       
+      // 🆕 추가: Service Worker 관련 오류 처리
+      const handleServiceWorkerError = (event: any) => {
+        const message = event.message || event.error?.message || '';
+        if (message.includes('port closed') || 
+            message.includes('message port closed') ||
+            message.includes('Service Worker') ||
+            message.includes('sw.js')) {
+          console.log('🔇 Service Worker 오류 무시됨:', message);
+          event.preventDefault();
+          event.stopPropagation();
+          return false;
+        }
+      };
+      
       window.addEventListener('error', handleGlobalError);
       window.addEventListener('unhandledrejection', handleUnhandledRejection);
+      
+      // 🆕 Service Worker 오류 이벤트 리스너 추가
+      window.addEventListener('message', handleServiceWorkerError);
       
       // 🆕 Chrome 확장 프로그램 오류 처리 (안전한 버전)
       let runtimeErrorInterval: NodeJS.Timeout | null = null;
@@ -113,7 +139,7 @@ export function ServiceWorkerProvider() {
           } catch (e) {
             // 오류 처리 중 발생하는 오류도 무시
           }
-        }, 2000); // 2초로 간격 증가
+        }, 3000); // 3초로 간격 증가
       }
 
       // Service Worker 등록 (안전한 버전)
@@ -138,7 +164,7 @@ export function ServiceWorkerProvider() {
           })
           .catch((error) => {
             // Service Worker 등록 실패도 안전하게 처리
-            if (!error.message.includes('port closed')) {
+            if (!error.message.includes('port closed') && !error.message.includes('Cannot access')) {
               console.log('Service Worker registration failed (safe):', error);
             }
           });
@@ -148,6 +174,7 @@ export function ServiceWorkerProvider() {
       return () => {
         window.removeEventListener('error', handleGlobalError);
         window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+        window.removeEventListener('message', handleServiceWorkerError);
         if (runtimeErrorInterval) {
           clearInterval(runtimeErrorInterval);
         }
