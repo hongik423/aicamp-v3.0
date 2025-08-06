@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Google Apps Script로 데이터 전송
-    const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0/exec';
+    const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
     
     const reportData = {
       action: 'taxCalculatorErrorReport',
