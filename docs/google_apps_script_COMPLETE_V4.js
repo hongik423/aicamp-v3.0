@@ -2683,6 +2683,224 @@ function handleBetaFeedback(data) {
   }
 }
 
+/**
+ * 세금계산기 오류 신고 처리
+ */
+function handleTaxCalculatorErrorReport(data) {
+  console.log('🚨 세금계산기 오류 신고 처리');
+  
+  try {
+    const spreadsheet = SpreadsheetApp.openById(ENV.SPREADSHEET_ID);
+    let sheet = spreadsheet.getSheetByName('세금계산기오류신고');
+    
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('세금계산기오류신고');
+      const headers = [
+        '신고ID', '신고일시', '이름', '이메일', '연락처', '계산기유형',
+        '오류설명', '예상동작', '실제동작', '재현단계', '브라우저정보',
+        '디바이스정보', '추가정보', '처리상태'
+      ];
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length)
+        .setBackground('#667eea')
+        .setFontColor('#ffffff')
+        .setFontWeight('bold');
+    }
+    
+    const reportId = generateUniqueId('TAX_ERROR');
+    const row = [
+      reportId,
+      getCurrentKoreanTime(),
+      data.name || '',
+      data.email || '',
+      data.phone || '',
+      data.calculatorType || '',
+      data.errorDescription || '',
+      data.expectedBehavior || '',
+      data.actualBehavior || '',
+      data.stepsToReproduce || '',
+      data.browserInfo || '',
+      data.deviceInfo || '',
+      data.additionalInfo || '',
+      '신규'
+    ];
+    
+    sheet.appendRow(row);
+    
+    // 신고자 확인 이메일 발송
+    sendErrorReportConfirmationEmail(data, reportId);
+    
+    // 관리자 알림 이메일 발송
+    sendErrorReportAdminNotification(data, reportId);
+    
+    console.log('✅ 세금계산기 오류 신고 처리 완료:', reportId);
+    
+    return {
+      success: true,
+      reportId: reportId,
+      message: '오류 신고가 접수되었습니다'
+    };
+    
+  } catch (error) {
+    console.error('❌ 세금계산기 오류 신고 처리 오류:', error);
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * 오류 신고 확인 이메일 발송
+ */
+function sendErrorReportConfirmationEmail(data, reportId) {
+  const subject = `[AICAMP] 세금계산기 오류 신고 접수 확인`;
+  
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Noto Sans KR', Arial, sans-serif; max-width: 600px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+    .content { background: #f8f9fa; padding: 30px; }
+    .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .footer { background: #2d3748; color: white; padding: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>오류 신고 접수 확인</h1>
+  </div>
+  <div class="content">
+    <p>안녕하세요, ${data.name} 님</p>
+    <p>세금계산기 오류 신고가 성공적으로 접수되었습니다.</p>
+    
+    <div class="info-box">
+      <h3>신고 정보</h3>
+      <p><strong>신고 ID:</strong> ${reportId}</p>
+      <p><strong>계산기 유형:</strong> ${data.calculatorType}</p>
+      <p><strong>신고 일시:</strong> ${getCurrentKoreanTime()}</p>
+    </div>
+    
+    <p>빠른 시일 내에 검토하여 수정하겠습니다.</p>
+    <p>추가 문의사항이 있으시면 언제든 연락주세요.</p>
+  </div>
+  <div class="footer">
+    <p>AICAMP | 이후경 교장</p>
+    <p>📞 010-9251-9743 | ✉️ hongik423@gmail.com</p>
+  </div>
+</body>
+</html>
+  `;
+  
+  try {
+    MailApp.sendEmail({
+      to: data.email,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: 'AICAMP 세금계산기'
+    });
+    
+    console.log(`✅ 오류 신고 확인 이메일 발송 완료: ${data.email}`);
+    
+  } catch (error) {
+    console.error('❌ 오류 신고 확인 이메일 발송 실패:', error);
+  }
+}
+
+/**
+ * 오류 신고 관리자 알림 이메일 발송
+ */
+function sendErrorReportAdminNotification(data, reportId) {
+  const subject = `🚨 [세금계산기 오류신고] ${data.calculatorType} - ${data.name}`;
+  
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Noto Sans KR', Arial, sans-serif; max-width: 800px; margin: 0 auto; }
+    .header { background: #dc2626; color: white; padding: 20px; text-align: center; }
+    .content { padding: 20px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+    .info-item { background: #f8f9fa; padding: 15px; border-radius: 8px; }
+    .error-details { background: #fef2f2; border: 1px solid #fecaca; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .action-buttons { display: flex; gap: 10px; margin: 20px 0; }
+    .action-button { padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🚨 세금계산기 오류 신고</h1>
+  </div>
+  <div class="content">
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>신고 ID:</strong> ${reportId}
+      </div>
+      <div class="info-item">
+        <strong>신고자:</strong> ${data.name}
+      </div>
+      <div class="info-item">
+        <strong>이메일:</strong> ${data.email}
+      </div>
+      <div class="info-item">
+        <strong>연락처:</strong> ${data.phone || '미제공'}
+      </div>
+      <div class="info-item">
+        <strong>계산기:</strong> ${data.calculatorType}
+      </div>
+      <div class="info-item">
+        <strong>신고일시:</strong> ${getCurrentKoreanTime()}
+      </div>
+    </div>
+    
+    <div class="error-details">
+      <h3>오류 상세 정보</h3>
+      <p><strong>오류 설명:</strong></p>
+      <p>${data.errorDescription}</p>
+      
+      ${data.expectedBehavior ? `<p><strong>예상 동작:</strong> ${data.expectedBehavior}</p>` : ''}
+      ${data.actualBehavior ? `<p><strong>실제 동작:</strong> ${data.actualBehavior}</p>` : ''}
+      ${data.stepsToReproduce ? `<p><strong>재현 단계:</strong> ${data.stepsToReproduce}</p>` : ''}
+      ${data.browserInfo ? `<p><strong>브라우저:</strong> ${data.browserInfo}</p>` : ''}
+      ${data.deviceInfo ? `<p><strong>디바이스:</strong> ${data.deviceInfo}</p>` : ''}
+      ${data.additionalInfo ? `<p><strong>추가 정보:</strong> ${data.additionalInfo}</p>` : ''}
+    </div>
+    
+    <div class="action-buttons">
+      <a href="mailto:${data.email}?subject=세금계산기 오류 신고 관련 문의" class="action-button">
+        신고자에게 답변
+      </a>
+      <a href="${GOOGLE_SHEETS_URL}" class="action-button">
+        구글 시트 확인
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+  
+  try {
+    MailApp.sendEmail({
+      to: AICAMP_INFO.ADMIN_EMAIL,
+      cc: AICAMP_INFO.CEO_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: 'AICAMP 오류 신고 시스템',
+      replyTo: data.email
+    });
+    
+    console.log(`✅ 오류 신고 관리자 알림 발송 완료: ${AICAMP_INFO.ADMIN_EMAIL}`);
+    
+  } catch (error) {
+    console.error('❌ 오류 신고 관리자 알림 발송 실패:', error);
+  }
+}
+
 // ================================================================================
 // 시스템 초기화 및 테스트
 // ================================================================================

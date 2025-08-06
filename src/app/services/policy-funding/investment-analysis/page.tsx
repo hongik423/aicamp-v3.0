@@ -382,7 +382,7 @@ export default function InvestmentAnalysisPage() {
               <Button size="lg" variant="outline" asChild className="border-purple-200 hover:bg-purple-50">
                 <Link href="/diagnosis">
                   <Zap className="mr-2 h-5 w-5" />
-                  AI 무료진단 받기
+                  AI역량진단 받기
                 </Link>
               </Button>
             </div>

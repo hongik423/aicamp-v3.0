@@ -73,7 +73,7 @@ const Textarea = React.forwardRef<
     <textarea
       className={cn(
         // 기본 스타일
-        'flex w-full rounded-md border bg-background ring-offset-background',
+        'flex w-full rounded-xl border bg-background ring-offset-background',
         'placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
         
         // 패딩 및 폰트 크기 - 모바일 최적화
