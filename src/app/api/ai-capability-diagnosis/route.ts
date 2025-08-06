@@ -54,6 +54,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 개인정보 동의 검증
+    if (!body.privacyConsent || body.privacyConsent !== true) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: '개인정보 수집 및 이용에 동의해주세요. 동의는 필수 사항입니다.' 
+        },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
     // AI 역량 평가 응답 검증
     if (!body.assessmentResponses || Object.keys(body.assessmentResponses).length === 0) {
       return NextResponse.json(
@@ -94,6 +105,7 @@ export async function POST(request: NextRequest) {
         expectedBenefits: body.expectedBenefits || '',
         consultingArea: body.consultingArea || '',
         assessmentResponses: body.assessmentResponses,
+        privacyConsent: body.privacyConsent,
         diagnosisId,
         formType: 'ai-capability-diagnosis',
         submittedAt: new Date().toISOString()
