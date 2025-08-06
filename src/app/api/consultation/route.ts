@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           ...processedData,
-          action: 'submitConsultation',
+          action: 'consultation',
           dataSource: 'API_백업시스템',
           retryAttempt: true,
           // 이메일 발송 요청 추가
