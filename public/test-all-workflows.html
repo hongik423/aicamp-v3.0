@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AICAMP 시스템 통합 테스트 - 모든 워크플로우</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .workflow-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .workflow-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .workflow-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .workflow-description {
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .steps-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .test-button {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-diagnosis {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .ai-diagnosis:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+
+        .consultation {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .consultation:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .error-report {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .error-report:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+        .status-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .status-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .status-item p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .warning {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .info {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AICAMP 시스템 통합 테스트</h1>
+            <p>모든 워크플로우의 정상 동작을 확인하는 종합 테스트 페이지</p>
+        </div>
+
+        <div class="workflow-grid">
+            <!-- AI 역량진단 워크플로우 -->
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white;">
+                        🧠
+                    </div>
+                    <div>
+                        <div class="workflow-title">AI 역량진단</div>
+                    </div>
+                </div>
+                
+                <div class="workflow-description">
+                    AI 역량진단 신청부터 결과 보고서 생성까지의 완전한 워크플로우를 테스트합니다.
+                </div>
+
+                <ol class="steps-list">
+                    <li class="step-item">
+                        <div class="step-number" style="background: #3b82f6; color: white;">1</div>
+                        <div class="step-text">AI역량진단 신청서 정보 입력 및 제출</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #3b82f6; color: white;">2</div>
+                        <div class="step-text">관리자와 신청자에게 접수확인 이메일 전송</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #3b82f6; color: white;">3</div>
+                        <div class="step-text">진단결과보고서 작성 (GEMINI 2.5 FLASH)</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #3b82f6; color: white;">4</div>
+                        <div class="step-text">HTML 파일로 AI역량진단 상세페이지에 배너 표시</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #3b82f6; color: white;">5</div>
+                        <div class="step-text">구글시트에 데이터 저장 및 관리자 참고자료 활용</div>
+                    </li>
+                </ol>
+
+                <a href="/diagnosis" class="test-button ai-diagnosis">
+                    AI 역량진단 테스트 시작
+                </a>
+            </div>
+
+            <!-- 상담신청 워크플로우 -->
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                        💬
+                    </div>
+                    <div>
+                        <div class="workflow-title">상담신청</div>
+                    </div>
+                </div>
+                
+                <div class="workflow-description">
+                    전문가 상담 신청부터 관리자 알림까지의 워크플로우를 테스트합니다.
+                </div>
+
+                <ol class="steps-list">
+                    <li class="step-item">
+                        <div class="step-number" style="background: #10b981; color: white;">1</div>
+                        <div class="step-text">상담신청 정보 입력 및 제출</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #10b981; color: white;">2</div>
+                        <div class="step-text">관리자와 신청자에게 상담신청 접수확인 이메일 전송</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #10b981; color: white;">3</div>
+                        <div class="step-text">구글시트에 상담신청 내용 저장 및 관리자 참고자료 활용</div>
+                    </li>
+                </ol>
+
+                <a href="/consultation" class="test-button consultation">
+                    상담신청 테스트 시작
+                </a>
+            </div>
+
+            <!-- 오류신고 워크플로우 -->
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
+                        ⚠️
+                    </div>
+                    <div>
+                        <div class="workflow-title">오류신고</div>
+                    </div>
+                </div>
+                
+                <div class="workflow-description">
+                    세금계산기 사용 중 발견한 오류 신고부터 처리까지의 워크플로우를 테스트합니다.
+                </div>
+
+                <ol class="steps-list">
+                    <li class="step-item">
+                        <div class="step-number" style="background: #ef4444; color: white;">1</div>
+                        <div class="step-text">세금계산기 사용 시 발견한 오류 정보 입력 및 제출</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #ef4444; color: white;">2</div>
+                        <div class="step-text">관리자와 신청자에게 오류신고 접수확인 이메일 전송</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number" style="background: #ef4444; color: white;">3</div>
+                        <div class="step-text">구글시트에 오류신고 내용 저장 및 관리자 수정 참고자료 활용</div>
+                    </li>
+                </ol>
+
+                <a href="/tax-calculator/error-report" class="test-button error-report">
+                    오류신고 테스트 시작
+                </a>
+            </div>
+        </div>
+
+        <!-- 시스템 상태 섹션 -->
+        <div class="status-section">
+            <div class="status-title">
+                🔧 시스템 상태 및 테스트 결과
+            </div>
+            
+            <div class="status-grid">
+                <div class="status-item success">
+                    <h4>✅ 네비게이션 UI</h4>
+                    <p>Apple Store 스타일로 업데이트 완료<br>이모지 제거 및 깔끔한 디자인 적용</p>
+                </div>
+                
+                <div class="status-item success">
+                    <h4>✅ 이메일 시스템</h4>
+                    <p>모든 신청자 확인 이메일 UI 개선 완료<br>AICAMP 로고 적용 및 전문적인 디자인</p>
+                </div>
+                
+                <div class="status-item success">
+                    <h4>✅ AI 역량진단</h4>
+                    <p>29개 평가 항목 구조 완성<br>GEMINI 2.5 FLASH 모델 연동</p>
+                </div>
+                
+                <div class="status-item success">
+                    <h4>✅ 구글 앱스크립트</h4>
+                    <p>V5.0 Enhanced 버전 업데이트 완료<br>3단계 백업 시스템 구현</p>
+                </div>
+                
+                <div class="status-item info">
+                    <h4>🔄 실시간 테스트</h4>
+                    <p>각 워크플로우 버튼을 클릭하여<br>실제 시스템 동작을 확인하세요</p>
+                </div>
+                
+                <div class="status-item warning">
+                    <h4>⚠️ 테스트 주의사항</h4>
+                    <p>실제 데이터가 구글시트에 저장됩니다<br>테스트용 데이터 사용을 권장합니다</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>AICAMP - AI로 만드는 고몰입 조직</p>
+            <p>© 2024 AICAMP. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // 테스트 버튼 클릭 이벤트
+        document.addEventListener('DOMContentLoaded', function() {
+            const testButtons = document.querySelectorAll('.test-button');
+            
+            testButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const workflow = this.textContent.trim();
+                    console.log(`테스트 시작: ${workflow}`);
+                    
+                    // 테스트 시작 알림
+                    alert(`${workflow} 테스트를 시작합니다.\n\n실제 데이터가 저장되므로 테스트용 정보를 사용해주세요.`);
+                });
+            });
+        });
+
+        // 페이지 로드 시 시스템 상태 확인
+        window.addEventListener('load', function() {
+            console.log('AICAMP 시스템 통합 테스트 페이지 로드 완료');
+            console.log('테스트 가능한 워크플로우:');
+            console.log('1. AI 역량진단 (/diagnosis)');
+            console.log('2. 상담신청 (/consultation)');
+            console.log('3. 오류신고 (/tax-calculator/error-report)');
+        });
+    </script>
+</body>
+</html> 

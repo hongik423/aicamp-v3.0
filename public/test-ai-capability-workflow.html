@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 역량진단 워크플로우 테스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .step-active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .step-complete { background: #10b981; color: white; }
+        .step-pending { background: #e5e7eb; color: #6b7280; }
+        .test-pass { background: #10b981; color: white; }
+        .test-fail { background: #ef4444; color: white; }
+        .test-running { background: #3b82f6; color: white; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-blue-50 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- 헤더 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">🚀 AI 역량진단 시스템 워크플로우 테스트</h1>
+            <p class="text-gray-600">AICAMP v3.0 - 전체 프로세스 자동 검증</p>
+        </div>
+
+        <!-- 워크플로우 단계 표시 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">📋 워크플로우 진행 상태</h2>
+            <div class="grid grid-cols-5 gap-4">
+                <div id="step1" class="step-pending p-4 rounded-xl text-center">
+                    <div class="text-2xl mb-2">📝</div>
+                    <div class="font-semibold">1. 신청서 작성</div>
+                </div>
+                <div id="step2" class="step-pending p-4 rounded-xl text-center">
+                    <div class="text-2xl mb-2">📧</div>
+                    <div class="font-semibold">2. 이메일 발송</div>
+                </div>
+                <div id="step3" class="step-pending p-4 rounded-xl text-center">
+                    <div class="text-2xl mb-2">🤖</div>
+                    <div class="font-semibold">3. AI 분석</div>
+                </div>
+                <div id="step4" class="step-pending p-4 rounded-xl text-center">
+                    <div class="text-2xl mb-2">📊</div>
+                    <div class="font-semibold">4. 보고서 생성</div>
+                </div>
+                <div id="step5" class="step-pending p-4 rounded-xl text-center">
+                    <div class="text-2xl mb-2">💾</div>
+                    <div class="font-semibold">5. 데이터 저장</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 테스트 컨트롤 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">🎮 테스트 컨트롤</h2>
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <button onclick="runFullTest()" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-xl hover:shadow-lg transition-all">
+                    🚀 전체 워크플로우 테스트
+                </button>
+                <button onclick="testAIDiagnosis()" class="bg-blue-600 text-white py-3 px-6 rounded-xl hover:shadow-lg transition-all">
+                    🤖 AI 역량진단 테스트
+                </button>
+                <button onclick="testConsultation()" class="bg-green-600 text-white py-3 px-6 rounded-xl hover:shadow-lg transition-all">
+                    📞 상담신청 테스트
+                </button>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <button onclick="testErrorReport()" class="bg-orange-600 text-white py-3 px-6 rounded-xl hover:shadow-lg transition-all">
+                    🐛 오류신고 테스트
+                </button>
+                <button onclick="checkGoogleSheet()" class="bg-purple-600 text-white py-3 px-6 rounded-xl hover:shadow-lg transition-all">
+                    📋 구글시트 확인
+                </button>
+                <button onclick="clearTests()" class="bg-gray-600 text-white py-3 px-6 rounded-xl hover:shadow-lg transition-all">
+                    🗑️ 테스트 초기화
+                </button>
+            </div>
+        </div>
+
+        <!-- 테스트 결과 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">📊 테스트 결과</h2>
+            <div id="testResults" class="space-y-3">
+                <div class="text-gray-500 text-center py-8">테스트를 시작하려면 위의 버튼을 클릭하세요</div>
+            </div>
+        </div>
+
+        <!-- 상세 로그 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">📝 상세 로그</h2>
+            <div id="detailLog" class="bg-gray-50 rounded-xl p-4 h-64 overflow-y-auto font-mono text-sm">
+                <div class="text-gray-500">테스트 로그가 여기에 표시됩니다...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 테스트 데이터
+        const testData = {
+            aiDiagnosis: {
+                companyName: 'AICAMP 테스트기업',
+                applicantName: '홍길동',
+                position: 'CEO',
+                email: 'test@aicamp.co.kr',
+                phone: '010-1234-5678',
+                industry: 'IT/소프트웨어',
+                employeeCount: '51-100명',
+                businessContent: 'AI 교육 및 컨설팅 서비스',
+                currentChallenges: 'AI 도입 전략 수립 필요',
+                expectedEffects: '업무 효율성 30% 향상',
+                assessmentResponses: {
+                    'ai_understanding': 3,
+                    'ai_strategy': 2,
+                    'data_management': 3,
+                    'ai_infrastructure': 2,
+                    'ai_talent': 1,
+                    'ai_culture': 3,
+                    'ai_investment': 2,
+                    'ai_ethics': 3
+                },
+                privacyConsent: true
+            },
+            consultation: {
+                consultationType: 'AI도입컨설팅',
+                name: '김철수',
+                phone: '010-9876-5432',
+                email: 'kim@test.com',
+                company: '테스트컴퍼니',
+                consultationArea: 'AI 자동화',
+                inquiryContent: 'RPA 도입 상담 요청',
+                privacyConsent: true
+            },
+            errorReport: {
+                name: '이영희',
+                email: 'lee@test.com',
+                phone: '010-5555-5555',
+                calculatorType: '법인세 계산기',
+                errorDescription: '계산 결과가 잘못 표시됨',
+                expectedBehavior: '정확한 세금 계산',
+                actualBehavior: '0원으로 표시',
+                stepsToReproduce: '1. 매출액 입력\n2. 계산 버튼 클릭',
+                browserInfo: navigator.userAgent
+            }
+        };
+
+        let logCount = 0;
+
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('detailLog');
+            const timestamp = new Date().toLocaleTimeString('ko-KR');
+            const typeIcon = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'running': '🔄'
+            }[type] || 'ℹ️';
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `py-1 ${type === 'error' ? 'text-red-600' : type === 'success' ? 'text-green-600' : 'text-gray-700'}`;
+            logEntry.innerHTML = `[${timestamp}] ${typeIcon} ${message}`;
+            
+            if (logCount === 0) {
+                logDiv.innerHTML = '';
+            }
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            logCount++;
+        }
+
+        function addTestResult(testName, status, message = '') {
+            const resultsDiv = document.getElementById('testResults');
+            if (resultsDiv.querySelector('.text-gray-500')) {
+                resultsDiv.innerHTML = '';
+            }
+            
+            const resultDiv = document.createElement('div');
+            const statusClass = status === 'pass' ? 'test-pass' : status === 'fail' ? 'test-fail' : 'test-running';
+            const statusIcon = status === 'pass' ? '✅' : status === 'fail' ? '❌' : '🔄';
+            
+            resultDiv.className = `${statusClass} p-3 rounded-xl flex justify-between items-center`;
+            resultDiv.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">${statusIcon}</span>
+                    <span class="font-semibold">${testName}</span>
+                </div>
+                <span class="text-sm">${message}</span>
+            `;
+            
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function updateStep(stepNumber, status) {
+            const stepDiv = document.getElementById(`step${stepNumber}`);
+            stepDiv.className = `step-${status} p-4 rounded-xl text-center transition-all`;
+        }
+
+        async function runFullTest() {
+            addLog('🚀 전체 워크플로우 테스트 시작', 'info');
+            
+            // 초기화
+            for (let i = 1; i <= 5; i++) {
+                updateStep(i, 'pending');
+            }
+            
+            // 1. AI 역량진단 테스트
+            addLog('AI 역량진단 프로세스 시작', 'running');
+            updateStep(1, 'active');
+            const diagnosisResult = await testAIDiagnosis();
+            
+            if (diagnosisResult.success) {
+                updateStep(1, 'complete');
+                updateStep(2, 'complete');
+                updateStep(3, 'complete');
+                updateStep(4, 'complete');
+                updateStep(5, 'complete');
+                addTestResult('전체 워크플로우', 'pass', '모든 단계 성공');
+            } else {
+                addTestResult('전체 워크플로우', 'fail', '일부 단계 실패');
+            }
+            
+            addLog('✅ 전체 워크플로우 테스트 완료', 'success');
+        }
+
+        async function testAIDiagnosis() {
+            addLog('AI 역량진단 테스트 시작', 'running');
+            addTestResult('AI 역량진단', 'running', '처리 중...');
+            
+            try {
+                updateStep(1, 'active');
+                
+                // API 호출
+                const response = await fetch('/api/ai-capability-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData.aiDiagnosis)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog(`✅ AI 역량진단 성공: 진단ID ${result.diagnosisId}`, 'success');
+                    
+                    // 결과 페이지 확인
+                    if (result.diagnosisId) {
+                        addLog(`📊 결과 페이지: /diagnosis/result/${result.diagnosisId}`, 'info');
+                        window.open(`/diagnosis/result/${result.diagnosisId}`, '_blank');
+                    }
+                    
+                    addTestResult('AI 역량진단', 'pass', `진단ID: ${result.diagnosisId}`);
+                    return { success: true, diagnosisId: result.diagnosisId };
+                } else {
+                    throw new Error(result.error || '진단 실패');
+                }
+            } catch (error) {
+                addLog(`❌ AI 역량진단 실패: ${error.message}`, 'error');
+                addTestResult('AI 역량진단', 'fail', error.message);
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testConsultation() {
+            addLog('상담신청 테스트 시작', 'running');
+            addTestResult('상담신청', 'running', '처리 중...');
+            
+            try {
+                const response = await fetch('/api/consultation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData.consultation)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('✅ 상담신청 성공', 'success');
+                    addTestResult('상담신청', 'pass', '이메일 발송 완료');
+                } else {
+                    throw new Error(result.error || '상담신청 실패');
+                }
+            } catch (error) {
+                addLog(`❌ 상담신청 실패: ${error.message}`, 'error');
+                addTestResult('상담신청', 'fail', error.message);
+            }
+        }
+
+        async function testErrorReport() {
+            addLog('오류신고 테스트 시작', 'running');
+            addTestResult('오류신고', 'running', '처리 중...');
+            
+            try {
+                const response = await fetch('/api/tax-calculator/error-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...testData.errorReport,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('✅ 오류신고 성공', 'success');
+                    addTestResult('오류신고', 'pass', '신고 접수 완료');
+                } else {
+                    throw new Error(result.error || '오류신고 실패');
+                }
+            } catch (error) {
+                addLog(`❌ 오류신고 실패: ${error.message}`, 'error');
+                addTestResult('오류신고', 'fail', error.message);
+            }
+        }
+
+        async function checkGoogleSheet() {
+            addLog('구글시트 데이터 확인 중...', 'info');
+            const sheetUrl = 'https://docs.google.com/spreadsheets/d/1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0/edit';
+            addLog(`📋 구글시트 URL: ${sheetUrl}`, 'info');
+            window.open(sheetUrl, '_blank');
+            addTestResult('구글시트 확인', 'pass', '새 창에서 열림');
+        }
+
+        function clearTests() {
+            document.getElementById('testResults').innerHTML = '<div class="text-gray-500 text-center py-8">테스트를 시작하려면 위의 버튼을 클릭하세요</div>';
+            document.getElementById('detailLog').innerHTML = '<div class="text-gray-500">테스트 로그가 여기에 표시됩니다...</div>';
+            for (let i = 1; i <= 5; i++) {
+                updateStep(i, 'pending');
+            }
+            logCount = 0;
+            addLog('🗑️ 테스트 초기화 완료', 'info');
+        }
+
+        // 페이지 로드시 초기 로그
+        window.addEventListener('load', () => {
+            addLog('✨ AI 역량진단 워크플로우 테스트 시스템 준비 완료', 'success');
+            addLog('📌 GEMINI API Key: AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM', 'info');
+            addLog('📌 관리자 이메일: hongik423@gmail.com', 'info');
+        });
+    </script>
+</body>
+</html>

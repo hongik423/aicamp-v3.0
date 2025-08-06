@@ -104,7 +104,7 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
-  // 네비게이션 아이템 정의 - 고객 중심 메뉴 구성 (전환율 최적화)
+  // 네비게이션 아이템 정의 - Apple Store 스타일 (깔끔하고 미니멀)
   const navigationItems = [
     { href: '/diagnosis', label: 'AI역량진단', icon: Zap, isSpecial: true, badge: '무료' },
     { href: '/services', label: 'AI서비스', icon: Rocket, isSpecial: false, badge: '인기' },
@@ -133,10 +133,10 @@ const Header = () => {
 
   return (
     <>
-      {/* 100% 화면 크기 자동 조절 헤더 - 모든 메뉴 표시 최적화 */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      {/* Apple Store 스타일 헤더 - 깔끔하고 미니멀한 디자인 */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled 
-          ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200/20' 
+          ? 'bg-white/90 backdrop-blur-2xl border-b border-gray-100 shadow-sm' 
           : 'bg-white/95 backdrop-blur-xl'
       }`}>
         <div className="w-full overflow-x-auto navbar-scrollbar">
@@ -174,32 +174,28 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* 메인 네비게이션 - 가운데 영역 (전체 표시) */}
+            {/* 메인 네비게이션 - Apple Store 스타일 (깔끔하고 미니멀) */}
             <div className="hidden md:flex flex-1 justify-center mx-1 lg:mx-2 xl:mx-3">
-              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-wrap justify-center">
+              <div className="flex items-center space-x-1 lg:space-x-2 xl:space-x-3 2xl:space-x-4 flex-wrap justify-center">
                 {navigationItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`relative px-1 py-2 text-xs font-normal rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 nav-item-hover
-                      md:px-1 md:text-xs
-                      lg:px-1.5 lg:text-xs
-                      xl:px-2 xl:text-xs
-                      2xl:px-3 2xl:text-sm
+                    className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 whitespace-nowrap flex-shrink-0 hover:scale-105
                       ${pathname === item.href
                         ? (item.isSpecial 
-                            ? 'text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg ring-2 ring-purple-300' 
-                            : 'text-white bg-gray-800')
+                            ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg' 
+                            : 'text-gray-900 bg-gray-100')
                         : (item.isSpecial
-                            ? 'text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-md ring-1 ring-purple-200 font-medium'
-                            : 'text-gray-800 hover:text-white hover:bg-gray-800 bg-gray-100')
+                            ? 'text-blue-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-indigo-500 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50')
                     }`}
                   >
-                    <div className="flex items-center gap-1">
-                      {item.icon && <item.icon className="w-3 h-3 lg:w-4 lg:h-4" />}
+                    <div className="flex items-center gap-2">
+                      {item.icon && <item.icon className="w-4 h-4" />}
                       <span>{item.label}</span>
                       {item.badge && (
-                        <span className="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 ml-1">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 ml-1">
                           {item.badge}
                         </span>
                       )}
@@ -209,26 +205,22 @@ const Header = () => {
               </div>
             </div>
 
-            {/* 액션 버튼들 - 오른쪽 (전체 표시) */}
+            {/* 액션 버튼들 - Apple Store 스타일 (깔끔하고 미니멀) */}
             <div className="hidden md:flex flex-shrink-0 ml-1 lg:ml-2">
-              <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 2xl:space-x-2 flex-wrap">
+              <div className="flex items-center space-x-2 lg:space-x-3 xl:space-x-4 2xl:space-x-5 flex-wrap">
                 {actionButtons.map((button) => {
-                  const buttonClass = `inline-block px-1 py-1.5 text-xs font-medium rounded-full transition-all duration-200 whitespace-nowrap flex-shrink-0 nav-item-hover
-                    md:px-1 md:text-xs
-                    lg:px-1.5 lg:text-xs
-                    xl:px-2 xl:text-xs
-                    2xl:px-3 2xl:text-sm
+                  const buttonClass = `inline-block px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 whitespace-nowrap flex-shrink-0 hover:scale-105
                     ${button.color === 'blue' 
-                      ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-100'
+                      ? 'text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-50 border border-blue-200'
                       : button.color === 'green'
-                      ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-100'
+                      ? 'text-green-600 hover:text-white hover:bg-green-600 bg-green-50 border border-green-200'
                       : button.color === 'purple'
-                      ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-100'
+                      ? 'text-purple-600 hover:text-white hover:bg-purple-600 bg-purple-50 border border-purple-200'
                       : button.color === 'orange'
-                      ? 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-100'
+                      ? 'text-orange-600 hover:text-white hover:bg-orange-600 bg-orange-50 border border-orange-200'
                       : button.color === 'yellow'
-                      ? 'text-yellow-600 hover:text-white hover:bg-yellow-600 bg-yellow-100'
-                      : 'text-red-600 hover:text-white hover:bg-red-600 bg-red-100'
+                      ? 'text-yellow-600 hover:text-white hover:bg-yellow-600 bg-yellow-50 border border-yellow-200'
+                      : 'text-red-600 hover:text-white hover:bg-red-600 bg-red-50 border border-red-200'
                   }`;
 
                   if ('external' in button && button.external) {
@@ -260,14 +252,14 @@ const Header = () => {
               </div>
             </div>
 
-            {/* 모바일 햄버거 메뉴 */}
+            {/* 모바일 햄버거 메뉴 - Apple Store 스타일 */}
             <div className="md:hidden flex-shrink-0 ml-1">
               <button
-                className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-all duration-300 hover:scale-105"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
               >
-                <Menu className="w-4 h-4 text-gray-800" />
+                <Menu className="w-5 h-5 text-gray-700" />
               </button>
             </div>
           </nav>
@@ -301,7 +293,7 @@ const Header = () => {
               <div className="px-4 py-6 space-y-6">
                 {/* 최상단 주요 액션 버튼들 */}
                 <div className="pb-4 border-b border-gray-200">
-                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">⭐ 주요 서비스</div>
+                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">주요 서비스</div>
                   <div className="grid grid-cols-1 gap-3">
                     {actionButtons.map((button) => {
                       const getDescription = (label: string) => {
@@ -434,7 +426,7 @@ const Header = () => {
 
                 {/* 네비게이션 메뉴 */}
                 <div className="space-y-4">
-                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">📋 서비스 메뉴</div>
+                  <div className="text-sm font-semibold text-gray-700 mb-3 px-1">서비스 메뉴</div>
                   <div className="grid grid-cols-1 gap-2">
                     {/* 홈 버튼 */}
                     <motion.div whileHover={{ x: 8 }} className="group">

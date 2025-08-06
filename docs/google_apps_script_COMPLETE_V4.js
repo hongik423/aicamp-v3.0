@@ -33,7 +33,7 @@ function getEnvironmentVariables() {
     
     // 배포 정보
     SCRIPT_ID: scriptProperties.getProperty('SCRIPT_ID') || '1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj',
-    DEPLOYMENT_ID: scriptProperties.getProperty('DEPLOYMENT_ID') || 'AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0',
+    DEPLOYMENT_ID: scriptProperties.getProperty('DEPLOYMENT_ID') || 'AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj',
     
     // 운영 설정
     DEBUG_MODE: scriptProperties.getProperty('DEBUG_MODE') === 'true',
@@ -2457,10 +2457,24 @@ function saveDiagnosisData(applicationData, evaluationData, analysisData, report
  * 진단 신청 데이터 저장
  */
 function saveDiagnosisApplication(spreadsheet, diagnosisId, appData, evalData) {
-  const sheet = spreadsheet.getSheetByName(SHEETS.DIAGNOSIS);
+  let sheet = spreadsheet.getSheetByName(SHEETS.DIAGNOSIS);
   
+  // 시트가 없으면 자동 생성
   if (!sheet) {
-    throw new Error(`시트를 찾을 수 없습니다: ${SHEETS.DIAGNOSIS}`);
+    console.log(`📄 시트 생성: ${SHEETS.DIAGNOSIS}`);
+    sheet = spreadsheet.insertSheet(SHEETS.DIAGNOSIS);
+    
+    // 헤더 설정
+    const headers = [
+      '진단ID', '신청일시', '회사명', '업종', '담당자명', '이메일', '연락처',
+      '종합점수', '등급', '성숙도', '보고서URL', '주요고민사항', '예상혜택',
+      '상담분야', '개인정보동의', '처리완료일시', '처리상태'
+    ];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.getRange(1, 1, 1, headers.length)
+      .setBackground('#667eea')
+      .setFontColor('#ffffff')
+      .setFontWeight('bold');
   }
   
   const row = [
@@ -3317,7 +3331,7 @@ function setupScriptProperties() {
     'GEMINI_API_KEY': 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM',
     'ADMIN_EMAIL': 'hongik423@gmail.com',
     'SCRIPT_ID': '1mi6DVh9EsVBO7IK5dUUmQpbkqPhuBIcYtLsaE9STfp9_KeZfD9nAw8zj',
-    'DEPLOYMENT_ID': 'AKfycbzYIDWtMiz9mUjuInH981lcKbN4DaXMkYxQ2CHYFMuSW0zd98D6ohdp5NbfdhqLnN0',
+    'DEPLOYMENT_ID': 'AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj',
     'DEBUG_MODE': 'false',
     'AUTO_REPLY_ENABLED': 'true',
     'ENABLE_BENCHMARKING': 'true',

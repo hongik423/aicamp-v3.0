@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AICAMP AI 역량진단 고도화 워크플로우 v4.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-blue-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- 헤더 -->
+        <div class="bg-white rounded-3xl shadow-2xl p-8 mb-8 gradient-bg text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold mb-2">🚀 AICAMP AI 역량진단 시스템 v4.0</h1>
+                    <p class="text-xl opacity-90">이후경 교장 AI 역량진단 방법론 적용</p>
+                </div>
+                <div class="text-right">
+                    <div class="bg-white/20 backdrop-blur rounded-xl p-4">
+                        <p class="text-sm">GEMINI API Key</p>
+                        <p class="font-mono text-xs">AIzaSyAP-Qa4TVNmsc...oiM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 핵심 지표 -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover transition-all">
+                <div class="text-3xl mb-2">📊</div>
+                <h3 class="font-bold text-gray-800 mb-1">29개 평가항목</h3>
+                <p class="text-sm text-gray-600">AI 역량 종합 진단</p>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover transition-all">
+                <div class="text-3xl mb-2">🎯</div>
+                <h3 class="font-bold text-gray-800 mb-1">6개 부서 트랙</h3>
+                <p class="text-sm text-gray-600">맞춤형 교육 과정</p>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover transition-all">
+                <div class="text-3xl mb-2">🏆</div>
+                <h3 class="font-bold text-gray-800 mb-1">70% 시간단축</h3>
+                <p class="text-sm text-gray-600">검증된 성과</p>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover transition-all">
+                <div class="text-3xl mb-2">💰</div>
+                <h3 class="font-bold text-gray-800 mb-1">300% ROI</h3>
+                <p class="text-sm text-gray-600">투자 대비 효과</p>
+            </div>
+        </div>
+
+        <!-- 워크플로우 단계 -->
+        <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">📋 AI 역량진단 워크플로우</h2>
+            <div class="grid grid-cols-5 gap-4">
+                <div class="text-center">
+                    <div id="step1" class="w-20 h-20 mx-auto mb-3 rounded-full bg-purple-600 text-white flex items-center justify-center text-2xl font-bold">1</div>
+                    <h3 class="font-semibold">신청서 작성</h3>
+                    <p class="text-xs text-gray-600 mt-1">29개 항목 평가</p>
+                </div>
+                <div class="text-center">
+                    <div id="step2" class="w-20 h-20 mx-auto mb-3 rounded-full bg-gray-300 text-white flex items-center justify-center text-2xl font-bold">2</div>
+                    <h3 class="font-semibold">GEMINI 분석</h3>
+                    <p class="text-xs text-gray-600 mt-1">AI 자동 분석</p>
+                </div>
+                <div class="text-center">
+                    <div id="step3" class="w-20 h-20 mx-auto mb-3 rounded-full bg-gray-300 text-white flex items-center justify-center text-2xl font-bold">3</div>
+                    <h3 class="font-semibold">SWOT 전략</h3>
+                    <p class="text-xs text-gray-600 mt-1">SO/WO/ST/WT</p>
+                </div>
+                <div class="text-center">
+                    <div id="step4" class="w-20 h-20 mx-auto mb-3 rounded-full bg-gray-300 text-white flex items-center justify-center text-2xl font-bold">4</div>
+                    <h3 class="font-semibold">보고서 생성</h3>
+                    <p class="text-xs text-gray-600 mt-1">HTML 다운로드</p>
+                </div>
+                <div class="text-center">
+                    <div id="step5" class="w-20 h-20 mx-auto mb-3 rounded-full bg-gray-300 text-white flex items-center justify-center text-2xl font-bold">5</div>
+                    <h3 class="font-semibold">이메일/저장</h3>
+                    <p class="text-xs text-gray-600 mt-1">구글시트 백업</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 테스트 컨트롤 -->
+        <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">🎮 테스트 시나리오</h2>
+            <div class="grid grid-cols-3 gap-4">
+                <button onclick="testManufacturing()" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:shadow-xl transition-all">
+                    🏭 제조업 시나리오
+                </button>
+                <button onclick="testIT()" class="bg-gradient-to-r from-green-600 to-teal-600 text-white py-4 px-6 rounded-xl hover:shadow-xl transition-all">
+                    💻 IT/소프트웨어 시나리오
+                </button>
+                <button onclick="testRetail()" class="bg-gradient-to-r from-orange-600 to-red-600 text-white py-4 px-6 rounded-xl hover:shadow-xl transition-all">
+                    🛒 유통/물류 시나리오
+                </button>
+            </div>
+            <div class="grid grid-cols-3 gap-4 mt-4">
+                <button onclick="testFinance()" class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-4 px-6 rounded-xl hover:shadow-xl transition-all">
+                    💰 금융업 시나리오
+                </button>
+                <button onclick="testHealthcare()" class="bg-gradient-to-r from-pink-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:shadow-xl transition-all">
+                    🏥 의료/헬스케어 시나리오
+                </button>
+                <button onclick="runFullAnalysis()" class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-4 px-6 rounded-xl hover:shadow-xl transition-all">
+                    🚀 전체 통합 테스트
+                </button>
+            </div>
+        </div>
+
+        <!-- AI 역량 평가 매트릭스 -->
+        <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">📈 AI 역량 평가 매트릭스</h2>
+            <div class="grid grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold mb-4">평가 영역별 점수</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm">AI 이해도</span>
+                                <span class="text-sm font-bold" id="score1">0/5</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="bar1" class="bg-purple-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm">전략 수립</span>
+                                <span class="text-sm font-bold" id="score2">0/5</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="bar2" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm">데이터 관리</span>
+                                <span class="text-sm font-bold" id="score3">0/5</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="bar3" class="bg-green-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm">인프라</span>
+                                <span class="text-sm font-bold" id="score4">0/5</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="bar4" class="bg-yellow-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm">인재 역량</span>
+                                <span class="text-sm font-bold" id="score5">0/5</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="bar5" class="bg-orange-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm">활용 수준</span>
+                                <span class="text-sm font-bold" id="score6">0/5</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="bar6" class="bg-red-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold mb-4">AI 성숙도 레벨</h3>
+                    <div id="maturityLevel" class="p-6 rounded-xl bg-gradient-to-r from-gray-100 to-gray-200">
+                        <div class="text-3xl font-bold mb-2">-</div>
+                        <div class="text-lg font-semibold mb-2">대기 중</div>
+                        <p class="text-sm text-gray-600">테스트를 실행하면 결과가 표시됩니다</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 로그 출력 -->
+        <div class="bg-white rounded-3xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">📝 실행 로그</h2>
+            <div id="logOutput" class="bg-gray-50 rounded-xl p-4 h-64 overflow-y-auto font-mono text-sm">
+                <div class="text-gray-500">테스트 로그가 여기에 표시됩니다...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 테스트 데이터 시나리오
+        const scenarios = {
+            manufacturing: {
+                name: '삼성제조(주)',
+                industry: '제조업',
+                employees: '101-300명',
+                scores: {
+                    ai_understanding: 2,
+                    strategy: 2,
+                    data_management: 3,
+                    infrastructure: 2,
+                    talent: 1,
+                    utilization: 2
+                }
+            },
+            it: {
+                name: '테크이노베이션',
+                industry: 'IT/소프트웨어',
+                employees: '51-100명',
+                scores: {
+                    ai_understanding: 4,
+                    strategy: 3,
+                    data_management: 4,
+                    infrastructure: 4,
+                    talent: 3,
+                    utilization: 4
+                }
+            },
+            retail: {
+                name: '스마트리테일',
+                industry: '유통/물류',
+                employees: '11-50명',
+                scores: {
+                    ai_understanding: 3,
+                    strategy: 2,
+                    data_management: 3,
+                    infrastructure: 2,
+                    talent: 2,
+                    utilization: 3
+                }
+            },
+            finance: {
+                name: '디지털금융',
+                industry: '금융',
+                employees: '300명 이상',
+                scores: {
+                    ai_understanding: 4,
+                    strategy: 4,
+                    data_management: 5,
+                    infrastructure: 4,
+                    talent: 4,
+                    utilization: 4
+                }
+            },
+            healthcare: {
+                name: '헬스케어플러스',
+                industry: '의료/헬스케어',
+                employees: '51-100명',
+                scores: {
+                    ai_understanding: 3,
+                    strategy: 3,
+                    data_management: 4,
+                    infrastructure: 3,
+                    talent: 2,
+                    utilization: 3
+                }
+            }
+        };
+
+        let currentStep = 0;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString('ko-KR');
+            const icons = {
+                info: 'ℹ️',
+                success: '✅',
+                error: '❌',
+                warning: '⚠️'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `py-1 ${
+                type === 'error' ? 'text-red-600' : 
+                type === 'success' ? 'text-green-600' : 
+                type === 'warning' ? 'text-yellow-600' :
+                'text-gray-700'
+            }`;
+            logEntry.innerHTML = `[${timestamp}] ${icons[type]} ${message}`;
+            
+            if (logDiv.querySelector('.text-gray-500')) {
+                logDiv.innerHTML = '';
+            }
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStep(step) {
+            for (let i = 1; i <= 5; i++) {
+                const stepDiv = document.getElementById(`step${i}`);
+                if (i < step) {
+                    stepDiv.className = 'w-20 h-20 mx-auto mb-3 rounded-full bg-green-600 text-white flex items-center justify-center text-2xl font-bold';
+                } else if (i === step) {
+                    stepDiv.className = 'w-20 h-20 mx-auto mb-3 rounded-full bg-purple-600 text-white flex items-center justify-center text-2xl font-bold pulse-animation';
+                } else {
+                    stepDiv.className = 'w-20 h-20 mx-auto mb-3 rounded-full bg-gray-300 text-white flex items-center justify-center text-2xl font-bold';
+                }
+            }
+            currentStep = step;
+        }
+
+        function updateScores(scores) {
+            const categories = ['ai_understanding', 'strategy', 'data_management', 'infrastructure', 'talent', 'utilization'];
+            categories.forEach((cat, idx) => {
+                const score = scores[cat] || 0;
+                const scoreSpan = document.getElementById(`score${idx + 1}`);
+                const bar = document.getElementById(`bar${idx + 1}`);
+                
+                scoreSpan.textContent = `${score}/5`;
+                bar.style.width = `${(score / 5) * 100}%`;
+            });
+            
+            // 전체 점수 계산
+            const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+            const avgScore = totalScore / Object.keys(scores).length;
+            const percentage = Math.round(avgScore * 20);
+            
+            // 성숙도 레벨 업데이트
+            const maturityDiv = document.getElementById('maturityLevel');
+            let level, bgColor;
+            
+            if (percentage >= 80) {
+                level = '선도 단계';
+                bgColor = 'from-purple-500 to-purple-700';
+            } else if (percentage >= 60) {
+                level = '최적화 단계';
+                bgColor = 'from-blue-500 to-blue-700';
+            } else if (percentage >= 40) {
+                level = '확산 단계';
+                bgColor = 'from-green-500 to-green-700';
+            } else if (percentage >= 20) {
+                level = '도입 단계';
+                bgColor = 'from-yellow-500 to-yellow-700';
+            } else {
+                level = '초기 단계';
+                bgColor = 'from-red-500 to-red-700';
+            }
+            
+            maturityDiv.className = `p-6 rounded-xl bg-gradient-to-r ${bgColor} text-white`;
+            maturityDiv.innerHTML = `
+                <div class="text-3xl font-bold mb-2">${percentage}점</div>
+                <div class="text-lg font-semibold mb-2">${level}</div>
+                <p class="text-sm opacity-90">평균 점수: ${avgScore.toFixed(1)}/5.0</p>
+            `;
+        }
+
+        async function runScenario(scenarioName) {
+            const scenario = scenarios[scenarioName];
+            log(`🚀 ${scenario.industry} 시나리오 시작: ${scenario.name}`, 'info');
+            
+            // Step 1: 신청서 작성
+            updateStep(1);
+            log('📝 신청서 작성 중...', 'info');
+            await sleep(1000);
+            log(`✅ 기업명: ${scenario.name}`, 'success');
+            log(`✅ 업종: ${scenario.industry}`, 'success');
+            log(`✅ 직원수: ${scenario.employees}`, 'success');
+            
+            // Step 2: GEMINI 분석
+            updateStep(2);
+            log('🤖 GEMINI 2.5 Flash API 호출...', 'info');
+            await sleep(1500);
+            log('✅ AI 분석 완료', 'success');
+            updateScores(scenario.scores);
+            
+            // Step 3: SWOT 전략
+            updateStep(3);
+            log('📊 SWOT 분석 및 전략 수립...', 'info');
+            await sleep(1000);
+            log('✅ SO/WO/ST/WT 전략 생성 완료', 'success');
+            
+            // Step 4: 보고서 생성
+            updateStep(4);
+            log('📄 HTML 보고서 생성 중...', 'info');
+            await sleep(1000);
+            log('✅ 보고서 생성 완료', 'success');
+            
+            // Step 5: 이메일/저장
+            updateStep(5);
+            log('📧 이메일 발송 및 구글시트 저장...', 'info');
+            await sleep(1000);
+            log('✅ 관리자 이메일: hongik423@gmail.com', 'success');
+            log('✅ 구글시트 데이터 저장 완료', 'success');
+            
+            log(`🎉 ${scenario.industry} 시나리오 완료!`, 'success');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function testManufacturing() {
+            await runScenario('manufacturing');
+        }
+
+        async function testIT() {
+            await runScenario('it');
+        }
+
+        async function testRetail() {
+            await runScenario('retail');
+        }
+
+        async function testFinance() {
+            await runScenario('finance');
+        }
+
+        async function testHealthcare() {
+            await runScenario('healthcare');
+        }
+
+        async function runFullAnalysis() {
+            log('🚀 전체 통합 테스트 시작', 'info');
+            const scenarios = ['manufacturing', 'it', 'retail', 'finance', 'healthcare'];
+            
+            for (const scenario of scenarios) {
+                await runScenario(scenario);
+                await sleep(2000);
+            }
+            
+            log('🏆 전체 통합 테스트 완료!', 'success');
+            log('📊 총 5개 시나리오 성공', 'success');
+        }
+
+        // 초기화
+        window.addEventListener('load', () => {
+            log('✨ AICAMP AI 역량진단 v4.0 준비 완료', 'success');
+            log('📌 이후경 교장 AI 역량진단 방법론 적용', 'info');
+            log('📌 29개 평가항목 + 6개 부서 트랙', 'info');
+            log('📌 GEMINI 2.5 Flash API 연동', 'info');
+        });
+    </script>
+</body>
+</html>

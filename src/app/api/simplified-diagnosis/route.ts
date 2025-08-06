@@ -19,6 +19,12 @@ import {
   generateHighEngagementStrategy,
   AICapabilityScores 
 } from '@/lib/utils/aiCapabilityAnalysis';
+import { 
+  generateComprehensiveReport,
+  AI_CAPABILITY_ASSESSMENT_ITEMS,
+  DEPARTMENT_AI_TRACKS,
+  INDUSTRY_AI_USECASES 
+} from '@/lib/utils/aiCampAnalysisEngine';
 
 interface SimplifiedDiagnosisRequest {
   companyName: string;
@@ -555,8 +561,27 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 1단계: Enhanced 진단평가 엔진 v3.0 실행 (안전 모드)
-    console.log('🚀 Enhanced 진단평가 엔진 v3.0 시작 (안전 모드)');
+    // 1단계: AICAMP Enhanced 진단평가 엔진 v4.0 실행
+    console.log('🚀 AICAMP Enhanced 진단평가 엔진 v4.0 시작');
+    
+    // AICAMP 고도화 분석 실행
+    const aicampReport = generateComprehensiveReport(
+      {
+        name: data.company || data.companyName || '귀사',
+        industry: data.businessType || data.industry || '기타',
+        employees: data.employees || data.employeeCount || '11-50명',
+        businessContent: data.businessContent || data.mainBusiness || '',
+        challenges: data.currentChallenges || data.mainIssues?.join(', ') || ''
+      },
+      aiCapabilityScores
+    );
+    
+    console.log('✅ AICAMP 종합 분석 완료:', {
+      company: aicampReport.executive_summary.company,
+      score: aicampReport.executive_summary.overallScore,
+      level: aicampReport.executive_summary.maturityLevel,
+      roi: aicampReport.roi_analysis.metrics.roi.toFixed(0) + '%'
+    });
     
     let enhancedResult: any;
     try {
