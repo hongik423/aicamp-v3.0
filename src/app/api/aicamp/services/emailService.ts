@@ -205,10 +205,7 @@ function generateEmailTemplate(type: string, data: any): string {
               `).join('')}
             </table>
             
-            <p>Google Sheets에서 상세 정보를 확인하세요.</p>
-            <center>
-              <a href="${process.env.GOOGLE_SHEETS_URL}" class="button">시트 확인하기</a>
-            </center>
+            <p>관리자 대시보드에서 상세 정보를 확인하세요.</p>
           </div>
         </div>
       `;
@@ -249,9 +246,7 @@ function generateEmailTemplate(type: string, data: any): string {
               </tr>
             </table>
             
-            <center>
-              <a href="${process.env.GOOGLE_SHEETS_URL}" class="button">시트에서 확인</a>
-            </center>
+            <p>관리자 대시보드에서 확인 가능합니다.</p>
           </div>
         </div>
       `;
@@ -284,9 +279,7 @@ function generateEmailTemplate(type: string, data: any): string {
               <p>${data.testimonial}</p>
             ` : ''}
             
-            <center>
-              <a href="${process.env.GOOGLE_SHEETS_URL}" class="button">시트에서 확인</a>
-            </center>
+            <p>관리자 대시보드에서 확인 가능합니다.</p>
           </div>
         </div>
       `;

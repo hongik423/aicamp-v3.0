@@ -145,7 +145,7 @@ export async function checkSheetStructure() {
       data: {
         spreadsheetTitle: response.data.properties?.title,
         sheets: sheetInfo,
-        spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit`,
+        adminDashboard: 'AICAMP 관리자 시스템',
       }
     });
   } catch (error) {

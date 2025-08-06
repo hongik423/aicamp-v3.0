@@ -159,6 +159,3 @@ self.addEventListener('unhandledrejection', (event) => {
 });
 
 console.log('AICAMP Service Worker loaded successfully'); 
-});
-
-console.log('AICAMP Service Worker loaded successfully'); 
