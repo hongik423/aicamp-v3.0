@@ -27,7 +27,8 @@ import {
   HelpCircle,
   TrendingUp,
   Award,
-  Lightbulb
+  Lightbulb,
+  Share2
 } from 'lucide-react';
 import { AI_CAPABILITY_QUESTIONS } from '../constants/questions';
 
@@ -342,9 +343,90 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
   const getOverallScore = () => {
     const scores = Object.values(responses).filter(score => score !== undefined);
     if (scores.length === 0) return 0;
-    const averageScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-    return Math.round(averageScore * 10) / 10; // 소수점 1자리까지 표시
+    // 합계점수로 변경 (평균점수가 아닌)
+    const totalScore = scores.reduce((sum, score) => sum + score, 0);
+    return Math.round(totalScore * 10) / 10; // 소수점 1자리까지 표시
   };
+
+  // 실시간 진행상황 공유 기능
+  const [realTimeProgress, setRealTimeProgress] = useState({
+    isSharing: false,
+    shareUrl: '',
+    shareCode: '',
+    participants: 0
+  });
+
+  const shareProgress = useCallback(async () => {
+    if (Object.keys(responses).length === 0) {
+      toast({
+        title: "공유할 진행상황이 없습니다",
+        description: "먼저 몇 개 문항에 답변해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setRealTimeProgress(prev => ({ ...prev, isSharing: true }));
+    
+    try {
+      // 진행상황 공유 API 호출
+      const response = await fetch('/api/ai-capability-diagnosis/share-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          responses,
+          progress: overallProgress,
+          totalScore: getOverallScore(),
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setRealTimeProgress({
+          isSharing: true,
+          shareUrl: result.shareUrl,
+          shareCode: result.shareCode,
+          participants: result.participants || 0
+        });
+        
+        toast({
+          title: "진행상황 공유 시작",
+          description: `공유 코드: ${result.shareCode}`,
+          duration: 5000
+        });
+      }
+    } catch (error) {
+      console.error('진행상황 공유 실패:', error);
+      toast({
+        title: "공유 실패",
+        description: "진행상황 공유 중 오류가 발생했습니다.",
+        variant: "destructive"
+      });
+    }
+  }, [responses, overallProgress]);
+
+  // 실시간 업데이트 (5초마다)
+  useEffect(() => {
+    if (realTimeProgress.isSharing && realTimeProgress.shareCode) {
+      const interval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/ai-capability-diagnosis/share-progress/${realTimeProgress.shareCode}`);
+          if (response.ok) {
+            const data = await response.json();
+            setRealTimeProgress(prev => ({
+              ...prev,
+              participants: data.participants || 0
+            }));
+          }
+        } catch (error) {
+          console.error('실시간 업데이트 실패:', error);
+        }
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [realTimeProgress.isSharing, realTimeProgress.shareCode]);
 
   return (
     <div className="space-y-6">
@@ -410,7 +492,7 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
                   </span>
                   <span className="text-gray-500">•</span>
                   <span className="text-gray-700 font-medium">
-                    예상 총점: {getOverallScore()}/100점
+                    예상 총점: {getOverallScore()}/120점
                   </span>
                 </div>
                 
@@ -438,26 +520,45 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
                 )}
               </div>
             </div>
-            
-            {/* 전체 별점 표시 */}
-            {Object.keys(responses).length > 0 && (
-              <div className="flex items-center justify-center gap-1 pt-2 border-t border-gray-200">
-                <span className="text-sm text-gray-600 mr-2">전체 평가:</span>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`w-4 h-4 transition-colors ${
-                      star <= Math.round(getOverallScore() / 20)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
-                <span className="text-sm text-gray-600 ml-2">
-                  ({Math.round(getOverallScore() / 20)}/5점)
-                </span>
+
+            {/* 실시간 공유 기능 */}
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Share2 className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700">진행상황 공유</span>
               </div>
-            )}
+              <div className="flex items-center gap-2">
+                {realTimeProgress.isSharing ? (
+                  <>
+                    <Badge variant="secondary" className="text-xs">
+                      {realTimeProgress.participants}명 참여
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(realTimeProgress.shareCode);
+                        toast({
+                          title: "공유 코드 복사됨",
+                          description: `코드: ${realTimeProgress.shareCode}`,
+                          duration: 3000
+                        });
+                      }}
+                    >
+                      코드 복사
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={shareProgress}
+                    disabled={Object.keys(responses).length === 0}
+                  >
+                    공유 시작
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -822,7 +923,7 @@ export const UnifiedAssessmentMatrix: React.FC<UnifiedAssessmentMatrixProps> = (
             </div>
             <div className="text-right">
               <div className="text-lg font-bold text-blue-600">
-                예상 총점: {getOverallScore()}/100점
+                예상 총점: {getOverallScore()}/120점
               </div>
               <div className="text-sm text-gray-600">
                 {overallProgress === 100 ? '평가 완료!' : `${24 - Object.keys(responses).length}문항 남음`}
