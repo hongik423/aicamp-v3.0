@@ -474,6 +474,23 @@ const BookPromotionBanner: React.FC = () => {
                         style={{
                           WebkitTapHighlightColor: 'transparent'
                         }}
+                        // 🔥 모바일 터치 최적화 추가
+                        onTouchStart={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // 모바일 진동 피드백
+                          if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                          }
+                        }}
+                        onTouchEnd={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // 터치 종료 시 명시적으로 링크 이동
+                          setTimeout(() => {
+                            window.location.href = '/diagnosis';
+                          }, 50);
+                        }}
                       >
                         <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
                         <span className="text-sm sm:text-base">AI 역량진단</span>

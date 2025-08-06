@@ -965,7 +965,30 @@ export default function Home() {
                   </Link>
                   
                   <Link href="/diagnosis">
-                    <button className="px-8 py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-900 text-lg font-medium rounded-full transition-all duration-200">
+                    <button 
+                      className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                      // 🔥 모바일 터치 최적화 추가
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // 모바일 진동 피드백
+                        if (navigator.vibrate) {
+                          navigator.vibrate(50);
+                        }
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // 터치 종료 시 명시적으로 링크 이동
+                        setTimeout(() => {
+                          window.location.href = '/diagnosis';
+                        }, 50);
+                      }}
+                      style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                      }}
+                    >
                       AI역량진단
                     </button>
                   </Link>
@@ -1394,6 +1417,27 @@ export default function Home() {
                     {/* 개선된 AI역량진단 신청하기 버튼 */}
                     <Button 
                       className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
+                      // 🔥 모바일 터치 최적화 추가
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // 모바일 진동 피드백
+                        if (navigator.vibrate) {
+                          navigator.vibrate(50);
+                        }
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // 터치 종료 시 명시적으로 링크 이동
+                        setTimeout(() => {
+                          window.location.href = '/diagnosis';
+                        }, 50);
+                      }}
+                      style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                      }}
                     >
                       <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                       <span className="relative flex items-center">

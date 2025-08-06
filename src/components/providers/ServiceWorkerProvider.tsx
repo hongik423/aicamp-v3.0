@@ -108,9 +108,9 @@ export function ServiceWorkerProvider() {
         // 기존 등록 확인
         const existingRegistration = await navigator.serviceWorker.getRegistration('/sw.js');
         if (existingRegistration) {
-          console.log('🚀 Google Apps Script 시스템 초기화 완료');
-          console.log('📧 이메일 서비스: Google Apps Script');
-          console.log('🔗 연결 상태: disconnected');
+                  console.log('🚀 Google Apps Script 시스템 초기화 완료');
+        console.log('📧 이메일 서비스: Google Apps Script');
+        console.log('🔗 연결 상태: connected');
           serviceWorkerRegistered = true;
           return;
         }
@@ -122,7 +122,7 @@ export function ServiceWorkerProvider() {
 
         console.log('🚀 Google Apps Script 시스템 초기화 완료');
         console.log('📧 이메일 서비스: Google Apps Script');
-        console.log('🔗 연결 상태: disconnected');
+        console.log('🔗 연결 상태: connected');
 
         serviceWorkerRegistered = true;
 

@@ -33,14 +33,22 @@ interface DiagnosisStep {
 
 interface DiagnosisProgressModalProps {
   isOpen: boolean;
+  onClose?: () => void;
+  diagnosisId?: string;
   companyName?: string;
+  email?: string;
+  reportPassword?: string;
   onComplete?: (result: any) => void;
   onError?: (error: string) => void;
 }
 
 export default function DiagnosisProgressModal({ 
-  isOpen, 
+  isOpen,
+  onClose, 
+  diagnosisId,
   companyName = '귀하의 기업',
+  email,
+  reportPassword,
   onComplete,
   onError 
 }: DiagnosisProgressModalProps) {

@@ -138,6 +138,7 @@ export interface DiagnosisFormData extends DiagnosisApplicationData {
 export interface DiagnosisApiResponse {
   success: boolean;
   diagnosisId?: string;
+  reportPassword?: string; // 6자리 보고서 접근 패스워드
   message?: string;
   error?: string;
 }

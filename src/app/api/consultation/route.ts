@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           // 이메일 발송 요청 추가
           sendEmails: true,
           adminEmail: 'hongik423@gmail.com',
-          googleSheetsUrl: 'https://docs.google.com/spreadsheets/d/1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0/edit'
+          adminDashboard: 'AICAMP 관리자 시스템'
         }),
         signal: controller.signal
       });

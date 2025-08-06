@@ -883,3 +883,68 @@
   }
 }
 
+/* 모바일 터치 최적화 강화 */
+@layer utilities {
+  /* 터치 디바이스 전용 스타일 */
+  @media (hover: none) and (pointer: coarse) {
+    /* 모바일에서 호버 효과 제거 */
+    button:hover,
+    a:hover,
+    .hover\:bg-gray-100:hover,
+    .hover\:bg-green-700:hover,
+    .hover\:bg-blue-700:hover,
+    .hover\:bg-gray-800:hover {
+      background-color: initial !important;
+      color: initial !important;
+      transform: none !important;
+    }
+    
+    /* 터치 피드백 개선 */
+    button:active,
+    a:active,
+    [role="button"]:active {
+      opacity: 0.7 !important;
+      transform: scale(0.98) !important;
+    }
+  }
+  
+  /* 터치 영역 최적화 */
+  .touch-optimized {
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* 모바일 버튼 최적화 */
+  .mobile-button-enhanced {
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* 모바일 카드 최적화 */
+  .mobile-card-enhanced {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* iOS Safari 특화 스타일 */
+  @supports (-webkit-touch-callout: none) {
+    .mobile-button-enhanced,
+    .mobile-card-enhanced {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+  }
+}
+
