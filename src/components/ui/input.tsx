@@ -38,7 +38,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         inputMode={getInputMode()}
         className={cn(
           // 기본 스타일
-          "flex w-full rounded-md border bg-background ring-offset-background",
+          "flex w-full rounded-xl border bg-background ring-offset-background",
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
           "placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
           
@@ -73,7 +73,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           // 모바일 특화 스타일
           isMobile && [
             "leading-relaxed",
-            "rounded-lg", // 더 큰 라운드
+            "rounded-xl", // 더 큰 라운드
           ],
           
           // 자동 확대 방지 및 iOS 최적화
