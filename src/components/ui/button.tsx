@@ -70,10 +70,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           // 터치 시작 시 시각적 피드백
           const target = e.currentTarget as HTMLElement;
           target.style.transform = 'scale(0.98)';
+          target.style.transition = 'transform 0.1s ease';
           
           // 모바일 진동 피드백 (지원하는 디바이스에서)
           if (navigator.vibrate && typeof navigator.vibrate === 'function') {
-            navigator.vibrate(50);
+            navigator.vibrate(30);
           }
           
           // 원래 onTouchStart 호출

@@ -38,6 +38,350 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 기본 스타일 */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 94.1%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Service Worker 오류 방지 */
+@media (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* 모바일 터치 최적화 */
+@layer utilities {
+  /* 터치 전용 디바이스에서 호버 효과 비활성화 */
+  @media (hover: none) and (pointer: coarse) {
+    .hover\:bg-gray-100:hover,
+    .hover\:bg-blue-600:hover,
+    .hover\:bg-green-600:hover,
+    .hover\:bg-red-600:hover,
+    .hover\:bg-yellow-600:hover,
+    .hover\:bg-purple-600:hover,
+    .hover\:bg-pink-600:hover,
+    .hover\:bg-indigo-600:hover,
+    .hover\:bg-gray-600:hover,
+    .hover\:bg-gray-700:hover,
+    .hover\:bg-gray-800:hover,
+    .hover\:bg-gray-900:hover {
+      background-color: inherit !important;
+    }
+    
+    .hover\:text-blue-600:hover,
+    .hover\:text-green-600:hover,
+    .hover\:text-red-600:hover,
+    .hover\:text-yellow-600:hover,
+    .hover\:text-purple-600:hover,
+    .hover\:text-pink-600:hover,
+    .hover\:text-indigo-600:hover,
+    .hover\:text-gray-600:hover,
+    .hover\:text-gray-700:hover,
+    .hover\:text-gray-800:hover,
+    .hover\:text-gray-900:hover {
+      color: inherit !important;
+    }
+    
+    .hover\:scale-105:hover,
+    .hover\:scale-110:hover,
+    .hover\:scale-125:hover {
+      transform: none !important;
+    }
+    
+    .hover\:shadow-lg:hover,
+    .hover\:shadow-xl:hover,
+    .hover\:shadow-2xl:hover {
+      box-shadow: inherit !important;
+    }
+  }
+  
+  /* 터치 최적화 클래스 */
+  .touch-optimized {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  
+  /* 모바일 버튼 강화 */
+  .mobile-button-enhanced {
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* 모바일 카드 강화 */
+  .mobile-card-enhanced {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* 터치 피드백 */
+  .touch-feedback:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+    transition: all 0.1s ease;
+  }
+}
+
+/* 스크롤바 스타일링 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 포커스 스타일 */
+*:focus {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* 애니메이션 최적화 */
+* {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* 로딩 스피너 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* 페이드 인 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 슬라이드 인 애니메이션 */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* 버튼 호버 효과 */
+.btn-hover-effect {
+  transition: all 0.2s ease;
+}
+
+.btn-hover-effect:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-hover-effect:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 카드 호버 효과 */
+.card-hover-effect {
+  transition: all 0.3s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 그라데이션 배경 */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-bg-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-bg-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.gradient-bg-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 텍스트 그라데이션 */
+.text-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 반응형 유틸리티 */
+@media (max-width: 640px) {
+  .mobile-hidden {
+    display: none;
+  }
+  
+  .mobile-block {
+    display: block;
+  }
+  
+  .mobile-text-center {
+    text-align: center;
+  }
+  
+  .mobile-p-4 {
+    padding: 1rem;
+  }
+  
+  .mobile-m-4 {
+    margin: 1rem;
+  }
+}
+
+@media (min-width: 641px) {
+  .desktop-hidden {
+    display: none;
+  }
+  
+  .desktop-block {
+    display: block;
+  }
+}
+
+/* 접근성 개선 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .border {
+    border-width: 2px;
+  }
+  
+  .text-gray-600 {
+    color: #000;
+  }
+  
+  .bg-gray-100 {
+    background-color: #fff;
+  }
+}
+
+/* 모션 감소 설정 지원 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ============================================
    애플스토어 스타일 컬러 시스템
    ============================================ */
@@ -617,12 +961,12 @@
 /* 모바일 브라우저 호환성 개선 */
 @layer base {
   html {
-    /* iOS Safari에서 bounce 효과 방지 - 브라우저 호환성을 위해 주석 처리 */
-    /* -webkit-overflow-scrolling: touch; */
+    /* iOS Safari에서 bounce 효과 방지 */
+    -webkit-overflow-scrolling: touch;
     /* 모바일에서 텍스트 크기 자동 조정 방지 */
-    /* -webkit-text-size-adjust: 100%; */ /* 브라우저 호환성을 위해 주석 처리 */
-    /* -ms-text-size-adjust: 100%; */ /* 브라우저 호환성을 위해 주석 처리 */
-    /* text-size-adjust: 100%; */ /* 브라우저 호환성을 위해 주석 처리 */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   
   body {
@@ -632,6 +976,8 @@
     /* 모바일 폰트 렌더링 개선 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* 모바일 스크롤 최적화 */
+    -webkit-overflow-scrolling: touch;
   }
   
   /* 모바일 버튼 터치 영역 최적화 */
@@ -643,103 +989,39 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
+    /* 모바일에서 최소 터치 영역 보장 */
+    min-height: 44px;
+    min-width: 44px;
   }
   
   /* 모바일 링크 터치 최적화 */
   a {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    /* 모바일에서 최소 터치 영역 보장 */
+    min-height: 44px;
+    min-width: 44px;
   }
   
   /* iOS Safari 특화 스타일 */
   @supports (-webkit-touch-callout: none) {
-    /* iOS에서 고정 요소 성능 개선 */
-    .fixed {
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
+    /* iOS Safari에서 스크롤 최적화 */
+    .scroll-container {
+      -webkit-overflow-scrolling: touch;
     }
     
-    /* iOS에서 모달 뷰포트 높이 문제 해결 */
-    .modal-container {
-      height: -webkit-fill-available;
-      height: 100vh;
-      min-height: -webkit-fill-available;
-      min-height: 100vh;
+    /* iOS Safari에서 입력 필드 최적화 */
+    input, textarea, select {
+      -webkit-appearance: none;
+      border-radius: 0;
     }
   }
   
-  /* 모던 브라우저 뷰포트 단위 지원 */
-  @supports (height: 100dvh) {
-    .modal-container {
-      height: 100dvh;
-      min-height: 100dvh;
-    }
-  }
-  
-  /* 터치 디바이스 전용 스타일 */
-  @media (hover: none) and (pointer: coarse) {
-    /* 모바일에서 호버 효과 제거 */
-    button:hover,
-    a:hover {
-      background-color: initial;
-      color: initial;
-    }
-    
-    /* 터치 피드백 개선 */
-    button:active,
-    a:active {
-      opacity: 0.7;
-      transform: scale(0.98);
-    }
-  }
-  
-  /* 고해상도 디스플레이 최적화 */
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    /* 고해상도에서 텍스트 렌더링 개선 */
-    body {
-      -webkit-font-smoothing: subpixel-antialiased;
-    }
-  }
-  
-  /* 다크모드 지원 준비 */
-  @media (prefers-color-scheme: dark) {
-    /* 다크모드에서 모바일 최적화 */
-    html {
-      color-scheme: dark;
-    }
-  }
-  
-  /* 모션 감소 설정 지원 */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-  
-  /* 작은 화면에서 스크롤바 숨김 */
-  @media (max-width: 768px) {
-    ::-webkit-scrollbar {
-      width: 0px;
-      background: transparent;
-    }
-    
-    /* 모바일에서 선택 영역 스타일 */
-    ::selection {
-      background-color: rgba(59, 130, 246, 0.3);
-    }
-  }
-  
-  /* 포커스 표시 개선 (접근성) */
-  @media (prefers-reduced-motion: no-preference) {
-    :focus-visible {
-      outline: 2px solid #3b82f6;
-      outline-offset: 2px;
-      transition: outline-offset 0.2s ease;
+  /* Android Chrome 특화 스타일 */
+  @supports not (-webkit-touch-callout: none) {
+    /* Android에서 터치 최적화 */
+    .touch-optimized {
+      touch-action: manipulation;
     }
   }
 }

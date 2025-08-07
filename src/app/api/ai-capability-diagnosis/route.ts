@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Google Apps Script URL (환경변수에서 가져오기)
-const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || process.env.GOOGLE_SCRIPT_URL;
+const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
+  process.env.GOOGLE_SCRIPT_URL ||
+  'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLjX8DopDcRcuZo28ZFHrAsCXHJGp34fj1h_PADX3SFwUm29w-pIcyKFbISDGFE4jzOQRnA1SVyftL8D-V8R6a_ECa8CP3Hek2mCITQoFx0rgfxQk9eSR5UIAeixtAB8SJJJ-tMjtFQv9-GdEPAHxMhoByyQvShDS8GBBFyIi4Ph3QE0GL8nKZSzXRk99AjEir3xaIsmtdvUZXh57tgOGaAm4LwbtDxquOPmCvhMJ4vUix4AXY2QTNVIiDme4Lz9ZeiWfX-tlSHmxR-TILEgHVEOE_zNHw&lib=MCujFd0GCNp5wnSMdhkbgWEzN9sd4IQmq';
 
 // CORS 헤더 설정
 const corsHeaders = {
@@ -122,64 +124,86 @@ export async function POST(request: NextRequest) {
       assessmentCount: gasPayload.assessmentResponses.length
     });
 
-    // Google Apps Script로 POST 요청
-    const scriptResponse = await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(gasPayload)
-    });
+    // Google Apps Script로 POST 요청 (Vercel 800초 제한 고려한 타임아웃 설정)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 780000); // 780초 타임아웃 (800초 제한 고려)
 
-    if (!scriptResponse.ok) {
-      const errorText = await scriptResponse.text();
-      console.error('❌ Google Apps Script 응답 오류:', {
-        status: scriptResponse.status,
-        statusText: scriptResponse.statusText,
-        response: errorText
-      });
-      throw new Error(`Google Apps Script 오류: ${scriptResponse.status} - ${errorText}`);
-    }
-
-    const scriptResult = await scriptResponse.json();
-    console.log('📥 Google Apps Script 응답:', {
-      success: scriptResult.success,
-      diagnosisId: scriptResult.diagnosisId,
-      message: scriptResult.message
-    });
-
-    if (scriptResult.success) {
-      console.log('✅ AI 역량진단 신청 처리 완료:', scriptResult.diagnosisId);
-      
-      return NextResponse.json(
-        { 
-          success: true, 
-          diagnosisId: scriptResult.diagnosisId,
-          processingTime: scriptResult.processingTime,
-          message: scriptResult.message || 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
-          estimatedTime: '5-10분',
-          features: [
-            'GEMINI 2.0 Flash AI 분석',
-            'AI 역량 6분야 종합 평가',
-            '업종별 맞춤 분석',
-            'SWOT 전략 분석',
-            '3단계 실행 로드맵',
-            'ROI 분석 및 투자 계획'
-          ]
+    try {
+      const scriptResponse = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        { headers: corsHeaders }
-      );
-    } else {
-      console.error('❌ Google Apps Script 처리 실패:', scriptResult.error);
-      throw new Error(scriptResult.error || scriptResult.message || '진단 처리 중 오류 발생');
+        body: JSON.stringify(gasPayload),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!scriptResponse.ok) {
+        const errorText = await scriptResponse.text();
+        console.error('❌ Google Apps Script 응답 오류:', {
+          status: scriptResponse.status,
+          statusText: scriptResponse.statusText,
+          response: errorText
+        });
+        throw new Error(`Google Apps Script 오류: ${scriptResponse.status} - ${errorText}`);
+      }
+
+      const scriptResult = await scriptResponse.json();
+      console.log('📥 Google Apps Script 응답:', {
+        success: scriptResult.success,
+        diagnosisId: scriptResult.diagnosisId,
+        message: scriptResult.message
+      });
+
+      if (scriptResult.success && scriptResult.diagnosisId) {
+        console.log('✅ AI 역량진단 신청 처리 완료:', scriptResult.diagnosisId);
+        
+        return NextResponse.json(
+          { 
+            success: true, 
+            diagnosisId: scriptResult.diagnosisId,
+            processingTime: scriptResult.processingTime,
+            message: scriptResult.message || 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
+            estimatedTime: '5-10분',
+            features: [
+              'GEMINI 2.0 Flash AI 분석',
+              'AI 역량 6분야 종합 평가',
+              '업종별 맞춤 분석',
+              'SWOT 전략 분석',
+              '3단계 실행 로드맵',
+              'ROI 분석 및 투자 계획'
+            ]
+          },
+          { headers: corsHeaders }
+        );
+      } else {
+        console.error('❌ Google Apps Script 처리 실패:', scriptResult.error);
+        throw new Error(scriptResult.error || scriptResult.message || '진단 처리 중 오류 발생');
+      }
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError.name === 'AbortError') {
+        console.error('❌ Google Apps Script 요청 타임아웃');
+        throw new Error('Google Apps Script 연결 시간 초과. 잠시 후 다시 시도해주세요.');
+      }
+      
+      console.error('❌ Google Apps Script 연결 오류:', fetchError);
+      throw new Error('Google Apps Script 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
     }
 
   } catch (error) {
     console.error('AI 역량진단 API 오류:', error);
+    const errorDiagnosisId = `ERROR_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     return NextResponse.json(
       { 
         success: false, 
-        error: error instanceof Error ? error.message : '서버 오류가 발생했습니다' 
+        error: error instanceof Error ? error.message : '서버 오류가 발생했습니다',
+        diagnosisId: errorDiagnosisId,
+        timestamp: new Date().toISOString()
       },
       { status: 500, headers: corsHeaders }
     );

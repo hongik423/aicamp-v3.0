@@ -9,7 +9,6 @@ export * from './checkbox';
 export * from './dialog';
 export * from './dropdown-menu';
 export * from './error-boundary';
-export * from './fallback-error';
 export * from './file-upload';
 export * from './form';
 export * from './input';

@@ -5,36 +5,101 @@ import { DiagnosisApplicationData, DiagnosisApiResponse, DiagnosisResult } from 
 const API_ENDPOINT = '/api/ai-capability-diagnosis';
 
 /**
- * AI 역량진단 신청 제출
+ * AI 역량진단 신청 제출 (재시도 로직 포함)
  */
 export async function submitDiagnosis(data: DiagnosisApplicationData): Promise<DiagnosisApiResponse> {
-  try {
-    const response = await fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...data,
-        formType: 'ai-capability-diagnosis',
-        submittedAt: new Date().toISOString()
-      })
-    });
+  const maxRetries = 3;
+  let lastError: Error | null = null;
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.error || `HTTP error! status: ${response.status}`);
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔍 AI 역량진단 제출 시작 (시도 ${attempt}/${maxRetries}):`, {
+        companyName: data.companyName,
+        email: data.email
+      });
+
+      // 타임아웃 설정 (780초)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 780000);
+
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          formType: 'ai-capability-diagnosis',
+          submittedAt: new Date().toISOString()
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.error || `HTTP error! status: ${response.status}`;
+        
+        // 5xx 서버 오류인 경우 재시도
+        if (response.status >= 500 && attempt < maxRetries) {
+          console.warn(`⚠️ 서버 오류 발생 (${response.status}), 재시도 중... (${attempt}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // 지수 백오프
+          continue;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      
+      console.log('📊 진단 제출 결과:', {
+        success: result.success,
+        diagnosisId: result.diagnosisId,
+        message: result.message
+      });
+
+      return result;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('알 수 없는 오류');
+      
+      // 타임아웃 오류인 경우
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn(`⏰ 요청 타임아웃 (시도 ${attempt}/${maxRetries})`);
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 3000 * attempt));
+          continue;
+        }
+        return {
+          success: false,
+          error: '진단 처리 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.'
+        };
+      }
+
+      // 네트워크 오류인 경우 재시도
+      if (error instanceof Error && (error.message.includes('fetch') || error.message.includes('network'))) {
+        console.warn(`🌐 네트워크 오류 발생 (시도 ${attempt}/${maxRetries}):`, error.message);
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          continue;
+        }
+      }
+
+      console.error(`❌ 진단 제출 실패 (시도 ${attempt}/${maxRetries}):`, error);
+      
+      if (attempt === maxRetries) {
+        return {
+          success: false,
+          error: lastError.message || '진단 신청 중 오류가 발생했습니다'
+        };
+      }
     }
-
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    console.error('진단 신청 오류:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : '진단 신청 중 오류가 발생했습니다'
-    };
   }
+
+  return {
+    success: false,
+    error: lastError?.message || '진단 제출에 실패했습니다.'
+  };
 }
 
 /**
