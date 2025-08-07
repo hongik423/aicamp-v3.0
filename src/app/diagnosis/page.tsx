@@ -81,31 +81,32 @@ export default function DiagnosisPage() {
       {/* 최근 결과 배너 */}
       <RecentResultsBanner />
       
-      {/* 히어로 섹션 */}
-      <section className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20">
+      {/* 히어로 섹션 - 모바일 최적화 */}
+      <section className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-12 sm:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
-              이후경 교장의 AI 역량진단
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white leading-tight">
+              이후경 교장의<br className="sm:hidden" /> AI 역량진단
             </h1>
-            <p className="text-xl lg:text-2xl mb-4 text-white">
+            <p className="text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4 text-white">
               고몰입 조직구축을 위한 AI 역량 진단시스템
             </p>
-            <p className="text-lg text-white mb-8">
-              28년 교육 전문가의 노하우로 귀사의 AI 역량을 정밀 진단하고<br />
-              맞춤형 고몰입 조직 구축 전략을 제시합니다
+            <p className="text-sm sm:text-lg text-white mb-6 sm:mb-8 px-2">
+              28년 교육 전문가의 노하우로 귀사의 AI 역량을 정밀 진단하고
+              <br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>맞춤형 고몰입 조직 구축 전략을 제시합니다
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-yellow-400" />
+            <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm">
+              <div className="flex items-center justify-center gap-2 bg-white/10 rounded-full px-4 py-2">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
                 <span>S급 AI 진단 정확도</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-blue-400" />
+              <div className="flex items-center justify-center gap-2 bg-white/10 rounded-full px-4 py-2">
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                 <span>맞춤형 성장 전략</span>
               </div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-400" />
+              <div className="flex items-center justify-center gap-2 bg-white/10 rounded-full px-4 py-2">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                 <span>실행 가능한 로드맵</span>
               </div>
             </div>
@@ -195,24 +196,25 @@ export default function DiagnosisPage() {
         </div>
       </section>
 
-      {/* CTA 섹션 */}
-      <section className="py-16 bg-gray-900 text-white">
+      {/* CTA 섹션 - 모바일 최적화 */}
+      <section className="py-12 sm:py-16 bg-gray-900 text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6 text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">
               지금 바로 AI 역량을 진단하세요
             </h2>
-            <p className="text-lg mb-8 text-white">
+            <p className="text-base sm:text-lg mb-6 sm:mb-8 text-white px-2">
               이후경 교장의 28년 교육 노하우가 담긴 맞춤형 AI 성장 전략을 받아보세요
             </p>
             <Button
               size="lg"
-              className="bg-white text-gray-900 hover:bg-gray-100"
+              className="bg-white text-gray-900 hover:bg-gray-100 h-12 px-8 text-base font-medium w-full sm:w-auto"
               onClick={() => {
                 const formSection = document.getElementById('diagnosis-form');
                 formSection?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
+              <Brain className="w-5 h-5 mr-2" />
               AI역량진단 시작하기
             </Button>
           </div>

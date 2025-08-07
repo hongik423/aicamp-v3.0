@@ -1,8 +1,8 @@
 /* ============================================
-   AICAMP - 애플스토어 스타일 글로벌 CSS 
+   AICAMP - 모바일 최적화 글로벌 CSS 
    ============================================ */
 
-/* AICAMP 라운드 디자인 시스템 - 사용자 친화적 UI */
+/* AICAMP 라운드 디자인 시스템 - 모바일 친화적 UI */
 @layer base {
   /* 모든 박스 요소에 라운드 처리 */
   div[class*="border"],
@@ -28,6 +28,41 @@
   .btn-secondary,
   button[class*="rounded-full"] {
     border-radius: 9999px !important;
+  }
+
+  /* 모바일 터치 최적화 */
+  @media (max-width: 768px) {
+    /* 모바일에서 터치 영역 확대 */
+    button, 
+    a,
+    input,
+    select,
+    textarea {
+      min-height: 44px; /* iOS 권장 최소 터치 영역 */
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    
+    /* 모바일 스크롤 최적화 */
+    body {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    
+    /* 모바일 폰트 크기 조정 */
+    html {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    
+    /* 모바일 입력 필드 확대 방지 */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    textarea,
+    select {
+      font-size: 16px !important; /* iOS에서 확대 방지 */
+    }
   }
 }
 

@@ -81,11 +81,11 @@ export default function Header() {
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white'
     }`}>
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* 로고 */}
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div className="relative w-10 h-10">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex items-center justify-between h-14 sm:h-16">
+          {/* 로고 - 모바일 최적화 */}
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity">
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10">
               <Image
                 src="/images/aicamp_logo_del_250726.png"
                 alt="AICAMP 로고"
@@ -95,7 +95,7 @@ export default function Header() {
                 priority
               />
             </div>
-            <span className="text-xl font-bold text-gray-900 hidden sm:block">AICAMP</span>
+            <span className="text-lg sm:text-xl font-bold text-gray-900">AICAMP</span>
           </Link>
 
           {/* 데스크톱 네비게이션 - 반응형 개선 */}
