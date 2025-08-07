@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Google Apps Script URL (환경변수에서 가져오기)
 const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
   process.env.GOOGLE_SCRIPT_URL ||
-  'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLjX8DopDcRcuZo28ZFHrAsCXHJGp34fj1h_PADX3SFwUm29w-pIcyKFbISDGFE4jzOQRnA1SVyftL8D-V8R6a_ECa8CP3Hek2mCITQoFx0rgfxQk9eSR5UIAeixtAB8SJJJ-tMjtFQv9-GdEPAHxMhoByyQvShDS8GBBFyIi4Ph3QE0GL8nKZSzXRk99AjEir3xaIsmtdvUZXh57tgOGaAm4LwbtDxquOPmCvhMJ4vUix4AXY2QTNVIiDme4Lz9ZeiWfX-tlSHmxR-TILEgHVEOE_zNHw&lib=MCujFd0GCNp5wnSMdhkbgWEzN9sd4IQmq';
+  'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
 
 // CORS 헤더 설정
 const corsHeaders = {

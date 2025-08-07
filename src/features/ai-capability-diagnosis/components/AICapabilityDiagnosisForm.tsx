@@ -238,33 +238,28 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
 
   return (
     <>
-    <Card className="max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">
+    <Card className="max-w-4xl mx-auto shadow-lg">
+      <CardHeader className="px-4 sm:px-6">
+        <CardTitle className="text-xl sm:text-2xl font-bold text-center">
           AI 역량진단 신청서
         </CardTitle>
-        <CardDescription className="text-center">
+        <CardDescription className="text-center text-sm sm:text-base">
           기업의 AI 역량을 종합적으로 진단하고 맞춤형 성장 전략을 제시합니다
         </CardDescription>
         <Progress value={progress} className="mt-4" />
+        <div className="text-center text-sm text-gray-600 mt-2">
+          {currentStep} / {totalSteps} 단계
+        </div>
       </CardHeader>
       <CardContent 
-        className="p-6"
+        className="p-4 sm:p-6"
         // 🔥 모바일 터치 최적화 개선
-        onTouchStart={(e) => {
-          // 기본 동작은 유지하고 시각적 피드백만 제공
-          const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'scale(0.99)';
-          target.style.transition = 'transform 0.1s ease';
-        }}
-        onTouchEnd={(e) => {
-          // 터치 종료 시 원래 크기로 복원
-          const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'scale(1)';
-        }}
         style={{
           WebkitTapHighlightColor: 'transparent',
-          touchAction: 'manipulation'
+          touchAction: 'manipulation',
+          // 모바일 스크롤 최적화
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain'
         }}
       >
         <Form {...form}>
@@ -314,63 +309,64 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 모바일 최적화: 세로 레이아웃으로 변경 */}
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
                     name="industry"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>업종 *</FormLabel>
+                        <FormLabel className="text-base font-medium">업종 *</FormLabel>
                         <FormControl>
                           <IndustrySelect
                             value={field.value}
                             onValueChange={field.onChange}
                           />
                         </FormControl>
-                                        <FormMessage />
-              </FormItem>
-            )}
-          />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          {/* 기타 업종 직접 입력 */}
-          {form.watch('industry') === 'other' && (
-            <FormField
-              control={form.control}
-              name="customIndustry"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>기타 업종 (직접 입력) *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="구체적인 업종을 입력해주세요" 
-                      className="placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
-                      {...field}
+                  {/* 기타 업종 직접 입력 */}
+                  {form.watch('industry') === 'other' && (
+                    <FormField
+                      control={form.control}
+                      name="customIndustry"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium">기타 업종 (직접 입력) *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="구체적인 업종을 입력해주세요" 
+                              className="h-12 text-base placeholder:text-gray-400 focus:placeholder:text-gray-300 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription className="text-sm">
+                            위 업종 목록에 없는 경우 구체적으로 입력해주세요
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </FormControl>
-                  <FormDescription>
-                    위 업종 목록에 없는 경우 구체적으로 입력해주세요
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+                  )}
 
-          <FormField
-            control={form.control}
-            name="companySize"
+                  <FormField
+                    control={form.control}
+                    name="companySize"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>기업 규모 *</FormLabel>
+                        <FormLabel className="text-base font-medium">기업 규모 *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="placeholder:text-gray-800 placeholder:font-bold placeholder:opacity-100 bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 hover:border-gray-400 transition-all duration-300 text-gray-900 font-medium h-12">
+                            <SelectTrigger className="h-12 text-base placeholder:text-gray-800 placeholder:font-bold placeholder:opacity-100 bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 hover:border-gray-400 transition-all duration-300 text-gray-900 font-medium">
                               <SelectValue placeholder="규모를 선택하세요" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="max-h-60">
                             {companySizeOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
+                              <SelectItem key={option.value} value={option.value} className="text-base py-3">
                                 {option.label}
                               </SelectItem>
                             ))}
@@ -775,37 +771,20 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
               </div>
             )}
 
-            {/* 네비게이션 버튼 */}
-            <div className="flex justify-between pt-6">
+            {/* 네비게이션 버튼 - 모바일 최적화 */}
+            <div className="flex justify-between pt-6 gap-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="flex items-center gap-2"
-                // 🔥 모바일 터치 최적화 개선
-                onTouchStart={(e) => {
-                  // 시각적 피드백만 제공
-                  const target = e.currentTarget as HTMLElement;
-                  target.style.transform = 'scale(0.95)';
-                  target.style.transition = 'transform 0.1s ease';
-                  
-                  // 모바일 진동 피드백
-                  if (navigator.vibrate) {
-                    navigator.vibrate(30);
-                  }
-                }}
-                onTouchEnd={(e) => {
-                  // 터치 종료 시 원래 크기로 복원
-                  const target = e.currentTarget as HTMLElement;
-                  target.style.transform = 'scale(1)';
-                }}
+                className="flex items-center gap-2 h-12 px-6 text-base min-w-[120px] flex-1 max-w-[180px]"
                 style={{
                   WebkitTapHighlightColor: 'transparent',
                   touchAction: 'manipulation'
                 }}
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
                 이전
               </Button>
 
@@ -813,55 +792,21 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                 <Button
                   type="button"
                   onClick={nextStep}
-                  className="flex items-center gap-2"
-                  // 🔥 모바일 터치 최적화 개선
-                  onTouchStart={(e) => {
-                    // 시각적 피드백만 제공
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'scale(0.95)';
-                    target.style.transition = 'transform 0.1s ease';
-                    
-                    // 모바일 진동 피드백
-                    if (navigator.vibrate) {
-                      navigator.vibrate(30);
-                    }
-                  }}
-                  onTouchEnd={(e) => {
-                    // 터치 종료 시 원래 크기로 복원
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'scale(1)';
-                  }}
+                  className="flex items-center gap-2 h-12 px-6 text-base min-w-[120px] flex-1 max-w-[180px]"
                   style={{
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation'
                   }}
                 >
                   다음
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-5 h-5" />
                 </Button>
               ) : (
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 h-12 px-6 text-base min-w-[120px] flex-1 max-w-[180px] bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
                   onClick={handleStartDiagnosis}
-                  // 🔥 모바일 터치 최적화 추가
-                  onTouchStart={(e) => {
-                    // 시각적 피드백만 제공
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'scale(0.95)';
-                    target.style.transition = 'transform 0.1s ease';
-                    
-                    // 모바일 진동 피드백
-                    if (navigator.vibrate) {
-                      navigator.vibrate(30);
-                    }
-                  }}
-                  onTouchEnd={(e) => {
-                    // 터치 종료 시 원래 크기로 복원
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'scale(1)';
-                  }}
                   style={{
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation'
@@ -869,13 +814,15 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      진단 시작 중...
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span className="hidden sm:inline">진단 시작 중...</span>
+                      <span className="sm:hidden">시작 중...</span>
                     </>
                   ) : (
                     <>
-                      <Brain className="w-4 h-4" />
-                      AI 역량진단 시작
+                      <Brain className="w-5 h-5" />
+                      <span className="hidden sm:inline">AI 역량진단 시작</span>
+                      <span className="sm:hidden">진단 시작</span>
                     </>
                   )}
                 </Button>

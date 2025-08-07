@@ -1764,35 +1764,67 @@ JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 �
         throw new Error(`GEMINI API 에러: ${result.error.message}`);
       }
       
-      if (result.candidates && result.candidates[0] && result.candidates[0].content) {
-        const content = result.candidates[0].content.parts[0].text;
-        console.log('✅ GEMINI AI 분석 완료');
+      // 응답 구조 안전성 검사 강화
+      if (!result.candidates || !Array.isArray(result.candidates) || result.candidates.length === 0) {
+        console.warn('⚠️ GEMINI 응답에 candidates 배열이 없거나 비어있음:', JSON.stringify(result));
+        throw new Error('GEMINI API 응답에 candidates 배열이 없습니다');
+      }
+      
+      const candidate = result.candidates[0];
+      if (!candidate || !candidate.content || !candidate.content.parts || !Array.isArray(candidate.content.parts) || candidate.content.parts.length === 0) {
+        console.warn('⚠️ GEMINI 응답의 content 구조가 올바르지 않음:', JSON.stringify(candidate));
+        throw new Error('GEMINI API 응답의 content 구조가 올바르지 않습니다');
+      }
+      
+      const textPart = candidate.content.parts[0];
+      if (!textPart || !textPart.text) {
+        console.warn('⚠️ GEMINI 응답에 text 내용이 없음:', JSON.stringify(textPart));
+        throw new Error('GEMINI API 응답에 text 내용이 없습니다');
+      }
+      
+      const content = textPart.text;
+      console.log('✅ GEMINI AI 분석 완료, 응답 길이:', content.length);
+      
+      try {
+        // JSON 추출 및 파싱
+        let jsonContent = content;
         
-        try {
-          // JSON 추출 및 파싱
-          let jsonContent = content;
-          
-          // Markdown 코드 블록 제거
-          if (content.includes('```json')) {
-            jsonContent = content.match(/```json\n?([\s\S]*?)\n?```/)?.[1] || content;
-          } else if (content.includes('```')) {
-            jsonContent = content.match(/```\n?([\s\S]*?)\n?```/)?.[1] || content;
+        // Markdown 코드 블록 제거
+        if (content.includes('```json')) {
+          const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/);
+          if (jsonMatch && jsonMatch[1]) {
+            jsonContent = jsonMatch[1];
+          } else {
+            console.warn('⚠️ JSON 코드 블록을 찾았지만 내용이 비어있음');
           }
-          
-          return JSON.parse(jsonContent);
-        } catch (e) {
-          console.warn('⚠️ JSON 파싱 실패, 재시도 중...', e.message);
-          retries++;
-          if (retries < maxRetries) {
-            Utilities.sleep(retryDelay);
-            continue;
+        } else if (content.includes('```')) {
+          const codeMatch = content.match(/```\n?([\s\S]*?)\n?```/);
+          if (codeMatch && codeMatch[1]) {
+            jsonContent = codeMatch[1];
+          } else {
+            console.warn('⚠️ 코드 블록을 찾았지만 내용이 비어있음');
           }
-          // 마지막 시도에서도 실패시 오류 발생
-          throw new Error('AI 응답 JSON 파싱 실패. GEMINI API 응답 형식을 확인하세요.');
         }
-      } else {
-        console.warn('⚠️ GEMINI 응답에 candidates 없음');
-        throw new Error('GEMINI API 응답 형식 오류');
+        
+        // JSON 파싱 전 내용 검증
+        if (!jsonContent || jsonContent.trim().length === 0) {
+          console.warn('⚠️ 추출된 JSON 내용이 비어있음');
+          throw new Error('추출된 JSON 내용이 비어있습니다');
+        }
+        
+        console.log('🔍 JSON 파싱 시도, 내용 길이:', jsonContent.length);
+        return JSON.parse(jsonContent.trim());
+        
+      } catch (e) {
+        console.warn('⚠️ JSON 파싱 실패, 재시도 중...', e.message);
+        console.log('📄 파싱 실패한 내용 (처음 500자):', content.substring(0, 500));
+        retries++;
+        if (retries < maxRetries) {
+          Utilities.sleep(retryDelay);
+          continue;
+        }
+        // 마지막 시도에서도 실패시 오류 발생
+        throw new Error('AI 응답 JSON 파싱 실패. GEMINI API 응답 형식을 확인하세요.');
       }
       
     } catch (error) {
