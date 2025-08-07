@@ -85,15 +85,16 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [diagnosisId, setDiagnosisId] = useState<string>('');
   const [reportPassword, setReportPassword] = useState<string>('');
+  const [submitError, setSubmitError] = useState<string>('');
   const totalSteps = 4;
 
   const form = useForm<DiagnosisFormData>({
     resolver: zodResolver(diagnosisSchema),
     defaultValues: {
-          companyName: '',
-    industry: '',
-    customIndustry: '',
-    companySize: '',
+      companyName: '',
+      industry: '',
+      customIndustry: '',
+      companySize: '',
       region: '',
       applicantName: '',
       position: '',
@@ -111,20 +112,29 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
     }
   });
 
-  // 진단 시작 알림을 위한 별도 함수
   const handleStartDiagnosis = () => {
-    // 즉시 알림 메시지 표시
     toast({
-      title: "AI 역량진단이 시작됩니다",
-      description: "10분 이상 소요될 수 있습니다. 다른 일을 보고 오셔도 됩니다.",
-      duration: 6000, // 6초 동안 표시
+      title: "진단 시작",
+      description: "AI 역량진단이 시작됩니다. 잠시만 기다려주세요.",
+      duration: 3000,
     });
   };
 
   const onSubmit = async (data: DiagnosisFormData) => {
     setIsSubmitting(true);
+    setSubmitError('');
+    
     try {
+      console.log('🔍 진단 데이터 제출 시작:', {
+        companyName: data.companyName,
+        email: data.email,
+        assessmentCount: Object.keys(data.assessmentResponses || {}).length
+      });
+
       const result = await submitDiagnosis(data);
+      
+      console.log('📊 API 응답:', result);
+      
       if (result.success && result.diagnosisId) {
         setDiagnosisId(result.diagnosisId);
         
@@ -135,7 +145,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
         
         // 로컬 스토리지에 최근 진단 결과 ID 저장
         const recentIds = JSON.parse(localStorage.getItem('recentDiagnosisIds') || '[]');
-        const newIds = [result.diagnosisId, ...recentIds.filter((id: string) => id !== result.diagnosisId)].slice(0, 5); // 최대 5개까지 저장
+        const newIds = [result.diagnosisId, ...recentIds.filter((id: string) => id !== result.diagnosisId)].slice(0, 5);
         localStorage.setItem('recentDiagnosisIds', JSON.stringify(newIds));
         
         setShowProgressModal(true);
@@ -144,14 +154,19 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
           description: `AI 역량진단이 시작되었습니다. 결과는 이메일로 발송됩니다.${result.reportPassword ? ` (패스워드: ${result.reportPassword})` : ''}`,
         });
       } else {
-        throw new Error(result.message || '진단 신청 중 오류가 발생했습니다');
+        const errorMessage = result.error || result.message || '진단 신청 중 오류가 발생했습니다';
+        setSubmitError(errorMessage);
+        throw new Error(errorMessage);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "진단 신청 중 오류가 발생했습니다.";
+      setSubmitError(errorMessage);
       toast({
         title: "오류 발생",
-        description: error instanceof Error ? error.message : "진단 신청 중 오류가 발생했습니다.",
+        description: errorMessage,
         variant: "destructive",
       });
+      console.error('❌ 진단 제출 오류:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -235,10 +250,17 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
       </CardHeader>
       <CardContent 
         className="p-6"
-        // 🔥 모바일 터치 최적화 추가
+        // 🔥 모바일 터치 최적화 개선
         onTouchStart={(e) => {
-          // 모바일에서 터치 영역 최적화
-          e.stopPropagation();
+          // 기본 동작은 유지하고 시각적 피드백만 제공
+          const target = e.currentTarget as HTMLElement;
+          target.style.transform = 'scale(0.99)';
+          target.style.transition = 'transform 0.1s ease';
+        }}
+        onTouchEnd={(e) => {
+          // 터치 종료 시 원래 크기로 복원
+          const target = e.currentTarget as HTMLElement;
+          target.style.transform = 'scale(1)';
         }}
         style={{
           WebkitTapHighlightColor: 'transparent',
@@ -249,9 +271,17 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
             className="space-y-8"
-            // 🔥 모바일 터치 최적화 추가
+            // 🔥 모바일 터치 최적화 개선
             onTouchStart={(e) => {
-              e.stopPropagation();
+              // 기본 동작은 유지하고 시각적 피드백만 제공
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = 'scale(0.99)';
+              target.style.transition = 'transform 0.1s ease';
+            }}
+            onTouchEnd={(e) => {
+              // 터치 종료 시 원래 크기로 복원
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = 'scale(1)';
             }}
             style={{
               WebkitTapHighlightColor: 'transparent',
@@ -753,24 +783,22 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                 onClick={prevStep}
                 disabled={currentStep === 1}
                 className="flex items-center gap-2"
-                // 🔥 모바일 터치 최적화 추가
+                // 🔥 모바일 터치 최적화 개선
                 onTouchStart={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  // 시각적 피드백만 제공
+                  const target = e.currentTarget as HTMLElement;
+                  target.style.transform = 'scale(0.95)';
+                  target.style.transition = 'transform 0.1s ease';
+                  
                   // 모바일 진동 피드백
                   if (navigator.vibrate) {
-                    navigator.vibrate(50);
+                    navigator.vibrate(30);
                   }
                 }}
                 onTouchEnd={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  // 터치 종료 시 명시적으로 클릭 이벤트 실행
-                  setTimeout(() => {
-                    if (currentStep > 1) {
-                      prevStep();
-                    }
-                  }, 50);
+                  // 터치 종료 시 원래 크기로 복원
+                  const target = e.currentTarget as HTMLElement;
+                  target.style.transform = 'scale(1)';
                 }}
                 style={{
                   WebkitTapHighlightColor: 'transparent',
@@ -786,22 +814,22 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                   type="button"
                   onClick={nextStep}
                   className="flex items-center gap-2"
-                  // 🔥 모바일 터치 최적화 추가
+                  // 🔥 모바일 터치 최적화 개선
                   onTouchStart={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    // 시각적 피드백만 제공
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'scale(0.95)';
+                    target.style.transition = 'transform 0.1s ease';
+                    
                     // 모바일 진동 피드백
                     if (navigator.vibrate) {
-                      navigator.vibrate(50);
+                      navigator.vibrate(30);
                     }
                   }}
                   onTouchEnd={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // 터치 종료 시 명시적으로 클릭 이벤트 실행
-                    setTimeout(() => {
-                      nextStep();
-                    }, 50);
+                    // 터치 종료 시 원래 크기로 복원
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'scale(1)';
                   }}
                   style={{
                     WebkitTapHighlightColor: 'transparent',
@@ -817,6 +845,27 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                   disabled={isSubmitting}
                   className="flex items-center gap-2"
                   onClick={handleStartDiagnosis}
+                  // 🔥 모바일 터치 최적화 추가
+                  onTouchStart={(e) => {
+                    // 시각적 피드백만 제공
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'scale(0.95)';
+                    target.style.transition = 'transform 0.1s ease';
+                    
+                    // 모바일 진동 피드백
+                    if (navigator.vibrate) {
+                      navigator.vibrate(30);
+                    }
+                  }}
+                  onTouchEnd={(e) => {
+                    // 터치 종료 시 원래 크기로 복원
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'scale(1)';
+                  }}
+                  style={{
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   {isSubmitting ? (
                     <>
@@ -825,8 +874,8 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-4 h-4" />
-                      진단 시작하기
+                      <Brain className="w-4 h-4" />
+                      AI 역량진단 시작
                     </>
                   )}
                 </Button>

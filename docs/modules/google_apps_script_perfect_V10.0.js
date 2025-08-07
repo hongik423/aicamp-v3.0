@@ -26,18 +26,18 @@ function getEnvironmentVariables() {
   
   const scriptProperties = PropertiesService.getScriptProperties();
   
-  // 기본 환경변수 (폴백용)
-  const defaultEnv = {
+  // 필수 환경변수 설정값
+  const requiredEnv = {
     SPREADSHEET_ID: '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0',
     GEMINI_API_KEY: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM', // GEMINI 2.5 FLASH API KEY
     ADMIN_EMAIL: 'hongik423@gmail.com'
   };
   
   this.cachedEnv = {
-    // 필수 설정 (스크립트 속성 우선, 없으면 기본값 사용)
-    SPREADSHEET_ID: scriptProperties.getProperty('SPREADSHEET_ID') || defaultEnv.SPREADSHEET_ID,
-    GEMINI_API_KEY: scriptProperties.getProperty('GEMINI_API_KEY') || defaultEnv.GEMINI_API_KEY,
-    ADMIN_EMAIL: scriptProperties.getProperty('ADMIN_EMAIL') || defaultEnv.ADMIN_EMAIL,
+    // 필수 설정 (스크립트 속성 우선, 없으면 필수값 사용)
+    SPREADSHEET_ID: scriptProperties.getProperty('SPREADSHEET_ID') || requiredEnv.SPREADSHEET_ID,
+    GEMINI_API_KEY: scriptProperties.getProperty('GEMINI_API_KEY') || requiredEnv.GEMINI_API_KEY,
+    ADMIN_EMAIL: scriptProperties.getProperty('ADMIN_EMAIL') || requiredEnv.ADMIN_EMAIL,
     
     // AICAMP 정보
     AICAMP_WEBSITE: scriptProperties.getProperty('AICAMP_WEBSITE') || 'aicamp.club',
@@ -48,8 +48,8 @@ function getEnvironmentVariables() {
     TEMPERATURE: parseFloat(scriptProperties.getProperty('TEMPERATURE')) || 0.3,
     
     // 타임아웃 설정 (Vercel 800초 제한 고려)
-    TIMEOUT_GEMINI: parseInt(scriptProperties.getProperty('TIMEOUT_GEMINI')) || 360000, // 6분
-    TIMEOUT_EMAIL: parseInt(scriptProperties.getProperty('TIMEOUT_EMAIL')) || 180000, // 3분
+    TIMEOUT_GEMINI: parseInt(scriptProperties.getProperty('TIMEOUT_GEMINI')) || 600000, // 10분
+    TIMEOUT_EMAIL: parseInt(scriptProperties.getProperty('TIMEOUT_EMAIL')) || 120000, // 2분
     TIMEOUT_DATA_SAVE: parseInt(scriptProperties.getProperty('TIMEOUT_DATA_SAVE')) || 60000, // 1분
     
     // 성능 설정
@@ -411,7 +411,7 @@ function handleEnhancedAIDiagnosisSubmission(requestData) {
   
   let diagnosisId = null; // diagnosisId를 함수 스코프 상단에 선언 및 초기화
   const startTime = new Date().getTime();
-  const TIMEOUT_LIMIT = 750000; // Vercel 800초 제한 고려 (750초 = 12.5분)
+  const TIMEOUT_LIMIT = 780000; // Vercel 800초 제한 고려 (780초 = 13분)
   
   try {
     // 0. 환경변수 검증
@@ -560,14 +560,10 @@ function normalizeApplicationData(rawData, diagnosisId) {
     }
   });
   
-  // 점수가 없으면 기본값 설정
+  // 점수가 없으면 오류 발생
   if (Object.keys(normalized.assessmentScores).length === 0) {
-    console.warn('⚠️ 평가 점수 없음, 기본값 설정');
-    Object.values(AI_CAPABILITY_ASSESSMENT_ITEMS).forEach(category => {
-      category.items.forEach(item => {
-        normalized.assessmentScores[item.id] = 3; // 중간값
-      });
-    });
+    console.error('❌ 평가 점수가 제공되지 않았습니다');
+    throw new Error('평가 점수가 제공되지 않았습니다. 진단을 진행할 수 없습니다.');
   }
   
   console.log('✅ 정규화 완료:', Object.keys(normalized.assessmentScores).length, '개 항목');
@@ -1791,11 +1787,8 @@ JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 �
             Utilities.sleep(retryDelay);
             continue;
           }
-          // 마지막 시도에서도 실패시 기본 구조 반환
-          return { 
-            keyFindings: ['AI 분석이 완료되었으나 형식 변환 중 오류가 발생했습니다.'],
-            ceoMessage: '분석 결과를 검토 중입니다.'
-          };
+          // 마지막 시도에서도 실패시 오류 발생
+          throw new Error('AI 응답 JSON 파싱 실패. GEMINI API 응답 형식을 확인하세요.');
         }
       } else {
         console.warn('⚠️ GEMINI 응답에 candidates 없음');
@@ -3224,9 +3217,9 @@ function doPost(e) {
         result = {
           success: true,
           status: 'operational',
-          version: 'V10.0 PREMIUM - 사실기반분석',
+          version: 'V10.0 PREMIUM - 완전 오류 수정 버전',
           message: 'AICAMP N8N 자동화 AI 역량진단 시스템 - 실제 데이터 기반 맞춤형 보고서',
-          model: 'GEMINI-2.0-FLASH-EXP',
+          model: 'GEMINI-2.5-FLASH',
           specialization: 'N8N Automation & AI Integration',
           features: [
             '실제 신청서 데이터 기반 분석',
@@ -3514,4 +3507,4 @@ AICAMP
 // - 재시도 로직 및 지수 백오프 적용
 // - JSON 파싱 오류 처리 강화
 // - API Rate Limit 대응 로직 추가
-// ================================================================================
+// ================================================================================ ㅍ

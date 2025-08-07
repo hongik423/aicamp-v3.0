@@ -252,126 +252,22 @@ ${Object.entries(assessmentScores).map(([key, value]) => `- ${key}: ${value}/5`)
 }
 
 /**
- * 텍스트 응답 파싱 (폴백)
+ * 텍스트 응답 파싱 - 폴백 제거, 실제 AI 응답만 처리
  */
 function parseTextResponse(text: string): any {
-  // 기본 구조 생성
-  const report = {
-    swotAnalysis: {
-      strengths: [],
-      weaknesses: [],
-      opportunities: [],
-      threats: []
-    },
-    strategies: {
-      SO: [],
-      WO: [],
-      ST: [],
-      WT: []
-    },
-    matrixAnalysis: {
-      importance: {
-        high: [],
-        medium: [],
-        low: []
-      },
-      urgency: {
-        immediate: [],
-        shortTerm: [],
-        longTerm: []
-      }
-    },
-    roadmap: [],
-    roi: {
-      investment: '',
-      expectedReturn: '',
-      paybackPeriod: '',
-      recommendations: []
-    },
-    customRecommendations: []
-  };
-
-  // 텍스트에서 패턴 매칭으로 데이터 추출
+  // JSON 추출 시도
   try {
-    // SWOT 분석 추출
-    const swotPatterns = {
-      strengths: /강점[:\s]*([\s\S]*?)(?=약점|기회|위협|전략|$)/i,
-      weaknesses: /약점[:\s]*([\s\S]*?)(?=강점|기회|위협|전략|$)/i,
-      opportunities: /기회[:\s]*([\s\S]*?)(?=강점|약점|위협|전략|$)/i,
-      threats: /위협[:\s]*([\s\S]*?)(?=강점|약점|기회|전략|$)/i
-    };
-
-    for (const [key, pattern] of Object.entries(swotPatterns)) {
-      const match = text.match(pattern);
-      if (match) {
-        const items = match[1].split(/[-•·*\n]/).filter(item => item.trim().length > 0);
-        report.swotAnalysis[key as keyof typeof report.swotAnalysis] = items.slice(0, 4).map(item => item.trim());
-      }
+    // JSON 코드블록 추출
+    const jsonMatch = text.match(/```json\n?([\s\S]*?)\n?```/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[1]);
     }
-
-    // 로드맵 추출
-    const roadmapPattern = /(\d단계[:\s]*[^\n]*)\n([\s\S]*?)(?=\d단계|$)/gi;
-    let roadmapMatch;
-    while ((roadmapMatch = roadmapPattern.exec(text)) !== null) {
-      const phase = roadmapMatch[1].trim();
-      const content = roadmapMatch[2];
-      const tasks = content.split(/[-•·*\n]/).filter(item => item.trim().length > 0).slice(0, 4);
-      
-      report.roadmap.push({
-        phase,
-        period: '3개월',
-        tasks: tasks.map(t => t.trim()),
-        expectedOutcome: '단계별 목표 달성'
-      });
-    }
-
-    // ROI 정보 추출
-    const investmentMatch = text.match(/투자[:\s]*([^\n]*)/i);
-    const returnMatch = text.match(/수익|절감[:\s]*([^\n]*)/i);
     
-    if (investmentMatch) report.roi.investment = investmentMatch[1].trim();
-    if (returnMatch) report.roi.expectedReturn = returnMatch[1].trim();
-    report.roi.paybackPeriod = '12개월';
-    report.roi.recommendations = ['AI 교육 실시', '단계적 도입', '성과 측정'];
-
+    // 일반 JSON 시도
+    return JSON.parse(text);
   } catch (error) {
-    console.error('텍스트 파싱 오류:', error);
-  }
-
-  // 기본값 채우기
-  if (report.swotAnalysis.strengths.length === 0) {
-    report.swotAnalysis.strengths = [
-      'AI 도입 의지가 강함',
-      '경영진의 적극적 지원',
-      '기존 IT 인프라 양호',
-      '직원들의 학습 의욕'
-    ];
-  }
-
-  if (report.roadmap.length === 0) {
-    report.roadmap = [
-      {
-        phase: '1단계: 기초 구축',
-        period: '0-3개월',
-        tasks: ['AI 교육 실시', '현황 분석', '목표 설정'],
-        expectedOutcome: 'AI 기초 역량 확보'
-      },
-      {
-        phase: '2단계: 파일럿 프로젝트',
-        period: '3-6개월',
-        tasks: ['시범 프로젝트 선정', 'AI 도구 도입', '성과 측정'],
-        expectedOutcome: '초기 성과 창출'
-      },
-      {
-        phase: '3단계: 전사 확산',
-        period: '6-12개월',
-        tasks: ['전사 확대 적용', 'AI 문화 정착', '지속 개선'],
-        expectedOutcome: 'AI 기반 혁신 체계 구축'
-      }
-    ];
-  }
-
-  return report;
+    console.error('❌ AI 응답 파싱 실패:', error);
+    throw new Error('AI 분석 결과를 파싱할 수 없습니다. 실제 AI 분석 없이는 보고서를 생성할 수 없습니다.');
 }
 
 /**

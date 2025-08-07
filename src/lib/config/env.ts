@@ -5,8 +5,8 @@
 
 import { z } from 'zod';
 
-// 🔧 **실제 AICAMP 구글시트 정보** (2025.01.27 최신 업데이트)
-const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
+// 🔧 **실제 AICAMP 구글시트 정보** (2025.08.07 최신 업데이트)
+const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLjX8DopDcRcuZo28ZFHrAsCXHJGp34fj1h_PADX3SFwUm29w-pIcyKFbISDGFE4jzOQRnA1SVyftL8D-V8R6a_ECa8CP3Hek2mCITQoFx0rgfxQk9eSR5UIAeixtAB8SJJJ-tMjtFQv9-GdEPAHxMhoByyQvShDS8GBBFyIi4Ph3QE0GL8nKZSzXRk99AjEir3xaIsmtdvUZXh57tgOGaAm4LwbtDxquOPmCvhMJ4vUix4AXY2QTNVIiDme4Lz9ZeiWfX-tlSHmxR-TILEgHVEOE_zNHw&lib=MCujFd0GCNp5wnSMdhkbgWEzN9sd4IQmq';
 const GOOGLE_SHEETS_ID = '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0';
 
 // 환경변수 스키마 정의 (EmailJS 제거됨)

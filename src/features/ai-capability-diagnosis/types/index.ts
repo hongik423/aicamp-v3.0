@@ -141,6 +141,9 @@ export interface DiagnosisApiResponse {
   reportPassword?: string; // 6자리 보고서 접근 패스워드
   message?: string;
   error?: string;
+  processingTime?: string;
+  estimatedTime?: string;
+  features?: string[];
 }
 
 // 진단 상태 타입
