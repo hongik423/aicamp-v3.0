@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Award
 } from 'lucide-react';
+import { useBannerStore } from '@/lib/stores/bannerStore';
 
 interface DiagnosisStep {
   id: string;
@@ -56,6 +57,7 @@ export default function DiagnosisProgressModal({
   pollApiPath = '/api/diagnosis-results/',
   pollIntervalMs = 15000
 }: DiagnosisProgressModalProps) {
+  const banner = useBannerStore();
   const [steps, setSteps] = useState<DiagnosisStep[]>([
     {
       id: 'data-validation',
@@ -138,8 +140,13 @@ export default function DiagnosisProgressModal({
       const totalDuration = Object.values(stepDurations).reduce((sum, duration) => sum + duration, 0);
       setEstimatedCompletionTime(Date.now() + totalDuration * 1000);
       startDiagnosisProcess();
+      // 모달이 열리면 배너가 보장되도록 업데이트
+      banner.update('🔄 진단이 진행 중입니다. 보고서 생성 및 이메일 발송 준비 중...', {
+        subMessage: '완료되면 이메일로 자동 발송됩니다. 창을 닫으셔도 됩니다.',
+        variant: 'info',
+      });
     }
-  }, [isOpen, startTime]);
+  }, [isOpen, startTime, banner]);
 
   // SSE 기반 실시간 진행 업데이트 (가능하면 폴링보다 우선 적용)
   useEffect(() => {
@@ -187,12 +194,21 @@ export default function DiagnosisProgressModal({
           const data = JSON.parse(e.data);
           setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed', endTime: s.endTime ?? Date.now() })));
           setTotalProgress(100);
+          banner.update('✅ 진단 보고서가 완성되어 이메일로 전송되었습니다.', {
+            subMessage: '이 창은 닫으셔도 됩니다. 이용해 주셔서 감사합니다.',
+            variant: 'success',
+          });
+          setTimeout(() => banner.hide(), 8000);
           if (onComplete) onComplete({ success: true, diagnosisId, ...data });
         } catch {}
       });
 
       es.addEventListener('timeout', () => {
         // 시간 초과 시에도 진행 모달은 남기고 이메일 안내 유지
+        banner.update('⏰ 진단이 계속 진행 중입니다.', {
+          subMessage: '최대 15분까지 소요될 수 있습니다. 완료 시 이메일 발송됩니다.',
+          variant: 'warning',
+        });
       });
 
       es.onerror = () => {
@@ -226,6 +242,13 @@ export default function DiagnosisProgressModal({
           setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed', endTime: s.endTime ?? Date.now() })));
           setTotalProgress(100);
 
+          // 배너 성공 안내 및 자동 숨김
+          banner.update('✅ 진단 보고서가 완성되어 이메일로 전송되었습니다.', {
+            subMessage: '이 창은 닫으셔도 됩니다. 이용해 주셔서 감사합니다.',
+            variant: 'success',
+          });
+          setTimeout(() => banner.hide(), 8000);
+
           // 완료 콜백
           if (onComplete) {
             onComplete({ success: true, diagnosisId, ...data });
@@ -243,7 +266,7 @@ export default function DiagnosisProgressModal({
       clearInterval(intervalId);
       setPolling(false);
     };
-  }, [isOpen, diagnosisId, pollApiPath, pollIntervalMs, polling, onComplete, sseActive]);
+  }, [isOpen, diagnosisId, pollApiPath, pollIntervalMs, polling, onComplete, sseActive, banner]);
 
   const startDiagnosisProcess = async () => {
     console.log('🚀 진단 프로세스 시작');
