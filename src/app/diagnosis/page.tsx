@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '@/components/layout/header';
 import { AICapabilityDiagnosisForm } from '@/features/ai-capability-diagnosis/components/AICapabilityDiagnosisForm';
 import { Brain, Target, TrendingUp, Users, Award, BarChart3 } from 'lucide-react';
@@ -15,6 +15,15 @@ import { Badge } from '@/components/ui/badge';
 
 export default function DiagnosisPage() {
   const [showForm, setShowForm] = useState(false);
+  const [accentHero, setAccentHero] = useState(false);
+  const [accentHeroIcon, setAccentHeroIcon] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.matchMedia('(max-width: 640px)').matches);
+    }
+  }, []);
+  const ACCENT_DURATION_MS = isMobile ? 1800 : 1200;
 
   if (showForm) {
     return (
@@ -56,12 +65,14 @@ export default function DiagnosisPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12 px-4">
             <Button 
               size="lg" 
-              className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-4 text-base sm:text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation"
+              onMouseDown={() => setAccentHero(true)}
+              onMouseUp={() => setAccentHero(false)}
+              className={`group w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-4 text-base sm:text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation ${accentHero ? 'mix-blend-difference animate-pulse' : ''}`}
               onClick={() => setShowForm(true)}
               style={{ minHeight: '56px', touchAction: 'manipulation' }}
             >
-              <Brain className="w-5 h-5 mr-2" />
-              🚀 무료 AI 역량진단 시작
+              <Brain className={`w-5 h-5 mr-2 ${accentHeroIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`} />
+              <span className={`${accentHero ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>🚀 무료 AI 역량진단 시작</span>
             </Button>
           </div>
           

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getGasUrl } from '@/lib/config/env';
 
 // CORS 헤더 설정
 const corsHeaders = {
@@ -42,9 +43,7 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 진단 상태 조회:', diagnosisId);
 
-    const GOOGLE_APPS_SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL || 
-      process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
-      'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
+    const GOOGLE_APPS_SCRIPT_URL = getGasUrl();
 
     // Google Apps Script에서 진단 상태 조회
     const controller = new AbortController();

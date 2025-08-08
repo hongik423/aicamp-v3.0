@@ -28,6 +28,15 @@ import { getImagePath } from '@/lib/utils';
 export default function FreeDiagnosisPage() {
   const [currentStep, setCurrentStep] = useState<'intro' | 'form' | 'results'>('intro');
   const [diagnosisResults, setDiagnosisResults] = useState<any>(null);
+  const [accentCTA, setAccentCTA] = useState(false);
+  const [accentCTAIcon, setAccentCTAIcon] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.matchMedia('(max-width: 640px)').matches);
+    }
+  }, []);
+  const ACCENT_DURATION_MS = isMobile ? 1800 : 1200;
 
   // 페이지 제목 설정
   useEffect(() => {
@@ -35,6 +44,12 @@ export default function FreeDiagnosisPage() {
   }, []);
 
   const handleStartDiagnosis = () => {
+    setAccentCTA(true);
+    setTimeout(() => setAccentCTAIcon(true), 120);
+    setTimeout(() => {
+      setAccentCTA(false);
+      setAccentCTAIcon(false);
+    }, ACCENT_DURATION_MS);
     setCurrentStep('form');
   };
 
@@ -141,11 +156,13 @@ export default function FreeDiagnosisPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
+                onMouseDown={() => setAccentCTA(true)}
+                onMouseUp={() => setAccentCTA(false)}
                 onClick={handleStartDiagnosis}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto"
+                className={`group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accentCTA ? 'mix-blend-difference text-white animate-pulse' : ''}`}
               >
-                AI역량진단 시작하기
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>AI역량진단 시작하기</span>
+                <ArrowRight className={`w-5 h-5 ml-2 ${accentCTAIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`} />
               </Button>
               <Button 
                 variant="outline"
@@ -383,10 +400,12 @@ export default function FreeDiagnosisPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button 
+                  onMouseDown={() => setAccentCTA(true)}
+                  onMouseUp={() => setAccentCTA(false)}
                   onClick={handleStartDiagnosis}
-                  className="bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-auto"
+                  className={`group bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-auto transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accentCTA ? 'mix-blend-difference text-black animate-pulse' : ''}`}
                 >
-                  AI역량진단 시작하기
+                  <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>AI역량진단 시작하기</span>
                 </Button>
                 <div className="flex items-center gap-4 text-sm text-blue-100">
                   <div className="flex items-center gap-1">

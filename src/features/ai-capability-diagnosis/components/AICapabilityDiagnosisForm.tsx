@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -82,6 +82,9 @@ type DiagnosisFormData = z.infer<typeof diagnosisSchema>;
 export const AICapabilityDiagnosisForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAccentText, setIsAccentText] = useState(false);
+  const [isAccentIcon, setIsAccentIcon] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [highlightUnanswered, setHighlightUnanswered] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [diagnosisId, setDiagnosisId] = useState<string>('');
@@ -114,7 +117,39 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
     }
   });
 
+  useEffect(() => {
+    // 모바일 여부 판별 (초기 마운트 시 1회)
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.matchMedia('(max-width: 640px)').matches);
+    }
+  }, []);
+
+  // 제출 중에는 보색 효과를 끝까지 유지
+  useEffect(() => {
+    if (isSubmitting) {
+      setIsAccentText(true);
+      // 아이콘은 약간 늦게 진입하여 스태거 효과
+      const id = setTimeout(() => setIsAccentIcon(true), 120);
+      return () => clearTimeout(id);
+    } else {
+      setIsAccentText(false);
+      setIsAccentIcon(false);
+    }
+  }, [isSubmitting]);
+
+  const ACCENT_DURATION_MS = useMemo(() => (isMobile ? 1800 : 1200), [isMobile]);
+
   const handleStartDiagnosis = () => {
+    // 클릭 시작 시 즉시 텍스트 반전, 아이콘은 지연 진입
+    setIsAccentText(true);
+    setTimeout(() => setIsAccentIcon(true), 120);
+    // 모바일은 더 길게 유지하지만, 실제 제출 시작 후에는 isSubmitting 효과로 계속 유지됨
+    setTimeout(() => {
+      if (!isSubmitting) {
+        setIsAccentText(false);
+        setIsAccentIcon(false);
+      }
+    }, ACCENT_DURATION_MS);
     toast({
       title: "진단 시작",
       description: "AI 역량진단이 시작됩니다. 잠시만 기다려주세요.",
@@ -820,7 +855,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex items-center gap-2 h-12 px-6 text-base min-w-[120px] flex-1 max-w-[180px] bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
+                  className={`group flex items-center gap-2 h-12 px-6 text-base min-w-[120px] flex-1 max-w-[180px] bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}
                   onClick={handleStartDiagnosis}
                   style={{
                     WebkitTapHighlightColor: 'transparent',
@@ -835,9 +870,9 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <Brain className="w-5 h-5" />
-                      <span className="hidden sm:inline">AI 역량진단 시작</span>
-                      <span className="sm:hidden">진단 시작</span>
+                      <Brain className={`w-5 h-5 ${isAccentIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`} />
+                      <span className={`hidden sm:inline ${isAccentText ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>AI 역량진단 시작</span>
+                      <span className={`sm:hidden ${isAccentText ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>진단 시작</span>
                     </>
                   )}
                 </Button>
