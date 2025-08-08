@@ -88,9 +88,23 @@ export async function submitDiagnosis(data: DiagnosisApplicationData): Promise<D
       console.error(`❌ 진단 제출 실패 (시도 ${attempt}/${maxRetries}):`, error);
       
       if (attempt === maxRetries) {
+        let errorMessage = '진단 신청 중 오류가 발생했습니다';
+        
+        if (lastError?.message) {
+          if (lastError.message.includes('GEMINI API') || lastError.message.includes('JSON 파싱') || lastError.message.includes('Cannot read properties')) {
+            errorMessage = '🚨 AI 분석 시스템에 오류가 발생했습니다.\n\n해결 방법:\n1. Google Apps Script를 V10.1 버전으로 새로 배포해주세요\n2. GEMINI API 키를 확인해주세요\n3. 5분 후 다시 시도해주세요';
+          } else if (lastError.message.includes('Google Apps Script')) {
+            errorMessage = '🔧 Google Apps Script 연결에 문제가 있습니다. 새로운 배포가 필요합니다.';
+          } else if (lastError.message.includes('AI 분석 시스템')) {
+            errorMessage = lastError.message;
+          } else {
+            errorMessage = lastError.message;
+          }
+        }
+        
         return {
           success: false,
-          error: lastError.message || '진단 신청 중 오류가 발생했습니다'
+          error: errorMessage
         };
       }
     }
