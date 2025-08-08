@@ -27,11 +27,12 @@ export default function GlobalBanner() {
   const Icon = variantIcon[variant || 'info'];
 
   const isInfo = (variant || 'info') === 'info';
-  const messageTextClass = isInfo ? 'text-orange-200' : 'text-white';
-  const subMessageTextClass = isInfo ? 'text-orange-100' : 'opacity-90';
+  // 파랑 계열 배경(info)일 때는 보색(노랑/호박) 계열로 텍스트를 강제 적용
+  const messageTextClass = isInfo ? 'text-yellow-200' : 'text-white';
+  const subMessageTextClass = isInfo ? 'text-yellow-100' : 'opacity-90';
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[100] pointer-events-none">
+    <div className="fixed top-0 inset-x-0 z-[100] pointer-events-none" aria-live="polite">
       <div
         className={`mx-auto max-w-screen-2xl m-2 pointer-events-auto shadow-lg border rounded-xl overflow-hidden`}
       >
