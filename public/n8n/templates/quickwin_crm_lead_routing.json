@@ -1,0 +1,16 @@
+{
+  "name": "QuickWin - CRM Lead Routing",
+  "_comment": "Webhook 경로: /webhook/lead-intake (n8n Webhook node에서 Method=POST, Path 설정). CRM 요청: httpRequest node URL=CRM API, Auth=크리덴셜(토큰/Basic). EmailSend node: SMTP 크리덴셜 필요.",
+  "nodes": [
+    { "id": "webhook", "type": "n8n-nodes-base.webhook", "name": "Webhook - New Lead", "parameters": { "path": "lead-intake", "options": { "responseCode": 200 } } },
+    { "id": "router", "type": "n8n-nodes-base.if", "name": "Route by Score", "parameters": { "conditions": { "number": [{ "value1": "={{$json.score}}", "operation": "larger", "value2": 80 }] } } },
+    { "id": "crm", "type": "n8n-nodes-base.httpRequest", "name": "Create CRM Lead", "parameters": { "url": "https://your-crm.example.com/api/leads", "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth" } },
+    { "id": "notify", "type": "n8n-nodes-base.emailSend", "name": "Notify Owner", "parameters": { "toEmail": "={{$json.ownerEmail || 'sales@example.com'}}", "subject": "New Lead Assigned", "text": "A high-score lead has been assigned." } }
+  ],
+  "connections": {
+    "webhook": { "main": [[{"node": "router", "type": "main", "index": 0}]] },
+    "router": { "main": [[{"node": "crm", "type": "main", "index": 0}]] },
+    "crm": { "main": [[{"node": "notify", "type": "main", "index": 0}]] }
+  }
+}
+

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getGasUrl } from '@/lib/config/env';
 
-// Google Apps Script URL (환경변수에서 가져오기)
-const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
-  process.env.GOOGLE_SCRIPT_URL ||
-  'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
+// Google Apps Script URL (중앙 설정 사용)
+const GOOGLE_SCRIPT_URL = getGasUrl();
 
 // CORS 헤더 설정
 const corsHeaders = {
@@ -12,6 +11,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Content-Type': 'application/json',
 };
+
+// 내부 베이스 URL 계산 (서버에서 자체 라우트 호출 시 사용)
+function getBaseUrl(request: NextRequest): string {
+  const envBase = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL;
+  if (envBase) {
+    return envBase.startsWith('http') ? envBase : `https://${envBase}`;
+  }
+  const host = request.headers.get('host') || 'localhost:3000';
+  const proto = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+  return `${proto}://${host}`;
+}
 
 // OPTIONS 요청 처리 (CORS preflight)
 export async function OPTIONS() {
@@ -129,6 +139,7 @@ export async function POST(request: NextRequest) {
     const timeoutId = setTimeout(() => controller.abort(), 780000); // 780초 타임아웃 (800초 제한 고려)
 
     try {
+      // 1차: GAS 직접 호출
       const scriptResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         headers: {
@@ -138,19 +149,19 @@ export async function POST(request: NextRequest) {
         signal: controller.signal
       });
 
-      clearTimeout(timeoutId);
-
       if (!scriptResponse.ok) {
-        const errorText = await scriptResponse.text();
-        console.error('❌ Google Apps Script 응답 오류:', {
+        const directText = await scriptResponse.text().catch(() => '');
+        console.warn('⚠️ GAS 직접 호출 실패, 프록시로 폴백 시도:', {
           status: scriptResponse.status,
           statusText: scriptResponse.statusText,
-          response: errorText
+          preview: directText?.slice(0, 200)
         });
-        throw new Error(`Google Apps Script 오류: ${scriptResponse.status} - ${errorText}`);
+        throw new Error(`DIRECT_${scriptResponse.status}`);
       }
 
-      // 일부 환경에서 GAS가 오류 시 JSON이 아닌 텍스트/HTML을 반환할 수 있으므로 안전 파싱
+      clearTimeout(timeoutId);
+
+      // 안전 파싱
       const responseText = await scriptResponse.text();
       let scriptResult: any;
       try {
@@ -160,6 +171,7 @@ export async function POST(request: NextRequest) {
         console.error('📄 응답 미리보기:', responseText.slice(0, 500));
         throw new Error('GEMINI API 응답 형식 문제로 보고서 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
       }
+
       console.log('📥 Google Apps Script 응답:', {
         success: scriptResult.success,
         diagnosisId: scriptResult.diagnosisId,
@@ -168,10 +180,9 @@ export async function POST(request: NextRequest) {
 
       if (scriptResult.success && scriptResult.diagnosisId) {
         console.log('✅ AI 역량진단 신청 처리 완료:', scriptResult.diagnosisId);
-        
         return NextResponse.json(
-          { 
-            success: true, 
+          {
+            success: true,
             diagnosisId: scriptResult.diagnosisId,
             processingTime: scriptResult.processingTime,
             message: scriptResult.message || 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
@@ -182,30 +193,27 @@ export async function POST(request: NextRequest) {
               '업종별 맞춤 분석',
               'N8N 자동화 중심 SWOT 분석',
               '3단계 실행 로드맵',
-              'ROI 분석 및 투자 계획'
-            ]
+              'ROI 분석 및 투자 계획',
+            ],
           },
-          { headers: corsHeaders }
+          { headers: corsHeaders },
         );
-      } else {
-        console.error('❌ Google Apps Script 처리 실패:', scriptResult);
-        
-        // 상세한 오류 분석 및 사용자 친화적 메시지
-        let errorMessage = '진단 처리 중 오류가 발생했습니다';
-        if (scriptResult.message) {
-          if (scriptResult.message.includes('GEMINI API') || scriptResult.message.includes('JSON 파싱')) {
-            errorMessage = 'AI 분석 시스템에 일시적 오류가 발생했습니다. Google Apps Script를 새로 배포하거나 잠시 후 다시 시도해주세요.';
-          } else if (scriptResult.message.includes('Cannot read properties')) {
-            errorMessage = 'AI API 응답 처리 중 오류가 발생했습니다. 시스템 관리자에게 문의해주세요.';
-          } else {
-            errorMessage = scriptResult.message;
-          }
-        } else if (scriptResult.error) {
-          errorMessage = scriptResult.error;
-        }
-        
-        throw new Error(errorMessage);
       }
+
+      console.error('❌ Google Apps Script 처리 실패:', scriptResult);
+      let errorMessage = '진단 처리 중 오류가 발생했습니다';
+      if (scriptResult.message) {
+        if (scriptResult.message.includes('GEMINI API') || scriptResult.message.includes('JSON 파싱')) {
+          errorMessage = 'AI 분석 시스템에 일시적 오류가 발생했습니다. Google Apps Script를 새로 배포하거나 잠시 후 다시 시도해주세요.';
+        } else if (scriptResult.message.includes('Cannot read properties')) {
+          errorMessage = 'AI API 응답 처리 중 오류가 발생했습니다. 시스템 관리자에게 문의해주세요.';
+        } else {
+          errorMessage = scriptResult.message;
+        }
+      } else if (scriptResult.error) {
+        errorMessage = scriptResult.error;
+      }
+      throw new Error(errorMessage);
 
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
@@ -228,8 +236,45 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.error('❌ Google Apps Script 연결 오류:', fetchError);
-      throw new Error('Google Apps Script 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      // 폴백: 내부 프록시 경유 요청 시도
+      try {
+        const baseUrl = getBaseUrl(request);
+        const proxyUrl = `${baseUrl}/api/google-script-proxy`;
+        console.log('🔁 프록시 경유 요청 시도:', proxyUrl);
+
+        const proxyResponse = await fetch(proxyUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(gasPayload),
+        });
+
+        if (!proxyResponse.ok) {
+          const proxyText = await proxyResponse.text().catch(() => '');
+          console.error('❌ 프록시 응답 오류:', proxyResponse.status, proxyText?.slice(0, 200));
+          throw new Error(`프록시 호출 실패: ${proxyResponse.status}`);
+        }
+
+        const proxyResult = await proxyResponse.json();
+        if (proxyResult?.success && proxyResult?.diagnosisId) {
+          console.log('✅ 프록시 통해 진단 접수 성공:', proxyResult.diagnosisId);
+          return NextResponse.json(
+            {
+              success: true,
+              diagnosisId: proxyResult.diagnosisId,
+              processingTime: proxyResult.processingTime,
+              message: proxyResult.message || 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
+              estimatedTime: '5-10분',
+            },
+            { headers: corsHeaders },
+          );
+        }
+
+        console.error('❌ 프록시 처리 실패:', proxyResult);
+        throw new Error(proxyResult?.error || '프록시 처리 중 오류가 발생했습니다.');
+      } catch (proxyError) {
+        console.error('❌ Google Apps Script 연결 오류 (프록시 포함):', proxyError);
+        throw new Error('Google Apps Script 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
     }
 
   } catch (error) {

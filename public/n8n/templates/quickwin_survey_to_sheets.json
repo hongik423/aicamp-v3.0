@@ -1,0 +1,14 @@
+{
+  "name": "QuickWin - Survey → Google Sheets",
+  "_comment": "Webhook 경로: /webhook/survey-submit, Google Sheets: OAuth2 크리덴셜 필요(스프레드시트 ID/시트명 설정). Function node에서 필드 매핑을 자유롭게 편집.",
+  "nodes": [
+    { "id": "webhook", "type": "n8n-nodes-base.webhook", "name": "Webhook - Survey Submit", "parameters": { "path": "survey-submit", "options": { "responseCode": 200 } } },
+    { "id": "transform", "type": "n8n-nodes-base.function", "name": "Normalize Fields", "parameters": { "functionCode": "return [{ json: { company: $json.companyName, email: $json.email, submittedAt: new Date().toISOString(), score: $json.totalScore || 0 } }];" } },
+    { "id": "sheets", "type": "n8n-nodes-base.googleSheets", "name": "Append Row", "parameters": { "operation": "append", "sheetId": "YOUR_SHEET_ID", "range": "Sheet1!A:D" } }
+  ],
+  "connections": {
+    "webhook": { "main": [[{"node": "transform", "type": "main", "index": 0}]] },
+    "transform": { "main": [[{"node": "sheets", "type": "main", "index": 0}]] }
+  }
+}
+
