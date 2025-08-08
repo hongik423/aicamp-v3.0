@@ -574,14 +574,25 @@ function normalizeApplicationData(rawData, diagnosisId) {
     assessmentScores: {}
   };
   
-  // assessmentResponses 배열 처리 (프론트엔드에서 보내는 형식)
-  if (rawData.assessmentResponses && Array.isArray(rawData.assessmentResponses)) {
-    console.log('📊 assessmentResponses 배열 처리:', rawData.assessmentResponses.length);
-    rawData.assessmentResponses.forEach(response => {
-      if (response.questionId && response.value !== undefined) {
-        normalized.assessmentScores[response.questionId] = parseInt(response.value) || 3;
-      }
-    });
+  // assessmentResponses 처리 (배열 또는 객체 형태 모두 지원)
+  if (rawData.assessmentResponses) {
+    if (Array.isArray(rawData.assessmentResponses)) {
+      // 배열 형태 처리
+      console.log('📊 assessmentResponses 배열 처리:', rawData.assessmentResponses.length);
+      rawData.assessmentResponses.forEach(response => {
+        if (response.questionId && response.value !== undefined) {
+          normalized.assessmentScores[response.questionId] = parseInt(response.value) || 3;
+        }
+      });
+    } else if (typeof rawData.assessmentResponses === 'object') {
+      // 객체 형태 처리 (프론트엔드에서 보내는 형식)
+      console.log('📊 assessmentResponses 객체 처리:', Object.keys(rawData.assessmentResponses).length);
+      Object.entries(rawData.assessmentResponses).forEach(([questionId, value]) => {
+        if (questionId && value !== undefined) {
+          normalized.assessmentScores[questionId] = parseInt(value) || 3;
+        }
+      });
+    }
   }
   
   // 개별 필드 처리 (하위 호환성)
@@ -702,10 +713,10 @@ function performGAPAnalysis(scoreResult, industry) {
 }
 
 /**
- * SWOT 분석
+ * SWOT 분석 (신청 기업 데이터 기반 고도화)
  */
 function generateSWOTAnalysis(applicationData, scoreResult) {
-  console.log('📊 SWOT 분석 시작');
+  console.log('📊 SWOT 분석 시작 - 기업별 맞춤 분석');
   
   const swot = {
     strengths: [],
@@ -714,65 +725,215 @@ function generateSWOTAnalysis(applicationData, scoreResult) {
     threats: []
   };
   
-  // 강점 분석
+  // 업종별 특성 정의
+  const industryCharacteristics = getIndustryCharacteristics(applicationData.industry);
+  
+  // 강점 분석 (점수 기반 + 업종 특성)
   Object.entries(scoreResult.categoryScores).forEach(([category, score]) => {
     if (score >= 4) {
       swot.strengths.push(`${category} 역량 우수 (${score.toFixed(1)}/5.0)`);
+    } else if (score >= 3.5) {
+      swot.strengths.push(`${category} 역량 양호 (${score.toFixed(1)}/5.0) - ${industryCharacteristics.strengthContext[category] || '지속적 개선 가능'}`);
     }
   });
+  
+  // 기업 규모별 강점 추가
+  const sizeAdvantages = getSizeBasedAdvantages(applicationData.employeeCount);
+  swot.strengths.push(...sizeAdvantages);
   
   if (swot.strengths.length === 0) {
-    swot.strengths.push('변화 수용 의지', '디지털 전환 관심');
+    swot.strengths.push(
+      `${applicationData.industry} 업계 경험과 도메인 지식`,
+      '디지털 전환 의지 및 AI 도입 관심',
+      `${applicationData.employeeCount}명 규모의 조직 민첩성`
+    );
   }
   
-  // 약점 분석
+  // 약점 분석 (점수 기반 + 업종 특성)
   Object.entries(scoreResult.categoryScores).forEach(([category, score]) => {
-    if (score < 3) {
-      swot.weaknesses.push(`${category} 역량 부족 (${score.toFixed(1)}/5.0)`);
+    if (score < 2.5) {
+      swot.weaknesses.push(`${category} 역량 부족 (${score.toFixed(1)}/5.0) - ${industryCharacteristics.weaknessContext[category] || '시급한 개선 필요'}`);
+    } else if (score < 3) {
+      swot.weaknesses.push(`${category} 역량 개선 필요 (${score.toFixed(1)}/5.0)`);
     }
   });
   
+  // 기업 규모별 약점 추가
+  const sizeChallenges = getSizeBasedChallenges(applicationData.employeeCount);
+  swot.weaknesses.push(...sizeChallenges);
+  
   if (swot.weaknesses.length === 0) {
-    swot.weaknesses.push('AI 전문성 부족', '체계적 접근 미흡');
+    swot.weaknesses.push(
+      `${applicationData.industry} 특화 AI 솔루션 부족`,
+      'AI 전문 인력 및 교육 체계 미흡',
+      '체계적인 AI 도입 전략 부재'
+    );
   }
   
-  // 기회 요인
+  // 기회 요인 (업종별 맞춤)
   swot.opportunities = [
-    'AI 기술 발전과 접근성 향상',
-    '정부 AI 지원사업 활용 가능',
-    'AI 도구 비용 절감 추세',
-    '산업별 AI 솔루션 증가'
+    ...industryCharacteristics.opportunities,
+    `${applicationData.industry} 업계 AI 혁신 트렌드 활용`,
+    '정부 중소기업 AI 지원사업 및 보조금 활용',
+    'AICAMP 전문 교육을 통한 빠른 역량 확보',
+    `${applicationData.employeeCount}명 규모 최적화된 AI 솔루션 도입`
   ];
   
-  // 위협 요인
+  // 위협 요인 (업종별 맞춤)
   swot.threats = [
-    '경쟁사 AI 도입 가속화',
-    'AI 인재 확보 경쟁',
-    '기술 변화 속도',
-    'AI 관련 규제 강화'
+    ...industryCharacteristics.threats,
+    `${applicationData.industry} 업계 내 AI 선도 기업과의 격차 확대`,
+    'AI 기술 변화 속도 대비 조직 적응력 부족',
+    `${applicationData.employeeCount}명 규모 기업의 AI 투자 한계`,
+    'AI 관련 규제 및 윤리적 이슈 대응 부담'
   ];
   
-  // SO, WO, ST, WT 전략
-  swot.strategies = {
-    SO: [
-      '강점 영역을 기반으로 AI 파일럿 프로젝트 실행',
-      '정부 지원사업 우선 선정 가능성 활용'
-    ],
-    WO: [
-      'AICAMP 교육으로 약점 영역 보완',
-      '외부 전문가 활용한 빠른 역량 확보'
-    ],
-    ST: [
-      '선제적 AI 도입으로 경쟁 우위 확보',
-      '내부 역량 강화로 외부 의존도 감소'
-    ],
-    WT: [
-      '단계적 접근으로 리스크 최소화',
-      '핵심 영역 우선 개선 전략'
-    ]
-  };
+  // 데이터 기반 맞춤형 SO, WO, ST, WT 전략
+  swot.strategies = generateDataDrivenStrategies(applicationData, scoreResult, swot);
   
   return swot;
+}
+
+/**
+ * 업종별 특성 정의
+ */
+function getIndustryCharacteristics(industry) {
+  const characteristics = {
+    'IT/소프트웨어': {
+      opportunities: ['클라우드 AI 서비스 활용', '개발 생산성 향상 도구', 'AI 기반 코드 생성'],
+      threats: ['기술 변화 속도', '인재 유출', 'AI 도구 의존도 증가'],
+      strengthContext: {
+        '리더십': '기술 리더십 우수',
+        '인프라': '클라우드 인프라 활용',
+        '직원역량': '개발자 학습 능력',
+        '조직문화': '혁신 문화 우수',
+        '실무적용': '빠른 프로토타이핑',
+        '데이터': '개발 데이터 풍부'
+      },
+      weaknessContext: {
+        '리더십': 'AI 전략 수립 필요',
+        '인프라': 'AI 전용 인프라 부족',
+        '직원역량': 'AI/ML 전문성 부족',
+        '조직문화': 'AI 도입 저항',
+        '실무적용': 'AI 활용 경험 부족',
+        '데이터': '데이터 품질 관리 필요'
+      }
+    },
+    '제조업': {
+      opportunities: ['스마트팩토리 구축', 'AI 품질관리', '예측 정비'],
+      threats: ['설비 투자 부담', '기존 시스템 호환성', '제조업 AI 인재 부족'],
+      strengthContext: {
+        '리더십': '제조 경험 기반 리더십',
+        '인프라': '제조 설비 디지털화',
+        '직원역량': '제조 공정 전문성',
+        '조직문화': '품질 중심 문화',
+        '실무적용': '현장 적용 경험',
+        '데이터': '생산 데이터 축적'
+      },
+      weaknessContext: {
+        '리더십': 'AI 제조 전략 필요',
+        '인프라': 'IoT 센서 확충 필요',
+        '직원역량': '디지털 전환 교육 필요',
+        '조직문화': '전통적 제조 문화',
+        '실무적용': 'AI 도입 경험 부족',
+        '데이터': '데이터 표준화 필요'
+      }
+    },
+    '유통/서비스': {
+      opportunities: ['개인화 추천', '고객 분석', '재고 최적화'],
+      threats: ['고객 데이터 보안', '개인정보 규제', '온라인 경쟁 심화'],
+      strengthContext: {
+        '리더십': '고객 중심 리더십',
+        '인프라': 'POS/CRM 시스템',
+        '직원역량': '서비스 전문성',
+        '조직문화': '고객 서비스 문화',
+        '실무적용': '고객 접점 경험',
+        '데이터': '고객 거래 데이터'
+      },
+      weaknessContext: {
+        '리더십': '데이터 기반 의사결정 필요',
+        '인프라': '통합 데이터 플랫폼 부족',
+        '직원역량': '데이터 분석 역량 부족',
+        '조직문화': '경험 중심 의사결정',
+        '실무적용': 'AI 도구 활용 미흡',
+        '데이터': '고객 데이터 품질 관리'
+      }
+    }
+  };
+  
+  return characteristics[industry] || characteristics['IT/소프트웨어'];
+}
+
+/**
+ * 기업 규모별 장점
+ */
+function getSizeBasedAdvantages(employeeCount) {
+  const size = getCompanySize(employeeCount);
+  const advantages = {
+    'small': ['빠른 의사결정', '조직 민첩성', '개인별 맞춤 교육 가능'],
+    'medium': ['적정 규모의 전담팀 구성', '단계적 도입 가능', '투자 대비 효과 측정 용이'],
+    'large': ['충분한 투자 여력', '전문 조직 구성', '다양한 AI 활용 사례 실험']
+  };
+  return advantages[size] || advantages['medium'];
+}
+
+/**
+ * 기업 규모별 과제
+ */
+function getSizeBasedChallenges(employeeCount) {
+  const size = getCompanySize(employeeCount);
+  const challenges = {
+    'small': ['AI 전문 인력 확보 어려움', '투자 예산 제약', '시행착오 비용 부담'],
+    'medium': ['AI 전략 수립 역량 부족', '기존 시스템과의 연동', '성과 측정 체계 필요'],
+    'large': ['조직 변화 관리', '레거시 시스템 의존성', 'AI 거버넌스 체계 필요']
+  };
+  return challenges[size] || challenges['medium'];
+}
+
+/**
+ * 기업 규모 분류
+ */
+function getCompanySize(employeeCount) {
+  if (employeeCount.includes('1-10') || employeeCount.includes('11-50')) return 'small';
+  if (employeeCount.includes('51-100') || employeeCount.includes('101-300')) return 'medium';
+  return 'large';
+}
+
+/**
+ * 데이터 기반 맞춤형 전략 생성
+ */
+function generateDataDrivenStrategies(applicationData, scoreResult, swot) {
+  const topStrengths = swot.strengths.slice(0, 2);
+  const topWeaknesses = swot.weaknesses.slice(0, 2);
+  const industry = applicationData.industry;
+  const size = getCompanySize(applicationData.employeeCount);
+  
+  return {
+    SO: [
+      `${topStrengths[0]}을 활용한 ${industry} 특화 AI 파일럿 프로젝트 실행`,
+      `${applicationData.companyName}의 강점 영역에서 AI 도입 우선 추진`,
+      `${size === 'small' ? '소규모 민첩성' : size === 'medium' ? '적정 규모 장점' : '충분한 자원'}을 활용한 빠른 AI 성과 창출`,
+      'AICAMP 정부지원사업 연계로 투자 부담 최소화'
+    ],
+    WO: [
+      `${topWeaknesses[0]} 개선을 위한 AICAMP 맞춤형 교육 프로그램 참여`,
+      `${industry} 업계 AI 트렌드 활용으로 약점 영역 빠른 보완`,
+      `외부 AI 전문가 파트너십으로 ${applicationData.companyName} 역량 단기 확보`,
+      '정부 AI 바우처 사업 활용한 전문 컨설팅 도입'
+    ],
+    ST: [
+      `${topStrengths[0]}을 기반으로 ${industry} 업계 AI 선도 기업 도약`,
+      `${applicationData.companyName}의 강점 영역에서 AI 경쟁 우위 확보`,
+      `${size} 규모 기업 최적화된 AI 솔루션으로 차별화 전략 구축`,
+      'AI 기술 변화에 선제적 대응하여 시장 리더십 확보'
+    ],
+    WT: [
+      `${topWeaknesses[0]} 리스크를 최소화하는 단계적 AI 도입 전략`,
+      `${applicationData.companyName} 규모에 맞는 점진적 AI 역량 구축`,
+      'AICAMP 교육을 통한 내부 역량 강화로 외부 의존도 감소',
+      `${industry} 업계 AI 위협 요소 대응을 위한 핵심 역량 우선 개발`
+    ]
+  };
 }
 
 /**
@@ -1512,10 +1673,22 @@ function generateAIReport(data) {
         opportunities: data.swotAnalysis.opportunities,
         threats: data.swotAnalysis.threats,
         strategicMatrix: {
-          SO_strategies: geminiResponse.strategicMatrix?.SO전략 || geminiResponse.strategicMatrix?.SO_strategies || [],
-          WO_strategies: geminiResponse.strategicMatrix?.WO전략 || geminiResponse.strategicMatrix?.WO_strategies || [],
-          ST_strategies: geminiResponse.strategicMatrix?.ST전략 || geminiResponse.strategicMatrix?.ST_strategies || [],
-          WT_strategies: geminiResponse.strategicMatrix?.WT전략 || geminiResponse.strategicMatrix?.WT_strategies || []
+          SO_strategies: geminiResponse.strategicMatrix?.SO전략 || geminiResponse.strategicMatrix?.SO_strategies || data.swotAnalysis.strategies?.SO || [
+            '강점 영역을 기반으로 AI 파일럿 프로젝트 실행',
+            '정부 지원사업 우선 선정 가능성 활용'
+          ],
+          WO_strategies: geminiResponse.strategicMatrix?.WO전략 || geminiResponse.strategicMatrix?.WO_strategies || data.swotAnalysis.strategies?.WO || [
+            'AICAMP 교육으로 약점 영역 보완',
+            '외부 전문가 활용한 빠른 역량 확보'
+          ],
+          ST_strategies: geminiResponse.strategicMatrix?.ST전략 || geminiResponse.strategicMatrix?.ST_strategies || data.swotAnalysis.strategies?.ST || [
+            '선제적 AI 도입으로 경쟁 우위 확보',
+            '내부 역량 강화로 외부 의존도 감소'
+          ],
+          WT_strategies: geminiResponse.strategicMatrix?.WT전략 || geminiResponse.strategicMatrix?.WT_strategies || data.swotAnalysis.strategies?.WT || [
+            '단계적 접근으로 리스크 최소화',
+            '핵심 영역 우선 개선 전략'
+          ]
         },
         actionPlan: geminiResponse.actionPlan || [],
         basedOnActualData: `${data.applicationData.companyName}의 실제 신청서 답변을 바탕으로 한 SWOT 분석`
@@ -2118,31 +2291,47 @@ function generateApplicantEmailHTML(applicationData, report, diagnosisId, passwo
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { 
-      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif; 
+      font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
       margin: 0; 
       padding: 0; 
-      background: #f5f7fa;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       color: #2c3e50;
-      line-height: 1.6;
+      line-height: 1.8;
+      font-size: 16px;
     }
     .container { 
-      max-width: 800px; 
-      margin: 0 auto; 
+      max-width: 900px; 
+      margin: 40px auto; 
       background: white;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+      overflow: hidden;
     }
     .header { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%); 
       color: white; 
-      padding: 60px 40px; 
+      padding: 80px 50px; 
       text-align: center;
       position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      pointer-events: none;
     }
     .header h1 {
       margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 5px;
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: -0.5px;
     }
     .header .company-name {
       font-size: 24px;
@@ -2207,26 +2396,43 @@ function generateApplicantEmailHTML(applicationData, report, diagnosisId, passwo
       padding: 40px;
     }
     .score-card { 
-      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-      padding: 40px; 
-      border-radius: 15px; 
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      padding: 50px; 
+      border-radius: 20px; 
       text-align: center; 
-      margin: 30px 0;
-      border: 2px solid #667eea30;
+      margin: 40px 0;
+      border: 3px solid transparent;
+      background-clip: padding-box;
+      box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
+      position: relative;
+    }
+    .score-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      padding: 3px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
+      border-radius: 20px;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: xor;
+      -webkit-mask-composite: xor;
     }
     .score-number { 
-      font-size: 72px; 
-      font-weight: bold; 
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-size: 96px; 
+      font-weight: 900; 
+      background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 0;
+      text-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
     }
     .score-grade { 
-      font-size: 32px; 
-      color: #495057; 
-      margin: 10px 0;
-      font-weight: 600;
+      font-size: 42px; 
+      color: #1e293b; 
+      margin: 15px 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .score-percentile {
       font-size: 18px;
@@ -2261,12 +2467,28 @@ function generateApplicantEmailHTML(applicationData, report, diagnosisId, passwo
       color: #2c3e50;
     }
     .section-title {
-      font-size: 24px;
-      color: #2c3e50;
-      margin: 40px 0 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #667eea;
-      font-weight: 600;
+      font-size: 28px;
+      color: #1e293b;
+      margin: 50px 0 30px;
+      padding: 20px 0 15px;
+      border-bottom: 3px solid transparent;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed) padding-box, linear-gradient(135deg, #4f46e5, #7c3aed) border-box;
+      background-clip: padding-box, border-box;
+      background-origin: padding-box, border-box;
+      font-weight: 700;
+      text-align: center;
+      position: relative;
+    }
+    .section-title::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
+      border-radius: 2px;
     }
     .key-findings {
       background: #f8f9fa;
@@ -2397,20 +2619,37 @@ function generateApplicantEmailHTML(applicationData, report, diagnosisId, passwo
     }
     .cta-button { 
       display: inline-block; 
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
       color: white; 
-      padding: 18px 40px; 
+      padding: 20px 50px; 
       text-decoration: none; 
-      border-radius: 30px; 
-      margin: 10px;
-      font-weight: 600;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+      border-radius: 50px; 
+      margin: 15px;
+      font-weight: 700;
+      font-size: 18px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s;
+    }
+    .cta-button:hover::before {
+      left: 100%;
     }
     .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(79, 70, 229, 0.5);
     }
     .footer { 
       background: #2c3e50; 
@@ -2435,9 +2674,29 @@ function generateApplicantEmailHTML(applicationData, report, diagnosisId, passwo
 </head>
 <body>
   <div class="container">
+    <!-- AICAMP 로고 및 브랜드 헤더 -->
+    <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); padding: 30px; text-align: center; border-bottom: 3px solid #4f46e5;">
+      <img src="https://raw.githubusercontent.com/AICAMP-DEV/aicamp-assets/main/logos/aicamp_logo_del_250726.png" 
+           alt="AICAMP AI 교육센터" 
+           style="height: 60px; width: auto; margin-bottom: 15px;"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div style="display: none; font-size: 28px; font-weight: 800; color: #4f46e5; margin-bottom: 15px;">AI CAMP</div>
+      <div style="font-size: 16px; color: #64748b; font-weight: 600;">
+        🎯 AI 역량진단 전문기관 | 이후경 교장 30년 기업교육 노하우
+      </div>
+    </div>
+    
     <div class="header">
       <div class="diagnosis-id">진단번호: ${diagnosisId}</div>
-      <h1>N8N 자동화 AI 역량진단 결과보고서</h1>
+      <div style="position: relative; z-index: 1;">
+        <div style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 20px; backdrop-filter: blur(10px);">
+          🚀 AICAMP Premium Report
+        </div>
+        <h1>AI 역량진단 결과보고서</h1>
+        <div style="font-size: 18px; opacity: 0.9; margin-top: 10px;">
+          GEMINI 2.5 Flash AI 기반 정밀 분석
+        </div>
+      </div>
       <div class="company-name">${applicationData.companyName}</div>
       <div class="industry-info">${applicationData.industry} | 직원수 ${applicationData.employeeCount}명 | 담당자: ${applicationData.contactName}</div>
     </div>
@@ -2551,16 +2810,39 @@ function generateApplicantEmailHTML(applicationData, report, diagnosisId, passwo
       </div>
       
       <div class="cta-section">
-        <h2 style="margin-bottom: 20px;">다음 단계로 나아가세요</h2>
+        <div style="margin-bottom: 20px;">
+          <img src="https://raw.githubusercontent.com/AICAMP-DEV/aicamp-assets/main/logos/aicamp_logo_del_250726.png" 
+               alt="AICAMP" 
+               style="height: 40px; width: auto; opacity: 0.8;"
+               onerror="this.style.display='none';">
+        </div>
+        <h2 style="margin-bottom: 20px;">🚀 AICAMP과 함께 AI 역량을 한 단계 더 발전시키세요!</h2>
         <p style="color: #6c757d; margin-bottom: 30px;">
-          AICAMP와 함께 AI 혁신의 여정을 시작하세요
+          <strong>이후경 교장의 30년 기업교육 노하우</strong>로 귀사만의 AI 도입 전략을 수립하고,<br>체계적인 교육으로 조직 역량을 강화하세요.
         </p>
-        <a href="https://${env.AICAMP_WEBSITE}/diagnosis/result/${diagnosisId}" class="cta-button">
-          📊 상세 보고서 확인
-        </a>
-        <a href="mailto:${env.ADMIN_EMAIL}?subject=[AI역량진단] ${applicationData.companyName} 상담 요청&body=진단번호: ${diagnosisId}%0D%0A회사명: ${applicationData.companyName}%0D%0A담당자: ${applicationData.contactName}" class="cta-button">
-          📞 무료 상담 신청
-        </a>
+        <div style="margin: 25px 0;">
+          <a href="mailto:${env.ADMIN_EMAIL}?subject=[AI역량진단] ${applicationData.companyName} 상담 요청&body=진단번호: ${diagnosisId}%0D%0A회사명: ${applicationData.companyName}%0D%0A담당자: ${applicationData.contactName}" class="cta-button">
+            📞 무료 전문가 상담 신청
+          </a>
+          <a href="https://aicamp.so/programs" class="cta-button">
+            🎓 AI 교육 프로그램 보기
+          </a>
+        </div>
+        <div style="background: rgba(79, 70, 229, 0.1); padding: 20px; border-radius: 15px; margin-top: 30px;">
+          <div style="font-size: 16px; color: #4f46e5; font-weight: 600; margin-bottom: 10px;">
+            🎯 AICAMP 전문 서비스
+          </div>
+          <div style="font-size: 14px; color: #64748b; line-height: 1.6;">
+            ✅ AI 역량진단 및 컨설팅<br>
+            ✅ 맞춤형 AI 교육 프로그램<br>
+            ✅ AI 도입 전략 수립 지원<br>
+            ✅ 정부지원사업 연계 서비스
+          </div>
+        </div>
+        <div style="margin-top: 30px; font-size: 14px; color: #6c757d;">
+          📞 상담 문의: 02-123-4567 | 📧 이메일: contact@aicamp.so<br>
+          🌐 웹사이트: <a href="https://aicamp.so" style="color: #4f46e5;">aicamp.so</a>
+        </div>
       </div>
     </div>
     
@@ -3606,4 +3888,4 @@ AICAMP
 // - 재시도 로직 및 지수 백오프 적용
 // - JSON 파싱 오류 처리 강화
 // - API Rate Limit 대응 로직 추가
-// ================================================================================ 
+// ===============================================================================
