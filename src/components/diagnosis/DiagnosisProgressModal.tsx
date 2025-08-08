@@ -364,16 +364,16 @@ export default function DiagnosisProgressModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <CardHeader className="text-center pb-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <Brain className="w-10 h-10 text-white" />
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-2 sm:p-4">
+      <Card className="w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
+        <CardHeader className="text-center pb-4 sm:pb-6 px-4 sm:px-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-pulse">
+            <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <CardTitle className="text-2xl text-gray-900">
+          <CardTitle className="text-xl sm:text-2xl text-gray-900 leading-tight">
             🤖 {companyName} AI 역량 진단 분석 중
           </CardTitle>
-          <p className="text-gray-600 text-lg mt-2">
+          <p className="text-gray-600 text-base sm:text-lg mt-2 leading-relaxed">
             GEMINI 2.5 Flash AI가 귀하의 기업을 분석하고 있습니다
           </p>
           
@@ -391,19 +391,19 @@ export default function DiagnosisProgressModal({
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-6">
-          {/* 전체 진행률 */}
+        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+          {/* 전체 진행률 - 모바일 최적화 */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">전체 진행률</span>
-              <Badge variant="outline" className="text-sm">
+              <span className="text-sm sm:text-base font-medium text-gray-700">전체 진행률</span>
+              <Badge variant="outline" className="text-sm font-bold">
                 {Math.round(totalProgress)}% 완료
               </Badge>
             </div>
-            <Progress value={totalProgress} className="h-3" />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>경과 시간: {getElapsedTime()}</span>
-              <span>남은 시간: {getRemainingTime()}</span>
+            <Progress value={totalProgress} className="h-4" />
+            <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-gray-500 gap-1 sm:gap-0">
+              <span>⏱️ 경과 시간: {getElapsedTime()}</span>
+              <span>⏳ 남은 시간: {getRemainingTime()}</span>
             </div>
           </div>
 

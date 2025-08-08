@@ -103,30 +103,73 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="companyName">회사명</Label>
-              <Input id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} required />
+          {/* 모바일 최적화된 그리드 레이아웃 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="companyName" className="text-base font-semibold text-gray-900">회사명 *</Label>
+              <Input 
+                id="companyName" 
+                value={companyName} 
+                onChange={e => setCompanyName(e.target.value)} 
+                required 
+                className="h-12 text-base border-2 focus:border-blue-500 rounded-lg"
+                placeholder="회사명을 입력해주세요"
+              />
             </div>
-            <div>
-              <Label htmlFor="applicantName">담당자</Label>
-              <Input id="applicantName" value={applicantName} onChange={e => setApplicantName(e.target.value)} required />
+            <div className="space-y-2">
+              <Label htmlFor="applicantName" className="text-base font-semibold text-gray-900">담당자 *</Label>
+              <Input 
+                id="applicantName" 
+                value={applicantName} 
+                onChange={e => setApplicantName(e.target.value)} 
+                required 
+                className="h-12 text-base border-2 focus:border-blue-500 rounded-lg"
+                placeholder="담당자명을 입력해주세요"
+              />
             </div>
-            <div>
-              <Label htmlFor="email">이메일</Label>
-              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-base font-semibold text-gray-900">이메일 *</Label>
+              <Input 
+                id="email" 
+                type="email" 
+                value={email} 
+                onChange={e => setEmail(e.target.value)} 
+                required 
+                className="h-12 text-base border-2 focus:border-blue-500 rounded-lg"
+                placeholder="example@company.com"
+                inputMode="email"
+              />
             </div>
-            <div>
-              <Label htmlFor="phone">연락처</Label>
-              <Input id="phone" value={phone} onChange={e => setPhone(e.target.value)} />
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-base font-semibold text-gray-900">연락처</Label>
+              <Input 
+                id="phone" 
+                value={phone} 
+                onChange={e => setPhone(e.target.value)} 
+                className="h-12 text-base border-2 focus:border-blue-500 rounded-lg"
+                placeholder="010-0000-0000"
+                inputMode="tel"
+              />
             </div>
-            <div>
-              <Label htmlFor="industry">업종</Label>
-              <Input id="industry" value={industry} onChange={e => setIndustry(e.target.value)} />
+            <div className="space-y-2">
+              <Label htmlFor="industry" className="text-base font-semibold text-gray-900">업종</Label>
+              <Input 
+                id="industry" 
+                value={industry} 
+                onChange={e => setIndustry(e.target.value)} 
+                className="h-12 text-base border-2 focus:border-blue-500 rounded-lg"
+                placeholder="예: IT/소프트웨어, 제조업, 서비스업"
+              />
             </div>
-            <div>
-              <Label htmlFor="companySize">직원수</Label>
-              <Input id="companySize" value={companySize} onChange={e => setCompanySize(e.target.value)} />
+            <div className="space-y-2">
+              <Label htmlFor="companySize" className="text-base font-semibold text-gray-900">직원수</Label>
+              <Input 
+                id="companySize" 
+                value={companySize} 
+                onChange={e => setCompanySize(e.target.value)} 
+                className="h-12 text-base border-2 focus:border-blue-500 rounded-lg"
+                placeholder="예: 1-10명, 11-50명, 51-100명"
+              />
             </div>
           </div>
 
@@ -143,9 +186,9 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     <div className="text-sm text-gray-500">현재 선택: {scores[id]}점</div>
                   </div>
                   
-                  {/* 클릭 가능한 라인 영역 */}
+                  {/* 터치 최적화된 라인 영역 */}
                   <div 
-                    className="relative cursor-pointer py-4"
+                    className="relative cursor-pointer py-6 px-2 touch-manipulation"
                     onClick={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
                       const x = e.clientX - rect.left;
@@ -153,6 +196,16 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                       const value = Math.max(1, Math.min(5, Math.round((x / width) * 5)));
                       handleScoreChange(id, value);
                     }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      const touch = e.changedTouches[0];
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = touch.clientX - rect.left;
+                      const width = rect.width;
+                      const value = Math.max(1, Math.min(5, Math.round((x / width) * 5)));
+                      handleScoreChange(id, value);
+                    }}
+                    style={{ touchAction: 'manipulation' }}
                   >
                     {/* 배경 라인 */}
                     <div className="absolute top-1/2 left-0 right-0 h-2 bg-gray-200 rounded-full transform -translate-y-1/2"></div>
@@ -164,18 +217,32 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                       style={{ width: `${(scores[id] / 5) * 100}%` }}
                     ></div>
                     
-                    {/* 점수 표시점들 */}
+                    {/* 터치 최적화된 점수 표시점들 */}
                     {[1, 2, 3, 4, 5].map(v => (
                       <div
                         key={v}
-                        className={`absolute top-1/2 w-4 h-4 rounded-full border-2 transform -translate-y-1/2 transition-all duration-200 ${
+                        className={`absolute top-1/2 w-6 h-6 rounded-full border-2 transform -translate-y-1/2 transition-all duration-200 cursor-pointer touch-manipulation ${
                           scores[id] >= v 
-                            ? 'bg-blue-500 border-blue-500' 
-                            : 'bg-white border-gray-300 hover:border-blue-400'
+                            ? 'bg-blue-500 border-blue-500 shadow-md' 
+                            : 'bg-white border-gray-300 hover:border-blue-400 hover:shadow-sm active:scale-110'
                         }`}
                         data-position={`${((v - 1) / 4) * 100}%`}
-                        style={{ left: `${((v - 1) / 4) * 100}%`, marginLeft: '-8px' }}
-                      ></div>
+                        style={{ left: `${((v - 1) / 4) * 100}%`, marginLeft: '-12px', minHeight: '24px', minWidth: '24px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleScoreChange(id, v);
+                        }}
+                        onTouchEnd={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handleScoreChange(id, v);
+                        }}
+                      >
+                        {/* 점수 숫자 표시 (모바일에서 더 명확하게) */}
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-blue-600">
+                          {scores[id] >= v ? v : ''}
+                        </span>
+                      </div>
                     ))}
                   </div>
                   
@@ -188,16 +255,23 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     <span>5점 (매우 높음)</span>
                   </div>
                   
-                  {/* 기존 버튼 방식도 유지 (모바일 편의성) */}
-                  <div className="flex gap-2 justify-center mt-3">
+                  {/* 모바일 최적화된 버튼 방식 */}
+                  <div className="flex gap-3 justify-center mt-4 px-2">
                     {[1,2,3,4,5].map(v => (
                       <Button
                         key={v}
                         type="button"
                         variant={scores[id] === v ? 'default' : 'outline'}
                         onClick={() => handleScoreChange(id, v)}
-                        className="w-12 h-12 text-lg font-semibold hover:scale-105 transition-transform"
-                      >{v}</Button>
+                        className={`w-14 h-14 text-xl font-bold rounded-full transition-all duration-200 touch-manipulation ${
+                          scores[id] === v 
+                            ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg scale-110' 
+                            : 'hover:scale-105 active:scale-95 hover:shadow-md border-2'
+                        }`}
+                        style={{ minHeight: '56px', minWidth: '56px', touchAction: 'manipulation' }}
+                      >
+                        {v}
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -205,27 +279,55 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <input id="consent" type="checkbox" aria-label="개인정보 수집 및 이용 동의" title="개인정보 수집 및 이용 동의" checked={privacyConsent} onChange={e => setPrivacyConsent(e.target.checked)} />
-            <Label htmlFor="consent">개인정보 수집 및 이용에 동의합니다 (필수)</Label>
+          {/* 모바일 최적화된 동의 체크박스 */}
+          <div className="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
+            <div className="flex items-start gap-3">
+              <input 
+                id="consent" 
+                type="checkbox" 
+                aria-label="개인정보 수집 및 이용 동의" 
+                title="개인정보 수집 및 이용 동의" 
+                checked={privacyConsent} 
+                onChange={e => setPrivacyConsent(e.target.checked)}
+                className="w-5 h-5 mt-1 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+              />
+              <Label htmlFor="consent" className="text-base font-medium text-gray-900 cursor-pointer">
+                개인정보 수집 및 이용에 동의합니다 (필수)
+              </Label>
+            </div>
           </div>
 
-          {error && <div className="text-sm text-red-600">{error}</div>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="text-red-600 font-medium">{error}</div>
+            </div>
+          )}
 
-          <div className="flex gap-3">
-            <Button type="button" variant="outline" onClick={onBack}>뒤로</Button>
+          {/* 모바일 최적화된 버튼 영역 */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onBack}
+              className="h-12 text-base font-semibold border-2 hover:bg-gray-50"
+            >
+              ← 뒤로 가기
+            </Button>
             <Button 
               type="submit" 
               disabled={submitting}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 text-lg"
+              className="h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-8 text-base sm:text-lg flex-1 touch-manipulation"
+              style={{ minHeight: '48px', touchAction: 'manipulation' }}
             >
               {submitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  진단이 시작되었습니다...
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm sm:text-base">진단이 시작되었습니다...</span>
                 </div>
               ) : (
-                '🚀 AI 역량진단 신청'
+                <span className="flex items-center justify-center gap-2">
+                  🚀 <span className="font-bold">AI 역량진단 신청</span>
+                </span>
               )}
             </Button>
           </div>
