@@ -168,10 +168,10 @@ export async function POST(request: NextRequest) {
             message: scriptResult.message || 'AI 역량진단이 시작되었습니다. 보고서는 이메일로 발송됩니다.',
             estimatedTime: '5-10분',
             features: [
-              'GEMINI 2.0 Flash AI 분석',
+              'GEMINI 2.5 Flash AI 분석',
               'AI 역량 6분야 종합 평가',
               '업종별 맞춤 분석',
-              'SWOT 전략 분석',
+              'N8N 자동화 중심 SWOT 분석',
               '3단계 실행 로드맵',
               'ROI 분석 및 투자 계획'
             ]
@@ -179,8 +179,23 @@ export async function POST(request: NextRequest) {
           { headers: corsHeaders }
         );
       } else {
-        console.error('❌ Google Apps Script 처리 실패:', scriptResult.error);
-        throw new Error(scriptResult.error || scriptResult.message || '진단 처리 중 오류 발생');
+        console.error('❌ Google Apps Script 처리 실패:', scriptResult);
+        
+        // 상세한 오류 분석 및 사용자 친화적 메시지
+        let errorMessage = '진단 처리 중 오류가 발생했습니다';
+        if (scriptResult.message) {
+          if (scriptResult.message.includes('GEMINI API') || scriptResult.message.includes('JSON 파싱')) {
+            errorMessage = 'AI 분석 시스템에 일시적 오류가 발생했습니다. Google Apps Script를 새로 배포하거나 잠시 후 다시 시도해주세요.';
+          } else if (scriptResult.message.includes('Cannot read properties')) {
+            errorMessage = 'AI API 응답 처리 중 오류가 발생했습니다. 시스템 관리자에게 문의해주세요.';
+          } else {
+            errorMessage = scriptResult.message;
+          }
+        } else if (scriptResult.error) {
+          errorMessage = scriptResult.error;
+        }
+        
+        throw new Error(errorMessage);
       }
 
     } catch (fetchError) {
