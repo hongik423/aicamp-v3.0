@@ -40,51 +40,53 @@ export default function DiagnosisPage() {
             이후경 교장의 AI 역량진단 시스템
           </div>
           
-          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
             AI 도입 준비도<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               무료 진단
             </span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            30년 기업교육 전문가 이후경 교장이 개발한 AI 역량 진단으로<br />
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4">
+            30년 기업교육 전문가 이후경 교장이 개발한 AI 역량 진단으로
+            <span className="block sm:inline"> </span>
             귀사의 AI 도입 준비도를 정확히 측정하고 맞춤형 실행전략을 제시합니다
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12 px-4">
             <Button 
               size="lg" 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold"
+              className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-4 text-base sm:text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation"
               onClick={() => setShowForm(true)}
+              style={{ minHeight: '56px', touchAction: 'manipulation' }}
             >
               <Brain className="w-5 h-5 mr-2" />
-              무료 AI 역량진단 시작
+              🚀 무료 AI 역량진단 시작
             </Button>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600 px-4">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">무료</Badge>
-              <span>100% 무료 진단</span>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">무료</Badge>
+              <span className="font-medium">100% 무료 진단</span>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">5분</Badge>
-              <span>5분 간단 진단</span>
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">5분</Badge>
+              <span className="font-medium">5분 간단 진단</span>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">AI분석</Badge>
-              <span>AI 기반 정밀분석</span>
+              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">AI분석</Badge>
+              <span className="font-medium">AI 기반 정밀분석</span>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">이메일발송</Badge>
-              <span>이메일로 결과 발송</span>
+              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-xs">이메일발송</Badge>
+              <span className="font-medium">이메일로 결과 발송</span>
             </div>
           </div>
         </div>
 
-        {/* 진단 특징 */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        {/* 진단 특징 - 모바일 최적화 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16 px-4">
           <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-4">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
