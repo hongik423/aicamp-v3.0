@@ -26,19 +26,23 @@ export default function GlobalBanner() {
   const style = variantStyles[variant || 'info'];
   const Icon = variantIcon[variant || 'info'];
 
+  const isInfo = (variant || 'info') === 'info';
+  const messageTextClass = isInfo ? 'text-orange-200' : 'text-white';
+  const subMessageTextClass = isInfo ? 'text-orange-100' : 'opacity-90';
+
   return (
     <div className="fixed top-0 inset-x-0 z-[100] pointer-events-none">
       <div
         className={`mx-auto max-w-screen-2xl m-2 pointer-events-auto shadow-lg border rounded-xl overflow-hidden`}
       >
-        <div className={`bg-gradient-to-r ${style} text-white p-3 sm:p-4 flex items-start gap-3`}>          
+        <div className={`bg-gradient-to-r ${style} text-white p-3 sm:p-4 flex items-start gap-3`}>
           <div className="mt-0.5 animate-pulse">
             {Icon}
           </div>
           <div className="flex-1">
-            <p className="font-bold text-sm sm:text-base">{message}</p>
+            <p className={`font-bold text-sm sm:text-base ${messageTextClass}`}>{message}</p>
             {subMessage && (
-              <p className="text-xs sm:text-sm opacity-90 mt-0.5">{subMessage}</p>
+              <p className={`text-xs sm:text-sm mt-0.5 ${subMessageTextClass}`}>{subMessage}</p>
             )}
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm opacity-90">
