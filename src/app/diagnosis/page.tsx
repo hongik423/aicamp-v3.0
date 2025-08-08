@@ -1,225 +1,133 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/layout/header';
 import { AICapabilityDiagnosisForm } from '@/features/ai-capability-diagnosis/components/AICapabilityDiagnosisForm';
-import { Brain, Target, TrendingUp, Users, Award, BarChart3, FileText, ExternalLink, X } from 'lucide-react';
+import { Brain, Target, TrendingUp, Users, Award, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 
 /**
  * 이후경 교장의 AI 역량 고몰입조직구축 진단시스템
+ * 웹상 결과 보기 기능은 제거되고 이메일로만 제공됩니다.
  */
-// 최근 진단 결과 배너 컴포넌트
-const RecentResultsBanner = () => {
-  const [recentResults, setRecentResults] = useState<any[]>([]);
-  const [showBanner, setShowBanner] = useState(false);
 
-  useEffect(() => {
-    // 로컬 스토리지에서 최근 진단 결과 ID들을 가져오기
-    const recentIds = localStorage.getItem('recentDiagnosisIds');
-    if (recentIds) {
-      const ids = JSON.parse(recentIds);
-      if (ids.length > 0) {
-        setRecentResults(ids.slice(0, 3)); // 최근 3개만
-        setShowBanner(true);
-      }
-    }
-  }, []);
+export default function DiagnosisPage() {
+  const [showForm, setShowForm] = useState(false);
 
-  if (!showBanner || recentResults.length === 0) {
-    return null;
+  if (showForm) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <AICapabilityDiagnosisForm />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <FileText className="w-6 h-6" />
-            <div>
-              <h3 className="font-bold text-lg">최근 AI역량진단 결과</h3>
-              <p className="text-blue-100 text-sm">완료된 진단 결과를 확인하세요</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex gap-2">
-              {recentResults.map((resultId, index) => (
-                <Link
-                  key={index}
-                  href={`/diagnosis/result/${resultId}`}
-                  className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                >
-                  <FileText className="w-4 h-4" />
-                  결과 {index + 1}
-                  <ExternalLink className="w-3 h-3" />
-                </Link>
-              ))}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowBanner(false)}
-              className="text-white hover:bg-white/20"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default function DiagnosisPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <Header />
       
-      {/* 최근 결과 배너 */}
-      <RecentResultsBanner />
-      
-      {/* 히어로 섹션 - 모바일 최적화 */}
-      <section className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-12 sm:py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white leading-tight">
-              이후경 교장의<br className="sm:hidden" /> AI 역량진단
-            </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl mb-3 sm:mb-4 text-white">
-              고몰입 조직구축을 위한 AI 역량 진단시스템
-            </p>
-            <p className="text-sm sm:text-lg text-white mb-6 sm:mb-8 px-2">
-              28년 교육 전문가의 노하우로 귀사의 AI 역량을 정밀 진단하고
-              <br className="hidden sm:block" />
-              <span className="sm:hidden"> </span>맞춤형 고몰입 조직 구축 전략을 제시합니다
-            </p>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4 text-xs sm:text-sm">
-              <div className="flex items-center justify-center gap-2 bg-white/10 rounded-full px-4 py-2">
-                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-                <span>S급 AI 진단 정확도</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 bg-white/10 rounded-full px-4 py-2">
-                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-                <span>맞춤형 성장 전략</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 bg-white/10 rounded-full px-4 py-2">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                <span>실행 가능한 로드맵</span>
-              </div>
-            </div>
+      {/* 메인 섹션 */}
+      <main className="container mx-auto px-4 py-12">
+        {/* 히어로 섹션 */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <Brain className="w-4 h-4" />
+            이후경 교장의 AI 역량진단 시스템
           </div>
-        </div>
-      </section>
-
-      {/* 핵심 가치 제안 */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
-              왜 AI 역량진단이 필요한가?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <Brain className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg">정확한 현재 수준 파악</h3>
-                </div>
-                <p className="text-gray-600">
-                  6개 핵심 영역의 종합적 평가로 귀사의 AI 역량 수준을 정확히 진단합니다
-                </p>
-              </Card>
-
-              <Card className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-green-100 rounded-lg">
-                    <BarChart3 className="w-6 h-6 text-green-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg">업계 벤치마크 비교</h3>
-                </div>
-                <p className="text-gray-600">
-                  동종 업계 및 규모별 벤치마크와 비교하여 경쟁력을 객관적으로 평가합니다
-                </p>
-              </Card>
-
-              <Card className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-purple-100 rounded-lg">
-                    <Users className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg">고몰입 조직 구축</h3>
-                </div>
-                <p className="text-gray-600">
-                  AI를 활용한 고몰입 조직 구축 방법론으로 지속가능한 성장을 지원합니다
-                </p>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 진단 프로세스 */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
-              AI 역량진단 프로세스
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[
-                { step: 1, title: '기본 정보 입력', desc: '기업 정보 및 신청자 정보' },
-                { step: 2, title: 'AI 관심사항', desc: '주요 고민사항 및 기대효과' },
-                { step: 3, title: 'AI 역량 평가', desc: '6개 영역 24개 문항 평가' },
-                { step: 4, title: '결과 보고서', desc: 'SWOT 분석 및 성장 전략' }
-              ].map((item) => (
-                <div key={item.step} className="text-center">
-                  <div className="w-16 h-16 bg-gray-800 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                    {item.step}
-                  </div>
-                  <h3 className="font-semibold mb-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 메인 진단 신청 폼 */}
-      <section className="py-16 lg:py-24" id="diagnosis-form">
-        <div className="container mx-auto px-4">
-          <AICapabilityDiagnosisForm />
-        </div>
-      </section>
-
-      {/* CTA 섹션 - 모바일 최적화 */}
-      <section className="py-12 sm:py-16 bg-gray-900 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-white">
-              지금 바로 AI 역량을 진단하세요
-            </h2>
-            <p className="text-base sm:text-lg mb-6 sm:mb-8 text-white px-2">
-              이후경 교장의 28년 교육 노하우가 담긴 맞춤형 AI 성장 전략을 받아보세요
-            </p>
-            <Button
-              size="lg"
-              className="bg-white text-gray-900 hover:bg-gray-100 h-12 px-8 text-base font-medium w-full sm:w-auto"
-              onClick={() => {
-                const formSection = document.getElementById('diagnosis-form');
-                formSection?.scrollIntoView({ behavior: 'smooth' });
-              }}
+          
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            AI 도입 준비도<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              무료 진단
+            </span>
+          </h1>
+          
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            30년 기업교육 전문가 이후경 교장이 개발한 AI 역량 진단으로<br />
+            귀사의 AI 도입 준비도를 정확히 측정하고 맞춤형 실행전략을 제시합니다
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold"
+              onClick={() => setShowForm(true)}
             >
               <Brain className="w-5 h-5 mr-2" />
-              AI역량진단 시작하기
+              무료 AI 역량진단 시작
             </Button>
           </div>
+          
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">무료</Badge>
+              <span>100% 무료 진단</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">5분</Badge>
+              <span>5분 간단 진단</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">AI분석</Badge>
+              <span>AI 기반 정밀분석</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">이메일발송</Badge>
+              <span>이메일로 결과 발송</span>
+            </div>
+          </div>
         </div>
-      </section>
+
+        {/* 진단 특징 */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+            <CardHeader className="text-center pb-4">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-8 h-8 text-blue-600" />
+              </div>
+              <CardTitle className="text-xl">정밀한 6분야 분석</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600">
+                리더십, 인프라, 인재, 문화, 실무적용, 데이터 등 6개 핵심 영역을 종합적으로 분석합니다
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+            <CardHeader className="text-center pb-4">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Brain className="w-8 h-8 text-purple-600" />
+              </div>
+              <CardTitle className="text-xl">AI 기반 맞춤 분석</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600">
+                GEMINI 2.5 Flash AI가 귀사의 업종과 규모를 고려한 개인화된 분석을 제공합니다
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+            <CardHeader className="text-center pb-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-green-600" />
+              </div>
+              <CardTitle className="text-xl">실행 가능한 로드맵</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600">
+                진단 결과를 바탕으로 3단계 실행 로드맵과 구체적인 액션플랜을 제시합니다
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
     </div>
   );
-} 
+}

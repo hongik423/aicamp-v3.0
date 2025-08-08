@@ -367,7 +367,7 @@ export default function DiagnosisProgressModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <CardHeader className="text-center pb-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <Brain className="w-10 h-10 text-white" />
           </div>
           <CardTitle className="text-2xl text-gray-900">
@@ -376,6 +376,19 @@ export default function DiagnosisProgressModal({
           <p className="text-gray-600 text-lg mt-2">
             GEMINI 2.5 Flash AI가 귀하의 기업을 분석하고 있습니다
           </p>
+          
+          {/* 진단 시작 안내 메시지 */}
+          <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-center gap-2 text-green-800">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <p className="font-semibold text-lg">
+                ✅ 진단이 시작되었습니다!
+              </p>
+            </div>
+            <p className="text-green-700 text-sm mt-2">
+              <strong>약 10분 이상 소요될 수 있습니다.</strong> 잠시 다른 일을 보고 오셔도 됩니다.
+            </p>
+          </div>
         </CardHeader>
         
         <CardContent className="space-y-6">
@@ -493,14 +506,28 @@ export default function DiagnosisProgressModal({
             </div>
           )}
           
-          {/* 추가 안내 메시지 - 항상 표시 */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-blue-800 text-sm">
-              <div className="w-4 h-4 bg-blue-400 rounded-full animate-bounce"></div>
-              <p>
-                <strong>잠시만 기다려주세요!</strong> 약 10분 이상 소요되니 다른 업무를 보셔도 됩니다. 
-                분석 완료 시 이메일로 알려드립니다.
-              </p>
+          {/* 지속적 안내 메시지 - 항상 표시 */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-300 rounded-lg p-4 shadow-sm">
+            <div className="text-center space-y-3">
+              <div className="flex items-center justify-center gap-2 text-blue-800">
+                <div className="w-5 h-5 bg-blue-500 rounded-full animate-bounce"></div>
+                <p className="font-bold text-lg">
+                  🔄 진단이 진행 중입니다
+                </p>
+              </div>
+              <div className="space-y-2 text-blue-700">
+                <p className="font-semibold">
+                  ⏰ <strong>약 10분 이상 소요될 수 있습니다</strong>
+                </p>
+                <p className="text-sm">
+                  ✨ 잠시 다른 업무를 보시거나 창을 닫으셔도 괜찮습니다<br />
+                  📧 분석 완료 시 등록하신 이메일로 결과를 발송해드립니다
+                </p>
+              </div>
+              <div className="bg-blue-100 rounded-lg p-3 text-xs text-blue-800">
+                <p className="font-medium">💡 현재 진행 중인 작업</p>
+                <p>GEMINI 2.5 Flash AI가 귀하의 기업 데이터를 심층 분석하여<br />맞춤형 AI 역량 진단 보고서를 작성하고 있습니다.</p>
+              </div>
             </div>
           </div>
         </CardContent>
