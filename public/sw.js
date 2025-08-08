@@ -1,5 +1,5 @@
 // AICAMP Service Worker - 안전한 버전
-const CACHE_NAME = 'aicamp-v3.0';
+const CACHE_NAME = 'aicamp-v3.1';
 const urlsToCache = [
   '/',
   '/diagnosis',
@@ -9,6 +9,55 @@ const urlsToCache = [
   '/about',
   '/cases'
 ];
+
+// 캐시 제외/주의 대상 URL 패턴
+const NON_CACHEABLE_PATTERNS = [
+  '/api/',
+  '/chat',
+  '/chat-ai',
+  '/_next/data/',
+  '/_next/image',
+  '/_next/webpack-hmr',
+  '/sw.js',
+];
+
+const NON_CACHEABLE_QUERY_KEYS = ['_rsc', 'next', 'trpc', 'no-cache'];
+
+function isSameOrigin(url) {
+  try {
+    const u = new URL(url);
+    return u.origin === self.location.origin;
+  } catch (_) {
+    return false;
+  }
+}
+
+function isNonCacheableRequest(request) {
+  // 비-GET 즉시 비캐시
+  if (request.method !== 'GET') return true;
+
+  const url = request.url;
+  if (!isSameOrigin(url)) {
+    // 교차 출처는 캐시하지 않음 (필요 시 허용 패턴 추가)
+    return true;
+  }
+
+  try {
+    const u = new URL(url);
+    // 특정 경로 제외
+    if (NON_CACHEABLE_PATTERNS.some((p) => u.pathname.startsWith(p))) return true;
+    // 특정 쿼리 키 포함 시 제외
+    for (const key of u.searchParams.keys()) {
+      if (NON_CACHEABLE_QUERY_KEYS.includes(key)) return true;
+    }
+  } catch (_) {}
+
+  // SSE/HTML 스트림 등은 제외
+  const accept = request.headers.get('accept') || '';
+  if (accept.includes('text/event-stream')) return true;
+
+  return false;
+}
 
 // Service Worker 설치
 self.addEventListener('install', (event) => {
@@ -24,6 +73,8 @@ self.addEventListener('install', (event) => {
         console.warn('Service Worker cache failed:', error.message);
       })
   );
+  // 즉시 대기 상태 건너뛰어 빠른 업데이트 적용
+  self.skipWaiting();
 });
 
 // Service Worker 활성화
@@ -41,6 +92,8 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  // 즉시 클라이언트 제어
+  self.clients && self.clients.claim && self.clients.claim();
 });
 
 // 네트워크 요청 처리
@@ -54,14 +107,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // GET 이외의 메서드는 캐싱하지 않음 (HEAD/POST/PUT 등은 Cache API 미지원)
-  if (event.request.method !== 'GET') {
-    event.respondWith(fetch(event.request).catch(async (error) => {
-      console.warn('Network request failed for non-GET:', error?.message || error);
-      // 비-GET 요청 실패 시에는 캐시 대체 불가, 기본 루트 제공
-      const fallback = await caches.open(CACHE_NAME).then((cache) => cache.match('/'));
-      return fallback || new Response('Network error', { status: 503 });
-    }));
+  // 캐시 부적합 요청은 그대로 네트워크만 사용
+  if (isNonCacheableRequest(event.request)) {
+    event.respondWith(
+      fetch(event.request).catch(async (error) => {
+        console.warn('Network request failed (non-cacheable):', error?.message || error);
+        // 네비게이션 요청이면 루트로 폴백
+        if (event.request.mode === 'navigate') {
+          const fallback = await caches.open(CACHE_NAME).then((cache) => cache.match('/'));
+          return fallback || new Response('Offline', { status: 503 });
+        }
+        return new Response('Network error', { status: 503 });
+      })
+    );
     return;
   }
 
@@ -85,8 +143,9 @@ self.addEventListener('fetch', (event) => {
           caches
             .open(CACHE_NAME)
             .then((cache) => {
-              // GET 요청만 안전하게 put
-              cache.put(event.request, responseToCache).catch((err) => {
+              // Cache API는 GET Request만 허용됨. 키는 항상 GET으로 생성
+              const cacheKey = new Request(event.request.url, { method: 'GET' });
+              cache.put(cacheKey, responseToCache).catch((err) => {
                 console.warn('Cache put failed (GET):', err?.message || err);
               });
             })
@@ -149,6 +208,12 @@ self.addEventListener('unhandledrejection', (event) => {
   
   // Chrome 확장 프로그램 관련 오류 완전 무시
   if (reason && typeof reason === 'string') {
+    if (reason.includes("Request method 'HEAD' is unsupported") ||
+        reason.includes("Request method 'POST' is unsupported") ||
+        reason.includes('Failed to execute \"put\" on \"Cache\"')) {
+      event.preventDefault();
+      return;
+    }
     if (reason.includes('port closed') || 
         reason.includes('Extension context') ||
         reason.includes('chrome-extension://') ||
@@ -161,6 +226,13 @@ self.addEventListener('unhandledrejection', (event) => {
   }
   
   if (reason && reason.message) {
+    const msg = reason.message;
+    if (msg.includes("Request method 'HEAD' is unsupported") ||
+        msg.includes("Request method 'POST' is unsupported") ||
+        msg.includes('Failed to execute \"put\" on \"Cache\"')) {
+      event.preventDefault();
+      return;
+    }
     if (reason.message.includes('port closed') || 
         reason.message.includes('Extension context') ||
         reason.message.includes('chrome-extension://') ||

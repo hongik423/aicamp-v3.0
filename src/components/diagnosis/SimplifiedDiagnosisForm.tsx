@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
+import { useBannerStore } from '@/lib/stores/bannerStore';
 
 type SimplifiedDiagnosisFormProps = {
   onComplete: (results: any) => void;
@@ -41,6 +42,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
   const [error, setError] = useState<string | null>(null);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [diagnosisId, setDiagnosisId] = useState<string | undefined>(undefined);
+  const banner = useBannerStore();
 
   const handleScoreChange = (id: string, value: number) => {
     setScores(prev => ({ ...prev, [id]: value }));
@@ -51,6 +53,11 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
     setSubmitting(true);
     setError(null);
     setIsProgressOpen(true);
+    // 전역 배너 표시 시작
+    banner.show('✅ 진단이 시작되었습니다. 약 10분 이상 소요될 수 있습니다.', {
+      subMessage: '잠시 다른 곳에 다녀오셔도 됩니다. 보고서 작성 및 이메일 발송이 완료될 때까지 안내가 계속 표시됩니다.',
+      variant: 'info',
+    });
     try {
       const res = await fetch('/api/ai-capability-diagnosis', {
         method: 'POST',
@@ -71,9 +78,17 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         throw new Error(data?.error || '요청 처리 중 오류가 발생했습니다');
       }
       if (data?.diagnosisId) setDiagnosisId(String(data.diagnosisId));
+      banner.update('🔄 진단이 진행 중입니다. 보고서 생성 및 이메일 발송을 준비 중...', {
+        subMessage: '창을 닫으셔도 완료 시 이메일로 결과를 받아보실 수 있습니다.',
+        variant: 'info',
+      });
       onComplete(data);
     } catch (err: any) {
       setError(err?.message || '요청 처리 중 오류가 발생했습니다');
+      banner.update('❌ 진단 요청 중 오류가 발생했습니다.', {
+        subMessage: '잠시 후 다시 시도해주세요.',
+        variant: 'error',
+      });
     } finally {
       setSubmitting(false);
     }

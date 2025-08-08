@@ -42,6 +42,7 @@ import { EnhancedAssessmentForm } from './EnhancedAssessmentForm';
 import { UnifiedAssessmentMatrix } from './UnifiedAssessmentMatrix';
 import { IndustrySelect } from './IndustrySelect';
 import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
+import { useBannerStore } from '@/lib/stores/bannerStore';
 
 // 폼 검증 스키마
 const diagnosisSchema = z.object({
@@ -87,6 +88,7 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
   const [reportPassword, setReportPassword] = useState<string>('');
   const [submitError, setSubmitError] = useState<string>('');
   const totalSteps = 4;
+  const banner = useBannerStore();
 
   const form = useForm<DiagnosisFormData>({
     resolver: zodResolver(diagnosisSchema),
@@ -123,6 +125,11 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
   const onSubmit = async (data: DiagnosisFormData) => {
     setIsSubmitting(true);
     setSubmitError('');
+    // 전역 배너 시작
+    banner.show('✅ 진단이 시작되었습니다. 약 10분 이상 소요될 수 있습니다.', {
+      subMessage: '잠시 다른 곳에 다녀오셔도 됩니다. 보고서 작성 및 이메일 발송 완료까지 안내가 계속 표시됩니다.',
+      variant: 'info',
+    });
     
     try {
       console.log('🔍 진단 데이터 제출 시작:', {
@@ -137,6 +144,10 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
       
       if (result.success && result.diagnosisId) {
         setDiagnosisId(result.diagnosisId);
+        banner.update('🔄 진단이 진행 중입니다. 보고서 생성 및 이메일 발송을 준비 중...', {
+          subMessage: '창을 닫으셔도 완료 시 이메일로 결과를 받아보실 수 있습니다.',
+          variant: 'info',
+        });
         
         // 패스워드가 있으면 저장
         if (result.reportPassword) {
@@ -156,6 +167,10 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
       } else {
         const errorMessage = result.error || result.message || '진단 신청 중 오류가 발생했습니다';
         setSubmitError(errorMessage);
+        banner.update('❌ 진단 요청 중 오류가 발생했습니다.', {
+          subMessage: '잠시 후 다시 시도해주세요.',
+          variant: 'error',
+        });
         throw new Error(errorMessage);
       }
     } catch (error) {
