@@ -1744,7 +1744,8 @@ JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 �
               maxOutputTokens: env.MAX_OUTPUT_TOKENS,
               candidateCount: 1,
               topK: 40,
-              topP: 0.95
+              topP: 0.95,
+              response_mime_type: "application/json" // JSON 전용 응답 강제
             },
             safetySettings: [
               {
@@ -1811,42 +1812,59 @@ JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 �
         throw new Error('GEMINI API 응답의 content 구조가 올바르지 않습니다');
       }
       
-      const textPart = candidate.content.parts[0];
-      if (!textPart || !textPart.text) {
-        console.warn('⚠️ GEMINI 응답에 text 내용이 없음:', JSON.stringify(textPart));
-        throw new Error('GEMINI API 응답에 text 내용이 없습니다');
+      // parts 배열 전체에서 유효한 text 찾기
+      var contentText = "";
+      for (var i = 0; i < candidate.content.parts.length; i++) {
+        var part = candidate.content.parts[i];
+        if (part && part.text && typeof part.text === 'string' && part.text.trim().length > 0) {
+          contentText = part.text;
+          break;
+        }
+      }
+      if (!contentText) {
+        console.warn('⚠️ GEMINI 응답에 유효한 text 파트가 없음:', JSON.stringify(candidate.content.parts));
+        throw new Error('GEMINI API 응답에 유효한 text 내용이 없습니다');
       }
       
-      const content = textPart.text || "";
-      console.log('✅ GEMINI AI 분석 완료, 응답 길이:', content.length);
+      console.log('✅ GEMINI AI 분석 완료, 응답 길이:', contentText.length);
 
-      // 1차: 직접 JSON 파싱 시도 (responseMimeType 강제)
+      // 1차: 직접 JSON 파싱 시도 (response_mime_type 강제로 순수 JSON 기대)
       try {
-        return JSON.parse(content);
+        return JSON.parse(contentText);
       } catch (e1) {
         console.warn('⚠️ 1차 파싱 실패, 후처리 적용:', e1.message);
       }
 
-      // 2차: 코드블록 제거 및 스마트쿼트/트레일링콤마 정리 후 파싱
+      // 2차: 강화된 파싱 - 코드블록/스마트쿼트/트레일링콤마/중괄호 추출
       try {
-        let jsonContent = content;
-        // 코드블록 제거
-        jsonContent = jsonContent.replace(/```json[\s\S]*?```/g, (m) => m.replace(/```json|```/g, ''));
-        jsonContent = jsonContent.replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, ''));
+        var jsonContent = contentText;
+        
+        // 코드블록 제거 (```json ... ``` 또는 ``` ... ```)
+        jsonContent = jsonContent.replace(/```json[\s\S]*?```/g, function(match) {
+          return match.replace(/```json|```/g, '');
+        });
+        jsonContent = jsonContent.replace(/```[\s\S]*?```/g, function(match) {
+          return match.replace(/```/g, '');
+        });
+        
         // 스마트 쿼트 정규화
-        jsonContent = jsonContent.replace(/[\u2018\u2019\u201A\u201B]/g, "'").replace(/[\u201C\u201D\u201E\u201F]/g, '"');
+        jsonContent = jsonContent.replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+                                 .replace(/[\u201C\u201D\u201E\u201F]/g, '"');
+        
         // 트레일링 콤마 제거
         jsonContent = jsonContent.replace(/,\s*([}\]])/g, '$1');
+        
         // 제일 바깥 중괄호 블록 추출
-        const braceStart = jsonContent.indexOf('{');
-        const braceEnd = jsonContent.lastIndexOf('}');
+        var braceStart = jsonContent.indexOf('{');
+        var braceEnd = jsonContent.lastIndexOf('}');
         if (braceStart !== -1 && braceEnd !== -1 && braceEnd > braceStart) {
           jsonContent = jsonContent.substring(braceStart, braceEnd + 1);
         }
+        
         return JSON.parse(jsonContent.trim());
       } catch (e2) {
         console.warn('⚠️ 2차 파싱 실패:', e2.message);
-        console.log('📄 파싱 실패한 내용 (처음 500자):', content.substring(0, 500));
+        console.log('📄 파싱 실패한 내용 (처음 500자):', contentText.substring(0, 500));
         retries++;
         if (retries < maxRetries) {
           Utilities.sleep(retryDelay);

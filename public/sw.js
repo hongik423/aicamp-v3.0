@@ -46,44 +46,63 @@ self.addEventListener('activate', (event) => {
 // 네트워크 요청 처리
 self.addEventListener('fetch', (event) => {
   // Chrome 확장 프로그램 요청 무시
-  if (event.request.url.includes('chrome-extension://') || 
-      event.request.url.includes('moz-extension://') ||
-      event.request.url.includes('safari-extension://')) {
+  if (
+    event.request.url.includes('chrome-extension://') ||
+    event.request.url.includes('moz-extension://') ||
+    event.request.url.includes('safari-extension://')
+  ) {
+    return;
+  }
+
+  // GET 이외의 메서드는 캐싱하지 않음 (HEAD/POST/PUT 등은 Cache API 미지원)
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request).catch(async (error) => {
+      console.warn('Network request failed for non-GET:', error?.message || error);
+      // 비-GET 요청 실패 시에는 캐시 대체 불가, 기본 루트 제공
+      const fallback = await caches.open(CACHE_NAME).then((cache) => cache.match('/'));
+      return fallback || new Response('Network error', { status: 503 });
+    }));
     return;
   }
 
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // 캐시에서 찾은 경우 반환
-        if (response) {
-          return response;
-        }
-        
-        // 네트워크에서 가져오기
-        return fetch(event.request).then((response) => {
+    caches.match(event.request).then((response) => {
+      // 캐시에서 찾은 경우 반환
+      if (response) {
+        return response;
+      }
+
+      // 네트워크에서 가져오기 (GET 전용 캐싱)
+      return fetch(event.request)
+        .then((networkResponse) => {
           // 유효한 응답이 아니면 그대로 반환
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+            return networkResponse;
           }
-          
+
           // 응답을 복제하여 캐시에 저장
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
+          const responseToCache = networkResponse.clone();
+          caches
+            .open(CACHE_NAME)
             .then((cache) => {
-              cache.put(event.request, responseToCache);
+              // GET 요청만 안전하게 put
+              cache.put(event.request, responseToCache).catch((err) => {
+                console.warn('Cache put failed (GET):', err?.message || err);
+              });
             })
             .catch((error) => {
-              console.warn('Cache put failed:', error.message);
+              console.warn('Cache open failed:', error?.message || error);
             });
-          
-          return response;
-        }).catch((error) => {
-          console.warn('Fetch failed:', error.message);
+
+          return networkResponse;
+        })
+        .catch(async (error) => {
+          console.warn('Fetch failed:', error?.message || error);
           // 오프라인 페이지 반환
-          return caches.match('/');
+          const offline = await caches.match('/');
+          return offline || new Response('Offline', { status: 503 });
         });
-      })
+    })
   );
 });
 
