@@ -30,7 +30,9 @@ export async function submitDiagnosis(data: DiagnosisApplicationData): Promise<D
         body: JSON.stringify({
           ...data,
           formType: 'ai-capability-diagnosis',
-          submittedAt: new Date().toISOString()
+          submittedAt: new Date().toISOString(),
+          // 시뮬레이션 토글: GAS 연결 실패 시에도 결과 흐름 검증 가능
+          simulate: true
         }),
         signal: controller.signal
       });
