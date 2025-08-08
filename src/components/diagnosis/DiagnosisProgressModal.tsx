@@ -40,6 +40,8 @@ interface DiagnosisProgressModalProps {
   reportPassword?: string;
   onComplete?: (result: any) => void;
   onError?: (error: string) => void;
+  pollApiPath?: string; // 진행 상태/결과 조회 API 경로 (기본: /api/diagnosis-results/[id])
+  pollIntervalMs?: number; // 폴링 주기
 }
 
 export default function DiagnosisProgressModal({ 
@@ -50,7 +52,9 @@ export default function DiagnosisProgressModal({
   email,
   reportPassword,
   onComplete,
-  onError 
+  onError,
+  pollApiPath = '/api/diagnosis-results/',
+  pollIntervalMs = 15000
 }: DiagnosisProgressModalProps) {
   const [steps, setSteps] = useState<DiagnosisStep[]>([
     {
@@ -99,6 +103,25 @@ export default function DiagnosisProgressModal({
   const [totalProgress, setTotalProgress] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [estimatedCompletionTime, setEstimatedCompletionTime] = useState<number | null>(null);
+  const [polling, setPolling] = useState(false);
+  const [sseActive, setSseActive] = useState(false);
+
+  const stepIdOrder: Array<DiagnosisStep['id']> = [
+    'data-validation',
+    'gemini-analysis',
+    'swot-analysis',
+    'report-generation',
+    'email-sending',
+  ];
+
+  const computeTotalProgressFromSteps = (currentSteps: DiagnosisStep[]) => {
+    const perStep = 100 / currentSteps.length;
+    return currentSteps.reduce((acc, s) => {
+      if (s.status === 'completed') return acc + perStep;
+      if (s.status === 'in-progress') return acc + perStep * 0.6; // 가중치
+      return acc;
+    }, 0);
+  };
 
   // 단계별 예상 시간 (초)
   const stepDurations = {
@@ -117,6 +140,110 @@ export default function DiagnosisProgressModal({
       startDiagnosisProcess();
     }
   }, [isOpen, startTime]);
+
+  // SSE 기반 실시간 진행 업데이트 (가능하면 폴링보다 우선 적용)
+  useEffect(() => {
+    if (!isOpen || !diagnosisId) return;
+    if (typeof window === 'undefined' || typeof EventSource === 'undefined') return;
+
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(`/api/diagnosis-progress?diagnosisId=${encodeURIComponent(diagnosisId)}`);
+      setSseActive(true);
+
+      const applySnapshot = (snapshot: any) => {
+        if (!snapshot?.latestByStep) return;
+        setSteps((prev) => {
+          const updated = prev.map((s) => {
+            const ev = snapshot.latestByStep[s.id as string];
+            if (!ev) return s;
+            const nextStatus = (ev.status as DiagnosisStep['status']) || s.status;
+            const next: DiagnosisStep = { ...s, status: nextStatus };
+            if (nextStatus === 'completed' && !next.endTime) next.endTime = Date.now();
+            if (nextStatus === 'in-progress' && !next.startTime) next.startTime = Date.now();
+            return next;
+          });
+          setTotalProgress(Math.min(100, computeTotalProgressFromSteps(updated)));
+          return updated;
+        });
+      };
+
+      es.addEventListener('started', (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data?.snapshot) applySnapshot(data.snapshot);
+        } catch {}
+      });
+
+      es.addEventListener('progress', (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data?.snapshot) applySnapshot(data.snapshot);
+        } catch {}
+      });
+
+      es.addEventListener('done', (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed', endTime: s.endTime ?? Date.now() })));
+          setTotalProgress(100);
+          if (onComplete) onComplete({ success: true, diagnosisId, ...data });
+        } catch {}
+      });
+
+      es.addEventListener('timeout', () => {
+        // 시간 초과 시에도 진행 모달은 남기고 이메일 안내 유지
+      });
+
+      es.onerror = () => {
+        setSseActive(false);
+        try { es?.close(); } catch {}
+      };
+    } catch {
+      setSseActive(false);
+      try { es?.close(); } catch {}
+    }
+
+    return () => {
+      setSseActive(false);
+      try { es?.close(); } catch {}
+    };
+  }, [isOpen, diagnosisId, onComplete]);
+
+  // 결과 폴링 시작
+  useEffect(() => {
+    // SSE가 활성화되면 폴링 생략
+    if (!isOpen || !diagnosisId || polling || sseActive) return;
+    setPolling(true);
+
+    const intervalId = setInterval(async () => {
+      try {
+        const res = await fetch(`${pollApiPath}${diagnosisId}`);
+        const data = await res.json();
+
+        if (res.ok && data?.success) {
+          // 모든 단계 완료 처리
+          setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed', endTime: s.endTime ?? Date.now() })));
+          setTotalProgress(100);
+
+          // 완료 콜백
+          if (onComplete) {
+            onComplete({ success: true, diagnosisId, ...data });
+          }
+
+          clearInterval(intervalId);
+          setPolling(false);
+        }
+      } catch (e) {
+        // 네트워크 오류는 무시하고 다음 주기에 재시도
+      }
+    }, Math.max(5000, pollIntervalMs));
+
+    return () => {
+      clearInterval(intervalId);
+      setPolling(false);
+    };
+  }, [isOpen, diagnosisId, pollApiPath, pollIntervalMs, polling, onComplete, sseActive]);
 
   const startDiagnosisProcess = async () => {
     console.log('🚀 진단 프로세스 시작');
@@ -141,7 +268,7 @@ export default function DiagnosisProgressModal({
     console.log(`⏳ ${step.name} 시작`);
 
     try {
-      // 실제 처리 시뮬레이션 (실제로는 API 호출)
+      // 실제 처리 시뮬레이션 (SSE/폴링으로 실제 상태를 덮어씌움)
       await new Promise((resolve, reject) => {
         const progressInterval = setInterval(() => {
           const elapsed = Date.now() - (steps[stepIndex].startTime || Date.now());
@@ -158,7 +285,7 @@ export default function DiagnosisProgressModal({
         setTimeout(() => {
           clearInterval(progressInterval);
           resolve(true);
-        }, Math.random() * duration + duration * 0.5); // 랜덤한 완료 시간
+        }, Math.random() * duration + duration * 0.5); // 시각적 진행감 제공
       });
 
       // 단계 완료
@@ -329,16 +456,24 @@ export default function DiagnosisProgressModal({
             ))}
           </div>
 
-          {/* 주의사항 */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    {/* 주의사항 - 지속적 안내 */}
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg p-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <Clock className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5 animate-pulse" />
               <div className="text-sm text-yellow-800">
-                <p className="font-medium mb-1">⏱️ 분석 시간 안내</p>
-                <p>
-                  고품질 AI 분석을 위해 총 <strong>5-8분</strong>이 소요될 수 있습니다.<br />
-                  분석이 완료되면 등록하신 이메일로 상세한 보고서가 발송됩니다.
-                </p>
+                <p className="font-semibold mb-2 text-yellow-900">⏱️ 분석 시간 안내</p>
+                <div className="space-y-2">
+                  <p className="font-medium">
+                    🤖 <strong>고품질 AI 분석을 위해 약 10분 이상 소요됩니다.</strong>
+                  </p>
+                  <p className="text-yellow-700">
+                    ✨ 잠시 다른 업무를 보시거나 창을 닫으셔도 괜찮습니다.<br />
+                    📧 분석 완료 시 등록하신 이메일로 상세한 보고서를 발송해드립니다.
+                  </p>
+                  <div className="mt-3 p-2 bg-yellow-100 rounded text-xs text-yellow-800">
+                    💡 <strong>팁:</strong> GEMINI 2.5 Flash AI가 귀하의 기업 상황을 정밀 분석하여 맞춤형 전략을 수립하고 있습니다.
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -357,6 +492,17 @@ export default function DiagnosisProgressModal({
               </div>
             </div>
           )}
+          
+          {/* 추가 안내 메시지 - 항상 표시 */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-blue-800 text-sm">
+              <div className="w-4 h-4 bg-blue-400 rounded-full animate-bounce"></div>
+              <p>
+                <strong>잠시만 기다려주세요!</strong> 약 10분 이상 소요되니 다른 업무를 보셔도 됩니다. 
+                분석 완료 시 이메일로 알려드립니다.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

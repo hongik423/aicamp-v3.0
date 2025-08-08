@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
 
 type SimplifiedDiagnosisFormProps = {
   onComplete: (results: any) => void;
@@ -38,6 +39,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isProgressOpen, setIsProgressOpen] = useState(false);
+  const [diagnosisId, setDiagnosisId] = useState<string | undefined>(undefined);
 
   const handleScoreChange = (id: string, value: number) => {
     setScores(prev => ({ ...prev, [id]: value }));
@@ -47,6 +50,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setIsProgressOpen(true);
     try {
       const res = await fetch('/api/ai-capability-diagnosis', {
         method: 'POST',
@@ -63,6 +67,10 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         }),
       });
       const data = await res.json();
+      if (!res.ok || data?.success === false) {
+        throw new Error(data?.error || '요청 처리 중 오류가 발생했습니다');
+      }
+      if (data?.diagnosisId) setDiagnosisId(String(data.diagnosisId));
       onComplete(data);
     } catch (err: any) {
       setError(err?.message || '요청 처리 중 오류가 발생했습니다');
@@ -77,6 +85,23 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
         <CardTitle>간소화된 AI 역량진단 신청</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center mt-0.5">
+              <span className="text-yellow-800 text-sm font-bold">!</span>
+            </div>
+            <div className="text-sm text-yellow-800">
+              <p className="font-semibold mb-1">⏰ 분석 시간 안내</p>
+              <p className="mb-2">
+                <strong>고품질 AI 분석을 위해 약 10분 이상 소요됩니다.</strong><br />
+                제출 후 잠시 다른 업무를 보시거나 창을 닫으셔도 됩니다.
+              </p>
+              <p className="text-xs text-yellow-700">
+                📧 분석 완료 시 등록하신 이메일로 상세한 보고서를 발송해드립니다.
+              </p>
+            </div>
+          </div>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -138,6 +163,13 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
           </div>
         </form>
       </CardContent>
+      <DiagnosisProgressModal
+        isOpen={isProgressOpen}
+        onClose={() => setIsProgressOpen(false)}
+        diagnosisId={diagnosisId}
+        companyName={companyName}
+        email={email}
+      />
     </Card>
   );
 }

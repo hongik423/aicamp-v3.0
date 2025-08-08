@@ -150,7 +150,16 @@ export async function POST(request: NextRequest) {
         throw new Error(`Google Apps Script 오류: ${scriptResponse.status} - ${errorText}`);
       }
 
-      const scriptResult = await scriptResponse.json();
+      // 일부 환경에서 GAS가 오류 시 JSON이 아닌 텍스트/HTML을 반환할 수 있으므로 안전 파싱
+      const responseText = await scriptResponse.text();
+      let scriptResult: any;
+      try {
+        scriptResult = JSON.parse(responseText);
+      } catch (e) {
+        console.error('❌ GAS JSON 파싱 오류:', (e as Error).message);
+        console.error('📄 응답 미리보기:', responseText.slice(0, 500));
+        throw new Error('GEMINI API 응답 형식 문제로 보고서 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
       console.log('📥 Google Apps Script 응답:', {
         success: scriptResult.success,
         diagnosisId: scriptResult.diagnosisId,
@@ -198,14 +207,27 @@ export async function POST(request: NextRequest) {
         throw new Error(errorMessage);
       }
 
-    } catch (fetchError) {
+    } catch (fetchError: any) {
       clearTimeout(timeoutId);
-      
-      if (fetchError.name === 'AbortError') {
-        console.error('❌ Google Apps Script 요청 타임아웃');
-        throw new Error('Google Apps Script 연결 시간 초과. 잠시 후 다시 시도해주세요.');
+
+      if (fetchError?.name === 'AbortError') {
+        // Vercel 800초 제한 고려: 타임아웃 시에도 백그라운드 처리로 간주하여 사용자 경험 유지
+        const bgDiagnosisId = `TIMEOUT_${Date.now()}`;
+        console.log('⏰ 타임아웃 발생 - 백그라운드 처리 응답 반환', bgDiagnosisId);
+        return NextResponse.json(
+          {
+            success: true,
+            diagnosisId: bgDiagnosisId,
+            isTimeout: true,
+            backgroundProcessing: true,
+            estimatedTime: '5-15분',
+            message:
+              'AI 분석이 서버에서 계속 진행 중입니다. 평균 5-15분 소요되며 완료 시 이메일로 결과를 보내드립니다.',
+          },
+          { status: 200, headers: corsHeaders }
+        );
       }
-      
+
       console.error('❌ Google Apps Script 연결 오류:', fetchError);
       throw new Error('Google Apps Script 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
     }
