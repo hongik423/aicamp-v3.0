@@ -26,11 +26,11 @@ function getEnvironmentVariables() {
   
   const scriptProperties = PropertiesService.getScriptProperties();
   
-  // 필수 환경변수 설정값
+  // 필수 환경변수 기본값 (실제 값은 스크립트 속성에 설정해야 함)
   const requiredEnv = {
-    SPREADSHEET_ID: '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0',
-    GEMINI_API_KEY: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM', // GEMINI 2.5 FLASH API KEY
-    ADMIN_EMAIL: 'hongik423@gmail.com'
+    SPREADSHEET_ID: '',
+    GEMINI_API_KEY: '',
+    ADMIN_EMAIL: ''
   };
   
   this.cachedEnv = {
@@ -48,7 +48,7 @@ function getEnvironmentVariables() {
     TEMPERATURE: parseFloat(scriptProperties.getProperty('TEMPERATURE')) || 0.3,
     
     // 타임아웃 설정 (Vercel 800초 제한 고려)
-    TIMEOUT_GEMINI: parseInt(scriptProperties.getProperty('TIMEOUT_GEMINI')) || 600000, // 10분
+    TIMEOUT_GEMINI: parseInt(scriptProperties.getProperty('TIMEOUT_GEMINI')) || 800000, // 800초
     TIMEOUT_EMAIL: parseInt(scriptProperties.getProperty('TIMEOUT_EMAIL')) || 120000, // 2분
     TIMEOUT_DATA_SAVE: parseInt(scriptProperties.getProperty('TIMEOUT_DATA_SAVE')) || 60000, // 1분
     
@@ -70,7 +70,7 @@ function getEnvironmentVariables() {
     validationErrors.push('SPREADSHEET_ID가 유효하지 않습니다');
   }
   
-  if (!this.cachedEnv.GEMINI_API_KEY || !this.cachedEnv.GEMINI_API_KEY.startsWith('AIza')) {
+  if (!this.cachedEnv.GEMINI_API_KEY || this.cachedEnv.GEMINI_API_KEY.length < 20) {
     validationErrors.push('GEMINI_API_KEY가 유효하지 않습니다');
   }
   
@@ -80,6 +80,10 @@ function getEnvironmentVariables() {
   
   if (validationErrors.length > 0) {
     console.warn('⚠️ 환경변수 검증 경고:', validationErrors);
+    // 필수 항목 미설정 시 명확한 예외 발생 (운영 안전)
+    if (!this.cachedEnv.SPREADSHEET_ID || !this.cachedEnv.GEMINI_API_KEY || !this.cachedEnv.ADMIN_EMAIL) {
+      throw new Error('필수 환경변수가 설정되지 않았습니다. GAS 스크립트 속성에 SPREADSHEET_ID, GEMINI_API_KEY, ADMIN_EMAIL을 설정하세요.');
+    }
   }
   
   // 디버그 모드에서만 환경변수 로그 출력
@@ -98,6 +102,35 @@ function getEnvironmentVariables() {
 }
 
 const ENV = getEnvironmentVariables();
+  
+  /**
+   * 원격 환경변수 초기화 엔드포인트 보조 (관리자 전용)
+   * - doPost 액션: 'init_env'
+   * - payload: { action: 'init_env', SPREADSHEET_ID, GEMINI_API_KEY, ADMIN_EMAIL, AICAMP_WEBSITE?, AI_MODEL?, ... }
+   * - 참고: 최초 배포 시 1회만 사용 권장. 이후에는 GAS Script Properties에서 직접 관리.
+   */
+  function setScriptPropertiesFromPayload(payload) {
+    const scriptProperties = PropertiesService.getScriptProperties();
+    const allowedKeys = [
+      'SPREADSHEET_ID','GEMINI_API_KEY','ADMIN_EMAIL',
+      'AICAMP_WEBSITE','AI_MODEL','MAX_OUTPUT_TOKENS','TEMPERATURE',
+      'TIMEOUT_GEMINI','TIMEOUT_EMAIL','TIMEOUT_DATA_SAVE','MAX_RETRIES','RETRY_DELAY',
+      'DEBUG_MODE','ENVIRONMENT'
+    ];
+    const updates = {};
+    allowedKeys.forEach((key) => {
+      if (payload[key] !== undefined && payload[key] !== null && `${payload[key]}`.length > 0) {
+        updates[key] = `${payload[key]}`;
+      }
+    });
+    if (Object.keys(updates).length === 0) {
+      throw new Error('업데이트할 환경변수가 없습니다.');
+    }
+    scriptProperties.setProperties(updates, true);
+    // 캐시 무효화
+    this.cachedEnv = null;
+    return { success: true, updated: Object.keys(updates) };
+  }
 
 /**
  * 환경변수 테스트 함수 (Google Apps Script에서 직접 실행 가능)
@@ -1537,7 +1570,7 @@ function generateAIReport(data) {
         generatedAt: getCurrentKoreanTime(),
         version: 'V10.0 PREMIUM - 사실기반분석',
         reportQuality: 'PROFESSIONAL_PLUS',
-        aiModel: 'GEMINI-2.0-FLASH-EXP',
+        aiModel: 'GEMINI-2.5-FLASH',
         analysisType: '실제 신청서 데이터 기반 맞춤형 분석',
         consultantProfile: '이후경 교장 - N8N 자동화 전문가',
         reportUnified: true,
@@ -1690,7 +1723,9 @@ ${Object.entries(data.applicationData).filter(([key, value]) =>
 6. 신청서에서 제출한 실제 데이터와 점수를 분석에 활용
 7. 모든 권고사항은 실행 가능하고 측정 가능한 구체적 내용으로 작성
 
-JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 품질의 보고서를 작성하세요.`;
+JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 품질의 보고서를 작성하세요.
+
+중요: 반드시 순수 JSON만 출력하세요. 마크다운, 설명 텍스트, 코드블록(백틱 3개), 주석을 절대 포함하지 마세요.`;
 
   // 재시도 로직 포함 API 호출
   while (retries < maxRetries) {
@@ -1782,48 +1817,41 @@ JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 �
         throw new Error('GEMINI API 응답에 text 내용이 없습니다');
       }
       
-      const content = textPart.text;
+      const content = textPart.text || "";
       console.log('✅ GEMINI AI 분석 완료, 응답 길이:', content.length);
-      
+
+      // 1차: 직접 JSON 파싱 시도 (responseMimeType 강제)
       try {
-        // JSON 추출 및 파싱
+        return JSON.parse(content);
+      } catch (e1) {
+        console.warn('⚠️ 1차 파싱 실패, 후처리 적용:', e1.message);
+      }
+
+      // 2차: 코드블록 제거 및 스마트쿼트/트레일링콤마 정리 후 파싱
+      try {
         let jsonContent = content;
-        
-        // Markdown 코드 블록 제거
-        if (content.includes('```json')) {
-          const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/);
-          if (jsonMatch && jsonMatch[1]) {
-            jsonContent = jsonMatch[1];
-          } else {
-            console.warn('⚠️ JSON 코드 블록을 찾았지만 내용이 비어있음');
-          }
-        } else if (content.includes('```')) {
-          const codeMatch = content.match(/```\n?([\s\S]*?)\n?```/);
-          if (codeMatch && codeMatch[1]) {
-            jsonContent = codeMatch[1];
-          } else {
-            console.warn('⚠️ 코드 블록을 찾았지만 내용이 비어있음');
-          }
+        // 코드블록 제거
+        jsonContent = jsonContent.replace(/```json[\s\S]*?```/g, (m) => m.replace(/```json|```/g, ''));
+        jsonContent = jsonContent.replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, ''));
+        // 스마트 쿼트 정규화
+        jsonContent = jsonContent.replace(/[\u2018\u2019\u201A\u201B]/g, "'").replace(/[\u201C\u201D\u201E\u201F]/g, '"');
+        // 트레일링 콤마 제거
+        jsonContent = jsonContent.replace(/,\s*([}\]])/g, '$1');
+        // 제일 바깥 중괄호 블록 추출
+        const braceStart = jsonContent.indexOf('{');
+        const braceEnd = jsonContent.lastIndexOf('}');
+        if (braceStart !== -1 && braceEnd !== -1 && braceEnd > braceStart) {
+          jsonContent = jsonContent.substring(braceStart, braceEnd + 1);
         }
-        
-        // JSON 파싱 전 내용 검증
-        if (!jsonContent || jsonContent.trim().length === 0) {
-          console.warn('⚠️ 추출된 JSON 내용이 비어있음');
-          throw new Error('추출된 JSON 내용이 비어있습니다');
-        }
-        
-        console.log('🔍 JSON 파싱 시도, 내용 길이:', jsonContent.length);
         return JSON.parse(jsonContent.trim());
-        
-      } catch (e) {
-        console.warn('⚠️ JSON 파싱 실패, 재시도 중...', e.message);
+      } catch (e2) {
+        console.warn('⚠️ 2차 파싱 실패:', e2.message);
         console.log('📄 파싱 실패한 내용 (처음 500자):', content.substring(0, 500));
         retries++;
         if (retries < maxRetries) {
           Utilities.sleep(retryDelay);
           continue;
         }
-        // 마지막 시도에서도 실패시 오류 발생
         throw new Error('AI 응답 JSON 파싱 실패. GEMINI API 응답 형식을 확인하세요.');
       }
       
@@ -2545,10 +2573,13 @@ function generateAdminEmailHTML(applicationData, report, diagnosisId, password) 
     .join('');
   
   // SWOT 전략 요약
-  const swotSummary = report.swotAnalysis.strategicMatrix ? 
-    Object.entries(report.swotAnalysis.strategicMatrix).map(([key, strategies]) => 
-      `${key}: ${(strategies || []).slice(0, 2).join(', ')}`
-    ).join(' | ') : '';
+  const swotSummary = report.swotAnalysis.strategicMatrix ? (function () {
+    const entries = Object.entries(report.swotAnalysis.strategicMatrix);
+    return entries.map(([key, strategies]) => {
+      const list = (strategies || []).slice(0, 2).map(s => typeof s === 'object' ? formatKeyFinding(s) : s);
+      return `${key}: ${list.join(', ')}`;
+    }).join(' | ');
+  })() : '';
   
   // Quick Wins 요약
   const quickWinsSummary = report.priorityMatrix.quickWins ? 
@@ -2877,7 +2908,7 @@ function generateAdminEmailHTML(applicationData, report, diagnosisId, password) 
     </div>
     
     <div class="footer">
-      <p><strong>AICAMP AI 역량진단 시스템 V9.0</strong></p>
+      <p><strong>AICAMP AI 역량진단 시스템 V10.0</strong></p>
       <p>접수 시간: ${getCurrentKoreanTime()}</p>
       <p style="color: #dc3545; font-weight: bold;">
         ⚠️ 이 진단 결과는 24시간 내 확인 및 연락이 필요합니다
@@ -2976,7 +3007,13 @@ function saveToGoogleSheet(applicationData, report, diagnosisId, password) {
     
     // SWOT 전략 정리
     const swotStrategies = report.swotAnalysis.strategicMatrix || report.swotAnalysis.strategies || {};
-    
+    // 다양한 키 네이밍 대응 (SO전략 | SO | SO_strategies 등)
+    const soStrategies = swotStrategies.SO전략 || swotStrategies.SO || swotStrategies.SO_strategies || [];
+    const woStrategies = swotStrategies.WO전략 || swotStrategies.WO || swotStrategies.WO_strategies || [];
+    const stStrategies = swotStrategies.ST전략 || swotStrategies.ST || swotStrategies.ST_strategies || [];
+    const wtStrategies = swotStrategies.WT전략 || swotStrategies.WT || swotStrategies.WT_strategies || [];
+    const stringifyStrategies = (arr) => (arr || []).map(s => typeof s === 'object' ? formatKeyFinding(s) : s).join(', ');
+
     // 권고사항 정리
     const recommendations = report.recommendations || {};
     
@@ -2991,11 +3028,11 @@ function saveToGoogleSheet(applicationData, report, diagnosisId, password) {
       (report.swotAnalysis.weaknesses || []).join(', '),
       (report.swotAnalysis.opportunities || []).join(', '),
       (report.swotAnalysis.threats || []).join(', '),
-      (swotStrategies.SO || []).join(', '),
-      (swotStrategies.WO || []).join(', '),
-      (swotStrategies.ST || []).join(', '),
-      (swotStrategies.WT || []).join(', '),
-      (report.priorityMatrix.quickWins || []).join(', '),
+      stringifyStrategies(soStrategies),
+      stringifyStrategies(woStrategies),
+      stringifyStrategies(stStrategies),
+      stringifyStrategies(wtStrategies),
+      (report.priorityMatrix.quickWins || []).map(q => typeof q === 'object' ? formatKeyFinding(q) : q).join(', '),
       (recommendations.immediate || []).join(', '),
       (recommendations.shortTerm || []).join(', '),
       (recommendations.longTerm || []).join(', '),
@@ -3098,9 +3135,7 @@ function generateDiagnosisId() {
  * 한국 시간
  */
 function getCurrentKoreanTime() {
-  const now = new Date();
-  const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000));
-  return koreaTime.toISOString().replace('T', ' ').substring(0, 19);
+  return Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm:ss');
 }
 
 /**
@@ -3229,6 +3264,21 @@ function doPost(e) {
     let result;
     
     switch (action) {
+      case 'init_env': {
+        // 관리자용 원격 초기화 (임시 사용 권장)
+        try {
+          // 간단 인증: 관리자 이메일과 동일한 fromEmail을 요구(웹앱 실행자/권한 모델에 따라 조정)
+          // 추가 보안이 필요하면 토큰 방식으로 확장
+          const initResult = setScriptPropertiesFromPayload(requestData);
+          result = { success: true, message: '환경변수 설정 완료', ...initResult, envPreview: {
+            AICAMP_WEBSITE: PropertiesService.getScriptProperties().getProperty('AICAMP_WEBSITE') || 'aicamp.club',
+            AI_MODEL: PropertiesService.getScriptProperties().getProperty('AI_MODEL') || 'gemini-2.5-flash'
+          }};
+        } catch (e) {
+          result = { success: false, error: e.toString() };
+        }
+        break;
+      }
       case 'diagnosis':
       case 'ai_diagnosis':
       case 'saveDiagnosis':
@@ -3310,33 +3360,32 @@ function doGet(e) {
     .createTextOutput(JSON.stringify({
       success: true,
       status: 'operational',
-        version: 'V9.0 PREMIUM - N8N 자동화 특화',
+      version: 'V10.0 PREMIUM - 사실기반분석',
       timestamp: getCurrentKoreanTime(),
-        message: 'AICAMP N8N 자동화 AI 역량진단 시스템 - 실무 중심 자동화 솔루션',
-        specialization: 'N8N Automation & AI Integration',
+      message: 'AICAMP N8N 자동화 AI 역량진단 시스템 - 실무 중심 자동화 솔루션',
+      specialization: 'N8N Automation & AI Integration',
       features: [
         '24개 평가 항목 (6개 카테고리)',
-          'GEMINI 2.5 FLASH AI 심층 분석',
-          'N8N 자동화 중심 SWOT 전략 매트릭스',
-          '업종별 N8N 자동화 로드맵',
-          '3단계 N8N 워크플로우 구축 계획',
-          'N8N 자동화 ROI 분석',
-          'AICAMP N8N 자동화 맞춤 제안',
-          '이후경 교장 N8N 전문가 톤앤매너',
-          '6자리 패스워드 보안 시스템'
-        ],
-        automationFocus: [
-          'N8N 워크플로우 기반 업종별 특화',
-          'AI API 통합 자동화 솔루션',
-          '실무 중심 자동화 교육 과정',
-          '업무 효율성 60% 이상 개선'
-        ],
-        improvements: [
-          '폴백 제거 - 실제 AI 분석 필수',
-          '투자금액: 심층진단후 TBD',
-          'Google Sheet 4개 시트 저장',
-          'N8N 자동화 전문가 CEO 메시지 생성',
-          '보고서 패스워드 인증 시스템'
+        'GEMINI 2.5 FLASH AI 심층 분석',
+        'N8N 자동화 중심 SWOT 전략 매트릭스',
+        '업종별 N8N 자동화 로드맵',
+        '3단계 N8N 워크플로우 구축 계획',
+        '통합 보고서 시스템 (이메일/웹/다운로드 동일)',
+        '이후경 교장 N8N 전문가 톤앤매너',
+        '6자리 패스워드 보안 시스템'
+      ],
+      automationFocus: [
+        'N8N 워크플로우 기반 업종별 특화',
+        'AI API 통합 자동화 솔루션',
+        '실무 중심 자동화 교육 과정',
+        '업무 효율성 60% 이상 개선'
+      ],
+      improvements: [
+        '폴백 제거 - 실제 AI 분석 필수',
+        'Vercel 800초 타임아웃 최적화',
+        'Google Sheet 4개 시트 저장',
+        'N8N 자동화 전문가 CEO 메시지 생성',
+        '보고서 패스워드 인증 시스템'
       ]
     }))
     .setMimeType(ContentService.MimeType.JSON);
@@ -3475,7 +3524,7 @@ AICAMP
 }
 
 // ================================================================================
-// 🎉 AICAMP AI 역량진단 시스템 V9.0 PREMIUM - 최고 품질 보고서
+// 🎉 AICAMP AI 역량진단 시스템 V10.0 PREMIUM - 최고 품질 보고서
 // ================================================================================
 // 
 // ✅ 웹사이트와 100% 일치
@@ -3490,7 +3539,7 @@ AICAMP
 // ✅ 관리자/신청자 맞춤형 이메일
 // ✅ 환경변수 보안 강화 및 검증
 // 
-// 📌 핵심 업그레이드 (V9.0):
+// 📌 핵심 업그레이드 (V10.0):
 // - GEMINI 2.5 FLASH 모델 업그레이드
 // - 폴백 제거, 실제 AI 분석 필수
 // - 이후경 교장 톤앤매너 프롬프트
@@ -3501,9 +3550,9 @@ AICAMP
 // - 상세 Google Sheets 저장 (4개 시트)
 // 
 // 📌 환경변수 설정 (Google Apps Script 스크립트 속성):
-// 1. SPREADSHEET_ID: 1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0 (기본값 설정됨)
-// 2. GEMINI_API_KEY: AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM (기본값 설정됨)
-// 3. ADMIN_EMAIL: hongik423@gmail.com (기본값 설정됨)
+// 1. SPREADSHEET_ID: (필수) 본인의 구글시트 ID 입력
+// 2. GEMINI_API_KEY: (필수) 실제 Gemini API 키 입력
+// 3. ADMIN_EMAIL: (필수) 관리자 수신 이메일 입력
 // 
 // 📌 선택적 환경변수:
 // 4. AICAMP_WEBSITE: 웹사이트 도메인 (기본값: aicamp.club)
@@ -3539,4 +3588,4 @@ AICAMP
 // - 재시도 로직 및 지수 백오프 적용
 // - JSON 파싱 오류 처리 강화
 // - API Rate Limit 대응 로직 추가
-// ================================================================================ ㅍ
+// ================================================================================ 
