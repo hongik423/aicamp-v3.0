@@ -1,4 +1,4 @@
-// AI 역량 점수 계산
+// AI 역량 점수 계산 - 실제 신청서 데이터와 정확히 연결
 export function calculateAICapabilityScores(data: any) {
   const scores = {
     dataQuality: 0,
@@ -9,57 +9,96 @@ export function calculateAICapabilityScores(data: any) {
     total: 0
   };
 
+  // 🎯 실제 신청서 필드와 정확한 매핑
   // 데이터 품질 점수 (5점 만점)
-  if (data.dataQuality) {
+  if (data.dataQuality || data.dataManagement) {
+    const field = data.dataQuality || data.dataManagement;
     const qualityMap: Record<string, number> = {
       '체계적 관리': 5,
-      '부분적 관리': 3,
-      '기초 수준': 2,
-      '관리 미흡': 1
+      '체계적': 5,
+      '부분적 관리': 3.5,
+      '부분적': 3.5,
+      '기초 수준': 2.5,
+      '기초': 2.5,
+      '관리 미흡': 1.5,
+      '미흡': 1.5,
+      '없음': 1
     };
-    scores.dataQuality = qualityMap[data.dataQuality] || 2;
+    scores.dataQuality = qualityMap[field] || 3;
+  } else {
+    scores.dataQuality = 3; // 기본값
   }
 
   // 알고리즘 복잡도 이해 점수
-  if (data.aiExperience) {
+  if (data.aiExperience || data.aiUsageExperience) {
+    const field = data.aiExperience || data.aiUsageExperience;
     const experienceMap: Record<string, number> = {
       '도입 운영 중': 5,
+      '운영중': 5,
       '파일럿 진행': 4,
+      '파일럿': 4,
       '검토 중': 3,
+      '검토중': 3,
       '관심 있음': 2,
-      '경험 없음': 1
+      '관심': 2,
+      '경험 없음': 1,
+      '없음': 1
     };
-    scores.algorithmComplexity = experienceMap[data.aiExperience] || 2;
+    scores.algorithmComplexity = experienceMap[field] || 3;
+  } else {
+    scores.algorithmComplexity = 3; // 기본값
   }
 
   // 인프라 준비도 점수
-  if (data.digitalizationLevel) {
+  if (data.digitalizationLevel || data.digitalLevel) {
+    const field = data.digitalizationLevel || data.digitalLevel;
     const digitalMap: Record<string, number> = {
       '고도화': 5,
-      '중급': 4,
-      '기초': 2,
-      '미흡': 1
+      '높음': 5,
+      '중급': 3.5,
+      '중간': 3.5,
+      '기초': 2.5,
+      '낮음': 2,
+      '미흡': 1,
+      '매우낮음': 1
     };
-    scores.infrastructureReadiness = digitalMap[data.digitalizationLevel] || 2;
+    scores.infrastructureReadiness = digitalMap[field] || 3;
+  } else {
+    scores.infrastructureReadiness = 3; // 기본값
   }
 
   // 통합 역량 점수
-  scores.integrationCapability = data.systemIntegration === '완전 통합' ? 5 :
-                                data.systemIntegration === '부분 통합' ? 3 : 2;
+  if (data.systemIntegration || data.systemIntegrationLevel) {
+    const field = data.systemIntegration || data.systemIntegrationLevel;
+    scores.integrationCapability = field === '완전 통합' || field === '완전' ? 5 :
+                                  field === '부분 통합' || field === '부분' ? 3.5 :
+                                  field === '기초' ? 2.5 : 3;
+  } else {
+    scores.integrationCapability = 3; // 기본값
+  }
 
   // 혁신 문화 점수
-  scores.innovationCulture = data.changeReadiness === '매우 높음' ? 5 :
-                            data.changeReadiness === '높음' ? 4 :
-                            data.changeReadiness === '보통' ? 3 : 2;
+  if (data.changeReadiness || data.innovationReadiness) {
+    const field = data.changeReadiness || data.innovationReadiness;
+    scores.innovationCulture = field === '매우 높음' || field === '매우높음' ? 5 :
+                              field === '높음' ? 4 :
+                              field === '보통' || field === '중간' ? 3 :
+                              field === '낮음' ? 2 : 3;
+  } else {
+    scores.innovationCulture = 3; // 기본값
+  }
 
-  // 총점 계산 (100점 만점으로 변환)
-  const rawTotal = Object.values(scores).reduce((sum, score) => sum + score, 0) - scores.total;
-  scores.total = (rawTotal / 25) * 100; // 5개 항목 * 5점 = 25점 만점
+  // 총점 계산 (100점 만점으로 변환) - 더 정확한 계산
+  const rawTotal = scores.dataQuality + scores.algorithmComplexity + 
+                  scores.infrastructureReadiness + scores.integrationCapability + 
+                  scores.innovationCulture;
+  scores.total = Math.round((rawTotal / 25) * 100); // 5개 항목 * 5점 = 25점 만점
 
+  console.log('📊 AI 역량 점수 계산 결과:', scores);
   return scores;
 }
 
-// 실무 역량 점수 계산
+// 실무 역량 점수 계산 - 실제 신청서 데이터와 정확히 연결
 export function calculatePracticalCapabilityScores(data: any) {
   const scores = {
     businessAlignment: 0,
@@ -70,48 +109,82 @@ export function calculatePracticalCapabilityScores(data: any) {
     total: 0
   };
 
-  // 비즈니스 정렬도
-  scores.businessAlignment = data.businessPriority === '최우선 과제' ? 5 :
-                            data.businessPriority === '주요 과제' ? 4 :
-                            data.businessPriority === '검토 중' ? 3 : 2;
+  // 🎯 비즈니스 정렬도 - 실제 필드 매핑
+  if (data.businessPriority || data.aiPriority) {
+    const field = data.businessPriority || data.aiPriority;
+    scores.businessAlignment = field === '최우선 과제' || field === '최우선' ? 5 :
+                              field === '주요 과제' || field === '주요' ? 4 :
+                              field === '검토 중' || field === '검토중' ? 3 :
+                              field === '관심' ? 2.5 : 3;
+  } else {
+    scores.businessAlignment = 3; // 기본값
+  }
 
   // 프로세스 최적화
-  scores.processOptimization = data.processMaturity === '최적화됨' ? 5 :
-                              data.processMaturity === '표준화됨' ? 4 :
-                              data.processMaturity === '문서화됨' ? 3 : 2;
+  if (data.processMaturity || data.processLevel) {
+    const field = data.processMaturity || data.processLevel;
+    scores.processOptimization = field === '최적화됨' || field === '최적화' ? 5 :
+                                field === '표준화됨' || field === '표준화' ? 4 :
+                                field === '문서화됨' || field === '문서화' ? 3 :
+                                field === '기초' ? 2 : 3;
+  } else {
+    scores.processOptimization = 3; // 기본값
+  }
 
   // 스킬 준비도
-  if (data.employeeCount) {
-    const employeeScore = parseInt(data.employeeCount) >= 100 ? 4 : 3;
-    scores.skillReadiness = data.trainingProgram === '체계적 운영' ? 5 :
-                           data.trainingProgram === '부분적 운영' ? employeeScore : 2;
+  if (data.employeeCount || data.employees) {
+    const field = data.employeeCount || data.employees;
+    const employeeNum = typeof field === 'string' ? 
+                       parseInt(field.replace(/[^0-9]/g, '')) || 50 : field;
+    const baseScore = employeeNum >= 100 ? 4 : employeeNum >= 50 ? 3.5 : 3;
+    
+    if (data.trainingProgram || data.training) {
+      const training = data.trainingProgram || data.training;
+      scores.skillReadiness = training === '체계적 운영' || training === '체계적' ? 5 :
+                             training === '부분적 운영' || training === '부분적' ? baseScore :
+                             training === '계획중' ? 2.5 : baseScore;
+    } else {
+      scores.skillReadiness = baseScore;
+    }
   } else {
-    scores.skillReadiness = 3;
+    scores.skillReadiness = 3; // 기본값
   }
 
   // 변화 관리
-  scores.changeManagement = data.changeReadiness === '매우 높음' ? 5 :
-                           data.changeReadiness === '높음' ? 4 :
-                           data.changeReadiness === '보통' ? 3 : 2;
-
-  // 자원 가용성
-  if (data.annualRevenue) {
-    const revenue = parseInt(data.annualRevenue.replace(/[^0-9]/g, ''));
-    scores.resourceAvailability = revenue >= 1000 ? 5 :
-                                 revenue >= 500 ? 4 :
-                                 revenue >= 100 ? 3 : 2;
+  if (data.changeReadiness || data.changeManagement) {
+    const field = data.changeReadiness || data.changeManagement;
+    scores.changeManagement = field === '매우 높음' || field === '매우높음' ? 5 :
+                             field === '높음' ? 4 :
+                             field === '보통' || field === '중간' ? 3 :
+                             field === '낮음' ? 2 : 3;
   } else {
-    scores.resourceAvailability = 3;
+    scores.changeManagement = 3; // 기본값
   }
 
-  // 총점 계산 (100점 만점으로 변환)
-  const rawTotal = Object.values(scores).reduce((sum, score) => sum + score, 0) - scores.total;
-  scores.total = (rawTotal / 25) * 100;
+  // 자원 가용성
+  if (data.annualRevenue || data.revenue || data.budget) {
+    const field = data.annualRevenue || data.revenue || data.budget;
+    const revenue = typeof field === 'string' ? 
+                   parseInt(field.replace(/[^0-9]/g, '')) || 100 : field;
+    scores.resourceAvailability = revenue >= 1000 ? 5 :
+                                 revenue >= 500 ? 4 :
+                                 revenue >= 100 ? 3 :
+                                 revenue >= 50 ? 2.5 : 2;
+  } else {
+    scores.resourceAvailability = 3; // 기본값
+  }
 
+  // 총점 계산 (100점 만점으로 변환) - 더 정확한 계산
+  const rawTotal = scores.businessAlignment + scores.processOptimization + 
+                  scores.skillReadiness + scores.changeManagement + 
+                  scores.resourceAvailability;
+  scores.total = Math.round((rawTotal / 25) * 100);
+
+  console.log('📊 실무 역량 점수 계산 결과:', scores);
   return scores;
 }
 
-// 종합 점수 계산
+// 종합 점수 계산 - 실제 데이터 정확 반영
 export function calculateComprehensiveScores(data: any) {
   const aiScores = calculateAICapabilityScores(data);
   const practicalScores = calculatePracticalCapabilityScores(data);
@@ -119,18 +192,75 @@ export function calculateComprehensiveScores(data: any) {
   // 산업별 가중치
   const industryWeights = getIndustryWeights(data.industry);
   
+  // 🎯 카테고리별 점수 계산 (5점 만점)
+  const categories = {
+    리더십: 0,
+    인프라: 0,
+    직원역량: 0,
+    조직문화: 0,
+    실무적용: 0,
+    데이터: 0
+  };
+  
+  // 리더십 점수 (비즈니스 우선순위 + 혁신 문화)
+  categories.리더십 = Math.round(
+    ((practicalScores.businessAlignment * 0.6 + aiScores.innovationCulture * 0.4) * 10) / 10
+  );
+  
+  // 인프라 점수 (인프라 준비도 + 자원 가용성)
+  categories.인프라 = Math.round(
+    ((aiScores.infrastructureReadiness * 0.7 + practicalScores.resourceAvailability * 0.3) * 10) / 10
+  );
+  
+  // 직원역량 점수 (스킬 준비도 + AI 경험)
+  categories.직원역량 = Math.round(
+    ((practicalScores.skillReadiness * 0.6 + aiScores.algorithmComplexity * 0.4) * 10) / 10
+  );
+  
+  // 조직문화 점수 (혁신 문화 + 변화 관리)
+  categories.조직문화 = Math.round(
+    ((aiScores.innovationCulture * 0.5 + practicalScores.changeManagement * 0.5) * 10) / 10
+  );
+  
+  // 실무적용 점수 (프로세스 최적화 + 통합 역량)
+  categories.실무적용 = Math.round(
+    ((practicalScores.processOptimization * 0.5 + aiScores.integrationCapability * 0.5) * 10) / 10
+  );
+  
+  // 데이터 점수 (데이터 품질)
+  categories.데이터 = Math.round(aiScores.dataQuality * 10) / 10;
+  
   // 가중치 적용
   const weightedAIScore = aiScores.total * industryWeights.ai;
   const weightedPracticalScore = practicalScores.total * industryWeights.practical;
   
+  // 전체 점수 계산
+  const total = Math.round((weightedAIScore + weightedPracticalScore) / (industryWeights.ai + industryWeights.practical));
+  
+  // 등급 계산
+  const grade = total >= 80 ? 'S' :
+                total >= 70 ? 'A' :
+                total >= 60 ? 'B' :
+                total >= 50 ? 'C' : 'D';
+  
+  console.log('📊 종합 점수 계산:', {
+    categories,
+    aiCapability: aiScores.total,
+    practicalCapability: practicalScores.total,
+    total,
+    grade
+  });
+  
   return {
     ai: aiScores,
     practical: practicalScores,
+    categories,
     weighted: {
       ai: weightedAIScore,
       practical: weightedPracticalScore
     },
-    total: (weightedAIScore + weightedPracticalScore) / (industryWeights.ai + industryWeights.practical)
+    total,
+    grade
   };
 }
 
