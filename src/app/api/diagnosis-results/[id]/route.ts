@@ -19,8 +19,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // 오류 로깅을 위한 스코프 밖 변수
+  let diagnosisId: string | undefined;
+  let googleScriptUrlForLog: string | undefined;
+
   try {
-    const { id: diagnosisId } = await params;
+    const resolved = await params;
+    diagnosisId = resolved.id;
     
     if (!diagnosisId) {
       return NextResponse.json(
@@ -34,7 +39,27 @@ export async function GET(
 
     console.log('🔍 진단 결과 조회 요청:', diagnosisId);
 
+    // QUEUED ID 처리 - 임시 큐잉 상태 반환
+    if (diagnosisId.startsWith('QUEUED_')) {
+      console.log('⏳ 큐잉된 진단 ID 감지:', diagnosisId);
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            status: 'processing',
+            message: 'AI 분석이 진행 중입니다. 잠시만 기다려주세요.',
+            progress: 30,
+            diagnosisId: diagnosisId,
+            isQueued: true,
+            estimatedTime: '5-10분'
+          }
+        },
+        { headers: corsHeaders }
+      );
+    }
+
     const GOOGLE_SCRIPT_URL = getGasUrl();
+    googleScriptUrlForLog = GOOGLE_SCRIPT_URL;
 
     if (!GOOGLE_SCRIPT_URL) {
       return NextResponse.json(
@@ -162,7 +187,7 @@ export async function GET(
       diagnosisId,
       errorMessage: error instanceof Error ? error.message : '알 수 없는 오류',
       errorStack: error instanceof Error ? error.stack : undefined,
-      googleScriptUrl: GOOGLE_SCRIPT_URL
+      googleScriptUrl: googleScriptUrlForLog
     });
     
     return NextResponse.json(
