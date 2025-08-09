@@ -1,13 +1,30 @@
 // AICAMP Service Worker - 안전한 버전
-const CACHE_NAME = 'aicamp-v3.1';
+const CACHE_NAME = 'aicamp-v3.3';
 const urlsToCache = [
   '/',
   '/diagnosis',
   '/services',
+  '/services/ai-curriculum',
+  // 요청하신 추가 사전 캐시 경로들
+  '/services/investment-analysis',
+  '/services/policy-funding',
+  '/services/policy-funding/operating-funding',
+  '/services/policy-funding/facility-funding',
+  '/services/policy-funding/rd-funding',
+  '/services/policy-funding/startup-funding',
+  '/services/policy-funding/investment-analysis',
+  '/tax-calculator',
+  '/tax-calculator/error-report',
   '/consultation',
   '/tax-calculator',
   '/about',
-  '/cases'
+  '/cases',
+  '/seminar',
+  // 아이콘/매니페스트 (일부 브라우저가 자동 요청)
+  '/favicon.ico',
+  '/apple-touch-icon.png',
+  '/icon.svg',
+  '/manifest.webmanifest'
 ];
 
 // 캐시 제외/주의 대상 URL 패턴

@@ -91,6 +91,20 @@ const nextConfig = {
   
   // 개발 서버 안정성 향상
   reactStrictMode: false, // 개발 중 이중 렌더링 방지
+  
+  // 누락된 아이콘 경로를 기존 이미지로 리라이팅하여 404 방지
+  async rewrites() {
+    return [
+      // 루트 경로 요청 대응
+      { source: '/favicon.ico', destination: '/images/aicamp_logo_del_250726.png' },
+      { source: '/apple-touch-icon.png', destination: '/images/aicamp_logo.png' },
+      { source: '/icon.svg', destination: '/images/aicamp_logo_del_250726.png' },
+      // 경로별 상대 요청까지 커버 (예: /seminar/favicon.ico)
+      { source: '/:path*/favicon.ico', destination: '/images/aicamp_logo_del_250726.png' },
+      { source: '/:path*/apple-touch-icon.png', destination: '/images/aicamp_logo.png' },
+      { source: '/:path*/icon.svg', destination: '/images/aicamp_logo_del_250726.png' },
+    ];
+  },
 };
 
 module.exports = nextConfig; 
