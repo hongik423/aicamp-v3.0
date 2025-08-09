@@ -35,10 +35,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 환경변수 검증 (개발/일반 서버 환경)
+    // 환경변수 검증 (개발/일반 서버 환경) - 실제 설정된 환경변수들 체크
     const envCheck = {
-      OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
-      NEXT_PUBLIC_EMAILJS_SERVICE_ID: !!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+      GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
+      NEXT_PUBLIC_GOOGLE_SCRIPT_URL: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
+      NEXT_PUBLIC_GAS_URL: !!process.env.NEXT_PUBLIC_GAS_URL,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       NODE_ENV: process.env.NODE_ENV,
       timestamp: new Date().toISOString()
