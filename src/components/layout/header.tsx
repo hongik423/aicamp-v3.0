@@ -65,7 +65,6 @@ export default function Header() {
   }, []);
 
   const navigation = [
-    { href: '/', label: '홈', isSpecial: false },
     { href: '/diagnosis', label: 'AI역량진단', isSpecial: true, badge: '무료' },
     { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false },
     { href: '/services', label: 'AICAMP서비스', isSpecial: false },
@@ -81,8 +80,8 @@ export default function Header() {
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white'
     }`}>
-      <div className="w-full px-3 sm:px-4 lg:px-6 xl:px-8 2xl:container 2xl:mx-auto">
-        <div className="flex items-center justify-between h-14 sm:h-16 w-full">
+      <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 xl:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16 w-full min-w-0">
           {/* 로고 + AICAMP + 홈 - 순서 개선 및 자동 넓이 조정 */}
           <div className="flex items-center space-x-4 sm:space-x-6 flex-shrink-0">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity">
@@ -100,37 +99,36 @@ export default function Header() {
               <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 bg-clip-text text-transparent whitespace-nowrap drop-shadow-sm">AICAMP</span>
             </Link>
             
-            {/* 홈 링크 - 로고 다음 배치 */}
-            <Link 
-              href="/" 
-              className="hidden md:block text-gray-700 hover:text-blue-600 font-medium transition-colors px-2 py-1 rounded-lg hover:bg-blue-50"
-            >
-              홈
-            </Link>
+
           </div>
 
-          {/* 데스크톱 네비게이션 - 반응형 개선 */}
-          <nav className="hidden lg:flex items-center space-x-2 xl:space-x-3">
-            {navigation.map((item) => (
-              <div key={item.href} className="relative group">
-                <Link
-                  href={item.href}
-                  className={`inline-flex items-center px-3 py-2 xl:px-4 xl:py-2 rounded-xl text-sm xl:text-base font-medium transition-all duration-200 whitespace-nowrap ${
-                    item.isSpecial
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105'
-                      : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105'
-                  }`}
-                >
-                  <span className="truncate">{item.label}</span>
-                  {item.badge && (
-                    <Badge variant="secondary" className="ml-2 text-xs bg-white/20 text-white border-0">
-                      {item.badge}
-                    </Badge>
-                  )}
-                </Link>
-              </div>
-            ))}
-            {/* 전역 고정 AI 상담 버튼 - 로고 색상 반영 */}
+          {/* 데스크톱 네비게이션 - 완전 반응형 개선 */}
+          <nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4">
+            <div className="flex items-center space-x-1 xl:space-x-2 2xl:space-x-3 overflow-x-auto scrollbar-hide">
+              {navigation.map((item) => (
+                <div key={item.href} className="relative group flex-shrink-0">
+                  <Link
+                    href={item.href}
+                    className={`inline-flex items-center px-2 py-2 lg:px-3 lg:py-2 xl:px-4 xl:py-2 rounded-xl text-xs lg:text-sm xl:text-base font-medium transition-all duration-200 whitespace-nowrap ${
+                      item.isSpecial
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105'
+                    }`}
+                  >
+                    <span className="truncate max-w-[120px] lg:max-w-none">{item.label}</span>
+                    {item.badge && (
+                      <Badge variant="secondary" className="ml-1 lg:ml-2 text-xs bg-white/20 text-white border-0 flex-shrink-0">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </nav>
+
+          {/* AI 상담 버튼 - 별도 영역으로 분리하여 반응형 개선 */}
+          <div className="hidden lg:flex items-center flex-shrink-0">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -138,42 +136,60 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
+              className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2 rounded-xl text-sm xl:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
             >
-              이교장의AI상담
+              <span className="hidden xl:inline">이교장의AI상담</span>
+              <span className="xl:hidden">AI상담</span>
             </button>
+          </div>
+
+          {/* 태블릿용 간소화 네비게이션 - 반응형 개선 */}
+          <nav className="hidden md:flex lg:hidden items-center justify-center flex-1 min-w-0 mx-2">
+            <div className="flex items-center space-x-1 overflow-x-auto scrollbar-hide">
+              <Link
+                href="/diagnosis"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-2 rounded-xl text-sm font-medium hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0"
+              >
+                AI진단
+                <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
+                  무료
+                </Badge>
+              </Link>
+              <Link
+                href="/services"
+                className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 flex-shrink-0"
+              >
+                서비스
+              </Link>
+              <Link
+                href="/tax-calculator"
+                className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 flex-shrink-0"
+              >
+                세금계산기
+              </Link>
+              <Link
+                href="/consultation"
+                className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 flex-shrink-0"
+              >
+                상담
+              </Link>
+            </div>
           </nav>
 
-          {/* 태블릿용 간소화 네비게이션 - 홈 링크 제거 (로고 옆에 이미 존재) */}
-          <nav className="hidden md:flex lg:hidden items-center space-x-1">
-            <Link
-              href="/diagnosis"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-2 rounded-xl text-sm font-medium hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200"
+          {/* 태블릿용 AI 상담 버튼 */}
+          <div className="hidden md:flex lg:hidden items-center flex-shrink-0">
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  const btn = document.querySelector('[data-floating-chatbot]') as HTMLElement | null;
+                  if (btn) btn.click();
+                }
+              }}
+              className="inline-flex items-center px-2 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap animate-pulse"
             >
-              AI진단
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
-                무료
-              </Badge>
-            </Link>
-            <Link
-              href="/services"
-              className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
-            >
-              서비스
-            </Link>
-            <Link
-              href="/tax-calculator"
-              className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
-            >
-              세금계산기
-            </Link>
-            <Link
-              href="/consultation"
-              className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
-            >
-              상담
-            </Link>
-          </nav>
+              AI상담
+            </button>
+          </div>
 
           {/* 모바일 메뉴 버튼 */}
           <button
