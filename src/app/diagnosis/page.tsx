@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Header from '@/components/layout/header';
 import { AICapabilityDiagnosisForm } from '@/features/ai-capability-diagnosis/components/AICapabilityDiagnosisForm';
-import { Brain, Target, TrendingUp, Users, Award, BarChart3 } from 'lucide-react';
+import { Brain, Target, TrendingUp, Users, Award, BarChart3, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,24 +44,71 @@ export default function DiagnosisPage() {
       {/* 메인 섹션 */}
       <main className="container mx-auto px-4 py-12">
         {/* 히어로 섹션 */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 px-6 py-3 rounded-full text-lg sm:text-xl font-bold mb-8 shadow-lg border border-purple-200">
-            <Brain className="w-6 h-6" />
-            이후경 교장의 AI 역량진단 시스템
+        <div className="text-center mb-16 relative">
+          {/* 배경 장식 요소 */}
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute top-10 left-1/4 w-32 h-32 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute top-20 right-1/4 w-24 h-24 bg-purple-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
           </div>
           
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-            AI 도입 준비도<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              무료 진단
-            </span>
-          </h1>
+          {/* 교장 소개 배지 */}
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 px-6 py-3 rounded-full text-lg sm:text-xl font-bold mb-8 shadow-lg border border-purple-200 animate-fade-in-up">
+            <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-purple-300 shadow-sm">
+              <Image
+                src="/images/aicamp_leader3.png"
+                alt="이후경 교장"
+                width={32}
+                height={32}
+                className="object-cover w-full h-full"
+                priority
+              />
+            </div>
+            <Brain className="w-6 h-6 animate-pulse" />
+            이후경 교장의 AI 역량진단 시스템
+            <Sparkles className="w-5 h-5 text-yellow-500 animate-bounce" />
+          </div>
           
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4">
-            30년 기업교육 전문가 이후경 교장이 개발한 AI 역량 진단으로
-            <span className="block sm:inline"> </span>
-            귀사의 AI 도입 준비도를 정확히 측정하고 맞춤형 실행전략을 제시합니다
-          </p>
+          {/* 메인 타이틀 */}
+          <div className="relative mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight animate-fade-in-up delay-200">
+              AI 도입 준비도<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 animate-gradient-x">
+                무료 진단
+              </span>
+            </h1>
+            
+            {/* 반짝이는 효과 */}
+            <div className="absolute -top-4 -right-4 w-6 h-6 text-yellow-400 animate-spin-slow opacity-70">
+              <Sparkles className="w-full h-full" />
+            </div>
+          </div>
+          
+          {/* 설명 텍스트 */}
+          <div className="relative">
+            <div className="flex items-center justify-center gap-4 mb-4 animate-fade-in-up delay-300">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 border-gradient-to-r from-blue-400 to-purple-400 shadow-xl">
+                <Image
+                  src="/images/aicamp_leader3.png"
+                  alt="이후경 교장"
+                  width={80}
+                  height={80}
+                  className="object-cover w-full h-full hover:scale-110 transition-transform duration-300"
+                  priority
+                />
+              </div>
+              <div className="text-left">
+                <div className="text-sm sm:text-base font-semibold text-purple-700 mb-1">30년 기업교육 전문가</div>
+                <div className="text-lg sm:text-xl font-bold text-gray-800">이후경 교장</div>
+                <div className="text-xs sm:text-sm text-gray-600">AI 역량진단 시스템 개발자</div>
+              </div>
+            </div>
+            
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4 animate-fade-in-up delay-400">
+              검증된 AI 역량 진단으로 귀사의 AI 도입 준비도를 정확히 측정하고
+              <span className="block sm:inline"> </span>
+              <span className="font-semibold text-blue-700">맞춤형 실행전략</span>을 제시합니다
+            </p>
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12 px-4">
             <Button 
