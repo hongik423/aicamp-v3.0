@@ -289,7 +289,7 @@ const BookPromotionBanner: React.FC = () => {
                       >
                         {!imageError ? (
                           <Image
-                            src="/images/book_1_cover.JPG"
+                            src="/images/book_1_cover.JPG?v=3"
                             alt="AI 자동화 n8n 워크플로우 북커버"
                             fill
                             style={{ objectFit: 'cover' }}
