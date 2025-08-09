@@ -97,7 +97,7 @@ export default function Header() {
                   unoptimized
                 />
               </div>
-              <span className="text-lg sm:text-xl font-bold text-gray-900 whitespace-nowrap">AICAMP</span>
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent whitespace-nowrap">AICAMP</span>
             </Link>
             
             {/* 홈 링크 - 로고 다음 배치 */}
@@ -130,7 +130,7 @@ export default function Header() {
                 </Link>
               </div>
             ))}
-            {/* 전역 고정 AI 상담 버튼 - 색상 개선 */}
+            {/* 전역 고정 AI 상담 버튼 - 로고 색상 반영 */}
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -138,7 +138,7 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg hover:shadow-xl hover:scale-105 hover:from-emerald-600 hover:to-teal-700 transition-all whitespace-nowrap"
+              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap"
             >
               이교장의AI상담
             </button>
@@ -198,7 +198,7 @@ export default function Header() {
                     if (btn) btn.click();
                   }
                 }}
-                className="w-full mb-2 inline-flex items-center justify-center px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-md active:shadow-lg hover:from-emerald-600 hover:to-teal-700"
+                className="w-full mb-2 inline-flex items-center justify-center px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-green-500 shadow-md active:shadow-lg hover:from-blue-700 hover:to-green-600"
               >
                 이교장의AI상담 바로가기
               </button>
