@@ -85,17 +85,18 @@ export default function Header() {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* 로고 - 모바일 최적화 */}
           <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity">
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
               <Image
-                src="/images/aicamp_logo_del_250726.png?v=3"
+                src="/images/aicamp_logo_del_250726.png"
                 alt="AICAMP 로고"
-                width={40}
-                height={40}
-                className="object-contain rounded-lg"
+                width={48}
+                height={48}
+                className="object-contain w-full h-full"
                 priority
+                unoptimized
               />
             </div>
-            <span className="text-lg sm:text-xl font-bold text-gray-900">AICAMP</span>
+            <span className="text-lg sm:text-xl font-bold text-gray-900 whitespace-nowrap">AICAMP</span>
           </Link>
 
           {/* 데스크톱 네비게이션 - 반응형 개선 */}
@@ -127,9 +128,9 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-pink-600 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-pink-600 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap"
             >
-              💬 AI 상담
+              👨‍🏫 이교장의AI상담
             </button>
           </nav>
 
@@ -195,7 +196,7 @@ export default function Header() {
                 }}
                 className="w-full mb-2 inline-flex items-center justify-center px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-orange-500 to-pink-600 shadow-md active:shadow-lg"
               >
-                💬 이후경 교장에게 바로 상담하기
+                👨‍🏫 이교장의AI상담 바로가기
               </button>
               {navigation.map((item) => (
                 <Link
