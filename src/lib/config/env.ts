@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 
-// 🔧 **실제 AICAMP 구글시트 정보** (2025.08.08 최신 업데이트 - 원본 URL 사용)
+// 🔧 **실제 AICAMP 구글시트 정보** (2025.08.09 환경변수 수정 - 원본 URL 사용)
 const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
 const GOOGLE_SHEETS_ID = '1QNgQSsyAdeSu1ejhIm4PFyeSRKy3NmwbLQnKLF8vqA0';
 
