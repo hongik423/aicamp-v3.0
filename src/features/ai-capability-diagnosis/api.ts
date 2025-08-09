@@ -32,7 +32,7 @@ export async function submitDiagnosis(data: DiagnosisApplicationData): Promise<D
           formType: 'ai-capability-diagnosis',
           submittedAt: new Date().toISOString(),
           // 시뮬레이션 토글: GAS 연결 실패 시에도 결과 흐름 검증 가능
-          simulate: true
+          simulate: false
         }),
         signal: controller.signal
       });
