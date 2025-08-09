@@ -485,7 +485,7 @@ export default function CasesPage() {
           </div>
           <div className="mt-6 text-center">
             <p className="text-lg opacity-90">
-              📞 <strong>상담신청</strong> | 🎯 <strong>AI역량진단</strong> | ✉️ <strong>hongik423@gmail.com</strong>
+              📞 <strong>010-9251-9743</strong> | 🎯 <strong>AI역량진단</strong> | ✉️ <strong>hongik423@gmail.com</strong>
             </p>
             <p className="text-sm opacity-75 mt-2">
               평일 09:00-18:00 | 토요일 09:00-13:00
