@@ -1,277 +1,180 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getGasUrl } from '@/lib/config/env';
 
 // CORS 헤더 설정
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json',
 };
 
-/**
- * AI 역량진단 결과 조회 API
- * GET /api/diagnosis-results/[id]
- */
+// OPTIONS 요청 처리 (CORS preflight)
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
+// GET 요청 처리 - 진단 결과 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const diagnosisId = params.id;
+    const { id: diagnosisId } = await params;
     
     if (!diagnosisId) {
       return NextResponse.json(
-        { success: false, error: '진단 ID가 필요합니다.' },
+        { 
+          success: false, 
+          error: '진단 ID가 필요합니다' 
+        },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    console.log('📊 진단 결과 조회 요청:', diagnosisId);
+    console.log('🔍 진단 결과 조회 요청:', diagnosisId);
 
-    // Google Apps Script에서 결과 가져오기
-    const googleScriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
-      'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
+    const GOOGLE_SCRIPT_URL = getGasUrl();
+
+    if (!GOOGLE_SCRIPT_URL) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Google Apps Script 설정이 필요합니다' 
+        },
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+    // Google Apps Script에서 결과 조회
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
 
     try {
-      const response = await fetch(`${googleScriptUrl}?action=getDiagnosisResult&diagnosisId=${diagnosisId}`, {
+      console.log('🔗 Google Apps Script 요청 URL:', `${GOOGLE_SCRIPT_URL}?diagnosisId=${encodeURIComponent(diagnosisId)}&action=getResult`);
+      
+      const scriptResponse = await fetch(`${GOOGLE_SCRIPT_URL}?diagnosisId=${encodeURIComponent(diagnosisId)}&action=getResult`, {
         method: 'GET',
         headers: {
-          'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        signal: controller.signal
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      clearTimeout(timeoutId);
+
+      console.log('📡 Google Apps Script 응답 상태:', scriptResponse.status, scriptResponse.statusText);
+
+      if (!scriptResponse.ok) {
+        // 응답 본문 읽기 시도
+        let errorBody = '';
+        try {
+          errorBody = await scriptResponse.text();
+          console.log('❌ Google Apps Script 오류 응답:', errorBody);
+        } catch (e) {
+          console.log('❌ 응답 본문을 읽을 수 없음');
+        }
+
+        if (scriptResponse.status === 404) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: '진단 결과를 찾을 수 없습니다',
+              details: `진단 ID: ${diagnosisId}에 해당하는 데이터가 Google Sheets에 없습니다.`,
+              diagnosisId: diagnosisId,
+              suggestion: '진단을 다시 실행하거나 올바른 진단 ID인지 확인해주세요.'
+            },
+            { status: 404, headers: corsHeaders }
+          );
+        }
         
-        if (data.success) {
-          console.log('✅ Google Apps Script에서 결과 가져오기 성공');
-          return NextResponse.json({
-            success: true,
-            reportData: data.reportData,
-            companyInfo: data.companyInfo,
-            timestamp: data.timestamp
-          }, { headers: corsHeaders });
+        if (scriptResponse.status === 500) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: 'Google Apps Script 서버 오류가 발생했습니다',
+              details: errorBody || '서버에서 처리 중 오류가 발생했습니다.',
+              diagnosisId: diagnosisId,
+              suggestion: '잠시 후 다시 시도해주세요.'
+            },
+            { status: 500, headers: corsHeaders }
+          );
         }
+        
+        throw new Error(`Google Apps Script 오류: ${scriptResponse.status} - ${errorBody || scriptResponse.statusText}`);
       }
-    } catch (error) {
-      console.warn('⚠️ Google Apps Script 조회 실패:', error);
-    }
 
-    // 개발 환경에서는 더미 데이터 반환
-    if (process.env.NODE_ENV === 'development') {
-      const dummyData = generateDummyReport(diagnosisId);
-      return NextResponse.json({
-        success: true,
-        ...dummyData,
-        source: 'dummy'
-      }, { headers: corsHeaders });
-    }
+      const result = await scriptResponse.json();
+      
+      console.log('✅ 진단 결과 조회 성공:', {
+        success: result.success,
+        hasData: !!result.data,
+        diagnosisId: result.data?.diagnosis?.resultId || result.data?.resultId || diagnosisId
+      });
 
-    // 실제 환경에서 실패시
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: '진단 결과를 찾을 수 없습니다.',
-        diagnosisId 
-      },
-      { status: 404, headers: corsHeaders }
-    );
+      // 결과 데이터 검증 및 보완
+      if (!result || (!result.success && !result.data)) {
+        console.warn('⚠️ 빈 응답 또는 실패 응답:', result);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: '진단 결과 데이터가 비어있습니다',
+            details: '진단이 아직 완료되지 않았거나 데이터가 손상되었을 수 있습니다.',
+            diagnosisId: diagnosisId,
+            suggestion: '진단을 다시 실행해주세요.'
+          },
+          { status: 404, headers: corsHeaders }
+        );
+      }
+      
+      // 성공적인 응답 반환
+      return NextResponse.json(
+        { 
+          success: true, 
+          data: result.data || result,
+          diagnosisId: diagnosisId,
+          timestamp: new Date().toISOString()
+        },
+        { headers: corsHeaders }
+      );
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.warn('⏰ 진단 결과 조회 타임아웃:', diagnosisId);
+        return NextResponse.json(
+          {
+            success: false,
+            error: '요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.',
+            timeout: true
+          },
+          { status: 408, headers: corsHeaders }
+        );
+      }
+      
+      throw fetchError;
+    }
 
   } catch (error) {
-    console.error('❌ 진단 결과 조회 오류:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: '서버 오류가 발생했습니다.',
-        details: error instanceof Error ? error.message : '알 수 없는 오류'
-      },
-      { status: 500, headers: corsHeaders }
-    );
-  }
-}
-
-/**
- * 진단 결과 저장 API
- * POST /api/diagnosis-results/[id]
- */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const diagnosisId = params.id;
-    const body = await request.json();
-
-    console.log('💾 진단 결과 저장 요청:', diagnosisId);
-
-    // Google Apps Script로 결과 저장
-    const googleScriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
-      'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
-
-    const response = await fetch(googleScriptUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'saveDiagnosisResult',
-        diagnosisId,
-        reportData: body.reportData,
-        companyInfo: body.companyInfo,
-        timestamp: new Date().toISOString()
-      }),
+    console.error('❌ 진단 결과 조회 최종 오류:', error);
+    console.error('🔍 오류 상세:', {
+      diagnosisId,
+      errorMessage: error instanceof Error ? error.message : '알 수 없는 오류',
+      errorStack: error instanceof Error ? error.stack : undefined,
+      googleScriptUrl: GOOGLE_SCRIPT_URL
     });
-
-    if (response.ok) {
-      console.log('✅ 진단 결과 저장 성공');
-      return NextResponse.json({
-        success: true,
-        message: '진단 결과가 저장되었습니다.',
-        diagnosisId
-      }, { headers: corsHeaders });
-    }
-
-    throw new Error('진단 결과 저장 실패');
-
-  } catch (error) {
-    console.error('❌ 진단 결과 저장 오류:', error);
+    
     return NextResponse.json(
       { 
         success: false, 
-        error: '진단 결과 저장에 실패했습니다.',
-        details: error instanceof Error ? error.message : '알 수 없는 오류'
+        error: '진단 결과 조회 중 오류가 발생했습니다',
+        details: error instanceof Error ? error.message : '서버에서 처리 중 예상치 못한 오류가 발생했습니다.',
+        diagnosisId: diagnosisId,
+        suggestion: '네트워크 연결을 확인하고 잠시 후 다시 시도해주세요.',
+        timestamp: new Date().toISOString()
       },
       { status: 500, headers: corsHeaders }
     );
   }
-}
-
-/**
- * 더미 데이터 생성 (개발/테스트용)
- */
-function generateDummyReport(diagnosisId: string) {
-  return {
-    reportData: {
-      totalScore: Math.floor(Math.random() * 30) + 70, // 70-100 사이
-      grade: ['A+', 'A', 'B+', 'B', 'C+'][Math.floor(Math.random() * 5)],
-      percentile: Math.floor(Math.random() * 40) + 10, // 10-50 사이
-      potential: ['매우 높음', '높음', '보통', '개선 필요'][Math.floor(Math.random() * 4)],
-      
-      swot: {
-        strengths: [
-          'AI 도입에 대한 경영진의 강한 의지',
-          '디지털 전환 준비도가 높음',
-          '우수한 IT 인프라 보유',
-          '혁신적인 조직 문화'
-        ],
-        weaknesses: [
-          'AI 전문 인력 부족',
-          '데이터 관리 체계 미흡',
-          '초기 투자 비용 부담',
-          '변화 관리 프로세스 부재'
-        ],
-        opportunities: [
-          '정부 AI 지원 사업 활용 가능',
-          'AI 시장의 급속한 성장',
-          '경쟁사 대비 선제적 도입 기회',
-          '신규 비즈니스 모델 창출 가능'
-        ],
-        threats: [
-          '경쟁사의 빠른 AI 도입',
-          '기술 변화 속도에 대한 대응',
-          'AI 규제 및 윤리 이슈',
-          '사이버 보안 위협 증가'
-        ]
-      },
-      
-      matrixAnalysis: {
-        importance: {
-          high: ['AI 전략 수립', '데이터 인프라 구축', '인재 양성'],
-          medium: ['파일럿 프로젝트', '성과 측정 체계', '파트너십 구축'],
-          low: ['벤치마킹', '홍보 마케팅']
-        },
-        urgency: {
-          immediate: ['AI 기초 교육', '현황 분석', '목표 설정'],
-          shortTerm: ['파일럿 프로젝트 시작', '전문가 영입', '예산 확보'],
-          longTerm: ['전사 확산', '문화 정착', '지속적 혁신']
-        }
-      },
-      
-      roadmap: [
-        {
-          phase: '1단계: 기초 구축',
-          period: '0-3개월',
-          tasks: [
-            'AI 역량 진단 및 현황 분석',
-            '임직원 AI 기초 교육 실시',
-            '파일럿 프로젝트 선정 및 계획',
-            'AI 추진 조직 구성'
-          ]
-        },
-        {
-          phase: '2단계: 확산 적용',
-          period: '3-6개월',
-          tasks: [
-            '핵심 업무 AI 도입',
-            '데이터 관리 체계 구축',
-            '성과 측정 및 개선',
-            '중간 관리자 심화 교육'
-          ]
-        },
-        {
-          phase: '3단계: 고도화',
-          period: '6-12개월',
-          tasks: [
-            'AI 기반 의사결정 체계 구축',
-            '전사적 AI 문화 정착',
-            '지속적 혁신 체계 운영',
-            'AI 센터 오브 엑셀런스 구축'
-          ]
-        }
-      ],
-      
-      roi: {
-        investment: `${Math.floor(Math.random() * 5 + 3)}000만원`,
-        savings: `연 ${Math.floor(Math.random() * 3 + 1).toFixed(1)}억원`,
-        percentage: `${Math.floor(Math.random() * 200 + 200)}%`,
-        paybackPeriod: `${Math.floor(Math.random() * 6 + 6)}개월`
-      },
-      
-      recommendations: [
-        {
-          title: 'AICAMP 맞춤형 AI 교육 프로그램',
-          description: '귀사의 업종과 규모에 최적화된 AI 교육 커리큘럼',
-          benefit: '임직원 AI 역량 300% 향상',
-          support: '정부 지원 최대 80%'
-        },
-        {
-          title: '전문가 1:1 컨설팅',
-          description: 'AI 도입 전략부터 실행까지 전 과정 지원',
-          benefit: '실패 리스크 90% 감소',
-          support: '무료 초기 상담 제공'
-        },
-        {
-          title: '파일럿 프로젝트 지원',
-          description: '검증된 AI 솔루션으로 빠른 성과 창출',
-          benefit: '3개월 내 가시적 성과',
-          support: 'POC 무료 지원'
-        }
-      ]
-    },
-    
-    companyInfo: {
-      name: `테스트기업_${diagnosisId.slice(0, 8)}`,
-      email: `test@${diagnosisId.slice(0, 8)}.com`,
-      industry: ['제조업', 'IT/소프트웨어', '유통/물류', '금융', '의료/헬스케어'][Math.floor(Math.random() * 5)],
-      employees: ['1-10명', '11-50명', '51-100명', '101-300명', '300명 이상'][Math.floor(Math.random() * 5)],
-      applicantName: '홍길동',
-      position: 'CEO',
-      phone: '010-1234-5678'
-    },
-    
-    timestamp: new Date().toISOString()
-  };
-}
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
 }

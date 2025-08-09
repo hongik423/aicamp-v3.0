@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, AlertCircle, Loader2, FileText } from 'lucide-react';
+import SimpleDiagnosisResults from '@/components/diagnosis/SimpleDiagnosisResults';
 
 type ParamsPromise = Promise<{ id: string }>; // 약속된 규칙: page.tsx params는 Promise 사용
 
@@ -75,48 +76,45 @@ export default function DiagnosisResultPage({ params }: { params: ParamsPromise 
     );
   }, [loading, error]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>AI 역량진단 결과</span>
-              <Badge variant="outline">ID: {id}</Badge>
-            </CardTitle>
-            <div className="mt-2">{header}</div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {loading && (
+  // 로딩 중일 때만 카드 레이아웃 사용
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>AI 역량진단 결과</span>
+                <Badge variant="outline">ID: {id}</Badge>
+              </CardTitle>
+              <div className="mt-2">{header}</div>
+            </CardHeader>
+            <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Progress value={45} className="h-3" />
                 <p className="text-sm text-gray-600">분석 서버에서 결과를 수집하고 있습니다...</p>
               </div>
-            )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
-            {!loading && !error && report && (
-              <div className="space-y-6">
-                <div className="p-4 bg-white border rounded-lg">
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <FileText className="w-4 h-4" /> 요약
-                  </h3>
-                  <pre className="text-sm text-gray-700 whitespace-pre-wrap break-words">
-                    {JSON.stringify(report, null, 2)}
-                  </pre>
-                </div>
-
-                <div className="flex gap-3">
-                  <Link href="/diagnosis">
-                    <Button variant="outline">새로운 진단</Button>
-                  </Link>
-                  <Link href="/">
-                    <Button>메인으로</Button>
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {!loading && error && (
+  // 에러 상황일 때만 카드 레이아웃 사용
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>AI 역량진단 결과</span>
+                <Badge variant="outline">ID: {id}</Badge>
+              </CardTitle>
+              <div className="mt-2">{header}</div>
+            </CardHeader>
+            <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div className="p-4 bg-white border rounded-lg text-sm text-gray-700">
                   요청하신 결과 페이지를 찾지 못했습니다. 분석 완료 후 이메일로 보고서가 발송됩니다. 잠시 후 다시 확인해주세요.
@@ -130,12 +128,15 @@ export default function DiagnosisResultPage({ params }: { params: ParamsPromise 
                   </Link>
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // 정상 결과일 때는 SimpleDiagnosisResults 컴포넌트가 전체 레이아웃을 담당
+  return report ? <SimpleDiagnosisResults data={report} /> : null;
 }
 
 
