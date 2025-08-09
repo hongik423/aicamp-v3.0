@@ -48,7 +48,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: '안녕하세요! 이후경입니다.\n\n28년간 현대그룹과 삼성생명에서 실무를 쌓고, 200여 개 기업을 직접 도우면서 얻은 경험에 최첨단 AI 기술을 접목해서 기업들이 실무에서 전략까지 정말 폭발적인 성장을 할 수 있도록 도와드리고 있어요.\n\n재무, 인사, 생산, 마케팅을 통합적으로 보면서 AI 검색 기술까지 결합한 차별화된 접근법이 저희만의 강점이에요. 어떤 도움이 필요하신지 편하게 말씀해주세요.\n\nBM ZEN 사업분석, AI 생산성혁신, 공장경매, 기술창업, 인증지원, 웹사이트구축 등 뭐든 물어보세요.',
+      content: '안녕하세요! AI CAMP 교장 이후경입니다.\n\n28년간 현대그룹과 삼성생명에서 실무를 쌓고, 500여 개 기업을 직접 도우면서 얻은 경험에 최첨단 AI 기술을 접목해서 기업들이 실무에서 전략까지 정말 폭발적인 성장을 할 수 있도록 도와드리고 있어요.\n\n🚀 2025년 업데이트된 AI CAMP 서비스:\n• BM ZEN 사업분석 (신규사업 성공률 95%)\n• AI 생산성향상 (업무효율 40-60% 향상)\n• 공장/부동산 경매 (투자비 35-50% 절약)\n• 기술창업 지원 (평균 5억원 자금 확보)\n• 인증지원 (연간 5천만원 세제혜택)\n• 웹사이트 구축 (매출 300-500% 증대)\n• AI 역량진단 (무료 온라인 진단)\n\n🎓 신규 교육 프로그램:\n• AI & n8n 자동화 교육\n• 부서별 맞춤형 교육 (기획관리, 영업/마케팅, 연구개발, 생산/제조, 고객서비스)\n• 경영진 특화 교육\n\n어떤 도움이 필요하신지 편하게 말씀해주세요!',
       sender: 'ai',
       timestamp: new Date()
     }
@@ -328,8 +328,8 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
                       <div className="flex items-center space-x-2">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
                         </div>
                         <Search className="w-4 h-4 text-blue-500 animate-spin" />
                         <span className="text-sm text-gray-500">이후경 경영지도사 분석 중...</span>
@@ -353,8 +353,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="이후경 교장에게 상담 문의하세요... (AI 프로세스 자동화 전문)"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 text-white placeholder-gray-300"
-                    style={{ backgroundColor: '#4285F4' }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 text-white placeholder-gray-300 bg-blue-500"
                     disabled={isLoading}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -374,11 +373,11 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
               <div className="flex flex-wrap gap-2 mt-3">
                 {[
                   'BM ZEN 사업분석',
-                  'AI 일터혁신',
+                  'AI 생산성향상',
                   '공장경매 투자',
                   '5억원 기술창업',
-                  '5천만원 인증혜택',
-                  '매출 300% 웹사이트'
+                  'AI & n8n 교육',
+                  '매출 500% 웹사이트'
                 ].map((quickReply, index) => (
                   <Button
                     key={index}

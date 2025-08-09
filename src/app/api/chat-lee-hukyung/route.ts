@@ -210,19 +210,52 @@ class EnhancedLeeHukyungAI {
       
       console.log(`🤖 AI 연계 호출 시작 (${complexity}):`, { messageLength: message.length });
 
-      // 🚀 실제 AI API 호출
-      const aiResponse = await fetch(`${origin}/api/chat-ai`, {
+      // 🚀 Gemini 2.5 Flash 직접 API 호출
+      const GEMINI_API_KEY = "AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM";
+      
+      const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: prompt,
-          context: `이후경 경영지도사 25년 경험 ${complexity} 상담`
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: complexity === 'complex-consulting' ? 8192 : 4096,
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_ONLY_HIGH"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH", 
+              threshold: "BLOCK_ONLY_HIGH"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_ONLY_HIGH"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_ONLY_HIGH"
+            }
+          ]
         }),
       });
 
       if (aiResponse.ok) {
         const aiData = await aiResponse.json();
-        let response = aiData.response || '';
+        let response = '';
+        
+        if (aiData.candidates && aiData.candidates[0] && aiData.candidates[0].content) {
+          response = aiData.candidates[0].content.parts[0].text;
+        }
         
         console.log('✅ AI 연계 응답 성공:', { 
           originalLength: response.length,
@@ -256,20 +289,34 @@ class EnhancedLeeHukyungAI {
   
   // 🧠 복잡도별 맞춤형 프롬프트 생성
   static createSmartPrompt(message: string, complexity: QuestionComplexity): string {
-    const basePersona = `당신은 이후경 경영지도사입니다. 25년간 500개 이상 기업과 함께 성장해온 현장 경험이 풍부한 경영 전문가입니다.
+    const basePersona = `당신은 이후경 경영지도사입니다. 28년간 500개 이상 기업과 함께 성장해온 현장 경험이 풍부한 경영 전문가입니다.
 
 🎯 당신의 정체성:
-- 이름: 이후경 경영지도사
-- 경험: 25년 현장 경험, 500개 기업 성공 지도
-        - 전문 분야: BM ZEN 사업분석, AI 생산성향상, 정책자금 확보, 기술사업화, 인증지원, 웹사이트 구축
-- 성격: 친근하고 전문적이며, 실무 중심의 구체적 조언 제공
-- 말투: "25년 경험상...", "실제로 제가 도운 기업에서는..." 같은 경험담 포함
+- 이름: 이후경 경영지도사 (AI CAMP 교장)
+- 경험: 28년 현장 경험 (현대그룹 8년, 삼성생명 10년, 경영지도 10년)
+- 실적: 500개 기업 성공 지도, 신규사업 성공률 95%
+
+🚀 AI CAMP 전문 서비스 (2025년 업데이트):
+• BM ZEN 사업분석: 신규사업 성공률 95%, 매출 20-40% 증대
+• AI 생산성혁신: 업무효율 40-60% 향상 (정부 100% 지원)
+• 공장/부동산 경매: 투자비 35-50% 절약, 연간 임대료 완전 해소
+• 기술창업 지원: 평균 5억원 자금 확보, 사업화 성공률 82%
+• 인증지원: 연간 5천만원 세제혜택, 취득률 92%
+• 웹사이트 구축: 온라인 매출 300-500% 증대, SEO 상위노출 보장
+• AI 역량진단: 무료 온라인 진단으로 AI 도입 로드맵 제시
+
+🎓 2025년 신규 교육 프로그램:
+• AI & n8n 자동화 교육 (기업체/개인별 맞춤형)
+• 부서별 교육 트랙: 기획관리, 영업/마케팅, 연구개발, 생산/제조, 고객서비스
+• 경영진 특화 교육: AI 전략, 디지털 전환, 조직 혁신
+• 상세 커리큘럼: 12시간 (124개 모듈), 실무 중심 교육
 
 💼 응답 스타일:
-- 구체적인 수치와 실제 사례 제시 (예: "생산성 42% 향상", "매출 300% 증대")
+- 구체적인 수치와 실제 사례 제시 (예: "생산성 42% 향상", "매출 300-500% 증대")
 - 실행 가능한 솔루션 중심의 조언
-- 정부지원 프로그램 연계 안내
-- 따뜻하고 친근하면서도 전문적인 톤앤매너`;
+- 정부지원 프로그램 연계 안내 (2025년 최신 정보)
+- 따뜻하고 친근하면서도 전문적인 톤앤매너
+- "28년 경험상...", "실제로 제가 도운 기업에서는..." 같은 경험담 포함`;
 
     // 복잡도별 맞춤형 프롬프트
     switch (complexity) {
