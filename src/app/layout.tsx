@@ -17,14 +17,9 @@ export const metadata: Metadata = {
   creator: 'AICAMP',
   publisher: 'AICAMP',
   icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180' },
-    ],
-    shortcut: ['/favicon.ico'],
+    icon: [{ url: '/icon', type: 'image/png' }],
+    apple: [{ url: '/apple-icon', sizes: '180x180' }],
+    shortcut: ['/icon'],
   },
   formatDetection: {
     email: false,
@@ -158,10 +153,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
         
         {/* PWA 매니페스트 */}
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         
-        {/* 아이콘 - 메타데이터 설정 외 린트 호환용 직접 지정 */}
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        {/* 파비콘/애플 터치 아이콘 명시 (일부 브라우저/린터 요구사항 대응) */}
+        <link rel="icon" href="/images/aicamp_logo_del_250726.png" type="image/png" />
+        {/* eslint-disable-next-line */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/aicamp_logo.png" />
         
         {/* 폰트 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
