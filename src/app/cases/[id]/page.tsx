@@ -1407,17 +1407,25 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/diagnosis">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3">
-                <Target className="w-5 h-5 mr-2" />
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
+                <Target className="w-6 h-6 mr-2" />
                 무료 AI 진단 시작
               </Button>
             </Link>
             <Link href="/consultation">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold">
                 전문가 상담 신청
-                <ChevronRight className="w-5 h-5 ml-2" />
+                <ChevronRight className="w-6 h-6 ml-2" />
               </Button>
             </Link>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-lg opacity-90">
+              📞 <strong>상담신청</strong> | 🎯 <strong>AI역량진단</strong> | ✉️ <strong>hongik423@gmail.com</strong>
+            </p>
+            <p className="text-sm opacity-75 mt-2">
+              평일 09:00-18:00 | 토요일 09:00-13:00
+            </p>
           </div>
         </div>
       </section>
