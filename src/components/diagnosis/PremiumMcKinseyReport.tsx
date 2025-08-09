@@ -38,9 +38,11 @@ interface McKinseyReportProps {
       phase3: string;
     };
   };
+  onDownload?: () => void;
+  onShare?: () => void;
 }
 
-export const PremiumMcKinseyReport: React.FC<McKinseyReportProps> = ({ data }) => {
+export const PremiumMcKinseyReport: React.FC<McKinseyReportProps> = ({ data, onDownload, onShare }) => {
   const [activeSection, setActiveSection] = useState('executive-summary');
 
   // 등급별 색상 및 스타일
@@ -528,13 +530,20 @@ export const PremiumMcKinseyReport: React.FC<McKinseyReportProps> = ({ data }) =
           </div>
           
           <div className="flex items-center space-x-4">
-            <Button variant="outline" className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2"
+              onClick={onShare}
+            >
               <Share2 className="w-4 h-4" />
               <span>공유</span>
             </Button>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2">
+            <Button 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2"
+              onClick={onDownload}
+            >
               <Download className="w-4 h-4" />
-              <span>PDF 다운로드</span>
+              <span>HTML 다운로드</span>
             </Button>
           </div>
         </div>
