@@ -1917,8 +1917,8 @@ JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 �
               maxOutputTokens: env.MAX_OUTPUT_TOKENS,
               candidateCount: 1,
               topK: 40,
-              topP: 0.95,
-              responseMimeType: "application/json" // JSON 전용 응답 강제 (필드명 카멜케이스)
+              topP: 0.95
+              // responseMimeType 제거 - GEMINI 2.5 Flash에서 지원하지 않음
             },
             safetySettings: [
               {
