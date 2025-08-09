@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Header from '@/components/layout/header';
 import { AICapabilityDiagnosisForm } from '@/features/ai-capability-diagnosis/components/AICapabilityDiagnosisForm';
-import { Brain, Target, TrendingUp, Users, Award, BarChart3, Sparkles } from 'lucide-react';
+import { Target, TrendingUp, Users, Award, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,9 +63,7 @@ export default function DiagnosisPage() {
                 priority
               />
             </div>
-            <Brain className="w-6 h-6 animate-pulse" />
             이후경 교장의 AI 역량진단 시스템
-            <Sparkles className="w-5 h-5 text-yellow-500 animate-bounce" />
           </div>
           
           {/* 메인 타이틀 */}
@@ -77,10 +75,7 @@ export default function DiagnosisPage() {
               </span>
             </h1>
             
-            {/* 반짝이는 효과 */}
-            <div className="absolute -top-4 -right-4 w-6 h-6 text-yellow-400 animate-spin-slow opacity-70">
-              <Sparkles className="w-full h-full" />
-            </div>
+            {/* 반짝이는 효과 제거 */}
           </div>
           
           {/* 설명 텍스트 */}
@@ -119,8 +114,8 @@ export default function DiagnosisPage() {
               onClick={() => setShowForm(true)}
               style={{ minHeight: '56px', touchAction: 'manipulation' }}
             >
-              <Brain className={`w-5 h-5 mr-2 ${accentHeroIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`} />
-              <span className={`${accentHero ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>🚀 무료 AI 역량진단 시작</span>
+
+              <span className={`${accentHero ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>무료 AI 역량진단 시작</span>
             </Button>
           </div>
           
@@ -163,7 +158,7 @@ export default function DiagnosisPage() {
           <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-4">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Brain className="w-8 h-8 text-purple-600" />
+                <div className="w-8 h-8 bg-purple-600 rounded-full"></div>
               </div>
               <CardTitle className="text-xl">AI 기반 맞춤 분석</CardTitle>
             </CardHeader>

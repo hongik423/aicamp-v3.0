@@ -387,7 +387,7 @@ const BookPromotionBanner: React.FC = () => {
                   >
                     <div className="text-center">
                       <p className="text-base sm:text-lg font-bold text-green-700 mb-1">
-                        🎉 AI역량진단+ AI CAMP 교육비 20% 할인
+AI역량진단+ AI CAMP 교육비 20% 할인
                       </p>
                       <p className="text-xs sm:text-sm text-gray-600">
                         출간 기념 할인 - 30일 한정

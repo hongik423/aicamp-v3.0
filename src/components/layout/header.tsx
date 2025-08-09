@@ -140,7 +140,7 @@ export default function Header() {
               }}
               className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg hover:shadow-xl hover:scale-105 hover:from-emerald-600 hover:to-teal-700 transition-all whitespace-nowrap"
             >
-              👨‍🏫 이교장의AI상담
+              이교장의AI상담
             </button>
           </nav>
 
@@ -200,7 +200,7 @@ export default function Header() {
                 }}
                 className="w-full mb-2 inline-flex items-center justify-center px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-md active:shadow-lg hover:from-emerald-600 hover:to-teal-700"
               >
-                👨‍🏫 이교장의AI상담 바로가기
+                이교장의AI상담 바로가기
               </button>
               {navigation.map((item) => (
                 <Link
