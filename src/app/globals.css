@@ -807,6 +807,16 @@ body {
   .apple-shadow-lg {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   }
+
+  /* 스크롤바 숨기기 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
 }
 
 /* ============================================
