@@ -36,6 +36,7 @@ const NON_CACHEABLE_PATTERNS = [
   '/_next/image',
   '/_next/webpack-hmr',
   '/sw.js',
+  '/__NEXT',
 ];
 
 const NON_CACHEABLE_QUERY_KEYS = ['_rsc', 'next', 'trpc', 'no-cache'];
@@ -69,6 +70,13 @@ function isNonCacheableRequest(request) {
     }
   } catch (_) {}
 
+  // Icon/Manifest 등은 캐시 허용 (일부 브라우저 자동요청)
+  try {
+    const u = new URL(request.url);
+    const iconLike = /(?:icon|manifest)/i.test(u.pathname);
+    if (iconLike) return false;
+  } catch (_) {}
+
   // SSE/HTML 스트림 등은 제외
   const accept = request.headers.get('accept') || '';
   if (accept.includes('text/event-stream')) return true;
@@ -79,17 +87,29 @@ function isNonCacheableRequest(request) {
 // Service Worker 설치
 self.addEventListener('install', (event) => {
   console.log('AICAMP Service Worker installing...');
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-      .catch((error) => {
-        // 모든 오류를 안전하게 처리
-        console.warn('Service Worker cache failed:', error.message);
-      })
-  );
+  event.waitUntil((async () => {
+    try {
+      const cache = await caches.open(CACHE_NAME);
+      console.log('Opened cache');
+      await Promise.all(
+        urlsToCache.map(async (url) => {
+          try {
+            const request = new Request(url, { method: 'GET', cache: 'reload' });
+            const response = await fetch(request);
+            if (response && response.ok) {
+              await cache.put(request, response.clone());
+            } else {
+              console.warn('Precache skipped (HTTP)', url, response?.status);
+            }
+          } catch (e) {
+            console.warn('Precache failed', url, e?.message || e);
+          }
+        })
+      );
+    } catch (error) {
+      console.warn('Service Worker cache process error:', error?.message || error);
+    }
+  })());
   // 즉시 대기 상태 건너뛰어 빠른 업데이트 적용
   self.skipWaiting();
 });
@@ -140,46 +160,28 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // 캐시에서 찾은 경우 반환
-      if (response) {
-        return response;
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cacheKey = new Request(event.request.url, { method: 'GET' });
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const networkResponse = await fetch(event.request);
+      if (networkResponse && networkResponse.ok && event.request.method === 'GET') {
+        try {
+          await cache.put(cacheKey, networkResponse.clone());
+        } catch (err) {
+          console.warn('Cache put failed (GET):', err?.message || err);
+        }
       }
-
-      // 네트워크에서 가져오기 (GET 전용 캐싱)
-      return fetch(event.request)
-        .then((networkResponse) => {
-          // 유효한 응답이 아니면 그대로 반환
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
-          }
-
-          // 응답을 복제하여 캐시에 저장
-          const responseToCache = networkResponse.clone();
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => {
-              // Cache API는 GET Request만 허용됨. 키는 항상 GET으로 생성
-              const cacheKey = new Request(event.request.url, { method: 'GET' });
-              cache.put(cacheKey, responseToCache).catch((err) => {
-                console.warn('Cache put failed (GET):', err?.message || err);
-              });
-            })
-            .catch((error) => {
-              console.warn('Cache open failed:', error?.message || error);
-            });
-
-          return networkResponse;
-        })
-        .catch(async (error) => {
-          console.warn('Fetch failed:', error?.message || error);
-          // 오프라인 페이지 반환
-          const offline = await caches.match('/');
-          return offline || new Response('Offline', { status: 503 });
-        });
-    })
-  );
+      return networkResponse;
+    } catch (error) {
+      console.warn('Fetch failed:', error?.message || error);
+      const offline = await caches.match('/');
+      return offline || new Response('Offline', { status: 503 });
+    }
+  })());
 });
 
 // 메시지 처리 - 안전한 버전
