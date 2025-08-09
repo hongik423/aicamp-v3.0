@@ -18,17 +18,25 @@ import {
   BarChart3,
   Users,
   Lightbulb,
-  Calendar
+  Calendar,
+  Award,
+  Star,
+  Zap,
+  Activity,
+  Share2
 } from 'lucide-react';
 import { DiagnosisResult } from '../types';
 import { GRADE_CRITERIA } from '../constants/questions';
+import { PremiumMcKinseyReport } from '@/components/diagnosis/PremiumMcKinseyReport';
+import { AdvancedDataVisualization } from '@/components/diagnosis/AdvancedDataVisualization';
 
 interface DiagnosisResultViewProps {
   result: DiagnosisResult;
 }
 
 export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('mckinsey-report');
+  const [viewMode, setViewMode] = useState<'premium' | 'standard'>('premium');
   const gradeInfo = GRADE_CRITERIA[result.grade as keyof typeof GRADE_CRITERIA];
 
   // 카테고리 이름 매핑
@@ -44,62 +52,172 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
   // 등급별 색상
   const getGradeColor = (grade: string) => {
     switch(grade) {
-      case 'S': return 'bg-purple-500';
-      case 'A': return 'bg-blue-500';
-      case 'B': return 'bg-green-500';
-      case 'C': return 'bg-yellow-500';
-      case 'D': return 'bg-orange-500';
-      case 'F': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'S': return 'bg-gradient-to-r from-purple-600 to-purple-800';
+      case 'A': return 'bg-gradient-to-r from-blue-600 to-blue-800';
+      case 'B': return 'bg-gradient-to-r from-emerald-600 to-emerald-800';
+      case 'C': return 'bg-gradient-to-r from-amber-600 to-amber-800';
+      case 'D': return 'bg-gradient-to-r from-orange-600 to-orange-800';
+      case 'F': return 'bg-gradient-to-r from-red-600 to-red-800';
+      default: return 'bg-gradient-to-r from-gray-600 to-gray-800';
     }
   };
 
-  return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* 상단 요약 */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-2xl">{result.companyName} AI 역량진단 결과</CardTitle>
-              <CardDescription>진단일: {new Date(result.submittedAt).toLocaleDateString()}</CardDescription>
-            </div>
-            <div className="text-right">
-              <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full text-white text-3xl font-bold ${getGradeColor(result.grade)}`}>
-                {result.grade}
-              </div>
-              <p className="mt-2 text-sm text-gray-600">{gradeInfo?.description}</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <p className="text-3xl font-bold">{result.totalScore}점</p>
-              <p className="text-sm text-gray-600">종합 점수</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold">{result.benchmarkAnalysis.percentile}%</p>
-              <p className="text-sm text-gray-600">상위 백분위</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold">{result.benchmarkAnalysis.competitivePosition}</p>
-              <p className="text-sm text-gray-600">경쟁 포지션</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+  // 맥킨지 리포트용 데이터 변환
+  const mcKinseyData = {
+    companyName: result.companyName,
+    overallScore: result.totalScore,
+    grade: result.grade,
+    categoryScores: result.categoryScores,
+    recommendations: [
+      "AI 기초 인프라 구축을 통한 디지털 전환 가속화",
+      "데이터 기반 의사결정 문화 정착 및 조직 역량 강화", 
+      "실무진 AI 활용 역량 개발 프로그램 도입",
+      "경영진 AI 리더십 강화를 통한 변화 관리"
+    ],
+    strengths: result.swotAnalysis.strengths,
+    improvements: result.swotAnalysis.weaknesses,
+    roadmap: {
+      phase1: "기초 역량 구축 (1-3개월)",
+      phase2: "실무 적용 확산 (4-6개월)", 
+      phase3: "고도화 및 최적화 (7-12개월)"
+    }
+  };
 
-      {/* 탭 네비게이션 */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-2 lg:grid-cols-6">
-          <TabsTrigger value="overview">종합 분석</TabsTrigger>
-          <TabsTrigger value="scores">영역별 점수</TabsTrigger>
-          <TabsTrigger value="benchmark">벤치마크</TabsTrigger>
-          <TabsTrigger value="swot">SWOT 분석</TabsTrigger>
-          <TabsTrigger value="strategy">전략 제안</TabsTrigger>
-          <TabsTrigger value="roadmap">실행 로드맵</TabsTrigger>
-        </TabsList>
+  // 고급 데이터 시각화용 데이터
+  const visualizationData = {
+    categoryScores: result.categoryScores,
+    benchmarkData: {
+      industry: result.benchmarkAnalysis.industryAverage,
+      topPerformers: 85,
+      current: result.totalScore
+    },
+    trendData: Object.entries(result.categoryScores).map(([category, score]) => ({
+      category: categoryNames[category as keyof typeof categoryNames],
+      current: score,
+      potential: Math.min(5, score + (5 - score) * 0.7),
+      gap: Math.max(0, 5 - score)
+    }))
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* 프리미엄 헤더 */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <Award className="w-12 h-12 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-3 mb-2">
+                  <h1 className="text-4xl font-bold">AI 역량진단 보고서</h1>
+                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 text-lg px-4 py-2">
+                    McKinsey Style
+                  </Badge>
+                </div>
+                <p className="text-2xl text-slate-300">{result.companyName}</p>
+                <p className="text-slate-400 mt-1">
+                  Generated by AICAMP • {new Date(result.submittedAt).toLocaleDateString('ko-KR')}
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <div className={`w-32 h-32 rounded-full ${getGradeColor(result.grade)} flex items-center justify-center shadow-2xl border-4 border-white/20`}>
+                <span className="text-6xl font-bold text-white">{result.grade}</span>
+              </div>
+              <p className="text-white mt-4 font-medium text-lg">종합 등급</p>
+              <p className="text-slate-300">{result.totalScore}점 / 100점</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 뷰 모드 선택 */}
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={() => setViewMode('premium')}
+                className={`${viewMode === 'premium' 
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                  : 'bg-white text-slate-600 hover:bg-slate-50'
+                } flex items-center space-x-2 px-6 py-3 rounded-lg border shadow-sm transition-all duration-200`}
+              >
+                <Star className="w-4 h-4" />
+                <span className="font-medium">프리미엄 리포트</span>
+              </Button>
+              <Button
+                onClick={() => setViewMode('standard')}
+                className={`${viewMode === 'standard' 
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                  : 'bg-white text-slate-600 hover:bg-slate-50'
+                } flex items-center space-x-2 px-6 py-3 rounded-lg border shadow-sm transition-all duration-200`}
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="font-medium">표준 리포트</span>
+              </Button>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <Button variant="outline" className="flex items-center space-x-2">
+                <Share2 className="w-4 h-4" />
+                <span>공유</span>
+              </Button>
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2">
+                <Download className="w-4 h-4" />
+                <span>PDF 다운로드</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 메인 컨텐츠 */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {viewMode === 'premium' ? (
+          <PremiumMcKinseyReport data={mcKinseyData} />
+        ) : (
+          <>
+            {/* 탭 네비게이션 */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+              <TabsList className="grid grid-cols-2 lg:grid-cols-7 bg-white shadow-lg rounded-xl p-2">
+                <TabsTrigger value="visualization" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
+                  <Activity className="w-4 h-4 mr-2" />
+                  데이터 시각화
+                </TabsTrigger>
+                <TabsTrigger value="overview">
+                  <Brain className="w-4 h-4 mr-2" />
+                  종합 분석
+                </TabsTrigger>
+                <TabsTrigger value="scores">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  영역별 점수
+                </TabsTrigger>
+                <TabsTrigger value="benchmark">
+                  <Target className="w-4 h-4 mr-2" />
+                  벤치마크
+                </TabsTrigger>
+                <TabsTrigger value="swot">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  SWOT 분석
+                </TabsTrigger>
+                <TabsTrigger value="strategy">
+                  <Lightbulb className="w-4 h-4 mr-2" />
+                  전략 제안
+                </TabsTrigger>
+                <TabsTrigger value="roadmap">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  실행 로드맵
+                </TabsTrigger>
+              </TabsList>
+
+              {/* 고급 데이터 시각화 탭 */}
+              <TabsContent value="visualization">
+                <AdvancedDataVisualization data={visualizationData} />
+              </TabsContent>
 
         {/* 종합 분석 탭 */}
         <TabsContent value="overview" className="space-y-6">
@@ -497,24 +615,35 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
         </TabsContent>
       </Tabs>
 
-      {/* 하단 액션 버튼 */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button className="flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              보고서 다운로드
-            </Button>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              이메일로 전송
-            </Button>
-            <Button variant="outline">
-              전문가 상담 신청
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              {/* 하단 액션 버튼 */}
+              <Card className="border-0 shadow-xl bg-gradient-to-r from-slate-50 to-blue-50">
+                <CardContent className="pt-8 pb-8">
+                  <div className="text-center space-y-6">
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-800 mb-2">다음 단계</h3>
+                      <p className="text-slate-600">AI 역량 강화를 위한 전문가 지원을 받아보세요</p>
+                    </div>
+                    <div className="flex flex-wrap gap-4 justify-center">
+                      <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg flex items-center gap-2 shadow-lg">
+                        <Download className="w-5 h-5" />
+                        프리미엄 보고서 다운로드
+                      </Button>
+                      <Button variant="outline" className="px-8 py-3 text-lg flex items-center gap-2 border-2 border-blue-200 hover:bg-blue-50">
+                        <Mail className="w-5 h-5" />
+                        이메일로 전송
+                      </Button>
+                      <Button variant="outline" className="px-8 py-3 text-lg border-2 border-emerald-200 hover:bg-emerald-50 text-emerald-700">
+                        <Users className="w-5 h-5 mr-2" />
+                        전문가 상담 신청
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Tabs>
+          </>
+        )}
+      </div>
     </div>
   );
 };
