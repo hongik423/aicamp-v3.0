@@ -1,0 +1,20 @@
+[33ma00f407[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m  네비바 디자인 업그레이드
+[33maafb3a2[m  AI 역량진단 결과보고서 시스템 완전 개편
+[33m6ffffe6[m  AI 챗봇 시스템 고도화 완료 - Gemini 2.5 Flash 모델 적용
+[33mcfc1250[m 🚀 Vercel 배포 - HTML 다운로드 기능 최종 완성
+[33mb2983ae[m  결과보고서 다운로드 문제 해결 + HTML 다운로드 기능 개발
+[33mf242d42[m  맥킨지 스타일 세계 최고 수준 보고서 디자인 구현
+[33mc89650a[m  이메일 시스템 검증 완료 + 보고서 알고리즘 테스트 완료
+[33m67bdf6e[m fix: GEMINI API responseMimeType parameter error in Google Apps Script
+[33m5b7da97[m fix: disable simulation mode in AI diagnosis API - enable real Google Apps Script integration for email sending and report generation
+[33m93e2f17[m feat: remove all emojis from system - clean UI without emojis in navbar, diagnosis page, homepage, and components
+[33m5c7521e[m feat: improve navbar layout - logo+AICAMP+홈 order, emerald AI consultation button, auto-width adjustment
+[33mb48810c[m feat: enhance AI diagnosis hero section with 이후경 교장 photo and premium animations
+[33m806c9b1[m feat: improve navbar logo visibility and enhance AI consultation button UI to '이교장의AI상담'
+[33m102f2f1[m feat: logo already implemented in header navigation - aicamp_logo_del_250726.png
+[33m65ccab0[m chore: domain integration fixes (icons, manifest, rewrites), SW precache + v3.3, navbar routes QA
+[33m1bb8708[m chore: 홈 배너 책표지 이미지 캐시버스팅(v=3) 적용
+[33m89738b8[m 🎨 이미지 업데이트: 홍용기 대표이사, 이후경 교장, AI 챗봇 이미지 및 책 표지 교체 완료
+[33mca2bed3[m fix: result route added to avoid 404 and local fallback rendering
+[33m699c708[m fix: banner contrast on blue + robust diagnosis simulation/fallback + vercel prod live
+[33m517e595[m chore: deploy prep - apply UI/analysis updates and vercel functions config
