@@ -14,6 +14,19 @@ interface HealthCheckResult {
   details?: any;
 }
 
+// CORS 헤더 설정
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json',
+};
+
+// OPTIONS 요청 처리 (CORS preflight)
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function GET(request: NextRequest) {
   console.log('🏥 시스템 헬스체크 시작');
   
@@ -213,8 +226,8 @@ export async function GET(request: NextRequest) {
     }, {
       status: overallStatus === 'healthy' ? 200 : overallStatus === 'degraded' ? 207 : 503,
       headers: {
+        ...corsHeaders,
         'Cache-Control': 'no-cache',
-        'Content-Type': 'application/json'
       }
     });
     
@@ -227,7 +240,7 @@ export async function GET(request: NextRequest) {
       responseTime: Date.now() - startTime,
       error: error instanceof Error ? error.message : '헬스체크 실행 실패',
       components: results
-    }, { status: 500 });
+    }, { status: 500, headers: corsHeaders });
   }
 }
 
