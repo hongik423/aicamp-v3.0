@@ -126,7 +126,7 @@ const BookCoverFloat: React.FC = () => {
 
                   {/* 책 이미지 */}
                   <img 
-                    src="/images/BOOK_n8n.webp"
+                    src="/images/book_1_cover.JPG?v=3"
                     alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신"
                     className="w-full h-auto object-cover rounded-2xl transform transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => {

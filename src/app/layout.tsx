@@ -5,6 +5,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
 import GlobalBanner from '@/components/layout/GlobalBanner';
+import FloatingChatbot from '@/components/layout/floating-chatbot';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,6 +16,16 @@ export const metadata: Metadata = {
   authors: [{ name: 'AICAMP' }],
   creator: 'AICAMP',
   publisher: 'AICAMP',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180' },
+    ],
+    shortcut: ['/favicon.ico'],
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -31,7 +42,7 @@ export const metadata: Metadata = {
     siteName: 'AICAMP',
     images: [
       {
-        url: '/images/aicamp_logo.png',
+        url: '/images/aicamp_logo_del_250726.png',
         width: 1200,
         height: 630,
         alt: 'AICAMP 로고',
@@ -44,7 +55,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'AICAMP - AI 역량진단 및 컨설팅',
     description: 'AI 역량진단, 상담신청, 세금계산기 등 다양한 서비스를 제공하는 AICAMP입니다.',
-    images: ['/images/aicamp_logo.png'],
+    images: ['/images/aicamp_logo_del_250726.png'],
   },
   robots: {
     index: true,
@@ -149,10 +160,8 @@ export default function RootLayout({
         {/* PWA 매니페스트 */}
         <link rel="manifest" href="/manifest.json" />
         
-        {/* 아이콘 */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* 아이콘 - 메타데이터 설정 외 린트 호환용 직접 지정 */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         
         {/* 폰트 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -166,6 +175,7 @@ export default function RootLayout({
             <main className="flex-1 pt-16">
               {children}
             </main>
+            <FloatingChatbot />
             <Footer />
           </div>
         </Providers>

@@ -1918,7 +1918,7 @@ JSON 형식으로 응답하되, 위 요구사항을 모두 충족하는 최고 �
               candidateCount: 1,
               topK: 40,
               topP: 0.95,
-              response_mime_type: "application/json" // JSON 전용 응답 강제
+              responseMimeType: "application/json" // JSON 전용 응답 강제 (필드명 카멜케이스)
             },
             safetySettings: [
               {

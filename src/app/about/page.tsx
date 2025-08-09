@@ -144,7 +144,7 @@ export default function AboutPage() {
                     <div className="w-32 h-32 mx-auto mb-6 relative">
                       <div className="w-full h-full rounded-full overflow-hidden shadow-lg">
                         <Image
-                          src="/images/ceo_hong2.jpg"
+                          src="/images/aicamp_ceo.jpg?v=3"
                           alt="홍용기 대표이사"
                           width={128}
                           height={128}
@@ -223,7 +223,7 @@ export default function AboutPage() {
                     <div className="w-32 h-32 mx-auto mb-6 relative">
                       <div className="w-full h-full rounded-full overflow-hidden shadow-lg">
                         <Image
-                          src="/images/aicamp_leader.png"
+                          src="/images/aicamp_leader2.jpg?v=3"
                           alt="이후경 교장"
                           width={128}
                           height={128}

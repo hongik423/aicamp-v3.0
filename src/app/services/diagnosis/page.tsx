@@ -73,7 +73,7 @@ export default function FreeDiagnosisPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center mb-4">
             <Image
-              src={getImagePath('/images/aicamp_logo.png')}
+              src={getImagePath('/images/aicamp_logo_del_250726.png')}
               alt="AICAMP AI 교육센터"
               width={240}
               height={80}
@@ -98,7 +98,7 @@ export default function FreeDiagnosisPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center mb-4">
             <Image
-              src={getImagePath('/images/aicamp_logo.png')}
+              src={getImagePath('/images/aicamp_logo_del_250726.png')}
               alt="AICAMP AI 교육센터"
               width={240}
               height={80}

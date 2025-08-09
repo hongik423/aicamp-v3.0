@@ -87,7 +87,7 @@ export default function Header() {
           <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity">
             <div className="relative w-8 h-8 sm:w-10 sm:h-10">
               <Image
-                src="/images/aicamp_logo_del_250726.png"
+                src="/images/aicamp_logo_del_250726.png?v=3"
                 alt="AICAMP 로고"
                 width={40}
                 height={40}
@@ -119,6 +119,18 @@ export default function Header() {
                 </Link>
               </div>
             ))}
+            {/* 전역 고정 AI 상담 버튼 */}
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  const btn = document.querySelector('[data-floating-chatbot]') as HTMLElement | null;
+                  if (btn) btn.click();
+                }
+              }}
+              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-pink-600 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+            >
+              💬 AI 상담
+            </button>
           </nav>
 
           {/* 태블릿용 간소화 네비게이션 */}
@@ -172,6 +184,19 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white shadow-lg">
             <nav className="py-3 px-2 space-y-1 max-h-[70vh] overflow-y-auto">
+              {/* 상단 고정 AI 상담 버튼 (모바일 전용) */}
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  if (typeof window !== 'undefined') {
+                    const btn = document.querySelector('[data-floating-chatbot]') as HTMLElement | null;
+                    if (btn) btn.click();
+                  }
+                }}
+                className="w-full mb-2 inline-flex items-center justify-center px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-orange-500 to-pink-600 shadow-md active:shadow-lg"
+              >
+                💬 이후경 교장에게 바로 상담하기
+              </button>
               {navigation.map((item) => (
                 <Link
                   key={item.href}

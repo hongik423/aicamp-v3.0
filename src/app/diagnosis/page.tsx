@@ -44,8 +44,8 @@ export default function DiagnosisPage() {
       <main className="container mx-auto px-4 py-12">
         {/* 히어로 섹션 */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <Brain className="w-4 h-4" />
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 px-6 py-3 rounded-full text-lg sm:text-xl font-bold mb-8 shadow-lg border border-purple-200">
+            <Brain className="w-6 h-6" />
             이후경 교장의 AI 역량진단 시스템
           </div>
           

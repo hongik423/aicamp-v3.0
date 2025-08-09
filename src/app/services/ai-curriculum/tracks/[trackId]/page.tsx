@@ -1,6 +1,6 @@
 'use client';
 
-import { notFound } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -956,18 +956,29 @@ const trackDetails = {
   }
 };
 
-interface PageProps {
-  params: Promise<{
-    trackId: string;
-  }>;
-}
-
-export default async function TrackDetailPage({ params }: PageProps) {
-  const { trackId } = await params;
+export default function TrackDetailPage() {
+  const router = useRouter();
+  const params = useParams();
+  const trackId = (params?.trackId as string) || '';
   const track = trackDetails[trackId as keyof typeof trackDetails];
-  
+
   if (!track) {
-    notFound();
+    return (
+      <main className="min-h-screen bg-white">
+        <section className="py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-2xl font-bold mb-4">존재하지 않는 트랙입니다</h1>
+            <p className="text-gray-600 mb-6">유효하지 않은 경로이거나 교육 트랙이 삭제되었습니다.</p>
+            <button
+              onClick={() => router.push('/services/ai-curriculum')}
+              className="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            >
+              교육 프로그램 목록으로 이동
+            </button>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (

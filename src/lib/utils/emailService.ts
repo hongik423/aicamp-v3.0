@@ -41,18 +41,17 @@ function isServer() {
 // 중복된 함수 제거됨 - 아래 단순화 버전 사용
 
 /**
- * 🎯 통합 상담 신청 처리 (Google Apps Script + 백업 시스템)
- * - 구글시트 저장
- * - 관리자 이메일 자동 발송  
- * - 신청자 확인 이메일 자동 발송
+  * 🎯 통합 상담 신청 처리 (프록시 경유 → Google Apps Script)
+  * - 서버 프록시(`/api/google-script-proxy`)로 라우팅하여 CORS/타임아웃 안정화
+  * - 구글시트 저장 + 관리자/신청자 이메일 발송은 GAS에서 처리
  */
 export async function submitConsultationToGoogle(consultationData: any) {
   try {
     console.log('💬 Google Apps Script로 상담 신청 처리 시작');
     
-    // Google Apps Script 엔드포인트로 데이터 전송 (개선된 방식)
+    // 서버 프록시로 전송 (GAS는 프록시에서 호출)
     const requestData = {
-      action: 'saveConsultation',
+      action: 'consultation',
       ...consultationData,
       폼타입: '상담신청',
       제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
@@ -69,118 +68,33 @@ export async function submitConsultationToGoogle(consultationData: any) {
       회사명: consultationData.company || consultationData.회사명
     });
 
-    // 🔄 3단계 백업 시스템: POST → GET → 백업
-    let lastError = null;
-    
-    // 1단계: 표준 POST 요청 시도 (타임아웃 3분으로 확장)
-    try {
-      console.log('🔄 1단계: POST 방식 시도 (3분 타임아웃)');
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3분 타임아웃
-      
-      const response = await fetch(GOOGLE_SCRIPT_CONFIG.SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-        mode: 'cors',
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
+    // 프록시 경유 단일 요청 (Vercel 800초까지 지원)
+    const response = await fetch('/api/google-script-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    });
 
-      if (response.ok) {
-        const result = await response.text();
-        console.log('✅ 1단계 성공: POST 방식으로 Google Apps Script 처리 완료');
-        
-        return {
-          success: true,
-          message: '상담 신청이 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.',
-          data: { response: result },
-          service: 'google-apps-script',
-          method: 'post_success',
-          features: [
-            '✅ 데이터 자동 저장',
-            '✅ 관리자 알림 이메일 발송',
-            '✅ 신청자 확인 이메일 발송',
-          ]
-        };
-      } else {
-        lastError = `POST ${response.status}: ${response.statusText}`;
-        console.warn('⚠️ 1단계 실패:', lastError);
-      }
-    } catch (error) {
-      lastError = `POST 오류: ${error instanceof Error ? error.message : '네트워크 오류'}`;
-      console.warn('⚠️ 1단계 예외:', lastError);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`프록시 오류: ${response.status} ${response.statusText} - ${text.substring(0, 200)}...`);
     }
 
-    // 2단계: GET 방식 시도 (405 오류 대응)
-    try {
-      console.log('🔄 2단계: GET 방식으로 재시도');
-      const queryParams = new URLSearchParams();
-      Object.entries(requestData).forEach(([key, value]) => {
-        queryParams.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
-      });
+    const result = await response.json().catch(async () => ({ raw: await response.text() }));
 
-      const getResponse = await fetch(`${GOOGLE_SCRIPT_CONFIG.SCRIPT_URL}?${queryParams.toString()}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-        mode: 'cors'
-      });
-
-      if (getResponse.ok) {
-        const result = await getResponse.text();
-        console.log('✅ 2단계 성공: GET 방식으로 Google Apps Script 처리 완료');
-        
-        return {
-          success: true,
-          message: '상담 신청이 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.',
-          data: { response: result },
-          service: 'google-apps-script',
-          method: 'get_fallback',
-          features: [
-            '✅ 데이터 자동 저장 (GET)',
-            '✅ 관리자 알림 이메일 발송',
-            '✅ 신청자 확인 이메일 발송',
-          ]
-        };
-      } else {
-        lastError = `GET ${getResponse.status}: ${getResponse.statusText}`;
-        console.warn('⚠️ 2단계 실패:', lastError);
-      }
-    } catch (error) {
-      lastError = `GET 오류: ${error instanceof Error ? error.message : '네트워크 오류'}`;
-      console.warn('⚠️ 2단계 예외:', lastError);
-    }
-
-    // 3단계: 로컬 백업 시스템 (안정성 확보)
-    console.log('🔄 3단계: 로컬 백업 시스템 활성화');
-    console.warn('⚠️ Google Apps Script 연결 실패:', lastError);
-    
-    await saveLocalBackup('consultation', consultationData);
-    
-    console.log('📁 3단계 완료: 상담 신청 로컬 백업 저장, 관리자 수동 처리 예정');
-    
     return {
       success: true,
-      message: '상담 신청이 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.',
-      data: { 
-        backupSaved: true, 
-        lastError: lastError,
-        googleScriptUrl: GOOGLE_SCRIPT_CONFIG.SCRIPT_URL.substring(0, 50) + '...',
-        timestamp: new Date().toISOString()
-      },
-      service: 'local-backup',
-      method: 'backup_system',
+      message: '상담 신청이 완료되었습니다. 빠른 시일 내에 연락드리겠습니다.',
+      data: result,
+      service: 'google-apps-script',
+      method: 'proxy_post',
       features: [
-        '✅ 로컬 백업 저장 완료',
-        '✅ 관리자 수동 처리 예정',
-        '✅ 24시간 내 연락 예정',
-        `⚠️ 원인: ${lastError}`,
+        '✅ 데이터 자동 저장',
+        '✅ 관리자 알림 이메일 발송',
+        '✅ 신청자 확인 이메일 발송',
       ]
     };
 
@@ -403,43 +317,23 @@ export async function submitDiagnosisToGoogle(diagnosisData: any) {
       hasSWOTAnalysis: requestData.SWOT분석.강점.length > 0
     });
 
-    // Google Apps Script URL 가져오기
-    const googleScriptUrl = GOOGLE_SCRIPT_CONFIG.SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
-    
-    if (!googleScriptUrl) {
-      throw new Error('Google Apps Script URL이 설정되지 않았습니다.');
-    }
-
-    console.log('📤 Google Apps Script로 완전한 진단 데이터 전송 시작 (개별점수 + 업종분석 포함)');
-
-    // POST 방식으로 전송 (타임아웃 설정 추가)
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
-    
-    const response = await fetch(googleScriptUrl, {
+    // 프록시 경유로 전송 (장시간 처리 보호)
+    console.log('📤 프록시로 진단 데이터 전송 시작 (개별점수 + 업종분석 포함)');
+    const response = await fetch('/api/google-script-proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
       body: JSON.stringify(requestData),
-      mode: 'cors',
-      signal: controller.signal
-    }).finally(() => clearTimeout(timeoutId));
+    });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const text = await response.text();
+      throw new Error(`프록시 오류: ${response.status} ${response.statusText} - ${text.substring(0, 200)}...`);
     }
 
-    const result = await response.text();
-    let parsedResult;
-    
-    try {
-      parsedResult = JSON.parse(result);
-    } catch (parseError) {
-      console.warn('JSON 파싱 실패, 텍스트 응답:', result);
-      parsedResult = { success: true, message: result };
-    }
+    const parsedResult = await response.json().catch(async () => ({ raw: await response.text() }));
 
     console.log('✅ AI 무료진단 접수 처리 완료 (고급 분석 포함):', parsedResult);
 
