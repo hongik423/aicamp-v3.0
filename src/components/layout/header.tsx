@@ -97,7 +97,7 @@ export default function Header() {
                   unoptimized
                 />
               </div>
-              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent whitespace-nowrap">AICAMP</span>
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 bg-clip-text text-transparent whitespace-nowrap drop-shadow-sm">AICAMP</span>
             </Link>
             
             {/* 홈 링크 - 로고 다음 배치 */}
@@ -138,7 +138,7 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap"
+              className="ml-2 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
             >
               이교장의AI상담
             </button>
@@ -198,7 +198,7 @@ export default function Header() {
                     if (btn) btn.click();
                   }
                 }}
-                className="w-full mb-2 inline-flex items-center justify-center px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-green-500 shadow-md active:shadow-lg hover:from-blue-700 hover:to-green-600"
+                className="w-full mb-2 inline-flex items-center justify-center px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-md active:shadow-lg hover:from-blue-700 hover:to-green-600 animate-pulse"
               >
                 이교장의AI상담 바로가기
               </button>
