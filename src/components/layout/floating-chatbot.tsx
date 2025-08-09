@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, MessageCircle, X, Bot, User } from 'lucide-react';
-import { getImagePath, getSessionLeaderImage } from '@/lib/utils';
+import { getImagePath, getSessionLeaderImage, getChatbotLeaderImage } from '@/lib/utils';
 
 interface Message {
   id: string;
@@ -36,9 +36,18 @@ export default function FloatingChatbot() {
 
   // 환영 메시지 추가 (Hydration 안전)
   const [isClient, setIsClient] = useState(false);
+  const [pagePinned, setPagePinned] = useState(false);
   
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // 페이지 전용 떠있는 버튼(핀) 상태 복원
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = window.sessionStorage.getItem('aicamp_chatbot_pinned');
+      setPagePinned(saved === 'true');
+    }
   }, []);
 
   useEffect(() => {
@@ -324,14 +333,38 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
 
   return (
     <>
+      {/* 페이지 전용 떠있는(핀) 토글 버튼 */}
+      <button
+        onClick={() => {
+          const next = !pagePinned;
+          setPagePinned(next);
+          if (typeof window !== 'undefined') {
+            window.sessionStorage.setItem('aicamp_chatbot_pinned', String(next));
+          }
+        }}
+        title={pagePinned ? '페이지 전용 버튼 해제' : '페이지 전용 버튼 고정'}
+        style={{
+          position: 'fixed',
+          bottom: '16px',
+          left: '16px',
+          zIndex: 999997,
+          borderRadius: '9999px',
+          padding: '10px 14px',
+          background: pagePinned ? '#2563EB' : '#E5E7EB',
+          color: pagePinned ? '#fff' : '#111827',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+        }}
+      >
+        {pagePinned ? '📌 고정됨' : '📌 고정'}
+      </button>
       {/* 🔥 드래그 가능한 플로팅 챗봇 버튼 */}
       <div
         id="floating-chatbot-button"
         className={`${isOpen ? 'hidden' : 'block'} ${isDragging ? 'scale-110' : ''} touch-target mobile-optimized`}
         style={{
           position: 'fixed',
-          bottom: `${position.y}px`,
-          right: `${position.x}px`,
+          bottom: pagePinned ? '90px' : `${position.y}px`,
+          right: pagePinned ? '16px' : `${position.x}px`,
           width: isMobile ? '64px' : '70px',
           height: isMobile ? '64px' : '70px',
           backgroundColor: isDragging ? '#7B1FA2' : '#1976D2',
@@ -362,8 +395,8 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
             }
           }
         }}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
+        onMouseDown={pagePinned ? undefined : handleMouseDown}
+        onTouchStart={pagePinned ? undefined : handleTouchStart}
         onMouseEnter={(e) => {
           if (!isDragging && !isMobile) {
             e.currentTarget.style.transform = 'scale(1.1)';
@@ -503,7 +536,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <img
-                src={getSessionLeaderImage()}
+                src={getChatbotLeaderImage()}
                 alt="AI교장"
                 style={{
                   width: '35px',

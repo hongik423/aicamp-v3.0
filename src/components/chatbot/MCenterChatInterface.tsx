@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getSessionLeaderImage } from '@/lib/utils';
+import { getSessionLeaderImage, getChatbotLeaderImage } from '@/lib/utils';
 import { 
   Send, 
   X, 
@@ -200,7 +200,7 @@ const MCenterChatInterface: React.FC<MCenterChatInterfaceProps> = ({
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
               <img
-                src={getSessionLeaderImage()}
+                src={getChatbotLeaderImage()}
                 alt="AI교장 이후경"
                 className="w-full h-full object-cover"
               />

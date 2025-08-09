@@ -158,7 +158,7 @@ export function getLogoPath(): string {
  */
 export function getRandomLeaderImage(): string {
   const images = [
-    '/images/aicamp_leader.png',
+    '/images/aicamp_leader2.jpg',
     '/images/aicamp_leader2.jpg'
   ];
   
@@ -175,8 +175,8 @@ export function getRandomLeaderImage(): string {
  */
 export function getSessionLeaderImage(): string {
   const images = [
-    '/images/aicamp_leader.png',
-    '/images/aicamp_leader2.jpg'
+    '/images/aicamp_leader2.jpg?v=3',
+    '/images/aicamp_leader2.jpg?v=3'
   ];
   
   // Hydration 오류를 방지하기 위해 서버와 클라이언트 모두에서 동일한 이미지 사용
@@ -193,8 +193,8 @@ export function getSessionLeaderImage(): string {
  */
 export function getDailyLeaderImage(): string {
   const images = [
-    '/images/aicamp_leader.png',
-    '/images/aicamp_leader2.jpg'
+    '/images/aicamp_leader2.jpg?v=3',
+    '/images/aicamp_leader2.jpg?v=3'
   ];
   
   // 오늘 날짜를 기반으로 이미지 선택
@@ -203,4 +203,11 @@ export function getDailyLeaderImage(): string {
   const imageIndex = dayOfYear % images.length;
   
   return getImagePath(images[imageIndex]);
+}
+
+/**
+ * AI 챗봇용 교장 이미지 (aicamp_leader3.png 사용)
+ */
+export function getChatbotLeaderImage(): string {
+  return getImagePath('/images/aicamp_leader3.png?v=3');
 }

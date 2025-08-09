@@ -27,7 +27,7 @@ export default function Footer() {
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 flex items-center justify-center">
                 <img 
-                  src={getImagePath('/images/aicamp_logo_del_250726.png')}
+                  src={getImagePath('/images/aicamp_logo_del_250726.png?v=3')}
                   alt="AICAMP" 
                   className="w-10 h-10 object-contain"
                 />

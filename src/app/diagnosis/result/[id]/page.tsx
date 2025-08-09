@@ -18,7 +18,7 @@ export default function DiagnosisResultPage({ params }: { params: ParamsPromise 
 
   useEffect(() => {
     let mounted = true;
-    params.then(async (p) => {
+    Promise.resolve(params).then(async (p) => {
       if (!mounted) return;
       setId(p.id);
       try {

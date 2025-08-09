@@ -32,7 +32,7 @@ export default function GlobalBanner() {
   const subMessageTextClass = isInfo ? 'text-yellow-100' : 'opacity-90';
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[100] pointer-events-none" aria-live="polite">
+    <div className="fixed top-0 inset-x-0 z-[2147483647] pointer-events-none isolate" aria-live="polite">
       <div
         className={`mx-auto max-w-screen-2xl m-2 pointer-events-auto shadow-lg border rounded-xl overflow-hidden`}
       >
@@ -41,9 +41,9 @@ export default function GlobalBanner() {
             {Icon}
           </div>
           <div className="flex-1">
-            <p className={`font-bold text-sm sm:text-base ${messageTextClass}`}>{message}</p>
+            <p className={`font-bold text-sm sm:text-base ${messageTextClass} drop-shadow-[0_1px_1px_rgba(0,0,0,0.75)]`}>{message}</p>
             {subMessage && (
-              <p className={`text-xs sm:text-sm mt-0.5 ${subMessageTextClass}`}>{subMessage}</p>
+              <p className={`text-xs sm:text-sm mt-0.5 ${subMessageTextClass} drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]`}>{subMessage}</p>
             )}
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm opacity-90">

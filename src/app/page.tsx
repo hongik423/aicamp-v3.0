@@ -372,7 +372,7 @@ export default function Home() {
                 >
                   <div className="relative w-48 h-60 sm:w-56 sm:h-72 lg:w-64 lg:h-80 xl:w-72 xl:h-90 rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 group">
                     <Image
-                      src="/images/book_1_cover.JPG"
+                      src="/images/book_1_cover.JPG?v=3"
                       alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신 책표지"
                       fill
                       style={{ objectFit: 'cover' }}
