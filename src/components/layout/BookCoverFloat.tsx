@@ -140,7 +140,7 @@ const BookCoverFloat: React.FC = () => {
                   {/* PDF 열기 힌트 오버레이 */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/50 backdrop-blur-sm z-30">
                     <div className="text-center text-white">
-                      <div className="text-2xl mb-2">📖</div>
+                      <div className="text-2xl mb-2 font-bold">책</div>
                       <div className="text-sm font-bold">PDF 미리보기</div>
                       <div className="text-xs opacity-80">클릭하여 내용 확인</div>
                     </div>

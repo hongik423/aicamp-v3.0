@@ -344,7 +344,7 @@ export default function Home() {
           <div className="text-center mb-8 sm:mb-12">
             <div className="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold rounded-full shadow-lg mb-6 sm:mb-8 animate-pulse text-sm sm:text-lg">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              <span>🔥 신간 출간! 국내최초 한국어판</span>
+              <span>신간 출간! 국내최초 한국어판</span>
             </div>
             
             {/* 제목과 설명을 먼저 표시 */}
@@ -385,7 +385,7 @@ export default function Home() {
                     {/* 책표지 위 "클릭하여 미리보기" 텍스트 */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2">
-                        <p className="text-white text-sm font-medium">📖 PDF 다운로드</p>
+                        <p className="text-white text-sm font-medium">PDF 다운로드</p>
                       </div>
                     </div>
                   </div>
@@ -393,7 +393,7 @@ export default function Home() {
                 
                 {/* 책표지 아래 간단한 정보 */}
                 <div className="text-center mt-4 lg:text-left">
-                  <p className="text-blue-200 text-sm font-medium">📘 국내최초 한국어판</p>
+                  <p className="text-blue-200 text-sm font-medium">국내최초 한국어판</p>
                   <p className="text-white text-sm">부크크(BookK) 출간</p>
                 </div>
               </div>
@@ -417,13 +417,13 @@ export default function Home() {
                 {/* 핵심 특징 - 간결하게 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {[
-                    { icon: "🏆", title: "국내 최초 한글판", desc: "해외 자료 의존 탈피" },
-                    { icon: "⚡", title: "실무 즉시 적용", desc: "중소기업 환경 최적화" },
-                    { icon: "🤖", title: "AI Agent 구축", desc: "초간단부터 심화까지" },
-                    { icon: "👨‍💼", title: "전문가 3인 집필", desc: "박사·경영지도사·CMC" }
+                    { title: "국내 최초 한글판", desc: "해외 자료 의존 탈피" },
+                    { title: "실무 즉시 적용", desc: "중소기업 환경 최적화" },
+                    { title: "AI Agent 구축", desc: "초간단부터 심화까지" },
+                    { title: "전문가 3인 집필", desc: "박사·경영지도사·CMC" }
                   ].map((feature, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-white/5 rounded-lg border border-white/10">
-                      <span className="text-lg flex-shrink-0">{feature.icon}</span>
+                    <div key={index} className="p-3 bg-white/5 rounded-lg border border-white/10">
+
                       <div className="text-left">
                         <h5 className="font-bold text-white text-sm leading-tight">{feature.title}</h5>
                         <p className="text-xs text-blue-200 leading-relaxed mt-1">{feature.desc}</p>
@@ -440,7 +440,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-base rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   >
-                    <span className="mr-2">📖</span>
+
                     지금 바로 구매하기
                   </a>
                   
@@ -457,13 +457,13 @@ export default function Home() {
             
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 px-2">
               <Badge className="bg-red-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-lg">
-                🏆 국내최초
+국내최초
               </Badge>
               <Badge className="bg-blue-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-lg">
-                ⚡ 실무직결
+실무직결
               </Badge>
               <Badge className="bg-green-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-lg">
-                🎯 전문가 집필
+전문가 집필
               </Badge>
             </div>
           </div>
@@ -562,7 +562,7 @@ export default function Home() {
               
               {/* 핵심 특징 - 모바일 최적화 */}
               <div className="space-y-3 sm:space-y-4">
-                <h4 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 px-2">📚 이 책의 핵심 특징</h4>
+                <h4 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 px-2">이 책의 핵심 특징</h4>
                 
                 {[
                   { icon: Target, title: "국내 최초 한글판", desc: "해외 자료 의존에서 벗어난 체계적 실무 가이드" },
@@ -588,7 +588,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center px-6 py-4 sm:px-8 sm:py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-base sm:text-lg rounded-xl sm:rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
-                  <span className="mr-2">📖</span>
+
                   지금 바로 구매하기
                 </a>
                 
@@ -604,7 +604,7 @@ export default function Home() {
               {/* 목차 정보 - 모바일 최적화 */}
               <div className="bg-white/5 rounded-xl p-4 sm:p-6 border border-white/10 mx-2">
                 <div className="text-center mb-3 sm:mb-4">
-                  <div className="text-white font-bold text-base sm:text-lg mb-2">📖 주요 목차</div>
+                  <div className="text-white font-bold text-base sm:text-lg mb-2">주요 목차</div>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-2 sm:gap-3 text-sm">
@@ -628,8 +628,8 @@ export default function Home() {
                 
                 <div className="text-center mt-3 sm:mt-4">
                   <div className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                    💡 Template 활용부터 AI Agent 구축까지<br />
-                    🚀 심화 프로젝트: 정부지원사업 알림 & 상담신청 자동화
+                    Template 활용부터 AI Agent 구축까지<br />
+                    심화 프로젝트: 정부지원사업 알림 & 상담신청 자동화
                   </div>
                 </div>
               </div>
@@ -637,7 +637,7 @@ export default function Home() {
               {/* 출간 정보 - 모바일 최적화 */}
               <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 mx-2">
                 <div className="text-center">
-                  <div className="text-white font-bold mb-2 text-sm sm:text-base">🏢 부크크(BookK) 출간</div>
+                  <div className="text-white font-bold mb-2 text-sm sm:text-base">부크크(BookK) 출간</div>
                   <div className="text-xs sm:text-sm text-gray-300 leading-relaxed">
                     업무 자동화에 관심 있는 모든 분들을 위한 필독서
                   </div>
@@ -1127,7 +1127,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      💬 AI CAMP 교장에게 바로 문의하기
+AI CAMP 교장에게 바로 문의하기
                     </button>
                   </div>
                 </CardContent>
