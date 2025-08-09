@@ -29,6 +29,7 @@ import { DiagnosisResult } from '../types';
 import { GRADE_CRITERIA } from '../constants/questions';
 import { PremiumMcKinseyReport } from '@/components/diagnosis/PremiumMcKinseyReport';
 import { AdvancedDataVisualization } from '@/components/diagnosis/AdvancedDataVisualization';
+import { ReportGenerator } from '@/lib/utils/reportGenerator';
 
 interface DiagnosisResultViewProps {
   result: DiagnosisResult;
@@ -99,6 +100,53 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
     }))
   };
 
+  // HTML 보고서 다운로드 함수
+  const handleDownloadHTML = () => {
+    try {
+      const reportGenerator = new ReportGenerator(result, {
+        includeCharts: true,
+        includeDetailedAnalysis: true,
+        format: viewMode === 'premium' ? 'premium' : 'standard'
+      });
+      
+      const htmlContent = reportGenerator.generateHTML();
+      const fileName = reportGenerator.generateFileName();
+      
+      // Blob 생성 및 다운로드
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(url);
+      
+      // 성공 알림 (선택사항)
+      console.log('HTML 보고서 다운로드 완료:', fileName);
+      
+    } catch (error) {
+      console.error('HTML 보고서 다운로드 실패:', error);
+      alert('보고서 다운로드 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  // 이메일 발송 함수 (향후 구현)
+  const handleSendEmail = async () => {
+    try {
+      // 이메일 발송 로직 (향후 구현)
+      alert('이메일 발송 기능은 현재 개발 중입니다.');
+    } catch (error) {
+      console.error('이메일 발송 실패:', error);
+      alert('이메일 발송 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* 프리미엄 헤더 */}
@@ -162,13 +210,20 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button variant="outline" className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2"
+                onClick={handleSendEmail}
+              >
                 <Share2 className="w-4 h-4" />
-                <span>공유</span>
+                <span>이메일 발송</span>
               </Button>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2">
+              <Button 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2"
+                onClick={handleDownloadHTML}
+              >
                 <Download className="w-4 h-4" />
-                <span>PDF 다운로드</span>
+                <span>HTML 다운로드</span>
               </Button>
             </div>
           </div>
@@ -178,7 +233,11 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
       {/* 메인 컨텐츠 */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {viewMode === 'premium' ? (
-          <PremiumMcKinseyReport data={mcKinseyData} />
+          <PremiumMcKinseyReport 
+            data={mcKinseyData} 
+            onDownload={handleDownloadHTML}
+            onShare={handleSendEmail}
+          />
         ) : (
           <>
             {/* 탭 네비게이션 */}
@@ -624,15 +683,26 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                       <p className="text-slate-600">AI 역량 강화를 위한 전문가 지원을 받아보세요</p>
                     </div>
                     <div className="flex flex-wrap gap-4 justify-center">
-                      <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg flex items-center gap-2 shadow-lg">
+                      <Button 
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg flex items-center gap-2 shadow-lg"
+                        onClick={handleDownloadHTML}
+                      >
                         <Download className="w-5 h-5" />
                         프리미엄 보고서 다운로드
                       </Button>
-                      <Button variant="outline" className="px-8 py-3 text-lg flex items-center gap-2 border-2 border-blue-200 hover:bg-blue-50">
+                      <Button 
+                        variant="outline" 
+                        className="px-8 py-3 text-lg flex items-center gap-2 border-2 border-blue-200 hover:bg-blue-50"
+                        onClick={handleSendEmail}
+                      >
                         <Mail className="w-5 h-5" />
                         이메일로 전송
                       </Button>
-                      <Button variant="outline" className="px-8 py-3 text-lg border-2 border-emerald-200 hover:bg-emerald-50 text-emerald-700">
+                      <Button 
+                        variant="outline" 
+                        className="px-8 py-3 text-lg border-2 border-emerald-200 hover:bg-emerald-50 text-emerald-700"
+                        onClick={() => window.open('https://aicamp.club/consultation', '_blank')}
+                      >
                         <Users className="w-5 h-5 mr-2" />
                         전문가 상담 신청
                       </Button>
