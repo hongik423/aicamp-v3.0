@@ -156,17 +156,70 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="AICAMP" />
         <meta name="msapplication-TileColor" content="#3b82f6" />
         <meta name="theme-color" content="#3b82f6" />
+        <meta name="msapplication-navbutton-color" content="#3b82f6" />
         
         {/* PWA 매니페스트 */}
         <link rel="manifest" href="/manifest.webmanifest" />
         
-        {/* 파비콘/애플 터치 아이콘 */}
+        {/* 파비콘/애플 터치 아이콘 - head 내부에 위치 */}
         <link rel="icon" href="/images/aicamp_logo_del_250726.png" type="image/png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/images/aicamp_logo.png" />
         
         {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* 폰트 프리로드 경고 방지를 위한 스크립트 */}
+        <script 
+          dangerouslySetInnerHTML={{
+            __html: `
+              // 폰트 프리로드 사용 보장
+              if (typeof window !== 'undefined') {
+                window.addEventListener('load', function() {
+                  const preloadedFonts = document.querySelectorAll('link[rel="preload"][as="font"]');
+                  preloadedFonts.forEach(function(link) {
+                    if (link.href && link.href.includes('woff2')) {
+                      // 폰트 사용 강제 트리거
+                      const testDiv = document.createElement('div');
+                      testDiv.style.fontFamily = 'Inter';
+                      testDiv.style.opacity = '0';
+                      testDiv.style.position = 'absolute';
+                      testDiv.textContent = 'test';
+                      document.body.appendChild(testDiv);
+                      setTimeout(() => document.body.removeChild(testDiv), 100);
+                    }
+                  });
+                });
+                
+                // Chrome 확장 프로그램 오류 방지
+                window.addEventListener('error', function(e) {
+                  if (e.message && (
+                    e.message.includes('runtime.lastError') ||
+                    e.message.includes('Extension context') ||
+                    e.message.includes('chrome-extension://') ||
+                    e.message.includes('The message port closed')
+                  )) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                  }
+                });
+                
+                window.addEventListener('unhandledrejection', function(e) {
+                  if (e.reason && e.reason.message && (
+                    e.reason.message.includes('runtime.lastError') ||
+                    e.reason.message.includes('Extension context') ||
+                    e.reason.message.includes('chrome-extension://') ||
+                    e.reason.message.includes('The message port closed')
+                  )) {
+                    e.preventDefault();
+                    return false;
+                  }
+                });
+              }
+            `
+          }}
+        />
       </head>
       <body className={inter.className}>
         <Providers>
