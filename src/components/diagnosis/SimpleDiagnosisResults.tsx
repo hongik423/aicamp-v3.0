@@ -29,7 +29,8 @@ import {
   ArrowLeft,
   AlertCircle,
   CheckCircle,
-  X
+  X,
+  MessageSquare
 } from 'lucide-react';
 
 interface CompleteDiagnosisResultsProps {
@@ -160,13 +161,28 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
   const internalTerms: string[] = (data?.data?.diagnosis?.internalTerminology || []) as string[];
   const targetKpis: string[] = (data?.data?.diagnosis?.targetKpis || []) as string[];
 
-  // 업종/점수대 맞춤 문구
+  // 업종/점수대 맞춤 문구 - 실제 데이터 연결 강화
   const industry = data?.data?.diagnosis?.industry || '기타';
   const score = Number(data?.data?.diagnosis?.totalScore || 0);
   const companyName = data?.data?.diagnosis?.companyName || '귀사';
   const employees = data?.data?.diagnosis?.employeeCount || '1-10명';
   const challenges = data?.data?.diagnosis?.categoryResults?.[0]?.weaknesses?.[0] || '';
   const scoreBand: 'low' | 'mid' | 'high' = score < 40 ? 'low' : score < 70 ? 'mid' : 'high';
+  
+  // 🎯 실제 카테고리별 점수 데이터 정확한 연결
+  const actualCategoryScores = useMemo(() => {
+    if (!data?.data?.diagnosis?.categoryResults) return {};
+    return data.data.diagnosis.categoryResults.reduce((acc: any, cat: any) => {
+      acc[cat.category] = {
+        score: cat.score || 0,
+        score100: cat.score100 || 0,
+        gap: cat.gapScore || 0,
+        strengths: cat.strengths || [],
+        weaknesses: cat.weaknesses || []
+      };
+      return acc;
+    }, {});
+  }, [data]);
   const pulseText = useMemo(() => {
     const byIndustry: Record<string, Record<typeof scoreBand, string>> = {
       '제조업': {
@@ -428,10 +444,73 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
               </CardContent>
             </Card>
 
-      {/* 상세 분석 */}
+      {/* 🎯 신청기업 AI 혁신의 脈 - 핵심 발견사항 */}
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-blue-50">
+        <CardHeader className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+          <CardTitle className="text-xl flex items-center gap-2">
+            <Brain className="w-6 h-6" />
+            신청기업 AI 혁신의 脈
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-4">
+          <div className="prose max-w-none">
+            <h3 className="text-lg font-semibold text-purple-800 mb-3">
+              {companyName}의 AI 도입 현황 핵심 진단
+            </h3>
+            
+            {/* 실제 데이터 기반 핵심 발견사항 */}
+            <div className="space-y-3">
+              <div className="p-4 bg-white rounded-lg border-l-4 border-purple-500">
+                <h4 className="font-semibold text-purple-700 mb-2">📊 현재 AI 역량 수준</h4>
+                <p className="text-gray-700">
+                  {companyName}는 종합점수 <strong>{totalScore}점</strong>으로 <strong>{grade}등급</strong>에 해당하며, 
+                  업계 상위 <strong>{percentile}%</strong>에 위치합니다. 
+                  {Object.entries(actualCategoryScores).map(([cat, data]: [string, any]) => (
+                    ` ${cat} ${data.score.toFixed(1)}점`
+                  )).join(', ')} 으로 평가되었습니다.
+                </p>
+              </div>
+              
+              <div className="p-4 bg-white rounded-lg border-l-4 border-blue-500">
+                <h4 className="font-semibold text-blue-700 mb-2">💪 핵심 강점 요인</h4>
+                <p className="text-gray-700">
+                  {diagnosis.swotAnalysis?.strengths?.slice(0, 2).join(', ') || '빠른 의사결정, 조직 민첩성'}을 
+                  바탕으로 AI 도입의 기반을 갖추고 있습니다. 
+                  특히 {employees} 규모의 조직 특성상 빠른 실행과 변화 적응이 가능합니다.
+                </p>
+              </div>
+              
+              <div className="p-4 bg-white rounded-lg border-l-4 border-orange-500">
+                <h4 className="font-semibold text-orange-700 mb-2">⚠️ 주요 개선 영역</h4>
+                <p className="text-gray-700">
+                  {diagnosis.swotAnalysis?.weaknesses?.slice(0, 2).join(', ') || 'AI 전문 인력 부족, 예산 제약'}이 
+                  주요 과제로 파악되었습니다. {industry} 업종 특성상 {challenges || '체계적인 데이터 관리'}가 
+                  시급한 개선 과제입니다.
+                </p>
+              </div>
+              
+              <div className="p-4 bg-white rounded-lg border-l-4 border-green-500">
+                <h4 className="font-semibold text-green-700 mb-2">🚀 성장 기회 요인</h4>
+                <p className="text-gray-700">
+                  {diagnosis.swotAnalysis?.opportunities?.slice(0, 2).join(', ') || '클라우드 AI 서비스 활용, 개발 생산성 향상 도구'}를 
+                  통해 빠른 성장이 가능합니다. N8N 자동화를 도입하면 전문 인력 없이도 AI 역량을 내재화할 수 있습니다.
+                </p>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg">
+              <p className="text-sm font-medium text-purple-800">
+                💡 <strong>종합 진단:</strong> {pulseText}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 상세 분석 - 카테고리별 진단결과 */}
       <Card className="border-0 shadow-xl">
         <CardHeader>
-          <CardTitle className="text-xl">🔍 상세 분석 결과</CardTitle>
+          <CardTitle className="text-xl">📊 카테고리별 진단결과 (실제 평가데이터)</CardTitle>
                   </CardHeader>
         <CardContent className="space-y-4">
           {categoryView.map((category: any, index: number) => (
@@ -490,6 +569,218 @@ export default function SimpleDiagnosisResults({ data }: CompleteDiagnosisResult
           ))}
                   </CardContent>
                 </Card>
+
+      {/* 🎯 SWOT 전략 매트릭스 - 실제 데이터 기반 */}
+      <Card className="border-0 shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
+          <CardTitle className="text-xl">🎯 SWOT 전략 매트릭스</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* SO 전략 */}
+            <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+              <h4 className="font-semibold text-blue-800 mb-2">SO 전략 (강점-기회)</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                {diagnosis.swotAnalysis?.strategies?.SO?.slice(0, 3).map((strategy: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-blue-500">•</span>
+                    <span>{strategy}</span>
+                  </li>
+                )) || [
+                  <li key={0}>• {diagnosis.swotAnalysis?.strengths?.[0]}를 활용한 {diagnosis.swotAnalysis?.opportunities?.[0]} 선점</li>,
+                  <li key={1}>• 빠른 의사결정으로 클라우드 AI 서비스 즉시 도입</li>,
+                  <li key={2}>• 조직 민첩성을 바탕으로 N8N 자동화 빠른 확산</li>
+                ]}
+              </ul>
+            </div>
+            
+            {/* WO 전략 */}
+            <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+              <h4 className="font-semibold text-green-800 mb-2">WO 전략 (약점-기회)</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                {diagnosis.swotAnalysis?.strategies?.WO?.slice(0, 3).map((strategy: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-green-500">•</span>
+                    <span>{strategy}</span>
+                  </li>
+                )) || [
+                  <li key={0}>• {diagnosis.swotAnalysis?.weaknesses?.[0]} 극복을 위한 {diagnosis.swotAnalysis?.opportunities?.[0]} 활용</li>,
+                  <li key={1}>• AI 전문 인력 부족을 N8N 노코드 자동화로 해결</li>,
+                  <li key={2}>• 예산 제약을 정부지원사업 연계로 극복</li>
+                ]}
+              </ul>
+            </div>
+            
+            {/* ST 전략 */}
+            <div className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+              <h4 className="font-semibold text-orange-800 mb-2">ST 전략 (강점-위협)</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                {diagnosis.swotAnalysis?.strategies?.ST?.slice(0, 3).map((strategy: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-orange-500">•</span>
+                    <span>{strategy}</span>
+                  </li>
+                )) || [
+                  <li key={0}>• {diagnosis.swotAnalysis?.strengths?.[0]}로 {diagnosis.swotAnalysis?.threats?.[0]} 대응</li>,
+                  <li key={1}>• 빠른 실행력으로 기술 변화 속도에 대응</li>,
+                  <li key={2}>• 조직 유연성으로 AI 선도 기업과의 격차 축소</li>
+                ]}
+              </ul>
+            </div>
+            
+            {/* WT 전략 */}
+            <div className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+              <h4 className="font-semibold text-red-800 mb-2">WT 전략 (약점-위협)</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                {diagnosis.swotAnalysis?.strategies?.WT?.slice(0, 3).map((strategy: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-red-500">•</span>
+                    <span>{strategy}</span>
+                  </li>
+                )) || [
+                  <li key={0}>• {diagnosis.swotAnalysis?.weaknesses?.[0]}과 {diagnosis.swotAnalysis?.threats?.[0]} 최소화 전략</li>,
+                  <li key={1}>• 단계적 AI 도입으로 리스크 관리</li>,
+                  <li key={2}>• 외부 전문가 협력으로 역량 보완</li>
+                ]}
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ⚡ 중요성-긴급성-시행가능성 매트릭스 & N8N Quick Win 프로젝트 */}
+      <Card className="border-0 shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
+          <CardTitle className="text-xl">⚡ N8N 자동화 Quick Win 프로젝트</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          {/* 우선순위 매트릭스 */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-semibold text-gray-800 mb-3">📊 우선순위 매트릭스 (중요성 × 긴급성 × 시행가능성)</h4>
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <div className="text-center p-2 bg-red-100 rounded">
+                <div className="font-bold text-red-700">높음</div>
+                <div className="text-xs text-gray-600">즉시 실행</div>
+              </div>
+              <div className="text-center p-2 bg-yellow-100 rounded">
+                <div className="font-bold text-yellow-700">중간</div>
+                <div className="text-xs text-gray-600">단기 계획</div>
+              </div>
+              <div className="text-center p-2 bg-green-100 rounded">
+                <div className="font-bold text-green-700">낮음</div>
+                <div className="text-xs text-gray-600">장기 검토</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Win 프로젝트 목록 */}
+          <div className="space-y-3">
+            {diagnosis.recommendedActions?.slice(0, 3).map((action: any, i: number) => (
+              <div key={i} className={`p-4 rounded-lg border-l-4 ${
+                action.priority === 'HIGH' ? 'bg-red-50 border-red-500' :
+                action.priority === 'MEDIUM' ? 'bg-yellow-50 border-yellow-500' :
+                'bg-green-50 border-green-500'
+              }`}>
+                <div className="flex justify-between items-start mb-2">
+                  <h5 className="font-semibold text-gray-800">{action.title}</h5>
+                  <Badge className={
+                    action.priority === 'HIGH' ? 'bg-red-500' :
+                    action.priority === 'MEDIUM' ? 'bg-yellow-500' :
+                    'bg-green-500'
+                  }>
+                    {action.priority === 'HIGH' ? '높음' :
+                     action.priority === 'MEDIUM' ? '중간' : '낮음'}
+                  </Badge>
+                </div>
+                <p className="text-sm text-gray-700 mb-2">{action.description}</p>
+                <div className="flex gap-4 text-xs text-gray-600">
+                  <span>⏱️ {action.timeframe}</span>
+                  <span>💰 비용: {action.implementationCost === 'HIGH' ? '높음' :
+                                   action.implementationCost === 'MEDIUM' ? '중간' : '낮음'}</span>
+                  <span>📈 기대효과: {action.expectedImpact}</span>
+                </div>
+              </div>
+            )) || [
+              <div key={0} className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                <h5 className="font-semibold text-gray-800">주간 보고서 데이터 취합 자동화</h5>
+                <p className="text-sm text-gray-700">N8N으로 각 부서 데이터를 자동 수집하여 주간 보고서 생성</p>
+                <div className="flex gap-4 text-xs text-gray-600 mt-2">
+                  <span>⏱️ 1주일</span>
+                  <span>💰 비용: 낮음</span>
+                  <span>📈 주 5시간 절약</span>
+                </div>
+              </div>,
+              <div key={1} className="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                <h5 className="font-semibold text-gray-800">고객 문의 자동 분류 및 알림</h5>
+                <p className="text-sm text-gray-700">이메일/채팅 문의를 AI로 분류하고 담당자에게 자동 알림</p>
+                <div className="flex gap-4 text-xs text-gray-600 mt-2">
+                  <span>⏱️ 2주일</span>
+                  <span>💰 비용: 중간</span>
+                  <span>📈 응답시간 50% 단축</span>
+                </div>
+              </div>,
+              <div key={2} className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                <h5 className="font-semibold text-gray-800">영업 기회 데이터 자동 업데이트</h5>
+                <p className="text-sm text-gray-700">CRM과 연동하여 영업 파이프라인 자동 관리</p>
+                <div className="flex gap-4 text-xs text-gray-600 mt-2">
+                  <span>⏱️ 1개월</span>
+                  <span>💰 비용: 중간</span>
+                  <span>📈 영업 효율 30% 향상</span>
+                </div>
+              </div>
+            ]}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 🚀 3단계 실행 로드맵 - SWOT 기반 */}
+      <Card className="border-0 shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+          <CardTitle className="text-xl">🚀 3단계 실행 로드맵</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {/* 1단계 */}
+            <div className="p-4 bg-indigo-50 rounded-lg">
+              <h4 className="font-semibold text-indigo-800 mb-2">
+                1단계: N8N 기반 업무 자동화 기초 (1-3개월)
+              </h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                <li>• N8N 플랫폼 도입 및 기본 워크플로우 구축</li>
+                <li>• {diagnosis.swotAnalysis?.strengths?.[0]}를 활용한 Quick Win 프로젝트 실행</li>
+                <li>• {diagnosis.swotAnalysis?.weaknesses?.[0]} 개선을 위한 기초 교육</li>
+                <li>• 반복 업무 자동화 파일럿 프로젝트 3개 완료</li>
+              </ul>
+            </div>
+            
+            {/* 2단계 */}
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <h4 className="font-semibold text-purple-800 mb-2">
+                2단계: AI 통합 자동화 확산 (4-8개월)
+              </h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                <li>• N8N 기반 부서별 맞춤 자동화 확대</li>
+                <li>• {diagnosis.swotAnalysis?.opportunities?.[0]} 활용한 AI 서비스 연동</li>
+                <li>• AI 분석 결과 자동 리포팅 시스템 구축</li>
+                <li>• 다중 시스템 연동 자동화로 업무 효율 40% 향상</li>
+              </ul>
+            </div>
+            
+            {/* 3단계 */}
+            <div className="p-4 bg-pink-50 rounded-lg">
+              <h4 className="font-semibold text-pink-800 mb-2">
+                3단계: 지능형 자동화 생태계 완성 (9-12개월)
+              </h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                <li>• N8N 기반 완전 자동화 시스템 구축</li>
+                <li>• {diagnosis.swotAnalysis?.threats?.[0]} 대응 위한 예측적 자동화</li>
+                <li>• AI 기반 의사결정 지원 시스템 고도화</li>
+                <li>• 외부 파트너 시스템과 자동 연동 생태계 구축</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 액션 버튼 */}
       <div className="flex flex-col sm:flex-row gap-4">
