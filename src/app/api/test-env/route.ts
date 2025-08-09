@@ -5,6 +5,19 @@ export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
 
+// CORS 헤더 설정
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json',
+};
+
+// OPTIONS 요청 처리 (CORS preflight)
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 /**
  * 환경변수 설정 상태 확인 API
  * GET /api/test-env
@@ -35,7 +48,7 @@ export async function GET(request: NextRequest) {
       status: 'success',
       message: '환경변수 검증 완료',
       environment: envCheck
-    });
+    }, { headers: corsHeaders });
 
   } catch (error) {
     console.error('환경변수 테스트 오류:', error);
@@ -45,7 +58,7 @@ export async function GET(request: NextRequest) {
       message: '환경변수 검증 실패',
       error: error instanceof Error ? error.message : '알 수 없는 오류',
       timestamp: new Date().toISOString()
-    }, { status: 500 });
+    }, { status: 500, headers: corsHeaders });
   }
 }
 
