@@ -7,7 +7,12 @@ import Providers from './providers';
 import GlobalBanner from '@/components/layout/GlobalBanner';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'AICAMP - AI 역량진단 및 컨설팅',
@@ -155,12 +160,11 @@ export default function RootLayout({
         {/* PWA 매니페스트 */}
         <link rel="manifest" href="/manifest.webmanifest" />
         
-        {/* 파비콘/애플 터치 아이콘 명시 (일부 브라우저/린터 요구사항 대응) */}
+        {/* 파비콘/애플 터치 아이콘 */}
         <link rel="icon" href="/images/aicamp_logo_del_250726.png" type="image/png" />
-        {/* eslint-disable-next-line */}
         <link rel="apple-touch-icon" sizes="180x180" href="/images/aicamp_logo.png" />
         
-        {/* 폰트 */}
+        {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
