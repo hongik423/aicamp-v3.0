@@ -162,12 +162,58 @@ export default function InvestmentAnalysisTool() {
     setIsCompleted(false);
   }, [initialInputValues]);
 
-  // 엑셀 내보내기 (실제 구현은 추가 필요)
+  // 엑셀 내보내기 기능
   const handleExport = () => {
-    if (!analysisResult) return;
+    if (!analysisResult || !investmentGrade) return;
     
-    // TODO: 실제 엑셀 내보내기 구현
-    alert('엑셀 내보내기 기능은 준비 중입니다.');
+    try {
+      // 엑셀 내보내기 함수 호출
+      const { exportInvestmentAnalysisToExcel } = require('@/lib/utils/excelExport');
+      
+      const result = {
+        grade: investmentGrade.grade,
+        score: investmentGrade.score,
+        recommendation: investmentGrade.recommendation,
+        financialMetrics: {
+          npv: analysisResult.npv,
+          irr: analysisResult.irr,
+          paybackPeriod: analysisResult.paybackPeriod,
+          roi: analysisResult.roi,
+          breakEvenPoint: analysisResult.breakEvenPoint
+        },
+        riskAnalysis: {
+          marketRisk: analysisResult.riskAnalysis.marketRisk,
+          financialRisk: analysisResult.riskAnalysis.financialRisk,
+          operationalRisk: analysisResult.riskAnalysis.operationalRisk,
+          overallRisk: analysisResult.riskAnalysis.overallRisk
+        },
+        aiEvaluation: {
+          summary: aiEvaluation?.summary || '',
+          strengths: aiEvaluation?.strengths || [],
+          weaknesses: aiEvaluation?.weaknesses || [],
+          opportunities: aiEvaluation?.opportunities || [],
+          threats: aiEvaluation?.threats || []
+        }
+      };
+      
+      const fileName = exportInvestmentAnalysisToExcel(investmentInput, result);
+      
+      // 성공 메시지 표시
+      toast({
+        title: "엑셀 내보내기 완료",
+        description: `${fileName} 파일이 다운로드되었습니다.`,
+        duration: 3000,
+      });
+      
+    } catch (error) {
+      console.error('엑셀 내보내기 오류:', error);
+      toast({
+        title: "내보내기 실패",
+        description: "엑셀 파일 생성 중 오류가 발생했습니다.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   return (
