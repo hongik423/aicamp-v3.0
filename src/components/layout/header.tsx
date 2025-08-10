@@ -125,28 +125,28 @@ export default function Header() {
           </div>
 
           {/* AI역량진단 버튼 - 데스크톱 */}
-          <div className="hidden lg:flex items-center ml-8 xl:ml-16 2xl:ml-24 flex-shrink-0">
+          <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0">
             <Link
               href="/diagnosis"
-              className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2 rounded-xl text-sm xl:text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
-              <span>AI역량진단</span>
-              <Badge variant="secondary" className="ml-2 text-xs bg-white/20 text-white border-0">
+              <span>AI진단</span>
+              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
               </Badge>
             </Link>
           </div>
 
           {/* 데스크톱 네비게이션 - 가변 영역 */}
-          <nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4 overflow-hidden">
-            <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 overflow-hidden">
+          <nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-2 overflow-hidden">
+            <div className="flex items-center space-x-0 lg:space-x-0.5 xl:space-x-1 overflow-hidden">
               {visibleNavigation.filter(item => !item.isSpecial).map((item) => (
                 <div key={item.href} className="relative group flex-shrink-0">
                   <Link
                     href={item.href}
-                    className="inline-flex items-center px-1.5 py-1.5 lg:px-2 lg:py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs lg:text-xs xl:text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                    className="inline-flex items-center px-1 py-1 lg:px-1.5 lg:py-1.5 xl:px-2 xl:py-1.5 rounded-lg text-xs lg:text-xs xl:text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="truncate max-w-[70px] lg:max-w-[90px] xl:max-w-[120px]">{item.label}</span>
+                    <span className="truncate max-w-[60px] lg:max-w-[75px] xl:max-w-[90px]">{item.label}</span>
                     {item.badge && (
                       <Badge variant="secondary" className="ml-1 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
                         {item.badge}
@@ -160,8 +160,8 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* AI 상담 버튼 - 가장 우측에 고정, 추가 여백 확보 */}
-          <div className="hidden lg:flex items-center flex-shrink-0 ml-auto pl-4 pr-8 xl:pr-12 2xl:pr-16">
+          {/* AI 상담 버튼 - 가장 우측에 고정, 컴팩트 디자인 */}
+          <div className="hidden lg:flex items-center flex-shrink-0 ml-auto pl-2 pr-4 xl:pr-6 2xl:pr-8">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -169,10 +169,9 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2 rounded-xl text-sm xl:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
+              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
             >
-              <span className="lg:hidden xl:inline">이교장의AI상담</span>
-              <span className="hidden lg:inline xl:hidden">AI상담</span>
+              <span className="lg:inline xl:inline">AI상담</span>
             </button>
           </div>
 
