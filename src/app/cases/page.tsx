@@ -254,6 +254,265 @@ export default function CasesPage() {
       tags: ['컨설팅', '데이터분석', 'AI인사이트', '전문서비스'],
       icon: Briefcase,
       color: 'slate'
+    },
+    // 추가 제조업 사례들
+    {
+      id: 'manufacturing-quality-control',
+      category: 'manufacturing',
+      industry: '제조업',
+      companyName: '(주)프리미엄제조',
+      title: 'AI 품질검사로 불량률 87% 감소',
+      description: '컴퓨터 비전 AI로 실시간 품질 검사, 검사 시간 76% 단축 및 정확도 99.2% 달성',
+      image: 'https://picsum.photos/seed/quality-control/1200/800',
+      results: {
+        efficiency: '76% 단축',
+        timeSaving: '검사시간 5분 → 1.2분',
+        revenue: '불량비용 87% 절감',
+        satisfaction: '품질만족 99.2%'
+      },
+      tags: ['제조업', '품질검사', '컴퓨터비전', 'AI자동화'],
+      icon: CheckCircle,
+      color: 'blue'
+    },
+    {
+      id: 'manufacturing-predictive-maintenance',
+      category: 'manufacturing',
+      industry: '제조업',
+      companyName: '(주)스마트팩토리',
+      title: 'AI 예측정비로 가동률 94% 향상',
+      description: '설비 센서 데이터 AI 분석으로 고장 예측, 비계획 정지시간 82% 감소',
+      image: 'https://picsum.photos/seed/predictive-maintenance/1200/800',
+      results: {
+        efficiency: '94% 향상',
+        timeSaving: '정지시간 82% 감소',
+        revenue: '유지비용 45% 절감',
+        satisfaction: '가동률 96.8%'
+      },
+      tags: ['제조업', '예측정비', 'IoT센서', '설비관리'],
+      icon: Factory,
+      color: 'blue'
+    },
+    // 추가 서비스업 사례들
+    {
+      id: 'service-customer-support',
+      category: 'service',
+      industry: '서비스업',
+      companyName: '(주)고객만족솔루션',
+      title: 'AI 챗봇으로 고객응답 속도 89% 향상',
+      description: '자연어 처리 AI 챗봇 도입으로 1차 해결율 78% 달성, 고객만족도 92% 향상',
+      image: 'https://picsum.photos/seed/customer-support/1200/800',
+      results: {
+        efficiency: '89% 향상',
+        timeSaving: '응답시간 24시간 → 2.6시간',
+        revenue: '운영비 56% 절감',
+        satisfaction: '고객만족 92%'
+      },
+      tags: ['서비스업', 'AI챗봇', '고객지원', '자연어처리'],
+      icon: Users,
+      color: 'purple'
+    },
+    {
+      id: 'service-financial-automation',
+      category: 'service',
+      industry: '서비스업',
+      companyName: '(주)핀테크솔루션',
+      title: 'AI 금융분석으로 투자수익 167% 향상',
+      description: '머신러닝 기반 시장 분석과 리스크 관리로 포트폴리오 최적화 실현',
+      image: 'https://picsum.photos/seed/fintech-ai/1200/800',
+      results: {
+        efficiency: '167% 향상',
+        timeSaving: '분석시간 4시간 → 20분',
+        revenue: '투자수익 67% 증가',
+        satisfaction: '고객신뢰 95%'
+      },
+      tags: ['서비스업', '핀테크', 'AI투자', '리스크관리'],
+      icon: BarChart3,
+      color: 'purple'
+    },
+    // 추가 스타트업 사례들
+    {
+      id: 'startup-saas-platform',
+      category: 'startup',
+      industry: '스타트업',
+      companyName: '(주)이노베이션테크',
+      title: 'AI SaaS 플랫폼으로 월 구독자 1만명 달성',
+      description: '개인화 추천 알고리즘과 자동화 워크플로우로 사용자 유지율 84% 달성',
+      image: 'https://picsum.photos/seed/saas-platform/1200/800',
+      results: {
+        efficiency: '284% 향상',
+        timeSaving: '개발기간 12개월 → 4개월',
+        revenue: '월 구독자 1만명',
+        satisfaction: '유지율 84%'
+      },
+      tags: ['스타트업', 'SaaS', 'AI플랫폼', '구독모델'],
+      icon: Rocket,
+      color: 'green'
+    },
+    {
+      id: 'startup-foodtech-ai',
+      category: 'startup',
+      industry: '스타트업',
+      companyName: '(주)푸드테크이노베이션',
+      title: 'AI 레시피 추천으로 사용자 참여 345% 증가',
+      description: '개인 취향 학습 AI와 영양 분석으로 맞춤형 식단 서비스 구축',
+      image: 'https://picsum.photos/seed/foodtech-ai/1200/800',
+      results: {
+        efficiency: '345% 증가',
+        timeSaving: '식단계획 2시간 → 15분',
+        revenue: '월 매출 3억원',
+        satisfaction: '사용자만족 91%'
+      },
+      tags: ['스타트업', '푸드테크', 'AI추천', '개인화'],
+      icon: Heart,
+      color: 'green'
+    },
+    // 추가 물류 사례들
+    {
+      id: 'logistics-warehouse-automation',
+      category: 'logistics',
+      industry: '물류유통',
+      companyName: '(주)자동화물류센터',
+      title: 'AI 창고관리로 처리속도 156% 향상',
+      description: '로봇 피킹과 재고 최적화 AI로 창고 운영 효율성 극대화',
+      image: 'https://picsum.photos/seed/warehouse-automation/1200/800',
+      results: {
+        efficiency: '156% 향상',
+        timeSaving: '피킹시간 45% 단축',
+        revenue: '인건비 38% 절감',
+        satisfaction: '정확도 99.5%'
+      },
+      tags: ['물류', '창고자동화', 'AI로봇', '재고최적화'],
+      icon: Package,
+      color: 'amber'
+    },
+    {
+      id: 'logistics-delivery-optimization',
+      category: 'logistics',
+      industry: '물류유통',
+      companyName: '(주)스마트딜리버리',
+      title: 'AI 배송최적화로 연료비 42% 절감',
+      description: '실시간 교통 데이터와 AI 경로 최적화로 배송 효율성 향상',
+      image: 'https://picsum.photos/seed/delivery-optimization/1200/800',
+      results: {
+        efficiency: '42% 절감',
+        timeSaving: '배송시간 30% 단축',
+        revenue: '연료비 42% 절감',
+        satisfaction: '고객만족 97%'
+      },
+      tags: ['물류', '배송최적화', 'AI경로', '실시간분석'],
+      icon: Package,
+      color: 'amber'
+    },
+    // 추가 헬스케어 사례들
+    {
+      id: 'healthcare-telemedicine',
+      category: 'healthcare',
+      industry: '의료헬스케어',
+      companyName: '(주)텔레메디슨',
+      title: 'AI 원격진료로 접근성 278% 향상',
+      description: '영상 진단 AI와 증상 분석으로 원격 의료 서비스 품질 향상',
+      image: 'https://picsum.photos/seed/telemedicine/1200/800',
+      results: {
+        efficiency: '278% 향상',
+        timeSaving: '대기시간 85% 단축',
+        revenue: '진료건수 3배 증가',
+        satisfaction: '환자만족 93%'
+      },
+      tags: ['의료', '원격진료', 'AI진단', '접근성'],
+      icon: Heart,
+      color: 'pink'
+    },
+    {
+      id: 'healthcare-drug-discovery',
+      category: 'healthcare',
+      industry: '의료헬스케어',
+      companyName: '(주)바이오AI연구소',
+      title: 'AI 신약개발로 연구기간 67% 단축',
+      description: '분자 구조 AI 분석과 임상 예측으로 신약 개발 프로세스 혁신',
+      image: 'https://picsum.photos/seed/drug-discovery/1200/800',
+      results: {
+        efficiency: '67% 단축',
+        timeSaving: '연구기간 8년 → 2.6년',
+        revenue: '연구비 45% 절감',
+        satisfaction: '성공률 156% 향상'
+      },
+      tags: ['의료', '신약개발', 'AI분석', '바이오테크'],
+      icon: Heart,
+      color: 'pink'
+    },
+    // 추가 교육 사례들
+    {
+      id: 'education-language-learning',
+      category: 'education',
+      industry: '교육에듀테크',
+      companyName: '(주)AI언어교육',
+      title: 'AI 언어학습으로 성취도 189% 향상',
+      description: '개인별 학습 패턴 분석과 맞춤형 커리큘럼으로 학습 효과 극대화',
+      image: 'https://picsum.photos/seed/language-learning/1200/800',
+      results: {
+        efficiency: '189% 향상',
+        timeSaving: '학습시간 40% 단축',
+        revenue: '수강생 234% 증가',
+        satisfaction: '완주율 87%'
+      },
+      tags: ['교육', 'AI언어학습', '개인화', '학습분석'],
+      icon: GraduationCap,
+      color: 'teal'
+    },
+    {
+      id: 'education-skill-assessment',
+      category: 'education',
+      industry: '교육에듀테크',
+      companyName: '(주)스킬평가시스템',
+      title: 'AI 역량평가로 채용 정확도 156% 향상',
+      description: '실무 능력 AI 평가와 예측 분석으로 인재 매칭 성공률 향상',
+      image: 'https://picsum.photos/seed/skill-assessment/1200/800',
+      results: {
+        efficiency: '156% 향상',
+        timeSaving: '평가시간 70% 단축',
+        revenue: '매칭 성공률 89%',
+        satisfaction: '기업만족 94%'
+      },
+      tags: ['교육', 'AI평가', '역량분석', '인재매칭'],
+      icon: GraduationCap,
+      color: 'teal'
+    },
+    // 추가 이커머스 사례들
+    {
+      id: 'ecommerce-inventory-management',
+      category: 'ecommerce',
+      industry: '이커머스',
+      companyName: '(주)스마트인벤토리',
+      title: 'AI 재고관리로 매출 기회손실 78% 감소',
+      description: '수요 예측 AI와 자동 발주 시스템으로 재고 최적화 달성',
+      image: 'https://picsum.photos/seed/inventory-management/1200/800',
+      results: {
+        efficiency: '78% 감소',
+        timeSaving: '재고관리 시간 60% 단축',
+        revenue: '재고비용 34% 절감',
+        satisfaction: '품절률 5% 이하'
+      },
+      tags: ['이커머스', 'AI재고관리', '수요예측', '자동화'],
+      icon: ShoppingCart,
+      color: 'violet'
+    },
+    {
+      id: 'ecommerce-price-optimization',
+      category: 'ecommerce',
+      industry: '이커머스',
+      companyName: '(주)다이나믹프라이싱',
+      title: 'AI 동적가격으로 수익성 167% 향상',
+      description: '실시간 시장 분석과 경쟁사 모니터링으로 최적 가격 책정',
+      image: 'https://picsum.photos/seed/price-optimization/1200/800',
+      results: {
+        efficiency: '167% 향상',
+        timeSaving: '가격분석 90% 자동화',
+        revenue: '마진율 23% 증가',
+        satisfaction: '경쟁력 강화'
+      },
+      tags: ['이커머스', 'AI가격최적화', '동적가격', '수익성'],
+      icon: ShoppingCart,
+      color: 'violet'
     }
   ];
 
@@ -298,32 +557,47 @@ export default function CasesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 헤더 섹션 */}
-      <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 text-white py-16">
+      {/* 헤더 섹션 - 컨텐츠 중심 개선 */}
+      <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="max-w-5xl mx-auto text-center">
+            <h1 className="text-4xl md:text-6xl font-bold mb-8 text-white drop-shadow-lg">
               AI CAMP 성공사례
             </h1>
-            <p className="text-xl md:text-2xl mb-8 opacity-90">
-              {successCases.length}개 기업이 경험한 AI 실무도입 성공 스토리
+            <p className="text-xl md:text-2xl mb-12 text-yellow-100 leading-relaxed max-w-4xl mx-auto">
+              실제 기업들이 경험한 AI 혁신 여정을 만나보세요
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-              <div className="text-center">
-                <div className="text-3xl font-bold">{successCases.length}개사</div>
-                <div className="text-sm opacity-80">총 지원 기업</div>
+            
+            {/* 핵심 가치 제안 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-8 h-8 text-blue-900" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">즉시 적용 가능</h3>
+                <p className="text-blue-100 text-sm leading-relaxed">
+                  복잡한 이론이 아닌 실무에서 바로 활용할 수 있는 AI 솔루션을 제공합니다
+                </p>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">127%</div>
-                <div className="text-sm opacity-80">평균 효율성 향상</div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-8 h-8 text-blue-900" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">맞춤형 솔루션</h3>
+                <p className="text-blue-100 text-sm leading-relaxed">
+                  각 기업의 특성과 니즈에 맞춘 개별화된 AI 도입 전략을 수립합니다
+                </p>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">2.8억원</div>
-                <div className="text-sm opacity-80">연평균 비용 절감</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">95%</div>
-                <div className="text-sm opacity-80">고객 만족도</div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="w-16 h-16 bg-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-blue-900" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">검증된 성과</h3>
+                <p className="text-blue-100 text-sm leading-relaxed">
+                  다양한 업종에서 입증된 AI 도입 성과와 지속적인 성장을 보장합니다
+                </p>
               </div>
             </div>
           </div>
