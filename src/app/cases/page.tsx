@@ -712,7 +712,7 @@ export default function CasesPage() {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                 <div className="w-16 h-16 bg-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Target className="w-8 h-8 text-blue-900" />
-                </div>
+              </div>
                 <h3 className="text-xl font-bold text-white mb-3">측정 가능한 ROI</h3>
                 <p className="text-blue-100 text-sm leading-relaxed">
                   평균 245% 생산성 향상, 78% 비용 절감, 6개월 내 투자회수 달성의 검증된 성과
@@ -731,18 +731,18 @@ export default function CasesPage() {
             <div className="flex flex-wrap gap-2">
               {categories.map(category => (
                 <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     selectedCategory === category.id
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
-                >
-                  {category.label}
+              >
+                {category.label}
                   <Badge variant="secondary" className="ml-2 text-xs">
-                    {category.count}
-                  </Badge>
+                  {category.count}
+                </Badge>
                 </button>
               ))}
             </div>
@@ -803,8 +803,8 @@ export default function CasesPage() {
                     <Badge className="absolute top-4 right-4 bg-white/90 text-gray-700">
                       {caseItem.industry}
                     </Badge>
-                  </div>
-                  
+                    </div>
+                    
                   <CardHeader className="pb-3">
                     <div className="text-sm text-gray-500 mb-2">{caseItem.companyName}</div>
                     <CardTitle className="text-lg leading-tight group-hover:text-blue-600 transition-colors">
@@ -814,23 +814,23 @@ export default function CasesPage() {
                       {caseItem.description}
                     </CardDescription>
                   </CardHeader>
-                  
-                                     <CardContent className="pt-0">
+
+                  <CardContent className="pt-0">
                      <div className="grid grid-cols-2 gap-4 mb-4">
                        <div className="text-center p-3 bg-blue-50 rounded-lg">
                          <div className="text-2xl font-bold text-blue-600 mb-1">
                            {caseItem.results.efficiency}
-                         </div>
+                        </div>
                          <div className="text-xs text-blue-700">효율성 향상</div>
-                       </div>
+                      </div>
                        <div className="text-center p-3 bg-green-50 rounded-lg">
                          <div className="text-2xl font-bold text-green-600 mb-1">
                            {caseItem.results.satisfaction}
-                         </div>
+                        </div>
                          <div className="text-xs text-green-700">조직 몰입도</div>
-                       </div>
-                     </div>
-                     
+                      </div>
+                    </div>
+
                      {/* AI 도구 표시 */}
                      {caseItem.aiTools && (
                        <div className="mb-3 p-2 bg-gray-50 rounded-lg">
@@ -861,7 +861,7 @@ export default function CasesPage() {
                         </Badge>
                       ))}
                     </div>
-                    
+
                     <Link href={`/cases/${caseItem.id}`}>
                       <Button className="w-full group-hover:bg-blue-700 transition-colors">
                         상세사례 보기
@@ -879,12 +879,12 @@ export default function CasesPage() {
       {/* CTA 섹션 */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="container mx-auto px-4 text-center">
-                     <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
              당신의 조직도 AI 프로세스 자동화로 혁신하세요
-           </h2>
-           <p className="text-xl mb-8 opacity-90">
+          </h2>
+          <p className="text-xl mb-8 opacity-90">
              기초·심화·경영진 맞춤형 커리큘럼으로 전사적 AI 역량 강화와 고몰입조직 구축
-           </p>
+          </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/consultation">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold">
