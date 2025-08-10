@@ -1710,7 +1710,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
               {/* 도입 전 과제 */}
               <TabsContent value="challenges" className="mt-8">
                 <div className="grid md:grid-cols-2 gap-6">
-                  {caseData.challenges.map((challenge: any, index: number) => (
+                  {(caseData.challenges || []).map((challenge: any, index: number) => (
                     <Card key={index} className="border-0 shadow-lg">
                       <CardHeader>
                         <CardTitle className="text-lg text-red-600 flex items-center">
@@ -1734,7 +1734,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
               {/* AI 도입 과정 */}
               <TabsContent value="process" className="mt-8">
                 <div className="space-y-8">
-                  {caseData.process.map((phase: any, index: number) => (
+                  {(caseData.process || []).map((phase: any, index: number) => (
                     <Card key={index} className="border-0 shadow-lg">
                       <CardHeader>
                         <div className="flex items-center justify-between">
@@ -1752,7 +1752,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-3">주요 활동</h4>
                             <ul className="space-y-2">
-                              {phase.activities.map((activity: string, actIndex: number) => (
+                              {(phase.activities || []).map((activity: string, actIndex: number) => (
                                 <li key={actIndex} className="flex items-start">
                                   <CheckCircle className="w-4 h-4 mr-2 mt-1 text-green-600 flex-shrink-0" />
                                   <span className="text-gray-600">{activity}</span>
@@ -1763,7 +1763,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-3">주요 성과</h4>
                             <ul className="space-y-2">
-                              {phase.results.map((result: string, resIndex: number) => (
+                              {(phase.results || []).map((result: string, resIndex: number) => (
                                 <li key={resIndex} className="flex items-start">
                                   <Award className="w-4 h-4 mr-2 mt-1 text-blue-600 flex-shrink-0" />
                                   <span className="text-gray-600">{result}</span>
@@ -1801,7 +1801,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                             </tr>
                           </thead>
                           <tbody>
-                            {caseData.results.quantitative.map((result: any, index: number) => (
+                            {(caseData.results?.quantitative || []).map((result: any, index: number) => (
                               <tr key={index} className="border-b">
                                 <td className="py-3 px-4 font-medium">{result.metric}</td>
                                 <td className="py-3 px-4 text-gray-600">{result.before}</td>
@@ -1829,7 +1829,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                     </CardHeader>
                     <CardContent>
                       <div className="grid md:grid-cols-2 gap-4">
-                        {caseData.results.financial.map((item: any, index: number) => (
+                        {(caseData.results?.financial || []).map((item: any, index: number) => (
                           <div key={index} className="bg-blue-50 p-4 rounded-lg">
                             <div className="font-semibold text-blue-900">{item.category}</div>
                             <div className="text-2xl font-bold text-blue-600 my-2">{item.amount}</div>
@@ -1850,7 +1850,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                     </CardHeader>
                     <CardContent>
                       <div className="grid md:grid-cols-2 gap-6">
-                        {caseData.results.qualitative.map((item: any, index: number) => (
+                        {(caseData.results?.qualitative || []).map((item: any, index: number) => (
                           <div key={index} className="border-l-4 border-purple-400 pl-4">
                             <h4 className="font-semibold text-gray-900 mb-2">{item.aspect}</h4>
                             {item.score && (
@@ -1914,7 +1914,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                     </CardHeader>
                     <CardContent>
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {caseData.followUpResults.map((result: any, index: number) => (
+                        {(caseData.followUpResults || []).map((result: any, index: number) => (
                           <div key={index} className="bg-green-50 p-4 rounded-lg">
                             <div className="font-semibold text-green-900 mb-2">{result.metric}</div>
                             <div className="text-green-700">{result.achievement}</div>

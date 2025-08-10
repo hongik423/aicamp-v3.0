@@ -712,7 +712,7 @@ export default function CasesPage() {
 
                     {/* 태그 */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {case_.tags.slice(0, 3).map((tag, index) => (
+                      {(case_.tags || []).slice(0, 3).map((tag, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>

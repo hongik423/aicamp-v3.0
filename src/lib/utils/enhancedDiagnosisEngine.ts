@@ -875,7 +875,7 @@ ${this.generateScoreInterpretation(result.totalScore, result.overallGrade)}
 
 ## 📈 카테고리별 세부 분석
 
-${result.categoryResults.map(cat => this.generateCategorySection(cat)).join('\n\n')}
+${(result.categoryResults || []).map(cat => this.generateCategorySection(cat)).join('\n\n')}
 
 ## 🔍 Gap 분석 결과
 
