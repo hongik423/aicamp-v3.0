@@ -203,86 +203,88 @@ export default function CasesPage() {
             {sortedCases.map((caseItem) => {
               const IconComponent = caseItem.icon;
               return (
-                <Card key={caseItem.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <div className="relative">
-                    <img
-                      src={caseItem.image}
-                      alt={caseItem.title}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className={`absolute top-4 left-4 w-12 h-12 bg-${caseItem.color}-100 rounded-full flex items-center justify-center`}>
-                      <IconComponent className={`w-6 h-6 text-${caseItem.color}-600`} />
+                <Link key={caseItem.id} href={`/cases/${caseItem.id}`} className="block">
+                  <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer">
+                    <div className="relative">
+                      <img
+                        src={caseItem.image}
+                        alt={caseItem.title}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className={`absolute top-4 left-4 w-12 h-12 bg-${caseItem.color}-100 rounded-full flex items-center justify-center`}>
+                        <IconComponent className={`w-6 h-6 text-${caseItem.color}-600`} />
+                      </div>
+                      <Badge className="absolute top-4 right-4 bg-white/90 text-gray-700">
+                        {caseItem.industry}
+                      </Badge>
                     </div>
-                    <Badge className="absolute top-4 right-4 bg-white/90 text-gray-700">
-                      {caseItem.industry}
-                    </Badge>
-                  </div>
-                  
-                  <CardHeader className="pb-3">
-                    <div className="text-sm text-gray-500 mb-2">{caseItem.companyName}</div>
-                    <CardTitle className="text-lg leading-tight group-hover:text-blue-600 transition-colors">
-                      {caseItem.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm leading-relaxed">
-                      {caseItem.description}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="pt-0">
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600 mb-1">
-                          {caseItem.results.efficiency}
-                        </div>
-                        <div className="text-xs text-blue-700">효율성 향상</div>
-                      </div>
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600 mb-1">
-                          {caseItem.results.satisfaction}
-                        </div>
-                        <div className="text-xs text-green-700">조직 몰입도</div>
-                      </div>
-                    </div>
-
-                    {/* AI 도구 표시 */}
-                    {caseItem.aiTools && Array.isArray(caseItem.aiTools) && caseItem.aiTools.length > 0 && (
-                      <div className="mb-3 p-2 bg-gray-50 rounded-lg">
-                        <div className="text-xs font-semibold text-gray-600 mb-1">활용 AI 도구:</div>
-                        <div className="flex flex-wrap gap-1">
-                          {caseItem.aiTools.slice(0, 3).map((tool, index) => (
-                            <span key={index} className="text-xs px-2 py-1 bg-white rounded border border-gray-200">
-                              {tool}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                     
-                    {/* 교육 시간 표시 */}
-                    {caseItem.appliedModules && (
-                      <div className="mb-3 p-2 bg-blue-50 rounded-lg">
-                        <div className="text-xs font-semibold text-blue-700">
-                          {caseItem.appliedModules}
+                    <CardHeader className="pb-3">
+                      <div className="text-sm text-gray-500 mb-2">{caseItem.companyName}</div>
+                      <CardTitle className="text-lg leading-tight group-hover:text-blue-600 transition-colors">
+                        {caseItem.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm leading-relaxed">
+                        {caseItem.description}
+                      </CardDescription>
+                    </CardHeader>
+
+                    <CardContent className="pt-0">
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="text-center p-3 bg-blue-50 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-600 mb-1">
+                            {caseItem.results.efficiency}
+                          </div>
+                          <div className="text-xs text-blue-700">효율성 향상</div>
+                        </div>
+                        <div className="text-center p-3 bg-green-50 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600 mb-1">
+                            {caseItem.results.satisfaction}
+                          </div>
+                          <div className="text-xs text-green-700">조직 몰입도</div>
                         </div>
                       </div>
-                    )}
-                    
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {(caseItem.tags || []).slice(0, 3).map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
 
-                    <Link href={`/cases/${caseItem.id}`}>
-                      <Button className="w-full group-hover:bg-blue-700 transition-colors">
-                        상세사례 보기
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                      {/* AI 도구 표시 */}
+                      {caseItem.aiTools && Array.isArray(caseItem.aiTools) && caseItem.aiTools.length > 0 && (
+                        <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+                          <div className="text-xs font-semibold text-gray-600 mb-1">활용 AI 도구:</div>
+                          <div className="flex flex-wrap gap-1">
+                            {caseItem.aiTools.slice(0, 3).map((tool, index) => (
+                              <span key={index} className="text-xs px-2 py-1 bg-white rounded border border-gray-200">
+                                {tool}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* 교육 시간 표시 */}
+                      {caseItem.appliedModules && (
+                        <div className="mb-3 p-2 bg-blue-50 rounded-lg">
+                          <div className="text-xs font-semibold text-blue-700">
+                            {caseItem.appliedModules}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {(caseItem.tags || []).slice(0, 3).map((tag, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="mt-auto">
+                        <Button className="w-full group-hover:bg-blue-700 transition-colors">
+                          상세사례 보기
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
