@@ -61,7 +61,7 @@ export const CONTACT_INFO = {
 
 // 🌐 웹사이트 정보
 export const WEBSITE_INFO = {
-  domain: 'aicamp-education.com',
+  domain: 'aicamp.club',
   title: 'AICAMP AI 교육센터',
   description: 'AI 기반 교육 및 전문 컨설팅 서비스',
   

@@ -32,6 +32,35 @@
   }
 }
 
+/* 네비바 전용 애니메이션 */
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navbar-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-slide-in-from-top {
+  animation: slide-in-from-top 0.2s ease-out forwards;
+}
+
+.animate-navbar-bounce {
+  animation: navbar-bounce 0.3s ease-in-out;
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
@@ -47,6 +76,48 @@
 
 .delay-200 {
   animation-delay: 200ms;
+}
+
+/* 네비바 성능 최적화 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* 터치 최적화 */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* GPU 가속 최적화 */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 네비바 드롭다운 애니메이션 최적화 */
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slide-in-from-top;
+  animation-duration: 200ms;
+}
+
+/* 반응형 텍스트 최적화 */
+.text-responsive {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+/* 네비바 백드롭 블러 최적화 */
+.backdrop-blur-optimized {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .delay-300 {

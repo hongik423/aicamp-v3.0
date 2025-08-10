@@ -52,7 +52,7 @@ export function getServerEnv(): EnvConfig {
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
       NEXT_PUBLIC_GAS_URL: process.env.NEXT_PUBLIC_GAS_URL || DEFAULT_GOOGLE_SCRIPT_URL,
-      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp-v3-0.vercel.app',
+      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp.club',
       NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
       VERCEL_URL: process.env.VERCEL_URL,
     };
@@ -66,7 +66,7 @@ export function getClientEnv() {
   return {
     googleSheetsId: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
     googleScriptUrl: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
-    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp-v3-0.vercel.app',
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp.club',
     nodeEnv: process.env.NODE_ENV || 'production',
   };
 }
@@ -92,7 +92,7 @@ export const appConfig = {
   },
   
   // 기본 URL
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp-v3-0.vercel.app',
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp.club',
 };
 
 /**

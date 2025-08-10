@@ -160,6 +160,7 @@ export default function RootLayout({
         
         {/* PWA 매니페스트 */}
         <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="manifest" href="/manifest.json" />
         
         {/* 파비콘/애플 터치 아이콘 - head 내부에 위치 */}
         <link rel="icon" href="/images/aicamp_logo_del_250726.png" type="image/png" />

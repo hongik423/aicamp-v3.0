@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import Header from '@/components/layout/header';
 import { 
   Brain, 
   Download, 
@@ -67,20 +66,32 @@ export default function DiagnosisResultPage() {
       setLoading(true);
       setError('');
 
-      // 결과 ID에서 정보 추출 시도
       const response = await fetch(`/api/diagnosis-results/${id}`);
-      
       if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('등록된 보고서를 찾지 못했습니다. 이메일로 발송된 링크를 확인하거나 잠시 후 다시 시도하세요.');
+        }
         throw new Error('진단 결과를 찾을 수 없습니다.');
       }
-      
-      const data = await response.json();
-      
-      if (data.success && data.result) {
-        setResult(data.result);
-      } else {
-        throw new Error(data.message || '진단 결과를 불러올 수 없습니다.');
+
+      const api = await response.json();
+
+      // 1) 기존 형식 호환: { success: true, result: {...} }
+      if (api?.success && api?.result) {
+        setResult(api.result as DiagnosisResult);
+        return;
       }
+
+      // 2) 현재 API 형식: { success: true, data: {...} }
+      if (api?.success && api?.data) {
+        const normalized = normalizeToDiagnosisResult(api.data, id);
+        if (normalized) {
+          setResult(normalized);
+          return;
+        }
+      }
+
+      throw new Error(api?.message || '진단 결과를 불러올 수 없습니다.');
     } catch (err) {
       console.error('진단 결과 로딩 오류:', err);
       setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
@@ -88,6 +99,44 @@ export default function DiagnosisResultPage() {
       setLoading(false);
     }
   };
+
+  // API 응답을 이 페이지에서 사용하는 DiagnosisResult 형태로 정규화
+  function normalizeToDiagnosisResult(raw: any, fallbackId: string): DiagnosisResult | null {
+    if (!raw) return null;
+
+    // 예상 구조 A: { diagnosis: {...}, summaryReport: string, ... }
+    const diagnosis = raw.diagnosis || raw;
+
+    const companyName = diagnosis.companyName || diagnosis.회사명 || '고객사';
+    const totalScore: number = typeof diagnosis.totalScore === 'number' ? diagnosis.totalScore : Number(diagnosis.totalScore) || 0;
+
+    // 카테고리 점수: 객체 형태를 배열로 변환
+    const categoryResults: Array<{ category: string; score: number; averageScore: number }> = [];
+    const categoryScores = diagnosis.categoryScores || diagnosis.카테고리점수;
+    if (categoryScores && typeof categoryScores === 'object') {
+      for (const [key, value] of Object.entries(categoryScores)) {
+        const numeric = typeof value === 'number' ? value : Number(value) || 0;
+        categoryResults.push({ category: String(key), score: numeric, averageScore: numeric });
+      }
+    }
+
+    const result: DiagnosisResult = {
+      companyName,
+      contactManager: diagnosis.contactManager || diagnosis.담당자명 || diagnosis.contactName || '',
+      email: diagnosis.email || diagnosis.이메일 || '',
+      industry: diagnosis.industry || diagnosis.업종 || '',
+      employeeCount: diagnosis.employeeCount || diagnosis.직원수 || '',
+      totalScore,
+      categoryResults,
+      recommendations: raw.summaryReport || diagnosis.recommendations || '',
+      summaryReport: raw.summaryReport || diagnosis.summaryReport || '',
+      detailedScores: diagnosis.detailedScores || null,
+      timestamp: diagnosis.timestamp || new Date().toISOString(),
+      resultId: diagnosis.resultId || diagnosis.diagnosisId || fallbackId,
+    };
+
+    return result;
+  }
 
   const handleDownloadHTML = async () => {
     if (!result || !reportRef.current) return;
@@ -531,7 +580,6 @@ export default function DiagnosisResultPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-        <Header />
         <div className="flex items-center justify-center min-h-[60vh]">
           <Card className="w-full max-w-md">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -552,7 +600,6 @@ export default function DiagnosisResultPage() {
   if (error || !result) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-        <Header />
         <div className="flex items-center justify-center min-h-[60vh] px-4">
           <Card className="w-full max-w-md border-red-200">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -588,7 +635,6 @@ export default function DiagnosisResultPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      <Header />
       
       <main className="py-8 px-4">
         <div className="max-w-6xl mx-auto">

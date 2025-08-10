@@ -139,10 +139,24 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
 
   const ACCENT_DURATION_MS = useMemo(() => (isMobile ? 1800 : 1200), [isMobile]);
 
-  const handleStartDiagnosis = () => {
+  const handleStartDiagnosis = async () => {
+    // 폼 유효성 검사
+    const isValid = await form.trigger();
+    if (!isValid) {
+      setHighlightUnanswered(true);
+      toast({
+        title: "입력 확인 필요",
+        description: "모든 필수 항목을 입력해주세요.",
+        variant: "destructive",
+        duration: 5000,
+      });
+      return;
+    }
+
     // 클릭 시작 시 즉시 텍스트 반전, 아이콘은 지연 진입
     setIsAccentText(true);
     setTimeout(() => setIsAccentIcon(true), 120);
+    
     // 모바일은 더 길게 유지하지만, 실제 제출 시작 후에는 isSubmitting 효과로 계속 유지됨
     setTimeout(() => {
       if (!isSubmitting) {
@@ -150,11 +164,10 @@ export const AICapabilityDiagnosisForm: React.FC = () => {
         setIsAccentIcon(false);
       }
     }, ACCENT_DURATION_MS);
-    toast({
-      title: "진단 시작",
-      description: "AI 역량진단이 시작됩니다. 잠시만 기다려주세요.",
-      duration: 3000,
-    });
+
+    // 폼 제출 실행
+    const formData = form.getValues();
+    await onSubmit(formData);
   };
 
   const onSubmit = async (data: DiagnosisFormData) => {
