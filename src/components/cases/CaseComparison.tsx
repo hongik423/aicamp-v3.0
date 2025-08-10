@@ -26,6 +26,9 @@ export default function CaseComparison({ currentCase, allCases }: CaseComparison
   const [selectedCases, setSelectedCases] = useState<string[]>([currentCase.id]);
   const [showComparison, setShowComparison] = useState(false);
 
+  // 안전한 배열 접근
+  const safeAllCases = Array.isArray(allCases) ? allCases : [];
+
   const handleCaseSelect = (caseId: string) => {
     if (selectedCases.includes(caseId)) {
       setSelectedCases(selectedCases.filter(id => id !== caseId));
@@ -35,7 +38,7 @@ export default function CaseComparison({ currentCase, allCases }: CaseComparison
   };
 
   const getComparisonCases = () => {
-    return allCases.filter(caseItem => selectedCases.includes(caseItem.id));
+    return safeAllCases.filter(caseItem => selectedCases.includes(caseItem.id));
   };
 
   const getMetricValue = (caseData: any, metric: string) => {
@@ -68,7 +71,7 @@ export default function CaseComparison({ currentCase, allCases }: CaseComparison
               비교하고 싶은 성공사례를 선택하세요 (최대 3개)
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {allCases.slice(0, 6).map((caseItem) => (
+              {safeAllCases.slice(0, 6).map((caseItem) => (
                 <div
                   key={caseItem.id}
                   className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
