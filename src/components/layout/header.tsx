@@ -46,10 +46,22 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [navWidth, setNavWidth] = useState(0);
-  const [visibleItems, setVisibleItems] = useState<number>(9);
+  const [visibleItems, setVisibleItems] = useState<number>(8);
   const [showDropdown, setShowDropdown] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의
+  const navigation = [
+    { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 1 },
+    { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 2 },
+    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 3 },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 4 },
+    { href: '/cases', label: '성공사례', isSpecial: false, priority: 5 },
+    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 6 },
+    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 7 },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8 }
+  ];
 
   // 네비게이션 자동 넓이 조절 로직
   useEffect(() => {
@@ -109,17 +121,6 @@ export default function Header() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const navigation = [
-    { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 1 },
-    { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 2 },
-    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 3 },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 4 },
-    { href: '/cases', label: '성공사례', isSpecial: false, priority: 5 },
-    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 6 },
-    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 7 },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8 }
-  ];
 
   // 표시할 메뉴와 숨겨진 메뉴 분리
   const visibleNavigation = navigation.slice(0, visibleItems);
