@@ -54,36 +54,26 @@ export default function Header() {
   // 네비게이션 자동 넓이 조절 로직
   useEffect(() => {
     const calculateVisibleItems = () => {
-      if (!navRef.current || !containerRef.current) return;
+      if (!containerRef.current) return;
       
       const containerWidth = containerRef.current.offsetWidth;
-      const logoWidth = 200; // 로고 영역 예상 넓이
-      const actionWidth = 180; // AI 상담 버튼 영역 예상 넓이
-      const availableWidth = containerWidth - logoWidth - actionWidth - 32; // 여백 고려
       
-      // 각 메뉴 항목의 예상 넓이 (텍스트 길이 기반)
-      const itemWidths = navigation.map(item => {
-        const textLength = item.label.length;
-        return Math.max(textLength * 8 + 32, 80); // 최소 80px
-      });
-      
-      let totalWidth = 0;
-      let count = 0;
-      
-      for (let i = 0; i < itemWidths.length; i++) {
-        if (totalWidth + itemWidths[i] <= availableWidth) {
-          totalWidth += itemWidths[i] + 8; // 간격 포함
-          count++;
-        } else {
-          break;
-        }
+      // 화면 크기별 표시할 메뉴 개수 결정
+      if (containerWidth >= 1536) { // 2xl
+        setVisibleItems(Math.min(navigation.length, 8));
+      } else if (containerWidth >= 1280) { // xl
+        setVisibleItems(Math.min(navigation.length, 6));
+      } else if (containerWidth >= 1024) { // lg
+        setVisibleItems(Math.min(navigation.length, 4));
+      } else {
+        setVisibleItems(3); // 최소값
       }
-      
-      setVisibleItems(Math.max(count, 3)); // 최소 3개 항목 표시
     };
 
     const handleResize = () => {
-      calculateVisibleItems();
+      // 디바운스를 통한 성능 최적화
+      clearTimeout((window as any).resizeTimer);
+      (window as any).resizeTimer = setTimeout(calculateVisibleItems, 100);
     };
 
     const handleScroll = () => {
@@ -102,10 +92,11 @@ export default function Header() {
     
     return () => {
       clearTimeout(timer);
+      clearTimeout((window as any).resizeTimer);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [navigation.length]);
 
   // 드롭다운 외부 클릭 감지
   useEffect(() => {
@@ -139,9 +130,9 @@ export default function Header() {
       isScrolled ? 'bg-white/95 backdrop-blur-optimized shadow-lg' : 'bg-white'
     }`}>
       <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 xl:px-8">
-        <div ref={containerRef} className="flex items-center h-14 sm:h-16 w-full min-w-0">
+        <div ref={containerRef} className="flex items-center h-14 sm:h-16 w-full">
           {/* 로고 영역 - 좌측 고정 */}
-          <div className="flex items-center space-x-4 sm:space-x-6 flex-shrink-0">
+          <div className="flex items-center flex-shrink-0 min-w-0">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity">
               <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
                 <Image
@@ -158,11 +149,11 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* AI역량진단 버튼 - 좌측 여백 6.5cm(약 246px) 확보 */}
-          <div className="hidden lg:flex items-center ml-64 flex-shrink-0">
+          {/* AI역량진단 버튼 - 데스크톱 */}
+          <div className="hidden lg:flex items-center ml-8 xl:ml-16 2xl:ml-24 flex-shrink-0">
             <Link
               href="/diagnosis"
-              className="inline-flex items-center px-4 py-2 xl:px-5 xl:py-3 rounded-xl text-sm xl:text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2 rounded-xl text-sm xl:text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
               <span>AI역량진단</span>
               <Badge variant="secondary" className="ml-2 text-xs bg-white/20 text-white border-0">
@@ -171,16 +162,16 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* 데스크톱 네비게이션 - 중앙 배치 */}
-          <nav ref={navRef} className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-6 relative">
-            <div className="flex items-center space-x-1 xl:space-x-2">
+          {/* 데스크톱 네비게이션 - 가변 영역 */}
+          <nav ref={navRef} className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4 overflow-hidden">
+            <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-2 overflow-hidden">
               {visibleNavigation.filter(item => !item.isSpecial).map((item) => (
                 <div key={item.href} className="relative group flex-shrink-0">
                   <Link
                     href={item.href}
-                    className="inline-flex items-center px-2 py-2 lg:px-3 lg:py-2 xl:px-4 xl:py-2 rounded-xl text-xs lg:text-sm xl:text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                    className="inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2 rounded-lg lg:rounded-xl text-xs lg:text-sm xl:text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="truncate max-w-[120px] lg:max-w-none">{item.label}</span>
+                    <span className="truncate max-w-[80px] lg:max-w-[100px] xl:max-w-none">{item.label}</span>
                     {item.badge && (
                       <Badge variant="secondary" className="ml-1 lg:ml-2 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
                         {item.badge}
@@ -195,10 +186,10 @@ export default function Header() {
                 <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="inline-flex items-center px-2 py-2 lg:px-3 lg:py-2 xl:px-4 xl:py-2 rounded-xl text-xs lg:text-sm xl:text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                    className="inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2 rounded-lg lg:rounded-xl text-xs lg:text-sm xl:text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
                     <span>더보기</span>
-                    <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`ml-1 h-3 w-3 lg:h-4 lg:w-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {/* 드롭다운 메뉴 */}
@@ -226,8 +217,8 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* AI 상담 버튼 - 가장 우측에 고정, 적절한 여백 확보 */}
-          <div className="hidden lg:flex items-center flex-shrink-0 ml-auto">
+          {/* AI 상담 버튼 - 가장 우측에 고정 */}
+          <div className="hidden lg:flex items-center flex-shrink-0 ml-auto pl-4">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -235,19 +226,21 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="inline-flex items-center px-4 py-2 xl:px-5 xl:py-3 rounded-xl text-sm xl:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
+              className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2 rounded-xl text-sm xl:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
             >
-              <span>이교장의AI상담</span>
+              <span className="lg:hidden xl:inline">이교장의AI상담</span>
+              <span className="hidden lg:inline xl:hidden">AI상담</span>
             </button>
           </div>
 
           {/* AI역량진단 버튼 - 태블릿용 */}
-          <div className="hidden md:flex lg:hidden items-center ml-16 flex-shrink-0">
+          <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0">
             <Link
               href="/diagnosis"
-              className="inline-flex items-center px-3 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
-              <span>AI역량진단</span>
+              <span className="hidden sm:inline">AI역량진단</span>
+              <span className="sm:hidden">AI진단</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
               </Badge>
@@ -255,36 +248,36 @@ export default function Header() {
           </div>
 
           {/* 태블릿용 스마트 네비게이션 - 자동 조절 */}
-          <nav className="hidden md:flex lg:hidden items-center justify-center flex-1 min-w-0 mx-2 relative">
-            <div className="flex items-center space-x-1 overflow-x-auto scrollbar-hide">
+          <nav className="hidden md:flex lg:hidden items-center justify-center flex-1 min-w-0 mx-2 overflow-hidden">
+            <div className="flex items-center space-x-1 overflow-hidden">
               <Link
                 href="/services"
-                className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 flex-shrink-0"
+                className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
               >
                 서비스
               </Link>
               <Link
-                href="/tax-calculator"
-                className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 flex-shrink-0 hidden sm:block"
+                href="/cases"
+                className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
               >
-                세금계산기
+                성공사례
               </Link>
               <Link
                 href="/consultation"
-                className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 flex-shrink-0"
+                className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
               >
-                상담
+                상담신청
               </Link>
               
               {/* 태블릿용 더보기 드롭다운 */}
               <div className="relative flex-shrink-0">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="px-2 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 flex items-center"
+                  className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center"
                 >
                   <span className="hidden sm:inline">더보기</span>
                   <span className="sm:hidden">⋯</span>
-                  <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`ml-1 h-3 w-3 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {showDropdown && (
@@ -324,7 +317,7 @@ export default function Header() {
           </nav>
 
           {/* 태블릿용 AI 상담 버튼 - 가장 우측에 고정 */}
-          <div className="hidden md:flex lg:hidden items-center flex-shrink-0 ml-auto">
+          <div className="hidden md:flex lg:hidden items-center flex-shrink-0 ml-auto pl-2">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -332,9 +325,10 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="inline-flex items-center px-3 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap animate-pulse"
+              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap animate-pulse"
             >
-              이교장의AI상담
+              <span className="hidden sm:inline">이교장의AI상담</span>
+              <span className="sm:hidden">AI상담</span>
             </button>
           </div>
 
