@@ -439,7 +439,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
 
           {/* 비교 탭 */}
           <TabsContent value="comparison" className="space-y-8">
-            {caseData && <CaseComparison currentCase={caseData} />}
+            {caseData && <CaseComparison currentCase={caseData} allCases={Object.values(caseDetails).filter(c => c.id !== caseData.id)} />}
           </TabsContent>
 
           {/* 후기 탭 */}

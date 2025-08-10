@@ -187,7 +187,7 @@ export const successCases: SuccessCase[] = [
     companyName: '(주)헬스테크다이어그노시스',
     title: 'AI 진단보조 시스템으로 진단정확도 94% 달성 및 의료진 만족도 96%',
     description: 'AICAMP 헬스테크 교육과 Computer Vision 기반 의료 진단보조 시스템 개발',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',
     icon: Heart,
     color: 'red',
     results: {
