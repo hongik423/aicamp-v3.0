@@ -158,9 +158,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-navbutton-color" content="#3b82f6" />
         
-        {/* PWA 매니페스트 */}
+        {/* PWA 매니페스트 - Next.js 동적 생성 사용 */}
         <link rel="manifest" href="/manifest.webmanifest" />
-        <link rel="manifest" href="/manifest.json" />
         
         {/* 파비콘/애플 터치 아이콘 - head 내부에 위치 */}
         <link rel="icon" href="/images/aicamp_logo_del_250726.png" type="image/png" />

@@ -48,33 +48,35 @@ export default function CasesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('latest');
 
-  // 카테고리별 필터링
+  // 카테고리별 필터링 (안전한 배열 처리)
+  const safeSuccessCases = successCases || [];
   const categories = [
-    { id: 'all', label: '전체', count: successCases.length },
-    { id: 'manufacturing', label: '제조업', count: successCases.filter(c => c.category === 'manufacturing').length },
-    { id: 'service', label: '서비스업', count: successCases.filter(c => c.category === 'service').length },
-    { id: 'startup', label: '스타트업', count: successCases.filter(c => c.category === 'startup').length },
-    { id: 'investment', label: '투자', count: successCases.filter(c => c.category === 'investment').length },
-    { id: 'certification', label: '인증관리', count: successCases.filter(c => c.category === 'certification').length },
-    { id: 'logistics', label: '물류유통', count: successCases.filter(c => c.category === 'logistics').length },
-    { id: 'healthcare', label: '의료헬스케어', count: successCases.filter(c => c.category === 'healthcare').length },
-    { id: 'edutech', label: '교육에듀테크', count: successCases.filter(c => c.category === 'edutech').length },
-    { id: 'ecommerce', label: '이커머스', count: successCases.filter(c => c.category === 'ecommerce').length },
-    { id: 'professional', label: '전문서비스', count: successCases.filter(c => c.category === 'professional').length },
-    { id: 'construction', label: '건설업', count: successCases.filter(c => c.category === 'construction').length },
-    { id: 'finance', label: '금융업', count: successCases.filter(c => c.category === 'finance').length },
-    { id: 'telecom', label: '통신업', count: successCases.filter(c => c.category === 'telecom').length },
-    { id: 'media', label: '미디어', count: successCases.filter(c => c.category === 'media').length },
-    { id: 'energy', label: '에너지', count: successCases.filter(c => c.category === 'energy').length },
-    { id: 'agriculture', label: '농업', count: successCases.filter(c => c.category === 'agriculture').length }
+    { id: 'all', label: '전체', count: safeSuccessCases.length },
+    { id: 'manufacturing', label: '제조업', count: safeSuccessCases.filter(c => c?.category === 'manufacturing').length },
+    { id: 'service', label: '서비스업', count: safeSuccessCases.filter(c => c?.category === 'service').length },
+    { id: 'startup', label: '스타트업', count: safeSuccessCases.filter(c => c?.category === 'startup').length },
+    { id: 'investment', label: '투자', count: safeSuccessCases.filter(c => c?.category === 'investment').length },
+    { id: 'certification', label: '인증관리', count: safeSuccessCases.filter(c => c?.category === 'certification').length },
+    { id: 'logistics', label: '물류유통', count: safeSuccessCases.filter(c => c?.category === 'logistics').length },
+    { id: 'healthcare', label: '의료헬스케어', count: safeSuccessCases.filter(c => c?.category === 'healthcare').length },
+    { id: 'edutech', label: '교육에듀테크', count: safeSuccessCases.filter(c => c?.category === 'edutech').length },
+    { id: 'ecommerce', label: '이커머스', count: safeSuccessCases.filter(c => c?.category === 'ecommerce').length },
+    { id: 'professional', label: '전문서비스', count: safeSuccessCases.filter(c => c?.category === 'professional').length },
+    { id: 'construction', label: '건설업', count: safeSuccessCases.filter(c => c?.category === 'construction').length },
+    { id: 'finance', label: '금융업', count: safeSuccessCases.filter(c => c?.category === 'finance').length },
+    { id: 'telecom', label: '통신업', count: safeSuccessCases.filter(c => c?.category === 'telecom').length },
+    { id: 'media', label: '미디어', count: safeSuccessCases.filter(c => c?.category === 'media').length },
+    { id: 'energy', label: '에너지', count: safeSuccessCases.filter(c => c?.category === 'energy').length },
+    { id: 'agriculture', label: '농업', count: safeSuccessCases.filter(c => c?.category === 'agriculture').length }
   ];
 
-  // 필터링된 케이스
-  const filteredCases = successCases.filter(caseItem => {
+  // 필터링된 케이스 (안전한 배열 처리)
+  const filteredCases = (successCases || []).filter(caseItem => {
+    if (!caseItem) return false;
     const matchesCategory = selectedCategory === 'all' || caseItem.category === selectedCategory;
-    const matchesSearch = caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         caseItem.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         caseItem.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (caseItem.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (caseItem.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (caseItem.companyName || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -243,7 +245,7 @@ export default function CasesPage() {
                     </div>
 
                     {/* AI 도구 표시 */}
-                    {caseItem.aiTools && (
+                    {caseItem.aiTools && Array.isArray(caseItem.aiTools) && caseItem.aiTools.length > 0 && (
                       <div className="mb-3 p-2 bg-gray-50 rounded-lg">
                         <div className="text-xs font-semibold text-gray-600 mb-1">활용 AI 도구:</div>
                         <div className="flex flex-wrap gap-1">
@@ -266,7 +268,7 @@ export default function CasesPage() {
                     )}
                     
                     <div className="flex flex-wrap gap-1 mb-4">
-                      {caseItem.tags.slice(0, 3).map((tag, index) => (
+                      {(caseItem.tags || []).slice(0, 3).map((tag, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
