@@ -220,8 +220,8 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* AI 상담 버튼 - 별도 영역으로 분리하여 반응형 개선 */}
-          <div className="hidden lg:flex items-center flex-shrink-0">
+          {/* AI 상담 버튼 - 별도 영역으로 분리하여 반응형 개선, 우측 4cm 여백 확보 */}
+          <div className="hidden lg:flex items-center flex-shrink-0 mr-36">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -315,8 +315,8 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* 태블릿용 AI 상담 버튼 - 텍스트 통일 */}
-          <div className="hidden md:flex lg:hidden items-center flex-shrink-0">
+          {/* 태블릿용 AI 상담 버튼 - 텍스트 통일, 우측 4cm 여백 확보 */}
+          <div className="hidden md:flex lg:hidden items-center flex-shrink-0 mr-36">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {

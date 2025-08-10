@@ -23,7 +23,7 @@ import {
   BarChart3,
   Shield,
   Globe,
-  Truck,
+  Package,
   Heart,
   GraduationCap,
   ShoppingCart,
@@ -180,7 +180,7 @@ export default function CasesPage() {
         satisfaction: '고객만족 96%'
       },
       tags: ['물류', '경로최적화', '재고관리', 'AI예측'],
-      icon: Truck,
+      icon: Package,
       color: 'amber'
     },
     {
