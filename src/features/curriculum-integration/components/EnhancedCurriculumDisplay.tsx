@@ -45,13 +45,16 @@ export default function EnhancedCurriculumDisplay({
   const [activeTab, setActiveTab] = useState('overview');
 
   const calculateTotalDuration = (modules: CurriculumModule[]) => {
+    if (!modules || !Array.isArray(modules)) return 0;
     return modules.reduce((total, module) => {
-      const hours = parseInt(module.duration.replace('시간', ''));
+      if (!module || !module.duration) return total;
+      const hours = parseInt(module.duration.replace('시간', '')) || 0;
       return total + hours;
     }, 0);
   };
 
   const getTotalDuration = () => {
+    if (!caseCurriculum || !caseCurriculum.appliedCurriculum) return 0;
     const basic = calculateTotalDuration(caseCurriculum.appliedCurriculum.basic);
     const advanced = calculateTotalDuration(caseCurriculum.appliedCurriculum.advanced);
     const executive = calculateTotalDuration(caseCurriculum.appliedCurriculum.executive);
@@ -217,7 +220,7 @@ export default function EnhancedCurriculumDisplay({
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {caseCurriculum.measuredOutcomes.quantitative.map((outcome, index) => (
+                  {(caseCurriculum?.measuredOutcomes?.quantitative || []).map((outcome, index) => (
                     <div key={index} className="bg-gray-50 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium text-gray-900">{outcome.metric}</span>
@@ -234,7 +237,7 @@ export default function EnhancedCurriculumDisplay({
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <h4 className="font-semibold text-gray-900 mb-3">정성적 성과</h4>
                     <ul className="space-y-2">
-                      {caseCurriculum.measuredOutcomes.qualitative.map((outcome, index) => (
+                      {(caseCurriculum?.measuredOutcomes?.qualitative || []).map((outcome, index) => (
                         <li key={index} className="flex items-start space-x-2">
                           <Star className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm text-gray-700">{outcome}</span>
@@ -250,7 +253,7 @@ export default function EnhancedCurriculumDisplay({
 
         <TabsContent value="basic" className="mt-6">
           <CurriculumModuleList 
-            modules={caseCurriculum.appliedCurriculum.basic}
+            modules={caseCurriculum?.appliedCurriculum?.basic || []}
             category="기초과정"
             color="green"
             onSelectModule={setSelectedModule}
@@ -259,7 +262,7 @@ export default function EnhancedCurriculumDisplay({
 
         <TabsContent value="advanced" className="mt-6">
           <CurriculumModuleList 
-            modules={caseCurriculum.appliedCurriculum.advanced}
+            modules={caseCurriculum?.appliedCurriculum?.advanced || []}
             category="심화과정"
             color="orange"
             onSelectModule={setSelectedModule}
@@ -268,7 +271,7 @@ export default function EnhancedCurriculumDisplay({
 
         <TabsContent value="executive" className="mt-6">
           <CurriculumModuleList 
-            modules={caseCurriculum.appliedCurriculum.executive}
+            modules={caseCurriculum?.appliedCurriculum?.executive || []}
             category="경영진과정"
             color="purple"
             onSelectModule={setSelectedModule}
@@ -334,11 +337,22 @@ function CurriculumModuleList({ modules, category, color, onSelectModule }: Curr
     return colors[color as keyof typeof colors] || colors.green;
   };
 
+  // 안전한 배열 접근
+  const safeModules = Array.isArray(modules) ? modules : [];
+  
   const colorClasses = getColorClasses(color);
+
+  if (safeModules.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">해당 과정의 커리큘럼이 준비 중입니다.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {modules.map((module, index) => (
+      {safeModules.map((module, index) => (
         <Card key={module.id} className={`${colorClasses.bg} ${colorClasses.border} border-2`}>
           <CardHeader className="pb-4">
             <div className="flex items-start justify-between">
@@ -371,7 +385,7 @@ function CurriculumModuleList({ modules, category, color, onSelectModule }: Curr
                   <span>학습목표</span>
                 </h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  {module.objectives.slice(0, 2).map((objective, objIndex) => (
+                  {(module.objectives || []).slice(0, 2).map((objective, objIndex) => (
                     <li key={objIndex} className="flex items-start space-x-2">
                       <CheckCircle className="w-3 h-3 text-green-500 mt-1 flex-shrink-0" />
                       <span>{objective}</span>
@@ -386,7 +400,7 @@ function CurriculumModuleList({ modules, category, color, onSelectModule }: Curr
                   <span>기대효과</span>
                 </h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  {module.expectedOutcomes.slice(0, 2).map((outcome, outIndex) => (
+                  {(module.expectedOutcomes || []).slice(0, 2).map((outcome, outIndex) => (
                     <li key={outIndex} className="flex items-start space-x-2">
                       <Star className="w-3 h-3 text-yellow-500 mt-1 flex-shrink-0" />
                       <span>{outcome}</span>
