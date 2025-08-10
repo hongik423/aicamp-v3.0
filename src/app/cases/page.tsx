@@ -799,10 +799,10 @@ export default function CasesPage() {
                     />
                     <div className={`absolute top-4 left-4 w-12 h-12 bg-${caseItem.color}-100 rounded-full flex items-center justify-center`}>
                       <IconComponent className={`w-6 h-6 text-${caseItem.color}-600`} />
-                    </div>
+                      </div>
                     <Badge className="absolute top-4 right-4 bg-white/90 text-gray-700">
                       {caseItem.industry}
-                    </Badge>
+                      </Badge>
                     </div>
                     
                   <CardHeader className="pb-3">
