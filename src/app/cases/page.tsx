@@ -49,6 +49,12 @@ export default function CasesPage() {
       description: 'ChatGPT API + n8n 워크플로우로 생산계획 자동화, 품질예측 AI 도입, 전직원 AI 활용 교육으로 생산성 245% 향상과 조직몰입도 94% 달성',
       aiTools: ['ChatGPT API', 'Claude AI', 'n8n', 'Python', 'TensorFlow'],
       automationDetails: '생산계획 수립 자동화, 품질검사 AI 비전, 재고관리 예측 모델, 설비 예방정비 자동 알림',
+      curriculum: {
+        basic: ['AI 기초 이해(8h)', 'ChatGPT 활용법(16h)', 'n8n 워크플로우 기초(12h)'],
+        advanced: ['Python 데이터분석(24h)', 'Computer Vision 실습(20h)', 'ML 예측모델 구축(16h)'],
+        executive: ['AI 전략 수립(4h)', 'ROI 분석 워크숍(4h)', '변화관리 리더십(4h)']
+      },
+      appliedModules: '총 96시간 교육 - 기초 36h, 심화 60h, 경영진 12h',
       image: 'https://picsum.photos/seed/manufacturing-1/1200/800',
       results: {
         efficiency: '245% 향상',
@@ -69,6 +75,12 @@ export default function CasesPage() {
       description: 'Computer Vision AI로 실시간 품질검사, ML 기반 불량 예측, n8n 품질데이터 자동수집으로 불량률 87% 감소와 품질중심 고몰입문화 정착',
       aiTools: ['YOLO v8', 'OpenCV', 'scikit-learn', 'n8n', 'Grafana'],
       automationDetails: 'AI 비전 실시간 검사, 불량 패턴 자동 분석, 품질 리포트 자동 생성, 개선점 AI 추천',
+      curriculum: {
+        basic: ['AI 품질관리 개론(8h)', 'Computer Vision 기초(12h)', '데이터 시각화(8h)'],
+        advanced: ['YOLO 모델 학습(20h)', '불량 예측 알고리즘(16h)', 'Grafana 대시보드(12h)'],
+        executive: ['품질 혁신 전략(4h)', 'Zero Defect 문화(4h)', 'AI 투자 의사결정(4h)']
+      },
+      appliedModules: '총 88시간 교육 - 기초 28h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/manufacturing-2/1200/800',
       results: {
         efficiency: '품질 87% 향상',
@@ -89,6 +101,12 @@ export default function CasesPage() {
       description: 'IoT 센서 + AI 예측모델로 설비고장 사전예방, n8n 기반 실시간 모니터링, 전문가 양성 프로그램으로 기술자 역량과 조직몰입도 극대화',
       aiTools: ['TensorFlow', 'InfluxDB', 'n8n', 'Node-RED', 'Power BI'],
       automationDetails: '설비 이상징후 AI 감지, 예방정비 일정 자동화, 부품 수명 예측, 정비 이력 자동 관리',
+      curriculum: {
+        basic: ['IoT 센서 이해(8h)', 'n8n 자동화 기초(12h)', 'Power BI 기초(8h)'],
+        advanced: ['예측정비 AI 모델(24h)', 'Node-RED 프로그래밍(16h)', '실시간 모니터링(12h)'],
+        executive: ['스마트팩토리 전략(4h)', '설비 투자 ROI(4h)', 'AI 도입 로드맵(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 28h, 심화 52h, 경영진 12h',
       image: 'https://picsum.photos/seed/manufacturing-3/1200/800',
       results: {
         efficiency: '설비가동률 92%',
@@ -110,6 +128,12 @@ export default function CasesPage() {
       description: 'GPT-4 기반 지능형 챗봇, 실시간 감정분석 AI, n8n 티켓 자동분류로 고객만족 97% 달성과 직원 업무만족도 95% 실현',
       aiTools: ['GPT-4 API', 'Dialogflow', 'Sentiment Analysis', 'n8n', 'Zendesk'],
       automationDetails: '고객 문의 자동 분류, 감정 기반 우선순위 설정, FAQ 자동 응답, 에스컬레이션 자동화',
+      curriculum: {
+        basic: ['ChatGPT 고객서비스(12h)', '챗봇 기초 이해(8h)', 'n8n 워크플로우(12h)'],
+        advanced: ['Dialogflow 구축(20h)', '감정분석 AI(16h)', 'Zendesk 통합(12h)'],
+        executive: ['고객경험 혁신(4h)', 'AI CS 전략(4h)', '서비스 KPI 관리(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 32h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/service-1/1200/800',
       results: {
         efficiency: '응답속도 89% 향상',
@@ -130,6 +154,12 @@ export default function CasesPage() {
       description: 'Midjourney + Stable Diffusion으로 디자인 자동화, GPT-4로 카피라이팅, n8n 워크플로우로 제작 프로세스 자동화, 창작 만족도 93% 달성',
       aiTools: ['Midjourney', 'Stable Diffusion', 'GPT-4', 'Runway ML', 'n8n'],
       automationDetails: '이미지 자동 생성, 영상 자동 편집, 카피 자동 작성, SNS 자동 배포',
+      curriculum: {
+        basic: ['AI 이미지 생성(12h)', 'GPT-4 콘텐츠 작성(12h)', 'n8n 자동화(8h)'],
+        advanced: ['Midjourney 마스터(16h)', 'Runway ML 영상편집(20h)', 'SNS 자동화(12h)'],
+        executive: ['콘텐츠 전략(4h)', '창작 AI 활용(4h)', '저작권과 윤리(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 32h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/service-2/1200/800',
       results: {
         efficiency: '제작효율 78% 향상',
@@ -150,6 +180,12 @@ export default function CasesPage() {
       description: 'Python + SQL 자동화, Tableau AI 시각화, n8n 데이터 파이프라인으로 분석 정확도 94% 달성과 데이터 기반 의사결정 문화 정착',
       aiTools: ['Python', 'SQL', 'Tableau', 'Power BI', 'n8n'],
       automationDetails: '데이터 수집 자동화, 이상치 자동 감지, 리포트 자동 생성, 인사이트 AI 추천',
+      curriculum: {
+        basic: ['Python 데이터분석 기초(16h)', 'SQL 기초(12h)', 'Tableau 시각화(8h)'],
+        advanced: ['고급 데이터분석(20h)', 'Power BI 대시보드(16h)', 'n8n ETL 파이프라인(12h)'],
+        executive: ['데이터 기반 의사결정(4h)', 'BI 전략 수립(4h)', '데이터 거버넌스(4h)']
+      },
+      appliedModules: '총 96시간 교육 - 기초 36h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/service-3/1200/800',
       results: {
         efficiency: '분석정확도 94%',
@@ -170,6 +206,12 @@ export default function CasesPage() {
       description: 'ML 투자모델, 실시간 시장분석 AI, n8n 리스크관리 자동화로 투자수익률 167% 향상과 팀 몰입도 94% 달성',
       aiTools: ['TensorFlow', 'QuantLib', 'Bloomberg API', 'n8n', 'MetaTrader'],
       automationDetails: '시장 데이터 실시간 수집, AI 포트폴리오 최적화, 리스크 자동 경고, 투자 리포트 자동 생성',
+      curriculum: {
+        basic: ['금융 AI 기초(12h)', 'Python 금융분석(16h)', 'API 활용법(8h)'],
+        advanced: ['ML 투자모델(24h)', '로보어드바이저 구축(20h)', '리스크 관리 AI(16h)'],
+        executive: ['핀테크 혁신 전략(4h)', 'AI 투자 의사결정(4h)', '규제와 컴플라이언스(4h)']
+      },
+      appliedModules: '총 108시간 교육 - 기초 36h, 심화 60h, 경영진 12h',
       image: 'https://picsum.photos/seed/service-4/1200/800',
       results: {
         efficiency: '투자수익 167% 향상',
@@ -190,6 +232,12 @@ export default function CasesPage() {
       description: 'GPT-4 기반 인사이트 도출, 데이터 자동 분석, n8n 프로젝트 관리 자동화로 컨설팅 품질 300% 향상과 전문가 자신감 95% 달성',
       aiTools: ['GPT-4', 'Python', 'R', 'n8n', 'Notion AI'],
       automationDetails: '데이터 수집/분석 자동화, 인사이트 자동 도출, 보고서 자동 작성, 프로젝트 진행 자동 추적',
+      curriculum: {
+        basic: ['GPT-4 비즈니스 활용(12h)', '데이터 분석 기초(16h)', 'Notion AI 활용(8h)'],
+        advanced: ['고급 데이터 분석(20h)', 'AI 리포트 자동화(16h)', '프로젝트 관리 AI(12h)'],
+        executive: ['컨설팅 혁신(4h)', 'AI 비즈니스 모델(4h)', '고객가치 창출(4h)']
+      },
+      appliedModules: '총 96시간 교육 - 기초 36h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/service-5/1200/800',
       results: {
         efficiency: '컨설팅 품질 300% 향상',
@@ -211,6 +259,12 @@ export default function CasesPage() {
       description: 'TensorFlow 의료 AI 모델, FastAPI 백엔드, n8n 개발 프로세스 자동화로 제품개발 66% 단축, 투자유치 467% 향상, 팀몰입도 96% 달성',
       aiTools: ['TensorFlow', 'PyTorch', 'FastAPI', 'Docker', 'n8n'],
       automationDetails: 'AI 모델 학습 자동화, 테스트 자동화, 배포 파이프라인, 버전 관리 자동화',
+      curriculum: {
+        basic: ['AI/ML 기초(16h)', 'Python 프로그래밍(12h)', 'API 개발 기초(8h)'],
+        advanced: ['딥러닝 실습(24h)', 'MLOps 구축(20h)', 'Docker/K8s(16h)'],
+        executive: ['스타트업 전략(4h)', 'MVP 개발(4h)', '투자 유치 전략(4h)']
+      },
+      appliedModules: '총 108시간 교육 - 기초 36h, 심화 60h, 경영진 12h',
       image: 'https://picsum.photos/seed/startup-1/1200/800',
       results: {
         efficiency: '개발속도 66% 향상',
@@ -268,6 +322,12 @@ export default function CasesPage() {
       description: 'AI 가격예측 모델, 웹크롤링 자동화, n8n 매물정보 수집으로 투자수익률 180% 향상, 투자자 만족도 97% 달성',
       aiTools: ['Python', 'Selenium', 'Beautiful Soup', 'n8n', 'PostgreSQL'],
       automationDetails: '매물정보 자동 수집, AI 가격 예측, 투자 기회 자동 알림, 계약서 자동 생성',
+      curriculum: {
+        basic: ['부동산 데이터 분석(12h)', '웹크롤링 기초(8h)', 'n8n 자동화(12h)'],
+        advanced: ['AI 가격예측 모델(20h)', '매물 분석 AI(16h)', 'DB 관리(12h)'],
+        executive: ['투자 전략(4h)', '리스크 관리(4h)', 'ROI 분석(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 32h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/investment-1/1200/800',
       results: {
         efficiency: '투자수익률 180% 향상',
@@ -289,6 +349,12 @@ export default function CasesPage() {
       description: 'GPT-4 문서작성, AI 컴플라이언스 체크, n8n 인증프로세스 자동화로 인증준비 85% 단축, ESG A등급 달성',
       aiTools: ['GPT-4', 'Document AI', 'n8n', 'SharePoint', 'Power Automate'],
       automationDetails: '인증문서 자동 생성, 컴플라이언스 자동 체크, 심사준비 자동화, 개선사항 추적',
+      curriculum: {
+        basic: ['ISO/ESG 기초(8h)', 'GPT-4 문서작성(12h)', 'n8n 워크플로우(12h)'],
+        advanced: ['Document AI 활용(16h)', 'Power Automate(16h)', '컴플라이언스 자동화(16h)'],
+        executive: ['ESG 경영전략(4h)', '인증 투자효과(4h)', '지속가능경영(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 32h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/certification-1/1200/800',
       results: {
         efficiency: '인증준비 85% 단축',
@@ -310,6 +376,12 @@ export default function CasesPage() {
       description: 'AI 경로최적화 알고리즘, IoT 실시간 추적, n8n 물류프로세스 자동화로 배송효율 52% 향상, 고객만족 94% 달성',
       aiTools: ['Google OR-Tools', 'IoT Platform', 'n8n', 'GPS Tracking', 'WMS'],
       automationDetails: '배송경로 AI 최적화, 실시간 교통 반영, 자동 배차, 배송 알림 자동화',
+      curriculum: {
+        basic: ['물류 기초 이해(8h)', '경로최적화 개론(12h)', 'WMS 기초(12h)'],
+        advanced: ['OR-Tools 활용(20h)', 'IoT 추적시스템(16h)', 'n8n 물류자동화(12h)'],
+        executive: ['물류 혁신 전략(4h)', '공급망 최적화(4h)', 'ROI 분석(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 32h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/logistics-1/1200/800',
       results: {
         efficiency: '배송효율 52% 향상',
@@ -367,6 +439,12 @@ export default function CasesPage() {
       description: 'CNN 기반 영상분석 AI, 진단보조 시스템, n8n 의료데이터 통합으로 진단정확도 97%, 환자만족도 94% 달성',
       aiTools: ['TensorFlow Medical', 'DICOM', 'HL7 FHIR', 'n8n', 'RadiAnt'],
       automationDetails: 'X-ray/CT/MRI 자동 분석, 진단보고서 자동 생성, 환자데이터 통합, 응급환자 자동 분류',
+      curriculum: {
+        basic: ['의료 AI 기초(12h)', '의료영상 이해(8h)', 'DICOM 기초(8h)'],
+        advanced: ['딥러닝 의료영상(24h)', 'HL7 FHIR 통합(16h)', '임상의사결정AI(16h)'],
+        executive: ['디지털 헬스케어(4h)', 'AI 의료윤리(4h)', '환자중심의료(4h)']
+      },
+      appliedModules: '총 96시간 교육 - 기초 28h, 심화 56h, 경영진 12h',
       image: 'https://picsum.photos/seed/healthcare-1/1200/800',
       results: {
         efficiency: '진단정확도 97%',
@@ -424,6 +502,12 @@ export default function CasesPage() {
       description: 'AI 학습추천 시스템, 학습패턴 분석, n8n LMS 자동화로 학습완주율 78% 증가, 학습만족도 92% 달성',
       aiTools: ['TensorFlow.js', 'Learning Analytics', 'Moodle', 'n8n', 'xAPI'],
       automationDetails: '개인별 학습경로 추천, 학습진도 자동 추적, 학습자료 자동 제공, 학습성과 예측',
+      curriculum: {
+        basic: ['에듀테크 기초(8h)', 'LMS 활용(12h)', '학습분석 기초(12h)'],
+        advanced: ['개인화학습 AI(20h)', 'Learning Analytics(16h)', 'xAPI 통합(12h)'],
+        executive: ['교육혁신 전략(4h)', '학습성과 ROI(4h)', '미래교육 트렌드(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 32h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/edutech-1/1200/800',
       results: {
         efficiency: '학습완주율 78% 증가',
@@ -481,6 +565,12 @@ export default function CasesPage() {
       description: 'AI 추천엔진, 동적가격 알고리즘, n8n 마케팅 자동화로 전환율 145% 향상, 고객만족도 96% 달성',
       aiTools: ['Recommendation AI', 'Dynamic Pricing', 'Google Analytics', 'n8n', 'Shopify'],
       automationDetails: '개인화 상품 추천, 자동 가격 조정, 장바구니 이탈 방지, 마케팅 자동화',
+      curriculum: {
+        basic: ['이커머스 기초(8h)', '추천시스템 이해(12h)', 'Shopify 활용(12h)'],
+        advanced: ['추천 AI 구축(20h)', '동적가격 알고리즘(16h)', 'GA4 분석(12h)'],
+        executive: ['이커머스 전략(4h)', '고객경험 최적화(4h)', '온라인 매출 성장(4h)']
+      },
+      appliedModules: '총 92시간 교육 - 기초 32h, 심화 48h, 경영진 12h',
       image: 'https://picsum.photos/seed/ecommerce-1/1200/800',
       results: {
         efficiency: '전환율 145% 향상',
@@ -754,6 +844,15 @@ export default function CasesPage() {
                          </div>
                        </div>
                      )}
+                     
+                     {/* 교육 시간 표시 */}
+                     {caseItem.appliedModules && (
+                       <div className="mb-3 p-2 bg-blue-50 rounded-lg">
+                         <div className="text-xs font-semibold text-blue-700">
+                           {caseItem.appliedModules}
+                         </div>
+                       </div>
+                     )}
                     
                     <div className="flex flex-wrap gap-1 mb-4">
                       {caseItem.tags.slice(0, 3).map((tag, index) => (
@@ -780,12 +879,12 @@ export default function CasesPage() {
       {/* CTA 섹션 */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            당신의 조직도 AICAMP와 함께 혁신을 경험해보세요
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            8주 집중교육 + 조직워크숍 + n8n 자동화로 고몰입조직을 구축하세요
-          </p>
+                     <h2 className="text-3xl md:text-4xl font-bold mb-6">
+             당신의 조직도 AI 프로세스 자동화로 혁신하세요
+           </h2>
+           <p className="text-xl mb-8 opacity-90">
+             기초·심화·경영진 맞춤형 커리큘럼으로 전사적 AI 역량 강화와 고몰입조직 구축
+           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/consultation">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold">
