@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Menu, 
-  X,
-  ChevronDown
+  X
 } from 'lucide-react';
 import { getImagePath } from '@/lib/utils';
 
@@ -47,7 +46,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [navWidth, setNavWidth] = useState(0);
   const [visibleItems, setVisibleItems] = useState<number>(9);
-  const [showDropdown, setShowDropdown] = useState(false);
+
   const navRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -64,23 +63,11 @@ export default function Header() {
     { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 9 }
   ];
 
-  // 네비게이션 자동 넓이 조절 로직
+  // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시
   useEffect(() => {
     const calculateVisibleItems = () => {
-      if (!containerRef.current) return;
-      
-      const containerWidth = containerRef.current.offsetWidth;
-      
-      // 화면 크기별 표시할 메뉴 개수 결정 - 더 많은 메뉴 표시
-      if (containerWidth >= 1536) { // 2xl
-        setVisibleItems(Math.min(navigation.length, 9)); // 전체 표시
-      } else if (containerWidth >= 1280) { // xl
-        setVisibleItems(Math.min(navigation.length, 8));
-      } else if (containerWidth >= 1024) { // lg
-        setVisibleItems(Math.min(navigation.length, 6));
-      } else {
-        setVisibleItems(4); // 최소값 증가
-      }
+      // 모든 메뉴 항상 표시 (더보기 없음)
+      setVisibleItems(navigation.length);
     };
 
     const handleResize = () => {
@@ -131,7 +118,7 @@ export default function Header() {
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 gpu-accelerate ${
       isScrolled ? 'bg-white/95 backdrop-blur-optimized shadow-lg' : 'bg-white'
     }`}>
-      <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 xl:px-8">
+      <div className="w-full max-w-none px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <div ref={containerRef} className="flex items-center h-14 sm:h-16 w-full">
           {/* 로고 영역 - 좌측 고정 */}
           <div className="flex items-center flex-shrink-0 min-w-0">
@@ -183,44 +170,12 @@ export default function Header() {
                 </div>
               ))}
               
-              {/* 더보기 드롭다운 버튼 */}
-              {hiddenNavigation.filter(item => !item.isSpecial).length > 0 && (
-                <div className="relative flex-shrink-0">
-                  <button
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="inline-flex items-center px-1.5 py-1.5 lg:px-2 lg:py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs lg:text-xs xl:text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
-                  >
-                    <span>더보기</span>
-                    <ChevronDown className={`ml-1 h-3 w-3 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {/* 드롭다운 메뉴 */}
-                  {showDropdown && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 animate-slide-in-from-top gpu-accelerate">
-                      {hiddenNavigation.filter(item => !item.isSpecial).map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setShowDropdown(false)}
-                          className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                        >
-                          <span>{item.label}</span>
-                          {item.badge && (
-                            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-600">
-                              {item.badge}
-                            </Badge>
-                          )}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+
             </div>
           </nav>
 
-          {/* AI 상담 버튼 - 가장 우측에 고정 */}
-          <div className="hidden lg:flex items-center flex-shrink-0 ml-auto pl-4">
+          {/* AI 상담 버튼 - 가장 우측에 고정, 추가 여백 확보 */}
+          <div className="hidden lg:flex items-center flex-shrink-0 ml-auto pl-4 pr-8 xl:pr-12 2xl:pr-16">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {
@@ -271,55 +226,17 @@ export default function Header() {
                 상담신청
               </Link>
               
-              {/* 태블릿용 더보기 드롭다운 */}
-              <div className="relative flex-shrink-0">
-                <button
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center"
-                >
-                  <span className="hidden sm:inline">더보기</span>
-                  <span className="sm:hidden">⋯</span>
-                  <ChevronDown className={`ml-1 h-3 w-3 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {showDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 animate-slide-in-from-top gpu-accelerate">
-                    <Link
-                      href="/about"
-                      onClick={() => setShowDropdown(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                    >
-                      AICAMP소개
-                    </Link>
-                    <Link
-                      href="/seminar"
-                      onClick={() => setShowDropdown(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                    >
-                      세미나
-                    </Link>
-                    <Link
-                      href="/cases"
-                      onClick={() => setShowDropdown(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                    >
-                      성공사례
-                    </Link>
-                    <Link
-                      href="/tax-calculator"
-                      onClick={() => setShowDropdown(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 sm:hidden"
-                    >
-                      세금계산기
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <Link
+                href="/tax-calculator"
+                className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
+              >
+                세금계산기
+              </Link>
             </div>
           </nav>
 
-          {/* 태블릿용 AI 상담 버튼 - 가장 우측에 고정 */}
-          <div className="hidden md:flex lg:hidden items-center flex-shrink-0 ml-auto pl-2">
+          {/* 태블릿용 AI 상담 버튼 - 가장 우측에 고정, 추가 여백 확보 */}
+          <div className="hidden md:flex lg:hidden items-center flex-shrink-0 ml-auto pl-2 pr-6 xl:pr-8">
             <button
               onClick={() => {
                 if (typeof window !== 'undefined') {

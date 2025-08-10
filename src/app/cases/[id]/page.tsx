@@ -25,7 +25,7 @@ import {
   Rocket,
   Shield,
   Globe,
-  Truck,
+  Package,
   Heart,
   GraduationCap,
   ShoppingCart,
@@ -175,7 +175,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
       title: 'AI 물류 최적화로 배송비 34% 절감',
       subtitle: '경로 최적화 AI와 재고 예측으로 배송 효율성을 극대화한 혁신 사례',
       description: '물류 중심지 5곳을 운영하는 종합물류업체가 AI 기반 경로 최적화와 수요 예측을 도입하여 배송 시간 52% 단축, 운영비 34% 절감을 달성한 사례',
-      icon: Truck,
+      icon: Package,
       color: 'amber',
 
       companyInfo: {
@@ -1398,7 +1398,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
       title: 'AI 물류 최적화로 배송비 34% 절감',
       subtitle: 'n8n 기반 물류 자동화와 AI 경로 최적화로 스마트 물류 시스템 구축',
       description: '종합물류업체의 n8n을 활용한 물류 프로세스 자동화와 AI 경로 최적화로 배송 시간 52% 단축, 운영비 34% 절감을 달성한 사례',
-      icon: Truck,
+      icon: Package,
       color: 'amber',
       companyInfo: { industry: '물류 · 배송 · 창고 관리', employees: '234명', revenue: '연매출 580억원', location: '경기도 이천', channels: '직접 배송, 3PL 서비스' },
       challenges: [{ title: '비효율적인 배송 경로', description: '수동 경로 계획으로 배송 시간과 비용 과다 발생' }],
@@ -1498,6 +1498,96 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
       followUpResults: [{ metric: '컨설팅 플랫폼 런칭', achievement: 'AI 기반 셀프 컨설팅 플랫폼 서비스 출시' }],
       applicability: { similarIndustries: ['전략 컨설팅', 'IT 컨설팅', '재무 컨설팅'], successFactors: ['데이터 기반 분석', 'n8n 자동화 시스템'] },
       tags: ['컨설팅', 'AI분석', '데이터기반', 'n8n', '품질향상']
+    },
+
+    // 추가 제조업 사례들
+    'manufacturing-quality-control': {
+      id: 'manufacturing-quality-control',
+      category: 'manufacturing',
+      industry: '제조업',
+      companyName: '(주)프리미엄제조',
+      title: 'AI 품질검사로 불량률 87% 감소',
+      subtitle: 'n8n 기반 품질 데이터 자동화와 컴퓨터 비전 AI로 제조 품질 혁신',
+      description: '정밀 부품 제조업체의 n8n을 활용한 품질 검사 자동화와 AI 비전 시스템으로 불량률 87% 감소, 검사 시간 76% 단축을 달성한 사례',
+      icon: CheckCircle,
+      color: 'blue',
+      companyInfo: { industry: '정밀 부품 제조', employees: '156명', revenue: '연매출 320억원', location: '경기도 안산', specialty: '자동차 부품' },
+      challenges: [{ title: '수작업 품질검사의 한계', description: '육안 검사로 인한 불량품 누락과 검사 시간 과다 소요' }],
+      solutions: [{ title: 'n8n 기반 AI 품질검사', description: '제품 생산라인에서 n8n으로 실시간 이미지 수집하여 AI 비전으로 자동 품질 판정', n8nWorkflows: [{ name: '실시간 품질검사', description: '제품 촬영 → n8n → AI 비전 분석 → 불량품 자동 분류' }] }],
+      results: { efficiency: '76% 단축', timeSaving: '검사시간 5분 → 1.2분', revenue: '불량비용 87% 절감', satisfaction: '품질만족 99.2%' },
+      keyMetrics: [{ metric: '불량률', before: '2.8%', after: '0.36%', improvement: '87% 감소' }],
+      testimonial: { quote: "AI 품질검사 도입으로 불량품이 거의 사라졌고, 고객 만족도가 크게 향상되었습니다.", author: '김품질', position: '품질관리팀장', company: '(주)프리미엄제조' },
+      n8nAutomationDetails: [{ category: '품질 자동화', workflows: [{ name: '품질 데이터 수집', trigger: '제품 완성', action: '품질 검사 결과를 자동으로 ERP 시스템에 기록' }] }],
+      followUpResults: [{ metric: '스마트팩토리 확장', achievement: '전체 생산라인에 AI 품질검사 시스템 도입' }],
+      applicability: { similarIndustries: ['전자부품', '기계부품', '플라스틱'], successFactors: ['AI 비전 기술', 'n8n 데이터 자동화'] },
+      tags: ['제조업', '품질검사', 'AI비전', 'n8n', '자동화']
+    },
+
+    'manufacturing-predictive-maintenance': {
+      id: 'manufacturing-predictive-maintenance',
+      category: 'manufacturing',
+      industry: '제조업',
+      companyName: '(주)스마트팩토리',
+      title: 'AI 예측정비로 가동률 94% 향상',
+      subtitle: 'n8n 기반 IoT 센서 데이터 통합과 AI 예측 분석으로 설비 관리 혁신',
+      description: '대형 제조업체의 n8n을 활용한 설비 센서 데이터 통합과 AI 예측정비로 비계획 정지시간 82% 감소, 유지비용 45% 절감을 달성한 사례',
+      icon: Factory,
+      color: 'blue',
+      companyInfo: { industry: '중공업 제조', employees: '487명', revenue: '연매출 1,250억원', location: '울산광역시', specialty: '산업설비' },
+      challenges: [{ title: '예상치 못한 설비 고장', description: '설비 고장으로 인한 생산 중단과 높은 유지보수 비용' }],
+      solutions: [{ title: 'n8n 기반 예측정비', description: '모든 설비의 IoT 센서 데이터를 n8n으로 실시간 수집하여 AI로 고장 예측', n8nWorkflows: [{ name: '설비 상태 모니터링', description: '센서 데이터 → n8n → AI 분석 → 정비 필요 알림 자동 발송' }] }],
+      results: { efficiency: '94% 향상', timeSaving: '정지시간 82% 감소', revenue: '유지비용 45% 절감', satisfaction: '가동률 96.8%' },
+      keyMetrics: [{ metric: '비계획 정지시간', before: '월 48시간', after: '월 8.6시간', improvement: '82% 감소' }],
+      testimonial: { quote: "AI 예측정비로 설비 고장을 미리 예방할 수 있어 생산성이 크게 향상되었습니다.", author: '이설비', position: '설비관리팀장', company: '(주)스마트팩토리' },
+      n8nAutomationDetails: [{ category: '설비 자동화', workflows: [{ name: '예방정비 스케줄링', trigger: 'AI 예측 알림', action: '정비 일정을 자동으로 생성하여 관련 부서에 통보' }] }],
+      followUpResults: [{ metric: '스마트팩토리 플랫폼', achievement: '전사 설비 통합 관리 시스템 구축' }],
+      applicability: { similarIndustries: ['철강', '화학', '자동차'], successFactors: ['IoT 센서 활용', 'AI 예측 분석'] },
+      tags: ['제조업', '예측정비', 'IoT센서', 'n8n', '설비관리']
+    },
+
+    // 추가 서비스업 사례들  
+    'service-customer-support': {
+      id: 'service-customer-support',
+      category: 'service',
+      industry: '서비스업',
+      companyName: '(주)고객만족솔루션',
+      title: 'AI 챗봇으로 고객응답 속도 89% 향상',
+      subtitle: 'n8n 기반 고객 데이터 통합과 자연어 처리 AI로 고객 서비스 혁신',
+      description: '고객 서비스 전문업체의 n8n을 활용한 고객 문의 자동 분류와 AI 챗봇으로 응답 속도 89% 향상, 1차 해결율 78% 달성한 사례',
+      icon: Users,
+      color: 'purple',
+      companyInfo: { industry: '고객 서비스 솔루션', employees: '123명', revenue: '연매출 85억원', location: '서울 마포구', services: '콜센터, 챗봇' },
+      challenges: [{ title: '고객 문의 처리 지연', description: '대량의 고객 문의로 인한 응답 지연과 상담원 업무 과부하' }],
+      solutions: [{ title: 'n8n 기반 AI 고객서비스', description: '고객 문의를 n8n으로 자동 분류하고 AI 챗봇이 1차 응답 후 필요시 상담원 연결', n8nWorkflows: [{ name: '고객 문의 자동 분류', description: '문의 접수 → n8n → AI 분류 → 챗봇 응답 또는 상담원 배정' }] }],
+      results: { efficiency: '89% 향상', timeSaving: '응답시간 24시간 → 2.6시간', revenue: '운영비 56% 절감', satisfaction: '고객만족 92%' },
+      keyMetrics: [{ metric: '평균 응답시간', before: '24시간', after: '2.6시간', improvement: '89% 단축' }],
+      testimonial: { quote: "AI 챗봇 도입으로 고객 대기시간이 대폭 줄어들고 서비스 품질이 향상되었습니다.", author: '박서비스', position: '고객지원팀장', company: '(주)고객만족솔루션' },
+      n8nAutomationDetails: [{ category: '고객 서비스 자동화', workflows: [{ name: '고객 만족도 조사', trigger: '상담 완료', action: '자동으로 만족도 조사 링크 발송 및 결과 수집' }] }],
+      followUpResults: [{ metric: '멀티채널 고객서비스', achievement: '웹, 앱, 소셜미디어 통합 고객서비스 플랫폼 구축' }],
+      applicability: { similarIndustries: ['콜센터', '전자상거래', '금융서비스'], successFactors: ['자연어 처리 AI', 'n8n 워크플로우'] },
+      tags: ['서비스업', 'AI챗봇', '고객지원', 'n8n', '자동화']
+    },
+
+    'service-financial-automation': {
+      id: 'service-financial-automation',
+      category: 'service',
+      industry: '서비스업',
+      companyName: '(주)핀테크솔루션',
+      title: 'AI 금융분석으로 투자수익 167% 향상',
+      subtitle: 'n8n 기반 금융 데이터 통합과 머신러닝으로 투자 포트폴리오 최적화',
+      description: '핀테크 서비스업체의 n8n을 활용한 다양한 금융 데이터 통합과 AI 투자 분석으로 고객 투자수익 167% 향상을 달성한 사례',
+      icon: BarChart3,
+      color: 'purple',
+      companyInfo: { industry: '핀테크 서비스', employees: '89명', revenue: '연매출 145억원', location: '서울 여의도', services: '로보어드바이저' },
+      challenges: [{ title: '복잡한 투자 분석', description: '다양한 금융 데이터의 수동 분석으로 인한 투자 기회 놓침' }],
+      solutions: [{ title: 'n8n 기반 AI 투자분석', description: '실시간 금융 데이터를 n8n으로 수집하여 AI가 포트폴리오 최적화 및 투자 추천', n8nWorkflows: [{ name: '실시간 시장분석', description: '시장 데이터 → n8n → AI 분석 → 투자 추천 자동 생성' }] }],
+      results: { efficiency: '167% 향상', timeSaving: '분석시간 4시간 → 20분', revenue: '투자수익 67% 증가', satisfaction: '고객신뢰 95%' },
+      keyMetrics: [{ metric: '평균 투자수익률', before: '연 8.2%', after: '연 13.7%', improvement: '67% 향상' }],
+      testimonial: { quote: "AI 투자분석으로 고객들의 수익률이 크게 개선되어 신뢰도가 높아졌습니다.", author: '최투자', position: '투자분석팀장', company: '(주)핀테크솔루션' },
+      n8nAutomationDetails: [{ category: '금융 자동화', workflows: [{ name: '리스크 관리', trigger: '시장 변동성 증가', action: '자동으로 포트폴리오 리밸런싱 및 고객 알림' }] }],
+      followUpResults: [{ metric: '로보어드바이저 확장', achievement: '개인투자자 대상 AI 투자 플랫폼 서비스 출시' }],
+      applicability: { similarIndustries: ['증권', '자산운용', '보험'], successFactors: ['머신러닝 분석', 'n8n 데이터 통합'] },
+      tags: ['서비스업', '핀테크', 'AI투자', 'n8n', '포트폴리오']
     }
   };
 
