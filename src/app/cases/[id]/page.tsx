@@ -24,7 +24,12 @@ import {
   Palette,
   Rocket,
   Shield,
-  Globe
+  Globe,
+  Truck,
+  Heart,
+  GraduationCap,
+  ShoppingCart,
+  Briefcase
 } from 'lucide-react';
 
 type ParamsPromise = Promise<{ id: string }>;
