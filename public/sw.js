@@ -186,20 +186,38 @@ self.addEventListener('fetch', (event) => {
 
 // 메시지 처리 - 안전한 버전
 self.addEventListener('message', (event) => {
-  // Chrome 확장 프로그램 관련 메시지 완전 무시
-  if (event.data && typeof event.data === 'string') {
-    if (event.data.includes('port closed') || 
-        event.data.includes('Extension context') ||
-        event.data.includes('chrome-extension://') ||
-        event.data.includes('content.js') ||
-        event.data.includes('runtime.lastError')) {
-      return;
+  try {
+    // Chrome 확장 프로그램 관련 메시지 완전 무시
+    if (event.data && typeof event.data === 'string') {
+      if (event.data.includes('port closed') || 
+          event.data.includes('Extension context') ||
+          event.data.includes('chrome-extension://') ||
+          event.data.includes('content.js') ||
+          event.data.includes('runtime.lastError') ||
+          event.data.includes('The message port closed')) {
+        event.stopImmediatePropagation();
+        return;
+      }
     }
-  }
-  
-  // 유효한 메시지만 처리
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+    
+    // 객체 타입 메시지 검사
+    if (event.data && typeof event.data === 'object') {
+      const dataStr = JSON.stringify(event.data);
+      if (dataStr.includes('chrome-extension://') ||
+          dataStr.includes('runtime.lastError') ||
+          dataStr.includes('Extension context')) {
+        event.stopImmediatePropagation();
+        return;
+      }
+    }
+    
+    // 유효한 메시지만 처리
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+  } catch (error) {
+    // 메시지 처리 중 오류 발생 시 조용히 무시
+    console.debug('Service Worker message handling error:', error.message);
   }
 });
 

@@ -741,7 +741,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
                     <span>📧</span> ${data.consultant.email}
                 </div>
                 <div class="contact-item">
-                    <span>🌐</span> https://aicamp-v3-0.vercel.app
+                    <span>🌐</span> https://aicamp.club
                 </div>
             </div>
             <div class="footer-note">

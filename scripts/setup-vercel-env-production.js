@@ -30,7 +30,7 @@ const ENV_VARS = {
   
   // 배포 환경
   'NODE_ENV': 'production',
-  'NEXT_PUBLIC_BASE_URL': 'https://m-center.co.kr',
+  'NEXT_PUBLIC_BASE_URL': 'https://aicamp.club',
   
   // 베타 피드백 시스템
   'BETA_FEEDBACK_ADMIN_EMAIL': 'admin@m-center.co.kr',

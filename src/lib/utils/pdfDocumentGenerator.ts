@@ -391,7 +391,7 @@ export const generateServiceGuideBook = () => {
           <h4>🔥 즉시 상담 가능</h4>
           <p><strong>전화:</strong> 010-9251-9743</p>
           <p><strong>이메일:</strong> hongik423@gmail.com</p>
-          <p><strong>웹사이트:</strong> https://aicamp-v3-0.vercel.app</p>
+          <p><strong>웹사이트:</strong> https://aicamp.club</p>
           <p><strong>상담시간:</strong> 평일 09:00-18:00 (긴급상담 24시간)</p>
         </div>
         

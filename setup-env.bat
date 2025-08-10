@@ -23,7 +23,7 @@ echo NEXT_PUBLIC_GOOGLE_SCRIPT_URL=YOUR_GOOGLE_SCRIPT_URL
 echo NEXT_PUBLIC_GOOGLE_SCRIPT_ID=YOUR_GOOGLE_SCRIPT_ID
 echo.
 echo # 🔧 사이트 설정
-echo NEXT_PUBLIC_BASE_URL=https://your-site-domain.vercel.app
+echo NEXT_PUBLIC_BASE_URL=https://aicamp.club
 echo.
 echo # 🔧 개발 환경 설정
 echo NODE_ENV=development

@@ -24,7 +24,7 @@ NEXT_PUBLIC_GOOGLE_SCRIPT_URL=YOUR_GOOGLE_SCRIPT_URL
 NEXT_PUBLIC_GOOGLE_SCRIPT_ID=YOUR_GOOGLE_SCRIPT_ID
 
 # 🔧 사이트 설정
-NEXT_PUBLIC_BASE_URL=https://your-site-domain.vercel.app
+NEXT_PUBLIC_BASE_URL=https://aicamp.club
 
 # 🔧 개발 환경 설정
 NODE_ENV=development
