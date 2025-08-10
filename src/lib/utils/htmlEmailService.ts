@@ -624,7 +624,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
             <div class="categories-section">
                 <h2>📊 5개 카테고리별 상세 분석</h2>
                 <div class="category-grid">
-                    ${data.categoryResults.map(category => `
+                    ${(data.categoryResults || []).map(category => `
                         <div class="category-card">
                             <div class="category-title">📈 ${category.category}</div>
                             <div class="category-score">${category.score100}/100</div>
@@ -641,7 +641,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
                                     <div class="insight-section">
                                         <div class="insight-title">주요 강점</div>
                                         <ul class="insight-list">
-                                            ${category.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                                            ${(category.strengths || []).map(strength => `<li>${strength}</li>`).join('')}
                                         </ul>
                                     </div>
                                 ` : ''}
@@ -649,7 +649,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
                                     <div class="insight-section">
                                         <div class="insight-title">개선 필요사항</div>
                                         <ul class="insight-list">
-                                            ${category.weaknesses.map(weakness => `<li>${weakness}</li>`).join('')}
+                                            ${(category.weaknesses || []).map(weakness => `<li>${weakness}</li>`).join('')}
                                         </ul>
                                     </div>
                                 ` : ''}
@@ -666,25 +666,25 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
                     <div class="swot-card strengths">
                         <h3>💪 강점 (Strengths)</h3>
                         <ul class="swot-list">
-                            ${data.swotAnalysis.strengths.map(item => `<li>${item}</li>`).join('')}
+                            ${(data.swotAnalysis?.strengths || []).map(item => `<li>${item}</li>`).join('')}
                         </ul>
                     </div>
                     <div class="swot-card weaknesses">
                         <h3>⚠️ 약점 (Weaknesses)</h3>
                         <ul class="swot-list">
-                            ${data.swotAnalysis.weaknesses.map(item => `<li>${item}</li>`).join('')}
+                            ${(data.swotAnalysis?.weaknesses || []).map(item => `<li>${item}</li>`).join('')}
                         </ul>
                     </div>
                     <div class="swot-card opportunities">
                         <h3>🔆 기회 (Opportunities)</h3>
                         <ul class="swot-list">
-                            ${data.swotAnalysis.opportunities.map(item => `<li>${item}</li>`).join('')}
+                            ${(data.swotAnalysis?.opportunities || []).map(item => `<li>${item}</li>`).join('')}
                         </ul>
                     </div>
                     <div class="swot-card threats">
                         <h3>⚡ 위협 (Threats)</h3>
                         <ul class="swot-list">
-                            ${data.swotAnalysis.threats.map(item => `<li>${item}</li>`).join('')}
+                            ${(data.swotAnalysis?.threats || []).map(item => `<li>${item}</li>`).join('')}
                         </ul>
                     </div>
                 </div>
@@ -700,7 +700,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
             <div class="recommendations-section">
                 <h2>🎯 맞춤형 개선 추천사항</h2>
                 <div class="recommendation-grid">
-                    ${data.recommendedActions.map(rec => `
+                    ${(data.recommendedActions || []).map(rec => `
                         <div class="recommendation-card">
                             <div class="rec-header">
                                 <div>

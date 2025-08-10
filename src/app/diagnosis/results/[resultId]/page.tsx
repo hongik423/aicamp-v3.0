@@ -513,7 +513,7 @@ export default function DiagnosisResultPage() {
             <div class="categories-section">
                 <h2>🎯 영역별 진단 결과</h2>
                 <div class="category-grid">
-                    ${result.categoryResults.map(category => `
+                    ${(result.categoryResults || []).map(category => `
                         <div class="category-card">
                             <div class="category-title">
                                 ⭐ ${category.category}
@@ -810,7 +810,7 @@ export default function DiagnosisResultPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {result.categoryResults.map((category, index) => (
+                {(result.categoryResults || []).map((category, index) => (
                   <div key={index} className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-lg border">
                     <div className="flex items-center gap-2 mb-4">
                       <Star className="w-5 h-5 text-yellow-500" />

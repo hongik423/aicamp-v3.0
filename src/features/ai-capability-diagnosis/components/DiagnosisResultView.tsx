@@ -300,7 +300,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold mb-2">핵심 강점</h3>
                   <ul className="space-y-2">
-                    {result.swotAnalysis.strengths.slice(0, 3).map((strength, idx) => (
+                    {(result.swotAnalysis?.strengths || []).slice(0, 3).map((strength, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                         <span className="text-sm">{strength}</span>
@@ -312,7 +312,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold mb-2">우선 개선 영역</h3>
                   <ul className="space-y-2">
-                    {result.swotAnalysis.weaknesses.slice(0, 3).map((weakness, idx) => (
+                    {(result.swotAnalysis?.weaknesses || []).slice(0, 3).map((weakness, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5" />
                         <span className="text-sm">{weakness}</span>
@@ -342,7 +342,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold mb-2">핵심 가치</h3>
                   <div className="flex flex-wrap gap-2">
-                    {result.highEngagementPlan.coreValues.map((value, idx) => (
+                    {(result.highEngagementPlan?.coreValues || []).map((value, idx) => (
                       <Badge key={idx} variant="secondary">{value}</Badge>
                     ))}
                   </div>
@@ -351,7 +351,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold mb-2">주요 이니셔티브</h3>
                   <div className="space-y-3">
-                    {result.highEngagementPlan.keyInitiatives.slice(0, 3).map((initiative, idx) => (
+                    {(result.highEngagementPlan?.keyInitiatives || []).slice(0, 3).map((initiative, idx) => (
                       <div key={idx} className="border-l-2 border-blue-500 pl-4">
                         <h4 className="font-medium">{initiative.name}</h4>
                         <p className="text-sm text-gray-600">{initiative.objective}</p>
@@ -436,7 +436,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent className="pt-6">
                 <ul className="space-y-2">
-                  {result.swotAnalysis.strengths.map((item, idx) => (
+                  {(result.swotAnalysis?.strengths || []).map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5" />
                       <span className="text-sm">{item}</span>
@@ -452,7 +452,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent className="pt-6">
                 <ul className="space-y-2">
-                  {result.swotAnalysis.weaknesses.map((item, idx) => (
+                  {(result.swotAnalysis?.weaknesses || []).map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5" />
                       <span className="text-sm">{item}</span>
@@ -468,7 +468,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent className="pt-6">
                 <ul className="space-y-2">
-                  {result.swotAnalysis.opportunities.map((item, idx) => (
+                  {(result.swotAnalysis?.opportunities || []).map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <TrendingUp className="w-4 h-4 text-green-600 mt-0.5" />
                       <span className="text-sm">{item}</span>
@@ -484,7 +484,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent className="pt-6">
                 <ul className="space-y-2">
-                  {result.swotAnalysis.threats.map((item, idx) => (
+                  {(result.swotAnalysis?.threats || []).map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5" />
                       <span className="text-sm">{item}</span>
@@ -506,7 +506,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {result.strategies.SO.map((strategy, idx) => (
+                  {(result.strategies?.SO || []).map((strategy, idx) => (
                     <li key={idx} className="text-sm">• {strategy}</li>
                   ))}
                 </ul>
@@ -520,7 +520,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {result.strategies.WO.map((strategy, idx) => (
+                  {(result.strategies?.WO || []).map((strategy, idx) => (
                     <li key={idx} className="text-sm">• {strategy}</li>
                   ))}
                 </ul>
@@ -534,7 +534,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {result.strategies.ST.map((strategy, idx) => (
+                  {(result.strategies?.ST || []).map((strategy, idx) => (
                     <li key={idx} className="text-sm">• {strategy}</li>
                   ))}
                 </ul>
@@ -548,7 +548,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {result.strategies.WT.map((strategy, idx) => (
+                  {(result.strategies?.WT || []).map((strategy, idx) => (
                     <li key={idx} className="text-sm">• {strategy}</li>
                   ))}
                 </ul>
@@ -572,7 +572,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold text-lg mb-4 text-red-600">즉시 실행 (0-3개월)</h3>
                   <div className="space-y-3">
-                    {result.roadmap.immediate.map((item, idx) => (
+                    {(result.roadmap?.immediate || []).map((item, idx) => (
                       <div key={idx} className="border-l-4 border-red-500 pl-4">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-medium">{item.title}</h4>
@@ -591,7 +591,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold text-lg mb-4 text-orange-600">단기 목표 (3-6개월)</h3>
                   <div className="space-y-3">
-                    {result.roadmap.shortTerm.map((item, idx) => (
+                    {(result.roadmap?.shortTerm || []).map((item, idx) => (
                       <div key={idx} className="border-l-4 border-orange-500 pl-4">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-medium">{item.title}</h4>
@@ -610,7 +610,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold text-lg mb-4 text-blue-600">중기 전략 (6-12개월)</h3>
                   <div className="space-y-3">
-                    {result.roadmap.midTerm.map((item, idx) => (
+                    {(result.roadmap?.midTerm || []).map((item, idx) => (
                       <div key={idx} className="border-l-4 border-blue-500 pl-4">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-medium">{item.title}</h4>
@@ -629,7 +629,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
                 <div>
                   <h3 className="font-semibold text-lg mb-4 text-green-600">장기 비전 (1년 이상)</h3>
                   <div className="space-y-3">
-                    {result.roadmap.longTerm.map((item, idx) => (
+                    {(result.roadmap?.longTerm || []).map((item, idx) => (
                       <div key={idx} className="border-l-4 border-green-500 pl-4">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-medium">{item.title}</h4>
@@ -655,7 +655,7 @@ export const DiagnosisResultView: React.FC<DiagnosisResultViewProps> = ({ result
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {result.recommendedPrograms.map((program, idx) => (
+                {(result.recommendedPrograms || []).map((program, idx) => (
                   <div key={idx} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium">{program.name}</h4>
