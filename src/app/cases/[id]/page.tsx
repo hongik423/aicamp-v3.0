@@ -2623,9 +2623,9 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                     caseCurriculum={{
                       caseId: caseData.id,
                       appliedCurriculum: {
-                        basic: caseData.curriculum?.basic || [],
-                        advanced: caseData.curriculum?.advanced || [],
-                        executive: caseData.curriculum?.executive || []
+                        basic: (caseData.curriculum?.basic && Array.isArray(caseData.curriculum.basic)) ? caseData.curriculum.basic : [],
+                        advanced: (caseData.curriculum?.advanced && Array.isArray(caseData.curriculum.advanced)) ? caseData.curriculum.advanced : [],
+                        executive: (caseData.curriculum?.executive && Array.isArray(caseData.curriculum.executive)) ? caseData.curriculum.executive : []
                       },
                       customizations: [
                         `${caseData.industry} 특화 AI 적용 사례 중심 교육`,
@@ -2633,10 +2633,10 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                         '실무 적용 가능한 핸즈온 실습 중심',
                         '단계별 성과 측정 및 피드백 시스템'
                       ],
-                      implementationProcess: caseData.process || [],
+                      implementationProcess: (caseData.process && Array.isArray(caseData.process)) ? caseData.process : [],
                       measuredOutcomes: {
-                        quantitative: caseData.results?.quantitative || [],
-                        qualitative: caseData.results?.qualitative || []
+                        quantitative: (caseData.results?.quantitative && Array.isArray(caseData.results.quantitative)) ? caseData.results.quantitative : [],
+                        qualitative: (caseData.results?.qualitative && Array.isArray(caseData.results.qualitative)) ? caseData.results.qualitative : []
                       }
                     }}
                     industryType={caseData.industry}
@@ -2656,7 +2656,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                       caseData.companyInfo?.employees?.includes('직원') ? 'medium' : 'medium'
                     }
                     currentAIMaturity={75} // 성공사례 기반 추정값
-                    specificNeeds={caseData.tags?.slice(0, 4) || []}
+                    specificNeeds={(caseData.tags && Array.isArray(caseData.tags)) ? caseData.tags.slice(0, 4) : []}
                     timeline="3개월"
                   />
                 )}

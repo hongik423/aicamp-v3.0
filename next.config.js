@@ -99,12 +99,12 @@ const nextConfig = {
       { source: '/favicon.ico', destination: '/images/aicamp_logo_del_250726.png' },
       { source: '/apple-touch-icon.png', destination: '/images/aicamp_logo.png' },
       { source: '/icon.svg', destination: '/images/aicamp_logo_del_250726.png' },
-      { source: '/manifest.json', destination: '/manifest.webmanifest' },
+
       // 경로별 상대 요청까지 커버 (예: /seminar/favicon.ico)
       { source: '/:path*/favicon.ico', destination: '/images/aicamp_logo_del_250726.png' },
       { source: '/:path*/apple-touch-icon.png', destination: '/images/aicamp_logo.png' },
       { source: '/:path*/icon.svg', destination: '/images/aicamp_logo_del_250726.png' },
-      { source: '/:path*/manifest.json', destination: '/manifest.webmanifest' },
+
     ];
   },
 };
