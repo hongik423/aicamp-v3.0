@@ -130,7 +130,7 @@ export default function Header() {
               href="/diagnosis"
               className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
-              <span>AI진단</span>
+              <span>AI역량진단</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
               </Badge>
@@ -171,7 +171,7 @@ export default function Header() {
               }}
               className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
             >
-              <span className="lg:inline xl:inline">AI상담</span>
+              <span className="lg:inline xl:inline">이교장의AI상담</span>
             </button>
           </div>
 
@@ -182,7 +182,7 @@ export default function Header() {
               className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
               <span className="hidden sm:inline">AI역량진단</span>
-              <span className="sm:hidden">AI진단</span>
+              <span className="sm:hidden">AI역량진단</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
               </Badge>
@@ -232,7 +232,7 @@ export default function Header() {
               className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap animate-pulse"
             >
               <span className="hidden sm:inline">이교장의AI상담</span>
-              <span className="sm:hidden">AI상담</span>
+              <span className="sm:hidden">이교장의AI상담</span>
             </button>
           </div>
 
