@@ -26,25 +26,9 @@ import {
   Users,
   TrendingUp
 } from 'lucide-react';
+import { SuccessCase } from '@/types/success-case.types';
 
-export interface SuccessCase {
-  id: string;
-  category: string;
-  industry: string;
-  companyName: string;
-  title: string;
-  description: string;
-  image: string;
-  icon: any;
-  color: string;
-  results: {
-    efficiency: string;
-    satisfaction: string;
-  };
-  tags: string[];
-  aiTools?: string[];
-  appliedModules?: string;
-}
+// SuccessCase 인터페이스는 이제 types 파일에서 import
 
 export const successCases: SuccessCase[] = [
   // 제조업 3개
