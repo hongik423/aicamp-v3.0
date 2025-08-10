@@ -46,21 +46,22 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [navWidth, setNavWidth] = useState(0);
-  const [visibleItems, setVisibleItems] = useState<number>(8);
+  const [visibleItems, setVisibleItems] = useState<number>(9);
   const [showDropdown, setShowDropdown] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의
   const navigation = [
-    { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 1 },
-    { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 2 },
-    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 3 },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 4 },
-    { href: '/cases', label: '성공사례', isSpecial: false, priority: 5 },
-    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 6 },
-    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 7 },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8 }
+    { href: '/', label: '홈', isSpecial: false, priority: 1 },
+    { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 2 },
+    { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 3 },
+    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 4 },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 5 },
+    { href: '/cases', label: '성공사례', isSpecial: false, priority: 6 },
+    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 7 },
+    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 8 },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 9 }
   ];
 
   // 네비게이션 자동 넓이 조절 로직
@@ -70,15 +71,15 @@ export default function Header() {
       
       const containerWidth = containerRef.current.offsetWidth;
       
-      // 화면 크기별 표시할 메뉴 개수 결정
+      // 화면 크기별 표시할 메뉴 개수 결정 - 더 많은 메뉴 표시
       if (containerWidth >= 1536) { // 2xl
-        setVisibleItems(Math.min(navigation.length, 8));
+        setVisibleItems(Math.min(navigation.length, 9)); // 전체 표시
       } else if (containerWidth >= 1280) { // xl
-        setVisibleItems(Math.min(navigation.length, 6));
+        setVisibleItems(Math.min(navigation.length, 8));
       } else if (containerWidth >= 1024) { // lg
-        setVisibleItems(Math.min(navigation.length, 4));
+        setVisibleItems(Math.min(navigation.length, 6));
       } else {
-        setVisibleItems(3); // 최소값
+        setVisibleItems(4); // 최소값 증가
       }
     };
 
@@ -165,16 +166,16 @@ export default function Header() {
 
           {/* 데스크톱 네비게이션 - 가변 영역 */}
           <nav ref={navRef} className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4 overflow-hidden">
-            <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-2 overflow-hidden">
+            <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 overflow-hidden">
               {visibleNavigation.filter(item => !item.isSpecial).map((item) => (
                 <div key={item.href} className="relative group flex-shrink-0">
                   <Link
                     href={item.href}
-                    className="inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2 rounded-lg lg:rounded-xl text-xs lg:text-sm xl:text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                    className="inline-flex items-center px-1.5 py-1.5 lg:px-2 lg:py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs lg:text-xs xl:text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="truncate max-w-[80px] lg:max-w-[100px] xl:max-w-none">{item.label}</span>
+                    <span className="truncate max-w-[70px] lg:max-w-[90px] xl:max-w-[120px]">{item.label}</span>
                     {item.badge && (
-                      <Badge variant="secondary" className="ml-1 lg:ml-2 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
+                      <Badge variant="secondary" className="ml-1 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
                         {item.badge}
                       </Badge>
                     )}
@@ -187,10 +188,10 @@ export default function Header() {
                 <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="inline-flex items-center px-2 py-1.5 lg:px-3 lg:py-2 xl:px-4 xl:py-2 rounded-lg lg:rounded-xl text-xs lg:text-sm xl:text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                    className="inline-flex items-center px-1.5 py-1.5 lg:px-2 lg:py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs lg:text-xs xl:text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
                     <span>더보기</span>
-                    <ChevronDown className={`ml-1 h-3 w-3 lg:h-4 lg:w-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`ml-1 h-3 w-3 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {/* 드롭다운 메뉴 */}
