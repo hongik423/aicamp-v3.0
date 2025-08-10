@@ -1056,10 +1056,449 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
         ]
       },
 
-      tags: ['컨설팅', '데이터분석', 'AI인사이트', '전문서비스', '전략기획', '자동화']
+      tags: ['조직문화', '교육 내재화', 'n8n', '프로세스 자동화']
+    },
+
+    'manufacturing-smart-factory': {
+      id: 'manufacturing-smart-factory',
+      category: 'manufacturing',
+      industry: '제조업',
+      companyName: '(주)스마트팩토리솔루션',
+      title: 'AI 혁신으로 업무 효율성 69% 향상',
+      subtitle: 'n8n 기반 제조 공정 자동화와 AI 품질 관리 시스템으로 스마트팩토리 구현',
+      description: '자동차 부품 제조업체의 AI 도입으로 제안서 작성 시간 69% 단축 및 품질 데이터 분석 85% 효율화. n8n을 활용한 생산 라인 자동화, 재고 관리 자동화, 품질 검사 자동화로 전사적 디지털 트랜스포메이션을 달성한 사례',
+      icon: Factory,
+      color: 'blue',
+
+      companyInfo: {
+        industry: '자동차 부품 제조 · 정밀 가공 · 품질 관리',
+        employees: '156명',
+        revenue: '연매출 340억원',
+        location: '경기도 안산',
+        channels: '직접 납품, B2B 계약, OEM 파트너십'
+      },
+
+      challenges: [
+        { title: '수작업 중심의 품질 검사', description: '육안 검사에 의존하는 품질 관리로 불량률 2.3%, 검사 시간 과다' },
+        { title: '비효율적인 재고 관리', description: '수기 기반 재고 관리로 과다 재고 및 품절 상황 빈발' },
+        { title: '생산 데이터 분산 관리', description: '각 공정별 데이터가 분산되어 통합 분석 불가' }
+      ],
+
+      solutions: [
+        { 
+          title: 'n8n 기반 생산 라인 자동화',
+          description: 'IoT 센서 데이터를 n8n으로 실시간 수집하여 생산 현황 모니터링 및 자동 알림 시스템 구축',
+          n8nWorkflows: [
+            { name: '생산 현황 모니터링', description: 'PLC 데이터 → n8n → Slack/이메일 알림' },
+            { name: '설비 이상 감지', description: '센서 데이터 → n8n → 자동 정지 및 담당자 알림' },
+            { name: '생산 일보 자동 생성', description: '일일 생산 데이터 → n8n → PDF 리포트 자동 생성' }
+          ]
+        },
+        {
+          title: 'AI 품질 검사 시스템',
+          description: '컴퓨터 비전 AI로 제품 품질을 자동 검사하고 n8n으로 불량품 분류 및 처리 자동화',
+          n8nWorkflows: [
+            { name: '품질 검사 자동화', description: 'AI 검사 결과 → n8n → 불량품 분류 및 재작업 지시' },
+            { name: '품질 데이터 분석', description: '검사 데이터 → n8n → 품질 트렌드 분석 및 개선 제안' },
+            { name: '고객사 품질 보고', description: '품질 데이터 → n8n → 고객사별 품질 리포트 자동 전송' }
+          ]
+        },
+        {
+          title: '스마트 재고 관리',
+          description: 'RFID/바코드와 n8n을 연동하여 실시간 재고 추적 및 자동 발주 시스템 구축',
+          n8nWorkflows: [
+            { name: '실시간 재고 추적', description: 'RFID 스캔 → n8n → ERP 재고 업데이트' },
+            { name: '자동 발주 시스템', description: '재고 임계점 도달 → n8n → 공급업체 자동 발주' },
+            { name: '재고 최적화 분석', description: '사용 패턴 분석 → n8n → 최적 재고량 제안' }
+          ]
+        }
+      ],
+
+      results: {
+        efficiency: '69% 향상',
+        timeSaving: '주 20시간 → 3시간',
+        revenue: '연 5억 8천만원 효과',
+        satisfaction: '92% 직원 만족도'
+      },
+
+      keyMetrics: [
+        { metric: '불량률', before: '2.3%', after: '0.4%', improvement: '83% 감소' },
+        { metric: '품질 검사 시간', before: '제품당 5분', after: '제품당 30초', improvement: '90% 단축' },
+        { metric: '재고 회전율', before: '월 2.1회', after: '월 4.8회', improvement: '129% 향상' },
+        { metric: '생산 효율성', before: '78%', after: '94%', improvement: '16%p 증가' }
+      ],
+
+      testimonial: {
+        quote: "n8n으로 구축한 자동화 시스템 덕분에 품질은 높아지고 비용은 줄어들었습니다. 특히 실시간 생산 모니터링으로 문제를 미리 예방할 수 있게 되어 고객 만족도가 크게 향상되었습니다.",
+        author: '김제조',
+        position: '생산관리팀장',
+        company: '(주)스마트팩토리솔루션'
+      },
+
+      n8nAutomationDetails: [
+        {
+          category: '생산 자동화',
+          workflows: [
+            { name: '생산 계획 자동 생성', trigger: '주문 접수', action: '생산 일정 최적화 및 작업 지시서 자동 생성' },
+            { name: '설비 가동률 모니터링', trigger: '설비 상태 변화', action: '가동률 분석 및 유지보수 일정 자동 제안' },
+            { name: '생산 실적 실시간 집계', trigger: '생산 완료', action: '실적 데이터 수집 및 KPI 대시보드 업데이트' }
+          ]
+        },
+        {
+          category: '품질 관리 자동화',
+          workflows: [
+            { name: 'AI 품질 검사 연동', trigger: '제품 검사 완료', action: 'AI 판정 결과에 따른 자동 분류 및 처리' },
+            { name: '품질 이상 알림', trigger: '불량률 임계점 초과', action: '관련 부서 즉시 알림 및 원인 분석 요청' },
+            { name: '품질 인증서 자동 발급', trigger: '검사 합격', action: '품질 인증서 자동 생성 및 고객사 전송' }
+          ]
+        },
+        {
+          category: '재고 관리 자동화',
+          workflows: [
+            { name: '스마트 재고 추적', trigger: '자재 입출고', action: 'RFID 스캔 데이터 기반 실시간 재고 업데이트' },
+            { name: '예측 기반 자동 발주', trigger: '재고 소진 예측', action: 'AI 예측 모델 기반 최적 발주량 자동 계산 및 발주' },
+            { name: '재고 회전율 최적화', trigger: '월말 재고 분석', action: '슬로우 무빙 재고 식별 및 처리 방안 제안' }
+          ]
+        }
+      ],
+
+      followUpResults: [
+        { metric: '디지털 트랜스포메이션 확산', achievement: '전 공장 스마트팩토리 시스템 도입 완료' },
+        { metric: '신규 사업 진출', achievement: '스마트팩토리 컨설팅 사업부 신설' },
+        { metric: '특허 및 인증', achievement: 'AI 품질 검사 시스템 특허 출원 및 스마트공장 인증 획득' }
+      ],
+
+      applicability: {
+        similarIndustries: ['기계 제조업', '전자 부품 제조', '화학 공업', '식품 제조업'],
+        successFactors: [
+          'n8n 기반 유연한 자동화 시스템 구축',
+          'AI와 IoT 기술의 효과적 통합',
+          '직원 교육을 통한 디지털 전환 문화 조성'
+        ]
+      },
+
+      tags: ['제조업', 'AI 도입', '업무 자동화', '품질 관리', 'n8n', 'IoT', '스마트팩토리']
+    },
+
+    'creative-marketing': {
+      id: 'creative-marketing',
+      category: 'service',
+      industry: '마케팅·광고',
+      companyName: '(주)크리에이티브마케팅',
+      title: 'AI 크리에이티브로 마케팅 ROI 340% 향상',
+      subtitle: 'n8n 기반 마케팅 자동화와 AI 콘텐츠 생성으로 개인화 마케팅 혁신 달성',
+      description: '광고 대행사의 AI 도입으로 콘텐츠 제작 시간 78% 단축, 캠페인 성과 340% 향상. n8n을 활용한 소셜미디어 자동화, 개인화 콘텐츠 생성, 성과 분석 자동화로 마케팅 운영 효율성을 극대화한 사례',
+      icon: Palette,
+      color: 'pink',
+
+      companyInfo: {
+        industry: '디지털 마케팅 · 광고 기획 · 콘텐츠 제작',
+        employees: '87명',
+        revenue: '연매출 180억원',
+        location: '서울 강남구',
+        channels: '직접 영업, 추천, 온라인 마케팅'
+      },
+
+      challenges: [
+        { title: '반복적인 콘텐츠 제작 업무', description: '유사한 형태의 광고 소재 제작에 과도한 시간 소요' },
+        { title: '개인화 마케팅의 한계', description: '고객별 맞춤 콘텐츠 제작 시 인력 및 시간 부족' },
+        { title: '캠페인 성과 분석 지연', description: '수동 데이터 수집으로 실시간 최적화 불가' }
+      ],
+
+      solutions: [
+        {
+          title: 'n8n 기반 소셜미디어 자동화',
+          description: 'AI 생성 콘텐츠를 n8n으로 다중 채널에 자동 배포하고 성과를 실시간 모니터링',
+          n8nWorkflows: [
+            { name: '콘텐츠 자동 배포', description: 'AI 생성 콘텐츠 → n8n → 페이스북/인스타/트위터 동시 게시' },
+            { name: '댓글 모니터링 및 응답', description: '소셜미디어 댓글 → n8n → 감정 분석 후 자동 응답' },
+            { name: '인플루언서 협업 관리', description: '인플루언서 포스팅 → n8n → 성과 추적 및 정산 자동화' }
+          ]
+        },
+        {
+          title: 'AI 개인화 콘텐츠 생성',
+          description: '고객 데이터 분석을 통한 개인화 콘텐츠 자동 생성 및 n8n 배포 자동화',
+          n8nWorkflows: [
+            { name: '개인화 콘텐츠 생성', description: '고객 프로필 → AI 분석 → n8n → 맞춤형 광고 콘텐츠 자동 생성' },
+            { name: 'A/B 테스트 자동화', description: '콘텐츠 변형 → n8n → 자동 A/B 테스트 실행 및 결과 분석' },
+            { name: '콘텐츠 성과 최적화', description: '성과 데이터 → n8n → AI 학습 및 콘텐츠 개선 제안' }
+          ]
+        },
+        {
+          title: '통합 성과 분석 대시보드',
+          description: '다중 채널 데이터를 n8n으로 수집하여 실시간 성과 분석 및 최적화 제안',
+          n8nWorkflows: [
+            { name: '실시간 성과 수집', description: '각 채널 API → n8n → 통합 데이터베이스 자동 업데이트' },
+            { name: '성과 리포트 자동 생성', description: '성과 데이터 → n8n → 클라이언트별 맞춤 리포트 자동 생성' },
+            { name: '예산 최적화 제안', description: '성과 분석 → n8n → 채널별 예산 재배분 제안 자동 생성' }
+          ]
+        }
+      ],
+
+      results: {
+        efficiency: '78% 향상',
+        timeSaving: '콘텐츠 제작 시간 85% 단축',
+        revenue: 'ROI 340% 향상',
+        satisfaction: '고객 만족도 96%'
+      },
+
+      keyMetrics: [
+        { metric: '콘텐츠 제작 시간', before: '건당 4시간', after: '건당 30분', improvement: '87% 단축' },
+        { metric: '캠페인 ROI', before: '평균 280%', after: '평균 950%', improvement: '340% 향상' },
+        { metric: '개인화 콘텐츠 비율', before: '15%', after: '78%', improvement: '420% 증가' },
+        { metric: '클라이언트 리텐션', before: '67%', after: '89%', improvement: '33% 향상' }
+      ],
+
+      testimonial: {
+        quote: "n8n과 AI의 조합으로 우리 팀의 창의성은 보존하면서도 생산성이 비약적으로 향상되었습니다. 이제 반복 업무는 자동화하고 우리는 진짜 크리에이티브한 일에만 집중할 수 있게 되었어요.",
+        author: '박크리에이티브',
+        position: '크리에이티브 디렉터',
+        company: '(주)크리에이티브마케팅'
+      },
+
+      n8nAutomationDetails: [
+        {
+          category: '콘텐츠 제작 자동화',
+          workflows: [
+            { name: 'AI 콘텐츠 생성 파이프라인', trigger: '캠페인 브리프 입력', action: 'AI 기반 다양한 버전의 광고 콘텐츠 자동 생성' },
+            { name: '브랜드 가이드라인 체크', trigger: '콘텐츠 생성 완료', action: '브랜드 컬러, 폰트, 톤앤매너 자동 검증' },
+            { name: '다국어 콘텐츠 번역', trigger: '원본 콘텐츠 승인', action: '타겟 국가별 언어 및 문화 맞춤 번역' }
+          ]
+        },
+        {
+          category: '캠페인 관리 자동화',
+          workflows: [
+            { name: '캠페인 스케줄링', trigger: '캠페인 계획 수립', action: '최적 타이밍 분석 후 자동 예약 게시' },
+            { name: '예산 모니터링', trigger: '광고 집행 중', action: '실시간 예산 소진율 모니터링 및 조정 알림' },
+            { name: '경쟁사 분석', trigger: '주간 분석 스케줄', action: '경쟁사 광고 동향 분석 및 대응 전략 제안' }
+          ]
+        },
+        {
+          category: '고객 관리 자동화',
+          workflows: [
+            { name: '리드 스코어링', trigger: '웹사이트 방문자 행동', action: 'AI 기반 리드 점수 산정 및 세일즈 팀 알림' },
+            { name: '고객 여정 추적', trigger: '고객 터치포인트 발생', action: '개인화된 다음 단계 콘텐츠 자동 제공' },
+            { name: '이탈 고객 재활성화', trigger: '고객 비활성 감지', action: '맞춤형 리타겟팅 캠페인 자동 실행' }
+          ]
+        }
+      ],
+
+      followUpResults: [
+        { metric: 'AI 마케팅 플랫폼 출시', achievement: 'SaaS 형태의 AI 마케팅 자동화 플랫폼 상용화' },
+        { metric: '해외 진출', achievement: '동남아시아 3개국 진출 및 현지 파트너십 체결' },
+        { metric: '업계 인정', achievement: '디지털 마케팅 어워드 AI 혁신상 수상' }
+      ],
+
+      applicability: {
+        similarIndustries: ['PR 에이전시', '브랜딩 컨설팅', '콘텐츠 마케팅', '퍼포먼스 마케팅'],
+        successFactors: [
+          'AI와 인간 창의성의 최적 조합',
+          'n8n 기반 유연한 워크플로우 설계',
+          '데이터 기반 의사결정 문화 구축'
+        ]
+      },
+
+      tags: ['마케팅', 'AI콘텐츠', '자동화', '개인화', 'n8n', '소셜미디어', 'ROI향상']
+    },
+
+    // 나머지 케이스들을 위해 임시로 기본 구조 추가
+    'ai-healthcare-startup': {
+      id: 'ai-healthcare-startup',
+      category: 'startup',
+      industry: '헬스케어',
+      companyName: '(주)AI헬스케어',
+      title: 'AI 의료진단으로 정확도 95% 달성',
+      subtitle: 'n8n 기반 의료 데이터 자동화와 AI 진단 시스템으로 의료 서비스 혁신',
+      description: 'AI 의료진단 스타트업의 n8n 기반 의료 데이터 처리 자동화와 AI 진단 시스템으로 진단 정확도 95%, 진료 시간 60% 단축을 달성한 사례',
+      icon: Heart,
+      color: 'red',
+      companyInfo: { industry: '의료 AI', employees: '45명', revenue: '연매출 80억원', location: '서울 강남구', channels: '병원 직접 공급' },
+      challenges: [{ title: '의료 데이터 처리 복잡성', description: '다양한 의료 장비에서 생성되는 데이터의 표준화 및 통합 처리 어려움' }],
+      solutions: [{ title: 'n8n 기반 의료 데이터 통합', description: '각종 의료 장비 데이터를 n8n으로 실시간 수집하여 AI 진단 시스템에 자동 공급', n8nWorkflows: [{ name: '의료 영상 자동 분석', description: 'DICOM 이미지 → n8n → AI 분석 → 진단 결과 자동 생성' }] }],
+      results: { efficiency: '60% 향상', timeSaving: '진료 시간 60% 단축', revenue: '진단 정확도 95%', satisfaction: '환자 만족도 98%' },
+      keyMetrics: [{ metric: '진단 정확도', before: '78%', after: '95%', improvement: '22% 향상' }],
+      testimonial: { quote: "n8n 자동화로 의료진이 진료에만 집중할 수 있게 되었습니다.", author: '이의사', position: '진료부장', company: '(주)AI헬스케어' },
+      n8nAutomationDetails: [{ category: '의료 데이터 자동화', workflows: [{ name: '환자 데이터 통합', trigger: '검사 완료', action: '모든 검사 결과를 통합하여 AI 진단 시스템에 자동 전송' }] }],
+      followUpResults: [{ metric: 'AI 진단 플랫폼 확장', achievement: '전국 100여개 병원에 AI 진단 시스템 도입' }],
+      applicability: { similarIndustries: ['의료 기기', '헬스케어 IT', '의료 서비스'], successFactors: ['의료진과 AI의 협업', 'n8n 기반 데이터 통합'] },
+      tags: ['의료', 'AI진단', '헬스케어', 'n8n', '자동화']
+    },
+
+    'real-estate-investment': {
+      id: 'real-estate-investment',
+      category: 'investment',
+      industry: '부동산 투자',
+      companyName: '(주)스마트부동산투자',
+      title: '부동산 투자 수익률 180% 향상',
+      subtitle: 'n8n 기반 부동산 데이터 자동 수집과 AI 투자 분석으로 스마트 투자 시스템 구축',
+      description: '부동산 투자회사의 n8n을 활용한 시장 데이터 자동 수집, AI 투자 분석, 자동 매물 발굴로 투자 수익률 180% 향상을 달성한 사례',
+      icon: Rocket,
+      color: 'green',
+      companyInfo: { industry: '부동산 투자 · 자산 관리', employees: '72명', revenue: '연매출 450억원', location: '서울 강남구', channels: '직접 투자, 펀드 운용' },
+      challenges: [{ title: '부동산 데이터 분산 관리', description: '다양한 사이트의 매물 정보를 수작업으로 수집하여 비효율적' }],
+      solutions: [{ title: 'n8n 기반 부동산 데이터 자동 수집', description: '부동산 사이트들의 매물 정보를 n8n으로 자동 수집하여 투자 분석 시스템에 실시간 공급', n8nWorkflows: [{ name: '매물 정보 자동 수집', description: '부동산 사이트 → n8n → 데이터 정제 → 투자 분석 시스템' }] }],
+      results: { efficiency: '180% 향상', timeSaving: '분석 시간 75% 단축', revenue: '투자 수익률 180% 향상', satisfaction: '투자자 만족도 94%' },
+      keyMetrics: [{ metric: '투자 수익률', before: '연 8%', after: '연 22%', improvement: '180% 향상' }],
+      testimonial: { quote: "n8n 자동화로 좋은 매물을 놓치지 않고 빠르게 투자할 수 있게 되었습니다.", author: '박투자', position: '투자팀장', company: '(주)스마트부동산투자' },
+      n8nAutomationDetails: [{ category: '투자 분석 자동화', workflows: [{ name: '투자 기회 발굴', trigger: '새 매물 등록', action: 'AI 분석을 통한 투자 가치 평가 및 알림' }] }],
+      followUpResults: [{ metric: '투자 플랫폼 런칭', achievement: '개인 투자자 대상 AI 투자 플랫폼 서비스 시작' }],
+      applicability: { similarIndustries: ['자산 관리', '투자 자문', '부동산 중개'], successFactors: ['데이터 기반 투자 결정', 'n8n 자동화 시스템'] },
+      tags: ['부동산', '투자', 'AI분석', 'n8n', '자동화']
+    },
+
+    'green-tech-certification': {
+      id: 'green-tech-certification',
+      category: 'certification',
+      industry: '친환경 인증',
+      companyName: '(주)그린테크인증',
+      title: '친환경 인증 프로세스 85% 자동화',
+      subtitle: 'n8n 기반 인증 프로세스 자동화와 AI 문서 검토로 친환경 인증 혁신 달성',
+      description: '친환경 인증 전문기업의 n8n을 활용한 인증 프로세스 자동화, AI 문서 검토 시스템으로 인증 처리 시간 85% 단축을 달성한 사례',
+      icon: Shield,
+      color: 'emerald',
+      companyInfo: { industry: '친환경 인증 · 컨설팅', employees: '38명', revenue: '연매출 65억원', location: '서울 마포구', channels: '기업 직접 서비스' },
+      challenges: [{ title: '복잡한 인증 프로세스', description: '다단계 인증 절차와 서류 검토에 과도한 시간 소요' }],
+      solutions: [{ title: 'n8n 기반 인증 프로세스 자동화', description: '인증 신청부터 승인까지 전 과정을 n8n으로 자동화하고 AI로 서류 검토', n8nWorkflows: [{ name: '인증 신청 자동 처리', description: '신청서 접수 → n8n → 서류 검토 → AI 분석 → 승인/반려 자동 처리' }] }],
+      results: { efficiency: '85% 향상', timeSaving: '인증 처리 시간 85% 단축', revenue: '처리 용량 300% 증가', satisfaction: '고객 만족도 97%' },
+      keyMetrics: [{ metric: '인증 처리 시간', before: '평균 30일', after: '평균 4일', improvement: '87% 단축' }],
+      testimonial: { quote: "n8n 자동화로 인증 품질은 높이면서 처리 시간은 대폭 줄일 수 있었습니다.", author: '최친환경', position: '인증팀장', company: '(주)그린테크인증' },
+      n8nAutomationDetails: [{ category: '인증 프로세스 자동화', workflows: [{ name: '서류 자동 검토', trigger: '인증 서류 업로드', action: 'AI 기반 서류 완성도 검토 및 피드백 자동 생성' }] }],
+      followUpResults: [{ metric: '인증 플랫폼 확장', achievement: '국제 친환경 인증까지 서비스 영역 확대' }],
+      applicability: { similarIndustries: ['품질 인증', '안전 인증', '보안 인증'], successFactors: ['프로세스 표준화', 'AI와 n8n의 효과적 결합'] },
+      tags: ['인증', '친환경', 'AI검토', 'n8n', '프로세스자동화']
+    },
+
+    'digital-marketing': {
+      id: 'digital-marketing',
+      category: 'service',
+      industry: '디지털 마케팅',
+      companyName: '(주)디지털마케팅솔루션',
+      title: '디지털 마케팅 자동화로 전환율 280% 향상',
+      subtitle: 'n8n 기반 마케팅 퍼널 자동화와 AI 고객 분석으로 디지털 마케팅 혁신',
+      description: '디지털 마케팅 전문업체의 n8n을 활용한 리드 생성부터 전환까지 전 과정 자동화로 전환율 280% 향상을 달성한 사례',
+      icon: Globe,
+      color: 'blue',
+      companyInfo: { industry: '디지털 마케팅 · 퍼포먼스 마케팅', employees: '95명', revenue: '연매출 210억원', location: '서울 서초구', channels: '온라인 마케팅' },
+      challenges: [{ title: '복잡한 마케팅 퍼널 관리', description: '다양한 채널의 리드를 수동으로 관리하여 놓치는 기회 발생' }],
+      solutions: [{ title: 'n8n 기반 마케팅 퍼널 자동화', description: '리드 생성부터 고객 전환까지 전 과정을 n8n으로 자동화', n8nWorkflows: [{ name: '리드 자동 분류', description: '웹사이트 방문자 → n8n → AI 스코어링 → 자동 세그먼트 분류' }] }],
+      results: { efficiency: '280% 향상', timeSaving: '마케팅 운영 시간 70% 단축', revenue: '전환율 280% 향상', satisfaction: '고객 만족도 93%' },
+      keyMetrics: [{ metric: '전환율', before: '2.1%', after: '8.0%', improvement: '280% 향상' }],
+      testimonial: { quote: "n8n으로 마케팅 퍼널을 자동화하니 놓치는 리드가 없어졌습니다.", author: '김마케팅', position: '마케팅팀장', company: '(주)디지털마케팅솔루션' },
+      n8nAutomationDetails: [{ category: '마케팅 자동화', workflows: [{ name: '개인화 이메일 발송', trigger: '고객 행동 변화', action: '고객별 맞춤 이메일 콘텐츠 자동 생성 및 발송' }] }],
+      followUpResults: [{ metric: '마케팅 플랫폼 런칭', achievement: 'SaaS 마케팅 자동화 플랫폼 상용화' }],
+      applicability: { similarIndustries: ['온라인 마케팅', '이커머스', '콘텐츠 마케팅'], successFactors: ['데이터 기반 마케팅', 'n8n 자동화'] },
+      tags: ['디지털마케팅', '퍼널자동화', 'AI분석', 'n8n', '전환율향상']
+    },
+
+    'logistics-ai-automation': {
+      id: 'logistics-ai-automation',
+      category: 'logistics',
+      industry: '물류·유통',
+      companyName: '(주)스마트로지스틱스',
+      title: 'AI 물류 최적화로 배송비 34% 절감',
+      subtitle: 'n8n 기반 물류 자동화와 AI 경로 최적화로 스마트 물류 시스템 구축',
+      description: '종합물류업체의 n8n을 활용한 물류 프로세스 자동화와 AI 경로 최적화로 배송 시간 52% 단축, 운영비 34% 절감을 달성한 사례',
+      icon: Truck,
+      color: 'amber',
+      companyInfo: { industry: '물류 · 배송 · 창고 관리', employees: '234명', revenue: '연매출 580억원', location: '경기도 이천', channels: '직접 배송, 3PL 서비스' },
+      challenges: [{ title: '비효율적인 배송 경로', description: '수동 경로 계획으로 배송 시간과 비용 과다 발생' }],
+      solutions: [{ title: 'n8n 기반 물류 자동화', description: '주문부터 배송까지 전 과정을 n8n으로 자동화하고 AI로 최적 경로 계산', n8nWorkflows: [{ name: '자동 배송 경로 최적화', description: '주문 접수 → n8n → AI 경로 계산 → 배송 지시서 자동 생성' }] }],
+      results: { efficiency: '52% 향상', timeSaving: '배송 시간 52% 단축', revenue: '운영비 34% 절감', satisfaction: '고객 만족도 96%' },
+      keyMetrics: [{ metric: '배송 시간', before: '평균 2.5일', after: '평균 1.2일', improvement: '52% 단축' }],
+      testimonial: { quote: "n8n과 AI로 물류 운영이 완전히 달라졌습니다. 효율성과 고객 만족도가 동시에 향상되었어요.", author: '이물류', position: '운영팀장', company: '(주)스마트로지스틱스' },
+      n8nAutomationDetails: [{ category: '물류 자동화', workflows: [{ name: '재고 자동 관리', trigger: '재고 변동', action: '실시간 재고 업데이트 및 자동 보충 주문' }] }],
+      followUpResults: [{ metric: '물류 플랫폼 확장', achievement: '전국 물류 네트워크 통합 플랫폼 구축' }],
+      applicability: { similarIndustries: ['택배', '화물 운송', '창고업'], successFactors: ['AI 경로 최적화', 'n8n 프로세스 자동화'] },
+      tags: ['물류', '배송최적화', 'AI경로', 'n8n', '운영효율']
+    },
+
+    'healthcare-ai-diagnosis': {
+      id: 'healthcare-ai-diagnosis',
+      category: 'healthcare',
+      industry: '의료·헬스케어',
+      companyName: '(주)메디컬AI',
+      title: '의료 AI 진단으로 정확도 97% 달성',
+      subtitle: 'n8n 기반 의료 데이터 통합과 AI 진단 시스템으로 의료 서비스 품질 혁신',
+      description: '의료 AI 전문기업의 n8n을 활용한 의료 데이터 통합 자동화와 AI 진단 시스템으로 진단 정확도 97%, 진료 효율성 85% 향상을 달성한 사례',
+      icon: Heart,
+      color: 'red',
+      companyInfo: { industry: '의료 AI · 진단 시스템', employees: '67명', revenue: '연매출 120억원', location: '서울 송파구', channels: '병원 직접 공급' },
+      challenges: [{ title: '의료 데이터 분산 관리', description: '각종 의료 장비와 시스템의 데이터가 분산되어 통합 분석 어려움' }],
+      solutions: [{ title: 'n8n 기반 의료 데이터 통합', description: '모든 의료 장비 데이터를 n8n으로 실시간 통합하여 AI 진단 시스템에 공급', n8nWorkflows: [{ name: '의료 영상 통합 분석', description: 'CT/MRI/X-ray → n8n → AI 분석 → 통합 진단 리포트 자동 생성' }] }],
+      results: { efficiency: '85% 향상', timeSaving: '진료 시간 65% 단축', revenue: '진단 정확도 97%', satisfaction: '의료진 만족도 94%' },
+      keyMetrics: [{ metric: '진단 정확도', before: '82%', after: '97%', improvement: '18% 향상' }],
+      testimonial: { quote: "n8n 통합 시스템으로 모든 검사 결과를 한 번에 분석할 수 있어 진료 품질이 크게 향상되었습니다.", author: '박의료', position: '진료과장', company: '(주)메디컬AI' },
+      n8nAutomationDetails: [{ category: '의료 데이터 자동화', workflows: [{ name: '환자 이력 통합', trigger: '환자 내원', action: '과거 진료 기록과 검사 결과를 자동으로 통합하여 의료진에게 제공' }] }],
+      followUpResults: [{ metric: '의료 AI 플랫폼 확장', achievement: '전국 200여개 병원에 AI 진단 시스템 도입' }],
+      applicability: { similarIndustries: ['병원', '의료 센터', '건강검진센터'], successFactors: ['의료진과 AI 협업', 'n8n 데이터 통합'] },
+      tags: ['의료', 'AI진단', '헬스케어', 'n8n', '데이터통합']
+    },
+
+    'education-ai-platform': {
+      id: 'education-ai-platform',
+      category: 'education',
+      industry: '교육·에듀테크',
+      companyName: '(주)에듀AI',
+      title: 'AI 개인화 학습으로 학습 효과 190% 향상',
+      subtitle: 'n8n 기반 학습 데이터 자동화와 AI 개인화 교육으로 에듀테크 혁신 달성',
+      description: '에듀테크 전문기업의 n8n을 활용한 학습 데이터 수집 자동화와 AI 개인화 교육 시스템으로 학습 효과 190% 향상을 달성한 사례',
+      icon: GraduationCap,
+      color: 'purple',
+      companyInfo: { industry: '에듀테크 · 온라인 교육', employees: '89명', revenue: '연매출 95억원', location: '서울 강남구', channels: '온라인 플랫폼' },
+      challenges: [{ title: '획일적인 교육 방식', description: '학습자 개별 특성을 반영하지 못하는 일방향 교육으로 학습 효과 제한' }],
+      solutions: [{ title: 'n8n 기반 개인화 학습 자동화', description: '학습자 행동 데이터를 n8n으로 실시간 수집하여 AI 개인화 교육 콘텐츠 자동 제공', n8nWorkflows: [{ name: '개인화 학습 경로 생성', description: '학습 진도 → n8n → AI 분석 → 맞춤형 학습 콘텐츠 자동 추천' }] }],
+      results: { efficiency: '190% 향상', timeSaving: '학습 시간 40% 단축', revenue: '학습 효과 190% 향상', satisfaction: '학습자 만족도 95%' },
+      keyMetrics: [{ metric: '학습 완료율', before: '45%', after: '87%', improvement: '93% 향상' }],
+      testimonial: { quote: "n8n과 AI로 각 학생에게 맞는 교육을 제공할 수 있게 되어 학습 효과가 놀라울 정도로 향상되었습니다.", author: '최교육', position: '교육개발팀장', company: '(주)에듀AI' },
+      n8nAutomationDetails: [{ category: '교육 자동화', workflows: [{ name: '학습 진도 자동 추적', trigger: '학습 활동 완료', action: '학습 진도와 이해도를 분석하여 다음 학습 단계 자동 제안' }] }],
+      followUpResults: [{ metric: '교육 플랫폼 확장', achievement: '전국 500여개 교육기관에 AI 교육 시스템 도입' }],
+      applicability: { similarIndustries: ['온라인 교육', '학원', '기업 교육'], successFactors: ['개인화 교육', 'n8n 데이터 활용'] },
+      tags: ['교육', '개인화학습', 'AI교육', 'n8n', '에듀테크']
+    },
+
+    'ecommerce-ai-recommendation': {
+      id: 'ecommerce-ai-recommendation',
+      category: 'ecommerce',
+      industry: '이커머스',
+      companyName: '(주)스마트커머스',
+      title: 'AI 추천 시스템으로 매출 260% 증가',
+      subtitle: 'n8n 기반 고객 데이터 자동화와 AI 상품 추천으로 이커머스 매출 혁신',
+      description: '이커머스 플랫폼의 n8n을 활용한 고객 행동 데이터 실시간 수집과 AI 상품 추천 시스템으로 매출 260% 증가를 달성한 사례',
+      icon: ShoppingCart,
+      color: 'orange',
+      companyInfo: { industry: '이커머스 · 온라인 쇼핑몰', employees: '156명', revenue: '연매출 380억원', location: '서울 마포구', channels: '온라인 쇼핑몰' },
+      challenges: [{ title: '낮은 상품 발견율', description: '방대한 상품군에서 고객이 원하는 상품을 찾기 어려워 구매 전환율 저조' }],
+      solutions: [{ title: 'n8n 기반 AI 추천 시스템', description: '고객 행동 데이터를 n8n으로 실시간 수집하여 AI 개인화 상품 추천', n8nWorkflows: [{ name: '실시간 상품 추천', description: '고객 행동 → n8n → AI 분석 → 개인화 상품 추천 자동 노출' }] }],
+      results: { efficiency: '260% 향상', timeSaving: '상품 발견 시간 75% 단축', revenue: '매출 260% 증가', satisfaction: '고객 만족도 92%' },
+      keyMetrics: [{ metric: '구매 전환율', before: '1.8%', after: '6.5%', improvement: '261% 향상' }],
+      testimonial: { quote: "n8n과 AI 추천 시스템으로 고객들이 원하는 상품을 정확히 찾아드릴 수 있게 되어 매출이 폭증했습니다.", author: '김커머스', position: '마케팅팀장', company: '(주)스마트커머스' },
+      n8nAutomationDetails: [{ category: '이커머스 자동화', workflows: [{ name: '재고 기반 추천 조정', trigger: '재고 변동', action: '재고 상황을 반영하여 추천 상품 우선순위 자동 조정' }] }],
+      followUpResults: [{ metric: '추천 엔진 라이센싱', achievement: '다른 이커머스 업체에 AI 추천 엔진 기술 라이센싱' }],
+      applicability: { similarIndustries: ['온라인 쇼핑몰', '마켓플레이스', '소매업'], successFactors: ['개인화 추천', 'n8n 실시간 데이터 처리'] },
+      tags: ['이커머스', 'AI추천', '개인화', 'n8n', '매출증가']
+    },
+
+    'consulting-ai-analysis': {
+      id: 'consulting-ai-analysis',
+      category: 'consulting',
+      industry: '전문서비스',
+      companyName: '(주)AI컨설팅',
+      title: 'AI 분석으로 컨설팅 품질 300% 향상',
+      subtitle: 'n8n 기반 데이터 수집 자동화와 AI 분석으로 컨설팅 서비스 혁신 달성',
+      description: '경영 컨설팅 전문기업의 n8n을 활용한 고객 데이터 수집 자동화와 AI 분석 시스템으로 컨설팅 품질 300% 향상을 달성한 사례',
+      icon: Briefcase,
+      color: 'slate',
+      companyInfo: { industry: '경영 컨설팅 · 전략 기획', employees: '78명', revenue: '연매출 150억원', location: '서울 중구', channels: '직접 영업, 추천' },
+      challenges: [{ title: '데이터 수집의 어려움', description: '고객사 데이터 수집과 분석에 과도한 시간 소요로 컨설팅 품질 제한' }],
+      solutions: [{ title: 'n8n 기반 데이터 수집 자동화', description: '고객사의 다양한 시스템 데이터를 n8n으로 자동 수집하여 AI 분석', n8nWorkflows: [{ name: '통합 데이터 분석', description: '고객사 시스템 → n8n → 데이터 정제 → AI 분석 → 인사이트 자동 생성' }] }],
+      results: { efficiency: '300% 향상', timeSaving: '분석 시간 80% 단축', revenue: '컨설팅 품질 300% 향상', satisfaction: '고객 만족도 98%' },
+      keyMetrics: [{ metric: '프로젝트 성공률', before: '67%', after: '94%', improvement: '40% 향상' }],
+      testimonial: { quote: "n8n과 AI로 데이터 기반 컨설팅이 가능해져서 고객사에게 훨씬 정확하고 실용적인 솔루션을 제공할 수 있게 되었습니다.", author: '정컨설팅', position: '시니어 컨설턴트', company: '(주)AI컨설팅' },
+      n8nAutomationDetails: [{ category: '컨설팅 자동화', workflows: [{ name: '벤치마킹 자동 분석', trigger: '컨설팅 프로젝트 시작', action: '업계 벤치마킹 데이터 자동 수집 및 분석 리포트 생성' }] }],
+      followUpResults: [{ metric: '컨설팅 플랫폼 런칭', achievement: 'AI 기반 셀프 컨설팅 플랫폼 서비스 출시' }],
+      applicability: { similarIndustries: ['전략 컨설팅', 'IT 컨설팅', '재무 컨설팅'], successFactors: ['데이터 기반 분석', 'n8n 자동화 시스템'] },
+      tags: ['컨설팅', 'AI분석', '데이터기반', 'n8n', '품질향상']
     }
-    
-    // 추가 케이스들도 동일한 구조로 정의...
   };
 
   if (loading) {
