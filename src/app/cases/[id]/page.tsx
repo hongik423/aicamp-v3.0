@@ -1625,7 +1625,8 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
     );
   }
 
-  const IconComponent = caseData.icon;
+  // 아이콘 컴포넌트 안전성 확보
+  const IconComponent = caseData.icon || TrendingUp;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1883,17 +1884,17 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                       </div>
                       <div className="flex-1">
                         <div className="mb-4">
-                          <h3 className="text-xl font-bold text-gray-900">{caseData.testimonial.name}</h3>
-                          <p className="text-gray-600">{caseData.testimonial.position}</p>
+                          <h3 className="text-xl font-bold text-gray-900">{caseData.testimonial?.name || caseData.testimonial?.author || '고객'}</h3>
+                          <p className="text-gray-600">{caseData.testimonial?.position || '담당자'}</p>
                         </div>
                         
                         <Quote className="w-8 h-8 text-blue-600 mb-4" />
                         
                         <blockquote className="text-lg text-gray-700 leading-relaxed mb-6">
-                          "{caseData.testimonial.quote}"
+                          "{caseData.testimonial?.quote || '고객 추천사 준비 중입니다.'}"
                         </blockquote>
                         
-                        {caseData.testimonial.additionalQuote && (
+                        {caseData.testimonial?.additionalQuote && (
                           <blockquote className="text-lg text-gray-700 leading-relaxed border-l-4 border-blue-400 pl-4">
                             "{caseData.testimonial.additionalQuote}"
                           </blockquote>
@@ -1916,8 +1917,8 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {(caseData.followUpResults || []).map((result: any, index: number) => (
                           <div key={index} className="bg-green-50 p-4 rounded-lg">
-                            <div className="font-semibold text-green-900 mb-2">{result.metric}</div>
-                            <div className="text-green-700">{result.achievement}</div>
+                            <div className="font-semibold text-green-900 mb-2">{result?.metric || '추가 성과'}</div>
+                            <div className="text-green-700">{result?.achievement || '성과 데이터 준비 중'}</div>
                           </div>
                         ))}
                       </div>
