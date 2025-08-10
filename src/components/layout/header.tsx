@@ -3,13 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
+
 import { Badge } from '@/components/ui/badge';
 import { 
   Menu, 
   X
 } from 'lucide-react';
-import { getImagePath } from '@/lib/utils';
+
 
 // Service Worker 등록 (개발 환경에서는 비활성화)
 const registerServiceWorker = async () => {
@@ -44,10 +44,7 @@ const registerServiceWorker = async () => {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [navWidth, setNavWidth] = useState(0);
   const [visibleItems, setVisibleItems] = useState<number>(9);
-
-  const navRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의
@@ -98,21 +95,10 @@ export default function Header() {
     };
   }, [navigation.length]);
 
-  // 드롭다운 외부 클릭 감지
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
-  // 표시할 메뉴와 숨겨진 메뉴 분리
-  const visibleNavigation = navigation.slice(0, visibleItems);
-  const hiddenNavigation = navigation.slice(visibleItems);
+  // 모든 메뉴 표시 (더보기 없음)
+  const visibleNavigation = navigation;
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 gpu-accelerate ${
@@ -152,7 +138,7 @@ export default function Header() {
           </div>
 
           {/* 데스크톱 네비게이션 - 가변 영역 */}
-          <nav ref={navRef} className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4 overflow-hidden">
+          <nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4 overflow-hidden">
             <div className="flex items-center space-x-0.5 lg:space-x-1 xl:space-x-1.5 overflow-hidden">
               {visibleNavigation.filter(item => !item.isSpecial).map((item) => (
                 <div key={item.href} className="relative group flex-shrink-0">
