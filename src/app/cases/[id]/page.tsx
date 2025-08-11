@@ -253,10 +253,10 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${caseData.heroImage})` }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="absolute inset-0 bg-white bg-opacity-50"></div>
         </div>
         <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-          <div className="max-w-4xl text-white">
+          <div className="max-w-4xl text-gray-900">
             {/* 벤치마크 고지사항 */}
             <div className="mb-6">
               <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-lg p-4">
@@ -280,27 +280,27 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                 {caseData.category}
               </Badge>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-gray-900">
               {caseData.title}
             </h1>
-            <p className="text-xl mb-6 text-gray-200">
+            <p className="text-xl mb-6 text-gray-700">
               {caseData.subtitle}
             </p>
-            <p className="text-lg mb-8 text-gray-300 max-w-3xl">
+            <p className="text-lg mb-8 text-gray-600 max-w-3xl">
               {caseData.description}
             </p>
             <div className="flex flex-wrap gap-4">
               <div className="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
-                <div className="text-sm text-gray-200">업종</div>
-                <div className="font-semibold text-white">{caseData.companyInfo?.industry}</div>
+                <div className="text-sm text-gray-700">업종</div>
+                <div className="font-semibold text-gray-900">{caseData.companyInfo?.industry}</div>
               </div>
               <div className="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
-                <div className="text-sm text-gray-200">규모</div>
-                <div className="font-semibold text-white">{caseData.companyInfo?.employees}</div>
+                <div className="text-sm text-gray-700">규모</div>
+                <div className="font-semibold text-gray-900">{caseData.companyInfo?.employees}</div>
               </div>
               <div className="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
-                <div className="text-sm text-gray-200">매출</div>
-                <div className="font-semibold text-white">{caseData.companyInfo?.revenue}</div>
+                <div className="text-sm text-gray-700">매출</div>
+                <div className="font-semibold text-gray-900">{caseData.companyInfo?.revenue}</div>
               </div>
             </div>
           </div>
