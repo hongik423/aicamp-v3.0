@@ -1419,7 +1419,7 @@ export const caseDetailsData: SuccessCaseDetailsCollection = {
       { metric: '기술 특허', achievement: '물류 최적화 알고리즘 특허 2건 출원' }
     ],
     tags: ['물류유통', '경로최적화', 'n8n자동화', '스마트배송', '비용절감']
-  }
+  },
 
   // 통신업 1개
   'telecom-aicamp-network-optimization': {
