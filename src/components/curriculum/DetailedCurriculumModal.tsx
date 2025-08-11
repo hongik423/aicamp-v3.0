@@ -148,7 +148,7 @@ export default function DetailedCurriculumModal({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto z-[1100]">
         <DialogHeader className="space-y-4">
           <div className="flex items-center space-x-4">
             <div className={`w-16 h-16 ${levelInfo.color} rounded-2xl flex items-center justify-center text-white`}>
