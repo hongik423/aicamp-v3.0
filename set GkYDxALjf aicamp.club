@@ -1,0 +1,10 @@
+[33m22477fe[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Fix: 성공사례 상세페이지 히어로 섹션 헤드라인 텍스트 색상 개선 - 어두운 배경에서 가독성 향상을 위해 메인 제목과 회사정보 텍스트를 흰색으로 변경
+[33m341eb6a[m Fix: 24개 업종 커리큘럼 상세내용 완전 매핑 - 전문서비스, 이커머스, 인증관리, 투자, 교육에듀테크 커리큘럼 추가
+[33m8ec2f31[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: 성공사례벤치마크 시스템 완성 및 법적 고지사항 추가
+[33mbf836e5[m fix: case-details-data.ts 문법 오류 수정
+[33m0d7ebf8[m fix: case-details-data.ts 문법 오류 수정
+[33m8075d16[m feat: 24개 업종 벤치마크 성공계획 시스템 완성
+[33mcb6e0be[m \ 성공사례 커리큘럼 탭 slice 오류 수정 완료\n\n 문제:\n- 커리큘럼 탭에서 TypeError: Cannot read properties of undefined (reading 'slice')\n- 기초/심화/경영진 과정 모든 상세페이지에서 동일 오류 발생\n- module.objectives, module.expectedOutcomes 배열이 undefined일 때 slice() 호출\n- caseCurriculum.measuredOutcomes 데이터 안전하지 않은 접근\n\n 해결:\n- EnhancedCurriculumDisplay 컴포넌트 전면 안전화\n- (module.objectives || []).slice() 패턴으로 안전한 배열 접근\n- (module.expectedOutcomes || []).slice() 패턴 적용\n- caseCurriculum?.appliedCurriculum?.basic || [] 옵셔널 체이닝\n- calculateTotalDuration 함수 null 체크 추가\n- CurriculumModuleList 컴포넌트 빈 배열 처리\n- measuredOutcomes 정량적/정성적 성과 안전 접근\n\n 결과:\n- 모든 커리큘럼 탭 slice 오류 완전 해결\n- 기초과정/심화과정/경영진과정 정상 렌더링\n- 데이터 없는 경우 '준비 중' 메시지 표시\n- 런타임 오류 방지 및 안정적인 UI 제공"
+[33m59ccbbd[m  manifest.webmanifest 401 오류 수정
+[33m57eafb8[m  성공사례 비교탭 slice 오류 및 이미지 404 오류 수정
+[33m9719ce4[m  성공사례 카드 링크 연결 오류 수정 - 전체 카드 클릭 가능하도록 개선
