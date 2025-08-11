@@ -24,6 +24,8 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { CurriculumModule, SuccessCaseCurriculum } from '../types';
+import DetailedCurriculumModal from '@/components/curriculum/DetailedCurriculumModal';
+import { getIndustryCurriculum, ALL_INDUSTRY_CURRICULUM } from '@/data/comprehensive-industry-curriculum';
 
 interface EnhancedCurriculumDisplayProps {
   caseCurriculum: SuccessCaseCurriculum;
@@ -257,6 +259,7 @@ export default function EnhancedCurriculumDisplay({
             category="기초과정"
             color="green"
             onSelectModule={setSelectedModule}
+            industryType={industryType}
           />
         </TabsContent>
 
@@ -266,6 +269,7 @@ export default function EnhancedCurriculumDisplay({
             category="심화과정"
             color="orange"
             onSelectModule={setSelectedModule}
+            industryType={industryType}
           />
         </TabsContent>
 
@@ -275,6 +279,7 @@ export default function EnhancedCurriculumDisplay({
             category="경영진과정"
             color="purple"
             onSelectModule={setSelectedModule}
+            industryType={industryType}
           />
         </TabsContent>
       </Tabs>
@@ -310,9 +315,18 @@ interface CurriculumModuleListProps {
   category: string;
   color: string;
   onSelectModule: (module: CurriculumModule) => void;
+  industryType: string;
 }
 
-function CurriculumModuleList({ modules, category, color, onSelectModule }: CurriculumModuleListProps) {
+function CurriculumModuleList({ modules, category, color, onSelectModule, industryType }: CurriculumModuleListProps) {
+  // 업종별 커리큘럼 데이터 매핑
+  const getCourseLevel = (category: string): 'basic' | 'advanced' | 'executive' => {
+    if (category.includes('기초')) return 'basic';
+    if (category.includes('심화')) return 'advanced';
+    if (category.includes('경영진')) return 'executive';
+    return 'basic';
+  };
+
   const getColorClasses = (color: string) => {
     const colors = {
       green: {
@@ -410,13 +424,22 @@ function CurriculumModuleList({ modules, category, color, onSelectModule }: Curr
               </div>
             </div>
 
-            <Button 
-              onClick={() => onSelectModule(module)}
-              className={`w-full mt-4 ${colorClasses.button} text-white`}
+            <DetailedCurriculumModal
+              courseLevel={getCourseLevel(category)}
+              industryName={industryType}
+              modules={safeModules}
+              totalDuration={`${safeModules.reduce((total, mod) => total + (parseInt(mod.duration.replace(/[^0-9]/g, '')) || 0), 0)}시간`}
+              expectedROI={{
+                productivity: '30% 향상',
+                costSaving: '월 500만원 절감',
+                timeReduction: '업무시간 40% 단축'
+              }}
             >
-              상세 내용 보기
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
+              <Button className={`w-full mt-4 ${colorClasses.button} text-white`}>
+                상세 내용 보기
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </DetailedCurriculumModal>
           </CardContent>
         </Card>
       ))}
