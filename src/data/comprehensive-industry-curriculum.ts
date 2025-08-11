@@ -1173,31 +1173,98 @@ export const COMPREHENSIVE_INDUSTRY_CURRICULUM: Record<string, IndustryCurriculu
 
 // 추가 16개 업종 (간략 버전)
 export const ADDITIONAL_INDUSTRIES: Record<string, Partial<IndustryCurriculum>> = {
-  // 9. 물류업
+  // 9. 생산/물류 트랙 - AI CAMP 프로그램 기반
   logistics: {
-    industryName: '물류업',
+    industryName: '생산/물류업',
     industryCode: 'LOG',
     basic: [
       {
-        title: '물류업 AI 기초 및 공급망 최적화',
-        duration: '10시간',
-        description: 'AI 기반 물류 최적화와 공급망 관리',
-        objectives: ['물류 AI 이해', '경로 최적화', '재고 관리', '배송 예측'],
-        practicalExercises: ['배송 경로 최적화', '재고 수요 예측', '물류비 분석', '고객 만족도 개선'],
-        expectedOutcomes: ['배송 효율성 30% 향상', '물류비 25% 절감', '배송 시간 단축', 'AI 물류 역량 확보'],
-        tools: ['ChatGPT', 'Google Maps API', 'Excel', 'Power BI']
-      },
-      {
-        title: 'n8n 물류 운영 자동화',
-        duration: '14시간',
-        description: '주문처리, 배송추적, 재고관리 자동화',
-        objectives: ['주문 자동 처리', '배송 추적 시스템', '재고 알림', '고객 소통 자동화'],
-        practicalExercises: ['주문-배송 연동', '실시간 배송 추적', '재고 부족 알림', '배송 완료 안내'],
-        expectedOutcomes: ['주문 처리 70% 자동화', '배송 정확도 95%', '고객 만족도 40% 향상', '운영비 30% 절감'],
-        tools: ['n8n', 'WMS', 'TMS', 'API', 'SMS']
+        title: '생산/물류 트랙 - 입문과정 (12시간)',
+        duration: '12시간',
+        description: '"재고, 제고, 품질관리... 자동화로 실수 없는 운영!"',
+        objectives: [
+          '재고/일정/작업 리포트 자동화 역량 학보',
+          '반복적인 수기업무 등을 자동화',
+          '품질 이슈 대응 및 알림 자동화 구성'
+        ],
+        practicalExercises: [
+          'AI 자동화 개요 - 생산/물류 업무에서 작업되는 자동화 사례',
+          '작업일정 요약 자동화 - 텍스트 일정 → 요약 → 리포트 전송',
+          '재고 수급 보고서 자동 생성 - 양/물/물류 분류 → 요약 → PDF 전송',
+          '센서/IoT 데이터 연동 설계 - Webhook/Google Sheet → n8n 자동화',
+          '출고/배송 시간 모니터링 - 시간 조건 → 고객/관리자 알림 자동 전송',
+          '공급망 관리 일정 종합 - 공급 요청 노속/시간 자동 대응 종합 구성',
+          '생산 스케줄 자동 생성 - 수요 기반 생산계획표 자동 업데이트',
+          '공정 이슈 정보 자동화 - 공정 지연 이슈 요약 정리 → 리포트 생성',
+          '현장 기반 자동화 설계 실습 - 각자의 업무 상황 기반 올룸 설계 실습',
+          '발표 및 피드백 - 설계 적용 기능성 검토 + 피드백 교정'
+        ],
+        expectedOutcomes: [
+          '생산/물류 자동화 기초 역량 확보',
+          '재고 및 일정 관리 자동화',
+          '품질 관리 시스템 구축',
+          '실무 적용 가능한 자동화 설계'
+        ],
+        tools: ['ChatGPT', 'n8n', 'Google Sheets', 'Webhook', 'IoT Sensors']
       }
     ],
-    totalDuration: { basic: '24시간', advanced: '40시간', executive: '6시간' },
+    advanced: [
+      {
+        title: '생산/물류 트랙 - 심화과정 (12시간)',
+        duration: '12시간',
+        description: '"제고, 일정, 일일... 생산 현장의 반복 업무를 자동화하세요!"',
+        objectives: [
+          '반복적인 생산/물류 관리 업무를 자동화하는 기본 역량 습득',
+          '재고 일일, 일정 체크, 품질 데이터 요약 등의 자동화 체험',
+          'n8n을 통해 실제 공정과 연결된 자동화 흐름을 이해하고 실습'
+        ],
+        practicalExercises: [
+          '생성형 AI 개요 - 현장 출력에서 작용되는 AI 효과 이해',
+          '업무요약 프롬프트 실습 - 음질 이슈 요약, 공정 내용 정리 업무 실습',
+          '작업일정 자동 정리 - 작업 코드 → GPT 요약 → 이메일 업무 전송',
+          'n8n 기본 이해 - n8n 노드 구조, 클라우드 요약 이해',
+          'n8n 기본 노드 자동화 - 트리거/액션 구조 이해와 실물 피크업볼 설계',
+          '재고 정보 요약 자동화 - Google Sheet → 조건 → GPT 종합 요약 구성',
+          '생산 일일 리포트 자동화 - 일일 입고 감지 → 요약 보고서 자동 생성',
+          '출고/배송 정보 자동화 - 출고 지연 이슈 요약 정리 → 리포트 생성',
+          '단순 글쓰기 대응 흐름 구성 - 각자의 업무 상황 기반 올룸 설계 실습',
+          '나만의 자동화 만들기 - 각자의 시례 기반 미니 자동화 구성',
+          '실습 구성 실행 - 나만의 n8n 워크플로우 직접 구성',
+          '발표 및 피드백 - 워크플로우 발표 및 개선 피드백'
+        ],
+        expectedOutcomes: [
+          '고급 생산 관리 자동화 시스템',
+          '실시간 품질 모니터링',
+          '공급망 최적화 능력',
+          '데이터 기반 의사결정 지원'
+        ],
+        tools: ['n8n Advanced', 'ERP Systems', 'IoT Platform', 'Quality Management Systems', 'Supply Chain APIs']
+      }
+    ],
+    executive: [
+      {
+        title: '경영진/임원 맞춤형 AI 교육 (3시간)',
+        duration: '3시간',
+        description: '"AI 강좌를 통해 최신 트렌드와 혁신 효과을 얻어보세요!"',
+        objectives: [
+          '생성형 AI 및 n8n 기반 자동화의 개념과 원리 이해',
+          '부서별 AI 자동화 적용 사례 및 ROI 인사이트 학보',
+          '조직 내 AI 전환을 위한 전략적 역할 인식'
+        ],
+        practicalExercises: [
+          'AI & n8n 개요 및 글로벌 트렌드 - 생성형 AI 효과, n8n 소개, 글로벌 자동화 트렌드',
+          '부서별 자동화 사례와 생산성 효과 - 마케팅, 영업, 인사 등 부서별 구체적 적용 사례',
+          '경영진의 역할과 조직 도입 전략 - 조직 내 AI 활성 전략, 인력 재배치, 성공 조건 정리'
+        ],
+        expectedOutcomes: [
+          'AI 자동화 전략적 이해',
+          '부서별 적용 방안 수립',
+          '조직 변화 리더십 확보'
+        ],
+        tools: ['AI Strategy Framework', 'ROI Calculator', 'Change Management Tools']
+      }
+    ],
+    totalDuration: { basic: '12시간', advanced: '12시간', executive: '3시간' },
     roi: { productivity: '45% 향상', costSaving: '연간 3억원', timeReduction: '운영업무 50% 단축' }
   },
 
@@ -1239,22 +1306,98 @@ export const ADDITIONAL_INDUSTRIES: Record<string, Partial<IndustryCurriculum>> 
     roi: { productivity: '55% 향상', costSaving: '연간 4억원', timeReduction: '문서업무 65% 단축' }
   },
 
-  // 12. 광고/마케팅
+  // 12. 광고/마케팅 - AI CAMP 프로그램 기반
   advertising: {
     industryName: '광고/마케팅',
     industryCode: 'ADV',
     basic: [
       {
-        title: '광고업 AI 기초 및 크리에이티브 자동화',
+        title: '마케팅 트랙 - 입문과정 (12시간)',
         duration: '12시간',
-        description: 'AI 기반 광고 제작과 타겟팅 최적화',
-        objectives: ['AI 크리에이티브', '타겟팅 최적화', '성과 분석', '자동 입찰'],
-        practicalExercises: ['AI 광고 카피 생성', '이미지 자동 생성', '타겟 오디언스 분석', '캠페인 최적화'],
-        expectedOutcomes: ['제작 시간 70% 단축', '광고 성과 40% 향상', '크리에이티브 다양성 5배', 'AI 마케팅 역량 확보'],
-        tools: ['ChatGPT', 'DALL-E', 'Google Ads', 'Facebook Ads', 'Analytics']
+        description: '"광고, 성과, 분석, 콘텐츠 생성 등 마케터의 숨을 달어드립니다"',
+        objectives: [
+          '마케팅 콘텐츠와 광고 데이터를 자동으로 처리할 수 있는 기초 역량 학보',
+          '생성형 AI로 광고 문구/카피/요약을 자동 생성',
+          'n8n을 활용한 성과 리포트 및 SNS 모니터링 자동화 경험'
+        ],
+        practicalExercises: [
+          '성성형 AI 개요 - 마케팅 업무에서 GPT의 활용 성공 사례',
+          '광고 문구 자동 생성 - 타겟/목표에 따른 광고 카피 자동 작성',
+          '콘텐츠 요약 및 분석 - 긴 콘텐츠 → 짧은 카드 요약, 해시태그 생성',
+          'n8n 기본 구조 및 실습 - n8n의 구조, 설정 준비 실습',
+          '광고 성과 리포트 자동화 ① - Meta/Google Ads CSV → 요약 보고서 생성',
+          '광고 성과 리포트 자동화 ② - 주요 지표 변화 감지 → 알림 발송 자동화',
+          'SNS 댓글 수 집 분석 - 인스타/블로그 댓글 수집 → 요약 분석',
+          '해시태그 마이닝 자동화 - 고객 리뷰/댓글 → GPT로 감성 감지',
+          '콘텐츠 추천 자동 자동화 - 내 업무 품목에 맞춤 자동화 아이디어 창작',
+          '실무 프로젝트 설계 - 설계 추천 + 네트워킹 자동화 구성',
+          '실전 워크플로우 실습 - 콘텐츠/광고 자동화 솔루션 개발',
+          '발표 및 피드백 - 구상한 발표 + 피드백 및 개선 논의'
+        ],
+        expectedOutcomes: [
+          '마케팅 자동화 기초 역량 확보',
+          'AI 기반 콘텐츠 생성 능력',
+          'SNS 성과 분석 자동화',
+          '실무 적용 가능한 워크플로우 구축'
+        ],
+        tools: ['ChatGPT', 'n8n', 'Meta Ads', 'Google Ads', 'Instagram API']
       }
     ],
-    totalDuration: { basic: '24시간', advanced: '40시간', executive: '6시간' },
+    advanced: [
+      {
+        title: '마케팅 트랙 - 심화과정 (12시간)',
+        duration: '12시간',
+        description: '"성과, 분석, 광고 최적화, 고객 발굴, 콘솔까지 자동으로 됩니다"',
+        objectives: [
+          '광고/콘텐츠 성과 리포트, 고객 발굴 자동화를 위한 설계',
+          '다양한 플랫폼과의 연동 실습',
+          '팀 단위 마케팅 업무 자동화를 위한 설계 능력 강화'
+        ],
+        practicalExercises: [
+          'n8n 고급 노드 및 연동 구조 - 반복 처리, 조건 분기, 복잡 연결 실습',
+          'Google Ads API 연동 - 캠페인 데이터 자동 올리고 리',
+          'Facebook/Meta Ads 성과 분석 - 일치 지표 → 요약 → 팀 공유 메시지 구성',
+          'GPT를 활용한 카피 A/B 테스트 자동화 - 변형 카피 자동 생성 → 성과 추적',
+          '댓글 및 피드백 감성 분석 - SNS/설문 텍스트 수집 → 감성 분류 자동',
+          '주요 지표 기반 캠페인 알림 - 전환율/클릭률 급락 시 알림 전송',
+          '콘텐츠 트렌드 리서치 자동화 - GPT를 이용한 키워드 및 해시태그 제안',
+          '마케팅 대시보드 자동 연동 - 시각화 (GDS 등)과 연결해 성과 요약',
+          '실전 실습 실제 실습 - 설계 추천 + 네트워킹 대시 자동화 구성',
+          '프로젝트 발표 및 리뷰 - 업무 연결 자동화 발표 + 고정 피드백'
+        ],
+        expectedOutcomes: [
+          '고급 마케팅 자동화 시스템 구축',
+          '멀티플랫폼 연동 능력',
+          '데이터 기반 의사결정 지원',
+          '팀 단위 업무 효율성 극대화'
+        ],
+        tools: ['n8n Advanced', 'Google Ads API', 'Meta API', 'GPT-4', 'Google Data Studio']
+      }
+    ],
+    executive: [
+      {
+        title: '경영진/임원 맞춤형 AI 교육 (3시간)',
+        duration: '3시간',
+        description: '"AI 강좌를 통해 최신 트렌드와 혁신 효과을 얻어보세요!"',
+        objectives: [
+          '생성형 AI 및 n8n 기반 자동화의 개념과 원리 이해',
+          '부서별 AI 자동화 적용 사례 및 ROI 인사이트 학보',
+          '조직 내 AI 전환을 위한 전략적 역할 인식'
+        ],
+        practicalExercises: [
+          'AI & n8n 개요 및 글로벌 트렌드 - 생성형 AI 효과, n8n 소개, 글로벌 자동화 트렌드',
+          '부서별 자동화 사례와 생산성 효과 - 마케팅, 영업, 인사 등 부서별 구체적 적용 사례',
+          '경영진의 역할과 조직 도입 전략 - 조직 내 AI 활성 전략, 인력 재배치, 성공 조건 정리'
+        ],
+        expectedOutcomes: [
+          'AI 자동화 전략적 이해',
+          '부서별 적용 방안 수립',
+          '조직 변화 리더십 확보'
+        ],
+        tools: ['AI Strategy Framework', 'ROI Calculator', 'Change Management Tools']
+      }
+    ],
+    totalDuration: { basic: '12시간', advanced: '12시간', executive: '3시간' },
     roi: { productivity: '60% 향상', costSaving: '연간 3.5억원', timeReduction: '제작업무 65% 단축' }
   },
 
@@ -1734,6 +1877,289 @@ export const ADDITIONAL_INDUSTRIES: Record<string, Partial<IndustryCurriculum>> 
     ],
     totalDuration: { basic: '30시간', advanced: '22시간', executive: '8시간' },
     roi: { productivity: '50% 향상', costSaving: '연간 2억원', timeReduction: '교육운영 55% 자동화' }
+  },
+
+  // 영업 트랙 - AI CAMP 프로그램 기반
+  sales: {
+    industryName: '영업',
+    industryCode: 'SALES',
+    basic: [
+      {
+        title: '영업 트랙 - 입문과정 (12시간)',
+        duration: '12시간',
+        description: '"고객 응대, 제안서, 리포트... 어떤 AI가 도와드립니다!"',
+        objectives: [
+          '영업 현장의 반복 업무를 자동화할 수 있는 기본 역량 학보',
+          '제안서 작성, 고객 응대 메시지 생성 등 GPT 활용 의하기',
+          'n8n을 이용한 일정/리포트 자동화 실습'
+        ],
+        practicalExercises: [
+          '생성형 AI 이해 - GPT를 영업 업무에서 적용하는 방법',
+          '영업 프로포즈 작성 실습 - 고객 유형별 제안서 제작 실습',
+          '응대 메시지 자동화 - 텍스트를 GPT로 종류별 자동 생성',
+          'n8n 구조와 기본 노드 실습 - Trigger-Action 구조 이해와 실물 미크업볼 설계',
+          '영업 성과 리포트 자동화 - Google Sheet → 조건 → GPT 종합 요약 구성',
+          '미팅 일정 자동화 - 일정 조건 → 고객/관리자 알림 자동 전송',
+          '비용 제안서 리포트 자동화 - 웹훅을 통한 자동 리포트 생성',
+          '지출 정산 문서 자동화 - 제품/서비스별 영업비 정산 문서 자동 생성',
+          '자동화 설계 실습 - 각자의 업무 상황 기반 올룸 설계 실습',
+          '실전 자동화 실행 - 실제 분야 기반 자동화 솔루션 구성',
+          '실습 구성 실행 - 나만의 n8n 워크플로우 직접 구성',
+          '발표 및 피드백 - 실습 결과 공유 및 개선 방향 논의'
+        ],
+        expectedOutcomes: [
+          '영업 자동화 기초 역량 확보',
+          'AI 기반 제안서 작성 능력',
+          '고객 응대 효율성 향상',
+          '영업 성과 리포트 자동화'
+        ],
+        tools: ['ChatGPT', 'n8n', 'Google Sheets', 'CRM Systems', 'Email Automation']
+      }
+    ],
+    advanced: [
+      {
+        title: '영업 트랙 - 심화과정 (12시간)',
+        duration: '12시간',
+        description: '"밝은형 제안, 다어형 참가, 설득 리포트까지... 자동화됩니다."',
+        objectives: [
+          '고객 응대, 제안, 리포트 등 전반적인 영업 업무 자동화 설계',
+          '외부 고객정보/실적 연동 자동화 구현',
+          'GPT를 이용한 맞춤형 메시지, 제안서 자동 생성 실무화'
+        ],
+        practicalExercises: [
+          'n8n 고급 노드 실화 - 분기 조건, 반복 처리, 다중 데이터 처리',
+          '고객 정보 자동 수집 - Open API/RSS → 요약 → 전송',
+          '제안서 자동 생성 - 고객 정보 입력 → GPT → PDF 출력',
+          '영업 KPI 리포트 자동화 - 실적 Sheet → 요약 → 공유보고서 생성',
+          'CRM 연동 기본 (에서 기반) - CRM 데이터 → 리포트/알림 연동',
+          '슬랙/카카오톡 맞춤 일림 자동화 - 고객 반응 기반 맞춤 알림 전송',
+          'Notion + GPT 전략 문서 자동화 - 정책 조건 자동 → 저장 시스템 설계',
+          '전략 워크플로우 텔플릿 구성 - 학습 가능한 자동화 구조 설계',
+          '종합 실습 실제 실습 - 각자의 업무 기반 자동화 설계 실습',
+          '프로젝트 발표 및 코칭 - 시스템 발표 + 개선 피드백 제공'
+        ],
+        expectedOutcomes: [
+          '고급 영업 자동화 시스템 구축',
+          'CRM 통합 자동화 능력',
+          '데이터 기반 영업 전략 수립',
+          '맞춤형 고객 관리 시스템'
+        ],
+        tools: ['n8n Advanced', 'CRM APIs', 'GPT-4', 'Notion', 'Slack/KakaoTalk APIs']
+      }
+    ],
+    executive: [
+      {
+        title: '경영진/임원 맞춤형 AI 교육 (3시간)',
+        duration: '3시간',
+        description: '"AI 강좌를 통해 최신 트렌드와 혁신 효과을 얻어보세요!"',
+        objectives: [
+          '생성형 AI 및 n8n 기반 자동화의 개념과 원리 이해',
+          '부서별 AI 자동화 적용 사례 및 ROI 인사이트 학보',
+          '조직 내 AI 전환을 위한 전략적 역할 인식'
+        ],
+        practicalExercises: [
+          'AI & n8n 개요 및 글로벌 트렌드 - 생성형 AI 효과, n8n 소개, 글로벌 자동화 트렌드',
+          '부서별 자동화 사례와 생산성 효과 - 마케팅, 영업, 인사 등 부서별 구체적 적용 사례',
+          '경영진의 역할과 조직 도입 전략 - 조직 내 AI 활성 전략, 인력 재배치, 성공 조건 정리'
+        ],
+        expectedOutcomes: [
+          'AI 자동화 전략적 이해',
+          '부서별 적용 방안 수립',
+          '조직 변화 리더십 확보'
+        ],
+        tools: ['AI Strategy Framework', 'ROI Calculator', 'Change Management Tools']
+      }
+    ],
+    totalDuration: { basic: '12시간', advanced: '12시간', executive: '3시간' },
+    roi: { productivity: '65% 향상', costSaving: '연간 4억원', timeReduction: '영업업무 70% 자동화' }
+  },
+
+  // 고객지원(CS) 트랙 - AI CAMP 프로그램 기반
+  customerService: {
+    industryName: '고객지원(CS)',
+    industryCode: 'CS',
+    basic: [
+      {
+        title: '고객지원(CS) 트랙 (12시간)',
+        duration: '12시간',
+        description: '"FAQ 응답, 민원 요약, 반복 응답까지 자동으로 해결됩니다!"',
+        objectives: [
+          '반복 응대, 민원 처리, 보고 업무를 자동화할 수 있는 기초 능력 습득',
+          'ChatGPT를 활용한 응답 메시지 작성법 이해',
+          'n8n을 통한 자동화 흐름을 실습 경험 확보'
+        ],
+        practicalExercises: [
+          '생성형 AI 기초 이해 - 고객 응대에서 특화된 GPT 활용 사례 이해',
+          '응답 메시지 자동 실습 - 고객 질문 → GPT 답변 → 팀 공유 실습',
+          '민원 요약 자동화 - 긴 텍스트 → 요약 → 정리 자동 실습',
+          'n8n 기본 실습 - n8n의 노드, 설정 준비 이해',
+          '다채널 고객문의 통합 자동화 - 이메일/카카오톡 등 멀티 채널 대응',
+          '반복 민원 유형 피드백 분석 - 카테고리 분석 → 클러스터링 자동화',
+          '리포트 자동 요약 시스템 - VOC 데이터 → GPT 요약 → PDF 보고서 생성',
+          'Slack/메일 자동 보고 - 주간 VOC 요약 → 보고서 자동 전송',
+          '실전 설계 실제 실습 - 각자의 응답 기반 자동화 설계 실습',
+          '발표 및 피드백 - 업무 연결 자동화 발표 + 개선 피드백 제공'
+        ],
+        expectedOutcomes: [
+          '고객 응대 자동화 기초 역량',
+          'AI 기반 응답 생성 능력',
+          'VOC 분석 및 보고서 자동화',
+          '멀티채널 고객 관리 시스템'
+        ],
+        tools: ['ChatGPT', 'n8n', 'KakaoTalk API', 'Slack', 'Google Sheets']
+      }
+    ],
+    advanced: [
+      {
+        title: '고객지원(CS) 트랙 - 심화과정 (12시간)',
+        duration: '12시간',
+        description: '"응대 품질 모니터링부터 보고서까지 자동으로 처리됩니다"',
+        objectives: [
+          '고객 응대 데이터 분석, 응답 품질 평가, 피드백 시스템 자동화 역량 학보',
+          '다중 채널 통합 응대 및 텍스트 분석 고도화',
+          'VOC 데이터부터 리포트까지 전체 설계 역량 기능'
+        ],
+        practicalExercises: [
+          'n8n 고급 노드 실화 - 조건 분기, Loop, 형태, 오류 처리 등 실습',
+          '다채널 고객문의 통합 자동화 - 이메일/카카오톡 등 멀티 채널 대응',
+          '고객별 감성 분석 자동화 - GPT + 감성분석 API 연계 실습',
+          '응답 품질 평가 시스템 설계 - GPT를 통한 응답 품질 자동 체크 구성',
+          '고객 응대 측정 메시지 - 서울 피드백 수집 및 통계 요약 자동화',
+          '반복 민원 유형 피드백 분석 - 카테고리 분석 → 클러스터링 자동화',
+          '리포트 자동 요약 시스템 - VOC 데이터 → GPT 요약 → PDF 보고서 생성',
+          'Slack/메일 자동 보고 - 주간 VOC 요약 → 보고서 자동 전송',
+          '실전 설계 실제 실습 - 각자의 응답 기반 자동화 설계 실습',
+          '발표 및 피드백 - 업무 연결 자동화 발표 + 개선 피드백 제공'
+        ],
+        expectedOutcomes: [
+          '고급 고객 서비스 자동화 시스템',
+          '감성 분석 기반 응대 품질 관리',
+          'VOC 데이터 종합 분석 능력',
+          '전체 CS 프로세스 자동화'
+        ],
+        tools: ['n8n Advanced', 'Sentiment Analysis API', 'Multi-channel Integration', 'Advanced Analytics', 'Report Generation']
+      }
+    ],
+    executive: [
+      {
+        title: '경영진/임원 맞춤형 AI 교육 (3시간)',
+        duration: '3시간',
+        description: '"AI 강좌를 통해 최신 트렌드와 혁신 효과을 얻어보세요!"',
+        objectives: [
+          '생성형 AI 및 n8n 기반 자동화의 개념과 원리 이해',
+          '부서별 AI 자동화 적용 사례 및 ROI 인사이트 학보',
+          '조직 내 AI 전환을 위한 전략적 역할 인식'
+        ],
+        practicalExercises: [
+          'AI & n8n 개요 및 글로벌 트렌드 - 생성형 AI 효과, n8n 소개, 글로벌 자동화 트렌드',
+          '부서별 자동화 사례와 생산성 효과 - 마케팅, 영업, 인사 등 부서별 구체적 적용 사례',
+          '경영진의 역할과 조직 도입 전략 - 조직 내 AI 활성 전략, 인력 재배치, 성공 조건 정리'
+        ],
+        expectedOutcomes: [
+          'AI 자동화 전략적 이해',
+          '부서별 적용 방안 수립',
+          '조직 변화 리더십 확보'
+        ],
+        tools: ['AI Strategy Framework', 'ROI Calculator', 'Change Management Tools']
+      }
+    ],
+    totalDuration: { basic: '12시간', advanced: '12시간', executive: '3시간' },
+    roi: { productivity: '70% 향상', costSaving: '연간 3억원', timeReduction: 'CS업무 75% 자동화' }
+  },
+
+  // 인사/총무 트랙 - AI CAMP 프로그램 기반
+  hr: {
+    industryName: '인사/총무',
+    industryCode: 'HR',
+    basic: [
+      {
+        title: '인사/총무 트랙 (12시간)',
+        duration: '12시간',
+        description: '"채용, 온보딩, 비무 지치까지 모두 자동으로 합니다"',
+        objectives: [
+          '채용/임사 관리 문서 요약 및 자동화',
+          '온보딩, 휴가-사내 공지 등 일반 자동화 설계',
+          '피드백 수집 및 내부 문서 작성 자동화 실습'
+        ],
+        practicalExercises: [
+          'AI 개요 및 적용 포인트 - 생성형 AI를 HR에 활용하는 종류 이해',
+          '이력서 요약 자동화 실습 - 텍스트 이력서 → 요약 → 평가 요약 정리',
+          '채용 공고 자동 작성 - 업무 정보 → 생성형 AI 공고 조건 작성',
+          'n8n 실습 - 기본 노드 이해 및 트리거 구성',
+          '임사자 온보딩 자동화 - 구글 시트 → 연락 → 안내 메일 전송',
+          '입퇴사 프로세스 통합 자동화 - 인사 안내 → 장비 요청 → 라이브 전송 자동화',
+          '내부 댓글 세분 조율 - FAQ 기반 Q&A 자동화 / 조직 문화 구축',
+          'HR 지표 자동 리포트 - 절말 입사 지표 → 시각화 → 보고서 구성',
+          '실전 업무 자동화 설계 - 각자의 업무 상황 기반 자동화 설계 실습',
+          '발표 및 코칭 - 자동화 구성 발표 및 실무 적용 피드백'
+        ],
+        expectedOutcomes: [
+          '채용 프로세스 자동화 역량',
+          'AI 기반 문서 작성 능력',
+          '온보딩 시스템 구축',
+          'HR 데이터 분석 및 리포팅'
+        ],
+        tools: ['ChatGPT', 'n8n', 'Google Sheets', 'HR Systems', 'Document Automation']
+      }
+    ],
+    advanced: [
+      {
+        title: '인사/총무 트랙 - 심화과정 (12시간)',
+        duration: '12시간',
+        description: '"저절히 정리, 온보딩 안내, 직원 만족도 조사... 모두 자동으로!"',
+        objectives: [
+          '채용/사내 관리/문서 정리를 자동화하는 기본 역량 습득',
+          '서울 활용한 이력서 요약, 문서 자동 작성 등 실습',
+          'n8n을 활용해 인사 안내, 북무 요청 일련 등을 자동화'
+        ],
+        practicalExercises: [
+          '생성형 AI 개요 - 인사/총무 업무에서 GPT 활용 프론트 이해',
+          '이력서 요약 프롬프트 작성 - 지원자 이력서 → 요약 → 평가 포인트 구성',
+          '채용 공고 자동 작성 - 직무 키워드 → GPT로 공고 조건 작성',
+          'n8n 구조 및 기본 사용법 실습 - 노드 요결 간단 자동 간단 구성',
+          '임사자 온보딩 자동화 - 구글 시트 → 연락 → 안내 메일 전송',
+          '입퇴사 프로세스 통합 자동화 - 인사 안내 → 장비 요청 → 라이브 전송 자동화',
+          'HR 지표 자동 리포트 - 절말 입사 지표 → 시각화 → 보고서 구성',
+          '교육 일정 알림 자동화 - 교육 일정 등록 → 슬림/메일 자동 알림',
+          '문서작성 보조 자동화 - 인사 공지/규정 → 조직 전파 자동 전송',
+          '자동화 흐름 그리기 - 나의 반복 업무 자동화 설계 조례',
+          '실습: 나만의 n8n 만들기 - 개인 업무에 맞춤 자동화 구성',
+          '공유 및 피드백 - 구성 결과 발표 및 적용 적용 코칭'
+        ],
+        expectedOutcomes: [
+          '고급 HR 자동화 시스템 구축',
+          '데이터 기반 인사 관리',
+          '직원 만족도 관리 자동화',
+          '조직 내 커뮤니케이션 효율화'
+        ],
+        tools: ['n8n Advanced', 'HR Analytics', 'Employee Survey Tools', 'Performance Management Systems', 'Communication Platforms']
+      }
+    ],
+    executive: [
+      {
+        title: '경영진/임원 맞춤형 AI 교육 (3시간)',
+        duration: '3시간',
+        description: '"AI 강좌를 통해 최신 트렌드와 혁신 효과을 얻어보세요!"',
+        objectives: [
+          '생성형 AI 및 n8n 기반 자동화의 개념과 원리 이해',
+          '부서별 AI 자동화 적용 사례 및 ROI 인사이트 학보',
+          '조직 내 AI 전환을 위한 전략적 역할 인식'
+        ],
+        practicalExercises: [
+          'AI & n8n 개요 및 글로벌 트렌드 - 생성형 AI 효과, n8n 소개, 글로벌 자동화 트렌드',
+          '부서별 자동화 사례와 생산성 효과 - 마케팅, 영업, 인사 등 부서별 구체적 적용 사례',
+          '경영진의 역할과 조직 도입 전략 - 조직 내 AI 활성 전략, 인력 재배치, 성공 조건 정리'
+        ],
+        expectedOutcomes: [
+          'AI 자동화 전략적 이해',
+          '부서별 적용 방안 수립',
+          '조직 변화 리더십 확보'
+        ],
+        tools: ['AI Strategy Framework', 'ROI Calculator', 'Change Management Tools']
+      }
+    ],
+    totalDuration: { basic: '12시간', advanced: '12시간', executive: '3시간' },
+    roi: { productivity: '60% 향상', costSaving: '연간 2.5억원', timeReduction: 'HR업무 65% 자동화' }
   }
 };
 
