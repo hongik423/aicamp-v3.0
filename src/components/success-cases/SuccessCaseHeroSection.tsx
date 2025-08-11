@@ -68,12 +68,12 @@ export default function SuccessCaseHeroSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20">
+    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 py-20">
       {/* 배경 애니메이션 */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-screen filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-screen filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-screen filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -95,9 +95,9 @@ export default function SuccessCaseHeroSection() {
               </span>
             </h1>
             
-            <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-white mb-8 max-w-3xl mx-auto">
               당신의 업종에 최적화된 AI & n8n 커리큘럼으로<br />
-              <span className="font-bold text-blue-600">평균 3개월</span> 만에 달성한 놀라운 성과들
+              <span className="font-bold text-yellow-300">평균 3개월</span> 만에 달성한 놀라운 성과들
             </p>
           </motion.div>
 
@@ -116,7 +116,7 @@ export default function SuccessCaseHeroSection() {
                     <CountUp end={stat.value} duration={2} />
                     {stat.suffix}
                   </div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+                  <div className="text-sm text-gray-700">{stat.label}</div>
                 </div>
               </Card>
             ))}
@@ -140,11 +140,11 @@ export default function SuccessCaseHeroSection() {
                 </div>
               </div>
               
-              <blockquote className="text-lg text-gray-700 italic mb-4 min-h-[80px]">
+              <blockquote className="text-lg text-gray-800 italic mb-4 min-h-[80px]">
                 "{testimonials[activeTestimonial].quote}"
               </blockquote>
               
-              <div className="text-right text-gray-600">
+              <div className="text-right text-gray-700">
                 - {testimonials[activeTestimonial].name}
               </div>
 
@@ -154,6 +154,7 @@ export default function SuccessCaseHeroSection() {
                   <button
                     key={index}
                     onClick={() => setActiveTestimonial(index)}
+                    title={`추천사 ${index + 1}번 보기`}
                     className={`w-2 h-2 rounded-full transition-colors ${
                       index === activeTestimonial ? 'bg-blue-600' : 'bg-gray-300'
                     }`}
@@ -180,7 +181,7 @@ export default function SuccessCaseHeroSection() {
               우리 회사 ROI 계산하기
             </Button>
             
-            <Button size="lg" variant="ghost" className="px-8 py-6 text-lg">
+            <Button size="lg" variant="ghost" className="px-8 py-6 text-lg text-white hover:bg-white/10 hover:text-white">
               <Target className="w-5 h-5 mr-2" />
               업종별 커리큘럼 보기
             </Button>
@@ -191,7 +192,7 @@ export default function SuccessCaseHeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600"
+            className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white"
           >
             <div className="flex items-center">
               <Building2 className="w-4 h-4 mr-1" />
@@ -218,7 +219,7 @@ export default function SuccessCaseHeroSection() {
           transition={{ repeat: Infinity, duration: 2 }}
           className="flex justify-center"
         >
-          <ChevronRight className="w-6 h-6 text-gray-400 rotate-90" />
+          <ChevronRight className="w-6 h-6 text-white/60 rotate-90" />
         </motion.div>
       </div>
     </section>
