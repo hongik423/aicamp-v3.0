@@ -47,34 +47,89 @@ import {
   DropdownMenuCheckboxItem
 } from "@/components/ui/dropdown-menu";
 
-// 24개 업종 데이터
+// 24개 업종 데이터 - 체계적 분류 및 커리큘럼 색상 코딩
+const industryCategories = {
+  core: {
+    name: '핵심 산업',
+    color: 'blue',
+    industries: [
+      { id: 'manufacturing', name: '제조업', icon: '🏭', count: 412, curriculumColor: 'blue' },
+      { id: 'service', name: '서비스업', icon: '🏢', count: 387, curriculumColor: 'blue' },
+      { id: 'startup', name: '스타트업', icon: '🚀', count: 298, curriculumColor: 'blue' },
+    ]
+  },
+  professional: {
+    name: '전문 서비스',
+    color: 'purple',
+    industries: [
+      { id: 'professional', name: '전문서비스', icon: '💼', count: 276, curriculumColor: 'purple' },
+      { id: 'construction', name: '건설업', icon: '🏗️', count: 189, curriculumColor: 'purple' },
+      { id: 'finance', name: '금융업', icon: '💰', count: 167, curriculumColor: 'purple' },
+      { id: 'logistics', name: '물류유통', icon: '📦', count: 156, curriculumColor: 'purple' },
+    ]
+  },
+  technology: {
+    name: '기술 혁신',
+    color: 'green',
+    industries: [
+      { id: 'telecom', name: '통신업', icon: '📡', count: 134, curriculumColor: 'green' },
+      { id: 'media', name: '미디어', icon: '🎬', count: 123, curriculumColor: 'green' },
+      { id: 'energy', name: '에너지', icon: '⚡', count: 98, curriculumColor: 'green' },
+      { id: 'agriculture', name: '농업', icon: '🌾', count: 87, curriculumColor: 'green' },
+    ]
+  },
+  specialized: {
+    name: '특화 영역',
+    color: 'orange',
+    industries: [
+      { id: 'healthcare', name: '의료헬스케어', icon: '🏥', count: 76, curriculumColor: 'orange' },
+      { id: 'ecommerce', name: '이커머스', icon: '🛒', count: 65, curriculumColor: 'orange' },
+      { id: 'certification', name: '인증관리', icon: '🏆', count: 54, curriculumColor: 'orange' },
+      { id: 'investment', name: '투자', icon: '📈', count: 43, curriculumColor: 'orange' },
+      { id: 'edutech', name: '교육에듀테크', icon: '🎓', count: 32, curriculumColor: 'orange' },
+    ]
+  }
+};
+
+// 모든 업종을 플랫 리스트로 변환 (기존 호환성 유지)
 const industries = [
-  { id: 'all', name: '전체', icon: '🌐', count: 2487 },
-  { id: 'manufacturing', name: '제조업', icon: '🏭', count: 412 },
-  { id: 'it', name: 'IT서비스', icon: '💻', count: 387 },
-  { id: 'finance', name: '금융업', icon: '💰', count: 298 },
-  { id: 'retail', name: '유통/소매업', icon: '🛒', count: 276 },
-  { id: 'construction', name: '건설업', icon: '🏗️', count: 189 },
-  { id: 'healthcare', name: '의료업', icon: '🏥', count: 167 },
-  { id: 'education', name: '교육업', icon: '🎓', count: 156 },
-  { id: 'agriculture', name: '농업', icon: '🌾', count: 134 },
-  { id: 'logistics', name: '물류업', icon: '📦', count: 123 },
-  { id: 'hospitality', name: '호텔/숙박업', icon: '🏨', count: 98 },
-  { id: 'legal', name: '법무/법률', icon: '⚖️', count: 87 },
-  { id: 'advertising', name: '광고/마케팅', icon: '📢', count: 76 },
-  { id: 'realestate', name: '부동산', icon: '🏢', count: 65 },
-  { id: 'media', name: '미디어/콘텐츠', icon: '🎬', count: 54 },
-  { id: 'consulting', name: '컨설팅', icon: '💼', count: 43 },
-  { id: 'chemical', name: '화학업', icon: '🧪', count: 32 },
-  { id: 'telecom', name: '통신업', icon: '📡', count: 28 },
-  { id: 'automotive', name: '자동차', icon: '🚗', count: 24 },
-  { id: 'aviation', name: '항공업', icon: '✈️', count: 21 },
-  { id: 'energy', name: '에너지', icon: '⚡', count: 18 },
-  { id: 'biotech', name: '바이오/제약', icon: '💊', count: 15 },
-  { id: 'gaming', name: '게임업', icon: '🎮', count: 12 },
-  { id: 'fashion', name: '패션업', icon: '👗', count: 9 },
-  { id: 'other', name: '기타', icon: '📋', count: 87 }
+  { id: 'all', name: '전체', icon: '🌐', count: 2487, curriculumColor: 'gray' },
+  ...Object.values(industryCategories).flatMap(category => 
+    category.industries.map(industry => ({
+      ...industry,
+      category: category.name,
+      categoryColor: category.color
+    }))
+  )
 ];
+
+// 커리큘럼 레벨별 색상 시스템
+const curriculumLevels = {
+  basic: {
+    name: '기초과정',
+    color: 'green',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-800',
+    borderColor: 'border-green-200',
+    description: 'AI 기초 개념과 n8n 워크플로우 입문'
+  },
+  advanced: {
+    name: '심화과정',
+    color: 'orange',
+    bgColor: 'bg-orange-50',
+    textColor: 'text-orange-800',
+    borderColor: 'border-orange-200',
+    description: '실무 프로젝트와 고급 자동화 구현'
+  },
+  executive: {
+    name: '경영진과정',
+    color: 'purple',
+    bgColor: 'bg-purple-50',
+    textColor: 'text-purple-800',
+    borderColor: 'border-purple-200',
+    description: 'AI 전략 수립과 디지털 전환 리더십'
+  }
+};
 
 // 성공사례 더미 데이터 (실제로는 API에서 가져옴)
 const generateCaseData = () => {
@@ -133,6 +188,8 @@ const allCases = generateCaseData();
 export default function SuccessCasesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCurriculumLevel, setSelectedCurriculumLevel] = useState('all');
   const [selectedStage, setSelectedStage] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -155,6 +212,22 @@ export default function SuccessCasesPage() {
     // 업종 필터
     if (selectedIndustry !== 'all') {
       filtered = filtered.filter(c => c.category === selectedIndustry);
+    }
+
+    // 카테고리 필터 (핵심 산업, 전문 서비스 등)
+    if (selectedCategory !== 'all') {
+      const categoryIndustries = Object.values(industryCategories)
+        .find(cat => cat.name === selectedCategory)?.industries.map(ind => ind.id) || [];
+      filtered = filtered.filter(c => categoryIndustries.includes(c.category));
+    }
+
+    // 커리큘럼 레벨 필터 (기초, 심화, 경영진)
+    if (selectedCurriculumLevel !== 'all') {
+      // 커리큘럼 레벨에 따른 필터링 로직 (실제로는 각 케이스에 커리큘럼 정보가 있어야 함)
+      filtered = filtered.filter(c => {
+        const industry = industries.find(ind => ind.id === c.category);
+        return industry?.curriculumColor === curriculumLevels[selectedCurriculumLevel as keyof typeof curriculumLevels]?.color;
+      });
     }
 
     // 구현 단계 필터
@@ -195,7 +268,7 @@ export default function SuccessCasesPage() {
     }
 
     return filtered;
-  }, [searchTerm, selectedIndustry, selectedStage, sortBy, showOnlyFeatured, selectedTools]);
+  }, [searchTerm, selectedIndustry, selectedCategory, selectedCurriculumLevel, selectedStage, sortBy, showOnlyFeatured, selectedTools]);
 
   // 통계 계산
   const stats = {
@@ -270,6 +343,87 @@ export default function SuccessCasesPage() {
                   <List className="w-4 h-4" />
                 </Button>
               </div>
+            </div>
+
+            {/* 업종별 카테고리 네비게이션 */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <Building2 className="w-5 h-5 mr-2 text-blue-600" />
+                업종별 AI & n8n 커리큘럼 시스템
+              </h3>
+              
+              {/* 업종 카테고리 탭 */}
+              <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-4">
+                <TabsList className="grid w-full grid-cols-5 bg-white">
+                  <TabsTrigger value="all" className="text-sm">전체</TabsTrigger>
+                  {Object.entries(industryCategories).map(([key, category]) => (
+                    <TabsTrigger 
+                      key={key} 
+                      value={category.name}
+                      className={`text-sm data-[state=active]:bg-${category.color}-100 data-[state=active]:text-${category.color}-800`}
+                    >
+                      {category.name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
+                {/* 선택된 카테고리의 업종들 */}
+                {selectedCategory !== 'all' && (
+                  <div className="mt-4 p-4 bg-white rounded-lg border">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {Object.values(industryCategories)
+                        .find(cat => cat.name === selectedCategory)
+                        ?.industries.map(industry => (
+                          <Button
+                            key={industry.id}
+                            variant={selectedIndustry === industry.id ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setSelectedIndustry(industry.id)}
+                            className="text-xs flex items-center justify-start gap-2 h-auto py-2"
+                          >
+                            <span className="text-base">{industry.icon}</span>
+                            <div className="text-left">
+                              <div className="font-medium">{industry.name}</div>
+                              <div className="text-xs opacity-70">{industry.count}개</div>
+                            </div>
+                          </Button>
+                        ))
+                      }
+                    </div>
+                  </div>
+                )}
+              </Tabs>
+
+              {/* 커리큘럼 레벨 필터 */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="text-sm font-medium text-gray-700 flex items-center mr-2">
+                  <BookOpen className="w-4 h-4 mr-1" />
+                  커리큘럼 레벨:
+                </span>
+                {Object.entries(curriculumLevels).map(([key, level]) => (
+                  <Button
+                    key={key}
+                    variant={selectedCurriculumLevel === key ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedCurriculumLevel(selectedCurriculumLevel === key ? 'all' : key)}
+                    className={`${level.bgColor} ${level.textColor} ${level.borderColor} border-2`}
+                  >
+                    <div className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full bg-${level.color}-500`}></div>
+                      <span className="font-medium">{level.name}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+
+              {/* 커리큘럼 레벨 설명 */}
+              {selectedCurriculumLevel !== 'all' && (
+                <div className={`p-3 rounded-lg ${curriculumLevels[selectedCurriculumLevel as keyof typeof curriculumLevels]?.bgColor} ${curriculumLevels[selectedCurriculumLevel as keyof typeof curriculumLevels]?.borderColor} border`}>
+                  <p className={`text-sm ${curriculumLevels[selectedCurriculumLevel as keyof typeof curriculumLevels]?.textColor}`}>
+                    {curriculumLevels[selectedCurriculumLevel as keyof typeof curriculumLevels]?.description}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* 필터 옵션 */}
@@ -371,7 +525,7 @@ export default function SuccessCasesPage() {
         </div>
 
         {/* 통계 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Card className="p-4 bg-gradient-to-r from-blue-50 to-blue-100">
             <div className="flex items-center justify-between">
               <div>
@@ -385,14 +539,43 @@ export default function SuccessCasesPage() {
           <Card className="p-4 bg-gradient-to-r from-green-50 to-green-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">평균 생산성</p>
-                <p className="text-2xl font-bold text-green-600">{stats.avgProductivity}%</p>
+                <p className="text-sm text-gray-600">기초과정</p>
+                <p className="text-2xl font-bold text-green-600">24개</p>
+                <p className="text-xs text-green-500">업종별 완비</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-500" />
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <BookOpen className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-r from-orange-50 to-orange-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">심화과정</p>
+                <p className="text-2xl font-bold text-orange-600">24개</p>
+                <p className="text-xs text-orange-500">실무 프로젝트</p>
+              </div>
+              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                <Target className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-r from-purple-50 to-purple-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">경영진과정</p>
+                <p className="text-2xl font-bold text-purple-600">24개</p>
+                <p className="text-xs text-purple-500">전략 수립</p>
+              </div>
+              <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                <Award className="w-4 h-4 text-white" />
+              </div>
             </div>
           </Card>
           
-          <Card className="p-4 bg-gradient-to-r from-purple-50 to-purple-100">
+          <Card className="p-4 bg-gradient-to-r from-gray-50 to-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">총 비용 절감</p>
