@@ -278,7 +278,7 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
                 {caseData.category}
               </Badge>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-white">
               {caseData.title}
             </h1>
             <p className="text-xl mb-6 text-gray-200">
@@ -290,15 +290,15 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
             <div className="flex flex-wrap gap-4">
               <div className="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
                 <div className="text-sm text-gray-200">업종</div>
-                <div className="font-semibold">{caseData.companyInfo?.industry}</div>
+                <div className="font-semibold text-white">{caseData.companyInfo?.industry}</div>
               </div>
               <div className="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
                 <div className="text-sm text-gray-200">규모</div>
-                <div className="font-semibold">{caseData.companyInfo?.employees}</div>
+                <div className="font-semibold text-white">{caseData.companyInfo?.employees}</div>
               </div>
               <div className="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
                 <div className="text-sm text-gray-200">매출</div>
-                <div className="font-semibold">{caseData.companyInfo?.revenue}</div>
+                <div className="font-semibold text-white">{caseData.companyInfo?.revenue}</div>
               </div>
             </div>
           </div>
