@@ -1,0 +1,1516 @@
+'use client';
+
+/**
+ * 24개 업종별 AI & n8n 중심 커리큘럼 상세 내용
+ * 성공사례 상세페이지용 - 기초/심화/경영진과정 완전 체계화
+ */
+
+export interface CurriculumModule {
+  title: string;
+  duration: string;
+  description: string;
+  objectives: string[];
+  practicalExercises: string[];
+  expectedOutcomes: string[];
+  tools: string[];
+}
+
+export interface IndustryCurriculum {
+  industryName: string;
+  industryCode: string;
+  basic: CurriculumModule[];
+  advanced: CurriculumModule[];
+  executive: CurriculumModule[];
+  totalDuration: {
+    basic: string;
+    advanced: string;
+    executive: string;
+  };
+  roi: {
+    productivity: string;
+    costSaving: string;
+    timeReduction: string;
+  };
+}
+
+export const COMPREHENSIVE_INDUSTRY_CURRICULUM: Record<string, IndustryCurriculum> = {
+  // 1. 제조업 - 스마트팩토리
+  manufacturing: {
+    industryName: '제조업',
+    industryCode: 'MFG',
+    basic: [
+      {
+        title: '제조업 AI 기초 및 스마트팩토리 이해',
+        duration: '12시간',
+        description: '생산공정 최적화를 위한 AI 기초와 스마트팩토리 개념 학습',
+        objectives: [
+          'AI 기반 생산 최적화 원리 이해',
+          '스마트팩토리 구성요소 파악',
+          'IoT 센서 데이터 활용법 습득',
+          '예측 정비 개념 이해'
+        ],
+        practicalExercises: [
+          'ChatGPT로 생산계획 수립 실습',
+          '설비 모니터링 데이터 분석',
+          '품질관리 체크리스트 AI 생성',
+          '생산성 지표 대시보드 구성'
+        ],
+        expectedOutcomes: [
+          '생산 효율성 25% 향상',
+          'AI 기술 이해도 90% 달성',
+          '데이터 기반 의사결정 역량 확보',
+          '스마트팩토리 전환 계획 수립'
+        ],
+        tools: ['ChatGPT', 'Claude', 'Google Sheets', 'Power BI']
+      },
+      {
+        title: 'n8n 제조업 워크플로우 자동화',
+        duration: '16시간',
+        description: '생산관리, 재고관리, 품질관리 자동화 시스템 구축',
+        objectives: [
+          'n8n 기본 노드 활용법 습득',
+          '생산 데이터 수집 자동화',
+          '재고 알림 시스템 구축',
+          'API 연동 기초 이해'
+        ],
+        practicalExercises: [
+          '생산량 자동 집계 워크플로우',
+          '재고 부족 알림 시스템',
+          '품질 검사 결과 자동 보고',
+          'ERP 시스템 연동 실습'
+        ],
+        expectedOutcomes: [
+          '업무 자동화율 70% 달성',
+          '데이터 수집 시간 80% 단축',
+          '실시간 모니터링 체계 구축',
+          '인적 오류 90% 감소'
+        ],
+        tools: ['n8n', 'Webhook', 'Google Sheets', 'Slack', 'Email']
+      }
+    ],
+    advanced: [
+      {
+        title: '머신러닝 기반 품질예측 시스템',
+        duration: '24시간',
+        description: 'AI 비전 검사와 머신러닝을 활용한 품질 예측 모델 개발',
+        objectives: [
+          '컴퓨터 비전 품질검사 이해',
+          '불량 예측 모델 구축',
+          '실시간 품질 모니터링 시스템',
+          'AI 품질관리 ROI 분석'
+        ],
+        practicalExercises: [
+          'YOLO 기반 불량품 탐지',
+          '품질 데이터 예측 모델링',
+          '실시간 품질 대시보드',
+          'A/B 테스트를 통한 모델 최적화'
+        ],
+        expectedOutcomes: [
+          '품질 불량률 60% 감소',
+          '검사 시간 75% 단축',
+          '품질 예측 정확도 95% 달성',
+          'AI 품질관리 체계 완성'
+        ],
+        tools: ['Python', 'OpenCV', 'YOLO', 'TensorFlow', 'n8n', 'Power BI']
+      },
+      {
+        title: 'IoT 연동 스마트 생산관리 시스템',
+        duration: '20시간',
+        description: 'IoT 센서 데이터와 AI를 결합한 지능형 생산관리 시스템',
+        objectives: [
+          'IoT 센서 데이터 수집 및 분석',
+          '예측 정비 시스템 구축',
+          '생산 최적화 알고리즘 개발',
+          '통합 모니터링 대시보드 구성'
+        ],
+        practicalExercises: [
+          'IoT 센서 데이터 n8n 연동',
+          '설비 이상 징후 탐지 모델',
+          '생산 스케줄 최적화 시스템',
+          '실시간 KPI 모니터링'
+        ],
+        expectedOutcomes: [
+          '설비 가동률 95% 달성',
+          '예측 정비로 다운타임 50% 감소',
+          '생산 계획 정확도 92% 향상',
+          '에너지 효율성 30% 개선'
+        ],
+        tools: ['IoT Platform', 'n8n', 'InfluxDB', 'Grafana', 'Python']
+      }
+    ],
+    executive: [
+      {
+        title: '제조업 디지털 전환 전략과 AI ROI',
+        duration: '8시간',
+        description: '스마트팩토리 전환 전략 수립과 AI 투자 수익률 분석',
+        objectives: [
+          '디지털 전환 로드맵 수립',
+          'AI 투자 ROI 산정 방법',
+          '스마트팩토리 성공 사례 분석',
+          '조직 변화관리 전략'
+        ],
+        practicalExercises: [
+          '자사 디지털 성숙도 진단',
+          'AI 도입 ROI 계산 실습',
+          '3개년 디지털 전환 계획 수립',
+          '임직원 교육 체계 설계'
+        ],
+        expectedOutcomes: [
+          '명확한 디지털 전환 비전 확립',
+          'AI 투자 우선순위 결정',
+          '실행 가능한 로드맵 완성',
+          '조직 역량 강화 방안 도출'
+        ],
+        tools: ['Business Model Canvas', 'ROI Calculator', 'Project Management']
+      }
+    ],
+    totalDuration: {
+      basic: '28시간 (4주)',
+      advanced: '44시간 (6주)',
+      executive: '8시간 (1주)'
+    },
+    roi: {
+      productivity: '35% 향상',
+      costSaving: '연간 2억원',
+      timeReduction: '업무시간 40% 단축'
+    }
+  },
+
+  // 2. IT서비스업 - 개발 자동화
+  itServices: {
+    industryName: 'IT서비스업',
+    industryCode: 'ITS',
+    basic: [
+      {
+        title: 'IT업계 AI 도구 활용 기초',
+        duration: '10시간',
+        description: '개발, 테스팅, 문서화를 위한 AI 도구 활용법',
+        objectives: [
+          'GitHub Copilot 활용법',
+          'AI 기반 코드 리뷰',
+          '자동 문서 생성',
+          'AI 테스팅 도구 이해'
+        ],
+        practicalExercises: [
+          'ChatGPT로 코드 최적화',
+          'AI 기반 버그 탐지',
+          'API 문서 자동 생성',
+          '테스트 케이스 AI 생성'
+        ],
+        expectedOutcomes: [
+          '개발 속도 50% 향상',
+          '코드 품질 30% 개선',
+          '문서화 시간 70% 단축',
+          'AI 개발 도구 숙련도 확보'
+        ],
+        tools: ['ChatGPT', 'GitHub Copilot', 'Claude', 'Notion AI']
+      },
+      {
+        title: 'n8n IT 업무 자동화 워크플로우',
+        duration: '14시간',
+        description: '프로젝트 관리, 배포, 모니터링 자동화 시스템',
+        objectives: [
+          'CI/CD 파이프라인 자동화',
+          '이슈 트래킹 자동화',
+          '서버 모니터링 알림',
+          'API 테스트 자동화'
+        ],
+        practicalExercises: [
+          'GitHub Actions + n8n 연동',
+          'Jira 이슈 자동 생성',
+          '서버 상태 모니터링',
+          'Slack 알림 시스템 구축'
+        ],
+        expectedOutcomes: [
+          '배포 시간 80% 단축',
+          '이슈 대응 시간 60% 감소',
+          '모니터링 자동화 100%',
+          'DevOps 효율성 극대화'
+        ],
+        tools: ['n8n', 'GitHub', 'Jira', 'Slack', 'AWS', 'Docker']
+      }
+    ],
+    advanced: [
+      {
+        title: 'AI 기반 코드 최적화 및 리팩토링',
+        duration: '22시간',
+        description: '머신러닝을 활용한 코드 품질 개선과 성능 최적화',
+        objectives: [
+          'AI 코드 분석 도구 활용',
+          '성능 병목 지점 탐지',
+          '자동 리팩토링 시스템',
+          '코드 복잡도 관리'
+        ],
+        practicalExercises: [
+          'SonarQube + AI 분석',
+          '성능 프로파일링 자동화',
+          '코드 스멜 탐지 시스템',
+          'A/B 테스트 자동화'
+        ],
+        expectedOutcomes: [
+          '코드 품질 점수 40% 향상',
+          '성능 최적화 90% 자동화',
+          '기술 부채 50% 감소',
+          '코드 리뷰 효율성 3배 증가'
+        ],
+        tools: ['SonarQube', 'New Relic', 'Python', 'Jenkins', 'n8n']
+      },
+      {
+        title: '지능형 프로젝트 관리 시스템',
+        duration: '18시간',
+        description: 'AI를 활용한 프로젝트 일정 예측과 리소스 최적화',
+        objectives: [
+          'AI 기반 일정 예측',
+          '리소스 배분 최적화',
+          '리스크 예측 모델',
+          '자동 보고서 생성'
+        ],
+        practicalExercises: [
+          '프로젝트 지연 예측 모델',
+          '개발자 역량 매칭 시스템',
+          '리스크 알림 자동화',
+          'KPI 대시보드 구축'
+        ],
+        expectedOutcomes: [
+          '프로젝트 성공률 85% 달성',
+          '일정 예측 정확도 90%',
+          '리소스 효율성 45% 향상',
+          '관리 업무 60% 자동화'
+        ],
+        tools: ['Microsoft Project', 'Tableau', 'Python', 'n8n', 'Power BI']
+      }
+    ],
+    executive: [
+      {
+        title: 'IT기업 AI 전환 전략과 조직혁신',
+        duration: '6시간',
+        description: 'AI 기반 IT서비스 혁신과 조직 경쟁력 강화 전략',
+        objectives: [
+          'AI 기반 서비스 모델 설계',
+          '개발팀 AI 역량 강화 방안',
+          'AI 기술 투자 우선순위',
+          '고객 가치 창출 전략'
+        ],
+        practicalExercises: [
+          'AI 서비스 포트폴리오 설계',
+          '개발팀 스킬셋 분석',
+          'AI 도입 ROI 시뮬레이션',
+          '고객 만족도 향상 계획'
+        ],
+        expectedOutcomes: [
+          'AI 기반 비즈니스 모델 완성',
+          '개발 생산성 3배 향상 계획',
+          '기술 경쟁력 확보 방안',
+          '시장 차별화 전략 수립'
+        ],
+        tools: ['Business Canvas', 'OKR Framework', 'ROI Calculator']
+      }
+    ],
+    totalDuration: {
+      basic: '24시간 (3주)',
+      advanced: '40시간 (5주)',
+      executive: '6시간 (1주)'
+    },
+    roi: {
+      productivity: '60% 향상',
+      costSaving: '연간 3억원',
+      timeReduction: '개발시간 45% 단축'
+    }
+  },
+
+  // 3. 금융업 - 핀테크 & 리스크관리
+  finance: {
+    industryName: '금융업',
+    industryCode: 'FIN',
+    basic: [
+      {
+        title: '금융업 AI 기초 및 핀테크 트렌드',
+        duration: '12시간',
+        description: '금융 AI 활용 사례와 규제 환경 이해',
+        objectives: [
+          '금융 AI 적용 분야 이해',
+          '규제 준수 사항 파악',
+          '고객 데이터 보안 원칙',
+          '핀테크 혁신 사례 분석'
+        ],
+        practicalExercises: [
+          'ChatGPT로 금융상품 설명서 작성',
+          '고객 상담 시나리오 AI 생성',
+          '투자 리포트 자동 요약',
+          '리스크 체크리스트 AI 작성'
+        ],
+        expectedOutcomes: [
+          '금융 AI 이해도 95% 달성',
+          '상품 설명 효율성 40% 향상',
+          '고객 상담 품질 개선',
+          '규제 준수 역량 강화'
+        ],
+        tools: ['ChatGPT', 'Claude', 'Microsoft 365', 'Compliance Tools']
+      },
+      {
+        title: 'n8n 금융업무 자동화 시스템',
+        duration: '16시간',
+        description: '고객관리, 리포팅, 리스크 모니터링 자동화',
+        objectives: [
+          '고객 데이터 수집 자동화',
+          '정기 보고서 자동 생성',
+          '리스크 알림 시스템',
+          'KYC 프로세스 자동화'
+        ],
+        practicalExercises: [
+          '고객 포트폴리오 자동 업데이트',
+          '일일 거래 내역 요약 보고',
+          '이상 거래 탐지 알림',
+          'CRM 시스템 데이터 연동'
+        ],
+        expectedOutcomes: [
+          '보고서 작성 시간 70% 단축',
+          '데이터 정확도 99% 달성',
+          '리스크 모니터링 실시간화',
+          '고객 관리 효율성 50% 향상'
+        ],
+        tools: ['n8n', 'Excel', 'CRM', 'Banking API', 'Slack']
+      }
+    ],
+    advanced: [
+      {
+        title: 'AI 기반 신용평가 및 리스크 관리',
+        duration: '26시간',
+        description: '머신러닝을 활용한 신용평가 모델과 리스크 예측',
+        objectives: [
+          '신용평가 AI 모델 이해',
+          '포트폴리오 리스크 분석',
+          '사기 탐지 시스템 구축',
+          '규제 리포팅 자동화'
+        ],
+        practicalExercises: [
+          '신용점수 예측 모델 구축',
+          '이상 거래 패턴 분석',
+          '시장 리스크 시뮬레이션',
+          'Basel III 보고서 자동화'
+        ],
+        expectedOutcomes: [
+          '신용평가 정확도 92% 달성',
+          '사기 탐지율 95% 향상',
+          '리스크 예측 시간 80% 단축',
+          '규제 준수 100% 자동화'
+        ],
+        tools: ['Python', 'R', 'TensorFlow', 'Tableau', 'n8n', 'SQL']
+      },
+      {
+        title: '로보어드바이저 및 개인화 금융서비스',
+        duration: '18시간',
+        description: 'AI 기반 투자 자문과 맞춤형 금융상품 추천',
+        objectives: [
+          '로보어드바이저 알고리즘 이해',
+          '고객 성향 분석 모델',
+          '포트폴리오 최적화',
+          '개인화 마케팅 자동화'
+        ],
+        practicalExercises: [
+          '투자 성향 분석 모델',
+          '자산 배분 최적화 시스템',
+          '맞춤형 상품 추천 엔진',
+          'A/B 테스트 마케팅 자동화'
+        ],
+        expectedOutcomes: [
+          '고객 만족도 40% 향상',
+          '상품 추천 정확도 88%',
+          '포트폴리오 수익률 15% 개선',
+          '마케팅 ROI 3배 증가'
+        ],
+        tools: ['Python', 'Pandas', 'Scikit-learn', 'AWS', 'n8n']
+      }
+    ],
+    executive: [
+      {
+        title: '금융업 디지털 전환과 AI 거버넌스',
+        duration: '8시간',
+        description: '금융 AI 전략 수립과 리스크 거버넌스 체계',
+        objectives: [
+          'AI 금융서비스 전략 수립',
+          'AI 윤리 및 거버넌스',
+          '규제 대응 전략',
+          '디지털 금융 생태계 구축'
+        ],
+        practicalExercises: [
+          'AI 금융서비스 로드맵 수립',
+          'AI 윤리 가이드라인 작성',
+          '규제 대응 체크리스트',
+          'DX 투자 계획 수립'
+        ],
+        expectedOutcomes: [
+          '명확한 AI 전략 수립',
+          '리스크 관리 체계 완성',
+          '규제 준수 프레임워크',
+          '경쟁력 있는 디지털 금융 모델'
+        ],
+        tools: ['Strategy Framework', 'Risk Matrix', 'Compliance Dashboard']
+      }
+    ],
+    totalDuration: {
+      basic: '28시간 (4주)',
+      advanced: '44시간 (6주)',
+      executive: '8시간 (1주)'
+    },
+    roi: {
+      productivity: '45% 향상',
+      costSaving: '연간 5억원',
+      timeReduction: '업무처리 50% 단축'
+    }
+  },
+
+  // 4. 유통/소매업 - 옴니채널 & 개인화
+  retail: {
+    industryName: '유통/소매업',
+    industryCode: 'RTL',
+    basic: [
+      {
+        title: '유통업 AI 기초 및 고객 분석',
+        duration: '10시간',
+        description: '고객 행동 분석과 AI 기반 마케팅 기초',
+        objectives: [
+          '고객 세분화 기법 이해',
+          'AI 기반 상품 추천',
+          '재고 관리 최적화',
+          '옴니채널 전략 수립'
+        ],
+        practicalExercises: [
+          'ChatGPT로 상품 설명 최적화',
+          '고객 리뷰 감정 분석',
+          '계절성 수요 예측',
+          '마케팅 카피 AI 생성'
+        ],
+        expectedOutcomes: [
+          '고객 이해도 80% 향상',
+          '상품 설명 효율성 60% 개선',
+          '마케팅 반응률 25% 증가',
+          'AI 활용 자신감 확보'
+        ],
+        tools: ['ChatGPT', 'Google Analytics', 'Excel', 'Canva AI']
+      },
+      {
+        title: 'n8n 유통업 운영 자동화',
+        duration: '14시간',
+        description: '재고관리, 주문처리, 고객서비스 자동화',
+        objectives: [
+          '주문 처리 자동화',
+          '재고 알림 시스템',
+          '고객 문의 자동 응답',
+          'POS 시스템 연동'
+        ],
+        practicalExercises: [
+          '주문-배송 연동 자동화',
+          '재고 부족 알림 시스템',
+          '고객 문의 분류 자동화',
+          '매출 데이터 실시간 집계'
+        ],
+        expectedOutcomes: [
+          '주문 처리 시간 70% 단축',
+          '재고 관리 효율성 50% 향상',
+          '고객 응답 시간 80% 단축',
+          '운영 비용 30% 절감'
+        ],
+        tools: ['n8n', 'Shopify', 'WooCommerce', 'Slack', 'Google Sheets']
+      }
+    ],
+    advanced: [
+      {
+        title: 'AI 기반 수요예측 및 재고최적화',
+        duration: '24시간',
+        description: '머신러닝을 활용한 수요 예측과 동적 가격 책정',
+        objectives: [
+          '수요 예측 모델 구축',
+          '동적 가격 최적화',
+          '재고 회전율 개선',
+          '시즌성 패턴 분석'
+        ],
+        practicalExercises: [
+          '시계열 수요 예측 모델',
+          '가격 탄력성 분석',
+          'ABC 재고 분류 자동화',
+          '프로모션 효과 측정'
+        ],
+        expectedOutcomes: [
+          '수요 예측 정확도 85%',
+          '재고 비용 40% 절감',
+          '매출 15% 증가',
+          '품절률 90% 감소'
+        ],
+        tools: ['Python', 'Prophet', 'Pandas', 'Tableau', 'n8n']
+      },
+      {
+        title: '개인화 추천시스템 및 고객여정 최적화',
+        duration: '20시간',
+        description: 'AI 기반 상품 추천과 고객 경험 개인화',
+        objectives: [
+          '협업 필터링 추천 시스템',
+          '고객 여정 매핑',
+          '개인화 마케팅 자동화',
+          'LTV 예측 모델'
+        ],
+        practicalExercises: [
+          '상품 추천 알고리즘 구현',
+          '고객 행동 패턴 분석',
+          '개인화 이메일 자동화',
+          '고객 가치 세분화'
+        ],
+        expectedOutcomes: [
+          '추천 클릭률 3배 증가',
+          '고객 만족도 45% 향상',
+          'LTV 25% 증가',
+          '마케팅 효율성 200% 개선'
+        ],
+        tools: ['Scikit-learn', 'Surprise', 'Google Analytics', 'n8n']
+      }
+    ],
+    executive: [
+      {
+        title: '유통업 옴니채널 전략과 AI 혁신',
+        duration: '6시간',
+        description: '디지털 트랜스포메이션과 고객 중심 비즈니스 모델',
+        objectives: [
+          '옴니채널 전략 수립',
+          'AI 기반 고객 경험 설계',
+          '데이터 드리븐 의사결정',
+          '디지털 생태계 구축'
+        ],
+        practicalExercises: [
+          '옴니채널 로드맵 수립',
+          '고객 경험 여정 설계',
+          'AI 투자 우선순위 결정',
+          'KPI 대시보드 설계'
+        ],
+        expectedOutcomes: [
+          '통합된 고객 경험 전략',
+          '데이터 기반 의사결정 체계',
+          'AI 투자 ROI 극대화',
+          '시장 경쟁력 강화'
+        ],
+        tools: ['Customer Journey Map', 'Business Model Canvas', 'OKR']
+      }
+    ],
+    totalDuration: {
+      basic: '24시간 (3주)',
+      advanced: '44시간 (6주)',
+      executive: '6시간 (1주)'
+    },
+    roi: {
+      productivity: '55% 향상',
+      costSaving: '연간 4억원',
+      timeReduction: '운영업무 45% 단축'
+    }
+  },
+
+  // 5. 건설업 - 스마트 건설관리
+  construction: {
+    industryName: '건설업',
+    industryCode: 'CON',
+    basic: [
+      {
+        title: '건설업 AI 기초 및 디지털 건설',
+        duration: '12시간',
+        description: 'BIM, IoT, 드론을 활용한 스마트 건설 기술',
+        objectives: [
+          'BIM과 AI 연동 이해',
+          '건설 현장 IoT 활용',
+          '드론 측량 및 모니터링',
+          '안전관리 AI 적용'
+        ],
+        practicalExercises: [
+          'ChatGPT로 공사 계획서 작성',
+          'AI 기반 안전 체크리스트',
+          '진도 보고서 자동 생성',
+          '자재 소요량 AI 계산'
+        ],
+        expectedOutcomes: [
+          '건설 AI 이해도 85% 달성',
+          '문서 작성 효율성 50% 향상',
+          '안전 관리 체계 개선',
+          '프로젝트 관리 역량 강화'
+        ],
+        tools: ['ChatGPT', 'BIM 360', 'Excel', 'AutoCAD']
+      },
+      {
+        title: 'n8n 건설 프로젝트 관리 자동화',
+        duration: '16시간',
+        description: '공정관리, 자재관리, 안전관리 통합 자동화',
+        objectives: [
+          '공정 진행률 자동 추적',
+          '자재 발주 알림 시스템',
+          '안전사고 즉시 보고',
+          '하도급업체 관리 자동화'
+        ],
+        practicalExercises: [
+          '공정률 자동 업데이트',
+          '자재 재고 알림 시스템',
+          '현장 사진 자동 분류',
+          '일일 작업 보고 자동화'
+        ],
+        expectedOutcomes: [
+          '공정 관리 효율성 40% 향상',
+          '자재 관리 비용 25% 절감',
+          '안전사고 대응 시간 70% 단축',
+          '문서 작업 60% 자동화'
+        ],
+        tools: ['n8n', 'Microsoft Project', 'Slack', 'Google Drive', 'Camera API']
+      }
+    ],
+    advanced: [
+      {
+        title: 'AI 기반 건설 안전관리 및 품질관리',
+        duration: '26시간',
+        description: '컴퓨터 비전을 활용한 현장 안전 및 품질 모니터링',
+        objectives: [
+          'AI 비전 안전 모니터링',
+          '품질 결함 자동 탐지',
+          '공정별 리스크 예측',
+          '실시간 현장 모니터링'
+        ],
+        practicalExercises: [
+          'CCTV 기반 안전모 착용 탐지',
+          '콘크리트 균열 AI 탐지',
+          '공정 지연 예측 모델',
+          '현장 상황 실시간 대시보드'
+        ],
+        expectedOutcomes: [
+          '안전사고 80% 감소',
+          '품질 불량 70% 조기 발견',
+          '공정 지연 예측 정확도 90%',
+          '현장 모니터링 실시간화'
+        ],
+        tools: ['OpenCV', 'YOLO', 'Python', 'IoT Sensors', 'n8n', 'Power BI']
+      },
+      {
+        title: '스마트 건설 통합관리 시스템',
+        duration: '18시간',
+        description: 'IoT, AI, BIM을 통합한 지능형 건설관리 플랫폼',
+        objectives: [
+          'BIM-IoT-AI 통합 시스템',
+          '예측 정비 시스템',
+          '에너지 효율 최적화',
+          '통합 대시보드 구축'
+        ],
+        practicalExercises: [
+          'BIM 모델과 IoT 데이터 연동',
+          '장비 예측 정비 모델',
+          '건물 에너지 최적화',
+          '프로젝트 KPI 통합 대시보드'
+        ],
+        expectedOutcomes: [
+          '장비 가동률 95% 달성',
+          '에너지 효율성 35% 향상',
+          '통합 관리 효율성 50% 개선',
+          '데이터 기반 의사결정 체계'
+        ],
+        tools: ['BIM 360', 'IoT Platform', 'Power BI', 'Azure', 'n8n']
+      }
+    ],
+    executive: [
+      {
+        title: '건설업 디지털 전환과 스마트 건설 전략',
+        duration: '8시간',
+        description: '건설업 4.0 전환 전략과 미래 경쟁력 확보',
+        objectives: [
+          '스마트 건설 로드맵 수립',
+          'AI 투자 우선순위 결정',
+          '조직 역량 강화 방안',
+          '건설업 4.0 생태계 구축'
+        ],
+        practicalExercises: [
+          '디지털 성숙도 진단',
+          'AI 도입 ROI 분석',
+          '임직원 교육 계획 수립',
+          '파트너십 전략 수립'
+        ],
+        expectedOutcomes: [
+          '명확한 디지털 전환 비전',
+          'AI 투자 로드맵 완성',
+          '조직 변화관리 계획',
+          '지속 가능한 성장 전략'
+        ],
+        tools: ['Digital Maturity Assessment', 'ROI Calculator', 'Change Management']
+      }
+    ],
+    totalDuration: {
+      basic: '28시간 (4주)',
+      advanced: '44시간 (6주)',
+      executive: '8시간 (1주)'
+    },
+    roi: {
+      productivity: '40% 향상',
+      costSaving: '연간 3억원',
+      timeReduction: '관리업무 50% 단축'
+    }
+  },
+
+  // 6. 의료업 - 디지털 헬스케어
+  healthcare: {
+    industryName: '의료업',
+    industryCode: 'MED',
+    basic: [
+      {
+        title: '의료업 AI 기초 및 디지털 헬스케어',
+        duration: '14시간',
+        description: '의료 AI 적용 분야와 규제 환경 이해',
+        objectives: [
+          '의료 AI 적용 사례 학습',
+          '개인정보보호 규정 이해',
+          '의료 데이터 보안 원칙',
+          '원격의료 플랫폼 활용'
+        ],
+        practicalExercises: [
+          'ChatGPT로 환자 설명서 작성',
+          '의료진 교육 자료 AI 생성',
+          '진료 기록 요약 자동화',
+          '환자 상담 시나리오 작성'
+        ],
+        expectedOutcomes: [
+          '의료 AI 이해도 90% 달성',
+          '문서 작성 효율성 60% 향상',
+          '환자 소통 품질 개선',
+          '규제 준수 역량 강화'
+        ],
+        tools: ['ChatGPT', 'Claude', 'Medical AI Tools', 'HIPAA Compliance']
+      },
+      {
+        title: 'n8n 의료업무 자동화 시스템',
+        duration: '16시간',
+        description: '환자관리, 진료예약, 의료기록 자동화',
+        objectives: [
+          '환자 예약 관리 자동화',
+          '진료 기록 자동 분류',
+          '의료진 스케줄 최적화',
+          '환자 알림 시스템 구축'
+        ],
+        practicalExercises: [
+          '예약 확인 자동 SMS',
+          '진료 기록 자동 백업',
+          '의료진 근무표 자동 생성',
+          '환자 만족도 조사 자동화'
+        ],
+        expectedOutcomes: [
+          '예약 관리 효율성 70% 향상',
+          '의료기록 정확도 95% 달성',
+          '스케줄 관리 시간 50% 단축',
+          '환자 만족도 30% 개선'
+        ],
+        tools: ['n8n', 'EMR System', 'Calendar API', 'SMS API', 'Excel']
+      }
+    ],
+    advanced: [
+      {
+        title: 'AI 기반 의료 진단 보조 시스템',
+        duration: '28시간',
+        description: '의료영상 분석과 진단 보조 AI 시스템',
+        objectives: [
+          '의료영상 AI 분석 이해',
+          '진단 정확도 향상 방법',
+          '임상 의사결정 지원',
+          'AI 윤리 및 책임성'
+        ],
+        practicalExercises: [
+          'X-ray 이상 소견 탐지',
+          '환자 데이터 패턴 분석',
+          '치료 효과 예측 모델',
+          'AI 진단 결과 해석'
+        ],
+        expectedOutcomes: [
+          '진단 정확도 15% 향상',
+          '진단 시간 40% 단축',
+          '의료 오류 50% 감소',
+          'AI 보조 진단 체계 구축'
+        ],
+        tools: ['TensorFlow', 'OpenCV', 'DICOM', 'Python', 'n8n']
+      },
+      {
+        title: '환자 맞춤형 치료 및 예측 시스템',
+        duration: '16시간',
+        description: '개인화 의료와 치료 결과 예측 시스템',
+        objectives: [
+          '개인화 치료 계획 수립',
+          '치료 반응 예측 모델',
+          '부작용 위험도 평가',
+          '환자 모니터링 자동화'
+        ],
+        practicalExercises: [
+          '환자별 치료 반응 예측',
+          '약물 부작용 위험 분석',
+          '재입원 위험도 모델',
+          '건강 지표 모니터링'
+        ],
+        expectedOutcomes: [
+          '치료 성공률 25% 향상',
+          '부작용 예측 정확도 85%',
+          '재입원율 30% 감소',
+          '환자 모니터링 실시간화'
+        ],
+        tools: ['R', 'Scikit-learn', 'Tableau', 'IoT Health', 'n8n']
+      }
+    ],
+    executive: [
+      {
+        title: '의료업 디지털 혁신과 AI 거버넌스',
+        duration: '8시간',
+        description: '디지털 헬스케어 전략과 의료 AI 윤리',
+        objectives: [
+          '디지털 헬스케어 전략 수립',
+          '의료 AI 윤리 가이드라인',
+          '규제 대응 전략',
+          '환자 중심 의료 혁신'
+        ],
+        practicalExercises: [
+          'DX 의료 서비스 설계',
+          'AI 윤리 위원회 구성',
+          '규제 준수 체크리스트',
+          '환자 경험 개선 계획'
+        ],
+        expectedOutcomes: [
+          '디지털 의료 비전 확립',
+          'AI 윤리 거버넌스 체계',
+          '규제 준수 프레임워크',
+          '환자 중심 혁신 모델'
+        ],
+        tools: ['Healthcare Strategy', 'Ethics Framework', 'Compliance Dashboard']
+      }
+    ],
+    totalDuration: {
+      basic: '30시간 (4주)',
+      advanced: '44시간 (6주)',
+      executive: '8시간 (1주)'
+    },
+    roi: {
+      productivity: '50% 향상',
+      costSaving: '연간 6억원',
+      timeReduction: '진료업무 35% 단축'
+    }
+  },
+
+  // 7. 교육업 - 에듀테크 & 개인화 학습
+  education: {
+    industryName: '교육업',
+    industryCode: 'EDU',
+    basic: [
+      {
+        title: '교육업 AI 기초 및 에듀테크 활용',
+        duration: '12시간',
+        description: '개인화 학습과 AI 기반 교육 콘텐츠 제작',
+        objectives: [
+          'AI 기반 교육 방법론 이해',
+          '개인화 학습 시스템',
+          '교육 콘텐츠 AI 생성',
+          '학습 분석 기초'
+        ],
+        practicalExercises: [
+          'ChatGPT로 교안 작성',
+          '개별 학습자 맞춤 문제 생성',
+          'AI 기반 학습 계획 수립',
+          '교육 영상 스크립트 AI 작성'
+        ],
+        expectedOutcomes: [
+          '교육 AI 이해도 85% 달성',
+          '교안 작성 시간 60% 단축',
+          '개인화 교육 역량 확보',
+          '콘텐츠 제작 효율성 3배 증가'
+        ],
+        tools: ['ChatGPT', 'Claude', 'Canva AI', 'Google Classroom']
+      },
+      {
+        title: 'n8n 교육업무 자동화 워크플로우',
+        duration: '14시간',
+        description: '학습관리, 성적처리, 학부모 소통 자동화',
+        objectives: [
+          '학습 진도 자동 추적',
+          '성적 처리 자동화',
+          '학부모 알림 시스템',
+          '출석 관리 자동화'
+        ],
+        practicalExercises: [
+          '과제 제출 알림 자동화',
+          '성적 통계 자동 생성',
+          '학부모 상담 일정 관리',
+          '학습 리포트 자동 발송'
+        ],
+        expectedOutcomes: [
+          '행정업무 70% 자동화',
+          '성적 처리 시간 80% 단축',
+          '학부모 소통 효율성 50% 향상',
+          '교사 업무 부담 40% 경감'
+        ],
+        tools: ['n8n', 'LMS', 'Google Sheets', 'Email', 'SMS API']
+      }
+    ],
+    advanced: [
+      {
+        title: 'AI 기반 개인화 학습 시스템',
+        duration: '24시간',
+        description: '적응형 학습과 학습자 행동 분석 시스템',
+        objectives: [
+          '학습자 성향 분석 모델',
+          '적응형 학습 경로 설계',
+          '학습 효과 예측',
+          '자동 피드백 시스템'
+        ],
+        practicalExercises: [
+          '학습 스타일 분석 모델',
+          '개인별 학습 경로 생성',
+          '학습 성과 예측 시스템',
+          'AI 튜터 챗봇 구축'
+        ],
+        expectedOutcomes: [
+          '학습 효과 40% 향상',
+          '개인화 정확도 90% 달성',
+          '학습 완료율 35% 증가',
+          '자동 피드백 시스템 구축'
+        ],
+        tools: ['Python', 'Scikit-learn', 'NLP', 'Chatbot', 'n8n']
+      },
+      {
+        title: '교육 데이터 분석 및 인사이트 시스템',
+        duration: '20시간',
+        description: '학습 분석과 교육 성과 최적화 시스템',
+        objectives: [
+          '학습 데이터 분석 기법',
+          '교육 효과 측정 방법',
+          '학습자 이탈 예측',
+          '교육 품질 개선 방안'
+        ],
+        practicalExercises: [
+          '학습 패턴 분석 대시보드',
+          '중도 탈락 예측 모델',
+          '교육 효과 A/B 테스트',
+          '학습 성과 시각화'
+        ],
+        expectedOutcomes: [
+          '학습자 이탈률 50% 감소',
+          '교육 품질 지표 30% 개선',
+          '데이터 기반 교육 설계',
+          '실시간 학습 모니터링'
+        ],
+        tools: ['Tableau', 'Power BI', 'Google Analytics', 'Python', 'n8n']
+      }
+    ],
+    executive: [
+      {
+        title: '교육업 디지털 전환과 에듀테크 전략',
+        duration: '6시간',
+        description: '미래 교육 모델과 AI 기반 교육 혁신',
+        objectives: [
+          '에듀테크 트렌드 분석',
+          'AI 교육 생태계 구축',
+          '교육 혁신 전략 수립',
+          '디지털 교육 ROI 관리'
+        ],
+        practicalExercises: [
+          '교육 혁신 로드맵 수립',
+          'AI 교육 서비스 설계',
+          '에듀테크 투자 계획',
+          '교육 성과 KPI 설정'
+        ],
+        expectedOutcomes: [
+          '명확한 교육 혁신 비전',
+          'AI 기반 교육 모델 완성',
+          '지속 가능한 성장 전략',
+          '경쟁력 있는 교육 서비스'
+        ],
+        tools: ['Education Strategy', 'Innovation Framework', 'ROI Dashboard']
+      }
+    ],
+    totalDuration: {
+      basic: '26시간 (4주)',
+      advanced: '44시간 (6주)',
+      executive: '6시간 (1주)'
+    },
+    roi: {
+      productivity: '65% 향상',
+      costSaving: '연간 2억원',
+      timeReduction: '행정업무 70% 단축'
+    }
+  },
+
+  // 8. 농업 - 스마트팜 & 정밀농업
+  agriculture: {
+    industryName: '농업',
+    industryCode: 'AGR',
+    basic: [
+      {
+        title: '농업 AI 기초 및 스마트팜 이해',
+        duration: '12시간',
+        description: 'IoT, AI를 활용한 정밀농업과 스마트팜 기술',
+        objectives: [
+          '스마트팜 구성요소 이해',
+          'IoT 센서 활용법',
+          '작물 생육 모니터링',
+          '농업 데이터 분석 기초'
+        ],
+        practicalExercises: [
+          'ChatGPT로 재배 계획 수립',
+          '날씨 데이터 기반 농작업 일정',
+          'AI 기반 병해충 진단',
+          '농산물 가격 예측 분석'
+        ],
+        expectedOutcomes: [
+          '스마트농업 이해도 80% 달성',
+          '데이터 기반 농업 역량 확보',
+          '생산성 향상 방안 도출',
+          'AI 농업 도구 활용 능력'
+        ],
+        tools: ['ChatGPT', 'Google Earth', 'Weather API', 'Excel']
+      },
+      {
+        title: 'n8n 농업 운영 자동화 시스템',
+        duration: '16시간',
+        description: '관수, 시설관리, 출하관리 자동화',
+        objectives: [
+          '자동 관수 시스템 구축',
+          '환경 모니터링 자동화',
+          '농산물 출하 관리',
+          '농장 운영 데이터 통합'
+        ],
+        practicalExercises: [
+          '토양 수분 기반 자동 관수',
+          '온실 환경 알림 시스템',
+          '출하량 자동 집계',
+          '농장 일지 자동 작성'
+        ],
+        expectedOutcomes: [
+          '물 사용량 30% 절약',
+          '환경 관리 효율성 50% 향상',
+          '출하 관리 시간 60% 단축',
+          '농장 운영 데이터 통합 관리'
+        ],
+        tools: ['n8n', 'IoT Sensors', 'Arduino', 'Google Sheets', 'SMS']
+      }
+    ],
+    advanced: [
+      {
+        title: 'AI 기반 작물 생육 예측 및 최적화',
+        duration: '26시간',
+        description: '컴퓨터 비전과 머신러닝을 활용한 정밀농업',
+        objectives: [
+          '작물 생육 상태 AI 진단',
+          '수확량 예측 모델',
+          '병해충 조기 탐지',
+          '최적 수확 시기 예측'
+        ],
+        practicalExercises: [
+          '드론 영상 작물 분석',
+          '생육 단계별 수확량 예측',
+          '병해충 이미지 분류 모델',
+          '환경 데이터 기반 생육 최적화'
+        ],
+        expectedOutcomes: [
+          '수확량 20% 증가',
+          '병해충 피해 70% 감소',
+          '최적 수확 시기 정확도 90%',
+          '농약 사용량 50% 절감'
+        ],
+        tools: ['OpenCV', 'TensorFlow', 'Drone', 'Python', 'n8n', 'GIS']
+      },
+      {
+        title: '스마트팜 통합관리 및 자동화 시스템',
+        duration: '18시간',
+        description: '전체 농장 운영의 지능형 자동화 시스템',
+        objectives: [
+          '통합 농장 관리 시스템',
+          '자동화 제어 시스템',
+          '에너지 효율 최적화',
+          '농장 경영 분석'
+        ],
+        practicalExercises: [
+          '전체 농장 모니터링 대시보드',
+          '자동 환경 제어 시스템',
+          '에너지 사용 최적화',
+          '경영 성과 분석 리포트'
+        ],
+        expectedOutcomes: [
+          '농장 운영 효율성 45% 향상',
+          '에너지 비용 35% 절감',
+          '인력 투입 40% 감소',
+          '농장 수익성 25% 개선'
+        ],
+        tools: ['IoT Platform', 'SCADA', 'Power BI', 'Cloud', 'n8n']
+      }
+    ],
+    executive: [
+      {
+        title: '농업 디지털 전환과 스마트농업 전략',
+        duration: '8시간',
+        description: '농업 4.0 전환과 지속가능한 농업 경영',
+        objectives: [
+          '스마트농업 전환 전략',
+          'AI 농업 투자 계획',
+          '지속가능한 농업 모델',
+          '농업 생태계 혁신'
+        ],
+        practicalExercises: [
+          '농장 디지털화 로드맵',
+          'AI 투자 ROI 분석',
+          '지속가능성 지표 설정',
+          '농업 혁신 생태계 구축'
+        ],
+        expectedOutcomes: [
+          '명확한 디지털 농업 비전',
+          'AI 투자 우선순위 결정',
+          '지속가능한 경영 모델',
+          '농업 혁신 리더십 확보'
+        ],
+        tools: ['Farm Management', 'Sustainability Framework', 'ROI Calculator']
+      }
+    ],
+    totalDuration: {
+      basic: '28시간 (4주)',
+      advanced: '44시간 (6주)',
+      executive: '8시간 (1주)'
+    },
+    roi: {
+      productivity: '50% 향상',
+      costSaving: '연간 1.5억원',
+      timeReduction: '농장관리 60% 자동화'
+    }
+  }
+};
+
+// 추가 16개 업종 (간략 버전)
+export const ADDITIONAL_INDUSTRIES: Record<string, Partial<IndustryCurriculum>> = {
+  // 9. 물류업
+  logistics: {
+    industryName: '물류업',
+    industryCode: 'LOG',
+    basic: [
+      {
+        title: '물류업 AI 기초 및 공급망 최적화',
+        duration: '10시간',
+        description: 'AI 기반 물류 최적화와 공급망 관리',
+        objectives: ['물류 AI 이해', '경로 최적화', '재고 관리', '배송 예측'],
+        practicalExercises: ['배송 경로 최적화', '재고 수요 예측', '물류비 분석', '고객 만족도 개선'],
+        expectedOutcomes: ['배송 효율성 30% 향상', '물류비 25% 절감', '배송 시간 단축', 'AI 물류 역량 확보'],
+        tools: ['ChatGPT', 'Google Maps API', 'Excel', 'Power BI']
+      },
+      {
+        title: 'n8n 물류 운영 자동화',
+        duration: '14시간',
+        description: '주문처리, 배송추적, 재고관리 자동화',
+        objectives: ['주문 자동 처리', '배송 추적 시스템', '재고 알림', '고객 소통 자동화'],
+        practicalExercises: ['주문-배송 연동', '실시간 배송 추적', '재고 부족 알림', '배송 완료 안내'],
+        expectedOutcomes: ['주문 처리 70% 자동화', '배송 정확도 95%', '고객 만족도 40% 향상', '운영비 30% 절감'],
+        tools: ['n8n', 'WMS', 'TMS', 'API', 'SMS']
+      }
+    ],
+    totalDuration: { basic: '24시간', advanced: '40시간', executive: '6시간' },
+    roi: { productivity: '45% 향상', costSaving: '연간 3억원', timeReduction: '운영업무 50% 단축' }
+  },
+
+  // 10. 호텔/숙박업
+  hospitality: {
+    industryName: '호텔/숙박업',
+    industryCode: 'HTL',
+    basic: [
+      {
+        title: '호텔업 AI 기초 및 고객 서비스',
+        duration: '12시간',
+        description: '개인화 서비스와 AI 기반 고객 관리',
+        objectives: ['고객 개인화 서비스', 'AI 컨시어지', '수익 관리', '리뷰 분석'],
+        practicalExercises: ['개인화 추천 서비스', 'AI 챗봇 구축', '동적 가격 책정', '고객 피드백 분석'],
+        expectedOutcomes: ['고객 만족도 35% 향상', '매출 20% 증가', '운영 효율성 40% 개선', 'AI 서비스 역량 확보'],
+        tools: ['ChatGPT', 'PMS', 'Google Analytics', 'Review APIs']
+      }
+    ],
+    totalDuration: { basic: '26시간', advanced: '42시간', executive: '6시간' },
+    roi: { productivity: '40% 향상', costSaving: '연간 2.5억원', timeReduction: '고객서비스 45% 효율화' }
+  },
+
+  // 11. 법무/법률 서비스
+  legal: {
+    industryName: '법무/법률서비스',
+    industryCode: 'LAW',
+    basic: [
+      {
+        title: '법무업 AI 기초 및 문서 자동화',
+        duration: '14시간',
+        description: 'AI 기반 법률 문서 작성과 판례 분석',
+        objectives: ['법률 AI 이해', '문서 자동화', '판례 분석', '컴플라이언스'],
+        practicalExercises: ['계약서 초안 작성', '판례 검색 자동화', '법률 자문 템플릿', '규제 모니터링'],
+        expectedOutcomes: ['문서 작성 60% 단축', '판례 분석 효율성 3배', '법률 서비스 품질 향상', 'AI 법무 역량 확보'],
+        tools: ['ChatGPT', 'Legal AI', 'Document Management', 'Case Law DB']
+      }
+    ],
+    totalDuration: { basic: '28시간', advanced: '44시간', executive: '8시간' },
+    roi: { productivity: '55% 향상', costSaving: '연간 4억원', timeReduction: '문서업무 65% 단축' }
+  },
+
+  // 12. 광고/마케팅
+  advertising: {
+    industryName: '광고/마케팅',
+    industryCode: 'ADV',
+    basic: [
+      {
+        title: '광고업 AI 기초 및 크리에이티브 자동화',
+        duration: '12시간',
+        description: 'AI 기반 광고 제작과 타겟팅 최적화',
+        objectives: ['AI 크리에이티브', '타겟팅 최적화', '성과 분석', '자동 입찰'],
+        practicalExercises: ['AI 광고 카피 생성', '이미지 자동 생성', '타겟 오디언스 분석', '캠페인 최적화'],
+        expectedOutcomes: ['제작 시간 70% 단축', '광고 성과 40% 향상', '크리에이티브 다양성 5배', 'AI 마케팅 역량 확보'],
+        tools: ['ChatGPT', 'DALL-E', 'Google Ads', 'Facebook Ads', 'Analytics']
+      }
+    ],
+    totalDuration: { basic: '24시간', advanced: '40시간', executive: '6시간' },
+    roi: { productivity: '60% 향상', costSaving: '연간 3.5억원', timeReduction: '제작업무 65% 단축' }
+  },
+
+  // 13. 부동산
+  realEstate: {
+    industryName: '부동산',
+    industryCode: 'RE',
+    basic: [
+      {
+        title: '부동산업 AI 기초 및 시장 분석',
+        duration: '10시간',
+        description: 'AI 기반 부동산 가격 예측과 고객 매칭',
+        objectives: ['가격 예측 모델', '고객 매칭', '시장 분석', '투자 분석'],
+        practicalExercises: ['매물 가격 예측', '고객-매물 매칭', '시장 트렌드 분석', '투자 수익률 계산'],
+        expectedOutcomes: ['가격 예측 정확도 85%', '매칭 성공률 60% 향상', '시장 분석 자동화', 'AI 부동산 역량 확보'],
+        tools: ['ChatGPT', 'Real Estate APIs', 'Google Maps', 'Excel', 'Power BI']
+      }
+    ],
+    totalDuration: { basic: '22시간', advanced: '38시간', executive: '6시간' },
+    roi: { productivity: '35% 향상', costSaving: '연간 2억원', timeReduction: '시장분석 50% 단축' }
+  },
+
+  // 14. 미디어/콘텐츠
+  media: {
+    industryName: '미디어/콘텐츠',
+    industryCode: 'MED',
+    basic: [
+      {
+        title: '미디어업 AI 기초 및 콘텐츠 자동화',
+        duration: '14시간',
+        description: 'AI 기반 콘텐츠 제작과 편집 자동화',
+        objectives: ['AI 콘텐츠 생성', '편집 자동화', '트렌드 분석', '개인화 추천'],
+        practicalExercises: ['AI 기사 작성', '영상 자동 편집', '썸네일 생성', '콘텐츠 추천 시스템'],
+        expectedOutcomes: ['제작 시간 60% 단축', '콘텐츠 품질 일관성 확보', '조회수 30% 증가', 'AI 미디어 역량 확보'],
+        tools: ['ChatGPT', 'AI Video Tools', 'Canva', 'YouTube Analytics', 'Social Media APIs']
+      }
+    ],
+    totalDuration: { basic: '26시간', advanced: '42시간', executive: '6시간' },
+    roi: { productivity: '65% 향상', costSaving: '연간 2.5억원', timeReduction: '제작업무 60% 단축' }
+  },
+
+  // 15. 컨설팅
+  consulting: {
+    industryName: '컨설팅',
+    industryCode: 'CON',
+    basic: [
+      {
+        title: '컨설팅업 AI 기초 및 분석 자동화',
+        duration: '16시간',
+        description: 'AI 기반 데이터 분석과 인사이트 도출',
+        objectives: ['데이터 분석 자동화', '인사이트 도출', '보고서 생성', '예측 모델링'],
+        practicalExercises: ['시장 분석 자동화', 'AI 인사이트 도출', '보고서 템플릿 생성', '트렌드 예측 모델'],
+        expectedOutcomes: ['분석 시간 70% 단축', '인사이트 품질 향상', '보고서 일관성 확보', 'AI 컨설팅 역량 확보'],
+        tools: ['ChatGPT', 'Python', 'Tableau', 'Power BI', 'Statistical Tools']
+      }
+    ],
+    totalDuration: { basic: '28시간', advanced: '44시간', executive: '8시간' },
+    roi: { productivity: '75% 향상', costSaving: '연간 5억원', timeReduction: '분석업무 70% 단축' }
+  },
+
+  // 16. 화학업
+  chemical: {
+    industryName: '화학업',
+    industryCode: 'CHM',
+    basic: [
+      {
+        title: '화학업 AI 기초 및 공정 최적화',
+        duration: '12시간',
+        description: 'AI 기반 화학 공정 최적화와 품질 관리',
+        objectives: ['공정 최적화', '품질 예측', '안전 관리', '환경 모니터링'],
+        practicalExercises: ['반응 조건 최적화', '품질 예측 모델', '안전 위험 평가', '배출량 모니터링'],
+        expectedOutcomes: ['공정 효율성 25% 향상', '품질 일관성 확보', '안전사고 80% 감소', 'AI 화학 역량 확보'],
+        tools: ['ChatGPT', 'Process Simulation', 'SCADA', 'Environmental APIs']
+      }
+    ],
+    totalDuration: { basic: '26시간', advanced: '42시간', executive: '8시간' },
+    roi: { productivity: '40% 향상', costSaving: '연간 6억원', timeReduction: '공정관리 45% 효율화' }
+  },
+
+  // 17. 통신업
+  telecom: {
+    industryName: '통신업',
+    industryCode: 'TEL',
+    basic: [
+      {
+        title: '통신업 AI 기초 및 네트워크 최적화',
+        duration: '14시간',
+        description: 'AI 기반 네트워크 관리와 고객 서비스',
+        objectives: ['네트워크 최적화', '장애 예측', '고객 이탈 방지', '서비스 개인화'],
+        practicalExercises: ['트래픽 패턴 분석', '장애 예측 모델', '고객 세분화', '맞춤 서비스 추천'],
+        expectedOutcomes: ['네트워크 효율성 30% 향상', '장애 예방률 90%', '고객 이탈률 40% 감소', 'AI 통신 역량 확보'],
+        tools: ['ChatGPT', 'Network Monitoring', 'Customer Analytics', 'Predictive Models']
+      }
+    ],
+    totalDuration: { basic: '26시간', advanced: '44시간', executive: '8시간' },
+    roi: { productivity: '50% 향상', costSaving: '연간 8억원', timeReduction: '운영업무 55% 효율화' }
+  },
+
+  // 18. 자동차업
+  automotive: {
+    industryName: '자동차업',
+    industryCode: 'AUTO',
+    basic: [
+      {
+        title: '자동차업 AI 기초 및 스마트 제조',
+        duration: '12시간',
+        description: 'AI 기반 자동차 제조와 품질 관리',
+        objectives: ['스마트 제조', '품질 검사', '공급망 관리', '예측 정비'],
+        practicalExercises: ['생산 라인 최적화', 'AI 품질 검사', '부품 수급 예측', '설비 예측 정비'],
+        expectedOutcomes: ['생산 효율성 35% 향상', '품질 불량률 60% 감소', '공급망 안정성 확보', 'AI 제조 역량 확보'],
+        tools: ['ChatGPT', 'Computer Vision', 'IoT', 'Supply Chain Analytics']
+      }
+    ],
+    totalDuration: { basic: '28시간', advanced: '44시간', executive: '8시간' },
+    roi: { productivity: '45% 향상', costSaving: '연간 10억원', timeReduction: '품질검사 70% 자동화' }
+  },
+
+  // 19. 항공업
+  aviation: {
+    industryName: '항공업',
+    industryCode: 'AVI',
+    basic: [
+      {
+        title: '항공업 AI 기초 및 운항 최적화',
+        duration: '16시간',
+        description: 'AI 기반 항공 운항 관리와 승객 서비스',
+        objectives: ['운항 최적화', '연료 효율성', '승객 서비스', '안전 관리'],
+        practicalExercises: ['항로 최적화', '연료 소모 예측', '승객 만족도 분석', '안전 위험 평가'],
+        expectedOutcomes: ['운항 효율성 20% 향상', '연료비 15% 절감', '승객 만족도 30% 증가', 'AI 항공 역량 확보'],
+        tools: ['ChatGPT', 'Flight Planning', 'Weather APIs', 'Customer Analytics']
+      }
+    ],
+    totalDuration: { basic: '30시간', advanced: '46시간', executive: '8시간' },
+    roi: { productivity: '35% 향상', costSaving: '연간 15억원', timeReduction: '운항관리 40% 효율화' }
+  },
+
+  // 20. 에너지업
+  energy: {
+    industryName: '에너지업',
+    industryCode: 'ENR',
+    basic: [
+      {
+        title: '에너지업 AI 기초 및 스마트그리드',
+        duration: '14시간',
+        description: 'AI 기반 에너지 관리와 신재생 에너지',
+        objectives: ['스마트그리드', '수요 예측', '에너지 효율', '탄소 관리'],
+        practicalExercises: ['에너지 수요 예측', '발전량 최적화', '에너지 효율 분석', '탄소 배출 모니터링'],
+        expectedOutcomes: ['에너지 효율성 40% 향상', '수요 예측 정확도 90%', '탄소 배출 30% 감소', 'AI 에너지 역량 확보'],
+        tools: ['ChatGPT', 'Smart Grid', 'IoT Sensors', 'Environmental APIs']
+      }
+    ],
+    totalDuration: { basic: '28시간', advanced: '44시간', executive: '8시간' },
+    roi: { productivity: '50% 향상', costSaving: '연간 12억원', timeReduction: '에너지관리 60% 자동화' }
+  },
+
+  // 21. 보험업
+  insurance: {
+    industryName: '보험업',
+    industryCode: 'INS',
+    basic: [
+      {
+        title: '보험업 AI 기초 및 리스크 평가',
+        duration: '14시간',
+        description: 'AI 기반 보험 상품 개발과 리스크 관리',
+        objectives: ['리스크 평가', '사기 탐지', '상품 개발', '고객 분석'],
+        practicalExercises: ['리스크 모델링', '사기 패턴 분석', '맞춤 상품 설계', '고객 세분화'],
+        expectedOutcomes: ['리스크 평가 정확도 85%', '사기 탐지율 95%', '상품 개발 시간 50% 단축', 'AI 보험 역량 확보'],
+        tools: ['ChatGPT', 'Actuarial Software', 'Fraud Detection', 'Customer Analytics']
+      }
+    ],
+    totalDuration: { basic: '26시간', advanced: '42시간', executive: '8시간' },
+    roi: { productivity: '45% 향상', costSaving: '연간 7억원', timeReduction: '심사업무 60% 단축' }
+  },
+
+  // 22. 바이오/제약
+  biotech: {
+    industryName: '바이오/제약',
+    industryCode: 'BIO',
+    basic: [
+      {
+        title: '바이오업 AI 기초 및 신약 개발',
+        duration: '16시간',
+        description: 'AI 기반 신약 개발과 임상시험 최적화',
+        objectives: ['신약 발견', '임상시험 설계', '품질 관리', '규제 준수'],
+        practicalExercises: ['분자 설계 AI', '임상 데이터 분석', '품질 예측 모델', '규제 문서 자동화'],
+        expectedOutcomes: ['신약 개발 시간 30% 단축', '임상시험 성공률 25% 향상', '품질 일관성 확보', 'AI 바이오 역량 확보'],
+        tools: ['ChatGPT', 'Drug Discovery AI', 'Clinical Analytics', 'Regulatory Tools']
+      }
+    ],
+    totalDuration: { basic: '30시간', advanced: '46시간', executive: '8시간' },
+    roi: { productivity: '40% 향상', costSaving: '연간 20억원', timeReduction: '연구개발 35% 효율화' }
+  },
+
+  // 23. 게임업
+  gaming: {
+    industryName: '게임업',
+    industryCode: 'GAM',
+    basic: [
+      {
+        title: '게임업 AI 기초 및 콘텐츠 생성',
+        duration: '12시간',
+        description: 'AI 기반 게임 콘텐츠 생성과 플레이어 분석',
+        objectives: ['콘텐츠 생성', '플레이어 분석', '게임 밸런싱', '개인화'],
+        practicalExercises: ['AI 캐릭터 생성', '플레이어 행동 분석', '게임 난이도 조절', '맞춤 콘텐츠 추천'],
+        expectedOutcomes: ['콘텐츠 제작 70% 단축', '플레이어 유지율 40% 향상', '게임 밸런스 최적화', 'AI 게임 역량 확보'],
+        tools: ['ChatGPT', 'Game Analytics', 'Procedural Generation', 'Player Behavior']
+      }
+    ],
+    totalDuration: { basic: '24시간', advanced: '40시간', executive: '6시간' },
+    roi: { productivity: '80% 향상', costSaving: '연간 3억원', timeReduction: '개발시간 50% 단축' }
+  },
+
+  // 24. 패션업
+  fashion: {
+    industryName: '패션업',
+    industryCode: 'FSH',
+    basic: [
+      {
+        title: '패션업 AI 기초 및 트렌드 예측',
+        duration: '10시간',
+        description: 'AI 기반 패션 트렌드 예측과 개인화 추천',
+        objectives: ['트렌드 예측', '개인화 추천', '재고 최적화', '디자인 생성'],
+        practicalExercises: ['트렌드 분석 AI', '스타일 추천 시스템', '수요 예측 모델', 'AI 디자인 생성'],
+        expectedOutcomes: ['트렌드 예측 정확도 80%', '판매율 25% 향상', '재고 회전율 50% 개선', 'AI 패션 역량 확보'],
+        tools: ['ChatGPT', 'Fashion AI', 'Trend Analytics', 'Design Tools']
+      }
+    ],
+    totalDuration: { basic: '22시간', advanced: '38시간', executive: '6시간' },
+    roi: { productivity: '60% 향상', costSaving: '연간 2억원', timeReduction: '기획업무 55% 단축' }
+  }
+};
+
+// 전체 커리큘럼 통합
+export const ALL_INDUSTRY_CURRICULUM = {
+  ...COMPREHENSIVE_INDUSTRY_CURRICULUM,
+  ...ADDITIONAL_INDUSTRIES
+};
+
+// 업종별 커리큘럼 조회 함수
+export function getIndustryCurriculum(industryCode: string): IndustryCurriculum | null {
+  return ALL_INDUSTRY_CURRICULUM[industryCode] || null;
+}
+
+// 전체 업종 목록 조회
+export function getAllIndustries(): string[] {
+  return Object.keys(ALL_INDUSTRY_CURRICULUM);
+}
+
+// 커리큘럼 검색 함수
+export function searchCurriculum(query: string): IndustryCurriculum[] {
+  const searchTerm = query.toLowerCase();
+  return Object.values(ALL_INDUSTRY_CURRICULUM).filter(curriculum => 
+    curriculum?.industryName?.toLowerCase().includes(searchTerm) ||
+    curriculum?.basic?.some(module => 
+      module.title.toLowerCase().includes(searchTerm) ||
+      module.description.toLowerCase().includes(searchTerm)
+    )
+  ).filter(Boolean) as IndustryCurriculum[];
+}

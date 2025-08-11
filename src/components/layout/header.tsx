@@ -54,7 +54,7 @@ export default function Header() {
     { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 3 },
     { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 4 },
     { href: '/seminar', label: '세미나', isSpecial: false, priority: 5 },
-    { href: '/cases', label: '성공사례', isSpecial: false, priority: 6 },
+    { href: '/cases', label: '성공사례벤치마크', isSpecial: false, priority: 6 },
     { href: '/consultation', label: '상담신청', isSpecial: false, priority: 7 },
     { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 8 },
     { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 9 }
@@ -202,7 +202,7 @@ export default function Header() {
                 href="/cases"
                 className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
               >
-                성공사례
+                성공사례벤치마크
               </Link>
               <Link
                 href="/consultation"

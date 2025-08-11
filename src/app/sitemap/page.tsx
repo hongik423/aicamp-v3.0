@@ -13,7 +13,7 @@ const siteMapData = [
       { title: '챗봇', url: '/chatbot' },
       { title: '상담 신청', url: '/consultation' },
       { title: '회사 소개', url: '/about' },
-      { title: '성공사례', url: '/cases' }
+      { title: '성공사례벤치마크', url: '/cases' }
     ]
   },
   {

@@ -24,7 +24,9 @@ import {
   ArrowRight,
   Play,
   BookOpen,
-  Award
+  Award,
+  DollarSign,
+  Download
 } from 'lucide-react';
 
 interface CompanyProfile {

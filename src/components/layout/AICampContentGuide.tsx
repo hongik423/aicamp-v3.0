@@ -171,7 +171,7 @@ const contentData: ContentItem[] = [
   // 기타 서비스
   {
     id: 'cases',
-    title: '성공사례',
+    title: '성공사례벤치마크',
     subtitle: '고객 성공 스토리',
     description: '실제 고객들의 생생한 성과 경험담',
     icon: Trophy,
