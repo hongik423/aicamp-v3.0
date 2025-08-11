@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -146,6 +147,7 @@ function getCompanySize(employees?: string): string {
 }
 
 export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
+  const router = useRouter();
   const [caseId, setCaseId] = React.useState<string>('');
   const [loading, setLoading] = React.useState(true);
 
@@ -391,6 +393,24 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
           <TabsContent value="curriculum" className="space-y-8">
             {caseData && (
               <div className="space-y-8">
+                {/* 상세 커리큘럼 보기 버튼 */}
+                <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-6 text-center">
+                  <h3 className="text-xl font-bold mb-3">
+                    {caseData.industry} 맞춤형 AI Camp 교육 과정
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    기초, 심화, 경영진 과정별 상세 커리큘럼을 확인하세요
+                  </p>
+                  <Button 
+                    size="lg" 
+                    onClick={() => router.push(`/cases/${caseData.id}/curriculum`)}
+                    className="gap-2"
+                  >
+                    <BookOpen className="w-5 h-5" />
+                    업종별 상세 커리큘럼 보기
+                  </Button>
+                </div>
+
                 {/* 업종별 포괄적 커리큘럼 표시 */}
                 <IndustrySpecificCurriculumDisplay
                   industryCode={getIndustryCode(caseData.industry)}
