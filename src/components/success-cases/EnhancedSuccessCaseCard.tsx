@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import DetailedCurriculumModal from '@/components/curriculum/DetailedCurriculumModal';
+import { getIndustryCurriculum } from '@/data/comprehensive-industry-curriculum';
 import { 
   TrendingUp, 
   Clock, 
@@ -402,16 +404,212 @@ export default function EnhancedSuccessCaseCard({
                 상세보기
               </Button>
             </Link>
-            <Button variant="outline" className="flex-1">
-              <Brain className="w-4 h-4 mr-2" />
-              커리큘럼
-            </Button>
+            <DetailedCurriculumModal
+              courseLevel="basic"
+              industryName={industry}
+              modules={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.basic || [
+                  {
+                    title: `${industry} AI 기초과정`,
+                    duration: '12시간',
+                    description: `${industry}에 특화된 AI 기초 교육과정`,
+                    objectives: ['AI 기본 개념 이해', '업무 적용 방법 습득', '실무 사례 분석', '성과 측정 방법 학습'],
+                    practicalExercises: ['ChatGPT 활용 실습', '업무 자동화 실습', '데이터 분석 실습', '성과 측정 실습'],
+                    expectedOutcomes: ['생산성 30% 향상', '업무 시간 40% 단축', 'AI 활용 능력 향상', '비용 절감 효과'],
+                    tools: ['ChatGPT', 'Claude', 'n8n', 'Google Sheets'],
+                    difficulty: 'beginner' as const,
+                    category: 'basic' as const
+                  }
+                ];
+              })()}
+              totalDuration={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.totalDuration?.basic || '36시간';
+              })()}
+              expectedROI={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.roi || {
+                  productivity: '30% 향상',
+                  costSaving: '월 500만원 절감',
+                  timeReduction: '업무시간 40% 단축'
+                };
+              })()}
+            >
+              <Button variant="outline" className="flex-1">
+                <Brain className="w-4 h-4 mr-2" />
+                커리큘럼
+              </Button>
+            </DetailedCurriculumModal>
+          </div>
+
+          {/* 추가 커리큘럼 레벨 */}
+          <div className="flex space-x-1 mt-2">
+            <DetailedCurriculumModal
+              courseLevel="advanced"
+              industryName={industry}
+              modules={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.advanced || [];
+              })()}
+              totalDuration={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.totalDuration?.advanced || '48시간';
+              })()}
+              expectedROI={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.roi || {
+                  productivity: '50% 향상',
+                  costSaving: '월 1000만원 절감',
+                  timeReduction: '업무시간 60% 단축'
+                };
+              })()}
+            >
+              <Button variant="ghost" size="sm" className="flex-1 text-xs">
+                <Zap className="w-3 h-3 mr-1" />
+                심화과정
+              </Button>
+            </DetailedCurriculumModal>
+
+            <DetailedCurriculumModal
+              courseLevel="executive"
+              industryName={industry}
+              modules={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.executive || [];
+              })()}
+              totalDuration={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.totalDuration?.executive || '12시간';
+              })()}
+              expectedROI={(() => {
+                const industryMapping: Record<string, string> = {
+                  '제조업': 'manufacturing',
+                  '영업': 'sales',
+                  '마케팅': 'marketing',
+                  '기획/전략': 'planning',
+                  '인사/총무': 'hr',
+                  '재무/회계': 'finance',
+                  '고객지원': 'customer_service',
+                  '생산/물류': 'logistics',
+                  '교육/에듀테크': 'education'
+                };
+                const industryCode = industryMapping[industry] || 'manufacturing';
+                const curriculumData = getIndustryCurriculum(industryCode);
+                return curriculumData?.roi || {
+                  productivity: '70% 향상',
+                  costSaving: '연간 2억원 절감',
+                  timeReduction: '전략적 의사결정 80% 개선'
+                };
+              })()}
+            >
+              <Button variant="ghost" size="sm" className="flex-1 text-xs">
+                <Award className="w-3 h-3 mr-1" />
+                경영진과정
+              </Button>
+            </DetailedCurriculumModal>
           </div>
 
           {/* 빠른 문의 버튼 */}
           <Button 
             variant="ghost" 
-            className="w-full text-xs text-gray-600 hover:text-gray-900"
+            className="w-full text-xs text-gray-600 hover:text-gray-900 mt-2"
           >
             <Sparkles className="w-3 h-3 mr-1" />
             우리 회사도 이렇게 하고 싶어요!
