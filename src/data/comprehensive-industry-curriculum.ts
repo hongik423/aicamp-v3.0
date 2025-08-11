@@ -1738,9 +1738,133 @@ export const ADDITIONAL_INDUSTRIES: Record<string, Partial<IndustryCurriculum>> 
 };
 
 // 전체 커리큘럼 통합
+// AI 기초이해 등 일반적인 AI 교육 과정
+const AI_BASIC_CURRICULUM: IndustryCurriculum = {
+  industryName: 'AI 기초이해',
+  industryCode: 'AI_BASIC',
+  basic: [
+    {
+      title: 'AI 기초 개념과 활용법',
+      duration: '8시간',
+      description: 'AI의 기본 개념을 이해하고 일상 업무에 적용하는 방법을 학습합니다.',
+      objectives: [
+        'AI 기본 개념과 원리 이해',
+        'ChatGPT 등 AI 도구 활용법 습득',
+        '업무 자동화 기초 개념 학습',
+        'AI 윤리와 한계 인식'
+      ],
+      practicalExercises: [
+        'ChatGPT를 활용한 문서 작성',
+        'AI 도구로 업무 효율성 개선',
+        '프롬프트 엔지니어링 실습',
+        '업무 자동화 시나리오 설계'
+      ],
+      expectedOutcomes: [
+        'AI 도구 활용 능력 향상',
+        '업무 생산성 30% 증대',
+        '반복 업무 자동화 구현',
+        'AI 기반 문제해결 역량 확보'
+      ],
+      tools: ['ChatGPT', 'Claude', 'Google Bard', 'Notion AI']
+    },
+    {
+      title: 'n8n 워크플로우 자동화 기초',
+      duration: '12시간',
+      description: 'n8n을 활용한 업무 자동화 워크플로우 구축 방법을 학습합니다.',
+      objectives: [
+        'n8n 기본 사용법 습득',
+        '워크플로우 설계 원리 이해',
+        'API 연동 기초 학습',
+        '자동화 시나리오 구현'
+      ],
+      practicalExercises: [
+        'n8n 설치 및 환경 설정',
+        '간단한 워크플로우 생성',
+        '이메일 자동화 구현',
+        '데이터 처리 자동화'
+      ],
+      expectedOutcomes: [
+        '기본 자동화 워크플로우 구축',
+        '업무 시간 40% 단축',
+        'API 연동 기초 역량',
+        '자동화 사고방식 습득'
+      ],
+      tools: ['n8n', 'Webhook', 'Gmail API', 'Google Sheets']
+    }
+  ],
+  advanced: [
+    {
+      title: 'AI 고급 활용과 맞춤형 솔루션',
+      duration: '16시간',
+      description: '고급 AI 기술을 활용한 맞춤형 솔루션 개발',
+      objectives: [
+        'AI 모델 파인튜닝 기초',
+        '맞춤형 AI 솔루션 설계',
+        'AI API 고급 활용',
+        '성과 측정 및 최적화'
+      ],
+      practicalExercises: [
+        'GPT 모델 파인튜닝',
+        '업무별 AI 어시스턴트 구축',
+        '데이터 분석 자동화',
+        'AI 성과 대시보드 구성'
+      ],
+      expectedOutcomes: [
+        '맞춤형 AI 솔루션 구축',
+        '고급 자동화 구현',
+        '데이터 기반 의사결정',
+        'AI 전문가 수준 역량'
+      ],
+      tools: ['OpenAI API', 'LangChain', 'Python', 'Streamlit']
+    }
+  ],
+  executive: [
+    {
+      title: 'AI 전략과 디지털 전환 리더십',
+      duration: '6시간',
+      description: 'AI 기반 디지털 전환 전략과 조직 리더십',
+      objectives: [
+        'AI 전환 전략 수립',
+        '조직 AI 역량 강화',
+        'AI 투자 ROI 계획',
+        'AI 윤리 및 거버넌스'
+      ],
+      practicalExercises: [
+        'AI 전환 로드맵 작성',
+        'AI 투자 계획 수립',
+        '조직 역량 진단',
+        'AI 거버넌스 체계 구축'
+      ],
+      expectedOutcomes: [
+        '명확한 AI 전략 수립',
+        '조직 AI 역량 강화',
+        'AI 투자 우선순위 결정',
+        'AI 리더십 역량 확보'
+      ],
+      tools: ['AI Strategy Framework', 'ROI Calculator', 'Governance Tools']
+    }
+  ],
+  totalDuration: {
+    basic: '20시간 (3주)',
+    advanced: '16시간 (2주)',
+    executive: '6시간 (1주)'
+  },
+  roi: {
+    productivity: '40% 향상',
+    costSaving: '월 300만원 절감',
+    timeReduction: '업무시간 50% 단축'
+  }
+};
+
 export const ALL_INDUSTRY_CURRICULUM = {
   ...COMPREHENSIVE_INDUSTRY_CURRICULUM,
-  ...ADDITIONAL_INDUSTRIES
+  ...ADDITIONAL_INDUSTRIES,
+  // AI 기초 과정 추가
+  ai_basic: AI_BASIC_CURRICULUM,
+  automation: AI_BASIC_CURRICULUM,
+  professional: ADDITIONAL_INDUSTRIES.professional || AI_BASIC_CURRICULUM,
+  fintech: ADDITIONAL_INDUSTRIES.fintech || AI_BASIC_CURRICULUM,
+  it_service: ADDITIONAL_INDUSTRIES.it_service || AI_BASIC_CURRICULUM
 };
 
 // 업종별 커리큘럼 조회 함수
