@@ -167,6 +167,23 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
         </div>
         <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
           <div className="max-w-4xl text-white">
+            {/* 벤치마크 고지사항 */}
+            <div className="mb-6">
+              <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <Shield className="w-5 h-5 text-yellow-300 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-sm font-medium text-yellow-200 mb-1">
+                      📊 벤치마크 성공계획
+                    </h3>
+                    <p className="text-sm text-yellow-100">
+                      본 내용은 실제 성공사례가 아닌, 해당 업종에서 AI + n8n 도입 시 달성 가능한 
+                      <strong className="text-yellow-200"> 목표 성과와 구체적인 구현 계획</strong>을 제시한 벤치마크 시나리오입니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center mb-4">
               <IconComponent className="w-8 h-8 mr-3" />
               <Badge variant="secondary" className="bg-white bg-opacity-20 text-white border-white border-opacity-30">

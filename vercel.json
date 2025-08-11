@@ -3,5 +3,88 @@
     "src/app/api/**/*.ts": {
       "maxDuration": 800
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.aicamp.club"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-hongik423-3087-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-kusz59uny-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-eqobepwvd-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-c1xajapry-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Canonical-URL",
+          "value": "https://aicamp.club"
+        },
+        {
+          "key": "Link",
+          "value": "<https://aicamp.club>; rel=\"canonical\""
+        }
+      ]
+    }
+  ]
 }

@@ -1,0 +1,389 @@
+{
+  "name": "스마트팩토리 생산관리 자동화",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/iot-sensor-data",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-iot-sensor",
+      "name": "IoT 센서 데이터 수신",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "messageType": "multipleMessages",
+          "multipleMessages": [
+            {
+              "role": "system",
+              "message": "당신은 스마트팩토리 생산관리 전문가입니다. IoT 센서 데이터를 분석하여 생산 최적화 방안을 제시하세요."
+            },
+            {
+              "role": "user", 
+              "message": "다음 센서 데이터를 분석해주세요:\n온도: {{$json.temperature}}°C\n습도: {{$json.humidity}}%\n진동: {{$json.vibration}}Hz\n전력소비: {{$json.power_consumption}}kW\n\n현재 상태를 평가하고 개선 방안을 제시해주세요."
+            }
+          ]
+        }
+      },
+      "id": "chatgpt-analysis",
+      "name": "ChatGPT 센서 데이터 분석",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "temperature-check",
+              "leftValue": "={{$json.temperature}}",
+              "rightValue": 80,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combineOperation": "any"
+        }
+      },
+      "id": "temperature-condition",
+      "name": "온도 임계값 확인",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "vibration-check", 
+              "leftValue": "={{$json.vibration}}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combineOperation": "any"
+        }
+      },
+      "id": "vibration-condition",
+      "name": "진동 임계값 확인",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "messageType": "multipleMessages", 
+          "multipleMessages": [
+            {
+              "role": "system",
+              "message": "긴급 상황 대응 전문가로서 즉시 취해야 할 조치를 명확하고 구체적으로 제시하세요."
+            },
+            {
+              "role": "user",
+              "message": "🚨 긴급 알림 🚨\n\n온도: {{$json.temperature}}°C (임계값 초과)\n진동: {{$json.vibration}}Hz\n\n즉시 취해야 할 조치 3가지를 제시해주세요."
+            }
+          ]
+        }
+      },
+      "id": "emergency-response",
+      "name": "긴급 대응 방안 생성",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C1234567890",
+          "mode": "list",
+          "cachedResultName": "production-alerts"
+        },
+        "text": "🏭 **스마트팩토리 알림**\n\n📊 **센서 데이터:**\n• 온도: {{$json.temperature}}°C\n• 습도: {{$json.humidity}}%\n• 진동: {{$json.vibration}}Hz\n• 전력: {{$json.power_consumption}}kW\n\n🤖 **AI 분석 결과:**\n{{$('ChatGPT 센서 데이터 분석').item.json.choices[0].message.content}}\n\n⚠️ **권장 조치:**\n{{$('긴급 대응 방안 생성').item.json.choices[0].message.content}}",
+        "otherOptions": {}
+      },
+      "id": "slack-notification",
+      "name": "Slack 알림 발송",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+          "mode": "list",
+          "cachedResultName": "생산관리 데이터"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{new Date().toISOString()}}",
+            "temperature": "={{$json.temperature}}",
+            "humidity": "={{$json.humidity}}",
+            "vibration": "={{$json.vibration}}",
+            "power_consumption": "={{$json.power_consumption}}",
+            "ai_analysis": "={{$('ChatGPT 센서 데이터 분석').item.json.choices[0].message.content}}",
+            "status": "={{$json.temperature > 80 || $json.vibration > 50 ? '주의' : '정상'}}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "google-sheets-log",
+      "name": "Google Sheets 데이터 기록",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "messageType": "multipleMessages",
+          "multipleMessages": [
+            {
+              "role": "system", 
+              "message": "생산 최적화 전문가로서 센서 데이터를 바탕으로 생산 계획을 조정하는 방안을 제시하세요."
+            },
+            {
+              "role": "user",
+              "message": "현재 설비 상태:\n온도: {{$json.temperature}}°C\n습도: {{$json.humidity}}%\n진동: {{$json.vibration}}Hz\n전력: {{$json.power_consumption}}kW\n\n이 데이터를 바탕으로 다음 4시간 동안의 생산 계획을 조정해주세요:\n1. 생산 속도 조정\n2. 품질 관리 포인트\n3. 예상 수율\n4. 필요한 조치사항"
+            }
+          ]
+        }
+      },
+      "id": "production-planning",
+      "name": "생산 계획 최적화",
+      "type": "n8n-nodes-base.openAi", 
+      "typeVersion": 1,
+      "position": [680, 600]
+    },
+    {
+      "parameters": {
+        "httpMethod": "PUT",
+        "url": "https://api.erp-system.com/production/plan",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "production_plan",
+              "value": "={{$('생산 계획 최적화').item.json.choices[0].message.content}}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{new Date().toISOString()}}"
+            },
+            {
+              "name": "sensor_data",
+              "value": "={{JSON.stringify($json)}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "erp-update",
+      "name": "ERP 시스템 업데이트",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 600]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "응답 반환",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "IoT 센서 데이터 수신": {
+      "main": [
+        [
+          {
+            "node": "ChatGPT 센서 데이터 분석",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChatGPT 센서 데이터 분석": {
+      "main": [
+        [
+          {
+            "node": "온도 임계값 확인",
+            "type": "main", 
+            "index": 0
+          },
+          {
+            "node": "진동 임계값 확인",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "생산 계획 최적화",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "온도 임계값 확인": {
+      "main": [
+        [
+          {
+            "node": "긴급 대응 방안 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "진동 임계값 확인": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets 데이터 기록",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "긴급 대응 방안 생성": {
+      "main": [
+        [
+          {
+            "node": "Slack 알림 발송",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack 알림 발송": {
+      "main": [
+        [
+          {
+            "node": "응답 반환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets 데이터 기록": {
+      "main": [
+        [
+          {
+            "node": "Slack 알림 발송",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "생산 계획 최적화": {
+      "main": [
+        [
+          {
+            "node": "ERP 시스템 업데이트",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERP 시스템 업데이트": {
+      "main": [
+        [
+          {
+            "node": "응답 반환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "manufacturing",
+      "name": "제조업"
+    },
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z", 
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "smart-factory",
+      "name": "스마트팩토리"
+    },
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z", 
+      "id": "iot-automation",
+      "name": "IoT 자동화"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-15T10:00:00.000Z",
+  "versionId": "1"
+}

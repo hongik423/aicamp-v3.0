@@ -12,19 +12,36 @@ const inter = Inter({
   display: 'swap',
   preload: true,
   variable: '--font-inter',
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 });
 
 export const metadata: Metadata = {
-  title: 'AICAMP - AI 역량진단 및 컨설팅',
-  description: 'AI 역량진단, 상담신청, 세금계산기 등 다양한 서비스를 제공하는 AICAMP입니다.',
-  keywords: 'AI 역량진단, 상담신청, 세금계산기, AICAMP',
-  authors: [{ name: 'AICAMP' }],
+  title: {
+    default: 'AICAMP - AI 역량진단 및 컨설팅 전문기관',
+    template: '%s | AICAMP',
+  },
+  description: '기업의 AI 역량을 진단하고 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다. 무료 AI 역량진단부터 전문 컨설팅까지 원스톱 서비스를 제공합니다.',
+  keywords: 'AI 컨설팅, AI 역량진단, 디지털 전환, 기업 컨설팅, 인공지능, AI 교육, 스마트 팩토리, AICAMP, 무료진단',
+  authors: [{ name: 'AICAMP', url: 'https://aicamp.club' }],
   creator: 'AICAMP',
   publisher: 'AICAMP',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
-    icon: [{ url: '/icon', type: 'image/png' }],
-    apple: [{ url: '/apple-icon', sizes: '180x180' }],
-    shortcut: ['/icon'],
+    icon: [
+      { url: '/images/aicamp_logo_del_250726.png', type: 'image/png', sizes: '32x32' },
+      { url: '/images/aicamp_logo_del_250726.png', type: 'image/png', sizes: '16x16' }
+    ],
+    shortcut: ['/images/aicamp_logo_del_250726.png'],
   },
   formatDetection: {
     email: false,
@@ -33,13 +50,19 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL('https://aicamp.club'),
   alternates: {
-    canonical: '/',
+    canonical: 'https://aicamp.club',
+    languages: {
+      'ko-KR': 'https://aicamp.club',
+      'ko': 'https://aicamp.club',
+    },
   },
   openGraph: {
-    title: 'AICAMP - AI 역량진단 및 컨설팅',
-    description: 'AI 역량진단, 상담신청, 세금계산기 등 다양한 서비스를 제공하는 AICAMP입니다.',
+    title: 'AICAMP - AI 역량진단 및 컨설팅 전문기관',
+    description: '기업의 AI 역량을 진단하고 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다. 무료 AI 역량진단부터 전문 컨설팅까지 원스톱 서비스를 제공합니다.',
     url: 'https://aicamp.club',
     siteName: 'AICAMP',
+    locale: 'ko_KR',
+    type: 'website',
     images: [
       {
         url: '/images/aicamp_logo_del_250726.png',
@@ -53,20 +76,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AICAMP - AI 역량진단 및 컨설팅',
-    description: 'AI 역량진단, 상담신청, 세금계산기 등 다양한 서비스를 제공하는 AICAMP입니다.',
+    title: 'AICAMP - AI 역량진단 및 컨설팅 전문기관',
+    description: '기업의 AI 역량을 진단하고 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다. 무료 AI 역량진단부터 전문 컨설팅까지 원스톱 서비스를 제공합니다.',
     images: ['/images/aicamp_logo_del_250726.png'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+    creator: '@AICAMP',
+    site: '@AICAMP',
   },
   verification: {
     google: 'your-google-verification-code',
@@ -143,9 +157,19 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* 브라우저 확장 프로그램 오류 방지 메타 태그 */}
-        <meta name="robots" content="noindex,nofollow" />
-        <meta name="googlebot" content="noindex,nofollow" />
+        {/* 파비콘 및 애플 터치 아이콘 - head 최상단 */}
+        <link rel="apple-touch-icon" href="/images/aicamp_logo.png" sizes="180x180" />
+        
+        {/* SEO 최적화 - Canonical URL */}
+        <link rel="canonical" href="https://aicamp.club" />
+        
+        {/* 도메인 통합을 위한 추가 메타 태그 */}
+        <meta property="og:url" content="https://aicamp.club" />
+        <meta name="twitter:url" content="https://aicamp.club" />
+        
+        {/* 검색엔진 최적화 */}
+        <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+        <meta name="googlebot" content="index,follow" />
         <meta name="chrome-extension-compatibility" content="disabled" />
         <meta name="extension-message-port" content="disabled" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -161,62 +185,60 @@ export default function RootLayout({
         {/* PWA 매니페스트 - Next.js 동적 생성 사용 */}
         <link rel="manifest" href="/manifest.webmanifest" />
         
-        {/* 파비콘/애플 터치 아이콘 - head 내부에 위치 */}
-        <link rel="icon" href="/images/aicamp_logo_del_250726.png" type="image/png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/images/aicamp_logo.png" />
-        
         {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* 폰트 프리로드 경고 방지를 위한 스크립트 */}
+        {/* 폰트 최적화 및 브라우저 호환성 스크립트 */}
         <script 
           dangerouslySetInnerHTML={{
             __html: `
-              // 폰트 프리로드 사용 보장
-              if (typeof window !== 'undefined') {
-                window.addEventListener('load', function() {
-                  const preloadedFonts = document.querySelectorAll('link[rel="preload"][as="font"]');
-                  preloadedFonts.forEach(function(link) {
-                    if (link.href && link.href.includes('woff2')) {
-                      // 폰트 사용 강제 트리거
-                      const testDiv = document.createElement('div');
-                      testDiv.style.fontFamily = 'Inter';
-                      testDiv.style.opacity = '0';
-                      testDiv.style.position = 'absolute';
-                      testDiv.textContent = 'test';
-                      document.body.appendChild(testDiv);
-                      setTimeout(() => document.body.removeChild(testDiv), 100);
-                    }
-                  });
-                });
+              (function() {
+                // 폰트 프리로드 최적화
+                function optimizeFontLoading() {
+                  // Inter 폰트 즉시 사용하여 프리로드 경고 방지
+                  const style = document.createElement('style');
+                  style.textContent = 'body{font-family:Inter,system-ui,-apple-system,sans-serif}';
+                  document.head.appendChild(style);
+                  
+                  // 프리로드된 폰트 강제 사용
+                  const testElement = document.createElement('span');
+                  testElement.style.cssText = 'font-family:Inter;opacity:0;position:absolute;pointer-events:none';
+                  testElement.textContent = '.';
+                  document.body.appendChild(testElement);
+                  requestAnimationFrame(() => document.body.removeChild(testElement));
+                }
+                
+                // DOM 로드 즉시 실행
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', optimizeFontLoading);
+                } else {
+                  optimizeFontLoading();
+                }
                 
                 // Chrome 확장 프로그램 오류 방지
                 window.addEventListener('error', function(e) {
-                  if (e.message && (
-                    e.message.includes('runtime.lastError') ||
-                    e.message.includes('Extension context') ||
-                    e.message.includes('chrome-extension://') ||
-                    e.message.includes('The message port closed')
-                  )) {
+                  const msg = e.message || '';
+                  if (msg.includes('runtime.lastError') || 
+                      msg.includes('Extension context') ||
+                      msg.includes('chrome-extension://') ||
+                      msg.includes('The message port closed')) {
                     e.preventDefault();
-                    e.stopPropagation();
                     return false;
                   }
-                });
+                }, true);
                 
                 window.addEventListener('unhandledrejection', function(e) {
-                  if (e.reason && e.reason.message && (
-                    e.reason.message.includes('runtime.lastError') ||
-                    e.reason.message.includes('Extension context') ||
-                    e.reason.message.includes('chrome-extension://') ||
-                    e.reason.message.includes('The message port closed')
-                  )) {
+                  const msg = (e.reason && e.reason.message) || '';
+                  if (msg.includes('runtime.lastError') || 
+                      msg.includes('Extension context') ||
+                      msg.includes('chrome-extension://') ||
+                      msg.includes('The message port closed')) {
                     e.preventDefault();
                     return false;
                   }
-                });
-              }
+                }, true);
+              })();
             `
           }}
         />
