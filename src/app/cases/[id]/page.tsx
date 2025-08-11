@@ -45,7 +45,11 @@ import CaseVisualization from '@/components/cases/CaseVisualization';
 import CaseComparison from '@/components/cases/CaseComparison';
 import EnhancedCurriculumDisplay from '@/features/curriculum-integration/components/EnhancedCurriculumDisplay';
 import CurriculumRecommendationEngine from '@/features/curriculum-integration/components/CurriculumRecommendationEngine';
+import IndustrySpecificCurriculumDisplay from '@/components/curriculum/IndustrySpecificCurriculumDisplay';
+import DisclaimerNotice from '@/components/success-cases/DisclaimerNotice';
+import LegalFooter from '@/components/success-cases/LegalFooter';
 import { INDUSTRY_SPECIFIC_CURRICULUM } from '@/features/curriculum-integration/constants/enhanced-curriculum-database';
+import { getIndustryCurriculum, ALL_INDUSTRY_CURRICULUM } from '@/data/comprehensive-industry-curriculum';
 import { 
   SuccessCaseDetail, 
   SuccessCaseDetailsCollection, 
@@ -56,6 +60,72 @@ import {
 import { caseDetailsData } from './case-details-data';
 
 type ParamsPromise = Promise<{ id: string }>;
+
+// 업종명을 업종 코드로 매핑하는 함수
+function getIndustryCode(industryName: string): string {
+  const industryMapping: Record<string, string> = {
+    '제조업': 'manufacturing',
+    'IT서비스': 'itServices',
+    '소프트웨어': 'itServices',
+    '금융업': 'finance',
+    '은행': 'finance',
+    '보험': 'insurance',
+    '유통업': 'retail',
+    '소매업': 'retail',
+    '도매업': 'retail',
+    '건설업': 'construction',
+    '의료업': 'healthcare',
+    '병원': 'healthcare',
+    '교육업': 'education',
+    '농업': 'agriculture',
+    '물류업': 'logistics',
+    '운송업': 'logistics',
+    '호텔업': 'hospitality',
+    '숙박업': 'hospitality',
+    '법률서비스': 'legal',
+    '광고업': 'advertising',
+    '마케팅': 'advertising',
+    '부동산': 'realEstate',
+    '미디어': 'media',
+    '콘텐츠': 'media',
+    '컨설팅': 'consulting',
+    '화학업': 'chemical',
+    '통신업': 'telecom',
+    '자동차': 'automotive',
+    '항공업': 'aviation',
+    '에너지': 'energy',
+    '바이오': 'biotech',
+    '제약': 'biotech',
+    '게임': 'gaming',
+    '패션': 'fashion'
+  };
+
+  // 정확한 매칭 시도
+  if (industryMapping[industryName]) {
+    return industryMapping[industryName];
+  }
+
+  // 부분 매칭 시도
+  for (const [key, value] of Object.entries(industryMapping)) {
+    if (industryName.includes(key) || key.includes(industryName)) {
+      return value;
+    }
+  }
+
+  // 기본값
+  return 'manufacturing';
+}
+
+// 직원 수를 회사 규모로 매핑하는 함수
+function getCompanySize(employees?: string): string {
+  if (!employees) return 'medium';
+  
+  const num = parseInt(employees.replace(/[^0-9]/g, ''));
+  
+  if (num < 50) return 'small';
+  if (num < 300) return 'medium';
+  return 'large';
+}
 
 export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
   const [caseId, setCaseId] = React.useState<string>('');
@@ -302,25 +372,56 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
           {/* 커리큘럼 탭 */}
           <TabsContent value="curriculum" className="space-y-8">
             {caseData && (
-              <EnhancedCurriculumDisplay
-                caseCurriculum={{
-                  caseId: caseData.id,
-                  appliedCurriculum: safeCurriculum,
-                  customizations: [
+              <div className="space-y-8">
+                {/* 업종별 포괄적 커리큘럼 표시 */}
+                <IndustrySpecificCurriculumDisplay
+                  industryCode={getIndustryCode(caseData.industry)}
+                  industryName={caseData.industry}
+                  companySize={getCompanySize(caseData.companyInfo?.employees)}
+                  customizations={[
                     `${caseData.industry} 특화 AI 적용 사례 중심 교육`,
                     `${caseData.companyInfo?.employees} 규모 조직 맞춤형 프로그램`,
                     '실무 적용 가능한 핸즈온 실습 중심',
-                    '단계별 성과 측정 및 피드백 시스템'
-                  ],
-                  implementationProcess: safeProcess,
-                  measuredOutcomes: {
-                    quantitative: safeResults.quantitative,
-                    qualitative: safeResults.qualitative
-                  }
-                }}
-                industryType={caseData.industry}
-                companyInfo={caseData.companyInfo}
-              />
+                    '단계별 성과 측정 및 피드백 시스템',
+                    'AI와 n8n을 활용한 업무 자동화 실습',
+                    '업종별 성공 사례 기반 실전 프로젝트'
+                  ]}
+                />
+                
+                {/* 기존 성공사례 기반 커리큘럼도 함께 표시 */}
+                <Card className="border-t-4 border-blue-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Award className="w-5 h-5 text-blue-600" />
+                      <span>실제 적용된 성공사례 커리큘럼</span>
+                    </CardTitle>
+                    <p className="text-gray-600">
+                      위 업종별 표준 커리큘럼을 바탕으로 실제 {caseData.companyInfo?.name || '해당 기업'}에 적용된 맞춤형 교육과정
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedCurriculumDisplay
+                      caseCurriculum={{
+                        caseId: caseData.id,
+                        appliedCurriculum: safeCurriculum,
+                        customizations: [
+                          `${caseData.industry} 특화 AI 적용 사례 중심 교육`,
+                          `${caseData.companyInfo?.employees} 규모 조직 맞춤형 프로그램`,
+                          '실무 적용 가능한 핸즈온 실습 중심',
+                          '단계별 성과 측정 및 피드백 시스템'
+                        ],
+                        implementationProcess: safeProcess,
+                        measuredOutcomes: {
+                          quantitative: safeResults.quantitative,
+                          qualitative: safeResults.qualitative
+                        }
+                      }}
+                      industryType={caseData.industry}
+                      companyInfo={caseData.companyInfo}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </TabsContent>
 
@@ -495,7 +596,15 @@ export default function CaseDetailPage({ params }: { params: ParamsPromise }) {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* 고지사항 섹션 */}
+        <div className="mt-12 bg-gray-50 rounded-xl p-6">
+          <DisclaimerNotice />
+        </div>
       </div>
+
+      {/* 법적 고지사항 Footer */}
+      <LegalFooter />
     </div>
   );
 }

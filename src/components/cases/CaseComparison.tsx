@@ -62,13 +62,13 @@ export default function CaseComparison({ currentCase, allCases }: CaseComparison
         <CardHeader>
           <CardTitle className="text-xl text-blue-600 flex items-center">
             <BarChart3 className="w-6 h-6 mr-2" />
-            성공사례 비교
+            성공사례벤치마크 비교
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
             <p className="text-gray-600 mb-4">
-              비교하고 싶은 성공사례를 선택하세요 (최대 3개)
+              비교하고 싶은 성공사례벤치마크를 선택하세요 (최대 3개)
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {safeAllCases.slice(0, 6).map((caseItem) => (

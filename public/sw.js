@@ -1,5 +1,5 @@
 // AICAMP Service Worker - 안전한 버전
-const CACHE_NAME = 'aicamp-v3.3';
+const CACHE_NAME = 'aicamp-v3.4-' + Date.now();
 const urlsToCache = [
   '/',
   '/diagnosis',

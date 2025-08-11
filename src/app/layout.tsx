@@ -160,6 +160,16 @@ export default function RootLayout({
         {/* 파비콘 및 애플 터치 아이콘 - head 최상단 */}
         <link rel="apple-touch-icon" href="/images/aicamp_logo.png" sizes="180x180" />
         
+        {/* 강력한 캐시 무효화 - 일관된 최신 버전 보장 */}
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+        <meta name="cache-control" content="no-cache, no-store, must-revalidate" />
+        <meta name="expires" content="0" />
+        <meta name="pragma" content="no-cache" />
+        <meta name="version" content={`v3.4-${Date.now()}`} />
+        <meta name="last-modified" content={new Date().toISOString()} />
+        
         {/* SEO 최적화 - Canonical URL */}
         <link rel="canonical" href="https://aicamp.club" />
         
