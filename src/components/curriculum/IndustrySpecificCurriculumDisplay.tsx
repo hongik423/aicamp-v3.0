@@ -379,7 +379,7 @@ export default function IndustrySpecificCurriculumDisplay({
 
       {/* 모듈 상세 정보 다이얼로그 */}
       <Dialog open={showModuleDetail} onOpenChange={setShowModuleDetail}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-4xl max-h-[80vh] overflow-y-auto z-[1100]">
           {selectedModule && (
             <>
               <DialogHeader>
