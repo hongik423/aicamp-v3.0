@@ -2094,3 +2094,5 @@ export const caseDetailsData: SuccessCaseDetailsCollection = {
     tags: ['교육에듀테크', '적응형학습', '개인화교육', 'n8n자동화']
   }
 };
+
+// Force rebuild - fix syntax error
