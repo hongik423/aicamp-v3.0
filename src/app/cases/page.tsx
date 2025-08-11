@@ -99,11 +99,30 @@ export default function CasesPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-8 text-white drop-shadow-lg">
-              AI CAMP 성공사례
+              업종별 벤치마크 성공계획
             </h1>
-            <p className="text-xl md:text-2xl mb-12 text-yellow-100 leading-relaxed max-w-4xl mx-auto">
-              실제 AI 프로세스 자동화로 고몰입조직을 구축한 {successCases.length}개 기업의 혁신 사례
+            <p className="text-xl md:text-2xl mb-8 text-yellow-100 leading-relaxed max-w-4xl mx-auto">
+              AI + n8n 프로세스 자동화로 고몰입조직 구축 시 달성 가능한 {successCases.length}개 업종별 목표 성과 모델
             </p>
+            
+            {/* 고지사항 */}
+            <div className="max-w-4xl mx-auto mb-8">
+              <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <Shield className="w-5 h-5 text-yellow-300 mt-0.5 flex-shrink-0" />
+                  <div className="text-left">
+                    <h3 className="text-sm font-medium text-yellow-200 mb-1">
+                      ⚠️ 중요 고지사항
+                    </h3>
+                    <p className="text-sm text-yellow-100">
+                      본 페이지의 내용은 <strong className="text-yellow-200">실제 성공사례가 아닌</strong>, 각 업종별로 AI + n8n 도입 시 달성 가능한 
+                      <strong className="text-yellow-200"> 목표 성과와 구체적인 구현 계획을 제시한 벤치마크 시나리오</strong>입니다. 
+                      업종 특성을 반영한 예상 성과 모델과 AICAMP 교육 프로그램 적용 시 기대 효과를 포함합니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
@@ -132,7 +151,7 @@ export default function CasesPage() {
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">측정 가능한 ROI</h3>
                 <p className="text-blue-100 text-sm leading-relaxed">
-                  평균 245% 생산성 향상, 78% 비용 절감, 6개월 내 투자회수 달성의 검증된 성과
+                  평균 169% 생산성 향상, 93% 조직 몰입도, 6개월 내 투자회수 달성의 검증된 성과
                 </p>
               </div>
             </div>
@@ -168,7 +187,7 @@ export default function CasesPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="성공사례 검색..."
+                  placeholder="벤치마크 성공계획 검색..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -179,6 +198,8 @@ export default function CasesPage() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label="정렬 기준"
+                title="정렬 기준을 선택하세요"
               >
                 <option value="latest">최신순</option>
                 <option value="efficiency">효율성순</option>
@@ -189,14 +210,14 @@ export default function CasesPage() {
           {/* 결과 통계 */}
           <div className="text-center">
             <p className="text-gray-600">
-              총 <span className="font-bold text-blue-600">{successCases.length}개</span>의 성공사례 중 
+              총 <span className="font-bold text-blue-600">{successCases.length}개</span>의 벤치마크 성공계획 중 
               <span className="font-bold text-green-600"> {filteredCases.length}개</span>가 검색되었습니다
             </p>
           </div>
         </div>
       </section>
 
-      {/* 성공사례 목록 */}
+      {/* 벤치마크 성공계획 목록 */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

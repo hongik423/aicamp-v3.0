@@ -162,13 +162,11 @@ export default function InvestmentAnalysisTool() {
     setIsCompleted(false);
   }, [initialInputValues]);
 
-  // 엑셀 내보내기 기능
+  // JSON 내보내기 기능 (Excel 대체)
   const handleExport = () => {
     if (!analysisResult || !investmentGrade) return;
     
     try {
-      // 엑셀 내보내기 함수 호출
-      const { exportInvestmentAnalysisToExcel } = require('@/lib/utils/excelExport');
       
       const result = {
         grade: investmentGrade.grade,
@@ -196,23 +194,30 @@ export default function InvestmentAnalysisTool() {
         }
       };
       
-      const fileName = exportInvestmentAnalysisToExcel(investmentInput, result);
+      // JSON 파일로 다운로드
+      const dataToExport = {
+        input: investmentInput,
+        analysis: result,
+        timestamp: new Date().toISOString(),
+        projectName: investmentInput.projectName || 'investment-analysis'
+      };
+      
+      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const fileName = `${investmentInput.projectName || 'investment-analysis'}-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       // 성공 메시지 표시
-      toast({
-        title: "엑셀 내보내기 완료",
-        description: `${fileName} 파일이 다운로드되었습니다.`,
-        duration: 3000,
-      });
+      console.log('데이터 내보내기 완료:', fileName);
       
     } catch (error) {
-      console.error('엑셀 내보내기 오류:', error);
-      toast({
-        title: "내보내기 실패",
-        description: "엑셀 파일 생성 중 오류가 발생했습니다.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      console.error('데이터 내보내기 오류:', error);
     }
   };
 
