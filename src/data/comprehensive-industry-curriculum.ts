@@ -1484,6 +1484,256 @@ export const ADDITIONAL_INDUSTRIES: Record<string, Partial<IndustryCurriculum>> 
     ],
     totalDuration: { basic: '22시간', advanced: '38시간', executive: '6시간' },
     roi: { productivity: '60% 향상', costSaving: '연간 2억원', timeReduction: '기획업무 55% 단축' }
+  },
+
+  // 25. 전문서비스
+  professional: {
+    industryName: '전문서비스',
+    industryCode: 'PRO',
+    basic: [
+      {
+        title: '전문서비스 AI 기초 및 업무 자동화',
+        duration: '12시간',
+        description: '전문서비스 업무 효율화를 위한 AI 도구 활용',
+        objectives: ['AI 도구 활용법', '문서 자동화', '고객 관리', '업무 프로세스 최적화'],
+        practicalExercises: ['제안서 AI 작성', '계약서 검토 자동화', '고객 상담 챗봇', '프로젝트 관리 시스템'],
+        expectedOutcomes: ['업무 효율성 40% 향상', '문서 작성 시간 60% 단축', '고객 만족도 30% 증가', 'AI 전문서비스 역량 확보'],
+        tools: ['ChatGPT', 'Claude', 'Google Workspace', 'Notion']
+      },
+      {
+        title: 'n8n 전문서비스 워크플로우 자동화',
+        duration: '16시간',
+        description: '고객 관리, 프로젝트 관리, 청구 시스템 자동화',
+        objectives: ['고객 관리 자동화', '프로젝트 진행 추적', '청구서 자동 발송', '성과 보고 자동화'],
+        practicalExercises: ['CRM 자동화', '프로젝트 상태 업데이트', '자동 청구 시스템', '성과 대시보드'],
+        expectedOutcomes: ['고객 관리 효율성 50% 향상', '프로젝트 지연 80% 감소', '청구 오류 90% 감소', '보고 시간 70% 단축'],
+        tools: ['n8n', 'CRM API', 'Slack', 'Email', 'Google Calendar']
+      }
+    ],
+    advanced: [
+      {
+        title: '고급 AI 컨설팅 도구 활용',
+        duration: '20시간',
+        description: '전문 컨설팅을 위한 고급 AI 분석 도구',
+        objectives: ['데이터 분석 AI', '예측 모델링', '전략 수립 AI', '리포트 자동 생성'],
+        practicalExercises: ['시장 분석 AI', '경쟁사 분석 자동화', '전략 시뮬레이션', '자동 리포트 생성'],
+        expectedOutcomes: ['분석 정확도 85% 향상', '컨설팅 품질 40% 개선', '리포트 작성 시간 75% 단축', '고급 AI 컨설팅 역량'],
+        tools: ['Advanced Analytics', 'Machine Learning', 'Business Intelligence', 'Automation Tools']
+      }
+    ],
+    executive: [
+      {
+        title: '전문서비스 AI 전략 수립',
+        duration: '8시간',
+        description: '전문서비스 기업의 AI 도입 전략과 디지털 전환',
+        objectives: ['AI 전략 수립', '디지털 전환 로드맵', 'ROI 분석', '조직 변화 관리'],
+        practicalExercises: ['AI 도입 계획', '투자 수익률 계산', '조직 개편 방안', '경쟁 우위 전략'],
+        expectedOutcomes: ['전략적 AI 활용', '경쟁 우위 확보', '조직 효율성 극대화', '미래 성장 동력 확보'],
+        tools: ['Strategic Planning', 'ROI Calculator', 'Change Management', 'Leadership Tools']
+      }
+    ],
+    totalDuration: { basic: '28시간', advanced: '20시간', executive: '8시간' },
+    roi: { productivity: '45% 향상', costSaving: '연간 1.8억원', timeReduction: '업무시간 50% 단축' }
+  },
+
+  // 26. 이커머스
+  ecommerce: {
+    industryName: '이커머스',
+    industryCode: 'ECM',
+    basic: [
+      {
+        title: '이커머스 AI 기초 및 개인화 추천',
+        duration: '14시간',
+        description: 'AI 기반 상품 추천과 고객 개인화 서비스',
+        objectives: ['추천 시스템 이해', '개인화 마케팅', '고객 행동 분석', 'AI 챗봇 활용'],
+        practicalExercises: ['상품 추천 AI', '개인화 이메일', '고객 세분화', '쇼핑 챗봇 구축'],
+        expectedOutcomes: ['매출 전환율 35% 향상', '고객 만족도 40% 증가', 'AI 이커머스 역량 확보', '개인화 서비스 구현'],
+        tools: ['ChatGPT', 'Google Analytics', 'Recommendation Engine', 'Customer Data Platform']
+      },
+      {
+        title: 'n8n 이커머스 운영 자동화',
+        duration: '18시간',
+        description: '주문처리, 재고관리, 고객서비스 자동화 시스템',
+        objectives: ['주문 처리 자동화', '재고 관리 시스템', '고객 서비스 자동화', '마케팅 자동화'],
+        practicalExercises: ['주문-배송 연동', '재고 알림 시스템', '고객 문의 자동 응답', '이메일 마케팅 자동화'],
+        expectedOutcomes: ['운영 효율성 60% 향상', '고객 응답 시간 80% 단축', '재고 최적화 달성', '마케팅 ROI 50% 증가'],
+        tools: ['n8n', 'E-commerce API', 'Email Marketing', 'Customer Service Tools', 'Inventory Management']
+      }
+    ],
+    advanced: [
+      {
+        title: '고급 이커머스 AI 분석',
+        duration: '24시간',
+        description: '고급 데이터 분석과 예측 모델링을 통한 비즈니스 최적화',
+        objectives: ['고급 데이터 분석', '수요 예측', '가격 최적화', '고객 생애가치 분석'],
+        practicalExercises: ['매출 예측 모델', '동적 가격 책정', 'CLV 분석', 'A/B 테스트 자동화'],
+        expectedOutcomes: ['예측 정확도 90% 달성', '수익성 30% 개선', '고객 유지율 25% 향상', '데이터 기반 의사결정'],
+        tools: ['Advanced Analytics', 'Machine Learning', 'A/B Testing', 'Predictive Modeling']
+      }
+    ],
+    executive: [
+      {
+        title: '이커머스 AI 전략 및 디지털 전환',
+        duration: '6시간',
+        description: '이커머스 기업의 AI 전략과 옴니채널 구축',
+        objectives: ['AI 전략 수립', '옴니채널 구축', '디지털 마케팅', '글로벌 확장'],
+        practicalExercises: ['AI 로드맵 작성', '채널 통합 전략', '마케팅 전략 수립', '확장 계획'],
+        expectedOutcomes: ['전략적 AI 도입', '통합 고객 경험', '시장 점유율 확대', '글로벌 경쟁력 확보'],
+        tools: ['Strategic Planning', 'Omnichannel Platform', 'Marketing Automation', 'Global Expansion Tools']
+      }
+    ],
+    totalDuration: { basic: '32시간', advanced: '24시간', executive: '6시간' },
+    roi: { productivity: '55% 향상', costSaving: '연간 2.5억원', timeReduction: '운영업무 65% 자동화' }
+  },
+
+  // 27. 인증관리
+  certification: {
+    industryName: '인증관리',
+    industryCode: 'CRT',
+    basic: [
+      {
+        title: '인증관리 AI 기초 및 품질 시스템',
+        duration: '12시간',
+        description: 'AI 기반 품질 관리와 인증 프로세스 최적화',
+        objectives: ['품질 관리 AI', '인증 프로세스 이해', '문서 관리 자동화', '컴플라이언스 관리'],
+        practicalExercises: ['품질 체크리스트 AI', '인증 문서 자동 생성', '컴플라이언스 모니터링', '감사 준비 자동화'],
+        expectedOutcomes: ['품질 관리 효율성 45% 향상', '인증 준비 시간 50% 단축', '문서 오류 90% 감소', 'AI 품질관리 역량'],
+        tools: ['ChatGPT', 'Quality Management System', 'Document Management', 'Compliance Tools']
+      },
+      {
+        title: 'n8n 인증 워크플로우 자동화',
+        duration: '16시간',
+        description: '인증 신청, 심사, 발급 프로세스 자동화',
+        objectives: ['인증 신청 자동화', '심사 일정 관리', '문서 승인 프로세스', '인증서 발급 자동화'],
+        practicalExercises: ['신청서 자동 처리', '심사 일정 조율', '승인 워크플로우', '인증서 자동 발급'],
+        expectedOutcomes: ['처리 시간 60% 단축', '프로세스 표준화 달성', '고객 만족도 35% 향상', '운영 효율성 극대화'],
+        tools: ['n8n', 'Workflow Management', 'Document Approval', 'Certificate Generation', 'CRM Integration']
+      }
+    ],
+    advanced: [
+      {
+        title: '고급 품질 예측 및 리스크 관리',
+        duration: '20시간',
+        description: 'AI 기반 품질 예측과 리스크 사전 관리 시스템',
+        objectives: ['품질 예측 모델', '리스크 분석', '예방 관리', '지속적 개선'],
+        practicalExercises: ['품질 예측 AI', '리스크 매트릭스', '예방조치 시스템', '개선 제안 자동화'],
+        expectedOutcomes: ['품질 사고 80% 예방', '리스크 관리 체계 구축', '지속적 개선 문화', '예측 정확도 85%'],
+        tools: ['Predictive Analytics', 'Risk Management', 'Quality Prediction', 'Continuous Improvement']
+      }
+    ],
+    executive: [
+      {
+        title: '인증관리 디지털 전환 전략',
+        duration: '8시간',
+        description: '인증 기관의 디지털 전환과 AI 도입 전략',
+        objectives: ['디지털 전환 전략', 'AI 도입 로드맵', '경쟁 우위 확보', '미래 인증 서비스'],
+        practicalExercises: ['전환 계획 수립', 'AI 투자 계획', '서비스 혁신 방안', '시장 확장 전략'],
+        expectedOutcomes: ['디지털 리더십 확보', '서비스 혁신 달성', '시장 경쟁력 강화', '미래 성장 기반 구축'],
+        tools: ['Digital Strategy', 'AI Planning', 'Innovation Management', 'Market Analysis']
+      }
+    ],
+    totalDuration: { basic: '28시간', advanced: '20시간', executive: '8시간' },
+    roi: { productivity: '50% 향상', costSaving: '연간 1.5억원', timeReduction: '인증업무 55% 자동화' }
+  },
+
+  // 28. 투자
+  investment: {
+    industryName: '투자',
+    industryCode: 'INV',
+    basic: [
+      {
+        title: '투자 AI 기초 및 포트폴리오 관리',
+        duration: '16시간',
+        description: 'AI 기반 투자 분석과 포트폴리오 최적화',
+        objectives: ['투자 AI 이해', '시장 분석', '포트폴리오 최적화', '리스크 관리'],
+        practicalExercises: ['시장 분석 AI', '투자 전략 수립', '포트폴리오 구성', '리스크 측정'],
+        expectedOutcomes: ['투자 수익률 25% 향상', '리스크 관리 체계 구축', 'AI 투자 역량 확보', '의사결정 정확도 향상'],
+        tools: ['ChatGPT', 'Financial Analysis', 'Portfolio Management', 'Risk Assessment']
+      },
+      {
+        title: 'n8n 투자 운영 자동화',
+        duration: '18시간',
+        description: '투자 모니터링, 리포팅, 고객 관리 자동화',
+        objectives: ['투자 모니터링 자동화', '자동 리포팅', '고객 소통 자동화', '컴플라이언스 관리'],
+        practicalExercises: ['실시간 모니터링', '자동 투자 리포트', '고객 알림 시스템', '규제 준수 체크'],
+        expectedOutcomes: ['모니터링 효율성 70% 향상', '리포팅 시간 80% 단축', '고객 만족도 40% 증가', '컴플라이언스 100% 준수'],
+        tools: ['n8n', 'Market Data API', 'Reporting Tools', 'Customer Communication', 'Compliance Systems']
+      }
+    ],
+    advanced: [
+      {
+        title: '고급 투자 AI 및 알고리즘 트레이딩',
+        duration: '28시간',
+        description: '머신러닝 기반 투자 전략과 자동화 트레이딩 시스템',
+        objectives: ['머신러닝 투자 모델', '알고리즘 트레이딩', '대체투자 분석', '고급 리스크 관리'],
+        practicalExercises: ['예측 모델 구축', '트레이딩 봇 개발', 'ESG 투자 분석', '포트폴리오 최적화'],
+        expectedOutcomes: ['투자 성과 35% 향상', '거래 효율성 극대화', '신규 투자 기회 발굴', '고급 AI 투자 전문성'],
+        tools: ['Machine Learning', 'Algorithmic Trading', 'Alternative Data', 'Advanced Analytics']
+      }
+    ],
+    executive: [
+      {
+        title: '투자 AI 전략 및 디지털 자산관리',
+        duration: '10시간',
+        description: '투자 회사의 AI 전략과 디지털 자산관리 체계 구축',
+        objectives: ['AI 투자 전략', '디지털 자산관리', '핀테크 혁신', '글로벌 투자'],
+        practicalExercises: ['AI 전략 수립', '디지털 플랫폼 구축', '혁신 서비스 기획', '글로벌 확장 계획'],
+        expectedOutcomes: ['전략적 AI 도입', '디지털 혁신 달성', '시장 리더십 확보', '글로벌 경쟁력 강화'],
+        tools: ['Investment Strategy', 'Digital Platform', 'Fintech Innovation', 'Global Investment']
+      }
+    ],
+    totalDuration: { basic: '34시간', advanced: '28시간', executive: '10시간' },
+    roi: { productivity: '60% 향상', costSaving: '연간 3억원', timeReduction: '투자분석 70% 자동화' }
+  },
+
+  // 29. 교육에듀테크
+  edutech: {
+    industryName: '교육에듀테크',
+    industryCode: 'EDU',
+    basic: [
+      {
+        title: '에듀테크 AI 기초 및 개인화 학습',
+        duration: '14시간',
+        description: 'AI 기반 개인화 학습과 교육 콘텐츠 최적화',
+        objectives: ['개인화 학습 이해', 'AI 콘텐츠 생성', '학습 분석', '적응형 교육'],
+        practicalExercises: ['개인화 커리큘럼', 'AI 교육 콘텐츠', '학습 진도 분석', '맞춤형 피드백'],
+        expectedOutcomes: ['학습 효과 40% 향상', '교육 만족도 35% 증가', 'AI 교육 역량 확보', '개인화 교육 구현'],
+        tools: ['ChatGPT', 'Learning Management System', 'Content Generation', 'Learning Analytics']
+      },
+      {
+        title: 'n8n 교육 운영 자동화',
+        duration: '16시간',
+        description: '학생 관리, 수업 운영, 평가 시스템 자동화',
+        objectives: ['학생 관리 자동화', '수업 일정 관리', '자동 평가 시스템', '학부모 소통 자동화'],
+        practicalExercises: ['출석 관리 시스템', '과제 자동 배포', '성적 처리 자동화', '알림 시스템 구축'],
+        expectedOutcomes: ['행정 업무 60% 감소', '교육 품질 30% 향상', '학부모 만족도 증가', '운영 효율성 극대화'],
+        tools: ['n8n', 'LMS Integration', 'Student Information System', 'Communication Tools', 'Assessment Automation']
+      }
+    ],
+    advanced: [
+      {
+        title: '고급 AI 교육 분석 및 예측',
+        duration: '22시간',
+        description: '학습 데이터 분석과 교육 성과 예측 시스템',
+        objectives: ['학습 데이터 분석', '성과 예측 모델', '교육 효과 측정', '지능형 튜터링'],
+        practicalExercises: ['학습 패턴 분석', '성과 예측 AI', '교육 효과 분석', 'AI 튜터 개발'],
+        expectedOutcomes: ['예측 정확도 85% 달성', '교육 효과 50% 향상', '개인화 정도 극대화', '지능형 교육 시스템'],
+        tools: ['Advanced Analytics', 'Predictive Modeling', 'Educational Data Mining', 'AI Tutoring']
+      }
+    ],
+    executive: [
+      {
+        title: '에듀테크 AI 전략 및 교육 혁신',
+        duration: '8시간',
+        description: '교육 기관의 AI 전략과 디지털 교육 혁신',
+        objectives: ['교육 AI 전략', '디지털 전환', '교육 혁신', '미래 교육 모델'],
+        practicalExercises: ['AI 교육 전략', '디지털 캠퍼스', '혁신 교육 모델', '글로벌 교육 확장'],
+        expectedOutcomes: ['교육 혁신 달성', '디지털 리더십', '경쟁 우위 확보', '미래 교육 선도'],
+        tools: ['Education Strategy', 'Digital Transformation', 'Innovation Management', 'Future Education']
+      }
+    ],
+    totalDuration: { basic: '30시간', advanced: '22시간', executive: '8시간' },
+    roi: { productivity: '50% 향상', costSaving: '연간 2억원', timeReduction: '교육운영 55% 자동화' }
   }
 };
 
