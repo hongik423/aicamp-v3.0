@@ -97,7 +97,25 @@ function getIndustryCode(industryName: string): string {
     '바이오': 'biotech',
     '제약': 'biotech',
     '게임': 'gaming',
-    '패션': 'fashion'
+    '패션': 'fashion',
+    // 24개 업종 완전 매핑 추가
+    '전문서비스': 'professional',
+    '컨설팅업': 'professional',
+    '회계법무': 'professional',
+    '물류유통': 'logistics',
+    '의료헬스케어': 'healthcare',
+    '헬스케어': 'healthcare',
+    '이커머스': 'ecommerce',
+    '전자상거래': 'ecommerce',
+    '온라인쇼핑': 'ecommerce',
+    '인증관리': 'certification',
+    '품질인증': 'certification',
+    '투자': 'investment',
+    '투자관리': 'investment',
+    '자산관리': 'investment',
+    '교육에듀테크': 'edutech',
+    '에듀테크': 'edutech',
+    '온라인교육': 'edutech'
   };
 
   // 정확한 매칭 시도
