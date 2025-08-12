@@ -117,29 +117,27 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     },
     n8nWorkflows: [
       {
-        workflowName: '코드 리뷰 자동화',
-        description: 'PR 생성 시 자동 코드 분석 및 리뷰',
-        triggerType: 'GitHub Webhook',
-        integrations: ['GitHub', 'OpenAI API', 'Slack'],
-        executionCount: 5000
+        name: '코드 리뷰 자동화',
+        description: 'PR 생성 시 자동 코드 분석 및 리뷰 워크플로우',
+        nodes: 12,
+        triggers: ['GitHub Webhook', 'PR 생성'],
+        actions: ['코드 분석', '리뷰 생성', 'Slack 알림']
       }
     ],
     aiImplementations: [
       {
-        aiTool: 'GitHub Copilot',
-        useCase: '코드 자동 완성 및 제안',
+        type: 'GitHub Copilot',
+        purpose: '코드 자동 완성 및 제안',
         accuracy: '85%',
-        trainingData: '프로젝트 코드베이스'
+        processingTime: '실시간'
       }
     ],
     departmentAutomations: [
       {
         department: '개발팀',
-        processes: ['코딩', '리뷰', '테스트'],
         automationLevel: '70%',
-        manualHours: '40시간/주',
-        automatedHours: '12시간/주',
-        efficiency: '70% 개선'
+        timeSaved: '주 28시간',
+        costReduction: '연 3억원'
       }
     ],
     roiData: {
@@ -236,6 +234,50 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
       paybackPeriod: '1.5개월',
       threeYearROI: '2,400%'
     },
+    implementationTimeline: '6주',
+    successFactors: [
+      '클라우드 네이티브 아키텍처 구축',
+      'AI 모니터링 시스템 정확도 99% 달성',
+      '자동화된 장애 대응 프로세스 구축'
+    ],
+    tags: ['클라우드', 'AI', '인프라자동화', 'DevOps', '모니터링'],
+    testimonial: {
+      quote: 'AI 자동화로 인프라 관리가 완전히 혁신되었습니다.',
+      author: '박인프라',
+      position: 'DevOps 엔지니어',
+      company: '클라우드솔루션 B'
+    },
+    followUpResults: [
+      {
+        metric: '6개월 후 추가 성과',
+        achievement: '운영 비용 60% 추가 절감, 시스템 안정성 99.99% 달성'
+      }
+    ],
+    n8nWorkflows: [
+      {
+        name: '인프라 모니터링 자동화',
+        description: '클라우드 리소스 자동 모니터링 및 최적화 워크플로우',
+        nodes: 18,
+        triggers: ['리소스 사용량 임계값', '비용 초과 알림'],
+        actions: ['자동 스케일링', '비용 최적화', '알림 발송']
+      }
+    ],
+    aiImplementations: [
+      {
+        type: 'Predictive Analytics',
+        purpose: '인프라 리소스 예측 및 최적화',
+        accuracy: '95%',
+        processingTime: '5분'
+      }
+    ],
+    departmentAutomations: [
+      {
+        department: 'DevOps팀',
+        automationLevel: '90%',
+        timeSaved: '주 35시간',
+        costReduction: '연 8억원'
+      }
+    ],
     featured: true
   },
 
