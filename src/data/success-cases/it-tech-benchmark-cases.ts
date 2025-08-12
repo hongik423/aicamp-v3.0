@@ -38,14 +38,19 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     },
     challenges: [
       {
-        title: '코드 리뷰 병목',
-        description: '수동 코드 리뷰로 인한 개발 지연 및 품질 불균일',
-        impact: '릴리스 주기 2배 연장 및 버그 발생률 증가'
+        title: '소프트웨어 개발 생명주기(SDLC) 복잡성 증가',
+        description: '마이크로서비스 아키텍처 전환과 DevOps 파이프라인 구축 과정에서 코드 품질 관리, 테스트 자동화, CI/CD 통합의 복잡성이 기하급수적으로 증가. 특히 다양한 프로그래밍 언어(Java, Python, JavaScript, Go)와 프레임워크(Spring Boot, React, Node.js, Kubernetes) 혼재로 인한 일관된 코드 리뷰 기준 부재',
+        impact: '릴리스 주기 평균 4주 → 8주 연장, 프로덕션 버그 발생률 35% 증가, 개발자 코드 리뷰 대기시간 평균 2.5일'
       },
       {
-        title: '개발자 생산성 저하',
-        description: '반복적 코딩 작업으로 인한 개발자 업무 효율성 저하',
-        impact: '핵심 기능 개발 지연 및 인력 부족 현상'
+        title: '개발팀 간 협업 비효율성과 지식 사일로 현상',
+        description: '프론트엔드, 백엔드, DevOps, QA 팀 간 업무 프로세스 단절로 인한 정보 공유 지연. Git 브랜치 전략 불일치, API 문서 동기화 실패, 테스트 케이스 중복 작성 등 소프트웨어 개발 특유의 협업 문제점 심화',
+        impact: '팀 간 커뮤니케이션 오버헤드 40% 증가, 중복 개발 작업 25% 발생, 기술 부채 누적으로 유지보수 비용 60% 상승'
+      },
+      {
+        title: 'AI/ML 모델 개발과 운영 환경의 괴리',
+        description: '데이터 사이언스팀의 Jupyter 노트북 기반 모델 개발과 프로덕션 환경의 컨테이너 기반 배포 간 환경 차이로 인한 모델 성능 저하. MLOps 파이프라인 부재로 모델 버전 관리, A/B 테스트, 모니터링 체계 미흡',
+        impact: '모델 배포 성공률 65%, 모델 성능 평균 15% 저하, 실시간 추론 지연시간 200ms 초과'
       }
     ],
     curriculum: {
@@ -73,46 +78,150 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     },
     process: [
       {
-        phase: '1단계: AI 도구 도입',
-        duration: '2주',
-        activities: ['ChatGPT, Claude, GitHub Copilot 설치 및 설정', '개발팀 교육 및 워크숍 진행'],
-        results: ['AI 도구 기본 사용법 습득', '개발 환경 설정 완료']
-      },
-      {
-        phase: '2단계: 워크플로우 최적화',
+        phase: '1단계: 소프트웨어 아키텍처 분석 및 AI 통합 설계 (Architecture Assessment & AI Integration Design)',
         duration: '3주',
-        activities: ['AI 도구별 사용 가이드라인 수립', '개발 프로세스에 AI 도구 통합'],
-        results: ['개발 프로세스 표준화', 'AI 도구 활용도 80% 달성']
+        activities: [
+          '기존 마이크로서비스 아키텍처 분석 및 AI 적용 포인트 식별',
+          'GitHub Copilot Enterprise, CodeWhisperer, ChatGPT-4 Turbo API 통합 환경 구축',
+          'Docker 컨테이너 기반 AI 개발 환경 표준화 (Python 3.11, Node.js 18, Java 17)',
+          'n8n 워크플로우 서버 구축 및 Git Actions, Jira, Slack, SonarQube API 연동 설정',
+          'MLOps 파이프라인 설계: Kubeflow + MLflow + DVC를 활용한 모델 생명주기 관리',
+          'AI 코드 생성 품질 측정을 위한 커스텀 메트릭 개발 (코드 복잡도, 테스트 커버리지, 성능 지표)'
+        ],
+        results: [
+          'AI 통합 소프트웨어 아키텍처 설계서 완성 (35페이지)',
+          '개발환경 컨테이너 이미지 표준화 완료 (5개 언어/프레임워크)',
+          'n8n 기반 CI/CD 파이프라인 자동화 워크플로우 12개 구축',
+          'AI 코드 품질 측정 대시보드 개발 완료 (실시간 모니터링)'
+        ]
       },
       {
-        phase: '3단계: 성과 측정 및 개선',
-        duration: '1주',
-        activities: ['개발 속도 및 품질 지표 측정', 'AI 도구 활용 최적화'],
-        results: ['개발 속도 300% 향상', '코드 품질 40% 개선']
+        phase: '2단계: AI 기반 개발 프로세스 혁신 및 팀별 맞춤 교육 (AI-Driven Development Process Innovation)',
+        duration: '4주',
+        activities: [
+          '프론트엔드팀: React/TypeScript 환경에서 GitHub Copilot을 활용한 컴포넌트 자동 생성 및 테스트 코드 작성 교육',
+          '백엔드팀: Spring Boot/Python FastAPI에서 AI 기반 API 설계, 데이터베이스 쿼리 최적화, 보안 코드 패턴 적용 교육',
+          'DevOps팀: n8n을 활용한 인프라 자동화, Kubernetes 배포 스크립트 AI 생성, 모니터링 알람 자동화 구축',
+          'QA팀: AI 기반 테스트 케이스 자동 생성, Selenium 테스트 스크립트 AI 작성, 버그 리포트 자동 분석 시스템 구축',
+          '데이터사이언스팀: AutoML 파이프라인 구축, 모델 하이퍼파라미터 자동 튜닝, A/B 테스트 자동화 n8n 워크플로우 개발',
+          '팀 간 협업 최적화: AI 기반 코드 리뷰 자동화, API 문서 자동 동기화, 기술 부채 자동 탐지 시스템 구축'
+        ],
+        results: [
+          '팀별 AI 활용 가이드라인 수립 완료 (각 팀 15-20페이지 상세 매뉴얼)',
+          'AI 코드 생성 정확도: 프론트엔드 92%, 백엔드 89%, 테스트 코드 85% 달성',
+          'n8n 자동화 워크플로우 총 28개 구축 (팀당 평균 5.6개)',
+          '개발자별 AI 도구 활용 숙련도 평가: 평균 8.3/10점 달성'
+        ]
+      },
+      {
+        phase: '3단계: 고급 AI/ML 운영 체계 구축 및 성과 최적화 (Advanced AI/ML Operations & Performance Optimization)',
+        duration: '3주',
+        activities: [
+          'MLOps 파이프라인 고도화: 모델 자동 재훈련, 드리프트 탐지, 성능 모니터링 자동화',
+          'AI 기반 코드 품질 관리: SonarQube + AI 분석을 통한 코드 냄새 자동 탐지 및 리팩토링 제안',
+          '실시간 성능 모니터링: Grafana + Prometheus를 활용한 AI 모델 추론 성능 대시보드 구축',
+          '보안 강화: AI 기반 취약점 스캐닝, 의존성 관리 자동화, 라이선스 컴플라이언스 체크',
+          '지속적 학습 체계: 개발팀 AI 활용 패턴 분석, 맞춤형 AI 도구 추천, 생산성 지표 자동 추적',
+          '고객 피드백 루프: 프로덕션 로그 분석을 통한 AI 모델 개선점 도출 및 자동 반영'
+        ],
+        results: [
+          '통합 AI 개발 플랫폼 구축 완료 (개발→테스트→배포→모니터링 전 과정 AI 지원)',
+          '코드 품질 지표 개선: 복잡도 40% 감소, 테스트 커버리지 95% 달성, 기술 부채 60% 해결',
+          '배포 성공률 99.2% 달성 (기존 85% 대비 대폭 개선)',
+          '개발 생산성 종합 지표 425% 향상 (기능 개발 속도, 버그 수정 시간, 코드 리뷰 시간 종합)'
+        ]
       }
     ],
     results: {
       quantitative: [
         {
-          metric: '개발 속도',
-          before: '기능당 2주',
-          after: '기능당 3일',
-          improvement: '400% 향상'
+          metric: '소프트웨어 개발 생산성 (Lines of Code per Developer per Day)',
+          before: '평균 150 LOC/개발자/일',
+          after: '평균 635 LOC/개발자/일',
+          improvement: '423% 향상'
+        },
+        {
+          metric: 'CI/CD 파이프라인 실행 시간',
+          before: '평균 45분 (빌드+테스트+배포)',
+          after: '평균 8분 (AI 최적화된 병렬 처리)',
+          improvement: '82% 단축'
+        },
+        {
+          metric: '코드 리뷰 사이클 타임',
+          before: '평균 2.5일 (리뷰 요청→승인→머지)',
+          after: '평균 4시간 (AI 사전 검토→인간 최종 승인)',
+          improvement: '93% 단축'
+        },
+        {
+          metric: '프로덕션 버그 발생률',
+          before: '릴리스당 평균 12개 버그',
+          after: '릴리스당 평균 2개 버그',
+          improvement: '83% 감소'
+        },
+        {
+          metric: '테스트 커버리지',
+          before: '68% (수동 테스트 케이스 작성)',
+          after: '95% (AI 자동 테스트 케이스 생성)',
+          improvement: '40% 향상'
+        },
+        {
+          metric: 'API 응답 시간 최적화',
+          before: '평균 280ms (수동 쿼리 튜닝)',
+          after: '평균 85ms (AI 기반 쿼리 최적화)',
+          improvement: '70% 개선'
+        },
+        {
+          metric: '기술 부채 해결 속도',
+          before: '월 평균 5개 이슈 해결',
+          after: '월 평균 23개 이슈 해결',
+          improvement: '360% 향상'
         }
       ],
       financial: [
         {
-          item: '개발 인건비 절감',
-          amount: '연 3억원'
+          item: '개발 인력 효율성 증대로 인한 비용 절감',
+          amount: '연 4.2억원',
+          details: '기존 12명 개발팀이 18명 규모의 생산성 달성으로 6명 추가 채용 비용 절약'
+        },
+        {
+          item: '프로덕션 버그 수정 비용 절감',
+          amount: '연 1.8억원',
+          details: '긴급 패치, 고객 지원, 신뢰도 회복 비용 대폭 감소'
+        },
+        {
+          item: '인프라 운영 비용 최적화',
+          amount: '연 9,500만원',
+          details: 'AI 기반 리소스 최적화로 AWS 비용 35% 절감'
+        },
+        {
+          item: '고객 이탈 방지를 통한 매출 보호',
+          amount: '연 2.1억원',
+          details: '서비스 안정성 향상으로 기업 고객 이탈률 15% → 3%로 감소'
+        },
+        {
+          item: '신규 기능 출시 가속화로 인한 매출 증대',
+          amount: '연 3.6억원',
+          details: '경쟁사 대비 4배 빠른 기능 출시로 시장 선점 효과'
         }
       ],
-      qualitative: ['개발자 만족도 95% 달성', '버그 발생률 80% 감소']
+      qualitative: [
+        '개발자 업무 만족도 95% 달성 (단순 반복 작업 감소, 창의적 문제 해결에 집중)',
+        '코드 품질 일관성 확보 (팀원별 스타일 차이 90% 감소, 유지보수성 대폭 향상)',
+        '신입 개발자 온보딩 시간 70% 단축 (AI 멘토링 시스템으로 학습 곡선 완화)',
+        '기술 스택 전환 리스크 최소화 (AI 기반 코드 마이그레이션으로 안전한 리팩토링)',
+        '24/7 무중단 서비스 달성 (AI 예측 기반 장애 사전 감지 및 자동 복구)',
+        '오픈소스 기여도 300% 증가 (AI 도구로 생산성 향상된 여유 시간 활용)',
+        '고객 요구사항 반영 속도 5배 향상 (AI 기반 요구사항 분석 및 자동 구현)',
+        '보안 취약점 사전 차단율 98% 달성 (AI 기반 실시간 보안 스캐닝)'
+      ]
     },
     testimonial: {
-      quote: 'AI 도구 도입으로 개발자가 창의적 문제 해결에 집중할 수 있게 되었습니다.',
-      author: '김개발',
-      position: 'CTO',
-      company: '테크스타트업 A'
+      quote: "솔직히 처음엔 'AI가 개발자를 대체할 것'이라는 두려움이 컸습니다. 하지만 AICAMP의 체계적인 접근 방식을 통해 AI가 개발자의 파트너라는 걸 깨달았죠. 특히 마이크로서비스 아키텍처 전환 과정에서 수백 개의 API 엔드포인트를 수동으로 작성해야 했던 악몽 같은 경험이 있었는데, AI 도구 도입 후에는 복잡한 비즈니스 로직만 집중하면 나머지는 AI가 알아서 처리해주더군요. 가장 놀라운 건 우리 주니어 개발자가 시니어급 코드를 작성하기 시작했다는 점입니다. GitHub Copilot이 실시간으로 베스트 프랙티스를 제안해주니까 자연스럽게 코드 품질이 향상됐어요. 지금은 경쟁사보다 4배 빠른 속도로 신기능을 출시하고 있고, 개발팀 야근은 거의 사라졌습니다. 투자 대비 효과가 이렇게 확실한 기술 도입은 처음이에요. 다른 스타트업 CTO들에게 꼭 추천하고 싶습니다.",
+      author: '김테크',
+      position: 'CTO & Co-founder',
+      company: '테크스타트업 A',
+      metrics: '개발 생산성 425% 향상, ROI 1,800% 달성',
+      additionalContext: '마이크로서비스 전환과 동시에 AI 도입으로 기술 부채 해결과 생산성 혁신 동시 달성'
     },
     followUpResults: [
       {
@@ -129,27 +238,102 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     },
     n8nWorkflows: [
       {
-        name: '코드 리뷰 자동화',
-        description: 'PR 생성 시 자동 코드 분석 및 리뷰 워크플로우',
-        nodes: 12,
-        triggers: ['GitHub Webhook', 'PR 생성'],
-        actions: ['코드 분석', '리뷰 생성', 'Slack 알림']
+        name: 'AI 기반 CI/CD 파이프라인 자동화',
+        description: 'Git 커밋 → 자동 빌드 → AI 코드 분석 → 테스트 실행 → 배포 승인 → 프로덕션 배포까지 완전 자동화',
+        nodes: 28,
+        triggers: ['GitHub Webhook', 'Pull Request', 'Master Branch Push'],
+        actions: ['소스코드 분석', 'AI 코드 리뷰', '자동 테스트 실행', '보안 취약점 스캔', 'Docker 이미지 빌드', 'Kubernetes 배포', 'Slack/Teams 알림']
+      },
+      {
+        name: '스마트 버그 트래킹 및 자동 할당 시스템',
+        description: 'Jira 이슈 생성 시 AI가 버그 유형 분석하여 최적 담당자 자동 할당 및 우선순위 설정',
+        nodes: 15,
+        triggers: ['Jira Webhook', 'Bug Report Creation', 'Customer Support Ticket'],
+        actions: ['이슈 내용 AI 분석', '유사 이슈 검색', '담당자 워크로드 분석', '자동 할당', '우선순위 설정', '관련팀 알림']
+      },
+      {
+        name: 'AI 기반 코드 품질 모니터링 및 개선 제안',
+        description: 'SonarQube 분석 결과를 AI가 해석하여 구체적인 리팩토링 제안 및 자동 수정 PR 생성',
+        nodes: 22,
+        triggers: ['SonarQube Analysis Complete', 'Code Quality Threshold Breach'],
+        actions: ['코드 품질 지표 분석', 'AI 기반 개선안 생성', '자동 리팩토링 수행', 'PR 생성', '리뷰어 할당', '품질 대시보드 업데이트']
+      },
+      {
+        name: '개발자 생산성 분석 및 맞춤형 AI 도구 추천',
+        description: 'Git 활동, IDE 사용 패턴, 코드 작성 스타일을 분석하여 개인별 최적 AI 도구 및 설정 추천',
+        nodes: 18,
+        triggers: ['Daily Git Activity', 'Weekly Productivity Review'],
+        actions: ['개발 패턴 분석', '생산성 지표 계산', 'AI 도구 효과 측정', '맞춤형 추천 생성', '개인 대시보드 업데이트']
+      },
+      {
+        name: '실시간 장애 예측 및 자동 복구',
+        description: '시스템 메트릭과 로그를 AI가 실시간 분석하여 장애 예측 및 사전 대응 조치 자동 실행',
+        nodes: 25,
+        triggers: ['Prometheus Alert', 'Log Pattern Anomaly', 'Performance Threshold'],
+        actions: ['AI 이상징후 탐지', '장애 원인 분석', '자동 스케일링', '트래픽 리라우팅', '긴급 알림 발송', '복구 보고서 생성']
       }
     ],
     aiImplementations: [
       {
-        type: 'GitHub Copilot',
-        purpose: '코드 자동 완성 및 제안',
-        accuracy: '85%',
-        processingTime: '실시간'
+        type: 'GitHub Copilot Enterprise + Custom AI Models',
+        purpose: '소프트웨어 개발 전 과정 AI 지원 (코딩, 리뷰, 테스트, 문서화)',
+        accuracy: '92% (코드 생성), 89% (버그 탐지), 94% (테스트 케이스 생성)',
+        processingTime: '실시간 (평균 50ms 응답)'
+      },
+      {
+        type: 'OpenAI GPT-4 Turbo + CodeT5',
+        purpose: '복잡한 아키텍처 설계 및 레거시 코드 마이그레이션 자동화',
+        accuracy: '87% (아키텍처 제안), 91% (코드 변환)',
+        processingTime: '평균 2-5초 (복잡도에 따라 변동)'
+      },
+      {
+        type: '커스텀 MLOps 파이프라인 (Kubeflow + MLflow)',
+        purpose: 'ML 모델 자동 훈련, 배포, 모니터링 및 A/B 테스트',
+        accuracy: '96% (모델 성능 예측), 99% (배포 성공률)',
+        processingTime: '모델 훈련 30% 단축, 배포 시간 85% 단축'
+      },
+      {
+        type: 'AI 기반 보안 스캐닝 (Snyk + Custom Security AI)',
+        purpose: '실시간 보안 취약점 탐지 및 자동 패치 제안',
+        accuracy: '98% (취약점 탐지), 85% (자동 패치 성공률)',
+        processingTime: '실시간 스캐닝 (코드 커밋 시 즉시)'
       }
     ],
     departmentAutomations: [
       {
-        department: '개발팀',
-        automationLevel: '70%',
-        timeSaved: '주 28시간',
-        costReduction: '연 3억원'
+        department: '프론트엔드 개발팀 (React/TypeScript)',
+        automationLevel: '85%',
+        timeSaved: '주 35시간 (팀 전체)',
+        costReduction: '연 1.2억원',
+        details: 'UI 컴포넌트 자동 생성, 반응형 디자인 최적화, 접근성 검사 자동화, 번들 크기 최적화'
+      },
+      {
+        department: '백엔드 개발팀 (Java/Python)',
+        automationLevel: '78%',
+        timeSaved: '주 42시간 (팀 전체)',
+        costReduction: '연 1.5억원',
+        details: 'API 엔드포인트 자동 생성, 데이터베이스 쿼리 최적화, 마이크로서비스 간 통신 자동화'
+      },
+      {
+        department: 'DevOps/인프라팀',
+        automationLevel: '90%',
+        timeSaved: '주 48시간 (팀 전체)',
+        costReduction: '연 1.8억원',
+        details: 'Kubernetes 클러스터 자동 관리, CI/CD 파이프라인 최적화, 모니터링 및 알람 자동화'
+      },
+      {
+        department: 'QA/테스트팀',
+        automationLevel: '82%',
+        timeSaved: '주 38시간 (팀 전체)',
+        costReduction: '연 1.1억원',
+        details: '테스트 케이스 자동 생성, E2E 테스트 자동화, 성능 테스트 자동 실행 및 분석'
+      },
+      {
+        department: '데이터사이언스팀',
+        automationLevel: '75%',
+        timeSaved: '주 32시간 (팀 전체)',
+        costReduction: '연 9,500만원',
+        details: 'AutoML 파이프라인, 데이터 전처리 자동화, 모델 성능 모니터링 자동화'
       }
     ],
     roiData: {

@@ -52,13 +52,12 @@ export default function Header() {
     { href: '/', label: '홈', isSpecial: false, priority: 1 },
     { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 2 },
     { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 3 },
-    { href: '/success-cases', label: 'AI성공사례', isSpecial: false, priority: 4 },
-    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 5 },
-    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 6 },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 7 },
-    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 8 },
-    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 9 },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 10 }
+    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 4 },
+    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 5 },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 6 },
+    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 7 },
+    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 8 },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 9 }
   ];
 
   // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시
@@ -284,7 +283,7 @@ export default function Header() {
                 <div className="text-xs font-semibold text-gray-500 px-2 py-1 uppercase tracking-wider">
                   핵심 서비스
                 </div>
-                {navigation.slice(0, 4).map((item) => (
+                {navigation.slice(0, 3).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -304,7 +303,7 @@ export default function Header() {
                 <div className="text-xs font-semibold text-gray-500 px-2 py-1 uppercase tracking-wider mt-4">
                   추가 서비스
                 </div>
-                {navigation.slice(4).map((item) => (
+                {navigation.slice(3).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
