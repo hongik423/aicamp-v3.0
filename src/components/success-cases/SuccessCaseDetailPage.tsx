@@ -26,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { SuccessCaseDetail } from '@/types/success-case.types';
 import EnhancedAIProgramShowcase from '@/components/programs/EnhancedAIProgramShowcase';
+import { getNormalizedBenchmarks } from '@/lib/utils/benchmarkNormalization';
 
 interface SuccessCaseDetailPageProps {
   caseData: SuccessCaseDetail;
@@ -121,28 +122,28 @@ export default function SuccessCaseDetailPage({
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <TrendingUp className="w-8 h-8 mx-auto mb-2 text-green-300" />
-                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics?.productivityGain}</div>
+                  <div className="text-2xl font-bold text-white">{getNormalizedBenchmarks(caseData).productivityGain}</div>
                   <div className="text-sm text-white/75">생산성 향상</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <DollarSign className="w-8 h-8 mx-auto mb-2 text-yellow-300" />
-                  <div className="text-lg font-bold text-white">{caseData.automationMetrics?.costSaving}</div>
+                  <div className="text-lg font-bold text-white">{getNormalizedBenchmarks(caseData).costSaving}</div>
                   <div className="text-sm text-white/75">비용 절감</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Clock className="w-8 h-8 mx-auto mb-2 text-blue-300" />
-                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics?.timeReduction}</div>
+                  <div className="text-2xl font-bold text-white">{getNormalizedBenchmarks(caseData).timeReduction}</div>
                   <div className="text-sm text-white/75">시간 단축</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Target className="w-8 h-8 mx-auto mb-2 text-red-300" />
-                  <div className="text-2xl font-bold text-white">{caseData.roiData?.threeYearROI}</div>
+                  <div className="text-2xl font-bold text-white">{getNormalizedBenchmarks(caseData).roi}</div>
                   <div className="text-sm text-white/75">3년 ROI</div>
                 </CardContent>
               </Card>
@@ -217,7 +218,7 @@ export default function SuccessCaseDetailPage({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">3년 ROI</span>
-                   <span className="font-medium text-blue-600">{caseData.roiData?.threeYearROI}</span>
+                   <span className="font-medium text-blue-600">{getNormalizedBenchmarks(caseData).roi}</span>
                   </div>
                 </CardContent>
               </Card>
