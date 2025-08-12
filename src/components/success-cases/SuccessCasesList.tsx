@@ -26,6 +26,8 @@ import {
   departmentOptions, 
   companySizeOptions 
 } from '@/data/success-cases/ai-n8n-automation-cases';
+import { financeInsuranceCases } from '@/data/success-cases/finance-insurance-cases';
+import { retailServiceCases } from '@/data/success-cases/retail-service-cases';
 
 interface SuccessCasesListProps {
   onCaseSelect?: (caseId: string) => void;
@@ -43,9 +45,18 @@ export default function SuccessCasesList({
   const [selectedCompanySize, setSelectedCompanySize] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  // 모든 성공사례 통합
+  const allSuccessCases = useMemo(() => {
+    return [
+      ...successCases,
+      ...financeInsuranceCases,
+      ...retailServiceCases
+    ];
+  }, []);
+
   // 필터링된 성공사례
   const filteredCases = useMemo(() => {
-    return successCases.filter(caseItem => {
+    return allSuccessCases.filter(caseItem => {
       const matchesSearch = caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            caseItem.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            caseItem.companyName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -56,7 +67,7 @@ export default function SuccessCasesList({
 
       return matchesSearch && matchesIndustry && matchesDepartment && matchesCompanySize;
     });
-  }, [searchTerm, selectedIndustry, selectedDepartment, selectedCompanySize]);
+  }, [allSuccessCases, searchTerm, selectedIndustry, selectedDepartment, selectedCompanySize]);
 
   const handleCaseClick = (caseId: string) => {
     if (onCaseSelect) {

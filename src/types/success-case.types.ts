@@ -63,7 +63,39 @@ export interface FollowUpResult {
   achievement: string;
 }
 
-// 메인 성공사례 상세 인터페이스 (AI & n8n 자동화 특화)
+// AI & n8n 자동화 관련 인터페이스
+export interface AutomationMetrics {
+  timeReduction: string;
+  costSaving: string;
+  errorReduction: string;
+  productivityGain: string;
+}
+
+export interface N8nWorkflow {
+  workflowName: string;
+  description: string;
+  triggerType: string;
+  integrations: string[];
+  executionCount: number;
+}
+
+export interface AIImplementation {
+  aiTool: string;
+  useCase: string;
+  accuracy: string;
+  trainingData: string;
+}
+
+export interface DepartmentAutomation {
+  department: string;
+  processes: string[];
+  automationLevel: string;
+  manualHours: string;
+  automatedHours: string;
+  efficiency: string;
+}
+
+// 메인 성공사례 상세 인터페이스
 export interface SuccessCaseDetail {
   id: string;
   category: string;
@@ -101,36 +133,6 @@ export interface SuccessCaseDetail {
   videoUrl?: string;
   pdfUrl?: string;
   featured: boolean;
-}
-
-// AI & n8n 자동화 관련 인터페이스 추가
-export interface AutomationMetrics {
-  timeReduction: string;
-  costSaving: string;
-  errorReduction: string;
-  productivityGain: string;
-}
-
-export interface N8nWorkflow {
-  name: string;
-  description: string;
-  nodes: number;
-  triggers: string[];
-  actions: string[];
-}
-
-export interface AIImplementation {
-  type: string;
-  purpose: string;
-  accuracy: string;
-  processingTime: string;
-}
-
-export interface DepartmentAutomation {
-  department: string;
-  automationLevel: string;
-  timeSaved: string;
-  costReduction: string;
 }
 
 // 성공사례 목록용 간소화 인터페이스
@@ -176,7 +178,8 @@ export type CaseCategory =
   | 'telecom' 
   | 'media' 
   | 'energy' 
-  | 'agriculture';
+  | 'agriculture'
+  | 'retail';
 
 export type CaseColor = 
   | 'blue' 
@@ -186,7 +189,9 @@ export type CaseColor =
   | 'orange' 
   | 'yellow' 
   | 'indigo' 
-  | 'pink';
+  | 'pink'
+  | 'gold'
+  | 'teal';
 
 // 데이터 검증 함수들
 export const validateSuccessCaseDetail = (data: any): data is SuccessCaseDetail => {
