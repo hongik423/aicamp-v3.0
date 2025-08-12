@@ -32,7 +32,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: '전통 오프라인 소매업에서 AI와 n8n을 활용한 스마트 스토어 구축으로 고객 경험을 혁신한 성공사례',
     icon: Store,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?retail,smart%20store,supermarket,ai',
     companyInfo: {
       industry: '대형마트',
       employees: '3,200명',
@@ -266,7 +266,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 개인화 쇼핑 경험으로 고객 충성도를 극대화하고 매출을 혁신적으로 증가시킨 성공사례',
     icon: ShoppingCart,
     color: 'orange',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?ecommerce,online%20shopping,ai',
     companyInfo: {
       industry: '이커머스',
       employees: '5,000명',
@@ -500,7 +500,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 공급망 최적화로 물류 효율성을 극대화하고 운영비를 대폭 절감한 성공사례',
     icon: Truck,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?warehouse,logistics,supply%20chain,automation',
     companyInfo: {
       industry: '물류/도매',
       employees: '2,800명',
@@ -734,7 +734,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 패션 트렌드 예측과 개인화 스타일링으로 고객 경험을 혁신한 성공사례',
     icon: Heart,
     color: 'pink',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?fashion,boutique,clothes,ai',
     companyInfo: {
       industry: '패션/부티',
       employees: '1,200명',
@@ -968,7 +968,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 스마트 외식 서비스로 고객 경험을 혁신하고 운영 효율성을 극대화한 성공사례',
     icon: Coffee,
     color: 'brown',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?cafe,restaurant,barista,smart%20ordering',
     companyInfo: {
       industry: '외식/카페',
       employees: '2,500명',
@@ -1202,7 +1202,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 스마트 호텔 서비스로 고객 경험을 혁신하고 운영 효율성을 극대화한 성공사례',
     icon: Hotel,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?hotel,hotel%20room,front%20desk,smart%20hotel',
     companyInfo: {
       industry: '숙박/호텔',
       employees: '1,800명',
@@ -1436,7 +1436,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 스마트 여행 서비스로 고객 경험을 혁신하고 운영 효율성을 극대화한 성공사례',
     icon: Plane,
     color: 'cyan',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?travel,tourism,airplane,trip,booking',
     companyInfo: {
       industry: '여행/관광',
       employees: '1,500명',
@@ -1670,7 +1670,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 스마트 배달 플랫폼으로 고객 경험을 혁신하고 운영 효율성을 극대화한 성공사례',
     icon: Bike,
     color: 'yellow',
-    heroImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?delivery,food%20delivery,scooter,courier,logistics',
     companyInfo: {
       industry: '배달/플랫폼',
       employees: '3,500명',

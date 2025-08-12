@@ -36,7 +36,7 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
     description: 'AI와 n8n을 활용한 정부 서비스 완전 디지털화로 국민 중심의 혁신적인 전자정부를 구현한 공공 혁신 사례',
     icon: Building2,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?government,city%20hall,public%20service,digital',
     companyInfo: {
       industry: '중앙정부기관',
       employees: '12,000명',
@@ -335,7 +335,7 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
     description: '교통/환경/안전 데이터를 통합하고 AI와 n8n으로 예측·대응·민원처리를 자동화해 시민 체감 성과를 만든 사례',
     icon: Globe,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?smart%20city,traffic,environment,city',
     companyInfo: { industry: '지방정부', employees: '40,000명', revenue: '연 예산 44조원', location: '서울특별시' },
     challenges: [
       { title: '교통 혼잡/사고', description: '실시간 데이터 분절로 사전 대응 한계', impact: '시민 불편/사회적 비용 증가' },
@@ -397,7 +397,7 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
     description: '기부자 세그먼트/메시지/캠페인을 AI로 최적화하고 n8n으로 옴니채널 여정을 자동화',
     icon: HandHeart,
     color: 'rose',
-    heroImage: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?nonprofit,donation,volunteer,charity',
     companyInfo: { industry: '비영리', employees: '250명', revenue: '연 기부 1,500억원', location: '서울' },
     challenges: [
       { title: '기부자 이탈', description: '맞춤 커뮤니케이션 부족', impact: '재기부율 저하' },
@@ -446,7 +446,7 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
     description: '학사/행정/상담을 AI/n8n으로 자동화하고 학습 분석으로 개인화 지원',
     icon: School,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?w=1200&h=800&fit=crop&crop=center',
+    heroImage: 'https://source.unsplash.com/1200x800/?education,school,campus,digital',
     companyInfo: { industry: '공교육', employees: '50,000명', revenue: '연 예산 10조원', location: '서울' },
     challenges: [
       { title: '행정 부담', description: '공문/결재/보고 반복업무', impact: '교사 업무 과중' },
