@@ -31,7 +31,8 @@ import {
   benchmarkCases, 
   industryBenchmarkCategories,
   getBenchmarkStatistics,
-  getRecommendedBenchmarkCases 
+  getRecommendedBenchmarkCases,
+  benchmarkCaseDetails,
 } from '@/data/success-cases/benchmark-cases-index';
 import { SuccessCaseDetail } from '@/types/success-case.types';
 import { getNormalizedBenchmarks, parsePercentToNumber } from '@/lib/utils/benchmarkNormalization';
@@ -56,17 +57,52 @@ export default function BenchmarkShowcase({
 
   // 필터링된 사례들
   const filteredCases = Object.values(benchmarkCases).filter(caseData => {
-    const industryMatch = selectedIndustry === 'all' || caseData.industry === selectedIndustry;
-    const subIndustryValue = (caseData as any).subIndustry as string | undefined;
+    // 업종 그룹 ↔ 실제 industry 명칭 매핑 (그룹 필터 호환)
+    const industryAlias: Record<string, string[]> = {
+      '금융/보험': ['금융업', '보험업', '증권', '카드', '핀테크', '자산관리', '결제서비스'],
+      '유통/서비스': ['유통업'],
+      '제조/생산': ['제조/생산', '제조업'],
+      'IT/기술': ['IT/기술'],
+      '의료/헬스케어': ['의료/헬스케어'],
+      '교육/연구': ['교육/연구'],
+      '건설/부동산': ['건설/부동산'],
+      '운송/물류': ['운송/물류'],
+      '미디어/콘텐츠': ['미디어/콘텐츠'],
+      '전문서비스': ['전문서비스'],
+      '에너지/환경': ['에너지/환경'],
+      '농업/수산업': ['농업/수산업'],
+      '통신/네트워크': ['통신/네트워크'],
+      '공공/비영리': ['공공/비영리'],
+    };
+
+    const caseIndustry = (caseData.industry || '').trim();
+    const industryMatch =
+      selectedIndustry === 'all' ||
+      caseIndustry === selectedIndustry ||
+      (industryAlias[selectedIndustry]?.some(alias => alias === caseIndustry) ?? false);
+
+    // 세부 업종: 목록 요약에 없을 경우 상세 데이터에서 보강
+    const subIndustryValue = ((caseData as any).subIndustry as string | undefined) ??
+      (benchmarkCaseDetails as any)[caseData.id]?.subIndustry;
     const subIndustryMatch = selectedSubIndustry === 'all' || subIndustryValue === selectedSubIndustry;
     const title = (caseData.title || '').toLowerCase();
     const description = (caseData.description || '').toLowerCase();
     const subIndustryLower = (subIndustryValue || '').toLowerCase();
+    const industryLower = (caseIndustry || '').toLowerCase();
     const query = (searchQuery || '').toLowerCase();
+    // 그룹명으로 검색해도 매칭되도록 보강
+    const aliasKeys = Object.keys(industryAlias);
+    const aliasHit = aliasKeys.find(k => k.toLowerCase() === query || query.includes(k.toLowerCase()));
+    const belongsToAlias = aliasHit
+      ? (industryAlias[aliasHit] ?? []).some(alias => alias === caseIndustry)
+      : false;
+
     const searchMatch = query === '' ||
       title.includes(query) ||
       subIndustryLower.includes(query) ||
-      description.includes(query);
+      description.includes(query) ||
+      industryLower.includes(query) ||
+      belongsToAlias;
     const normalized = getNormalizedBenchmarks(caseData as any);
     const roiValue = parsePercentToNumber(normalized.roi);
     const timeValue = parsePercentToNumber(normalized.timeReduction);
