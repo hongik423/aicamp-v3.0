@@ -3,7 +3,7 @@
 import { 
   Factory, 
   Cpu, 
-  Flask, 
+  Beaker, 
   Pill, 
   Utensils, 
   Droplets, 
@@ -94,6 +94,50 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
       paybackPeriod: '2.4개월',
       threeYearROI: '1,500%'
     },
+    implementationTimeline: '3개월',
+    successFactors: [
+      'AI 모델 정확도 99.5% 달성',
+      '실시간 데이터 처리 시스템 구축',
+      '전사적 AI 문화 정착'
+    ],
+    tags: ['반도체', 'AI', '품질관리', '자동화', 'Computer Vision'],
+    testimonial: {
+      quote: 'AI 품질 관리 시스템 도입으로 고객 만족도가 크게 향상되었습니다.',
+      author: '김철수',
+      position: '품질관리팀장',
+      company: '반도체테크 A'
+    },
+    followUpResults: [
+      {
+        metric: '6개월 후 추가 성과',
+        achievement: '생산성 350% 향상, 불량률 0.1% 달성'
+      }
+    ],
+    n8nWorkflows: [
+      {
+        name: '품질 검사 자동화',
+        description: 'Computer Vision 기반 자동 검사 워크플로우',
+        nodes: 15,
+        triggers: ['이미지 업로드', '품질 기준 설정'],
+        actions: ['AI 분석', '결과 저장', '알림 발송']
+      }
+    ],
+    aiImplementations: [
+      {
+        type: 'Computer Vision',
+        purpose: '반도체 불량 검출',
+        accuracy: '99.5%',
+        processingTime: '0.1초'
+      }
+    ],
+    departmentAutomations: [
+      {
+        department: '품질관리팀',
+        automationLevel: '90%',
+        timeSaved: '월 160시간',
+        costReduction: '연 15억원'
+      }
+    ],
     featured: true
   },
 
@@ -176,6 +220,50 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
       paybackPeriod: '3개월',
       threeYearROI: '1,200%'
     },
+    implementationTimeline: '4개월',
+    successFactors: [
+      'IoT 센서 데이터 정확도 98% 달성',
+      '실시간 모니터링 시스템 구축',
+      '예측 정비 프로세스 표준화'
+    ],
+    tags: ['기계/장비', 'AI', '예측정비', 'IoT', '스마트팩토리'],
+    testimonial: {
+      quote: 'AI 예측 정비 시스템으로 장비 가동률이 크게 향상되었습니다.',
+      author: '박영희',
+      position: '설비관리팀장',
+      company: '기계솔루션 B'
+    },
+    followUpResults: [
+      {
+        metric: '6개월 후 추가 성과',
+        achievement: '장비 가동률 98% 달성, 정비 비용 70% 절감'
+      }
+    ],
+    n8nWorkflows: [
+      {
+        name: '장비 상태 모니터링',
+        description: 'IoT 센서 데이터 기반 예측 정비 워크플로우',
+        nodes: 12,
+        triggers: ['센서 데이터 수집', '임계값 초과'],
+        actions: ['AI 분석', '정비 알림', '스케줄 조정']
+      }
+    ],
+    aiImplementations: [
+      {
+        type: 'Predictive Analytics',
+        purpose: '장비 고장 예측',
+        accuracy: '95%',
+        processingTime: '1초'
+      }
+    ],
+    departmentAutomations: [
+      {
+        department: '설비관리팀',
+        automationLevel: '85%',
+        timeSaved: '월 120시간',
+        costReduction: '연 8억원'
+      }
+    ],
     featured: true
   },
 
@@ -190,7 +278,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     title: 'AI 기반 화학 공정 최적화',
     subtitle: '에너지 효율성 40% 향상, 원료 사용량 25% 절감',
     description: 'AI를 활용한 화학 공정 최적화와 에너지 효율성 향상으로 환경 친화적 생산을 실현한 벤치마크 사례',
-    icon: Flask,
+    icon: Beaker,
     color: 'green',
     heroImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
     companyInfo: {
