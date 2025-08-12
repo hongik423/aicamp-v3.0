@@ -54,12 +54,16 @@ export default function BenchmarkShowcase({
   // 필터링된 사례들
   const filteredCases = Object.values(benchmarkCases).filter(caseData => {
     const industryMatch = selectedIndustry === 'all' || caseData.industry === selectedIndustry;
-    const subIndustryMatch = selectedSubIndustry === 'all' || caseData.subIndustry === selectedSubIndustry;
-    const searchMatch = searchQuery === '' || 
-      caseData.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      caseData.subIndustry.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      caseData.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    const subIndustryValue = (caseData as any).subIndustry as string | undefined;
+    const subIndustryMatch = selectedSubIndustry === 'all' || subIndustryValue === selectedSubIndustry;
+    const title = (caseData.title || '').toLowerCase();
+    const description = (caseData.description || '').toLowerCase();
+    const subIndustryLower = (subIndustryValue || '').toLowerCase();
+    const query = (searchQuery || '').toLowerCase();
+    const searchMatch = query === '' ||
+      title.includes(query) ||
+      subIndustryLower.includes(query) ||
+      description.includes(query);
     return industryMatch && subIndustryMatch && searchMatch;
   });
 
@@ -243,16 +247,16 @@ export default function BenchmarkShowcase({
                     <Card className="h-full hover:shadow-lg transition-all cursor-pointer group"
                           onClick={() => onCaseSelect?.(caseData)}>
                       <div className="relative">
-                        <img
-                          src={caseData.heroImage}
+                <img
+                  src={(caseData as any).heroImage || (caseData as any).image}
                           alt={caseData.title}
                           className="w-full h-48 object-cover rounded-t-lg"
                         />
                         <div className="absolute top-4 left-4">
-                          <Badge className="bg-white/90 text-gray-800">
-                            <IndustryIcon className="w-3 h-3 mr-1" />
-                            {caseData.subIndustry}
-                          </Badge>
+                        <Badge className="bg-white/90 text-gray-800">
+                          <IndustryIcon className="w-3 h-3 mr-1" />
+                          {(caseData as any).subIndustry || caseData.industry}
+                        </Badge>
                         </div>
                         {caseData.featured && (
                           <div className="absolute top-4 right-4">
@@ -294,8 +298,8 @@ export default function BenchmarkShowcase({
                         
                         {/* 회사 정보 */}
                         <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                          <span>{caseData.companyName}</span>
-                          <span>{caseData.companySize}</span>
+                          <span>{(caseData as any).companyName || ''}</span>
+                          <span>{(caseData as any).companySize || caseData.industry}</span>
                         </div>
                         
                         {/* 태그 */}

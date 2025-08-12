@@ -1120,7 +1120,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 자동화된 CI/CD 파이프라인으로 개발 및 배포 속도를 혁신한 벤치마크 사례',
     icon: Zap,
     color: 'yellow',
-    heroImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center&q=80', // DevOps, 자동화
+    heroImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=800&fit=crop&crop=center&q=80', // DevOps, 자동화
     companyInfo: {
       industry: 'DevOps 자동화',
       employees: '75명',
@@ -1372,7 +1372,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 블록체인 네트워크 최적화와 스마트 컨트랙트 자동화로 성능을 혁신적으로 향상시킨 벤치마크 사례',
     icon: Zap,
     color: 'yellow',
-    heroImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center&q=80', // DevOps, 자동화
+    heroImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=800&fit=crop&crop=center&q=80', // DevOps, 자동화
     companyInfo: {
       industry: '블록체인',
       employees: '55명',

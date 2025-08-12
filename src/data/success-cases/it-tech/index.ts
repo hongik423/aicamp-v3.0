@@ -510,7 +510,7 @@ const iotPlatformCase: SuccessCaseDetail = {
   description: 'AWS IoT Core, Edge Computing과 n8n 자동화를 통해 수백만 IoT 디바이스를 지능적으로 관리하고 예측 분석으로 운영 효율성을 극대화한 IoT 플랫폼 전문 기업의 성공 사례',
   icon: Network,
   color: 'teal',
-  heroImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=2070',
+  heroImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=800&fit=crop&crop=center&q=80',
   
   companyInfo: {
     industry: 'IoT 플랫폼 및 솔루션',
