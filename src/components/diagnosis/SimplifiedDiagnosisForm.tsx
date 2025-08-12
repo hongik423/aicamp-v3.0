@@ -220,7 +220,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                       const value = Math.max(1, Math.min(5, Math.round((x / width) * 5)));
                       handleScoreChange(id, value);
                     }}
-                    style={{ touchAction: 'manipulation' }}
+                    className="touch-manipulation"
                   >
                     {/* 배경 라인 */}
                     <div className="absolute top-1/2 left-0 right-0 h-2 bg-gray-200 rounded-full transform -translate-y-1/2"></div>
@@ -242,7 +242,8 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                             : 'bg-white border-gray-300 hover:border-blue-400 hover:shadow-sm active:scale-110'
                         }`}
                         data-position={`${((v - 1) / 4) * 100}%`}
-                        style={{ left: `${((v - 1) / 4) * 100}%`, marginLeft: '-12px', minHeight: '24px', minWidth: '24px' }}
+                        style={{ left: `${((v - 1) / 4) * 100}%` }}
+                        className="min-h-[24px] min-w-[24px] -ml-3"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleScoreChange(id, v);
@@ -278,12 +279,11 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                         type="button"
                         variant={scores[id] === v ? 'default' : 'outline'}
                         onClick={() => handleScoreChange(id, v)}
-                        className={`w-14 h-14 text-xl font-bold rounded-full transition-all duration-200 touch-manipulation ${
+                        className={`w-14 h-14 min-h-[56px] min-w-[56px] text-xl font-bold rounded-full transition-all duration-200 touch-manipulation ${
                           scores[id] === v 
                             ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg scale-110' 
                             : 'hover:scale-105 active:scale-95 hover:shadow-md border-2'
                         }`}
-                        style={{ minHeight: '56px', minWidth: '56px', touchAction: 'manipulation' }}
                       >
                         {v}
                       </Button>
@@ -331,8 +331,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
             <Button 
               type="submit" 
               disabled={submitting}
-              className="h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-8 text-base sm:text-lg flex-1 touch-manipulation"
-              style={{ minHeight: '48px', touchAction: 'manipulation' }}
+              className="h-12 min-h-[48px] bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-8 text-base sm:text-lg flex-1 touch-manipulation"
             >
               {submitting ? (
                 <div className="flex items-center justify-center gap-2">
