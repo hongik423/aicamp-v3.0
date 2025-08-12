@@ -48,6 +48,8 @@ export default function BenchmarkShowcase({
   const [selectedSubIndustry, setSelectedSubIndustry] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('roi');
+  const [minROI, setMinROI] = useState<number>(0);
+  const [minTimeReduction, setMinTimeReduction] = useState<number>(0);
 
   const stats = getBenchmarkStatistics();
 
@@ -64,7 +66,10 @@ export default function BenchmarkShowcase({
       title.includes(query) ||
       subIndustryLower.includes(query) ||
       description.includes(query);
-    return industryMatch && subIndustryMatch && searchMatch;
+    const roiValue = parseInt(((caseData as any).roiData?.threeYearROI || '').toString().replace(/[^0-9]/g, '')) || 0;
+    const timeValue = parseInt(((caseData as any).automationMetrics?.timeReduction || '').toString().replace(/[^0-9]/g, '')) || 0;
+    const thresholdMatch = roiValue >= minROI && timeValue >= minTimeReduction;
+    return industryMatch && subIndustryMatch && searchMatch && thresholdMatch;
   });
 
   // 정렬
@@ -106,10 +111,19 @@ export default function BenchmarkShowcase({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* 헤더 섹션 */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+      {/* 헤더 섹션 (히어로) */}
+      <section className="relative py-20 overflow-hidden">
+        {/* 배경 이미지 + 오버레이 */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=1920&auto=format&fit=crop"
+            alt="AI 벤치마크 배경"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/60 to-black/80" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-white">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -117,36 +131,36 @@ export default function BenchmarkShowcase({
             >
               <Badge className="mb-4 bg-white/20 text-white">
                 <Star className="w-4 h-4 mr-1" />
-                업종별 최적화 벤치마크
+                업종별 최적화 AI 벤치마크
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                업종별 AI 성공사례 벤치마크
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-2xl">
+                업종별 AI 성공사례 AI벤치마크
               </h1>
-              <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
-                실제 기업들이 참조할 수 있는 업종별 최적화된 AI & N8N 도입 모델을 확인하세요
+              <p className="text-xl mb-8 max-w-3xl mx-auto opacity-95 drop-shadow">
+                업종별 프로세스 자동화와 고몰입 조직구축을 위한 최고 수준의 AI & n8n 도입 모델을 벤치마크하세요
               </p>
               
               {/* 통계 카드 */}
               <div className="grid md:grid-cols-4 gap-6 mb-8">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold">{stats.totalCases}</div>
                     <div className="text-sm opacity-80">총 벤치마크 사례</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold">{stats.industries}</div>
                     <div className="text-sm opacity-80">업종 분야</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold">{stats.averageROI}%</div>
                     <div className="text-sm opacity-80">평균 ROI</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold">{stats.averageTimeReduction}%</div>
                     <div className="text-sm opacity-80">평균 시간 단축</div>
@@ -205,7 +219,7 @@ export default function BenchmarkShowcase({
               </SelectContent>
             </Select>
 
-            {/* 정렬 */}
+            {/* 추가 필터 및 정렬 */}
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="정렬 기준" />
@@ -216,6 +230,34 @@ export default function BenchmarkShowcase({
                 <SelectItem value="productivity">생산성 향상 순</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* 임계값 슬라이더들 (간단 입력형) */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>최소 ROI</span>
+                <Input
+                  type="number"
+                  min={0}
+                  max={5000}
+                  value={minROI}
+                  onChange={(e) => setMinROI(parseInt(e.target.value || '0'))}
+                  className="w-24"
+                />
+                <span>%</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>최소 시간단축</span>
+                <Input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={minTimeReduction}
+                  onChange={(e) => setMinTimeReduction(parseInt(e.target.value || '0'))}
+                  className="w-24"
+                />
+                <span>%</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
