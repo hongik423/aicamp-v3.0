@@ -120,12 +120,12 @@ export const getBenchmarkStatistics = () => {
   const subIndustries = [...new Set(Object.values(benchmarkCases).map(c => c.subIndustry))];
   
   const avgROI = Object.values(benchmarkCases).reduce((sum, caseData) => {
-    const roi = parseInt(caseData.roiData.threeYearROI.replace('%', ''));
+    const roi = caseData.roiData?.threeYearROI ? parseInt(caseData.roiData.threeYearROI.replace('%', '')) : 0;
     return sum + roi;
   }, 0) / totalCases;
 
   const avgTimeReduction = Object.values(benchmarkCases).reduce((sum, caseData) => {
-    const reduction = parseInt(caseData.automationMetrics.timeReduction.replace('%', ''));
+    const reduction = caseData.automationMetrics?.timeReduction ? parseInt(caseData.automationMetrics.timeReduction.replace('%', '')) : 0;
     return sum + reduction;
   }, 0) / totalCases;
 
