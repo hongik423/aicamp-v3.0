@@ -236,14 +236,13 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
                     {[1, 2, 3, 4, 5].map(v => (
                       <div
                         key={v}
-                        className={`absolute top-1/2 w-6 h-6 rounded-full border-2 transform -translate-y-1/2 transition-all duration-200 cursor-pointer touch-manipulation ${
+                        className={`absolute top-1/2 w-6 h-6 rounded-full border-2 transform -translate-y-1/2 transition-all duration-200 cursor-pointer touch-manipulation min-h-[24px] min-w-[24px] -ml-3 ${
                           scores[id] >= v 
                             ? 'bg-blue-500 border-blue-500 shadow-md' 
                             : 'bg-white border-gray-300 hover:border-blue-400 hover:shadow-sm active:scale-110'
                         }`}
                         data-position={`${((v - 1) / 4) * 100}%`}
                         style={{ left: `${((v - 1) / 4) * 100}%` }}
-                        className="min-h-[24px] min-w-[24px] -ml-3"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleScoreChange(id, v);

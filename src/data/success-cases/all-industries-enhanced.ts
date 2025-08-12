@@ -9,6 +9,9 @@ import {
   GraduationCap, BookOpen, Lightbulb, Users, Search, Award, Library
 } from 'lucide-react';
 
+// IT/기술 업종 (10개) - 별도 파일에서 import
+import { itTechCases } from './it-tech';
+
 // 제조/생산 업종 (10개)
 import { electronicsSemiconductorCase } from './manufacturing/electronics-semiconductor';
 import { machineryEquipmentCase } from './manufacturing/machinery-equipment';
@@ -900,7 +903,10 @@ export const allIndustryCases: { [key: string]: SuccessCaseDetail } = {
   'hospital-001': hospitalCase,
   
   // 교육/연구 (7개)
-  'edtech-001': edtechCase
+  'edtech-001': edtechCase,
+  
+  // IT/기술 (10개)
+  ...itTechCases
 };
 
 // 업종별 카테고리 정의
@@ -953,16 +959,27 @@ export const enhancedIndustryCategories = {
       '대학', '온라인교육', '학원', '기업교육',
       '연구소', 'EdTech플랫폼', '평가/인증'
     ]
+  },
+  'it-tech': {
+    name: 'IT/기술',
+    count: 10,
+    icon: '💻',
+    description: 'AI와 자동화로 구현한 차세대 IT 솔루션',
+    subIndustries: [
+      '소프트웨어 개발', 'AI/머신러닝', '클라우드 인프라', '모바일 앱 개발',
+      '웹 개발', '데이터베이스 관리', '네트워크 보안', 'DevOps 자동화',
+      'IoT 플랫폼', '블록체인 기술'
+    ]
   }
 };
 
 // 통계 데이터
 export const industryStatistics = {
-  totalCases: 39,
-  totalIndustries: 5,
-  averageROI: '2,850%',
-  averagePayback: '1.8개월',
-  totalSavings: '1조 5천억원',
-  totalCompanies: 39,
+  totalCases: 49,
+  totalIndustries: 6,
+  averageROI: '2,680%',
+  averagePayback: '1.6개월',
+  totalSavings: '1조 8천억원',
+  totalCompanies: 49,
   successRate: '98%'
 };
