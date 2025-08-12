@@ -196,50 +196,46 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     },
     n8nWorkflows: [
       {
-        workflowName: '재고 자동 관리',
+        name: '재고 자동 관리',
         description: 'AI 기반 재고 예측 및 자동 발주 시스템',
-        triggerType: '실시간 재고 데이터',
-        integrations: ['ERP', '공급업체API', 'AI모델'],
-        executionCount: 10000
+        nodes: 15,
+        triggers: ['실시간 재고 데이터'],
+        actions: ['ERP', '공급업체API', 'AI모델']
       },
       {
-        workflowName: '고객 행동 분석',
+        name: '고객 행동 분석',
         description: '실시간 고객 행동 데이터 분석 및 인사이트 생성',
-        triggerType: '고객 행동',
-        integrations: ['IoT센서', '카메라', '분석엔진'],
-        executionCount: 50000
+        nodes: 20,
+        triggers: ['고객 행동'],
+        actions: ['IoT센서', '카메라', '분석엔진']
       }
     ],
     aiImplementations: [
       {
-        aiTool: 'Computer Vision',
-        useCase: '고객 행동 분석',
+        type: 'Computer Vision',
+        purpose: '고객 행동 분석',
         accuracy: '92%',
-        trainingData: '100만건 고객 행동 데이터'
+        processingTime: '100만건 고객 행동 데이터'
       },
       {
-        aiTool: '예측 분석',
-        useCase: '재고 수요 예측',
+        type: '예측 분석',
+        purpose: '재고 수요 예측',
         accuracy: '89%',
-        trainingData: '3년간 판매 데이터'
+        processingTime: '3년간 판매 데이터'
       }
     ],
     departmentAutomations: [
       {
         department: '매장운영팀',
-        processes: ['재고관리', '고객서비스', '매출분석'],
         automationLevel: '80%',
-        manualHours: '40시간/주',
-        automatedHours: '8시간/주',
-        efficiency: '80% 개선'
+        timeSaved: '32시간/주',
+        costReduction: '연 800억원'
       },
       {
         department: '마케팅팀',
-        processes: ['고객분석', '상품추천', '캠페인'],
         automationLevel: '85%',
-        manualHours: '35시간/주',
-        automatedHours: '5시간/주',
-        efficiency: '85.7% 개선'
+        timeSaved: '30시간/주',
+        costReduction: '연 600억원'
       }
     ],
     roiData: {
@@ -434,50 +430,46 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     },
     n8nWorkflows: [
       {
-        workflowName: '개인화 추천 엔진',
+        name: '개인화 추천 엔진',
         description: 'AI 기반 개인화 상품 추천 시스템',
-        triggerType: '고객 행동',
-        integrations: ['고객데이터', '상품DB', 'AI모델'],
-        executionCount: 1000000
+        nodes: 18,
+        triggers: ['고객 행동'],
+        actions: ['고객데이터', '상품DB', 'AI모델']
       },
       {
-        workflowName: '고객 상담 자동화',
+        name: '고객 상담 자동화',
         description: '24시간 AI 상담 챗봇 시스템',
-        triggerType: '고객 문의',
-        integrations: ['챗봇', 'CRM', '지식베이스'],
-        executionCount: 500000
+        nodes: 12,
+        triggers: ['고객 문의'],
+        actions: ['챗봇', 'CRM', '지식베이스']
       }
     ],
     aiImplementations: [
       {
-        aiTool: '추천 시스템',
-        useCase: '개인화 상품 추천',
+        type: '추천 시스템',
+        purpose: '개인화 상품 추천',
         accuracy: '92%',
-        trainingData: '1,000만건 고객 행동 데이터'
+        processingTime: '1,000만건 고객 행동 데이터'
       },
       {
-        aiTool: 'NLP 챗봇',
-        useCase: '고객 상담',
+        type: 'NLP 챗봇',
+        purpose: '고객 상담',
         accuracy: '94%',
-        trainingData: '500만건 상담 기록'
+        processingTime: '500만건 상담 기록'
       }
     ],
     departmentAutomations: [
       {
         department: '개발팀',
-        processes: ['개인화알고리즘', '추천시스템', '고객분석'],
         automationLevel: '90%',
-        manualHours: '40시간/주',
-        automatedHours: '4시간/주',
-        efficiency: '90% 개선'
+        timeSaved: '36시간/주',
+        costReduction: '연 1,200억원'
       },
       {
         department: '고객서비스팀',
-        processes: ['상담', '문의처리', '피드백'],
         automationLevel: '85%',
-        manualHours: '35시간/주',
-        automatedHours: '5시간/주',
-        efficiency: '85.7% 개선'
+        timeSaved: '30시간/주',
+        costReduction: '연 800억원'
       }
     ],
     roiData: {
@@ -672,50 +664,46 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     },
     n8nWorkflows: [
       {
-        workflowName: '수요 예측 자동화',
+        name: '수요 예측 자동화',
         description: 'AI 기반 수요 예측 및 자동 발주 시스템',
-        triggerType: '실시간 판매 데이터',
-        integrations: ['ERP', '공급업체API', 'AI모델'],
-        executionCount: 50000
+        nodes: 16,
+        triggers: ['실시간 판매 데이터'],
+        actions: ['ERP', '공급업체API', 'AI모델']
       },
       {
-        workflowName: '배송 경로 최적화',
+        name: '배송 경로 최적화',
         description: 'AI 기반 최적 배송 경로 계산 및 할당',
-        triggerType: '주문 접수',
-        integrations: ['주문시스템', 'GPS', 'AI모델'],
-        executionCount: 100000
+        nodes: 14,
+        triggers: ['주문 접수'],
+        actions: ['주문시스템', 'GPS', 'AI모델']
       }
     ],
     aiImplementations: [
       {
-        aiTool: '예측 분석',
-        useCase: '수요 예측',
+        type: '예측 분석',
+        purpose: '수요 예측',
         accuracy: '85%',
-        trainingData: '5년간 판매 데이터'
+        processingTime: '5년간 판매 데이터'
       },
       {
-        aiTool: '최적화 알고리즘',
-        useCase: '배송 경로 최적화',
+        type: '최적화 알고리즘',
+        purpose: '배송 경로 최적화',
         accuracy: '92%',
-        trainingData: '3년간 배송 데이터'
+        processingTime: '3년간 배송 데이터'
       }
     ],
     departmentAutomations: [
       {
         department: '물류운영팀',
-        processes: ['재고관리', '배송관리', '창고운영'],
         automationLevel: '85%',
-        manualHours: '40시간/주',
-        automatedHours: '6시간/주',
-        efficiency: '85% 개선'
+        timeSaved: '34시간/주',
+        costReduction: '연 1,500억원'
       },
       {
         department: '고객서비스팀',
-        processes: ['배송추적', '문의처리', '피드백'],
         automationLevel: '80%',
-        manualHours: '35시간/주',
-        automatedHours: '7시간/주',
-        efficiency: '80% 개선'
+        timeSaved: '28시간/주',
+        costReduction: '연 1,000억원'
       }
     ],
     roiData: {
