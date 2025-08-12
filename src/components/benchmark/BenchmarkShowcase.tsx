@@ -192,7 +192,7 @@ export default function BenchmarkShowcase({
               <SelectContent>
                 <SelectItem value="all">전체 세부 업종</SelectItem>
                 {selectedIndustry !== 'all' && 
-                  industryBenchmarkCategories[selectedIndustry as keyof typeof industryBenchmarkCategories]?.subIndustries.map(subIndustry => (
+                  industryBenchmarkCategories[selectedIndustry as keyof typeof industryBenchmarkCategories]?.subIndustries?.map(subIndustry => (
                     <SelectItem key={subIndustry} value={subIndustry}>
                       {subIndustry}
                     </SelectItem>
