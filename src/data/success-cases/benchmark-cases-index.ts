@@ -11,8 +11,8 @@ import { mediaContentCases, mediaContentCaseDetails } from './media-content-case
 import { professionalServiceCases, professionalServiceCaseDetails } from './professional-service-cases';
 import { financeInsuranceCases, financeInsuranceCaseDetails } from './finance-insurance-cases';
 import { retailServiceCases, retailServiceCaseDetails } from './retail-service-cases';
-import { manufacturingCases, manufacturingCaseDetails } from './manufacturing-benchmark-cases';
-import { itTechCases, itTechCaseDetails } from './it-tech-benchmark-cases';
+import { manufacturingBenchmarkCases } from './manufacturing-benchmark-cases';
+import { itTechBenchmarkCases } from './it-tech-benchmark-cases';
 
 // 모든 성공사례 요약 통합
 export const allBenchmarkCases: SuccessCase[] = [
@@ -24,8 +24,8 @@ export const allBenchmarkCases: SuccessCase[] = [
   ...professionalServiceCases,
   ...financeInsuranceCases,
   ...retailServiceCases,
-  ...manufacturingCases,
-  ...itTechCases
+  ...Object.values(manufacturingBenchmarkCases),
+  ...Object.values(itTechBenchmarkCases)
 ];
 
 // 모든 성공사례 상세 데이터 통합
@@ -38,12 +38,16 @@ export const allBenchmarkCaseDetails: { [key: string]: SuccessCaseDetail } = {
   ...professionalServiceCaseDetails,
   ...financeInsuranceCaseDetails,
   ...retailServiceCaseDetails,
-  ...manufacturingCaseDetails,
-  ...itTechCaseDetails
+  ...manufacturingBenchmarkCases,
+  ...itTechBenchmarkCases
 };
 
+// 벤치마크 케이스 export (기존 코드와의 호환성을 위해)
+export const benchmarkCases = allBenchmarkCases;
+export const benchmarkCaseDetails = allBenchmarkCaseDetails;
+
 // 업종별 카테고리 정의
-export const industryCategories = [
+export const industryBenchmarkCategories = [
   {
     id: 'healthcare',
     name: '의료/헬스케어',
@@ -120,32 +124,38 @@ export const industryCategories = [
     id: 'manufacturing',
     name: '제조업',
     description: '스마트 팩토리와 제조 혁신 사례',
-    count: 7,
+    count: 10,
     icon: '🏭',
     color: 'slate',
-    cases: manufacturingCases
+    cases: Object.values(manufacturingBenchmarkCases)
   },
   {
     id: 'tech',
     name: 'IT/테크',
     description: '소프트웨어와 IT 서비스 혁신 사례',
-    count: 7,
+    count: 10,
     icon: '💻',
     color: 'cyan',
-    cases: itTechCases
+    cases: Object.values(itTechBenchmarkCases)
   }
 ];
+
+// 기존 호환성을 위한 export
+export const industryCategories = industryBenchmarkCategories;
 
 // 성공사례 통계
 export const benchmarkStatistics = {
   totalCases: allBenchmarkCases.length,
-  totalIndustries: industryCategories.length,
+  totalIndustries: industryBenchmarkCategories.length,
   averageROI: '380%',
   averageEfficiencyGain: '65%',
   averageTimeSaved: '55%',
   totalCompanies: allBenchmarkCases.length,
   featuredCases: allBenchmarkCases.filter(c => c.featured).length
 };
+
+// 통계 함수 export
+export const getBenchmarkStatistics = () => benchmarkStatistics;
 
 // 성공사례 필터링 함수
 export const filterCasesByIndustry = (industry: string): SuccessCase[] => {
@@ -165,7 +175,7 @@ export const getCaseDetail = (caseId: string): SuccessCaseDetail | undefined => 
 };
 
 // 검색 함수
-export const searchCases = (query: string): SuccessCase[] => {
+export const searchBenchmarkCases = (query: string): SuccessCase[] => {
   const lowerQuery = query.toLowerCase();
   return allBenchmarkCases.filter(c => 
     c.title.toLowerCase().includes(lowerQuery) ||
@@ -173,9 +183,12 @@ export const searchCases = (query: string): SuccessCase[] => {
     c.companyName.toLowerCase().includes(lowerQuery) ||
     c.industry.toLowerCase().includes(lowerQuery) ||
     c.subIndustry?.toLowerCase().includes(lowerQuery) ||
-    c.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+    c.tags?.some(tag => tag.toLowerCase().includes(lowerQuery)) || false
   );
 };
+
+// 기존 호환성을 위한 export
+export const searchCases = searchBenchmarkCases;
 
 // 성공사례 추천 함수
 export const getRelatedCases = (caseId: string, limit: number = 3): SuccessCase[] => {
@@ -189,7 +202,7 @@ export const getRelatedCases = (caseId: string, limit: number = 3): SuccessCase[
       let score = 0;
       if (c.industry === currentCase.industry) score += 3;
       if (c.category === currentCase.category) score += 2;
-      const commonTags = c.tags.filter(tag => currentCase.tags.includes(tag));
+      const commonTags = c.tags?.filter(tag => currentCase.tags?.includes(tag)) || [];
       score += commonTags.length;
       return { case: c, score };
     })
