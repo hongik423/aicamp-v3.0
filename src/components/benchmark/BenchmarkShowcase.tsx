@@ -292,7 +292,7 @@ export default function BenchmarkShowcase({
                           onClick={() => onCaseSelect?.(caseData)}>
                       <div className="relative">
                 <img
-                  src={(caseData as any).heroImage || (caseData as any).image}
+                  src={(caseData as any).heroImage || (caseData as any).image || `https://picsum.photos/seed/${encodeURIComponent((caseData as any).subIndustry || caseData.industry || caseData.title)}/1200/800`}
                           alt={caseData.title}
                           className="w-full h-48 object-cover rounded-t-lg"
                         />

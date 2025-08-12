@@ -28,6 +28,7 @@ import {
 } from '@/data/success-cases/ai-n8n-automation-cases';
 import { financeInsuranceCases } from '@/data/success-cases/finance-insurance-cases';
 import { retailServiceCases } from '@/data/success-cases/retail-service-cases';
+import { getNormalizedBenchmarks } from '@/lib/utils/benchmarkNormalization';
 
 interface SuccessCasesListProps {
   onCaseSelect?: (caseId: string) => void;
@@ -190,6 +191,8 @@ export default function SuccessCasesList({
       <div className={viewMode === 'grid' ? 'grid lg:grid-cols-2 xl:grid-cols-3 gap-6' : 'space-y-4'}>
         {filteredCases.map((caseItem) => {
           const IconComponent = caseItem.icon;
+          const normalized = getNormalizedBenchmarks(caseItem as any);
+          const imageSrc = (caseItem as any).image || (caseItem as any).heroImage || `https://picsum.photos/seed/${encodeURIComponent(caseItem.industry || caseItem.title)}/800/500`;
           
           if (viewMode === 'grid') {
             return (
@@ -200,7 +203,7 @@ export default function SuccessCasesList({
               >
                 <div className="relative">
                   <img
-                    src={caseItem.image}
+                    src={imageSrc}
                     alt={caseItem.title}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -233,13 +236,13 @@ export default function SuccessCasesList({
                       <div className="grid grid-cols-2 gap-3 text-center">
                         <div className="bg-green-50 p-3 rounded-lg">
                           <div className="text-lg font-bold text-green-600">
-                            {caseItem.automationMetrics.productivityGain}
+                            {normalized.productivityGain}
                           </div>
                           <div className="text-xs text-gray-600">생산성 향상</div>
                         </div>
                         <div className="bg-blue-50 p-3 rounded-lg">
                           <div className="text-lg font-bold text-blue-600">
-                            {caseItem.automationMetrics.timeReduction}
+                            {normalized.timeReduction}
                           </div>
                           <div className="text-xs text-gray-600">시간 단축</div>
                         </div>
@@ -286,7 +289,7 @@ export default function SuccessCasesList({
                     {/* 이미지 */}
                     <div className="relative w-32 h-24 flex-shrink-0">
                       <img
-                        src={caseItem.image}
+                        src={imageSrc}
                         alt={caseItem.title}
                         className="w-full h-full object-cover rounded-lg"
                       />
@@ -319,21 +322,21 @@ export default function SuccessCasesList({
                           <div className="flex items-center gap-1 text-sm">
                             <TrendingUp className="w-4 h-4 text-green-500" />
                             <span className="font-medium text-green-600">
-                              {caseItem.automationMetrics.productivityGain}
+                              {normalized.productivityGain}
                             </span>
                             <span className="text-gray-600">생산성</span>
                           </div>
                           <div className="flex items-center gap-1 text-sm">
                             <Clock className="w-4 h-4 text-blue-500" />
                             <span className="font-medium text-blue-600">
-                              {caseItem.automationMetrics.timeReduction}
+                              {normalized.timeReduction}
                             </span>
                             <span className="text-gray-600">시간단축</span>
                           </div>
                           <div className="flex items-center gap-1 text-sm">
                             <DollarSign className="w-4 h-4 text-purple-500" />
                             <span className="font-medium text-purple-600">
-                              {caseItem.automationMetrics.costSaving}
+                              {normalized.costSaving}
                             </span>
                           </div>
                         </div>
