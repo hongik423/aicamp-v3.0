@@ -76,8 +76,8 @@ export default function SuccessCaseDetailPage({
             alt={caseData.title}
             className="w-full h-full object-cover"
           />
-          {/* AI 이미지 스타일 그라디언트 */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+          {/* AI 이미지 스타일 그라디언트 - 가시성 개선 */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -87,13 +87,13 @@ export default function SuccessCaseDetailPage({
                   <IconComponent className="w-8 h-8 text-white drop-shadow-lg" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-white drop-shadow-lg">{caseData.companyName}</h3>
-                  <p className="text-sm text-white/95 drop-shadow-md">{caseData.subIndustry}</p>
+                  <h3 className="text-lg font-medium text-white drop-shadow-lg" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.7)' }}>{caseData.companyName}</h3>
+                  <p className="text-sm text-white/95 drop-shadow-md" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.6)' }}>{caseData.subIndustry}</p>
                 </div>
               </div>
-              <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-2xl">{caseData.title}</h1>
-              <p className="text-xl text-white mb-6 drop-shadow-xl">{caseData.subtitle}</p>
-              <p className="text-lg text-white/95 mb-8 drop-shadow-lg">{caseData.description}</p>
+              <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-2xl" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>{caseData.title}</h1>
+              <p className="text-xl text-white mb-6 drop-shadow-xl" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>{caseData.subtitle}</p>
+              <p className="text-lg text-white/95 mb-8 drop-shadow-lg" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.6)' }}>{caseData.description}</p>
               
               <div className="flex flex-wrap gap-3">
                 {caseData.tags?.map((tag) => (
