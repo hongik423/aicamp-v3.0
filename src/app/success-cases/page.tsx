@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/layout/header';
-import SuccessCasesList from '@/components/success-cases/SuccessCasesList';
+import IndustryListPage from '@/components/success-cases/IndustryListPage';
 import ConsultationRequestModal from '@/components/diagnosis/ConsultationRequestModal';
 
 export default function SuccessCasesPage() {
@@ -13,11 +13,11 @@ export default function SuccessCasesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <SuccessCasesList onConsultationRequest={handleConsultationRequest} />
+      <main>
+        <IndustryListPage />
       </main>
 
       {/* 상담신청 모달 */}
