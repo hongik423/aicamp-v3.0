@@ -68,7 +68,7 @@ export default function SuccessCaseDetailPage({
         </div>
       </div>
 
-      {/* 벤치마크 참조 히어로 섹션 */}
+      {/* 히어로 섹션 */}
       <div className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="absolute inset-0 bg-black/40">
           <img
@@ -80,22 +80,6 @@ export default function SuccessCaseDetailPage({
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              {/* 벤치마크 참조 고지사항 */}
-              <div className="mb-6 p-4 bg-yellow-500/20 backdrop-blur-sm rounded-lg border border-yellow-400/30">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-yellow-900 font-bold text-sm">!</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-yellow-100 mb-2">업종별 최적화 벤치마크 참조 사례</h4>
-                    <p className="text-sm text-yellow-50/90 leading-relaxed">
-                      본 성공사례는 {caseData.industry} 업종의 최적화된 AI & N8N 도입 모델을 제시합니다. 
-                      귀사의 업무 환경과 규모에 맞게 참조하여 자체 AI 프로그램을 설계하시기 바랍니다.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               <div className="flex items-center gap-3 mb-4">
                 <div className={`p-3 rounded-lg bg-white/20 backdrop-blur-sm`}>
                   <IconComponent className="w-8 h-8 text-white" />
@@ -110,11 +94,11 @@ export default function SuccessCaseDetailPage({
               <p className="text-lg text-white/90 mb-8 drop-shadow-md">{caseData.description}</p>
               
               <div className="flex flex-wrap gap-3">
-                {caseData.tags?.map((tag) => (
+                {caseData.tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="bg-white/20 text-white">
                     {tag}
                   </Badge>
-                )) || null}
+                ))}
               </div>
             </div>
 
@@ -123,29 +107,29 @@ export default function SuccessCaseDetailPage({
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <TrendingUp className="w-8 h-8 mx-auto mb-2 text-green-300" />
-                  <div className="text-2xl font-bold">{caseData.automationMetrics?.productivityGain || 'N/A'}</div>
-                  <div className="text-sm opacity-75">생산성 향상</div>
+                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics.productivityGain}</div>
+                  <div className="text-sm text-white/75">생산성 향상</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <DollarSign className="w-8 h-8 mx-auto mb-2 text-yellow-300" />
-                  <div className="text-lg font-bold">{caseData.automationMetrics?.costSaving || 'N/A'}</div>
-                  <div className="text-sm opacity-75">비용 절감</div>
+                  <div className="text-lg font-bold text-white">{caseData.automationMetrics.costSaving}</div>
+                  <div className="text-sm text-white/75">비용 절감</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Clock className="w-8 h-8 mx-auto mb-2 text-blue-300" />
-                  <div className="text-2xl font-bold">{caseData.automationMetrics?.timeReduction || 'N/A'}</div>
-                  <div className="text-sm opacity-75">시간 단축</div>
+                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics.timeReduction}</div>
+                  <div className="text-sm text-white/75">시간 단축</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Target className="w-8 h-8 mx-auto mb-2 text-red-300" />
-                  <div className="text-2xl font-bold">{caseData.roiData?.threeYearROI || 'N/A'}</div>
-                  <div className="text-sm opacity-75">3년 ROI</div>
+                  <div className="text-2xl font-bold text-white">{caseData.roiData.threeYearROI}</div>
+                  <div className="text-sm text-white/75">3년 ROI</div>
                 </CardContent>
               </Card>
             </div>
@@ -177,22 +161,22 @@ export default function SuccessCaseDetailPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                                     <div className="flex justify-between">
-                     <span className="text-gray-600">업종</span>
-                     <span className="font-medium">{caseData.companyInfo?.industry || 'N/A'}</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-gray-600">직원 수</span>
-                     <span className="font-medium">{caseData.companyInfo?.employees || 'N/A'}</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-gray-600">매출</span>
-                     <span className="font-medium">{caseData.companyInfo?.revenue || 'N/A'}</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-gray-600">위치</span>
-                     <span className="font-medium">{caseData.companyInfo?.location || 'N/A'}</span>
-                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">업종</span>
+                    <span className="font-medium">{caseData.companyInfo.industry}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">직원 수</span>
+                    <span className="font-medium">{caseData.companyInfo.employees}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">매출</span>
+                    <span className="font-medium">{caseData.companyInfo.revenue}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">위치</span>
+                    <span className="font-medium">{caseData.companyInfo.location}</span>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -205,22 +189,22 @@ export default function SuccessCaseDetailPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                                     <div className="flex justify-between">
-                     <span className="text-gray-600">투자 금액</span>
-                     <span className="font-medium">{caseData.roiData?.investment || 'N/A'}</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-gray-600">월간 절감</span>
-                     <span className="font-medium text-green-600">{caseData.roiData?.monthlySavings || 'N/A'}</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-gray-600">회수 기간</span>
-                     <span className="font-medium">{caseData.roiData?.paybackPeriod || 'N/A'}</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-gray-600">3년 ROI</span>
-                     <span className="font-medium text-blue-600">{caseData.roiData?.threeYearROI || 'N/A'}</span>
-                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">투자 금액</span>
+                    <span className="font-medium">{caseData.roiData.investment}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">월간 절감</span>
+                    <span className="font-medium text-green-600">{caseData.roiData.monthlySavings}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">회수 기간</span>
+                    <span className="font-medium">{caseData.roiData.paybackPeriod}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">3년 ROI</span>
+                    <span className="font-medium text-blue-600">{caseData.roiData.threeYearROI}</span>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -233,14 +217,14 @@ export default function SuccessCaseDetailPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                                     <div className="flex justify-between">
-                     <span className="text-gray-600">구현 기간</span>
-                     <span className="font-medium">{caseData.implementationTimeline || 'N/A'}</span>
-                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">구현 기간</span>
+                    <span className="font-medium">{caseData.implementationTimeline}</span>
+                  </div>
                   <div className="space-y-2">
                     <span className="text-gray-600">성공 요인</span>
                     <div className="space-y-1">
-                      {caseData.successFactors?.map((factor, index) => (
+                      {caseData.successFactors.map((factor, index) => (
                         <div key={index} className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">{factor}</span>
@@ -281,7 +265,7 @@ export default function SuccessCaseDetailPage({
           {/* 도전과제 탭 */}
           <TabsContent value="challenges" className="space-y-6">
             <div className="grid gap-6">
-                              {caseData.challenges?.map((challenge, index) => (
+              {caseData.challenges.map((challenge, index) => (
                 <Card key={index}>
                   <CardContent className="p-6">
                     <h3 className="text-xl font-bold mb-3 text-red-600">{challenge.title}</h3>
@@ -299,7 +283,7 @@ export default function SuccessCaseDetailPage({
           {/* 구현과정 탭 */}
           <TabsContent value="process" className="space-y-6">
             <div className="space-y-8">
-                              {caseData.process?.map((phase, index) => (
+              {caseData.process.map((phase, index) => (
                 <Card key={index}>
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
@@ -316,7 +300,7 @@ export default function SuccessCaseDetailPage({
                           <div>
                             <h4 className="font-semibold mb-3 text-blue-600">주요 활동</h4>
                             <ul className="space-y-2">
-                              {phase.activities?.map((activity, idx) => (
+                              {phase.activities.map((activity, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
                                   <CheckCircle className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
                                   <span className="text-sm">{activity}</span>
@@ -327,7 +311,7 @@ export default function SuccessCaseDetailPage({
                           <div>
                             <h4 className="font-semibold mb-3 text-green-600">달성 성과</h4>
                             <ul className="space-y-2">
-                              {phase.results?.map((result, idx) => (
+                              {phase.results.map((result, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
                                   <Target className="w-4 h-4 text-blue-500 mt-1 flex-shrink-0" />
                                   <span className="text-sm">{result}</span>
@@ -353,7 +337,7 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {caseData.results?.quantitative?.map((result, index) => (
+                  {caseData.results.quantitative.map((result, index) => (
                     <div key={index} className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <h4 className="font-semibold">{result.metric}</h4>
@@ -378,7 +362,7 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {caseData.results?.financial?.map((financial, index) => (
+                  {caseData.results.financial.map((financial, index) => (
                     <div key={index} className="text-center p-4 bg-blue-50 rounded-lg">
                       <DollarSign className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                       <div className="text-lg font-bold text-blue-600">{financial.amount}</div>
@@ -396,7 +380,7 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {caseData.results?.qualitative?.map((quality, index) => (
+                  {caseData.results.qualitative.map((quality, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
                       <span>{quality}</span>
@@ -419,23 +403,23 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {caseData.n8nWorkflows?.map((workflow, index) => (
+                  {caseData.n8nWorkflows.map((workflow, index) => (
                     <div key={index} className="p-4 border rounded-lg">
-                                             <div className="flex justify-between items-start mb-3">
-                         <h4 className="font-semibold">{workflow.name}</h4>
-                         <Badge variant="outline">{workflow.nodes}개 노드</Badge>
-                       </div>
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-semibold">{workflow.workflowName}</h4>
+                        <Badge variant="outline">{workflow.executionCount.toLocaleString()}회 실행</Badge>
+                      </div>
                       <p className="text-gray-600 mb-3">{workflow.description}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {workflow.integrations?.map((integration) => (
+                        {workflow.integrations.map((integration) => (
                           <Badge key={integration} variant="secondary">
                             {integration}
                           </Badge>
                         ))}
                       </div>
-                                             <div className="text-sm text-gray-500">
-                         트리거: {workflow.triggers?.join(', ') || 'N/A'}
-                       </div>
+                      <div className="text-sm text-gray-500">
+                        트리거: {workflow.triggerType}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -452,18 +436,18 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {caseData.aiImplementations?.map((ai, index) => (
+                  {caseData.aiImplementations.map((ai, index) => (
                     <div key={index} className="p-4 border rounded-lg">
-                                             <div className="flex justify-between items-start mb-2">
-                         <h4 className="font-semibold">{ai.type}</h4>
-                         <Badge variant="secondary" className="bg-green-100 text-green-800">
-                           정확도 {ai.accuracy}
-                         </Badge>
-                       </div>
-                       <p className="text-gray-600 mb-2">{ai.purpose}</p>
-                       <div className="text-sm text-gray-500">
-                         처리 시간: {ai.processingTime}
-                       </div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-semibold">{ai.aiTool}</h4>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          정확도 {ai.accuracy}
+                        </Badge>
+                      </div>
+                      <p className="text-gray-600 mb-2">{ai.useCase}</p>
+                      <div className="text-sm text-gray-500">
+                        학습 데이터: {ai.trainingData}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -480,7 +464,7 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {caseData.departmentAutomations?.map((dept, index) => (
+                  {caseData.departmentAutomations.map((dept, index) => (
                     <div key={index} className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex justify-between items-center mb-4">
                         <h4 className="font-semibold">{dept.department}</h4>
@@ -493,29 +477,29 @@ export default function SuccessCaseDetailPage({
                         <div>
                           <div className="text-sm text-gray-600 mb-1">자동화 프로세스</div>
                           <div className="flex flex-wrap gap-1">
-                            {dept.processes?.map((process) => (
+                            {dept.processes.map((process) => (
                               <Badge key={process} variant="outline" className="text-xs">
                                 {process}
                               </Badge>
                             ))}
                           </div>
                         </div>
-                                                 <div>
-                           <div className="text-sm text-gray-600 mb-1">시간 절약</div>
-                           <div className="text-lg font-bold text-green-600">{dept.timeSaved}</div>
-                         </div>
-                       </div>
-                       
-                       <div className="grid grid-cols-2 gap-4 text-center">
-                         <div className="p-3 bg-red-100 rounded">
-                           <div className="text-sm text-gray-600">자동화율</div>
-                           <div className="font-semibold text-red-600">{dept.automationLevel}</div>
-                         </div>
-                         <div className="p-3 bg-green-100 rounded">
-                           <div className="text-sm text-gray-600">비용 절감</div>
-                           <div className="font-semibold text-green-600">{dept.costReduction}</div>
-                         </div>
-                       </div>
+                        <div>
+                          <div className="text-sm text-gray-600 mb-1">효율성 개선</div>
+                          <div className="text-lg font-bold text-green-600">{dept.efficiency}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div className="p-3 bg-red-100 rounded">
+                          <div className="text-sm text-gray-600">이전 (수작업)</div>
+                          <div className="font-semibold text-red-600">{dept.manualHours}</div>
+                        </div>
+                        <div className="p-3 bg-green-100 rounded">
+                          <div className="text-sm text-gray-600">현재 (자동화)</div>
+                          <div className="font-semibold text-green-600">{dept.automatedHours}</div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -529,27 +513,27 @@ export default function SuccessCaseDetailPage({
               <CardContent className="p-8">
                 <div className="text-center mb-8">
                   <div className="text-6xl text-blue-200 mb-4">"</div>
-                                     <blockquote className="text-xl italic text-gray-700 leading-relaxed mb-6">
-                     {caseData.testimonial?.quote || '후기가 없습니다.'}
-                   </blockquote>
-                   <div className="text-center">
-                     <div className="font-semibold text-lg">{caseData.testimonial?.author || 'N/A'}</div>
-                     <div className="text-gray-600">{caseData.testimonial?.position || 'N/A'}</div>
-                     <div className="text-gray-500">{caseData.testimonial?.company || 'N/A'}</div>
-                   </div>
+                  <blockquote className="text-xl italic text-gray-700 leading-relaxed mb-6">
+                    {caseData.testimonial.quote}
+                  </blockquote>
+                  <div className="text-center">
+                    <div className="font-semibold text-lg">{caseData.testimonial.author}</div>
+                    <div className="text-gray-600">{caseData.testimonial.position}</div>
+                    <div className="text-gray-500">{caseData.testimonial.company}</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-                         {/* 후속 성과 */}
-             {caseData.followUpResults?.length > 0 && (
+            {/* 후속 성과 */}
+            {caseData.followUpResults.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>후속 성과</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {caseData.followUpResults?.map((followUp, index) => (
+                    {caseData.followUpResults.map((followUp, index) => (
                       <div key={index} className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
                         <TrendingUp className="w-6 h-6 text-green-600 flex-shrink-0" />
                         <div>

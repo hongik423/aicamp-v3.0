@@ -2,12 +2,14 @@
 
 import { itTechBenchmarkCases } from './it-tech-benchmark-cases';
 import { manufacturingBenchmarkCases } from './manufacturing-benchmark-cases';
+import { retailServiceCaseDetails } from './retail-service-cases';
 import { SuccessCaseDetail } from '@/types/success-case.types';
 
 // 업종별 벤치마크 성공사례 통합 데이터
 export const benchmarkCases: { [key: string]: SuccessCaseDetail } = {
   ...itTechBenchmarkCases,
-  ...manufacturingBenchmarkCases
+  ...manufacturingBenchmarkCases,
+  ...retailServiceCaseDetails
 };
 
 // 업종별 분류 데이터
@@ -44,6 +46,21 @@ export const industryBenchmarkCategories = {
       '조선/해양',
       '항공/우주',
       '자동차 부품'
+    ]
+  },
+  '유통/서비스': {
+    name: '유통/서비스',
+    description: '소매, 이커머스, 외식, 호텔, 여행, 배달 등 서비스업의 AI 혁신 사례',
+    cases: Object.values(retailServiceCaseDetails),
+    subIndustries: [
+      '오프라인 소매업',
+      '이커머스/온라인쇼핑',
+      '도매업',
+      '패션/부티',
+      '외식/카페',
+      '숙박/호텔',
+      '여행/관광',
+      '배달/플랫폼'
     ]
   }
 };
