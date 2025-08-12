@@ -236,59 +236,34 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
         'ESG 법률 자문 선도'
       ]
     },
-    automationDetails: {
-      workflows: [
-        {
-          name: 'AI 계약 검토',
-          description: 'NLP 기반 계약 조항 자동 분석',
-          efficiency: '검토 시간 70% 절감'
-        },
-        {
-          name: '판례 검색 엔진',
-          description: 'AI 기반 유사 판례 즉시 검색',
-          efficiency: '검색 정확도 95%'
-        },
-        {
-          name: '실사 자동화',
-          description: 'M&A 실사 문서 자동 분석',
-          efficiency: '처리 속도 5배'
-        },
-        {
-          name: '법률 챗봇',
-          description: '24/7 기초 법률 상담',
-          efficiency: '상담 처리량 300% 증가'
-        }
-      ],
-      integrations: [
-        '법률 데이터베이스',
-        '법원 전자소송 시스템',
-        '글로벌 법률 네트워크',
-        '클라이언트 ERP'
-      ]
+    automationMetrics: {
+      timeReduction: '70%',
+      costSaving: '연 280억원',
+      errorReduction: '98%',
+      productivityGain: '85%'
     },
-    testimonials: [
-      {
-        quote: "AI 도구 덕분에 단순 문서 검토에서 벗어나 고객을 위한 전략적 자문에 집중할 수 있게 되었습니다. 특히 국제 계약 검토가 획기적으로 빨라졌습니다.",
-        author: "김정훈",
-        position: "시니어 파트너",
-        company: "김앤장 법률사무소"
-      },
-      {
-        quote: "실사 기간이 절반 이하로 줄어들어 M&A 딜을 훨씬 빠르게 진행할 수 있게 되었습니다. AI가 리스크를 정확히 짚어내 놀랍습니다.",
-        author: "이상민",
-        position: "전무",
-        company: "삼성전자 법무팀"
-      }
+    n8nWorkflows: [
+      { name: 'AI 계약 검토 파이프라인', description: 'OCR→NLP 조항 추출→리스크 스코어링→자동 보고', nodes: 18, triggers: ['계약 업로드', '이메일 수신'], actions: ['OCR', 'LLM분석', '리포트생성', 'DMS저장'] },
+      { name: '판례·법령 검색 자동화', description: '키워드/문맥 기반 유사 판례·법령 검색', nodes: 12, triggers: ['질의 입력'], actions: ['벡터검색', '랭킹', '요약'] },
+      { name: 'DD(실사) 문서 자동화', description: '실사 체크리스트 기반 항목별 자동 수집/분석', nodes: 16, triggers: ['실사 착수'], actions: ['데이터수집', '이상탐지', '리포트'] }
     ],
-    featured: true,
-    implementationPeriod: '12개월',
-    teamSize: '95명',
-    technologies: ['GPT-4', 'Claude', 'n8n', 'Python', 'Elasticsearch', 'Azure'],
-    downloadableResources: [
-      '리걸테크 도입 가이드',
-      'AI 계약 검토 매뉴얼',
-      '법률 자동화 ROI 계산기'
-    ]
+    aiImplementations: [
+      { type: 'NLP 계약 분석', purpose: '조항 추출/리스크 평가', accuracy: '98%', processingTime: '문서당 30초' },
+      { type: '시맨틱 검색', purpose: '판례/법령 유사도 검색', accuracy: '95%', processingTime: '500ms' },
+      { type: '요약/초안 생성', purpose: '법률 의견서 초안', accuracy: '93%', processingTime: '10초' }
+    ],
+    departmentAutomations: [
+      { department: '송무팀', automationLevel: '70%', timeSaved: '28시간/주', costReduction: '연 30억원' },
+      { department: '자문팀', automationLevel: '80%', timeSaved: '32시간/주', costReduction: '연 45억원' },
+      { department: '실사팀', automationLevel: '75%', timeSaved: '30시간/주', costReduction: '연 25억원' }
+    ],
+    roiData: { investment: '40억원', monthlySavings: '23억원', paybackPeriod: '1.7개월', threeYearROI: '1,800%' },
+    implementationTimeline: '12개월',
+    successFactors: [ '표준화/거버넌스', '법률 도메인 프롬프트 자산', '합동 운영체계' ],
+    testimonial: { quote: '계약 검토와 실사가 자동화되며 변호사들이 전략 자문에 집중할 수 있었습니다.', author: '김정훈', position: '시니어 파트너', company: '김앤장 법률사무소' },
+    followUpResults: [ { metric: '재계약률', achievement: '전년 대비 28% 증가' }, { metric: '해외 자문 매출', achievement: '42% 성장' } ],
+    tags: ['리걸테크', '계약분석', '판례검색', 'AI실사'],
+    featured: true
   },
 
   'accounting-automation': {
@@ -449,46 +424,32 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
         '디지털 감사 선도 기업'
       ]
     },
-    automationDetails: {
-      workflows: [
-        {
-          name: 'AI 전수 감사',
-          description: '100% 거래 자동 검증',
-          efficiency: '감사 범위 20배 확대'
-        },
-        {
-          name: '부정 탐지 엔진',
-          description: 'ML 기반 이상 패턴 감지',
-          efficiency: '탐지율 92%'
-        },
-        {
-          name: '자동 보고서',
-          description: 'AI 기반 감사 보고서 작성',
-          efficiency: '작성 시간 80% 절감'
-        }
-      ],
-      integrations: [
-        'SAP/Oracle ERP',
-        '국세청 시스템',
-        '금융감독원 공시'
-      ]
+    automationMetrics: {
+      timeReduction: '55%',
+      costSaving: '연 380억원',
+      errorReduction: '92%',
+      productivityGain: '85%'
     },
-    testimonials: [
-      {
-        quote: "AI로 전수 감사가 가능해져 샘플링의 한계를 극복했습니다. 부정 거래를 놓치지 않고 찾아낼 수 있어 감사 품질이 크게 향상되었습니다.",
-        author: "박성준",
-        position: "감사본부장",
-        company: "삼일PwC"
-      }
+    n8nWorkflows: [
+      { name: '전수감사 파이프라인', description: '거래 수집→규칙/ML 검증→리스크 점수→레포트', nodes: 20, triggers: ['배치 처리'], actions: ['ERP연동', 'ML검증', '리포트'] },
+      { name: '이상거래 탐지', description: '그래프 기반 네트워크 분석과 실시간 모니터링', nodes: 14, triggers: ['실시간 이벤트'], actions: ['스트림처리', '알림', '대시보드'] },
+      { name: '자동 감사보고', description: '핵심 지표 요약 및 감사 의견 초안 생성', nodes: 10, triggers: ['감사 종료'], actions: ['요약', '문서화', '승인흐름'] }
     ],
-    featured: true,
-    implementationPeriod: '10개월',
-    teamSize: '120명',
-    technologies: ['TensorFlow', 'n8n', 'Tableau', 'Python', 'SAP'],
-    downloadableResources: [
-      'AI 감사 가이드북',
-      '부정 탐지 매뉴얼'
-    ]
+    aiImplementations: [
+      { type: '이상탐지 ML', purpose: '부정 패턴 탐지', accuracy: '92%', processingTime: '실시간' },
+      { type: '문서요약 LLM', purpose: '감사보고 초안', accuracy: '95%', processingTime: '30초' }
+    ],
+    departmentAutomations: [
+      { department: '감사1본부', automationLevel: '80%', timeSaved: '34시간/주', costReduction: '연 60억원' },
+      { department: '품질관리', automationLevel: '70%', timeSaved: '26시간/주', costReduction: '연 25억원' }
+    ],
+    roiData: { investment: '30억원', monthlySavings: '18억원', paybackPeriod: '1.7개월', threeYearROI: '1,980%' },
+    implementationTimeline: '10개월',
+    successFactors: ['전사 ERP 연동', '샘플링→전수 전환', '데이터 신뢰성 확보'],
+    testimonial: { quote: '전수 감사와 자동 보고서로 품질과 속도를 동시에 달성했습니다.', author: '박성준', position: '감사본부장', company: '삼일PwC' },
+    followUpResults: [{ metric: '오탐률', achievement: '5% 미만 유지' }, { metric: '감사 수임', achievement: '연 22% 증가' }],
+    tags: ['회계자동화', '부정탐지', '전수감사', 'AI감사'],
+    featured: true
   },
 
   // 추가 5개 사례 (경영컨설팅, IT컨설팅, HR, 마케팅, 디자인)
@@ -498,14 +459,69 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
     industry: '전문서비스',
     subIndustry: '경영컨설팅',
     companyName: '맥킨지 한국사무소',
+    companySize: '대기업',
     title: 'AI 경영 분석 자동화',
     subtitle: '분석 시간 65% 단축, 인사이트 품질 80% 향상',
-    description: 'AI를 활용한 데이터 분석과 전략 수립 자동화로 컨설팅 품질을 혁신한 사례',
+    description: 'AI 기반 시장/재무/운영 데이터 분석 자동화와 전략 시뮬레이션으로 프로젝트 납기를 단축하고 품질을 고도화',
     icon: Briefcase,
     color: 'blue',
-    featured: false,
-    implementationPeriod: '8개월',
-    teamSize: '65명'
+    heroImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop&crop=center',
+    companyInfo: { industry: '경영컨설팅', employees: '1,000명', revenue: '연 매출 8,500억원', location: '서울 강남' },
+    challenges: [
+      { title: '수작업 리서치 의존', description: '분산된 데이터 수집/정제에 과다 시간', impact: '인사이트 도출 지연' },
+      { title: '시나리오 시뮬레이션 한계', description: '모델링 자동화 부족', impact: '의사결정 품질 편차' },
+      { title: '전달물 표준화 부족', description: '산출물 품질 편차', impact: '고객 만족도 저하' }
+    ],
+    curriculum: {
+      basic: [
+        { title: '컨설팅 데이터를 위한 프롬프트', duration: '12시간', description: '케이스 인터뷰식 프롬프트 템플릿' },
+        { title: '데이터 파이프라인 기초', duration: '12시간', description: '수집/정제/적재 파이프라인' }
+      ],
+      advanced: [
+        { title: 'n8n 데이터 파이프라인', duration: '20시간', description: 'API/크롤링/ETL 자동화' },
+        { title: '시뮬레이션/옵티마이저', duration: '16시간', description: '재무/운영 시뮬레이션 자동화' }
+      ],
+      executive: [
+        { title: 'AI 컨설팅 거버넌스', duration: '8시간', description: '품질/윤리/보안 체계' }
+      ]
+    },
+    process: [
+      { phase: '데이터 통합/정제', duration: '4주', activities: ['다중 소스 수집', '중복제거/정제', '도메인 스키마화'], results: ['데이터 레이크 구축', '신뢰도 향상'] },
+      { phase: '분석/시뮬레이션', duration: '6주', activities: ['시장/재무 모델', '수요/공급 예측', '민감도 분석'], results: ['정확도 20%↑', '의사결정 속도 50%↑'] },
+      { phase: '전달물 자동화', duration: '2주', activities: ['슬라이드 자동 생성', '요약/추천안'], results: ['납기 35% 단축'] }
+    ],
+    results: {
+      quantitative: [
+        { metric: '리서치 시간', before: '평균 4주', after: '평균 1.4주', improvement: '65% 단축' },
+        { metric: '분석 정확도', before: '기준', after: '+20%', improvement: '20% 향상' },
+        { metric: '납기', before: '기준', after: '+35%', improvement: '35% 단축' }
+      ],
+      financial: [
+        { item: '프로젝트 수익성', amount: '연 120억원 개선' },
+        { item: '비용 절감', amount: '연 45억원' }
+      ],
+      qualitative: ['전달물 표준화', '재사용 가능한 분석 자산', '클라이언트 만족도 상승']
+    },
+    automationMetrics: { timeReduction: '65%', costSaving: '연 45억원', errorReduction: '40%', productivityGain: '70%' },
+    n8nWorkflows: [
+      { name: '시장 데이터 ETL', description: 'API/크롤링→정제→데이터레이크', nodes: 14, triggers: ['스케줄'], actions: ['수집', '정제', '적재'] },
+      { name: '슬라이드 자동화', description: '분석요약→PPT 생성→승인흐름', nodes: 10, triggers: ['분석 완료'], actions: ['요약', '템플릿적용', '문서전송'] }
+    ],
+    aiImplementations: [
+      { type: '타임시리즈 예측', purpose: '수요/매출 예측', accuracy: '90%', processingTime: '실시간' },
+      { type: 'LLM 요약', purpose: '전달물 요약/초안', accuracy: '94%', processingTime: '10초' }
+    ],
+    departmentAutomations: [
+      { department: '리서치팀', automationLevel: '75%', timeSaved: '30시간/주', costReduction: '연 10억원' },
+      { department: '전략기획', automationLevel: '70%', timeSaved: '26시간/주', costReduction: '연 8억원' }
+    ],
+    roiData: { investment: '12억원', monthlySavings: '7억원', paybackPeriod: '1.7개월', threeYearROI: '1,650%' },
+    implementationTimeline: '8개월',
+    successFactors: ['데이터 표준화', '재사용 가능한 모듈', '컨설턴트 교육'],
+    testimonial: { quote: '데이터 수집부터 전달물까지 자동화해 납기와 품질을 동시에 달성했습니다.', author: '김○○', position: '파트너', company: '맥킨지' },
+    followUpResults: [{ metric: '클라이언트 만족도', achievement: '+18%p' }],
+    tags: ['경영분석', '전략수립', '데이터분석', 'AI인사이트'],
+    featured: false
   },
 
   'it-consulting': {

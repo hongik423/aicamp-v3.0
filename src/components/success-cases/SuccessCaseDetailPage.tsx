@@ -121,28 +121,28 @@ export default function SuccessCaseDetailPage({
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <TrendingUp className="w-8 h-8 mx-auto mb-2 text-green-300" />
-                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics?.productivityGain || 'N/A'}</div>
+                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics?.productivityGain}</div>
                   <div className="text-sm text-white/75">생산성 향상</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <DollarSign className="w-8 h-8 mx-auto mb-2 text-yellow-300" />
-                  <div className="text-lg font-bold text-white">{caseData.automationMetrics?.costSaving || 'N/A'}</div>
+                  <div className="text-lg font-bold text-white">{caseData.automationMetrics?.costSaving}</div>
                   <div className="text-sm text-white/75">비용 절감</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Clock className="w-8 h-8 mx-auto mb-2 text-blue-300" />
-                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics?.timeReduction || 'N/A'}</div>
+                  <div className="text-2xl font-bold text-white">{caseData.automationMetrics?.timeReduction}</div>
                   <div className="text-sm text-white/75">시간 단축</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Target className="w-8 h-8 mx-auto mb-2 text-red-300" />
-                  <div className="text-2xl font-bold text-white">{caseData.roiData?.threeYearROI || 'N/A'}</div>
+                  <div className="text-2xl font-bold text-white">{caseData.roiData?.threeYearROI}</div>
                   <div className="text-sm text-white/75">3년 ROI</div>
                 </CardContent>
               </Card>
@@ -177,19 +177,19 @@ export default function SuccessCaseDetailPage({
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">업종</span>
-                    <span className="font-medium">{caseData.companyInfo?.industry || 'N/A'}</span>
+                   <span className="font-medium">{caseData.companyInfo?.industry}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">직원 수</span>
-                    <span className="font-medium">{caseData.companyInfo?.employees || 'N/A'}</span>
+                   <span className="font-medium">{caseData.companyInfo?.employees}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">매출</span>
-                    <span className="font-medium">{caseData.companyInfo?.revenue || 'N/A'}</span>
+                   <span className="font-medium">{caseData.companyInfo?.revenue}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">위치</span>
-                    <span className="font-medium">{caseData.companyInfo?.location || 'N/A'}</span>
+                   <span className="font-medium">{caseData.companyInfo?.location}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -205,19 +205,19 @@ export default function SuccessCaseDetailPage({
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">투자 금액</span>
-                    <span className="font-medium">{caseData.roiData?.investment || 'N/A'}</span>
+                   <span className="font-medium">{caseData.roiData?.investment}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">월간 절감</span>
-                    <span className="font-medium text-green-600">{caseData.roiData?.monthlySavings || 'N/A'}</span>
+                   <span className="font-medium text-green-600">{caseData.roiData?.monthlySavings}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">회수 기간</span>
-                    <span className="font-medium">{caseData.roiData?.paybackPeriod || 'N/A'}</span>
+                   <span className="font-medium">{caseData.roiData?.paybackPeriod}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">3년 ROI</span>
-                    <span className="font-medium text-blue-600">{caseData.roiData?.threeYearROI || 'N/A'}</span>
+                   <span className="font-medium text-blue-600">{caseData.roiData?.threeYearROI}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -528,12 +528,12 @@ export default function SuccessCaseDetailPage({
                 <div className="text-center mb-8">
                   <div className="text-6xl text-blue-200 mb-4">"</div>
                   <blockquote className="text-xl italic text-gray-700 leading-relaxed mb-6">
-                    {caseData.testimonial?.quote || 'N/A'}
+                   {caseData.testimonial?.quote}
                   </blockquote>
                   <div className="text-center">
-                                          <div className="font-semibold text-lg">{caseData.testimonial?.author || 'N/A'}</div>
-                      <div className="text-gray-600">{caseData.testimonial?.position || 'N/A'}</div>
-                      <div className="text-gray-500">{caseData.testimonial?.company || 'N/A'}</div>
+                                          <div className="font-semibold text-lg">{caseData.testimonial?.author}</div>
+                      <div className="text-gray-600">{caseData.testimonial?.position}</div>
+                      <div className="text-gray-500">{caseData.testimonial?.company}</div>
                   </div>
                 </div>
               </CardContent>
