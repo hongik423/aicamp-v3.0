@@ -52,7 +52,7 @@ export default function Header() {
     { href: '/', label: '홈', isSpecial: false, priority: 1 },
     { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 2 },
     { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 3 },
-    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 4 },
+    { href: '/benchmark', label: 'AI벤치마크', isSpecial: false, priority: 4 },
     { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 5 },
     { href: '/seminar', label: '세미나', isSpecial: false, priority: 6 },
     { href: '/consultation', label: '상담신청', isSpecial: false, priority: 7 },
@@ -202,7 +202,7 @@ export default function Header() {
                 href="/benchmark"
                 className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
               >
-                벤치마크
+                AI벤치마크
               </Link>
               <Link
                 href="/consultation"
