@@ -67,16 +67,16 @@ export default function BenchmarkShowcase({
   const sortedCases = [...filteredCases].sort((a, b) => {
     switch (sortBy) {
       case 'roi':
-        const roiA = parseInt(a.roiData.threeYearROI.replace('%', ''));
-        const roiB = parseInt(b.roiData.threeYearROI.replace('%', ''));
+        const roiA = a.roiData?.threeYearROI ? parseInt(a.roiData.threeYearROI.replace('%', '')) : 0;
+        const roiB = b.roiData?.threeYearROI ? parseInt(b.roiData.threeYearROI.replace('%', '')) : 0;
         return roiB - roiA;
       case 'timeReduction':
-        const timeA = parseInt(a.automationMetrics.timeReduction.replace('%', ''));
-        const timeB = parseInt(b.automationMetrics.timeReduction.replace('%', ''));
+        const timeA = a.automationMetrics?.timeReduction ? parseInt(a.automationMetrics.timeReduction.replace('%', '')) : 0;
+        const timeB = b.automationMetrics?.timeReduction ? parseInt(b.automationMetrics.timeReduction.replace('%', '')) : 0;
         return timeB - timeA;
       case 'productivity':
-        const prodA = parseInt(a.automationMetrics.productivityGain.replace('%', ''));
-        const prodB = parseInt(b.automationMetrics.productivityGain.replace('%', ''));
+        const prodA = a.automationMetrics?.productivityGain ? parseInt(a.automationMetrics.productivityGain.replace('%', '')) : 0;
+        const prodB = b.automationMetrics?.productivityGain ? parseInt(b.automationMetrics.productivityGain.replace('%', '')) : 0;
         return prodB - prodA;
       default:
         return 0;
