@@ -177,22 +177,22 @@ export default function SuccessCaseDetailPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">업종</span>
-                    <span className="font-medium">{caseData.companyInfo.industry}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">직원 수</span>
-                    <span className="font-medium">{caseData.companyInfo.employees}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">매출</span>
-                    <span className="font-medium">{caseData.companyInfo.revenue}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">위치</span>
-                    <span className="font-medium">{caseData.companyInfo.location}</span>
-                  </div>
+                                     <div className="flex justify-between">
+                     <span className="text-gray-600">업종</span>
+                     <span className="font-medium">{caseData.companyInfo?.industry || 'N/A'}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-gray-600">직원 수</span>
+                     <span className="font-medium">{caseData.companyInfo?.employees || 'N/A'}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-gray-600">매출</span>
+                     <span className="font-medium">{caseData.companyInfo?.revenue || 'N/A'}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-gray-600">위치</span>
+                     <span className="font-medium">{caseData.companyInfo?.location || 'N/A'}</span>
+                   </div>
                 </CardContent>
               </Card>
 
@@ -205,22 +205,22 @@ export default function SuccessCaseDetailPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">투자 금액</span>
-                    <span className="font-medium">{caseData.roiData.investment}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">월간 절감</span>
-                    <span className="font-medium text-green-600">{caseData.roiData.monthlySavings}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">회수 기간</span>
-                    <span className="font-medium">{caseData.roiData.paybackPeriod}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">3년 ROI</span>
-                    <span className="font-medium text-blue-600">{caseData.roiData.threeYearROI}</span>
-                  </div>
+                                     <div className="flex justify-between">
+                     <span className="text-gray-600">투자 금액</span>
+                     <span className="font-medium">{caseData.roiData?.investment || 'N/A'}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-gray-600">월간 절감</span>
+                     <span className="font-medium text-green-600">{caseData.roiData?.monthlySavings || 'N/A'}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-gray-600">회수 기간</span>
+                     <span className="font-medium">{caseData.roiData?.paybackPeriod || 'N/A'}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-gray-600">3년 ROI</span>
+                     <span className="font-medium text-blue-600">{caseData.roiData?.threeYearROI || 'N/A'}</span>
+                   </div>
                 </CardContent>
               </Card>
 
@@ -233,10 +233,10 @@ export default function SuccessCaseDetailPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">구현 기간</span>
-                    <span className="font-medium">{caseData.implementationTimeline}</span>
-                  </div>
+                                     <div className="flex justify-between">
+                     <span className="text-gray-600">구현 기간</span>
+                     <span className="font-medium">{caseData.implementationTimeline || 'N/A'}</span>
+                   </div>
                   <div className="space-y-2">
                     <span className="text-gray-600">성공 요인</span>
                     <div className="space-y-1">
@@ -421,10 +421,10 @@ export default function SuccessCaseDetailPage({
                 <div className="grid gap-4">
                   {caseData.n8nWorkflows?.map((workflow, index) => (
                     <div key={index} className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-semibold">{workflow.workflowName}</h4>
-                        <Badge variant="outline">{workflow.executionCount.toLocaleString()}회 실행</Badge>
-                      </div>
+                                             <div className="flex justify-between items-start mb-3">
+                         <h4 className="font-semibold">{workflow.name}</h4>
+                         <Badge variant="outline">{workflow.nodes}개 노드</Badge>
+                       </div>
                       <p className="text-gray-600 mb-3">{workflow.description}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
                         {workflow.integrations?.map((integration) => (
@@ -433,9 +433,9 @@ export default function SuccessCaseDetailPage({
                           </Badge>
                         ))}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        트리거: {workflow.triggerType}
-                      </div>
+                                             <div className="text-sm text-gray-500">
+                         트리거: {workflow.triggers?.join(', ') || 'N/A'}
+                       </div>
                     </div>
                   ))}
                 </div>
@@ -454,16 +454,16 @@ export default function SuccessCaseDetailPage({
                 <div className="grid gap-4">
                   {caseData.aiImplementations?.map((ai, index) => (
                     <div key={index} className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold">{ai.aiTool}</h4>
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
-                          정확도 {ai.accuracy}
-                        </Badge>
-                      </div>
-                      <p className="text-gray-600 mb-2">{ai.useCase}</p>
-                      <div className="text-sm text-gray-500">
-                        학습 데이터: {ai.trainingData}
-                      </div>
+                                             <div className="flex justify-between items-start mb-2">
+                         <h4 className="font-semibold">{ai.type}</h4>
+                         <Badge variant="secondary" className="bg-green-100 text-green-800">
+                           정확도 {ai.accuracy}
+                         </Badge>
+                       </div>
+                       <p className="text-gray-600 mb-2">{ai.purpose}</p>
+                       <div className="text-sm text-gray-500">
+                         처리 시간: {ai.processingTime}
+                       </div>
                     </div>
                   ))}
                 </div>
@@ -500,22 +500,22 @@ export default function SuccessCaseDetailPage({
                             ))}
                           </div>
                         </div>
-                        <div>
-                          <div className="text-sm text-gray-600 mb-1">효율성 개선</div>
-                          <div className="text-lg font-bold text-green-600">{dept.efficiency}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-center">
-                        <div className="p-3 bg-red-100 rounded">
-                          <div className="text-sm text-gray-600">이전 (수작업)</div>
-                          <div className="font-semibold text-red-600">{dept.manualHours}</div>
-                        </div>
-                        <div className="p-3 bg-green-100 rounded">
-                          <div className="text-sm text-gray-600">현재 (자동화)</div>
-                          <div className="font-semibold text-green-600">{dept.automatedHours}</div>
-                        </div>
-                      </div>
+                                                 <div>
+                           <div className="text-sm text-gray-600 mb-1">시간 절약</div>
+                           <div className="text-lg font-bold text-green-600">{dept.timeSaved}</div>
+                         </div>
+                       </div>
+                       
+                       <div className="grid grid-cols-2 gap-4 text-center">
+                         <div className="p-3 bg-red-100 rounded">
+                           <div className="text-sm text-gray-600">자동화율</div>
+                           <div className="font-semibold text-red-600">{dept.automationLevel}</div>
+                         </div>
+                         <div className="p-3 bg-green-100 rounded">
+                           <div className="text-sm text-gray-600">비용 절감</div>
+                           <div className="font-semibold text-green-600">{dept.costReduction}</div>
+                         </div>
+                       </div>
                     </div>
                   ))}
                 </div>
@@ -529,20 +529,20 @@ export default function SuccessCaseDetailPage({
               <CardContent className="p-8">
                 <div className="text-center mb-8">
                   <div className="text-6xl text-blue-200 mb-4">"</div>
-                  <blockquote className="text-xl italic text-gray-700 leading-relaxed mb-6">
-                    {caseData.testimonial.quote}
-                  </blockquote>
-                  <div className="text-center">
-                    <div className="font-semibold text-lg">{caseData.testimonial.author}</div>
-                    <div className="text-gray-600">{caseData.testimonial.position}</div>
-                    <div className="text-gray-500">{caseData.testimonial.company}</div>
-                  </div>
+                                     <blockquote className="text-xl italic text-gray-700 leading-relaxed mb-6">
+                     {caseData.testimonial?.quote || '후기가 없습니다.'}
+                   </blockquote>
+                   <div className="text-center">
+                     <div className="font-semibold text-lg">{caseData.testimonial?.author || 'N/A'}</div>
+                     <div className="text-gray-600">{caseData.testimonial?.position || 'N/A'}</div>
+                     <div className="text-gray-500">{caseData.testimonial?.company || 'N/A'}</div>
+                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 후속 성과 */}
-            {caseData.followUpResults.length > 0 && (
+                         {/* 후속 성과 */}
+             {caseData.followUpResults?.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>후속 성과</CardTitle>
