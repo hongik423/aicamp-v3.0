@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Header from '@/components/layout/header';
-import AIDiagnosisForm from '@/features/ai-diagnosis/components/AIDiagnosisForm';
 import { Target, TrendingUp, Users, Award, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,17 @@ export default function DiagnosisPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
         <Header />
         <div className="container mx-auto px-4 py-8">
-                      <AIDiagnosisForm />
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">AI 역량진단 준비중</h1>
+            <p className="text-lg text-gray-600 mb-8">
+              더 나은 진단 시스템을 준비하고 있습니다. 곧 만나뵙겠습니다!
+            </p>
+            <Link href="/consultation">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                상담 신청하기
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
