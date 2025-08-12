@@ -321,6 +321,166 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
       '국민 중심 서비스 설계와 지속적 개선'
     ],
     featured: true
+  },
+
+  'local-government-smart-city': {
+    id: 'local-government-smart-city',
+    category: 'public',
+    industry: '공공/비영리',
+    subIndustry: '지방자치단체',
+    companyName: '서울특별시 (직원 40,000명)',
+    companySize: '지방자치단체',
+    title: 'AI 기반 스마트 시티 통합 플랫폼',
+    subtitle: '교통혼잡 42% 감소, 민원처리 71% 단축',
+    description: '교통/환경/안전 데이터를 통합하고 AI와 n8n으로 예측·대응·민원처리를 자동화해 시민 체감 성과를 만든 사례',
+    icon: Globe,
+    color: 'green',
+    heroImage: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200&h=800&fit=crop&crop=center',
+    companyInfo: { industry: '지방정부', employees: '40,000명', revenue: '연 예산 44조원', location: '서울특별시' },
+    challenges: [
+      { title: '교통 혼잡/사고', description: '실시간 데이터 분절로 사전 대응 한계', impact: '시민 불편/사회적 비용 증가' },
+      { title: '대기/미세먼지', description: '예측/경보 체계 미흡', impact: '건강 리스크' },
+      { title: '민원 연계', description: '부서 별 처리 파편화', impact: '처리 지연' }
+    ],
+    curriculum: {
+      basic: [ { title: '공공 데이터 표준/거버넌스', duration: '12시간', description: '메타데이터/품질' } ],
+      advanced: [ { title: 'n8n 도시데이터 파이프라인', duration: '20시간', description: 'IoT/교통/환경 통합' } ],
+      executive: [ { title: '스마트시티 전략/윤리', duration: '8시간', description: '안전/프라이버시' } ]
+    },
+    process: [
+      { phase: '데이터 통합', duration: '8주', activities: ['CCTV/신호/센서/기상 통합', '데이터 거버넌스'], results: ['실시간 데이터레이크 구축'] },
+      { phase: '예측/대응', duration: '10주', activities: ['혼잡/사고 예측', '대기질 예측', '자동 경보/우회'], results: ['혼잡 42%↓'] },
+      { phase: '민원 자동화', duration: '6주', activities: ['분류/배정/알림', '처리 SLA 추적'], results: ['처리 71% 단축'] }
+    ],
+    results: {
+      quantitative: [
+        { metric: '교통 혼잡', before: '기준', after: '-42%', improvement: '42% 감소' },
+        { metric: '민원 처리 시간', before: '평균 7일', after: '평균 2일', improvement: '71% 단축' },
+        { metric: '대기질 경보 정확도', before: '78%', after: '91%', improvement: '16.7%p 향상' }
+      ],
+      financial: [ { item: '사회적 비용 절감', amount: '연 6,200억원' } ],
+      qualitative: ['시민 체감 서비스 향상', '현장 대응 속도 개선', '데이터 기반 행정 정착']
+    },
+    testimonial: { quote: '부서가 하나의 데이터 플랫폼으로 연결되며 사전 대응이 가능해졌습니다.', author: '박○○', position: '스마트도시정책관', company: '서울특별시' },
+    followUpResults: [ { metric: '시민 만족도', achievement: '92% 달성' } ],
+    tags: ['스마트시티', '교통', '대기질', '민원'],
+    automationMetrics: { timeReduction: '71%', costSaving: '연 6,200억원', errorReduction: '35%', productivityGain: '65%' },
+    n8nWorkflows: [
+      { name: '교통 이벤트 파이프라인', description: '혼잡/사고 감지→경보/우회안내', nodes: 18, triggers: ['CCTV/신호'], actions: ['탐지', '우회알림', '대시보드'] },
+      { name: '대기질 예측/경보', description: '센서/기상→예측→취약계층 알림', nodes: 12, triggers: ['센서'], actions: ['예측', 'SMS', '지도'] },
+      { name: '민원 자동 분류/배정', description: '민원→자연어 분류→담당 배정/SLA', nodes: 14, triggers: ['접수'], actions: ['분류', '배정', '알림'] }
+    ],
+    aiImplementations: [
+      { type: '이상탐지/Computer Vision', purpose: '사고/혼잡 감지', accuracy: '93%', processingTime: '실시간' },
+      { type: '타임시리즈 예측', purpose: '대기질/수요 예측', accuracy: '91%', processingTime: '실시간' },
+      { type: 'NLP 분류', purpose: '민원 라우팅', accuracy: '94%', processingTime: '1초' }
+    ],
+    departmentAutomations: [
+      { department: '교통과', automationLevel: '80%', timeSaved: '36시간/주', costReduction: '연 120억원' },
+      { department: '환경과', automationLevel: '70%', timeSaved: '28시간/주', costReduction: '연 85억원' }
+    ],
+    roiData: { investment: '120억원', monthlySavings: '85억원', paybackPeriod: '1.4개월', threeYearROI: '2,550%' },
+    implementationTimeline: '12개월',
+    successFactors: ['데이터 표준화', '관제-현장 연계', '시민 커뮤니케이션'],
+    featured: true
+  },
+
+  'nonprofit-donation-automation': {
+    id: 'nonprofit-donation-automation',
+    category: 'public',
+    industry: '공공/비영리',
+    subIndustry: '비영리단체',
+    companyName: '굿위람 재단 (직원 250명)',
+    companySize: '비영리',
+    title: 'AI 기부자 여정/모금 자동화',
+    subtitle: '모금액 85% 증대, 이탈률 42% 감소',
+    description: '기부자 세그먼트/메시지/캠페인을 AI로 최적화하고 n8n으로 옴니채널 여정을 자동화',
+    icon: HandHeart,
+    color: 'rose',
+    heroImage: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=1200&h=800&fit=crop&crop=center',
+    companyInfo: { industry: '비영리', employees: '250명', revenue: '연 기부 1,500억원', location: '서울' },
+    challenges: [
+      { title: '기부자 이탈', description: '맞춤 커뮤니케이션 부족', impact: '재기부율 저하' },
+      { title: '캠페인 운영', description: '채널별 반복 업무', impact: '운영비 증가' }
+    ],
+    curriculum: {
+      basic: [ { title: '비영리 데이터/윤리', duration: '10시간', description: '보호/투명성' } ],
+      advanced: [ { title: 'n8n 여정 자동화', duration: '18시간', description: '세그/메시지/채널' } ],
+      executive: [ { title: '임팩트 측정', duration: '6시간', description: '성과/보고' } ]
+    },
+    process: [
+      { phase: '세그먼트 전략', duration: '3주', activities: ['RFM/지표 정의', '세그 설계'], results: ['세그먼트 12종'] },
+      { phase: '여정 자동화', duration: '5주', activities: ['웰컴/리텐션/리어펙트'], results: ['재기부율 38%↑'] },
+      { phase: '캠페인 최적화', duration: '4주', activities: ['A/B', '카피/이미지 생성'], results: ['CTR 45%↑'] }
+    ],
+    results: {
+      quantitative: [ { metric: '모금액', before: '기준', after: '+85%', improvement: '85% 증가' }, { metric: '이탈률', before: '기준', after: '-42%', improvement: '42% 감소' } ],
+      financial: [ { item: '운영비 절감', amount: '연 18억원' } ],
+      qualitative: ['기부자 경험 개선', '투명한 보고', '임팩트 커뮤니케이션']
+    },
+    testimonial: { quote: '맞춤 여정 자동화로 재기부와 추천이 크게 늘었습니다.', author: '최○○', position: '모금본부장', company: '굿위람' },
+    followUpResults: [ { metric: '재기부율', achievement: '+38%' } ],
+    tags: ['모금', '세그먼트', '여정', '옴니채널'],
+    automationMetrics: { timeReduction: '55%', costSaving: '연 18억원', errorReduction: '30%', productivityGain: '80%' },
+    n8nWorkflows: [
+      { name: '여정 오케스트레이션', description: '트리거→세그→메시지→채널 전송', nodes: 12, triggers: ['가입/기부'], actions: ['세그', '전송', '측정'] },
+      { name: '콘텐츠 생성/테스트', description: '카피/이미지 생성→A/B', nodes: 10, triggers: ['캠페인 시작'], actions: ['생성', '배포', '측정'] }
+    ],
+    aiImplementations: [ { type: '세그먼트 모델', purpose: 'RFM/생애가치', accuracy: 'N/A', processingTime: '실시간' }, { type: '생성형 AI', purpose: '카피/이미지', accuracy: 'N/A', processingTime: '3초' } ],
+    departmentAutomations: [ { department: '모금', automationLevel: '70%', timeSaved: '28시간/주', costReduction: '연 10억원' } ],
+    roiData: { investment: '6억원', monthlySavings: '4억원', paybackPeriod: '1.5개월', threeYearROI: '2,400%' },
+    implementationTimeline: '6개월',
+    successFactors: ['데이터/윤리', '세그먼트 표준', '콘텐츠 실험'],
+    featured: true
+  },
+
+  'public-education-digital-campus': {
+    id: 'public-education-digital-campus',
+    category: 'public',
+    industry: '공공/비영리',
+    subIndustry: '교육기관',
+    companyName: '서울시교육청 (교직원 50,000명)',
+    companySize: '교육기관',
+    title: 'AI 디지털 캠퍼스/학사 자동화',
+    subtitle: '행정시간 62% 감소, 학습지원 48% 향상',
+    description: '학사/행정/상담을 AI/n8n으로 자동화하고 학습 분석으로 개인화 지원',
+    icon: School,
+    color: 'blue',
+    heroImage: 'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?w=1200&h=800&fit=crop&crop=center',
+    companyInfo: { industry: '공교육', employees: '50,000명', revenue: '연 예산 10조원', location: '서울' },
+    challenges: [
+      { title: '행정 부담', description: '공문/결재/보고 반복업무', impact: '교사 업무 과중' },
+      { title: '맞춤 학습 지원', description: '개별 학습 분석 부족', impact: '격차 확대' }
+    ],
+    curriculum: {
+      basic: [ { title: '교직원 AI 리터러시', duration: '12시간', description: '업무 자동화' } ],
+      advanced: [ { title: 'n8n 학사/행정 자동화', duration: '18시간', description: '시스템 연계' } ],
+      executive: [ { title: '데이터 보안/윤리', duration: '6시간', description: '학생정보 보호' } ]
+    },
+    process: [
+      { phase: '행정 자동화', duration: '6주', activities: ['공문/보고서 초안', '결재 플로우 자동화'], results: ['행정시간 62%↓'] },
+      { phase: '학습 분석', duration: '6주', activities: ['출결/과제/평가 통합', '리스크 알림'], results: ['지원 48%↑'] },
+      { phase: '상담/소통', duration: '4주', activities: ['챗봇', '알림', '설문/피드백'], results: ['민원 35%↓'] }
+    ],
+    results: {
+      quantitative: [ { metric: '행정시간', before: '기준', after: '-62%', improvement: '62% 단축' }, { metric: '학습지원 지표', before: '기준', after: '+48%', improvement: '48% 향상' } ],
+      financial: [ { item: '운영비 절감', amount: '연 120억원' } ],
+      qualitative: ['교사 업무 만족도 향상', '학생/학부모 커뮤니케이션 개선']
+    },
+    testimonial: { quote: '행정/상담 자동화로 수업과 학생 지도에 더 집중할 수 있게 되었습니다.', author: '김○○', position: '교장', company: '서울시교육청' },
+    followUpResults: [ { metric: '민원 건수', achievement: '35% 감소' } ],
+    tags: ['학사', '행정', '상담', '학습분석'],
+    automationMetrics: { timeReduction: '62%', costSaving: '연 120억원', errorReduction: '40%', productivityGain: '55%' },
+    n8nWorkflows: [
+      { name: '공문/보고 자동화', description: '요약/초안→결재흐름', nodes: 10, triggers: ['요청'], actions: ['요약', '초안', '전송'] },
+      { name: '학습 리스크 알림', description: '출결/성적→위험학생 알림', nodes: 12, triggers: ['데이터 갱신'], actions: ['분석', '알림', '대시보드'] }
+    ],
+    aiImplementations: [ { type: '문서요약 LLM', purpose: '공문/보고', accuracy: 'N/A', processingTime: '5초' }, { type: '학습 분석 모델', purpose: '리스크 탐지', accuracy: '89%', processingTime: '실시간' } ],
+    departmentAutomations: [ { department: '행정실', automationLevel: '70%', timeSaved: '28시간/주', costReduction: '연 35억원' } ],
+    roiData: { investment: '9억원', monthlySavings: '6억원', paybackPeriod: '1.5개월', threeYearROI: '2,400%' },
+    implementationTimeline: '8개월',
+    successFactors: ['표준 프로세스', '교직원 교육', '보안/윤리'],
+    featured: true
   }
 };
 
@@ -341,6 +501,48 @@ export const publicNonprofitCases: SuccessCase[] = [
       satisfaction: '92% 달성'
     },
     tags: ['디지털정부', 'AI민원', '데이터통합', '보안'],
+    featured: true
+  },
+  {
+    id: 'local-government-smart-city',
+    category: 'public',
+    industry: '공공/비영리',
+    companyName: '서울특별시',
+    title: 'AI 기반 스마트 시티 통합 플랫폼',
+    description: '교통/환경/민원 예측·대응 자동화로 시민 체감 성과 달성',
+    image: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=400&h=250&fit=crop&crop=center',
+    icon: Globe,
+    color: 'green',
+    results: { efficiency: '65% 향상', satisfaction: '시민만족 92%' },
+    tags: ['스마트시티', '교통', '대기질', '민원'],
+    featured: true
+  },
+  {
+    id: 'nonprofit-donation-automation',
+    category: 'public',
+    industry: '공공/비영리',
+    companyName: '굿위람',
+    title: 'AI 기부자 여정/모금 자동화',
+    description: '세그먼트/메시지/옴니채널 자동화로 모금 성과 극대화',
+    image: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=400&h=250&fit=crop&crop=center',
+    icon: HandHeart,
+    color: 'rose',
+    results: { efficiency: '80% 향상', satisfaction: '재기부율 +38%' },
+    tags: ['모금', '세그먼트', '여정', '옴니채널'],
+    featured: true
+  },
+  {
+    id: 'public-education-digital-campus',
+    category: 'public',
+    industry: '공공/비영리',
+    companyName: '서울시교육청',
+    title: 'AI 디지털 캠퍼스/학사 자동화',
+    description: '행정/학습/상담 자동화로 교육 품질 제고',
+    image: 'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?w=400&h=250&fit=crop&crop=center',
+    icon: School,
+    color: 'blue',
+    results: { efficiency: '62% 향상', satisfaction: '학습지원 +48%' },
+    tags: ['학사', '행정', '상담', '학습분석'],
     featured: true
   }
 ];
