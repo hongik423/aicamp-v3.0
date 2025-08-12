@@ -1,4 +1,4 @@
-import { DiagnosisResult } from '@/features/ai-capability-diagnosis/types';
+import { DiagnosisReport } from '@/features/ai-diagnosis/types';
 
 interface ReportGeneratorOptions {
   includeCharts: boolean;
@@ -7,10 +7,10 @@ interface ReportGeneratorOptions {
 }
 
 export class ReportGenerator {
-  private result: DiagnosisResult;
+  private result: DiagnosisReport;
   private options: ReportGeneratorOptions;
 
-  constructor(result: DiagnosisResult, options: ReportGeneratorOptions = {
+  constructor(result: DiagnosisReport, options: ReportGeneratorOptions = {
     includeCharts: true,
     includeDetailedAnalysis: true,
     format: 'premium'

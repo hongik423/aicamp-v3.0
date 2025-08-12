@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
     // 4. API 엔드포인트 테스트
     try {
       const apiTests = [
-        { name: 'AI Capability Diagnosis Status', path: '/api/ai-capability-diagnosis/status' }
+        { name: 'AI Diagnosis Status', path: '/api/ai-diagnosis' }
       ];
       
       const apiResults = await Promise.allSettled(

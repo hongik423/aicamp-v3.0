@@ -59,7 +59,7 @@ export default function SimplifiedDiagnosisForm({ onComplete, onBack }: Simplifi
       variant: 'info',
     });
     try {
-      const res = await fetch('/api/ai-capability-diagnosis', {
+      const res = await fetch('/api/ai-diagnosis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

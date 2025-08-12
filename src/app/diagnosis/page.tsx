@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Header from '@/components/layout/header';
-import { AICapabilityDiagnosisForm } from '@/features/ai-capability-diagnosis/components/AICapabilityDiagnosisForm';
+import AIDiagnosisForm from '@/features/ai-diagnosis/components/AIDiagnosisForm';
 import { Target, TrendingUp, Users, Award, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,7 @@ export default function DiagnosisPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
         <Header />
         <div className="container mx-auto px-4 py-8">
-          <AICapabilityDiagnosisForm />
+                      <AIDiagnosisForm />
         </div>
       </div>
     );
