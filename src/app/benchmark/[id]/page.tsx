@@ -2,39 +2,13 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { benchmarkCases } from '@/data/success-cases/benchmark-cases-index';
-import SuccessCaseDetailPage from '@/components/success-cases/SuccessCaseDetailPage';
 import ConsultationRequestModal from '@/components/diagnosis/ConsultationRequestModal';
-import { SuccessCaseDetail } from '@/types/success-case.types';
 
 export default function BenchmarkDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [showConsultationModal, setShowConsultationModal] = useState(false);
-  
   const caseId = params.id as string;
-  const caseData = benchmarkCases[caseId];
-
-  if (!caseData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            벤치마크 사례를 찾을 수 없습니다
-          </h1>
-          <p className="text-gray-600 mb-6">
-            요청하신 벤치마크 사례가 존재하지 않거나 삭제되었을 수 있습니다.
-          </p>
-          <button
-            onClick={() => router.push('/benchmark')}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            벤치마크 목록으로 돌아가기
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const handleConsultationRequest = () => {
     setShowConsultationModal(true);
@@ -45,11 +19,30 @@ export default function BenchmarkDetailPage() {
   };
 
   return (
-    <div>
-      <SuccessCaseDetailPage
-        caseData={caseData}
-        onConsultationRequest={handleConsultationRequest}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="text-center max-w-2xl mx-auto px-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">벤치마크 상세 페이지</h1>
+        <p className="text-gray-600 mb-6">
+          요청하신 벤치마크 사례 (ID: {caseId})의 상세 페이지가 준비 중입니다.
+        </p>
+        <p className="text-gray-500 mb-8">
+          곧 업종별 최적화된 성공사례의 상세 정보를 확인하실 수 있습니다.
+        </p>
+        <div className="space-x-4">
+          <button
+            onClick={() => router.push('/benchmark')}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
+          >
+            벤치마크 목록으로 돌아가기
+          </button>
+          <button
+            onClick={handleConsultationRequest}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
+          >
+            상담 신청하기
+          </button>
+        </div>
+      </div>
       
       {showConsultationModal && (
         <ConsultationRequestModal
@@ -58,10 +51,10 @@ export default function BenchmarkDetailPage() {
           context="benchmark-detail"
           prefillData={{
             source: '벤치마크 상세',
-            interest: `${caseData.industry} - ${caseData.subIndustry}`,
-            company: caseData.companyName,
-            industry: caseData.industry,
-            subIndustry: caseData.subIndustry
+            interest: '업종별 벤치마크',
+            company: '',
+            industry: '',
+            subIndustry: ''
           }}
         />
       )}
