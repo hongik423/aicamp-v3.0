@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AIDiagnosisData } from '@/features/ai-diagnosis/types';
 
 // Google Apps Script 웹앱 URL
 const GAS_URL = process.env.NEXT_PUBLIC_GAS_URL || '';
@@ -11,74 +10,79 @@ export const maxDuration = 800; // Vercel 함수 최대 실행 시간
 
 export async function POST(request: NextRequest) {
   try {
-    // 요청 데이터 파싱
-    const data: AIDiagnosisData = await request.json();
+    // 요청 데이터 파싱 (45개 질문 구조)
+    const data = await request.json();
     
     // 데이터 유효성 검사
-    if (!data.email || !data.name || !data.companyInfo?.companyName) {
+    if (!data.contactEmail || !data.contactName || !data.companyName) {
       return NextResponse.json(
         { success: false, error: '필수 정보가 누락되었습니다' },
         { status: 400 }
       );
     }
 
-    // Google Apps Script로 전송할 데이터 준비
+    // Google Apps Script로 전송할 데이터 준비 (45개 질문 구조에 맞춤)
     const gasPayload = {
-      action: 'submitDiagnosis',
-      timestamp: new Date().toISOString(),
-      applicantInfo: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        department: data.department
-      },
-      companyInfo: {
-        companyName: data.companyInfo.companyName,
-        businessRegistration: data.companyInfo.businessRegistration,
-        establishmentYear: data.companyInfo.establishmentYear,
-        industryMain: data.companyInfo.industryMain,
-        businessModel: data.companyInfo.businessModel,
-        mainProductsServices: data.companyInfo.mainProductsServices,
-        targetCustomers: data.companyInfo.targetCustomers,
-        employeeCount: data.companyInfo.employeeCount,
-        annualRevenue: data.companyInfo.annualRevenue
-      },
-      currentState: {
-        aiFamiliarity: data.currentAIUsage.aiFamiliarity,
-        currentAiTools: data.currentAIUsage.currentAiTools,
-        aiUsageDepartments: data.currentAIUsage.aiUsageDepartments,
-        automationLevelByFunction: data.currentAIUsage.automationLevelByFunction,
-        dataDigitalization: data.currentAIUsage.dataDigitalization,
-        itSystems: data.currentAIUsage.itSystems,
-        cloudUsage: data.currentAIUsage.cloudUsage
-      },
-      organizationReadiness: {
-        ceoAiCommitment: data.organizationReadiness.ceoAiCommitment,
-        digitalTransformationPriority: data.organizationReadiness.digitalTransformationPriority,
-        employeeTechAcceptance: data.organizationReadiness.employeeTechAcceptance,
-        changeManagementExperience: data.organizationReadiness.changeManagementExperience,
-        innovationCulture: data.organizationReadiness.innovationCulture
-      },
-      challenges: {
-        biggestInefficiencies: data.currentChallenges.biggestInefficiencies,
-        timeConsumingTasks: data.currentChallenges.timeConsumingTasks,
-        marketPressure: data.currentChallenges.marketPressure,
-        competitiveDisadvantages: data.currentChallenges.competitiveDisadvantages
-      },
-      goals: {
-        aiTransformationGoals: data.aiGoals.aiTransformationGoals,
-        specificImprovements: data.aiGoals.specificImprovements,
-        kpiPriorities: data.aiGoals.kpiPriorities,
-        targetImprovements: data.aiGoals.targetImprovements
-      },
-      investment: {
-        aiBudgetRange: data.investmentCapacity.aiBudgetRange,
-        budgetAllocation: data.investmentCapacity.budgetAllocation,
-        roiExpectations: data.investmentCapacity.roiExpectations,
-        implementationTimeline: data.investmentCapacity.implementationTimeline,
-        internalResources: data.investmentCapacity.internalResources,
-        supportNeeds: data.investmentCapacity.supportNeeds
-      }
+      // 연락처 정보
+      contactName: data.contactName,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+      contactPosition: data.contactPosition,
+      
+      // 기업 기본정보
+      companyName: data.companyName,
+      businessRegistration: data.businessRegistration,
+      establishmentYear: data.establishmentYear,
+      industry: data.industry,
+      businessType: data.businessType,
+      location: data.location,
+      employeeCount: data.employeeCount,
+      annualRevenue: data.annualRevenue,
+      
+      // 현재 AI/디지털 활용 현황
+      aiFamiliarity: data.aiFamiliarity,
+      currentAiTools: data.currentAiTools,
+      aiUsageDepartments: data.aiUsageDepartments,
+      automationLevelByFunction: data.automationLevelByFunction,
+      dataDigitalization: data.dataDigitalization,
+      currentSystems: data.currentSystems,
+      systemIntegration: data.systemIntegration,
+      dataManagement: data.dataManagement,
+      
+      // AI 역량 및 준비도
+      changeReadiness: data.changeReadiness,
+      leadershipSupport: data.leadershipSupport,
+      employeeAttitude: data.employeeAttitude,
+      changeManagementExperience: data.changeManagementExperience,
+      budgetAllocation: data.budgetAllocation,
+      technicalPersonnel: data.technicalPersonnel,
+      externalPartnership: data.externalPartnership,
+      trainingInvestment: data.trainingInvestment,
+      dataQuality: data.dataQuality,
+      analyticsCapability: data.analyticsCapability,
+      decisionMaking: data.decisionMaking,
+      
+      // 기술 인프라 및 보안
+      cloudAdoption: data.cloudAdoption,
+      systemScalability: data.systemScalability,
+      integrationCapability: data.integrationCapability,
+      securityMeasures: data.securityMeasures,
+      complianceRequirements: data.complianceRequirements,
+      riskManagement: data.riskManagement,
+      
+      // AI 도입 목표 및 기대효과
+      aiTransformationGoals: data.aiTransformationGoals,
+      specificImprovements: data.specificImprovements,
+      expectedROI: data.expectedROI,
+      successMetrics: data.successMetrics,
+      timeframe: data.timeframe,
+      
+      // 실행 계획 및 우선순위
+      priorityFunctions: data.priorityFunctions,
+      implementationApproach: data.implementationApproach,
+      resourceAllocation: data.resourceAllocation,
+      challengesAnticipated: data.challengesAnticipated,
+      supportNeeds: data.supportNeeds
     };
 
     // Google Apps Script 호출
@@ -103,13 +107,15 @@ export async function POST(request: NextRequest) {
 
       const result = await response.json();
 
-      // GAS 응답 처리
+      // GAS 응답 처리 (V11.0 ENHANCED 대응)
       if (result.success) {
         return NextResponse.json({
           success: true,
-          diagnosisId: result.diagnosisId,
-          reportUrl: result.reportUrl,
-          message: '진단이 성공적으로 완료되었습니다'
+          submissionId: result.submissionId,
+          diagnosisId: result.submissionId, // 호환성을 위해 유지
+          message: result.message || '45개 질문 기반 AI 역량진단이 성공적으로 완료되었습니다',
+          timestamp: result.timestamp,
+          version: result.version
         });
       } else {
         throw new Error(result.error || '진단 처리 중 오류가 발생했습니다');

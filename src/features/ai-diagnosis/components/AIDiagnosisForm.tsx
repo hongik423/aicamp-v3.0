@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { diagnosisSections } from '../constants/questions';
-import { AIDiagnosisData, DiagnosisSection, Question } from '../types';
+import { DiagnosisSection, Question } from '../types';
 import QuestionRenderer from './QuestionRenderer';
 import DiagnosisIntro from './DiagnosisIntro';
 import DiagnosisComplete from './DiagnosisComplete';
@@ -152,62 +152,69 @@ const AIDiagnosisForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // 전체 데이터 구성
-      const submissionData: AIDiagnosisData = {
-        // 기본 정보 (intro에서 수집)
-        email: formData.email || '',
-        name: formData.name || '',
-        phone: formData.phone || '',
-        department: formData.department || '',
+      // 45개 질문 데이터 구성 (formData에서 직접 매핑)
+      const submissionData = {
+        // 연락처 정보
+        contactName: formData.contactName || formData.name || '',
+        contactEmail: formData.contactEmail || formData.email || '',
+        contactPhone: formData.contactPhone || formData.phone || '',
+        contactPosition: formData.contactPosition || formData.position || '',
         
-        // 섹션별 데이터 구성
-        companyInfo: {
-          companyName: formData.companyName || '',
-          businessRegistration: formData.businessRegistration,
-          establishmentYear: formData.establishmentYear || '',
-          industryMain: formData.industryMain || '',
-          businessModel: formData.businessModel || [],
-          mainProductsServices: formData.mainProductsServices || '',
-          targetCustomers: formData.targetCustomers || '',
-          employeeCount: formData.employeeCount || '',
-          annualRevenue: formData.annualRevenue
-        },
-        currentAIUsage: {
-          aiFamiliarity: formData.aiFamiliarity || 1,
-          currentAiTools: formData.currentAiTools || [],
-          aiUsageDepartments: formData.aiUsageDepartments || [],
-          automationLevelByFunction: formData.automationLevelByFunction || {},
-          dataDigitalization: formData.dataDigitalization || 1,
-          itSystems: formData.itSystems || [],
-          cloudUsage: formData.cloudUsage || ''
-        },
-        organizationReadiness: {
-          ceoAiCommitment: formData.ceoAiCommitment || 1,
-          digitalTransformationPriority: formData.digitalTransformationPriority || 1,
-          employeeTechAcceptance: formData.employeeTechAcceptance || 1,
-          changeManagementExperience: formData.changeManagementExperience || [],
-          innovationCulture: formData.innovationCulture || 1
-        },
-        currentChallenges: {
-          biggestInefficiencies: formData.biggestInefficiencies || [],
-          timeConsumingTasks: formData.timeConsumingTasks || '',
-          marketPressure: formData.marketPressure || [],
-          competitiveDisadvantages: formData.competitiveDisadvantages
-        },
-        aiGoals: {
-          aiTransformationGoals: formData.aiTransformationGoals || [],
-          specificImprovements: formData.specificImprovements || '',
-          kpiPriorities: formData.kpiPriorities || [],
-          targetImprovements: formData.targetImprovements || {}
-        },
-        investmentCapacity: {
-          aiBudgetRange: formData.aiBudgetRange || '',
-          budgetAllocation: formData.budgetAllocation || {},
-          roiExpectations: formData.roiExpectations || '',
-          implementationTimeline: formData.implementationTimeline || '',
-          internalResources: formData.internalResources || [],
-          supportNeeds: formData.supportNeeds || []
-        },
+        // 기업 기본정보
+        companyName: formData.companyName || '',
+        businessRegistration: formData.businessRegistration || '',
+        establishmentYear: formData.establishmentYear || '',
+        industry: formData.industry || '',
+        businessType: formData.businessType || [],
+        location: formData.location || '',
+        employeeCount: formData.employeeCount || '',
+        annualRevenue: formData.annualRevenue || '',
+        
+        // 현재 AI/디지털 활용 현황
+        aiFamiliarity: formData.aiFamiliarity || 1,
+        currentAiTools: formData.currentAiTools || [],
+        aiUsageDepartments: formData.aiUsageDepartments || [],
+        automationLevelByFunction: formData.automationLevelByFunction || {},
+        dataDigitalization: formData.dataDigitalization || 1,
+        currentSystems: formData.currentSystems || [],
+        systemIntegration: formData.systemIntegration || 1,
+        dataManagement: formData.dataManagement || 1,
+        
+        // AI 역량 및 준비도
+        changeReadiness: formData.changeReadiness || 1,
+        leadershipSupport: formData.leadershipSupport || 1,
+        employeeAttitude: formData.employeeAttitude || 1,
+        changeManagementExperience: formData.changeManagementExperience || 1,
+        budgetAllocation: formData.budgetAllocation || '',
+        technicalPersonnel: formData.technicalPersonnel || 1,
+        externalPartnership: formData.externalPartnership || 1,
+        trainingInvestment: formData.trainingInvestment || 1,
+        dataQuality: formData.dataQuality || 1,
+        analyticsCapability: formData.analyticsCapability || 1,
+        decisionMaking: formData.decisionMaking || 1,
+        
+        // 기술 인프라 및 보안
+        cloudAdoption: formData.cloudAdoption || 1,
+        systemScalability: formData.systemScalability || 1,
+        integrationCapability: formData.integrationCapability || 1,
+        securityMeasures: formData.securityMeasures || [],
+        complianceRequirements: formData.complianceRequirements || [],
+        riskManagement: formData.riskManagement || 1,
+        
+        // AI 도입 목표 및 기대효과
+        aiTransformationGoals: formData.aiTransformationGoals || [],
+        specificImprovements: formData.specificImprovements || '',
+        expectedROI: formData.expectedROI || '',
+        successMetrics: formData.successMetrics || [],
+        timeframe: formData.timeframe || '',
+        
+        // 실행 계획 및 우선순위
+        priorityFunctions: formData.priorityFunctions || [],
+        implementationApproach: formData.implementationApproach || '',
+        resourceAllocation: formData.resourceAllocation || {},
+        challengesAnticipated: formData.challengesAnticipated || [],
+        supportNeeds: formData.supportNeeds || [],
+        
         timestamp: new Date().toISOString()
       };
 
