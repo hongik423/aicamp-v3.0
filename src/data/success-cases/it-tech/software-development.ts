@@ -1,7 +1,7 @@
 'use client';
 
 import { SuccessCaseDetail } from '@/types/success-case.types';
-import { Code, GitBranch, Zap, Activity } from 'lucide-react';
+import { Code } from 'lucide-react';
 
 export const softwareDevelopmentCase: SuccessCaseDetail = {
   id: 'software-development-001',

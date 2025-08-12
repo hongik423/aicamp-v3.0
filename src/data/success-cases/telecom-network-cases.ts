@@ -15,7 +15,6 @@ import {
   Zap,
   Network,
   Radio,
-  Server,
   Lock,
   Phone,
   MessageSquare

@@ -3,8 +3,16 @@
  * AI 역량진단 보고서 생성 전용
  */
 
-const GEMINI_API_KEY = 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+// 보안: API 키는 코드에 하드코딩하지 않고 환경변수에서 읽습니다.
+// 서버 환경에서만 사용되어야 하며, 클라이언트로 노출되지 않도록 주의합니다.
+const getGeminiApiKey = (): string => {
+  const key = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  if (!key) {
+    throw new Error('GEMINI_API_KEY가 설정되지 않았습니다. 환경변수를 확인하세요.');
+  }
+  return key;
+};
 
 export interface GeminiReportRequest {
   companyInfo: {
@@ -74,7 +82,7 @@ export async function generateAIReport(request: GeminiReportRequest): Promise<Ge
   try {
     const prompt = createDetailedPrompt(request);
     
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`${GEMINI_API_URL}?key=${getGeminiApiKey()}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -130,7 +138,7 @@ export async function generateAIReport(request: GeminiReportRequest): Promise<Ge
         success: true,
         report
       };
-    } catch (parseError) {
+    } catch {
       // JSON 파싱 실패시 텍스트 분석
       const report = parseTextResponse(generatedText);
       return {
@@ -254,7 +262,7 @@ ${Object.entries(assessmentScores).map(([key, value]) => `- ${key}: ${value}/5`)
 /**
  * 텍스트 응답 파싱 - 폴백 제거, 실제 AI 응답만 처리
  */
-function parseTextResponse(text: string): any {
+function parseTextResponse(text: string): unknown {
   // JSON 추출 시도
   try {
     // JSON 코드블록 추출
@@ -268,6 +276,7 @@ function parseTextResponse(text: string): any {
   } catch (error) {
     console.error('❌ AI 응답 파싱 실패:', error);
     throw new Error('AI 분석 결과를 파싱할 수 없습니다. 실제 AI 분석 없이는 보고서를 생성할 수 없습니다.');
+  }
 }
 
 /**
@@ -319,7 +328,8 @@ export function getScaleStrategy(employees: string): {
   timeline: string;
   approach: string;
 } {
-  const strategies: Record<string, any> = {
+  const strategies: Record<string, { focus: string; budget: string; timeline: string; approach: string }>
+    = {
     '1-10명': {
       focus: 'AI 도구 활용',
       budget: '500-1000만원',

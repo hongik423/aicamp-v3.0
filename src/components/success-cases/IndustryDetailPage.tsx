@@ -3,16 +3,15 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Target, Zap, TrendingUp, Award, Users, Clock, DollarSign, 
+  Target, TrendingUp, Award, Users, Clock, DollarSign, 
   CheckCircle, ArrowRight, BarChart3, Brain, Workflow,
-  MessageSquareQuote, Calendar, PieChart, Lightbulb, Shield,
-  ChevronRight, Download, Play, Star, AlertCircle, Settings
+  MessageSquareQuote, Lightbulb, Shield, Settings,
+  Download, Star, AlertCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SuccessCaseDetail } from '@/types/success-case.types';
 
@@ -24,27 +23,7 @@ export default function IndustryDetailPage({ caseData }: IndustryDetailPageProps
   const [activeTab, setActiveTab] = useState('challenges');
   const [showConsultation, setShowConsultation] = useState(false);
 
-  // 성과 지표 애니메이션
-  const animateValue = (start: number, end: number, duration: number) => {
-    const [value, setValue] = useState(start);
-    
-    React.useEffect(() => {
-      const increment = (end - start) / (duration / 50);
-      const timer = setInterval(() => {
-        setValue(prev => {
-          const next = prev + increment;
-          if (next >= end) {
-            clearInterval(timer);
-            return end;
-          }
-          return next;
-        });
-      }, 50);
-      return () => clearInterval(timer);
-    }, []);
-    
-    return Math.round(value);
-  };
+  // (삭제) 미사용 애니메이션 훅 제거로 린트 에러 해소
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
