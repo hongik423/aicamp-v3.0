@@ -325,14 +325,14 @@ export default function BenchmarkShowcase({
                         {/* 핵심 지표 */}
                         <div className="grid grid-cols-2 gap-3 mb-4">
                           <div className="text-center p-2 bg-blue-50 rounded">
-                            <div className={`text-lg font-bold ${getROIColor(caseData.roiData?.threeYearROI)}`}>
-                              {caseData.roiData?.threeYearROI || 'N/A'}
+                          <div className={`text-lg font-bold ${getROIColor(caseData.roiData?.threeYearROI)}`}>
+                              {caseData.roiData?.threeYearROI}
                             </div>
                             <div className="text-xs text-gray-600">3년 ROI</div>
                           </div>
                           <div className="text-center p-2 bg-green-50 rounded">
                             <div className="text-lg font-bold text-green-600">
-                              {caseData.automationMetrics?.timeReduction || 'N/A'}
+                              {caseData.automationMetrics?.timeReduction}
                             </div>
                             <div className="text-xs text-gray-600">시간 단축</div>
                           </div>

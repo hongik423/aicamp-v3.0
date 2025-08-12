@@ -55,9 +55,10 @@ export default function EnhancedSuccessCaseDetail({
 
   // 성과 지표 계산
   const calculateImprovementScore = () => {
-    const improvements = caseData.results.quantitative.map(q => 
+    const improvements = (caseData.results?.quantitative ?? []).map(q => 
       parseInt(q.improvement.replace(/[^0-9]/g, '')) || 0
     );
+    if (improvements.length === 0) return 0;
     return Math.round(improvements.reduce((a, b) => a + b, 0) / improvements.length);
   };
 
@@ -303,7 +304,7 @@ export default function EnhancedSuccessCaseDetail({
                   <div>
                     <h4 className="font-semibold mb-3 text-blue-600">기초 과정</h4>
                     <div className="space-y-3">
-                      {caseData.curriculum.basic.map((course, idx) => (
+                {(caseData.curriculum?.basic ?? []).map((course, idx) => (
                         <div key={idx} className="border-l-2 border-blue-200 pl-4">
                           <p className="font-medium">{course.title}</p>
                           <p className="text-sm text-gray-600">{course.duration}</p>
@@ -315,7 +316,7 @@ export default function EnhancedSuccessCaseDetail({
                   <div>
                     <h4 className="font-semibold mb-3 text-green-600">심화 과정</h4>
                     <div className="space-y-3">
-                      {caseData.curriculum.advanced.map((course, idx) => (
+                      {(caseData.curriculum?.advanced ?? []).map((course, idx) => (
                         <div key={idx} className="border-l-2 border-green-200 pl-4">
                           <p className="font-medium">{course.title}</p>
                           <p className="text-sm text-gray-600">{course.duration}</p>
@@ -327,7 +328,7 @@ export default function EnhancedSuccessCaseDetail({
                   <div>
                     <h4 className="font-semibold mb-3 text-purple-600">경영진 과정</h4>
                     <div className="space-y-3">
-                      {caseData.curriculum.executive.map((course, idx) => (
+                      {(caseData.curriculum?.executive ?? []).map((course, idx) => (
                         <div key={idx} className="border-l-2 border-purple-200 pl-4">
                           <p className="font-medium">{course.title}</p>
                           <p className="text-sm text-gray-600">{course.duration}</p>
@@ -352,7 +353,7 @@ export default function EnhancedSuccessCaseDetail({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {caseData.challenges.map((challenge, idx) => (
+                  {(caseData.challenges ?? []).map((challenge, idx) => (
                     <div key={idx} className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-6 border border-red-100">
                       <div className="flex items-start gap-4">
                         <div className="p-3 bg-red-100 rounded-lg">
@@ -387,7 +388,7 @@ export default function EnhancedSuccessCaseDetail({
               </CardHeader>
               <CardContent>
                 <div className="space-y-8">
-                  {caseData.process.map((phase, idx) => (
+                  {(caseData.process ?? []).map((phase, idx) => (
                     <div key={idx} className="relative">
                       {idx < caseData.process.length - 1 && (
                         <div className="absolute left-8 top-20 bottom-0 w-0.5 bg-gray-200" />
@@ -454,7 +455,7 @@ export default function EnhancedSuccessCaseDetail({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {caseData.results.quantitative.map((metric, idx) => (
+                  {(caseData.results?.quantitative ?? []).map((metric, idx) => (
                     <div key={idx} className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
                       <h4 className="font-semibold text-gray-800 mb-4">{metric.metric}</h4>
                       <div className="space-y-3">
@@ -490,7 +491,7 @@ export default function EnhancedSuccessCaseDetail({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {caseData.results.financial.map((item, idx) => (
+                  {(caseData.results?.financial ?? []).map((item, idx) => (
                     <div key={idx} className="text-center bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
                       <p className="text-sm text-gray-600 mb-2">{item.item}</p>
                       <p className="text-3xl font-bold text-purple-600">{item.amount}</p>
@@ -510,7 +511,7 @@ export default function EnhancedSuccessCaseDetail({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {caseData.results.qualitative.map((item, idx) => (
+                  {(caseData.results?.qualitative ?? []).map((item, idx) => (
                     <div key={idx} className="flex items-center gap-3 bg-orange-50 rounded-lg p-4">
                       <CheckCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
                       <span className="text-gray-700">{item}</span>
@@ -532,7 +533,7 @@ export default function EnhancedSuccessCaseDetail({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {(caseData as any).n8nWorkflows?.map((workflow: any, idx: number) => (
+                  {((caseData as any).n8nWorkflows ?? []).map((workflow: any, idx: number) => (
                     <div key={idx} className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
                       <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
                         <Zap className="w-5 h-5 text-indigo-600" />
@@ -553,7 +554,7 @@ export default function EnhancedSuccessCaseDetail({
                 <div className="mt-8">
                   <h4 className="font-semibold mb-4">시스템 통합</h4>
                   <div className="flex flex-wrap gap-3">
-                    {((caseData as any).n8nWorkflows?.flatMap((w: any) => w.integrations) ?? []).map((integration: string, idx: number) => (
+                    {((((caseData as any).n8nWorkflows ?? []).flatMap((w: any) => w.integrations)) ?? []).map((integration: string, idx: number) => (
                       <Badge key={`${integration}-${idx}`} variant="secondary" className="px-4 py-2">
                         <Globe className="w-3 h-3 mr-1" />
                         {integration}
@@ -576,7 +577,7 @@ export default function EnhancedSuccessCaseDetail({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {caseData.testimonials.map((testimonial, idx) => (
+              {(caseData.testimonials ?? []).map((testimonial, idx) => (
                 <div key={idx} className="bg-white rounded-xl p-6 shadow-md">
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -611,7 +612,7 @@ export default function EnhancedSuccessCaseDetail({
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {caseData.downloadableResources.map((resource, idx) => (
+                {(caseData.downloadableResources ?? []).map((resource, idx) => (
                   <Button key={idx} variant="outline" className="justify-start">
                     <Download className="w-4 h-4 mr-2" />
                     {resource}

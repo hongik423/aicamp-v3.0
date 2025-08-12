@@ -351,7 +351,7 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {caseData.results.quantitative?.map((result, index) => (
+                  {(caseData.results?.quantitative ?? []).map((result, index) => (
                     <div key={index} className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <h4 className="font-semibold">{result.metric}</h4>
@@ -376,7 +376,7 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {caseData.results.financial?.map((financial, index) => (
+                  {(caseData.results?.financial ?? []).map((financial, index) => (
                     <div key={index} className="text-center p-4 bg-blue-50 rounded-lg">
                       <DollarSign className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                       <div className="text-lg font-bold text-blue-600">{financial.amount}</div>
@@ -394,7 +394,7 @@ export default function SuccessCaseDetailPage({
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {caseData.results.qualitative?.map((quality, index) => (
+                  {(caseData.results?.qualitative ?? []).map((quality, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
                       <span>{quality}</span>
