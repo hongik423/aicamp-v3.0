@@ -159,10 +159,10 @@ export default function FreeDiagnosisPage() {
                 onMouseDown={() => setAccentCTA(true)}
                 onMouseUp={() => setAccentCTA(false)}
                 onClick={handleStartDiagnosis}
-                className={`group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accentCTA ? 'mix-blend-difference text-white animate-pulse' : ''}`}
+               className={`group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto transition-all duration-500 ease-expo ${accentCTA ? 'mix-blend-difference text-white animate-pulse' : ''}`}
               >
-                <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>AI역량진단 시작하기</span>
-                <ArrowRight className={`w-5 h-5 ml-2 ${accentCTAIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`} />
+               <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`}>AI역량진단 시작하기</span>
+               <ArrowRight className={`w-5 h-5 ml-2 ${accentCTAIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`} />
               </Button>
               <Button 
                 variant="outline"
@@ -403,9 +403,9 @@ export default function FreeDiagnosisPage() {
                   onMouseDown={() => setAccentCTA(true)}
                   onMouseUp={() => setAccentCTA(false)}
                   onClick={handleStartDiagnosis}
-                  className={`group bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-auto transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accentCTA ? 'mix-blend-difference text-black animate-pulse' : ''}`}
+                 className={`group bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-auto transition-all duration-500 ease-expo ${accentCTA ? 'mix-blend-difference text-black animate-pulse' : ''}`}
                 >
-                  <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>AI역량진단 시작하기</span>
+                  <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`}>AI역량진단 시작하기</span>
                 </Button>
                 <div className="flex items-center gap-4 text-sm text-blue-100">
                   <div className="flex items-center gap-1">
