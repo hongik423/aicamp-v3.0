@@ -35,6 +35,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Separator } from '@/components/ui/separator';
 import { SuccessCaseDetail } from '@/types/success-case.types';
 import { getRelatedCases } from '@/data/success-cases/benchmark-cases-index';
+import { getNormalizedBenchmarks } from '@/lib/utils/benchmarkNormalization';
 
 interface EnhancedSuccessCaseDetailProps {
   caseData: SuccessCaseDetail;
@@ -663,7 +664,7 @@ export default function EnhancedSuccessCaseDetail({
             귀사도 AI & n8n으로 혁신할 수 있습니다
           </h2>
           <p className="text-xl mb-8 opacity-95">
-            {caseData.companyName}처럼 업무 효율을 {improvementScore}% 이상 개선하세요
+            {caseData.companyName}처럼 업무 효율을 {getNormalizedBenchmarks(caseData).productivityGain} 이상 개선하세요
           </p>
           <div className="flex justify-center gap-4">
             <Button 

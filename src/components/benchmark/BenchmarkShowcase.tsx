@@ -34,6 +34,7 @@ import {
   getRecommendedBenchmarkCases 
 } from '@/data/success-cases/benchmark-cases-index';
 import { SuccessCaseDetail } from '@/types/success-case.types';
+import { getNormalizedBenchmarks, parsePercentToNumber } from '@/lib/utils/benchmarkNormalization';
 
 interface BenchmarkShowcaseProps {
   onCaseSelect?: (caseData: SuccessCaseDetail) => void;
@@ -66,8 +67,9 @@ export default function BenchmarkShowcase({
       title.includes(query) ||
       subIndustryLower.includes(query) ||
       description.includes(query);
-    const roiValue = parseInt(((caseData as any).roiData?.threeYearROI || '').toString().replace(/[^0-9]/g, '')) || 0;
-    const timeValue = parseInt(((caseData as any).automationMetrics?.timeReduction || '').toString().replace(/[^0-9]/g, '')) || 0;
+    const normalized = getNormalizedBenchmarks(caseData as any);
+    const roiValue = parsePercentToNumber(normalized.roi);
+    const timeValue = parsePercentToNumber(normalized.timeReduction);
     const thresholdMatch = roiValue >= minROI && timeValue >= minTimeReduction;
     return industryMatch && subIndustryMatch && searchMatch && thresholdMatch;
   });
@@ -76,16 +78,16 @@ export default function BenchmarkShowcase({
   const sortedCases = [...filteredCases].sort((a, b) => {
     switch (sortBy) {
       case 'roi':
-        const roiA = a.roiData?.threeYearROI ? parseInt(a.roiData.threeYearROI.replace('%', '')) : 0;
-        const roiB = b.roiData?.threeYearROI ? parseInt(b.roiData.threeYearROI.replace('%', '')) : 0;
+        const roiA = parsePercentToNumber(getNormalizedBenchmarks(a as any).roi);
+        const roiB = parsePercentToNumber(getNormalizedBenchmarks(b as any).roi);
         return roiB - roiA;
       case 'timeReduction':
-        const timeA = a.automationMetrics?.timeReduction ? parseInt(a.automationMetrics.timeReduction.replace('%', '')) : 0;
-        const timeB = b.automationMetrics?.timeReduction ? parseInt(b.automationMetrics.timeReduction.replace('%', '')) : 0;
+        const timeA = parsePercentToNumber(getNormalizedBenchmarks(a as any).timeReduction);
+        const timeB = parsePercentToNumber(getNormalizedBenchmarks(b as any).timeReduction);
         return timeB - timeA;
       case 'productivity':
-        const prodA = a.automationMetrics?.productivityGain ? parseInt(a.automationMetrics.productivityGain.replace('%', '')) : 0;
-        const prodB = b.automationMetrics?.productivityGain ? parseInt(b.automationMetrics.productivityGain.replace('%', '')) : 0;
+        const prodA = parsePercentToNumber(getNormalizedBenchmarks(a as any).productivityGain);
+        const prodB = parsePercentToNumber(getNormalizedBenchmarks(b as any).productivityGain);
         return prodB - prodA;
       default:
         return 0;
@@ -325,14 +327,14 @@ export default function BenchmarkShowcase({
                         {/* 핵심 지표 */}
                         <div className="grid grid-cols-2 gap-3 mb-4">
                           <div className="text-center p-2 bg-blue-50 rounded">
-                          <div className={`text-lg font-bold ${getROIColor(caseData.roiData?.threeYearROI)}`}>
-                              {caseData.roiData?.threeYearROI}
+                          <div className={`text-lg font-bold ${getROIColor(getNormalizedBenchmarks(caseData as any).roi)}`}>
+                              {getNormalizedBenchmarks(caseData as any).roi}
                             </div>
                             <div className="text-xs text-gray-600">3년 ROI</div>
                           </div>
                           <div className="text-center p-2 bg-green-50 rounded">
                             <div className="text-lg font-bold text-green-600">
-                              {caseData.automationMetrics?.timeReduction}
+                              {getNormalizedBenchmarks(caseData as any).timeReduction}
                             </div>
                             <div className="text-xs text-gray-600">시간 단축</div>
                           </div>
