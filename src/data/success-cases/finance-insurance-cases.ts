@@ -30,7 +30,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     description: '전통 은행에서 AI와 n8n을 활용한 디지털 뱅킹 혁신으로 고객 경험을 완전히 재정의한 성공사례',
     icon: DollarSign,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '은행업',
       employees: '2,500명',
@@ -268,7 +268,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     description: 'AI와 n8n을 활용한 보험금 청구 프로세스 자동화로 고객 경험을 혁신하고 운영 효율성을 극대화한 성공사례',
     icon: Shield,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '손해보험',
       employees: '1,800명',

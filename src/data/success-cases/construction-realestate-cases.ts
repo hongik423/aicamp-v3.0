@@ -32,7 +32,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI와 n8n을 활용한 건설 현장 전반의 디지털 전환으로 생산성과 안전성을 획기적으로 개선한 혁신 사례',
     icon: Building2,
     color: 'gray',
-    heroImage: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '종합건설업',
       employees: '8,500명',
@@ -303,7 +303,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI와 n8n을 활용한 전기 설비 공사의 디지털 혁신으로 품질과 효율을 극대화한 사례',
     icon: Wrench,
     color: 'yellow',
-    heroImage: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '전기공사업',
       employees: '450명',
@@ -502,7 +502,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI 생성 설계와 n8n 자동화로 건축 설계의 창의성과 효율성을 극대화한 혁신 사례',
     icon: Home,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2131&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '건축설계',
       employees: '850명',
@@ -701,7 +701,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI와 n8n을 활용한 도로, 교량 등 인프라 건설의 스마트화로 효율성을 극대화한 사례',
     icon: Map,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '토목/인프라',
       employees: '3,200명',
@@ -900,7 +900,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI 분석과 n8n 자동화로 부동산 개발의 전 과정을 혁신한 데이터 기반 의사결정 사례',
     icon: Building,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2073&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '부동산개발',
       employees: '2,100명',
@@ -1099,7 +1099,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI와 n8n을 활용한 부동산 자산관리 자동화로 수익성을 극대화한 PropTech 혁신 사례',
     icon: DollarSign,
     color: 'orange',
-    heroImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '부동산 자산관리',
       employees: '320명',
@@ -1298,7 +1298,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI와 n8n을 활용한 모듈러 건축의 설계-생산-시공 전 과정 자동화로 건설 패러다임을 혁신한 사례',
     icon: HardHat,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2076&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '모듈러/프리팹 건축',
       employees: '680명',

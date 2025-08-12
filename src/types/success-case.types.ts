@@ -110,16 +110,16 @@ export interface SuccessCaseDetail {
   companyInfo: CompanyInfo;
   challenges: Challenge[];
   curriculum: Curriculum;
-  process: ProcessPhase[];
+  process?: ProcessPhase[];
   results: Results;
   testimonial: Testimonial;
   followUpResults: FollowUpResult[];
   tags: string[];
   // AI & n8n 자동화 특화 필드
   automationMetrics: AutomationMetrics;
-  n8nWorkflows: N8nWorkflow[];
-  aiImplementations: AIImplementation[];
-  departmentAutomations: DepartmentAutomation[];
+  n8nWorkflows?: N8nWorkflow[];
+  aiImplementations?: AIImplementation[];
+  departmentAutomations?: DepartmentAutomation[];
   roiData: {
     investment: string;
     monthlySavings: string;

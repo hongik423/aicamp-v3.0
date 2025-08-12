@@ -32,7 +32,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 물류 전 과정의 최적화로 국내 물류 산업을 선도하는 디지털 전환 성공사례',
     icon: Package,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '종합물류서비스',
       employees: '12,000명',
@@ -303,7 +303,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 선박 운항 최적화와 컨테이너 관리 자동화로 글로벌 해운 경쟁력을 강화한 사례',
     icon: Ship,
     color: 'cyan',
-    heroImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc9e?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '해운업',
       employees: '6,500명',
@@ -503,7 +503,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 항공 화물 운송 최적화로 글로벌 물류 경쟁력을 강화한 혁신 사례',
     icon: Plane,
     color: 'sky',
-    heroImage: 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '항공화물운송',
       employees: '3,200명',
@@ -528,7 +528,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 철도 화물 운송 자동화로 친환경 물류를 실현한 사례',
     icon: Navigation,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1519003300449-424ad0405076?q=80&w=2073&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '철도물류',
       employees: '2,800명',
@@ -552,7 +552,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 라스트마일 배송 최적화로 도심 물류를 혁신한 사례',
     icon: MapPin,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '라스트마일 배송',
       employees: '850명',
@@ -576,7 +576,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 콜드체인 물류 최적화로 신선도를 완벽하게 유지한 혁신 사례',
     icon: Box,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1619734086067-24bf8889ea7d?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '콜드체인 물류',
       employees: '1,500명',
@@ -600,7 +600,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 이커머스 풀필먼트 센터 완전 자동화로 초고속 배송을 실현한 사례',
     icon: Truck,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '이커머스 물류',
       employees: '25,000명',
