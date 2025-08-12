@@ -18,7 +18,7 @@ const urlsToCache = [
   '/consultation',
   '/tax-calculator',
   '/about',
-  '/cases',
+  '/success-cases',
   '/seminar',
   // 아이콘/매니페스트 (일부 브라우저가 자동 요청)
   '/favicon.ico',

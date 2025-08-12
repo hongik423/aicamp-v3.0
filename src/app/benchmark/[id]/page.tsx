@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { benchmarkCases } from '@/data/success-cases/benchmark-cases-index';
+import { allBenchmarkCaseDetails } from '@/data/success-cases/benchmark-cases-index';
 import SuccessCaseDetailPage from '@/components/success-cases/SuccessCaseDetailPage';
 import ConsultationRequestModal from '@/components/diagnosis/ConsultationRequestModal';
 import { SuccessCaseDetail } from '@/types/success-case.types';
@@ -12,7 +12,7 @@ export default function BenchmarkDetailPage() {
   const router = useRouter();
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const caseId = params.id as string;
-  const caseData = benchmarkCases[caseId];
+  const caseData = allBenchmarkCaseDetails[caseId];
 
   if (!caseData) {
     return (
