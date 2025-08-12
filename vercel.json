@@ -70,6 +70,17 @@
       ],
       "destination": "https://aicamp.club/$1",
       "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-jr8nhqob4-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
     }
   ],
   "headers": [
