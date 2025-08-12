@@ -101,6 +101,16 @@
     "vercel": "^32.0.0",
     "zx": "^8.7.2"
   },
+  "overrides": {
+    "eslint": "8.57.0",
+    "@typescript-eslint/eslint-plugin": "8.38.0",
+    "@typescript-eslint/parser": "8.38.0",
+    "@typescript-eslint/utils": "8.38.0",
+    "@typescript-eslint/type-utils": "8.38.0",
+    "@typescript-eslint/tsconfig-utils": "8.38.0",
+    "@typescript-eslint/typescript-estree": "8.38.0",
+    "@typescript-eslint/project-service": "8.38.0"
+  },
   "engines": {
     "node": ">=18.x"
   },
