@@ -1760,7 +1760,7 @@ export default function StockTransferTaxCalculator() {
                             <div className="text-center">
                               <div className="text-xs text-gray-600">연환산 수익률</div>
                               <div className={`text-sm font-bold ${annualizedReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {holdingPeriod.years > 0 ? `${annualizedReturn >= 0 ? '+' : ''}${annualizedReturn.toFixed(1)}%` : 'N/A'}
+                                {holdingPeriod.years > 0 ? `${annualizedReturn >= 0 ? '+' : ''}${annualizedReturn.toFixed(1)}%` : '-'}
                               </div>
                             </div>
                             
@@ -1768,7 +1768,7 @@ export default function StockTransferTaxCalculator() {
                             <div className="text-center">
                               <div className="text-xs text-gray-600">보유기간</div>
                               <div className="text-sm font-bold text-purple-600">
-                                {holdingPeriod.years > 0 ? `${(holdingPeriod.years + holdingPeriod.months / 12).toFixed(1)}년` : 'N/A'}
+                                {holdingPeriod.years > 0 ? `${(holdingPeriod.years + holdingPeriod.months / 12).toFixed(1)}년` : '-'}
                               </div>
                             </div>
                           </div>
