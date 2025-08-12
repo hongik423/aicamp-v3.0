@@ -63,8 +63,7 @@ export const searchBenchmarkCases = (query: string): SuccessCaseDetail[] => {
   return Object.values(benchmarkCases).filter(caseData => 
     caseData.title.toLowerCase().includes(lowerQuery) ||
     caseData.subIndustry.toLowerCase().includes(lowerQuery) ||
-    caseData.description.toLowerCase().includes(lowerQuery) ||
-    caseData.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+    caseData.description.toLowerCase().includes(lowerQuery)
   );
 };
 
