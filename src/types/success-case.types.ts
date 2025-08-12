@@ -72,27 +72,25 @@ export interface AutomationMetrics {
 }
 
 export interface N8nWorkflow {
-  workflowName: string;
+  name: string;
   description: string;
-  triggerType: string;
-  integrations: string[];
-  executionCount: number;
+  nodes: number;
+  triggers: string[];
+  actions: string[];
 }
 
 export interface AIImplementation {
-  aiTool: string;
-  useCase: string;
+  type: string;
+  purpose: string;
   accuracy: string;
-  trainingData: string;
+  processingTime: string;
 }
 
 export interface DepartmentAutomation {
   department: string;
-  processes: string[];
   automationLevel: string;
-  manualHours: string;
-  automatedHours: string;
-  efficiency: string;
+  timeSaved: string;
+  costReduction: string;
 }
 
 // 메인 성공사례 상세 인터페이스

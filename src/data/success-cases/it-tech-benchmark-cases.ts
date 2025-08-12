@@ -29,7 +29,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI 코드 분석과 자동 리뷰 시스템을 도입하여 개발 품질과 속도를 동시에 혁신한 벤치마크 사례',
     icon: Code,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
     companyInfo: {
       industry: '소프트웨어 개발',
       employees: '85명',
@@ -155,9 +155,135 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     featured: true
   },
 
-  // 2. 클라우드 인프라
-  'cloud-infrastructure-ai': {
-    id: 'cloud-infrastructure-ai',
+  // 2. AI/머신러닝
+  'ai-machine-learning-platform': {
+    id: 'ai-machine-learning-platform',
+    category: 'it_tech',
+    industry: 'IT/기술',
+    subIndustry: 'AI/머신러닝',
+    companyName: 'AI 플랫폼 B (직원 100명)',
+    companySize: '중소기업',
+    title: 'AI 기반 머신러닝 플랫폼 자동화',
+    subtitle: '데이터 처리 및 모델 학습 속도 500% 향상',
+    description: 'AI를 활용한 데이터 처리 및 머신러닝 모델 학습 자동화로 빠른 데이터 분석과 예측 모델 개발을 실현한 벤치마크 사례',
+    icon: Brain,
+    color: 'purple',
+    heroImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    companyInfo: {
+      industry: 'AI/머신러닝',
+      employees: '100명',
+      revenue: '연 매출 180억원',
+      location: '서울시 강남구'
+    },
+    challenges: [
+      {
+        title: '데이터 처리 병목',
+        description: '대용량 데이터의 실시간 처리 및 분석 어려움',
+        impact: '데이터 분석 지연 및 모델 학습 속도 저하'
+      }
+    ],
+    curriculum: {
+      basic: [
+        {
+          title: 'AI 데이터 처리 기초',
+          duration: '16시간',
+          description: '데이터 수집, 전처리, 탐색 및 시각화'
+        }
+      ],
+      advanced: [
+        {
+          title: 'AI 모델 학습 자동화',
+          duration: '24시간',
+          description: '데이터 준비부터 모델 학습까지 자동화'
+        }
+      ],
+      executive: [
+        {
+          title: 'AI 플랫폼 전략',
+          duration: '8시간',
+          description: 'AI 플랫폼 투자 ROI 분석'
+        }
+      ]
+    },
+    results: {
+      quantitative: [
+        {
+          metric: '데이터 처리 속도',
+          before: '배치 처리',
+          after: '실시간 처리',
+          improvement: '500% 향상'
+        }
+      ],
+      financial: [
+        {
+          item: '데이터 분석 인력 비용 절감',
+          amount: '연 4억원'
+        }
+      ],
+      qualitative: ['데이터 분석 시간 90% 단축', '모델 학습 속도 5배 증가']
+    },
+    automationMetrics: {
+      timeReduction: '90%',
+      costSaving: '연 4억원',
+      errorReduction: '95%',
+      productivityGain: '500%'
+    },
+    roiData: {
+      investment: '1억원',
+      monthlySavings: '6천 7백만원',
+      paybackPeriod: '1.5개월',
+      threeYearROI: '2,400%'
+    },
+    implementationTimeline: '6주',
+    successFactors: [
+      '데이터 통합 및 정제 시스템 구축',
+      '모델 학습 파이프라인 자동화',
+      '모니터링 및 로깅 시스템'
+    ],
+    tags: ['AI', '머신러닝', '데이터처리', '모델학습', '자동화'],
+    testimonial: {
+      quote: 'AI 플랫폼으로 데이터 분석 및 모델 개발이 완전히 혁신되었습니다.',
+      author: '박AI',
+      position: 'AI 플랫폼 팀장',
+      company: 'AI 플랫폼 B'
+    },
+    followUpResults: [
+      {
+        metric: '6개월 후 추가 성과',
+        achievement: '데이터 처리 속도 95% 단축, 모델 학습 속도 6배 증가'
+      }
+    ],
+    n8nWorkflows: [
+      {
+        name: '데이터 처리 및 모델 학습 자동화',
+        description: '데이터 수집부터 모델 학습까지 자동화된 워크플로우',
+        nodes: 20,
+        triggers: ['데이터 수집', '모델 학습 요청'],
+        actions: ['데이터 전처리', '탐색 및 전처리', '모델 학습', '결과 분석']
+      }
+    ],
+    aiImplementations: [
+      {
+        type: 'Machine Learning',
+        purpose: '데이터 처리 및 모델 학습',
+        accuracy: '92%',
+        processingTime: '10분'
+      }
+    ],
+    departmentAutomations: [
+      {
+        department: 'AI팀',
+        automationLevel: '90%',
+        timeSaved: '주 35시간',
+        costReduction: '연 4억원'
+      }
+    ],
+    featured: true
+  },
+
+  // 3. 클라우드 인프라
+  'cloud-infrastructure-automation': {
+    id: 'cloud-infrastructure-automation',
     category: 'it_tech',
     industry: 'IT/기술',
     subIndustry: '클라우드 인프라',
@@ -281,135 +407,9 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     featured: true
   },
 
-  // 3. 데이터 분석
-  'data-analytics-ai': {
-    id: 'data-analytics-ai',
-    category: 'it_tech',
-    industry: 'IT/기술',
-    subIndustry: '데이터 분석',
-    companyName: '데이터인사이트 C (직원 65명)',
-    companySize: '중소기업',
-    title: 'AI 기반 데이터 인사이트 자동화',
-    subtitle: '분석 시간 90% 단축, 인사이트 정확도 300% 향상',
-    description: 'AI를 활용한 자동 데이터 분석과 인사이트 생성으로 의사결정 속도와 정확성을 혁신한 벤치마크 사례',
-    icon: Database,
-    color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    companyInfo: {
-      industry: '데이터 분석',
-      employees: '65명',
-      revenue: '연 매출 80억원',
-      location: '서울시 마포구'
-    },
-    challenges: [
-      {
-        title: '데이터 분석 지연',
-        description: '수동 데이터 분석으로 인한 인사이트 도출 지연',
-        impact: '의사결정 기회 손실 및 경쟁력 저하'
-      }
-    ],
-    curriculum: {
-      basic: [
-        {
-          title: 'AI 데이터 분석 기초',
-          duration: '14시간',
-          description: 'Python, Pandas, AI 분석 도구 활용법'
-        }
-      ],
-      advanced: [
-        {
-          title: '자동화된 인사이트 생성',
-          duration: '18시간',
-          description: 'ML 모델을 활용한 예측 분석 자동화'
-        }
-      ],
-      executive: [
-        {
-          title: '데이터 기반 의사결정',
-          duration: '4시간',
-          description: 'AI 분석 결과 활용 전략'
-        }
-      ]
-    },
-    results: {
-      quantitative: [
-        {
-          metric: '분석 시간',
-          before: '주 40시간',
-          after: '주 4시간',
-          improvement: '90% 단축'
-        }
-      ],
-      financial: [
-        {
-          item: '분석 인력 비용 절감',
-          amount: '연 2억원'
-        }
-      ],
-      qualitative: ['인사이트 정확도 300% 향상', '의사결정 속도 5배 증가']
-    },
-    automationMetrics: {
-      timeReduction: '90%',
-      costSaving: '연 2억원',
-      errorReduction: '85%',
-      productivityGain: '1,000%'
-    },
-    roiData: {
-      investment: '3천만원',
-      monthlySavings: '1천 7백만원',
-      paybackPeriod: '1.8개월',
-      threeYearROI: '2,000%'
-    },
-    implementationTimeline: '4주',
-    successFactors: [
-      '데이터 품질 관리 시스템 구축',
-      'AI 모델 정확도 95% 달성',
-      '자동화된 인사이트 생성 파이프라인 구축'
-    ],
-    tags: ['데이터분석', 'AI', '인사이트자동화', 'ML', '예측분석'],
-    testimonial: {
-      quote: 'AI 분석으로 의사결정 속도가 완전히 바뀌었습니다.',
-      author: '이데이터',
-      position: '데이터 분석팀장',
-      company: '데이터인사이트 C'
-    },
-    followUpResults: [
-      {
-        metric: '6개월 후 추가 성과',
-        achievement: '의사결정 정확도 85% 향상, 시장 대응 속도 3배 증가'
-      }
-    ],
-    n8nWorkflows: [
-      {
-        name: '데이터 분석 자동화',
-        description: '데이터 수집부터 인사이트 생성까지 자동화된 워크플로우',
-        nodes: 15,
-        triggers: ['데이터 업데이트', '분석 요청'],
-        actions: ['데이터 전처리', 'AI 분석', '인사이트 생성', '보고서 발송']
-      }
-    ],
-    aiImplementations: [
-      {
-        type: 'Machine Learning',
-        purpose: '예측 분석 및 패턴 인식',
-        accuracy: '92%',
-        processingTime: '10분'
-      }
-    ],
-    departmentAutomations: [
-      {
-        department: '데이터팀',
-        automationLevel: '85%',
-        timeSaved: '주 36시간',
-        costReduction: '연 2억원'
-      }
-    ],
-    featured: true
-  },
-
   // 4. 모바일 앱 개발
-  'mobile-app-ai': {
-    id: 'mobile-app-ai',
+  'mobile-app-development-ai': {
+    id: 'mobile-app-development-ai',
     category: 'it_tech',
     industry: 'IT/기술',
     subIndustry: '모바일 앱 개발',
@@ -534,8 +534,8 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
   },
 
   // 5. 웹 개발
-  'web-development-ai': {
-    id: 'web-development-ai',
+  'web-development-automation': {
+    id: 'web-development-automation',
     category: 'it_tech',
     industry: 'IT/기술',
     subIndustry: '웹 개발',
@@ -659,12 +659,138 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     featured: true
   },
 
-  // 6. 사이버보안
-  'cybersecurity-ai': {
-    id: 'cybersecurity-ai',
+  // 6. 데이터베이스 관리
+  'database-management-ai': {
+    id: 'database-management-ai',
     category: 'it_tech',
     industry: 'IT/기술',
-    subIndustry: '사이버보안',
+    subIndustry: '데이터베이스 관리',
+    companyName: '데이터인사이트 C (직원 65명)',
+    companySize: '중소기업',
+    title: 'AI 기반 데이터베이스 관리 자동화',
+    subtitle: '데이터 백업 및 복구 속도 90% 단축',
+    description: 'AI를 활용한 데이터베이스 자동 백업, 모니터링 및 복구 시스템으로 데이터 안정성과 가용성을 혁신한 벤치마크 사례',
+    icon: Database,
+    color: 'green',
+    heroImage: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    companyInfo: {
+      industry: '데이터베이스 관리',
+      employees: '65명',
+      revenue: '연 매출 80억원',
+      location: '서울시 마포구'
+    },
+    challenges: [
+      {
+        title: '데이터 백업 및 복구 병목',
+        description: '수동 백업 및 복구로 인한 데이터 손실 및 시스템 가용성 저하',
+        impact: '데이터 손실 및 비즈니스 중단'
+      }
+    ],
+    curriculum: {
+      basic: [
+        {
+          title: 'AI 데이터베이스 관리 기초',
+          duration: '14시간',
+          description: '데이터베이스 백업, 모니터링 도구 활용법'
+        }
+      ],
+      advanced: [
+        {
+          title: 'AI 자동 백업 및 복구',
+          duration: '18시간',
+          description: '데이터베이스 자동 백업 및 복구 시스템'
+        }
+      ],
+      executive: [
+        {
+          title: '데이터베이스 AI 전략',
+          duration: '4시간',
+          description: '데이터베이스 AI 투자 전략'
+        }
+      ]
+    },
+    results: {
+      quantitative: [
+        {
+          metric: '데이터 백업 및 복구 속도',
+          before: '수동 백업',
+          after: '자동 백업',
+          improvement: '90% 단축'
+        }
+      ],
+      financial: [
+        {
+          item: '데이터 백업 비용 절감',
+          amount: '연 2억원'
+        }
+      ],
+      qualitative: ['데이터 손실 0건 달성', '시스템 가용성 99.9% 달성']
+    },
+    automationMetrics: {
+      timeReduction: '90%',
+      costSaving: '연 2억원',
+      errorReduction: '95%',
+      productivityGain: '1,000%'
+    },
+    roiData: {
+      investment: '3천만원',
+      monthlySavings: '1천 7백만원',
+      paybackPeriod: '1.8개월',
+      threeYearROI: '2,000%'
+    },
+    implementationTimeline: '4주',
+    successFactors: [
+      '데이터베이스 자동 백업 및 복구 시스템 구축',
+      '실시간 모니터링 자동화',
+      '자동 대응 및 복구 시스템'
+    ],
+    tags: ['데이터베이스', 'AI', '백업자동화', '복구자동화', '모니터링'],
+    testimonial: {
+      quote: 'AI 데이터베이스 관리로 데이터 안정성이 크게 향상되었습니다.',
+      author: '최데이터',
+      position: '데이터베이스 관리팀장',
+      company: '데이터인사이트 C'
+    },
+    followUpResults: [
+      {
+        metric: '6개월 후 추가 성과',
+        achievement: '데이터 손실 0건 달성, 시스템 가용성 99.99% 달성'
+      }
+    ],
+    n8nWorkflows: [
+      {
+        name: '데이터베이스 관리 자동화',
+        description: '백업부터 모니터링까지 자동화된 데이터베이스 관리 워크플로우',
+        nodes: 15,
+        triggers: ['백업 요청', '모니터링 경고'],
+        actions: ['자동 백업', '복구 실행', '알림 발송', '모니터링 결과 분석']
+      }
+    ],
+    aiImplementations: [
+      {
+        type: 'Database Management',
+        purpose: '데이터베이스 자동 백업 및 복구',
+        accuracy: '98%',
+        processingTime: '1초'
+      }
+    ],
+    departmentAutomations: [
+      {
+        department: '데이터베이스팀',
+        automationLevel: '95%',
+        timeSaved: '주 36시간',
+        costReduction: '연 2억원'
+      }
+    ],
+    featured: true
+  },
+
+  // 7. 네트워크 보안
+  'network-security-ai': {
+    id: 'network-security-ai',
+    category: 'it_tech',
+    industry: 'IT/기술',
+    subIndustry: '네트워크 보안',
     companyName: '시큐리티랩 F (직원 90명)',
     companySize: '중소기업',
     title: 'AI 기반 보안 위협 탐지',
@@ -672,9 +798,9 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 실시간 보안 위협 탐지와 자동 대응 시스템으로 보안 수준을 혁신적으로 향상시킨 벤치마크 사례',
     icon: Shield,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
     companyInfo: {
-      industry: '사이버보안',
+      industry: '네트워크 보안',
       employees: '90명',
       revenue: '연 매출 150억원',
       location: '서울시 강남구'
@@ -785,9 +911,135 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     featured: true
   },
 
-  // 7. IoT 플랫폼
-  'iot-platform-ai': {
-    id: 'iot-platform-ai',
+  // 8. DevOps 자동화
+  'devops-automation': {
+    id: 'devops-automation',
+    category: 'it_tech',
+    industry: 'IT/기술',
+    subIndustry: 'DevOps 자동화',
+    companyName: '웹솔루션 E (직원 75명)',
+    companySize: '중소기업',
+    title: 'AI 기반 DevOps 자동화',
+    subtitle: 'CI/CD 파이프라인 속도 500% 향상',
+    description: 'AI를 활용한 자동화된 CI/CD 파이프라인으로 개발 및 배포 속도를 혁신한 벤치마크 사례',
+    icon: Zap,
+    color: 'yellow',
+    heroImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    companyInfo: {
+      industry: 'DevOps 자동화',
+      employees: '75명',
+      revenue: '연 매출 100억원',
+      location: '서울시 종로구'
+    },
+    challenges: [
+      {
+        title: 'CI/CD 파이프라인 병목',
+        description: '수동 테스트, 빌드, 배포로 인한 개발 및 배포 지연',
+        impact: '빠른 소프트웨어 전달 및 고객 만족도 저하'
+      }
+    ],
+    curriculum: {
+      basic: [
+        {
+          title: 'AI CI/CD 파이프라인 이해',
+          duration: '16시간',
+          description: 'GitLab CI, Jenkins, GitHub Actions 활용법'
+        }
+      ],
+      advanced: [
+        {
+          title: 'AI 자동화된 CI/CD',
+          duration: '24시간',
+          description: '자동 테스트, 빌드, 배포 파이프라인'
+        }
+      ],
+      executive: [
+        {
+          title: 'DevOps AI 전략',
+          duration: '8시간',
+          description: 'DevOps AI 투자 ROI 분석'
+        }
+      ]
+    },
+    results: {
+      quantitative: [
+        {
+          metric: 'CI/CD 파이프라인 속도',
+          before: '수동 프로세스',
+          after: '자동 프로세스',
+          improvement: '500% 향상'
+        }
+      ],
+      financial: [
+        {
+          item: '개발 및 배포 비용 절감',
+          amount: '연 10억원'
+        }
+      ],
+      qualitative: ['개발 및 배포 속도 5배 증가', '고객 만족도 95% 달성']
+    },
+    automationMetrics: {
+      timeReduction: '90%',
+      costSaving: '연 10억원',
+      errorReduction: '95%',
+      productivityGain: '500%'
+    },
+    roiData: {
+      investment: '2억원',
+      monthlySavings: '1천 2백만원',
+      paybackPeriod: '2개월',
+      threeYearROI: '1,000%'
+    },
+    implementationTimeline: '6주',
+    successFactors: [
+      '자동화된 CI/CD 파이프라인 구축',
+      '실시간 모니터링 및 로깅 시스템',
+      '자동 대응 및 복구 시스템'
+    ],
+    tags: ['DevOps', 'AI', 'CI/CD자동화', '자동테스트', '자동배포'],
+    testimonial: {
+      quote: 'AI로 개발 및 배포 속도가 크게 향상되었습니다.',
+      author: '김DevOps',
+      position: 'DevOps 팀장',
+      company: '웹솔루션 E'
+    },
+    followUpResults: [
+      {
+        metric: '6개월 후 추가 성과',
+        achievement: '개발 및 배포 속도 95% 단축, 고객 만족도 95% 달성'
+      }
+    ],
+    n8nWorkflows: [
+      {
+        name: 'DevOps 자동화',
+        description: '자동화된 CI/CD 파이프라인 워크플로우',
+        nodes: 20,
+        triggers: ['코드 변경', '배포 요청'],
+        actions: ['자동 테스트', '빌드', '배포', '모니터링']
+      }
+    ],
+    aiImplementations: [
+      {
+        type: 'CI/CD Automation',
+        purpose: '자동화된 CI/CD 파이프라인',
+        accuracy: '98%',
+        processingTime: '1초'
+      }
+    ],
+    departmentAutomations: [
+      {
+        department: 'DevOps팀',
+        automationLevel: '95%',
+        timeSaved: '주 40시간',
+        costReduction: '연 10억원'
+      }
+    ],
+    featured: true
+  },
+
+  // 9. IoT 플랫폼
+  'iot-platform-development': {
+    id: 'iot-platform-development',
     category: 'it_tech',
     industry: 'IT/기술',
     subIndustry: 'IoT 플랫폼',
@@ -911,9 +1163,9 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     featured: true
   },
 
-  // 8. 블록체인
-  'blockchain-ai': {
-    id: 'blockchain-ai',
+  // 10. 블록체인 기술
+  'blockchain-technology-ai': {
+    id: 'blockchain-technology-ai',
     category: 'it_tech',
     industry: 'IT/기술',
     subIndustry: '블록체인',
@@ -1032,258 +1284,6 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
         automationLevel: '85%',
         timeSaved: '주 28시간',
         costReduction: '연 1.5억원'
-      }
-    ],
-    featured: true
-  },
-
-  // 9. 게임 개발
-  'game-development-ai': {
-    id: 'game-development-ai',
-    category: 'it_tech',
-    industry: 'IT/기술',
-    subIndustry: '게임 개발',
-    companyName: '게임스튜디오 I (직원 95명)',
-    companySize: '중소기업',
-    title: 'AI 기반 게임 개발 혁신',
-    subtitle: '게임 개발 시간 60% 단축, 사용자 경험 최적화',
-    description: 'AI를 활용한 게임 자산 생성과 사용자 행동 분석으로 개발 효율성과 게임 품질을 동시에 향상시킨 벤치마크 사례',
-    icon: Brain,
-    color: 'pink',
-    heroImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    companyInfo: {
-      industry: '게임 개발',
-      employees: '95명',
-      revenue: '연 매출 130억원',
-      location: '서울시 강남구'
-    },
-    challenges: [
-      {
-        title: '게임 자산 제작 시간',
-        description: '수동 게임 자산 제작으로 인한 개발 지연',
-        impact: '게임 출시 지연 및 개발 비용 증가'
-      }
-    ],
-    curriculum: {
-      basic: [
-        {
-          title: 'AI 게임 개발 기초',
-          duration: '14시간',
-          description: 'AI 기반 게임 자산 생성 도구 활용'
-        }
-      ],
-      advanced: [
-        {
-          title: 'AI 게임 최적화',
-          duration: '18시간',
-          description: '사용자 행동 분석 및 게임 밸런싱'
-        }
-      ],
-      executive: [
-        {
-          title: '게임 AI 전략',
-          duration: '6시간',
-          description: '게임 AI 투자 효과 분석'
-        }
-      ]
-    },
-    results: {
-      quantitative: [
-        {
-          metric: '게임 개발 시간',
-          before: '18개월',
-          after: '12개월',
-          improvement: '60% 단축'
-        }
-      ],
-      financial: [
-        {
-          item: '개발 비용 절감',
-          amount: '연 2.5억원'
-        }
-      ],
-      qualitative: ['게임 평점 4.7점 달성', '사용자 이탈률 50% 감소']
-    },
-    automationMetrics: {
-      timeReduction: '60%',
-      costSaving: '연 2.5억원',
-      errorReduction: '70%',
-      productivityGain: '250%'
-    },
-    roiData: {
-      investment: '1억원',
-      monthlySavings: '2천만원',
-      paybackPeriod: '5개월',
-      threeYearROI: '900%'
-    },
-    implementationTimeline: '9주',
-    successFactors: [
-      'AI 기반 게임 자산 생성 시스템',
-      '사용자 행동 분석 자동화',
-      '게임 밸런싱 AI 시스템'
-    ],
-    tags: ['게임개발', 'AI', '자산생성', '사용자분석', 'Unity'],
-    testimonial: {
-      quote: 'AI로 게임 개발이 완전히 혁신되었습니다.',
-      author: '임게임',
-      position: '게임 개발팀장',
-      company: '게임스튜디오 I'
-    },
-    followUpResults: [
-      {
-        metric: '6개월 후 추가 성과',
-        achievement: '게임 평점 4.7점 달성, 사용자 이탈률 50% 감소'
-      }
-    ],
-    n8nWorkflows: [
-      {
-        name: '게임 개발 자동화',
-        description: '자산 생성부터 사용자 분석까지 자동화된 게임 개발 워크플로우',
-        nodes: 19,
-        triggers: ['자산 요청', '사용자 데이터 수집'],
-        actions: ['자산 생성', '품질 검사', '밸런싱 분석', '업데이트 배포']
-      }
-    ],
-    aiImplementations: [
-      {
-        type: 'Asset Generation',
-        purpose: 'AI 기반 게임 자산 자동 생성',
-        accuracy: '86%',
-        processingTime: '30분'
-      }
-    ],
-    departmentAutomations: [
-      {
-        department: '게임팀',
-        automationLevel: '70%',
-        timeSaved: '주 30시간',
-        costReduction: '연 2.5억원'
-      }
-    ],
-    featured: true
-  },
-
-  // 10. 하드웨어 개발
-  'hardware-development-ai': {
-    id: 'hardware-development-ai',
-    category: 'it_tech',
-    industry: 'IT/기술',
-    subIndustry: '하드웨어 개발',
-    companyName: '하드웨어랩 J (직원 80명)',
-    companySize: '중소기업',
-    title: 'AI 기반 하드웨어 설계 최적화',
-    subtitle: '설계 시간 70% 단축, 성능 200% 향상',
-    description: 'AI를 활용한 하드웨어 설계 자동화와 성능 최적화로 개발 효율성과 제품 품질을 혁신적으로 향상시킨 벤치마크 사례',
-    icon: Cpu,
-    color: 'gray',
-    heroImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    companyInfo: {
-      industry: '하드웨어 개발',
-      employees: '80명',
-      revenue: '연 매출 110억원',
-      location: '서울시 강남구'
-    },
-    challenges: [
-      {
-        title: '하드웨어 설계 복잡성',
-        description: '수동 설계로 인한 개발 시간 지연 및 오류 발생',
-        impact: '제품 출시 지연 및 개발 비용 증가'
-      }
-    ],
-    curriculum: {
-      basic: [
-        {
-          title: 'AI 하드웨어 설계 기초',
-          duration: '16시간',
-          description: 'AI 기반 설계 도구 및 시뮬레이션'
-        }
-      ],
-      advanced: [
-        {
-          title: 'AI 성능 최적화',
-          duration: '22시간',
-          description: 'AI 기반 하드웨어 성능 최적화'
-        }
-      ],
-      executive: [
-        {
-          title: '하드웨어 AI 전략',
-          duration: '6시간',
-          description: '하드웨어 AI 투자 전략'
-        }
-      ]
-    },
-    results: {
-      quantitative: [
-        {
-          metric: '설계 시간',
-          before: '6개월',
-          after: '2개월',
-          improvement: '70% 단축'
-        }
-      ],
-      financial: [
-        {
-          item: '개발 비용 절감',
-          amount: '연 3억원'
-        }
-      ],
-      qualitative: ['제품 성능 200% 향상', '설계 오류율 80% 감소']
-    },
-    automationMetrics: {
-      timeReduction: '70%',
-      costSaving: '연 3억원',
-      errorReduction: '80%',
-      productivityGain: '350%'
-    },
-    roiData: {
-      investment: '1억 2천만원',
-      monthlySavings: '2천 5백만원',
-      paybackPeriod: '4.8개월',
-      threeYearROI: '750%'
-    },
-    implementationTimeline: '8주',
-    successFactors: [
-      'AI 기반 하드웨어 설계 도구 도입',
-      '성능 시뮬레이션 자동화',
-      '설계 최적화 알고리즘'
-    ],
-    tags: ['하드웨어', 'AI', '설계자동화', '성능최적화', '시뮬레이션'],
-    testimonial: {
-      quote: 'AI 설계 도구로 하드웨어 개발이 완전히 바뀌었습니다.',
-      author: '강하드',
-      position: '하드웨어 설계팀장',
-      company: '하드웨어랩 J'
-    },
-    followUpResults: [
-      {
-        metric: '6개월 후 추가 성과',
-        achievement: '제품 성능 200% 향상, 설계 오류율 80% 감소'
-      }
-    ],
-    n8nWorkflows: [
-      {
-        name: '하드웨어 설계 자동화',
-        description: '설계부터 시뮬레이션까지 자동화된 하드웨어 개발 워크플로우',
-        nodes: 17,
-        triggers: ['설계 요청', '성능 요구사항'],
-        actions: ['설계 생성', '시뮬레이션 실행', '최적화 분석', '검증 완료']
-      }
-    ],
-    aiImplementations: [
-      {
-        type: 'Design Optimization',
-        purpose: 'AI 기반 하드웨어 설계 최적화',
-        accuracy: '89%',
-        processingTime: '2시간'
-      }
-    ],
-    departmentAutomations: [
-      {
-        department: '하드웨어팀',
-        automationLevel: '75%',
-        timeSaved: '주 32시간',
-        costReduction: '연 3억원'
       }
     ],
     featured: true
