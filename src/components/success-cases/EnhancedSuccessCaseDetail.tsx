@@ -3,44 +3,68 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft, Play, Download, MessageCircle, TrendingUp, Clock, DollarSign,
-  Target, CheckCircle, Users, Zap, BarChart3, Calendar, Award, ExternalLink,
-  BookOpen, Lightbulb, Rocket, Shield, Brain, Settings, ChevronRight, Star,
-  FileText, Video, Presentation, ChartBar, ChartLine, ChartPie,
-  TrendingDown, AlertCircle, CheckCircle2, Activity, Calculator
+  ArrowLeft,
+  Download,
+  MessageCircle,
+  TrendingUp,
+  Clock,
+  DollarSign,
+  Target,
+  CheckCircle,
+  Users,
+  Zap,
+  BarChart3,
+  Calendar,
+  Award,
+  ExternalLink,
+  Share2,
+  BookOpen,
+  Play,
+  ChevronRight,
+  Star,
+  Globe,
+  Shield,
+  Brain
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { EnhancedSuccessCaseDetail } from '@/types/enhanced-success-case.types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { SuccessCaseDetail } from '@/types/success-case.types';
+import { getRelatedCases } from '@/data/success-cases/benchmark-cases-index';
 
 interface EnhancedSuccessCaseDetailProps {
-  caseData: EnhancedSuccessCaseDetail;
+  caseData: SuccessCaseDetail;
   onConsultationRequest?: () => void;
 }
 
-export default function EnhancedSuccessCaseDetailComponent({ 
+export default function EnhancedSuccessCaseDetail({ 
   caseData,
   onConsultationRequest
 }: EnhancedSuccessCaseDetailProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
-  const [activeSubTab, setActiveSubTab] = useState('education');
-
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  
   const IconComponent = caseData.icon;
+  const relatedCases = getRelatedCases(caseData.id, 3);
 
-  // 리소스 아이콘 매핑
-  const resourceIcons = {
-    video: Video,
-    pdf: FileText,
-    presentation: Presentation,
-    webinar: Video // Webinar 대신 Video 사용
+  // 성과 지표 계산
+  const calculateImprovementScore = () => {
+    const improvements = caseData.results.quantitative.map(q => 
+      parseInt(q.improvement.replace(/[^0-9]/g, '')) || 0
+    );
+    return Math.round(improvements.reduce((a, b) => a + b, 0) / improvements.length);
   };
 
+  const improvementScore = calculateImprovementScore();
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* 헤더 네비게이션 */}
       <div className="bg-white border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -48,146 +72,114 @@ export default function EnhancedSuccessCaseDetailComponent({
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 hover:bg-gray-100"
             >
               <ArrowLeft className="w-4 h-4" />
               목록으로 돌아가기
             </Button>
             <div className="flex items-center gap-3">
               {caseData.featured && (
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                <Badge variant="secondary" className="bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800">
                   <Award className="w-3 h-3 mr-1" />
                   추천 사례
                 </Badge>
               )}
-              <Badge variant="outline">{caseData.industry}</Badge>
-              <Badge variant="outline">{caseData.subIndustry}</Badge>
+              <Badge variant="outline" className="border-2">
+                {caseData.industry}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {/* 공유 기능 */}}
+              >
+                <Share2 className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 히어로 섹션 */}
-      <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 text-white">
-        <div className="absolute inset-0">
-          <img
-            src={caseData.heroImage}
-            alt={caseData.title}
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
+      {/* 히어로 섹션 - 개선된 디자인 */}
+      <div 
+        className="relative h-[500px] bg-cover bg-center"
+        style={{ 
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url(${caseData.heroImage})` 
+        }}
+      >
+        <div className="absolute inset-0 flex items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="text-white">
+              {/* 업종 아이콘과 회사 정보 */}
               <div className="flex items-center gap-4 mb-6">
-                <div className={`p-4 rounded-xl bg-white/20 backdrop-blur-sm`}>
-                  <IconComponent className="w-10 h-10" />
+                <div className={`p-4 bg-white/20 backdrop-blur-md rounded-2xl`}>
+                  <IconComponent className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold opacity-95">{caseData.companyName}</h3>
-                  <p className="text-sm opacity-80">{caseData.companySize}</p>
+                  <p className="text-lg font-medium opacity-90">
+                    {caseData.subIndustry} | {caseData.companyName}
+                  </p>
+                  <p className="text-sm opacity-75">
+                    {caseData.companySize} · {caseData.companyInfo.location}
+                  </p>
                 </div>
               </div>
-              
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+
+              {/* 타이틀 */}
+              <h1 className="text-5xl font-bold mb-4 leading-tight">
                 {caseData.title}
               </h1>
-              <p className="text-xl lg:text-2xl opacity-95 mb-6">{caseData.subtitle}</p>
-              <p className="text-lg opacity-85 mb-8 leading-relaxed">{caseData.description}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-8">
-                {caseData.tags.slice(0, 5).map((tag) => (
-                  <Badge key={tag} variant="secondary" className="bg-white/20 text-white border-white/30">
-                    {tag}
-                  </Badge>
+              <p className="text-2xl mb-8 opacity-95">
+                {caseData.subtitle}
+              </p>
+
+              {/* 핵심 지표 - 더 돋보이게 */}
+              <div className="flex flex-wrap gap-6 mb-8">
+                {caseData.results.quantitative.slice(0, 3).map((metric, idx) => (
+                  <div key={idx} className="bg-white/10 backdrop-blur-md rounded-xl p-4 min-w-[140px]">
+                    <p className="text-sm opacity-80 mb-1">{metric.metric}</p>
+                    <p className="text-3xl font-bold text-yellow-400">
+                      {metric.improvement}
+                    </p>
+                  </div>
                 ))}
               </div>
 
+              {/* CTA 버튼 그룹 */}
               <div className="flex flex-wrap gap-4">
-                <Button
+                <Button 
                   size="lg"
-                  onClick={onConsultationRequest}
-                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-xl"
+                  onClick={() => setShowConsultationModal(true)}
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  무료 상담 신청
+                  무료 상담 신청하기
                 </Button>
-                {caseData.resources.find(r => r.type === 'pdf') && (
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white text-white hover:bg-white/10"
-                  >
-                    <Download className="w-5 h-5 mr-2" />
-                    상세 자료 다운로드
-                  </Button>
-                )}
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="bg-white/10 backdrop-blur-md text-white border-white/30 hover:bg-white/20"
+                  onClick={() => setShowVideoModal(true)}
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  사례 영상 보기
+                </Button>
               </div>
-            </div>
-
-            {/* 핵심 성과 카드 */}
-            <div className="grid grid-cols-2 gap-4">
-              {caseData.educationPerformance.slice(0, 4).map((perf, index) => {
-                const PerfIcon = perf.icon || TrendingUp;
-                return (
-                  <Card key={index} className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-                    <CardContent className="p-6 text-center">
-                      <PerfIcon className="w-10 h-10 mx-auto mb-3 text-yellow-300" />
-                      <div className="text-3xl font-bold mb-1">{perf.improvement}</div>
-                      <div className="text-sm opacity-90">{perf.metric}</div>
-                      <div className="text-xs opacity-75 mt-2">
-                        {perf.before} → {perf.after}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* 퀵 스탯 바 */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {caseData.curriculum.overview.totalDuration}
-              </div>
-              <div className="text-sm text-gray-600">프로젝트 기간</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {caseData.curriculum.overview.participantCount}
-              </div>
-              <div className="text-sm text-gray-600">참여 인원</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {caseData.performanceDashboard.financialAnalysis.roi}
-              </div>
-              <div className="text-sm text-gray-600">투자 수익률</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {caseData.curriculum.overview.completionRate}
-              </div>
-              <div className="text-sm text-gray-600">교육 이수율</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {caseData.curriculum.overview.satisfactionScore}
-              </div>
-              <div className="text-sm text-gray-600">만족도</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-indigo-600">
-                {caseData.n8nWorkflows.length}개
-              </div>
-              <div className="text-sm text-gray-600">자동화 워크플로우</div>
+        {/* 개선 점수 배지 */}
+        <div className="absolute top-8 right-8">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-6 text-center">
+            <p className="text-sm text-gray-600 mb-2">평균 개선율</p>
+            <p className="text-4xl font-bold text-blue-600">+{improvementScore}%</p>
+            <div className="flex mt-2">
+              {[...Array(5)].map((_, i) => (
+                <Star 
+                  key={i} 
+                  className={`w-4 h-4 ${i < Math.round(improvementScore / 20) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -195,95 +187,183 @@ export default function EnhancedSuccessCaseDetailComponent({
 
       {/* 메인 콘텐츠 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* 회사 정보 카드 */}
+        <Card className="mb-8 shadow-lg border-0">
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="flex items-center gap-4">
+                <Building2 className="w-10 h-10 text-blue-600" />
+                <div>
+                  <p className="text-sm text-gray-500">산업</p>
+                  <p className="font-semibold">{caseData.companyInfo.industry}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Users className="w-10 h-10 text-green-600" />
+                <div>
+                  <p className="text-sm text-gray-500">직원 수</p>
+                  <p className="font-semibold">{caseData.companyInfo.employees}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <DollarSign className="w-10 h-10 text-purple-600" />
+                <div>
+                  <p className="text-sm text-gray-500">연 매출</p>
+                  <p className="font-semibold">{caseData.companyInfo.revenue}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Calendar className="w-10 h-10 text-orange-600" />
+                <div>
+                  <p className="text-sm text-gray-500">구현 기간</p>
+                  <p className="font-semibold">{caseData.implementationPeriod}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 탭 콘텐츠 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 gap-2">
-            <TabsTrigger value="overview">개요</TabsTrigger>
-            <TabsTrigger value="curriculum">커리큘럼</TabsTrigger>
-            <TabsTrigger value="recommendation">맞춤추천</TabsTrigger>
-            <TabsTrigger value="process">프로세스</TabsTrigger>
-            <TabsTrigger value="results">성과</TabsTrigger>
-            <TabsTrigger value="dashboard">지표</TabsTrigger>
-            <TabsTrigger value="testimonials">후기</TabsTrigger>
+          <TabsList className="grid grid-cols-5 w-full h-auto p-1 bg-gray-100">
+            <TabsTrigger value="overview" className="py-3">
+              <Brain className="w-4 h-4 mr-2" />
+              개요
+            </TabsTrigger>
+            <TabsTrigger value="challenges" className="py-3">
+              <Target className="w-4 h-4 mr-2" />
+              도전과제
+            </TabsTrigger>
+            <TabsTrigger value="process" className="py-3">
+              <Zap className="w-4 h-4 mr-2" />
+              구현과정
+            </TabsTrigger>
+            <TabsTrigger value="results" className="py-3">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              성과
+            </TabsTrigger>
+            <TabsTrigger value="automation" className="py-3">
+              <Shield className="w-4 h-4 mr-2" />
+              자동화
+            </TabsTrigger>
           </TabsList>
 
           {/* 개요 탭 */}
           <TabsContent value="overview" className="space-y-8">
-            {/* 교육 프로세스 */}
-            <Card>
+            <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Rocket className="w-6 h-6 text-blue-600" />
-                  교육 프로세스
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <Brain className="w-6 h-6 text-blue-600" />
+                  프로젝트 개요
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <p className="text-lg leading-relaxed text-gray-700">
+                  {caseData.description}
+                </p>
+                
+                {/* 핵심 기술 스택 */}
+                <div>
+                  <h3 className="font-semibold mb-3">활용 기술</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {caseData.technologies.map((tech, idx) => (
+                      <Badge key={idx} variant="secondary" className="px-3 py-1">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 프로젝트 팀 정보 */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-blue-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-600 mb-1">프로젝트 팀 규모</p>
+                    <p className="text-2xl font-bold text-blue-600">{caseData.teamSize}</p>
+                  </div>
+                  <div className="bg-green-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-600 mb-1">구현 기간</p>
+                    <p className="text-2xl font-bold text-green-600">{caseData.implementationPeriod}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 교육 커리큘럼 */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <BookOpen className="w-6 h-6 text-purple-600" />
+                  AI & n8n 교육 프로그램
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  {caseData.educationProcess.map((phase, index) => (
-                    <div key={index} className="relative">
-                      {index < caseData.educationProcess.length - 1 && (
-                        <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-gray-200" />
-                      )}
-                      
-                      <div className="flex gap-4">
-                        <div className="flex-shrink-0">
-                          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                            {index + 1}
-                          </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-3 text-blue-600">기초 과정</h4>
+                    <div className="space-y-3">
+                      {caseData.curriculum.basic.map((course, idx) => (
+                        <div key={idx} className="border-l-2 border-blue-200 pl-4">
+                          <p className="font-medium">{course.title}</p>
+                          <p className="text-sm text-gray-600">{course.duration}</p>
+                          <p className="text-sm text-gray-500 mt-1">{course.description}</p>
                         </div>
-                        
-                        <div className="flex-1 bg-white rounded-xl border shadow-sm p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="text-xl font-bold text-gray-900">{phase.title}</h3>
-                              <p className="text-sm text-gray-500 mt-1">{phase.phase} · {phase.duration}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid md:grid-cols-3 gap-6">
-                            <div>
-                              <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <Activity className="w-4 h-4" />
-                                주요 활동
-                              </h4>
-                              <ul className="space-y-2">
-                                {phase.activities.map((activity, idx) => (
-                                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-                                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                    <span>{activity}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            
-                            <div>
-                              <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <FileText className="w-4 h-4" />
-                                산출물
-                              </h4>
-                              <ul className="space-y-2">
-                                {phase.deliverables.map((deliverable, idx) => (
-                                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-                                    <Target className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                                    <span>{deliverable}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            
-                            <div>
-                              <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <BarChart3 className="w-4 h-4" />
-                                핵심 지표
-                              </h4>
-                              <ul className="space-y-2">
-                                {phase.keyMetrics.map((metric, idx) => (
-                                  <li key={idx} className="flex items-start gap-2 text-sm">
-                                    <TrendingUp className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                    <span className="font-medium text-gray-700">{metric}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-3 text-green-600">심화 과정</h4>
+                    <div className="space-y-3">
+                      {caseData.curriculum.advanced.map((course, idx) => (
+                        <div key={idx} className="border-l-2 border-green-200 pl-4">
+                          <p className="font-medium">{course.title}</p>
+                          <p className="text-sm text-gray-600">{course.duration}</p>
+                          <p className="text-sm text-gray-500 mt-1">{course.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-3 text-purple-600">경영진 과정</h4>
+                    <div className="space-y-3">
+                      {caseData.curriculum.executive.map((course, idx) => (
+                        <div key={idx} className="border-l-2 border-purple-200 pl-4">
+                          <p className="font-medium">{course.title}</p>
+                          <p className="text-sm text-gray-600">{course.duration}</p>
+                          <p className="text-sm text-gray-500 mt-1">{course.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* 도전과제 탭 */}
+          <TabsContent value="challenges" className="space-y-8">
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <Target className="w-6 h-6 text-red-600" />
+                  해결한 도전과제
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {caseData.challenges.map((challenge, idx) => (
+                    <div key={idx} className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-6 border border-red-100">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 bg-red-100 rounded-lg">
+                          <AlertCircle className="w-6 h-6 text-red-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-lg mb-2">{challenge.title}</h4>
+                          <p className="text-gray-700 mb-3">{challenge.description}</p>
+                          <div className="bg-red-100/50 rounded-lg p-3">
+                            <p className="text-sm font-medium text-red-800">
+                              비즈니스 영향:
+                            </p>
+                            <p className="text-sm text-red-700 mt-1">{challenge.impact}</p>
                           </div>
                         </div>
                       </div>
@@ -292,461 +372,65 @@ export default function EnhancedSuccessCaseDetailComponent({
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            {/* 측정된 교육 성과 */}
-            <Card>
+          {/* 구현과정 탭 */}
+          <TabsContent value="process" className="space-y-8">
+            <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChartBar className="w-6 h-6 text-green-600" />
-                  측정된 교육 성과
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <Zap className="w-6 h-6 text-blue-600" />
+                  단계별 구현 과정
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {caseData.educationPerformance.map((perf, index) => {
-                    const PerfIcon = perf.icon || TrendingUp;
-                    return (
-                      <Card key={index} className="border-0 shadow-md hover:shadow-lg transition-all">
-                        <CardContent className="p-6">
+                <div className="space-y-8">
+                  {caseData.process.map((phase, idx) => (
+                    <div key={idx} className="relative">
+                      {idx < caseData.process.length - 1 && (
+                        <div className="absolute left-8 top-20 bottom-0 w-0.5 bg-gray-200" />
+                      )}
+                      
+                      <div className="flex gap-6">
+                        <div className="relative z-10">
+                          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                            {idx + 1}
+                          </div>
+                        </div>
+                        
+                        <div className="flex-1 bg-white rounded-xl p-6 shadow-md border border-gray-100">
                           <div className="flex items-center justify-between mb-4">
-                            <PerfIcon className="w-8 h-8 text-blue-600" />
-                            <Badge variant="secondary" className="bg-green-100 text-green-800">
-                              {perf.improvement}
+                            <h4 className="text-xl font-semibold">{phase.phase}</h4>
+                            <Badge variant="outline" className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {phase.duration}
                             </Badge>
                           </div>
-                          <h4 className="font-semibold text-lg mb-2">{perf.metric}</h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">Before</span>
-                              <span className="font-medium text-red-600">{perf.before}</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div className="bg-gradient-to-r from-red-500 to-green-500 h-2 rounded-full" style={{width: '85%'}} />
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">After</span>
-                              <span className="font-medium text-green-600">{perf.after}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 업종별 커스터마이징 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-6 h-6 text-purple-600" />
-                  업종별 커스터마이징
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <AlertCircle className="w-5 h-5 text-orange-500" />
-                      업종 특화 도전과제
-                    </h4>
-                    <ul className="space-y-3">
-                      {caseData.industryCustomization.specificChallenges.map((challenge, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-bold">
-                            {idx + 1}
-                          </span>
-                          <span className="text-sm text-gray-700">{challenge}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <Lightbulb className="w-5 h-5 text-blue-500" />
-                      맞춤형 솔루션
-                    </h4>
-                    <ul className="space-y-3">
-                      {caseData.industryCustomization.customSolutions.map((solution, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
-                            {idx + 1}
-                          </span>
-                          <span className="text-sm text-gray-700">{solution}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <Target className="w-5 h-5 text-green-500" />
-                      기대 성과
-                    </h4>
-                    <ul className="space-y-3">
-                      {caseData.industryCustomization.expectedOutcomes.map((outcome, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <span className="flex-shrink-0 w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">
-                            ✓
-                          </span>
-                          <span className="text-sm text-gray-700">{outcome}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 커리큘럼 탭 */}
-          <TabsContent value="curriculum" className="space-y-8">
-            {/* 커리큘럼 개요 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="w-6 h-6 text-blue-600" />
-                  커리큘럼 개요
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <Clock className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-blue-600">{caseData.curriculum.overview.totalDuration}</div>
-                    <div className="text-sm text-gray-600">총 교육 기간</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-green-600">{caseData.curriculum.overview.participantCount}</div>
-                    <div className="text-sm text-gray-600">참여 인원</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <Target className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-purple-600">{caseData.curriculum.overview.completionRate}</div>
-                    <div className="text-sm text-gray-600">이수율</div>
-                  </div>
-                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <Star className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-yellow-600">{caseData.curriculum.overview.satisfactionScore}</div>
-                    <div className="text-sm text-gray-600">만족도</div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h4 className="font-semibold mb-4">핵심 하이라이트</h4>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {caseData.curriculum.overview.keyHighlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                        <span className="text-sm">{highlight}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 과정별 상세 커리큘럼 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>과정별 상세 커리큘럼</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs value={activeSubTab} onValueChange={setActiveSubTab}>
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="basic">기초 과정</TabsTrigger>
-                    <TabsTrigger value="advanced">심화 과정</TabsTrigger>
-                    <TabsTrigger value="executive">경영진 과정</TabsTrigger>
-                    <TabsTrigger value="industry">업종 특화</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="basic" className="mt-6 space-y-4">
-                    {caseData.curriculum.basic.map((module) => (
-                      <Card key={module.moduleId} className="border-l-4 border-blue-500">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h4 className="text-lg font-bold">{module.title}</h4>
-                              <p className="text-sm text-gray-500 mt-1">모듈 {module.moduleId} · {module.duration}</p>
-                            </div>
-                            <Badge variant="outline" className="bg-blue-50">기초</Badge>
-                          </div>
                           
-                          <div className="grid md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                              <h5 className="font-semibold text-sm text-gray-700 mb-2">학습 목표</h5>
-                              <ul className="space-y-1">
-                                {module.objectives.map((obj, idx) => (
-                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                                    <ChevronRight className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    {obj}
+                              <p className="font-medium text-gray-700 mb-3">주요 활동</p>
+                              <ul className="space-y-2">
+                                {phase.activities.map((activity, actIdx) => (
+                                  <li key={actIdx} className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-gray-600">{activity}</span>
                                   </li>
                                 ))}
                               </ul>
                             </div>
                             <div>
-                              <h5 className="font-semibold text-sm text-gray-700 mb-2">주요 주제</h5>
-                              <ul className="space-y-1">
-                                {module.topics.map((topic, idx) => (
-                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                                    <ChevronRight className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    {topic}
+                              <p className="font-medium text-gray-700 mb-3">주요 성과</p>
+                              <ul className="space-y-2">
+                                {phase.results.map((result, resIdx) => (
+                                  <li key={resIdx} className="flex items-start gap-2">
+                                    <TrendingUp className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-gray-600">{result}</span>
                                   </li>
                                 ))}
                               </ul>
                             </div>
                           </div>
-                          
-                          <div className="mt-4 pt-4 border-t">
-                            <div className="flex flex-wrap gap-2">
-                              <span className="text-xs text-gray-500">도구:</span>
-                              {module.tools.map((tool) => (
-                                <Badge key={tool} variant="secondary" className="text-xs">
-                                  {tool}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </TabsContent>
-
-                  <TabsContent value="advanced" className="mt-6 space-y-4">
-                    {caseData.curriculum.advanced.map((module) => (
-                      <Card key={module.moduleId} className="border-l-4 border-purple-500">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h4 className="text-lg font-bold">{module.title}</h4>
-                              <p className="text-sm text-gray-500 mt-1">모듈 {module.moduleId} · {module.duration}</p>
-                            </div>
-                            <Badge variant="outline" className="bg-purple-50">심화</Badge>
-                          </div>
-                          
-                          <div className="grid md:grid-cols-2 gap-6">
-                            <div>
-                              <h5 className="font-semibold text-sm text-gray-700 mb-2">학습 목표</h5>
-                              <ul className="space-y-1">
-                                {module.objectives.map((obj, idx) => (
-                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                                    <ChevronRight className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    {obj}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div>
-                              <h5 className="font-semibold text-sm text-gray-700 mb-2">실습 과제</h5>
-                              <ul className="space-y-1">
-                                {module.practicalExercises.map((exercise, idx) => (
-                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                                    <ChevronRight className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    {exercise}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                          
-                          <div className="mt-4 pt-4 border-t">
-                            <h5 className="font-semibold text-sm text-gray-700 mb-2">기대 성과</h5>
-                            <div className="grid md:grid-cols-3 gap-3">
-                              {module.outcomes.map((outcome, idx) => (
-                                <div key={idx} className="flex items-center gap-2 text-sm text-green-600">
-                                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                                  {outcome}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </TabsContent>
-
-                  <TabsContent value="executive" className="mt-6 space-y-4">
-                    {caseData.curriculum.executive.map((module) => (
-                      <Card key={module.moduleId} className="border-l-4 border-orange-500">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h4 className="text-lg font-bold">{module.title}</h4>
-                              <p className="text-sm text-gray-500 mt-1">모듈 {module.moduleId} · {module.duration}</p>
-                            </div>
-                            <Badge variant="outline" className="bg-orange-50">경영진</Badge>
-                          </div>
-                          
-                          <div className="space-y-4">
-                            <div>
-                              <h5 className="font-semibold text-sm text-gray-700 mb-2">핵심 목표</h5>
-                              <ul className="space-y-1">
-                                {module.objectives.map((obj, idx) => (
-                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                                    <Target className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                                    {obj}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </TabsContent>
-
-                  <TabsContent value="industry" className="mt-6 space-y-4">
-                    {caseData.curriculum.industrySpecific.map((module) => (
-                      <Card key={module.moduleId} className="border-l-4 border-green-500">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h4 className="text-lg font-bold">{module.title}</h4>
-                              <p className="text-sm text-gray-500 mt-1">모듈 {module.moduleId} · {module.duration}</p>
-                            </div>
-                            <Badge variant="outline" className="bg-green-50">업종특화</Badge>
-                          </div>
-                          
-                          <div className="space-y-4">
-                            <div>
-                              <h5 className="font-semibold text-sm text-gray-700 mb-2">업종별 특화 내용</h5>
-                              <ul className="space-y-1">
-                                {module.topics.map((topic, idx) => (
-                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                                    <Settings className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                    {topic}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 맞춤추천 탭 - 간략화 */}
-          <TabsContent value="recommendation" className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-6 h-6 text-purple-600" />
-                  맞춤형 커리큘럼 추천
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {caseData.customizedProposal.curriculumRecommendation.map((rec, index) => (
-                    <Card key={index} className="border-2 hover:border-purple-300 transition-all">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <Badge variant="secondary" className="mb-2">{rec.recommendationType}</Badge>
-                            <h4 className="text-xl font-bold">{rec.title}</h4>
-                            <p className="text-gray-600 mt-2">{rec.description}</p>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-green-600">{rec.expectedROI}</div>
-                            <div className="text-sm text-gray-500">예상 ROI</div>
-                          </div>
-                        </div>
-                        
-                        <div className="grid md:grid-cols-2 gap-4 mt-4">
-                          <div>
-                            <h5 className="font-semibold text-sm mb-2">주요 혜택</h5>
-                            <ul className="space-y-1">
-                              {rec.benefits.map((benefit, idx) => (
-                                <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                                  <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                  {benefit}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-4 text-sm text-gray-600">
-                              <Clock className="w-4 h-4" />
-                              <span>예상 기간: {rec.estimatedDuration}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 프로세스 탭 */}
-          <TabsContent value="process" className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="w-6 h-6 text-yellow-600" />
-                  AICAMP 적용 프로세스
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {caseData.aicampProcess.map((step) => (
-                    <div key={step.stepNumber} className="relative">
-                      <div className="flex gap-4">
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                            {step.stepNumber}
-                          </div>
-                        </div>
-                        
-                        <div className="flex-1">
-                          <Card className="border-0 shadow-md">
-                            <CardContent className="p-6">
-                              <div className="flex items-start justify-between mb-4">
-                                <div>
-                                  <h4 className="text-lg font-bold">{step.stepName}</h4>
-                                  <p className="text-sm text-gray-600 mt-1">{step.description}</p>
-                                </div>
-                                <Badge variant="outline">{step.duration}</Badge>
-                              </div>
-                              
-                              <div className="grid md:grid-cols-2 gap-4">
-                                <div>
-                                  <h5 className="font-semibold text-sm text-gray-700 mb-2">투입 요소</h5>
-                                  <ul className="space-y-1">
-                                    {step.inputs.map((input, idx) => (
-                                      <li key={idx} className="text-sm text-gray-600">• {input}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                                <div>
-                                  <h5 className="font-semibold text-sm text-gray-700 mb-2">산출물</h5>
-                                  <ul className="space-y-1">
-                                    {step.outputs.map((output, idx) => (
-                                      <li key={idx} className="text-sm text-gray-600">• {output}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              </div>
-                              
-                              <div className="mt-4 pt-4 border-t">
-                                <h5 className="font-semibold text-sm text-gray-700 mb-2">성공 기준</h5>
-                                <div className="flex flex-wrap gap-2">
-                                  {step.successCriteria.map((criteria, idx) => (
-                                    <Badge key={idx} variant="secondary" className="text-xs">
-                                      {criteria}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
                         </div>
                       </div>
                     </div>
@@ -759,461 +443,288 @@ export default function EnhancedSuccessCaseDetailComponent({
           {/* 성과 탭 */}
           <TabsContent value="results" className="space-y-8">
             {/* 정량적 성과 */}
-            <Card>
+            <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChartLine className="w-6 h-6 text-blue-600" />
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <BarChart3 className="w-6 h-6 text-green-600" />
                   정량적 성과
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {caseData.results.quantitative.map((result, index) => (
-                    <Card key={index} className="border-0 shadow-sm hover:shadow-md transition-all">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <Badge variant="outline">{result.category}</Badge>
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            {result.improvement}
-                          </Badge>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {caseData.results.quantitative.map((metric, idx) => (
+                    <div key={idx} className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                      <h4 className="font-semibold text-gray-800 mb-4">{metric.metric}</h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Before</span>
+                          <span className="font-medium">{metric.before}</span>
                         </div>
-                        <h4 className="font-semibold mb-3">{result.metric}</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">기준</span>
-                            <span className="font-medium">{result.baseline}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">목표</span>
-                            <span className="font-medium text-blue-600">{result.target}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">달성</span>
-                            <span className="font-bold text-green-600">{result.achieved}</span>
-                          </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">After</span>
+                          <span className="font-medium text-green-600">{metric.after}</span>
                         </div>
-                        <div className="mt-3 pt-3 border-t">
-                          <p className="text-xs text-gray-500">검증: {result.verificationMethod}</p>
+                        <Separator />
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-green-600">
+                            {metric.improvement}
+                          </p>
+                          <p className="text-sm text-gray-500">개선</p>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
             {/* 재무적 성과 */}
-            <Card>
+            <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-6 h-6 text-green-600" />
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <DollarSign className="w-6 h-6 text-purple-600" />
                   재무적 성과
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {caseData.results.financial.map((financial, index) => (
-                    <Card key={index} className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-blue-50">
-                      <CardContent className="p-4 text-center">
-                        <Badge variant="outline" className="mb-2">{financial.category}</Badge>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">{financial.item}</h4>
-                        <div className="text-2xl font-bold text-green-600 mb-1">{financial.amount}</div>
-                        <div className="text-xs text-gray-500">{financial.period}</div>
-                        <div className="mt-3 pt-3 border-t flex justify-between text-xs">
-                          <span>ROI: {financial.roi}</span>
-                          <span>회수: {financial.paybackPeriod}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {caseData.results.financial.map((item, idx) => (
+                    <div key={idx} className="text-center bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                      <p className="text-sm text-gray-600 mb-2">{item.item}</p>
+                      <p className="text-3xl font-bold text-purple-600">{item.amount}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 정성적 성과 */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <Award className="w-6 h-6 text-orange-600" />
+                  정성적 성과
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {caseData.results.qualitative.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 bg-orange-50 rounded-lg p-4">
+                      <CheckCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                      <span className="text-gray-700">{item}</span>
+                    </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* 지표 탭 */}
-          <TabsContent value="dashboard" className="space-y-8">
-            {/* KPI 대시보드 */}
-            <Card>
+          {/* 자동화 탭 */}
+          <TabsContent value="automation" className="space-y-8">
+            <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-6 h-6 text-indigo-600" />
-                  핵심 성과 지표
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <Shield className="w-6 h-6 text-indigo-600" />
+                  n8n 자동화 워크플로우
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {caseData.performanceDashboard.kpis.map((kpi, index) => (
-                    <Card key={index} className="border-0 shadow-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge variant="outline" className="text-xs">{kpi.category}</Badge>
-                          {kpi.trend === 'up' ? (
-                            <TrendingUp className="w-4 h-4 text-green-500" />
-                          ) : kpi.trend === 'down' ? (
-                            <TrendingDown className="w-4 h-4 text-red-500" />
-                          ) : (
-                            <Activity className="w-4 h-4 text-gray-500" />
-                          )}
-                        </div>
-                        <h4 className="font-semibold text-sm mb-3">{kpi.kpiName}</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-gray-500">목표</span>
-                            <span>{kpi.target}</span>
-                          </div>
-                          <div className="flex justify-between text-xs">
-                            <span className="text-gray-500">실제</span>
-                            <span className="font-bold">{kpi.actual}</span>
-                          </div>
-                          <Progress 
-                            value={85} 
-                            className={`h-2 ${kpi.status === 'exceeded' ? 'bg-green-100' : kpi.status === 'met' ? 'bg-blue-100' : 'bg-red-100'}`}
-                          />
-                        </div>
-                        <div className="mt-2">
-                          <Badge 
-                            variant="secondary" 
-                            className={`text-xs w-full justify-center ${
-                              kpi.status === 'exceeded' ? 'bg-green-100 text-green-800' : 
-                              kpi.status === 'met' ? 'bg-blue-100 text-blue-800' : 
-                              'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {kpi.variance}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {caseData.automationDetails.workflows.map((workflow, idx) => (
+                    <div key={idx} className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                      <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-indigo-600" />
+                        {workflow.name}
+                      </h4>
+                      <p className="text-gray-700 mb-4">{workflow.description}</p>
+                      <div className="bg-indigo-100/50 rounded-lg p-3">
+                        <p className="text-sm font-medium text-indigo-800">효율성 개선:</p>
+                        <p className="text-lg font-bold text-indigo-600 mt-1">{workflow.efficiency}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* 재무 분석 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChartPie className="w-6 h-6 text-green-600" />
-                  재무 성과 분석
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <DollarSign className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{caseData.performanceDashboard.financialAnalysis.totalInvestment}</div>
-                    <div className="text-xs text-gray-600">총 투자</div>
+                {/* 시스템 통합 */}
+                <div className="mt-8">
+                  <h4 className="font-semibold mb-4">시스템 통합</h4>
+                  <div className="flex flex-wrap gap-3">
+                    {caseData.automationDetails.integrations.map((integration, idx) => (
+                      <Badge key={idx} variant="secondary" className="px-4 py-2">
+                        <Globe className="w-3 h-3 mr-1" />
+                        {integration}
+                      </Badge>
+                    ))}
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <TrendingUp className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{caseData.performanceDashboard.financialAnalysis.totalSavings}</div>
-                    <div className="text-xs text-gray-600">총 절감</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <Target className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{caseData.performanceDashboard.financialAnalysis.netBenefit}</div>
-                    <div className="text-xs text-gray-600">순이익</div>
-                  </div>
-                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <Award className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{caseData.performanceDashboard.financialAnalysis.roi}</div>
-                    <div className="text-xs text-gray-600">ROI</div>
-                  </div>
-                  <div className="text-center p-4 bg-orange-50 rounded-lg">
-                    <ChartBar className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{caseData.performanceDashboard.financialAnalysis.irrRate}</div>
-                    <div className="text-xs text-gray-600">IRR</div>
-                  </div>
-                  <div className="text-center p-4 bg-red-50 rounded-lg">
-                    <DollarSign className="w-6 h-6 text-red-600 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{caseData.performanceDashboard.financialAnalysis.npv}</div>
-                    <div className="text-xs text-gray-600">NPV</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* SWOT 분석 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-purple-600" />
-                  SWOT 분석 결과
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Strengths */}
-                  <Card className="border-0 shadow-sm bg-blue-50">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base text-blue-700">강점 (S)</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {caseData.performanceDashboard.swotAnalysis.strengths.map((item, idx) => (
-                        <div key={idx} className="text-sm">
-                          <div className="font-medium text-blue-900">{item.factor}</div>
-                          <Badge variant="outline" className="text-xs mt-1">
-                            영향도: {item.impact}
-                          </Badge>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  {/* Weaknesses */}
-                  <Card className="border-0 shadow-sm bg-orange-50">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base text-orange-700">약점 (W)</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {caseData.performanceDashboard.swotAnalysis.weaknesses.map((item, idx) => (
-                        <div key={idx} className="text-sm">
-                          <div className="font-medium text-orange-900">{item.factor}</div>
-                          <Badge variant="outline" className="text-xs mt-1">
-                            영향도: {item.impact}
-                          </Badge>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  {/* Opportunities */}
-                  <Card className="border-0 shadow-sm bg-green-50">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base text-green-700">기회 (O)</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {caseData.performanceDashboard.swotAnalysis.opportunities.map((item, idx) => (
-                        <div key={idx} className="text-sm">
-                          <div className="font-medium text-green-900">{item.factor}</div>
-                          <Badge variant="outline" className="text-xs mt-1">
-                            잠재력: {item.potential}
-                          </Badge>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  {/* Threats */}
-                  <Card className="border-0 shadow-sm bg-red-50">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base text-red-700">위협 (T)</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {caseData.performanceDashboard.swotAnalysis.threats.map((item, idx) => (
-                        <div key={idx} className="text-sm">
-                          <div className="font-medium text-red-900">{item.factor}</div>
-                          <Badge variant="outline" className="text-xs mt-1">
-                            가능성: {item.likelihood}
-                          </Badge>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 후기 탭 */}
-          <TabsContent value="testimonials" className="space-y-8">
-            {/* 고객 후기 */}
-            <div className="space-y-6">
-              {caseData.testimonials.map((testimonial, index) => (
-                <Card key={index} className="border-0 shadow-lg">
-                  <CardContent className="p-8">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold mb-2">{testimonial.title}</h3>
-                        <div className="flex items-center gap-2 mb-4">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
-                            />
-                          ))}
-                          <span className="text-sm text-gray-600 ml-2">
-                            {testimonial.rating}.0 / 5.0
-                          </span>
-                        </div>
-                      </div>
-                      <Badge variant="outline">{testimonial.date}</Badge>
-                    </div>
-
-                    <blockquote className="text-lg italic text-gray-700 mb-6 leading-relaxed">
-                      "{testimonial.content}"
-                    </blockquote>
-
-                    <div className="grid md:grid-cols-3 gap-6 mb-6">
-                      <div>
-                        <h4 className="font-semibold text-sm text-gray-700 mb-2">주요 혜택</h4>
-                        <ul className="space-y-1">
-                          {testimonial.keyBenefits.map((benefit, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              {benefit}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-gray-700 mb-2">도전 과제</h4>
-                        <ul className="space-y-1">
-                          {testimonial.challenges.map((challenge, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                              <AlertCircle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                              {challenge}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-gray-700 mb-2">추천 사항</h4>
-                        <ul className="space-y-1">
-                          {testimonial.recommendations.map((rec, idx) => (
-                            <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-                              <Lightbulb className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                              {rec}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-6 border-t">
-                      <div>
-                        <div className="font-semibold">{testimonial.author}</div>
-                        <div className="text-sm text-gray-600">{testimonial.position}</div>
-                        <div className="text-sm text-gray-500">{testimonial.company}</div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">{testimonial.npsScore}</div>
-                          <div className="text-xs text-gray-500">NPS Score</div>
-                        </div>
-                        {testimonial.wouldRecommend && (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            추천
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* 장기 성과 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
-                  6개월 후 추가 성과
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {caseData.longTermImpact.sixMonthResults.map((result, index) => (
-                    <Card key={index} className="border-0 shadow-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <Badge variant="outline">{result.period}</Badge>
-                          {result.trend === 'improving' ? (
-                            <TrendingUp className="w-4 h-4 text-green-500" />
-                          ) : (
-                            <Activity className="w-4 h-4 text-gray-500" />
-                          )}
-                        </div>
-                        <h4 className="font-semibold mb-2">{result.metric}</h4>
-                        <div className="text-2xl font-bold text-blue-600 mb-3">{result.value}</div>
-                        <div className="space-y-1">
-                          {result.actions.map((action, idx) => (
-                            <div key={idx} className="text-xs text-gray-600 flex items-start gap-1">
-                              <ChevronRight className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                              {action}
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
 
-        {/* 하단 CTA */}
-        <Card className="mt-12 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
-          <CardContent className="p-8 text-center">
-            <h3 className="text-3xl font-bold mb-4">
-              우리 회사도 이런 성과를 낼 수 있을까요?
-            </h3>
-            <p className="text-xl opacity-95 mb-8 max-w-3xl mx-auto">
-              {caseData.industry} 업종 맞춤 AI & n8n 자동화 솔루션으로 
-              디지털 전환을 성공적으로 완성하세요
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={onConsultationRequest}
-                className="bg-white text-blue-600 hover:bg-gray-100"
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                무료 상담 신청하기
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-                onClick={() => router.push('/roi-calculator')}
-              >
-                <Calculator className="w-5 h-5 mr-2" />
-                ROI 계산해보기
-              </Button>
+        {/* 고객 후기 섹션 */}
+        <Card className="mt-12 border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-3">
+              <MessageCircle className="w-6 h-6 text-blue-600" />
+              고객 후기
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {caseData.testimonials.map((testimonial, idx) => (
+                <div key={idx} className="bg-white rounded-xl p-6 shadow-md">
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-gray-700 italic mb-4">"{testimonial.quote}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                      {testimonial.author.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-semibold">{testimonial.author}</p>
+                      <p className="text-sm text-gray-600">{testimonial.position}</p>
+                      <p className="text-sm text-gray-500">{testimonial.company}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* 관련 자료 */}
-        {caseData.resources.length > 0 && (
-          <Card className="mt-8">
+        {/* 다운로드 가능한 자료 */}
+        {caseData.downloadableResources && (
+          <Card className="mt-8 border-0 shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-6 h-6" />
-                관련 자료
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <Download className="w-6 h-6 text-green-600" />
+                다운로드 자료
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {caseData.resources.map((resource, index) => {
-                  const ResourceIcon = resourceIcons[resource.type];
-                  return (
-                    <Card key={index} className="border hover:shadow-md transition-all cursor-pointer">
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          <ResourceIcon className="w-8 h-8 text-blue-600 flex-shrink-0" />
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-sm mb-1">{resource.title}</h4>
-                            <p className="text-xs text-gray-600 mb-2">{resource.description}</p>
-                            <Button variant="outline" size="sm" className="w-full">
-                              <Download className="w-4 h-4 mr-1" />
-                              다운로드
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {caseData.downloadableResources.map((resource, idx) => (
+                  <Button key={idx} variant="outline" className="justify-start">
+                    <Download className="w-4 h-4 mr-2" />
+                    {resource}
+                  </Button>
+                ))}
               </div>
             </CardContent>
           </Card>
         )}
+
+        {/* 관련 사례 추천 */}
+        {relatedCases.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">관련 성공사례</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedCases.map((relatedCase) => {
+                const RelatedIcon = relatedCase.icon;
+                return (
+                  <Card 
+                    key={relatedCase.id}
+                    className="cursor-pointer hover:shadow-lg transition-shadow border-0"
+                    onClick={() => router.push(`/success-cases/${relatedCase.id}`)}
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`p-3 bg-${relatedCase.color}-100 rounded-lg`}>
+                          <RelatedIcon className={`w-6 h-6 text-${relatedCase.color}-600`} />
+                        </div>
+                        <Badge variant="outline">{relatedCase.industry}</Badge>
+                      </div>
+                      <h3 className="font-semibold mb-2">{relatedCase.title}</h3>
+                      <p className="text-sm text-gray-600 mb-4">{relatedCase.description}</p>
+                      <Button variant="ghost" className="w-full justify-between">
+                        자세히 보기
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 하단 CTA 섹션 */}
+        <div className="mt-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-12 text-white text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            귀사도 AI & n8n으로 혁신할 수 있습니다
+          </h2>
+          <p className="text-xl mb-8 opacity-95">
+            {caseData.companyName}처럼 업무 효율을 {improvementScore}% 이상 개선하세요
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button 
+              size="lg"
+              className="bg-white text-blue-600 hover:bg-gray-100"
+              onClick={() => setShowConsultationModal(true)}
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              무료 상담 신청
+            </Button>
+            <Button 
+              size="lg"
+              variant="outline"
+              className="text-white border-white hover:bg-white/10"
+              onClick={() => router.push('/diagnosis')}
+            >
+              AI 도입 진단받기
+            </Button>
+          </div>
+        </div>
       </div>
+
+      {/* 상담 신청 모달 */}
+      <Dialog open={showConsultationModal} onOpenChange={setShowConsultationModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>무료 상담 신청</DialogTitle>
+            <DialogDescription>
+              {caseData.companyName}의 성공사례처럼 귀사도 AI & n8n으로 혁신할 수 있습니다.
+              전문가와 무료 상담을 통해 맞춤형 솔루션을 찾아보세요.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <Button 
+              className="w-full"
+              onClick={() => {
+                setShowConsultationModal(false);
+                if (onConsultationRequest) {
+                  onConsultationRequest();
+                } else {
+                  router.push('/consultation');
+                }
+              }}
+            >
+              상담 신청 페이지로 이동
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 비디오 모달 */}
+      <Dialog open={showVideoModal} onOpenChange={setShowVideoModal}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{caseData.title} 사례 영상</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+            <Play className="w-16 h-16 text-white opacity-50" />
+            <p className="text-white ml-4">영상 준비 중입니다</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+// 타입 임포트
+import { Building2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
