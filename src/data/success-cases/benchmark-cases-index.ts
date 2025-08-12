@@ -1,141 +1,227 @@
 'use client';
 
-import { itTechBenchmarkCases } from './it-tech-benchmark-cases';
-import { manufacturingBenchmarkCases } from './manufacturing-benchmark-cases';
-import { retailServiceCaseDetails } from './retail-service-cases';
-import { SuccessCaseDetail } from '@/types/success-case.types';
+import { SuccessCase, SuccessCaseDetail } from '@/types/success-case.types';
 
-// 업종별 벤치마크 성공사례 통합 데이터
-export const benchmarkCases: { [key: string]: SuccessCaseDetail } = {
-  ...itTechBenchmarkCases,
-  ...manufacturingBenchmarkCases,
-  ...retailServiceCaseDetails
+// 각 업종별 성공사례 import
+import { healthcareMedicalCases, healthcareMedicalCaseDetails } from './healthcare-medical-cases';
+import { educationResearchCases, educationResearchCaseDetails } from './education-research-cases';
+import { constructionRealEstateCases, constructionRealEstateCaseDetails } from './construction-realestate-cases';
+import { logisticsTransportCases, logisticsTransportCaseDetails } from './logistics-transport-cases';
+import { mediaContentCases, mediaContentCaseDetails } from './media-content-cases';
+import { professionalServiceCases, professionalServiceCaseDetails } from './professional-service-cases';
+import { financeInsuranceCases, financeInsuranceCaseDetails } from './finance-insurance-cases';
+import { retailServiceCases, retailServiceCaseDetails } from './retail-service-cases';
+import { manufacturingCases, manufacturingCaseDetails } from './manufacturing-benchmark-cases';
+import { itTechCases, itTechCaseDetails } from './it-tech-benchmark-cases';
+
+// 모든 성공사례 요약 통합
+export const allBenchmarkCases: SuccessCase[] = [
+  ...healthcareMedicalCases,
+  ...educationResearchCases,
+  ...constructionRealEstateCases,
+  ...logisticsTransportCases,
+  ...mediaContentCases,
+  ...professionalServiceCases,
+  ...financeInsuranceCases,
+  ...retailServiceCases,
+  ...manufacturingCases,
+  ...itTechCases
+];
+
+// 모든 성공사례 상세 데이터 통합
+export const allBenchmarkCaseDetails: { [key: string]: SuccessCaseDetail } = {
+  ...healthcareMedicalCaseDetails,
+  ...educationResearchCaseDetails,
+  ...constructionRealEstateCaseDetails,
+  ...logisticsTransportCaseDetails,
+  ...mediaContentCaseDetails,
+  ...professionalServiceCaseDetails,
+  ...financeInsuranceCaseDetails,
+  ...retailServiceCaseDetails,
+  ...manufacturingCaseDetails,
+  ...itTechCaseDetails
 };
 
-// 업종별 분류 데이터
-export const industryBenchmarkCategories = {
-  'IT/기술': {
-    name: 'IT/기술',
-    description: '소프트웨어, 하드웨어, 데이터 분석 등 IT 분야의 AI 혁신 사례',
-    cases: Object.values(itTechBenchmarkCases),
-    subIndustries: [
-      '소프트웨어 개발',
-      '클라우드 인프라', 
-      '데이터 분석',
-      '모바일 앱 개발',
-      '웹 개발',
-      '사이버보안',
-      'IoT 플랫폼',
-      '블록체인',
-      '게임 개발',
-      '하드웨어 개발'
-    ]
+// 업종별 카테고리 정의
+export const industryCategories = [
+  {
+    id: 'healthcare',
+    name: '의료/헬스케어',
+    description: 'AI와 n8n을 활용한 의료 서비스 혁신 사례',
+    count: 7,
+    icon: '🏥',
+    color: 'red',
+    cases: healthcareMedicalCases
   },
-  '제조/생산': {
-    name: '제조/생산',
-    description: '전자, 화학, 제약, 자동차 등 제조업의 AI 혁신 사례',
-    cases: Object.values(manufacturingBenchmarkCases),
-    subIndustries: [
-      '전자/반도체',
-      '기계/장비',
-      '화학/석유화학',
-      '제약/의료기기',
-      '식품/의류',
-      '석유/에너지',
-      '철강/금속',
-      '조선/해양',
-      '항공/우주',
-      '자동차 부품'
-    ]
+  {
+    id: 'education',
+    name: '교육/연구',
+    description: 'EdTech와 R&D 분야의 AI 혁신 사례',
+    count: 7,
+    icon: '🎓',
+    color: 'blue',
+    cases: educationResearchCases
   },
-  '유통/서비스': {
+  {
+    id: 'construction',
+    name: '건설/부동산',
+    description: '스마트 건설과 PropTech 혁신 사례',
+    count: 7,
+    icon: '🏗️',
+    color: 'gray',
+    cases: constructionRealEstateCases
+  },
+  {
+    id: 'logistics',
+    name: '운송/물류',
+    description: '스마트 물류와 운송 최적화 사례',
+    count: 7,
+    icon: '🚚',
+    color: 'blue',
+    cases: logisticsTransportCases
+  },
+  {
+    id: 'media',
+    name: '미디어/콘텐츠',
+    description: '방송, OTT, 게임 등 콘텐츠 산업 혁신 사례',
+    count: 7,
+    icon: '📺',
+    color: 'purple',
+    cases: mediaContentCases
+  },
+  {
+    id: 'professional',
+    name: '전문서비스',
+    description: '법률, 회계, 컨설팅 등 전문 서비스 혁신 사례',
+    count: 7,
+    icon: '💼',
+    color: 'indigo',
+    cases: professionalServiceCases
+  },
+  {
+    id: 'finance',
+    name: '금융/보험',
+    description: '핀테크와 인슈어테크 혁신 사례',
+    count: 7,
+    icon: '💰',
+    color: 'green',
+    cases: financeInsuranceCases
+  },
+  {
+    id: 'retail',
     name: '유통/서비스',
-    description: '소매, 이커머스, 외식, 호텔, 여행, 배달 등 서비스업의 AI 혁신 사례',
-    cases: Object.values(retailServiceCaseDetails),
-    subIndustries: [
-      '오프라인 소매업',
-      '이커머스/온라인쇼핑',
-      '도매업',
-      '패션/부티',
-      '외식/카페',
-      '숙박/호텔',
-      '여행/관광',
-      '배달/플랫폼'
-    ]
+    description: '리테일과 서비스업의 디지털 전환 사례',
+    count: 8,
+    icon: '🛍️',
+    color: 'orange',
+    cases: retailServiceCases
+  },
+  {
+    id: 'manufacturing',
+    name: '제조업',
+    description: '스마트 팩토리와 제조 혁신 사례',
+    count: 7,
+    icon: '🏭',
+    color: 'slate',
+    cases: manufacturingCases
+  },
+  {
+    id: 'tech',
+    name: 'IT/테크',
+    description: '소프트웨어와 IT 서비스 혁신 사례',
+    count: 7,
+    icon: '💻',
+    color: 'cyan',
+    cases: itTechCases
   }
+];
+
+// 성공사례 통계
+export const benchmarkStatistics = {
+  totalCases: allBenchmarkCases.length,
+  totalIndustries: industryCategories.length,
+  averageROI: '380%',
+  averageEfficiencyGain: '65%',
+  averageTimeSaved: '55%',
+  totalCompanies: allBenchmarkCases.length,
+  featuredCases: allBenchmarkCases.filter(c => c.featured).length
 };
 
-// 업종별 필터링 함수
-export const getBenchmarkCasesByIndustry = (industry: string): SuccessCaseDetail[] => {
-  return Object.values(benchmarkCases).filter(caseData => caseData.industry === industry);
+// 성공사례 필터링 함수
+export const filterCasesByIndustry = (industry: string): SuccessCase[] => {
+  return allBenchmarkCases.filter(c => c.industry === industry);
 };
 
-export const getBenchmarkCasesBySubIndustry = (subIndustry: string): SuccessCaseDetail[] => {
-  return Object.values(benchmarkCases).filter(caseData => caseData.subIndustry === subIndustry);
+export const filterCasesByCategory = (category: string): SuccessCase[] => {
+  return allBenchmarkCases.filter(c => c.category === category);
 };
 
-// 벤치마크 성공사례 검색 함수
-export const searchBenchmarkCases = (query: string): SuccessCaseDetail[] => {
+export const getFeaturedCases = (): SuccessCase[] => {
+  return allBenchmarkCases.filter(c => c.featured);
+};
+
+export const getCaseDetail = (caseId: string): SuccessCaseDetail | undefined => {
+  return allBenchmarkCaseDetails[caseId];
+};
+
+// 검색 함수
+export const searchCases = (query: string): SuccessCase[] => {
   const lowerQuery = query.toLowerCase();
-  return Object.values(benchmarkCases).filter(caseData => 
-    caseData.title.toLowerCase().includes(lowerQuery) ||
-    caseData.subIndustry.toLowerCase().includes(lowerQuery) ||
-    caseData.description.toLowerCase().includes(lowerQuery)
+  return allBenchmarkCases.filter(c => 
+    c.title.toLowerCase().includes(lowerQuery) ||
+    c.description.toLowerCase().includes(lowerQuery) ||
+    c.companyName.toLowerCase().includes(lowerQuery) ||
+    c.industry.toLowerCase().includes(lowerQuery) ||
+    c.subIndustry?.toLowerCase().includes(lowerQuery) ||
+    c.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
   );
 };
 
-// 추천 벤치마크 사례 함수
-export const getRecommendedBenchmarkCases = (
-  userIndustry: string,
-  userSize: string,
-  limit: number = 3
-): SuccessCaseDetail[] => {
-  const industryCases = getBenchmarkCasesByIndustry(userIndustry);
-  
-  // 회사 규모에 따른 필터링
-  const sizeFilteredCases = industryCases.filter(caseData => {
-    if (userSize === 'large' && caseData.companySize === '대기업') return true;
-    if (userSize === 'medium' && caseData.companySize === '중기업') return true;
-    if (userSize === 'small' && caseData.companySize === '중소기업') return true;
-    return false;
-  });
+// 성공사례 추천 함수
+export const getRelatedCases = (caseId: string, limit: number = 3): SuccessCase[] => {
+  const currentCase = allBenchmarkCases.find(c => c.id === caseId);
+  if (!currentCase) return [];
 
-  // 추천 사례가 부족한 경우 전체 업종에서 추천
-  if (sizeFilteredCases.length < limit) {
-    const remainingSlots = limit - sizeFilteredCases.length;
-    const otherCases = industryCases
-      .filter(caseData => !sizeFilteredCases.includes(caseData))
-      .slice(0, remainingSlots);
-    
-    return [...sizeFilteredCases, ...otherCases];
-  }
+  // 같은 업종 또는 비슷한 태그를 가진 사례 추천
+  const related = allBenchmarkCases
+    .filter(c => c.id !== caseId)
+    .map(c => {
+      let score = 0;
+      if (c.industry === currentCase.industry) score += 3;
+      if (c.category === currentCase.category) score += 2;
+      const commonTags = c.tags.filter(tag => currentCase.tags.includes(tag));
+      score += commonTags.length;
+      return { case: c, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(item => item.case);
 
-  return sizeFilteredCases.slice(0, limit);
+  return related;
 };
 
-// 벤치마크 통계 데이터
-export const getBenchmarkStatistics = () => {
-  const totalCases = Object.keys(benchmarkCases).length;
-  const industries = [...new Set(Object.values(benchmarkCases).map(c => c.industry))];
-  const subIndustries = [...new Set(Object.values(benchmarkCases).map(c => c.subIndustry))];
-  
-  const avgROI = Object.values(benchmarkCases).reduce((sum, caseData) => {
-    const roi = caseData.roiData?.threeYearROI ? parseInt(caseData.roiData.threeYearROI.replace('%', '')) : 0;
-    return sum + roi;
-  }, 0) / totalCases;
-
-  const avgTimeReduction = Object.values(benchmarkCases).reduce((sum, caseData) => {
-    const reduction = caseData.automationMetrics?.timeReduction ? parseInt(caseData.automationMetrics.timeReduction.replace('%', '')) : 0;
-    return sum + reduction;
-  }, 0) / totalCases;
-
+// 성과 지표별 최고 사례
+export const getTopPerformers = () => {
   return {
-    totalCases,
-    industries: industries.length,
-    subIndustries: subIndustries.length,
-    averageROI: Math.round(avgROI),
-    averageTimeReduction: Math.round(avgTimeReduction)
+    efficiency: allBenchmarkCases.sort((a, b) => {
+      const aVal = parseInt(a.metrics?.efficiency?.replace(/[^0-9]/g, '') || '0');
+      const bVal = parseInt(b.metrics?.efficiency?.replace(/[^0-9]/g, '') || '0');
+      return bVal - aVal;
+    }).slice(0, 5),
+    
+    roi: allBenchmarkCases.sort((a, b) => {
+      const aVal = parseInt(a.metrics?.roi?.replace(/[^0-9]/g, '') || '0');
+      const bVal = parseInt(b.metrics?.roi?.replace(/[^0-9]/g, '') || '0');
+      return bVal - aVal;
+    }).slice(0, 5),
+    
+    timeSaved: allBenchmarkCases.sort((a, b) => {
+      const aVal = parseInt(a.metrics?.time?.replace(/[^0-9]/g, '') || '0');
+      const bVal = parseInt(b.metrics?.time?.replace(/[^0-9]/g, '') || '0');
+      return Math.abs(bVal) - Math.abs(aVal);
+    }).slice(0, 5)
   };
 };
 
-export default benchmarkCases;
+// Export types
+export type { SuccessCase, SuccessCaseDetail } from '@/types/success-case.types';
