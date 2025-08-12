@@ -32,7 +32,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 방송 제작 전 과정의 자동화로 콘텐츠 생산성과 품질을 혁신적으로 개선한 사례',
     icon: Tv,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1598743400863-0201c7e1445b?q=80&w=2070&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '종합 방송사',
       employees: '1,800명',
@@ -303,7 +303,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 초개인화 콘텐츠 추천과 자동 큐레이션으로 사용자 경험을 혁신한 사례',
     icon: Youtube,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=2074&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: 'OTT 플랫폼',
       employees: '280명',

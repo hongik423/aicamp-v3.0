@@ -101,43 +101,45 @@ export default function EnhancedSuccessCaseDetail({
 
       {/* 히어로 섹션 - 개선된 디자인 */}
       <div 
-        className="relative h-[500px] bg-cover bg-center"
+        className="relative h-[600px] bg-cover bg-center overflow-hidden"
         style={{ 
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url(${caseData.heroImage})` 
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url(${caseData.heroImage})` 
         }}
       >
+        {/* AI 생성 이미지 스타일 오버레이 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/60" />
         <div className="absolute inset-0 flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="text-white">
               {/* 업종 아이콘과 회사 정보 */}
               <div className="flex items-center gap-4 mb-6">
-                <div className={`p-4 bg-white/20 backdrop-blur-md rounded-2xl`}>
-                  <IconComponent className="w-8 h-8" />
+                <div className={`p-4 bg-white/20 backdrop-blur-md rounded-2xl shadow-2xl`}>
+                  <IconComponent className="w-8 h-8 text-white drop-shadow-lg" />
                 </div>
                 <div>
-                  <p className="text-lg font-medium opacity-90">
+                  <p className="text-lg font-medium text-white drop-shadow-lg">
                     {caseData.subIndustry} | {caseData.companyName}
                   </p>
-                  <p className="text-sm opacity-75">
+                  <p className="text-sm text-white/90 drop-shadow-md">
                     {caseData.companySize} · {caseData.companyInfo.location}
                   </p>
                 </div>
               </div>
 
               {/* 타이틀 */}
-              <h1 className="text-5xl font-bold mb-4 leading-tight">
+              <h1 className="text-5xl font-bold mb-4 leading-tight text-white drop-shadow-2xl">
                 {caseData.title}
               </h1>
-              <p className="text-2xl mb-8 opacity-95">
+              <p className="text-2xl mb-8 text-white/95 drop-shadow-xl">
                 {caseData.subtitle}
               </p>
 
               {/* 핵심 지표 - 더 돋보이게 */}
               <div className="flex flex-wrap gap-6 mb-8">
                 {caseData.results.quantitative.slice(0, 3).map((metric, idx) => (
-                  <div key={idx} className="bg-white/10 backdrop-blur-md rounded-xl p-4 min-w-[140px]">
-                    <p className="text-sm opacity-80 mb-1">{metric.metric}</p>
-                    <p className="text-3xl font-bold text-yellow-400">
+                  <div key={idx} className="bg-white/10 backdrop-blur-md rounded-xl p-4 min-w-[140px] border border-white/20 shadow-xl">
+                    <p className="text-sm text-white/90 mb-1 drop-shadow">{metric.metric}</p>
+                    <p className="text-3xl font-bold text-yellow-400 drop-shadow-lg">
                       {metric.improvement}
                     </p>
                   </div>

@@ -35,7 +35,7 @@ export const successCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: '전통적인 제조업에서 AI와 n8n을 활용한 프로세스 자동화로 생산성을 획기적으로 개선한 성공사례',
     icon: Factory,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '정밀기계 부품 제조',
       employees: '120명',
@@ -289,7 +289,7 @@ export const successCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 고객관리 프로세스 자동화로 고객만족도와 매출을 동시에 향상시킨 성공사례',
     icon: Users,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1553484771-371a605b060b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&h=800&fit=crop&crop=center',
     companyInfo: {
       industry: '고객관리 서비스',
       employees: '45명',
