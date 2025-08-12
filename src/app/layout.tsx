@@ -201,6 +201,7 @@ export default function RootLayout({
         
         {/* 폰트 최적화 및 브라우저 호환성 스크립트 */}
         <script 
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

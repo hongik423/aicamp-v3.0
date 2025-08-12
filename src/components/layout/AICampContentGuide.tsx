@@ -170,17 +170,6 @@ const contentData: ContentItem[] = [
 
   // 기타 서비스
   {
-    id: 'cases',
-    title: '성공사례벤치마크',
-    subtitle: '고객 성공 스토리',
-    description: '실제 고객들의 생생한 성과 경험담',
-    icon: Trophy,
-    color: 'text-yellow-600',
-    bgColor: 'from-yellow-50 to-yellow-100',
-    href: '/cases',
-    category: '기타서비스'
-  },
-  {
     id: 'center-leader',
     title: 'CEO & 교장',
     subtitle: '홍용기 CEO · 이후경 교장',
