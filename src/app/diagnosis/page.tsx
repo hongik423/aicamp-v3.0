@@ -125,7 +125,7 @@ export default function DiagnosisPage() {
               style={{ minHeight: '56px', touchAction: 'manipulation' }}
             >
 
-              <span className={`${accentHero ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]`}>무료 AI 역량진단 시작</span>
+             <span className={`${accentHero ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`}>무료 AI 역량진단 시작</span>
             </Button>
           </div>
           
