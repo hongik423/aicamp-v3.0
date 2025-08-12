@@ -133,10 +133,10 @@ export default function ConsultationRequestModal({
         inquiryContent: `${formData.inquiryContent}
 
 [AI 진단 결과 연계 상담]
-- 진단 점수: ${diagnosisData?.overallScore || 'N/A'}점
-- 추천 서비스: ${diagnosisData?.primaryService || 'N/A'}
-- 시장 위치: ${diagnosisData?.marketPosition || 'N/A'}
-- 업계 성장률: ${diagnosisData?.industryGrowth || 'N/A'}
+- 진단 점수: ${diagnosisData?.overallScore ?? ''}점
+- 추천 서비스: ${diagnosisData?.primaryService ?? ''}
+- 시장 위치: ${diagnosisData?.marketPosition ?? ''}
+- 업계 성장률: ${diagnosisData?.industryGrowth ?? ''}
 
 상기 AI 진단 결과를 바탕으로 전문가 상담을 요청드립니다.`
       };

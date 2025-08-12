@@ -225,9 +225,9 @@ export class LocalBackupService {
 - 시간: ${backupData.timestamp}
 
 👤 신청자 정보:
-- 회사명: ${backupData.data.companyName || backupData.data.회사명 || 'N/A'}
-- 이메일: ${backupData.data.contactEmail || backupData.data.이메일 || backupData.data.email || 'N/A'}
-- 연락처: ${backupData.data.contactPhone || backupData.data.연락처 || backupData.data.phone || 'N/A'}
+- 회사명: ${backupData.data.companyName ?? backupData.data.회사명 ?? ''}
+- 이메일: ${backupData.data.contactEmail ?? backupData.data.이메일 ?? backupData.data.email ?? ''}
+- 연락처: ${backupData.data.contactPhone ?? backupData.data.연락처 ?? backupData.data.phone ?? ''}
 
 🔧 조치 필요:
 1. Google Apps Script 연결 상태 확인

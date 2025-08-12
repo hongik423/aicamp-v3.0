@@ -593,7 +593,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
                     </div>
                     <div class="info-item">
                         <div class="info-label">업종</div>
-                        <div class="info-value">${data.industry || 'N/A'}</div>
+                        <div class="info-value">${data.industry ?? ''}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">진단일</div>
@@ -601,7 +601,7 @@ export function generatePerfectHTMLForEmail(data: HtmlReportData): string {
                     </div>
                     <div class="info-item">
                         <div class="info-label">연락처</div>
-                        <div class="info-value">${data.contactPhone || 'N/A'}</div>
+                        <div class="info-value">${data.contactPhone ?? ''}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">처리시간</div>
