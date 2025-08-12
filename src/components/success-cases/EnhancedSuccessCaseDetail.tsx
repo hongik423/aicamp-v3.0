@@ -532,16 +532,18 @@ export default function EnhancedSuccessCaseDetail({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {caseData.automationDetails.workflows.map((workflow, idx) => (
+                  {(caseData as any).n8nWorkflows?.map((workflow: any, idx: number) => (
                     <div key={idx} className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
                       <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
                         <Zap className="w-5 h-5 text-indigo-600" />
-                        {workflow.name}
+                        {workflow.workflowName || workflow.name}
                       </h4>
                       <p className="text-gray-700 mb-4">{workflow.description}</p>
                       <div className="bg-indigo-100/50 rounded-lg p-3">
-                        <p className="text-sm font-medium text-indigo-800">효율성 개선:</p>
-                        <p className="text-lg font-bold text-indigo-600 mt-1">{workflow.efficiency}</p>
+                        <p className="text-sm font-medium text-indigo-800">노드 수 / 통합</p>
+                        <p className="text-sm text-indigo-700 mt-1">
+                          노드: {workflow.nodes ?? '-'} · 통합: {(workflow.integrations?.length ?? 0)}개
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -551,8 +553,8 @@ export default function EnhancedSuccessCaseDetail({
                 <div className="mt-8">
                   <h4 className="font-semibold mb-4">시스템 통합</h4>
                   <div className="flex flex-wrap gap-3">
-                    {caseData.automationDetails.integrations.map((integration, idx) => (
-                      <Badge key={idx} variant="secondary" className="px-4 py-2">
+                    {((caseData as any).n8nWorkflows?.flatMap((w: any) => w.integrations) ?? []).map((integration: string, idx: number) => (
+                      <Badge key={`${integration}-${idx}`} variant="secondary" className="px-4 py-2">
                         <Globe className="w-3 h-3 mr-1" />
                         {integration}
                       </Badge>

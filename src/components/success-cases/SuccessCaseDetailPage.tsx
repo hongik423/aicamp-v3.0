@@ -41,6 +41,18 @@ export default function SuccessCaseDetailPage({
 
   const IconComponent = caseData.icon;
 
+  // 숫자 안전 포맷터: undefined/null/NaN 대비
+  const formatNumber = (value: unknown): string => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value.toLocaleString('ko-KR');
+    }
+    if (typeof value === 'string') {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed.toLocaleString('ko-KR') : '0';
+    }
+    return '0';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
@@ -408,19 +420,19 @@ export default function SuccessCaseDetailPage({
                   {caseData.n8nWorkflows?.map((workflow, index) => (
                     <div key={index} className="p-4 border rounded-lg">
                       <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-semibold">{workflow.workflowName}</h4>
-                        <Badge variant="outline">{workflow.executionCount.toLocaleString()}회 실행</Badge>
+                        <h4 className="font-semibold">{(workflow as any).workflowName || (workflow as any).name}</h4>
+                        <Badge variant="outline">{formatNumber((workflow as any).executionCount)}회 실행</Badge>
                       </div>
                       <p className="text-gray-600 mb-3">{workflow.description}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {workflow.integrations?.map((integration) => (
+                        {(workflow as any).integrations?.map((integration: string) => (
                           <Badge key={integration} variant="secondary">
                             {integration}
                           </Badge>
                         ))}
                       </div>
                       <div className="text-sm text-gray-500">
-                        트리거: {workflow.triggerType}
+                        트리거: {Array.isArray((workflow as any).triggers) ? (workflow as any).triggers.join(', ') : ((workflow as any).triggerType || '-')}
                       </div>
                     </div>
                   ))}
