@@ -91,7 +91,8 @@ export default function BenchmarkShowcase({
     }
   };
 
-  const getROIColor = (roi: string) => {
+  const getROIColor = (roi?: string) => {
+    if (!roi) return 'text-gray-600';
     const roiValue = parseInt(roi.replace('%', ''));
     if (roiValue >= 1500) return 'text-green-600';
     if (roiValue >= 1000) return 'text-blue-600';
@@ -278,14 +279,14 @@ export default function BenchmarkShowcase({
                         {/* 핵심 지표 */}
                         <div className="grid grid-cols-2 gap-3 mb-4">
                           <div className="text-center p-2 bg-blue-50 rounded">
-                            <div className={`text-lg font-bold ${getROIColor(caseData.roiData.threeYearROI)}`}>
-                              {caseData.roiData.threeYearROI}
+                            <div className={`text-lg font-bold ${getROIColor(caseData.roiData?.threeYearROI)}`}>
+                              {caseData.roiData?.threeYearROI || 'N/A'}
                             </div>
                             <div className="text-xs text-gray-600">3년 ROI</div>
                           </div>
                           <div className="text-center p-2 bg-green-50 rounded">
                             <div className="text-lg font-bold text-green-600">
-                              {caseData.automationMetrics.timeReduction}
+                              {caseData.automationMetrics?.timeReduction || 'N/A'}
                             </div>
                             <div className="text-xs text-gray-600">시간 단축</div>
                           </div>
@@ -299,11 +300,11 @@ export default function BenchmarkShowcase({
                         
                         {/* 태그 */}
                         <div className="flex flex-wrap gap-1 mb-4">
-                          {caseData.tags.slice(0, 3).map(tag => (
+                          {caseData.tags?.slice(0, 3).map(tag => (
                             <Badge key={tag} variant="secondary" className="text-xs">
                               {tag}
                             </Badge>
-                          ))}
+                          )) || null}
                         </div>
                         
                         <Button 
