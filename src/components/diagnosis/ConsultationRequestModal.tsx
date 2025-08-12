@@ -44,6 +44,12 @@ interface ConsultationRequestModalProps {
   contactEmail?: string;
   contactName?: string;
   contactPhone?: string;
+  initialData?: {
+    industry?: string;
+    inquiryType?: string;
+    consultationArea?: string;
+    inquiryContent?: string;
+  };
 }
 
 export default function ConsultationRequestModal({
@@ -53,7 +59,8 @@ export default function ConsultationRequestModal({
   companyName = '',
   contactEmail = '',
   contactName = '',
-  contactPhone = ''
+  contactPhone = '',
+  initialData
 }: ConsultationRequestModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -66,8 +73,8 @@ export default function ConsultationRequestModal({
     email: contactEmail,
     company: companyName,
     position: '',
-    consultationArea: 'diagnosis',
-    inquiryContent: '무료 AI 진단 결과에 대한 전문가 상담을 요청합니다.',
+    consultationArea: initialData?.consultationArea || 'diagnosis',
+    inquiryContent: initialData?.inquiryContent || '무료 AI 진단 결과에 대한 전문가 상담을 요청합니다.',
     preferredTime: 'flexible',
     privacyConsent: false
   });
@@ -397,6 +404,7 @@ export default function ConsultationRequestModal({
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="diagnosis">기업 진단 결과 상담</option>
+                <option value="automation_consultation">AI 자동화 상담</option>
                 <option value="business-analysis">비즈니스 분석</option>
                 <option value="ai-productivity">AI 생산성 향상</option>
                 <option value="certification">인증 컨설팅</option>

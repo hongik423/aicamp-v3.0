@@ -66,7 +66,6 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><a href="/about" className="text-gray-300 dark:text-gray-400 hover:text-white transition-colors">회사 소개</a></li>
               <li><a href="/services" className="text-gray-300 dark:text-gray-400 hover:text-white transition-colors">서비스</a></li>
-              <li><a href="/cases" className="text-gray-300 dark:text-gray-400 hover:text-white transition-colors">성공 사례</a></li>
               <li><a href="/consultation" className="text-gray-300 dark:text-gray-400 hover:text-white transition-colors">상담 신청</a></li>
             </ul>
           </div>

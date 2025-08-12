@@ -63,12 +63,14 @@ export interface FollowUpResult {
   achievement: string;
 }
 
-// 메인 성공사례 상세 인터페이스
+// 메인 성공사례 상세 인터페이스 (AI & n8n 자동화 특화)
 export interface SuccessCaseDetail {
   id: string;
   category: string;
   industry: string;
+  subIndustry: string;
   companyName: string;
+  companySize: string;
   title: string;
   subtitle: string;
   description: string;
@@ -83,6 +85,54 @@ export interface SuccessCaseDetail {
   testimonial: Testimonial;
   followUpResults: FollowUpResult[];
   tags: string[];
+  // AI & n8n 자동화 특화 필드
+  automationMetrics: AutomationMetrics;
+  n8nWorkflows: N8nWorkflow[];
+  aiImplementations: AIImplementation[];
+  departmentAutomations: DepartmentAutomation[];
+  roiData: {
+    investment: string;
+    monthlySavings: string;
+    paybackPeriod: string;
+    threeYearROI: string;
+  };
+  implementationTimeline: string;
+  successFactors: string[];
+  videoUrl?: string;
+  pdfUrl?: string;
+  featured: boolean;
+}
+
+// AI & n8n 자동화 관련 인터페이스 추가
+export interface AutomationMetrics {
+  timeReduction: string;
+  costSaving: string;
+  errorReduction: string;
+  productivityGain: string;
+}
+
+export interface N8nWorkflow {
+  workflowName: string;
+  description: string;
+  triggerType: string;
+  integrations: string[];
+  executionCount: number;
+}
+
+export interface AIImplementation {
+  aiTool: string;
+  useCase: string;
+  accuracy: string;
+  trainingData: string;
+}
+
+export interface DepartmentAutomation {
+  department: string;
+  processes: string[];
+  automationLevel: string;
+  manualHours: string;
+  automatedHours: string;
+  efficiency: string;
 }
 
 // 성공사례 목록용 간소화 인터페이스
@@ -103,6 +153,7 @@ export interface SuccessCase {
   tags: string[];
   aiTools?: string[];
   appliedModules?: string;
+  automationMetrics?: AutomationMetrics;
 }
 
 // 성공사례 상세 데이터 컬렉션 타입
