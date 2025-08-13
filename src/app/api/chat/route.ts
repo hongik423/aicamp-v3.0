@@ -16,6 +16,21 @@ function getCorsHeaders() {
     'Content-Type': 'application/json',
   };
 }
+// 출력 텍스트에서 마크다운 기호 제거 및 정리 (UI 요구 반영)
+function sanitizePlainText(input: string): string {
+  if (!input) return '';
+  let text = input;
+  text = text.replace(/```[a-zA-Z]*\n([\s\S]*?)```/g, '$1');
+  text = text.replace(/`/g, '');
+  text = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+  text = text.replace(/__([^_]+)__/g, '$1');
+  text = text.replace(/\*([^*]+)\*/g, '$1');
+  text = text.replace(/_([^_]+)_/g, '$1');
+  text = text.replace(/^#{1,6}\s*/gm, '');
+  text = text.replace(/^>\s?/gm, '');
+  text = text.replace(/[\t\x0B\f\r]+/g, ' ');
+  return text.trim();
+}
 
 // 🎯 이후경 경영지도사 직접 작성 응답 데이터베이스
 const LEE_HUKYUNG_RESPONSES = {
@@ -545,7 +560,11 @@ export async function POST(request: NextRequest) {
     // 이후경 경영지도사 직접 작성 응답 생성
     console.log('이후경 경영지도사 직접 응답 생성 시작:', { messageLength: message.length });
     
-    const directResponse = generateDirectResponse(message);
+    const directResponseRaw = generateDirectResponse(message);
+    const directResponse = {
+      ...directResponseRaw,
+      response: sanitizePlainText(directResponseRaw.response)
+    };
 
     console.log('이후경 경영지도사 직접 응답 완료:', { 
       responseLength: directResponse.response.length,
