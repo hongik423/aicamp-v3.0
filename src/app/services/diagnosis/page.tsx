@@ -40,7 +40,7 @@ export default function FreeDiagnosisPage() {
 
   // 페이지 제목 설정
   useEffect(() => {
-    document.title = 'AICAMP V13.0 ULTIMATE - 45문항 정밀 AI역량진단 | AICAMP AI 교육센터';
+    document.title = '이교장의 AI역량진단시스템 - 45문항 정밀 AI역량진단 | AICAMP AI 교육센터';
   }, []);
 
   const handleStartDiagnosis = () => {
@@ -161,7 +161,7 @@ export default function FreeDiagnosisPage() {
                 onClick={handleStartDiagnosis}
                className={`group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto transition-all duration-500 ease-expo ${accentCTA ? 'mix-blend-difference text-white animate-pulse' : ''}`}
               >
-               <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`}>V13.0 ULTIMATE 진단 시작</span>
+               <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`}>이교장의 AI진단 시작</span>
                <ArrowRight className={`w-5 h-5 ml-2 ${accentCTAIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`} />
               </Button>
               <Button 
@@ -179,7 +179,7 @@ export default function FreeDiagnosisPage() {
             <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
-                  🚀 AICAMP V13.0 ULTIMATE이란?
+                  🎓 이교장의 AI역량진단시스템이란?
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center max-w-4xl mx-auto">
