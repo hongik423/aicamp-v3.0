@@ -16,9 +16,16 @@ export async function POST(request: NextRequest) {
   try {
     const consultationData = await request.json();
     
-    // 필수 필드 검증
-    const requiredFields = ['consultationType', 'name', 'phone', 'email', 'company'];
-    const missingFields = requiredFields.filter(field => !consultationData[field]?.trim());
+    // 필수 필드 검증 (다양한 필드명 지원)
+    const requiredFields = [
+      { field: 'consultationType', value: consultationData.consultationType },
+      { field: 'name', value: consultationData.name || consultationData.contactName },
+      { field: 'phone', value: consultationData.phone || consultationData.contactPhone },
+      { field: 'email', value: consultationData.email || consultationData.contactEmail },
+      { field: 'company', value: consultationData.company || consultationData.companyName }
+    ];
+    
+    const missingFields = requiredFields.filter(req => !req.value?.trim()).map(req => req.field);
     
     if (missingFields.length > 0) {
       return NextResponse.json(
@@ -44,19 +51,19 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ 개인정보 동의 검증 성공:', consultationData.privacyConsent);
 
-    // 상담신청 데이터 구조화
+    // 상담신청 데이터 구조화 (필드명 정규화)
     const processedData = {
       제출일시: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
       폼타입: '상담신청_API백업',
       상담유형: consultationData.consultationType,
-      성명: consultationData.name,
-      연락처: consultationData.phone,
-      이메일: consultationData.email,
-      회사명: consultationData.company,
-      직책: consultationData.position || '',
-      상담분야: consultationData.consultationArea || '',
-      문의내용: consultationData.inquiryContent || '',
-      희망상담시간: consultationData.preferredTime || '',
+      성명: consultationData.name || consultationData.contactName,
+      연락처: consultationData.phone || consultationData.contactPhone,
+      이메일: consultationData.email || consultationData.contactEmail,
+      회사명: consultationData.company || consultationData.companyName,
+      직책: consultationData.position || consultationData.contactPosition || '',
+      상담분야: consultationData.consultationArea || consultationData.consultingArea || '',
+      문의내용: consultationData.inquiryContent || consultationData.content || '',
+      희망상담시간: consultationData.preferredTime || consultationData.desiredTime || '',
       개인정보동의: consultationData.privacyConsent === true ? '동의' : '미동의',
       처리방식: 'API_백업시스템',
       timestamp: Date.now()
@@ -84,14 +91,18 @@ export async function POST(request: NextRequest) {
           contactName: processedData.성명,
           email: processedData.이메일,
           phone: processedData.연락처,
+          position: processedData.직책,
           consultationType: processedData.상담유형,
           consultationArea: processedData.상담분야,
+          content: processedData.문의내용,
           inquiryContent: processedData.문의내용,
+          preferredTime: processedData.희망상담시간,
+          privacyConsent: processedData.개인정보동의 === '동의',
           dataSource: 'API_백업시스템',
           retryAttempt: true,
           // 이메일 발송 요청 추가
           sendEmails: true,
-          adminEmail: 'hongik423@gmail.com',
+          adminEmail: 'admin@aicamp.club',
           adminDashboard: 'AICAMP 관리자 시스템'
         }),
         signal: controller.signal
