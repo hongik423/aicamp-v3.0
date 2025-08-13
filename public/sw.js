@@ -40,6 +40,14 @@ const NON_CACHEABLE_PATTERNS = [
   '/__NEXT',
 ];
 
+// manifest.json 요청 무시
+const IGNORE_PATTERNS = [
+  '/manifest.json',
+  '/manifest.webmanifest',
+  '/apple-touch-icon',
+  '/favicon.ico'
+];
+
 const NON_CACHEABLE_QUERY_KEYS = ['_rsc', 'next', 'trpc', 'no-cache'];
 
 function isSameOrigin(url) {
@@ -136,6 +144,8 @@ self.addEventListener('activate', (event) => {
 
 // 네트워크 요청 처리
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
   // Chrome 확장 프로그램 요청 무시
   if (
     event.request.url.includes('chrome-extension://') ||
@@ -145,10 +155,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // manifest.json 및 기타 무시할 패턴 체크 - 조용히 처리
+  if (IGNORE_PATTERNS.some(pattern => url.pathname.includes(pattern))) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // manifest.json 등의 404 오류는 조용히 무시
+        return new Response('', { 
+          status: 404,
+          statusText: 'Not Found',
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      })
+    );
+    return;
+  }
+
   // 캐시 부적합 요청은 그대로 네트워크만 사용
   if (isNonCacheableRequest(event.request)) {
     event.respondWith(
       fetch(event.request).catch(async (error) => {
+        // manifest 관련 오류는 조용히 처리
+        if (url.pathname.includes('manifest')) {
+          return new Response('', { status: 404 });
+        }
         console.warn('Network request failed (non-cacheable):', error?.message || error);
         // 네비게이션 요청이면 루트로 폴백
         if (event.request.mode === 'navigate') {

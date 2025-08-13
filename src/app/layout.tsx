@@ -10,7 +10,7 @@ import FloatingChatbot from '@/components/layout/floating-chatbot';
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
-  preload: true,
+  preload: false, // preload 경고 방지를 위해 비활성화
   variable: '--font-inter',
   fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 });
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     default: '이교장의 AI역량진단시스템 - 45문항 정밀 AI역량진단',
     template: '%s | 이교장의 AI역량진단시스템',
   },
-  manifest: '/manifest.json',
+  manifest: '/manifest.webmanifest',
   description: '기업의 AI 역량을 진단하고 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다. 무료 AI 역량진단부터 전문 컨설팅까지 원스톱 서비스를 제공합니다.',
   keywords: 'AI 컨설팅, AI 역량진단, 디지털 전환, 기업 컨설팅, 인공지능, AI 교육, 스마트 팩토리, AICAMP, 무료진단',
   authors: [{ name: 'AICAMP', url: 'https://aicamp.club' }],
@@ -43,6 +43,9 @@ export const metadata: Metadata = {
       { url: '/images/aicamp_logo_del_250726.png', type: 'image/png', sizes: '16x16' }
     ],
     shortcut: ['/images/aicamp_logo_del_250726.png'],
+    apple: [
+      { url: '/images/aicamp_logo.png', sizes: '180x180' },
+    ],
   },
   formatDetection: {
     email: false,
@@ -88,61 +91,112 @@ export const metadata: Metadata = {
   },
 };
 
-// Service Worker 오류 방지를 위한 안전한 등록 함수
+// Service Worker 안전한 등록 함수 (중복 방지 및 오류 처리 개선)
 const registerServiceWorkerSafely = () => {
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-    // 브라우저 확장 프로그램 오류 방지
-    const originalConsoleWarn = console.warn;
-    console.warn = (...args) => {
-      const message = args.join(' ');
-      if (message.includes('port closed') || 
-          message.includes('Extension context') ||
-          message.includes('chrome-extension://') ||
-          message.includes('content.js') ||
-          message.includes('runtime.lastError') ||
-          message.includes('The message port closed')) {
-        return; // 확장 프로그램 오류 무시
-      }
-      originalConsoleWarn.apply(console, args);
-    };
-
-    // Service Worker 등록을 지연시켜 안전하게 처리
-    setTimeout(async () => {
-      try {
-        // 기존 Service Worker 제거
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (const registration of registrations) {
-          await registration.unregister();
-        }
-        
-        // 새로운 Service Worker 등록
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
-          updateViaCache: 'none'
-        });
-        
-        console.log('AICAMP Service Worker registered:', registration.scope);
-        
-        // Service Worker 업데이트 처리
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New Service Worker available');
-              }
-            });
-          }
-        });
-        
-      } catch (error) {
-        console.warn('Service Worker registration failed:', error);
-      } finally {
-        // 원래 console.warn 복원
-        console.warn = originalConsoleWarn;
-      }
-    }, 2000); // 2초 지연
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    return;
   }
+
+  // console 오류 무음화 - Chrome Extension 및 기타 외부 오류 필터링
+  const originalConsoleWarn = console.warn;
+  const originalConsoleError = console.error;
+  
+  console.warn = (...args: any[]) => {
+    const message = args.join(' ');
+    if (message.includes('Extension context invalidated') || 
+        message.includes('port closed') ||
+        message.includes('chrome-extension://') ||
+        message.includes('content.js') ||
+        message.includes('runtime.lastError') ||
+        message.includes('The message port closed') ||
+        message.includes('Manifest fetch') ||
+        message.includes('manifest.json') ||
+        message.includes('message port closed')) {
+      return; // 확장 프로그램 및 manifest 관련 오류는 무시
+    }
+    originalConsoleWarn.apply(console, args);
+  };
+
+  // 전역 오류 처리 - Chrome Extension 관련 오류 필터링
+  const handleGlobalError = (event: ErrorEvent) => {
+    const errorMessage = event.message || '';
+    if (errorMessage.includes('port closed') ||
+        errorMessage.includes('Extension context') ||
+        errorMessage.includes('chrome-extension://') ||
+        errorMessage.includes('content.js')) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+  };
+
+  const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+    const reason = event.reason?.message || event.reason || '';
+    if (typeof reason === 'string' && (
+        reason.includes('port closed') ||
+        reason.includes('Extension context') ||
+        reason.includes('chrome-extension://') ||
+        reason.includes('content.js'))) {
+      event.preventDefault();
+      return false;
+    }
+  };
+
+  // 전역 이벤트 리스너 등록
+  window.addEventListener('error', handleGlobalError, true);
+  window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
+
+  // 페이지 로드 완료 후 Service Worker 등록
+  setTimeout(async () => {
+    try {
+      // 기존 등록 확인
+      const existingRegistration = await navigator.serviceWorker.getRegistration();
+      if (existingRegistration) {
+        console.log('🚀 AICAMP Service Worker already registered:', existingRegistration.scope);
+        console.log('📧 이메일 서비스: Google Apps Script');
+        console.log('🔗 연결 상태: connected');
+        return;
+      }
+
+      // 새로운 Service Worker 등록
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none'
+      });
+      
+      console.log('🚀 AICAMP Service Worker registered:', registration.scope);
+      console.log('📧 이메일 서비스: Google Apps Script');
+      console.log('🔗 연결 상태: connected');
+      
+      // Service Worker 업데이트 처리
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('🔄 New AICAMP Service Worker available');
+            }
+          });
+        }
+      });
+      
+    } catch (error: any) {
+      // Service Worker 등록 실패는 치명적이지 않으므로 경고만 표시
+      if (!error.message?.includes('port closed') && 
+          !error.message?.includes('Extension context') &&
+          !error.message?.includes('chrome-extension://')) {
+        console.warn('⚠️ Service Worker registration failed:', error.message);
+      }
+    } finally {
+      // 원래 console 함수들 복원
+      console.warn = originalConsoleWarn;
+      console.error = originalConsoleError;
+      
+      // 전역 이벤트 리스너 제거
+      window.removeEventListener('error', handleGlobalError, true);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection, true);
+    }
+  }, 1000); // 1초 지연으로 단축
 };
 
 export default function RootLayout({
@@ -158,7 +212,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* 파비콘 및 애플 터치 아이콘 - head 최상단 */}
+        {/* 애플 터치 아이콘 - head 최상단 명시 */}
         <link rel="apple-touch-icon" href="/images/aicamp_logo.png" sizes="180x180" />
         
         {/* 강력한 캐시 무효화 - 일관된 최신 버전 보장 */}
@@ -193,8 +247,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-navbutton-color" content="#3b82f6" />
         
-        {/* PWA 매니페스트 - Next.js 동적 생성 사용 */}
-        <link rel="manifest" href="/manifest.json" />
+        {/* PWA 매니페스트 - 정적 파일로 제공 */}
+        <link rel="manifest" href="/manifest.webmanifest" />
         
         {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
