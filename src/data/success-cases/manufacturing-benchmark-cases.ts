@@ -564,7 +564,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 선박 설계 최적화와 연료 효율성 향상으로 경쟁력 있는 선박을 개발한 벤치마크 사례',
     icon: Anchor,
     color: 'navy',
-    heroImage: 'https://picsum.photos/1200/800?random=17',
+    heroImage: '/images/benchmark/19AI 기반 화학 공정 최적화.png',
     companyInfo: {
       industry: '조선/해양',
       employees: '600명',
@@ -646,7 +646,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 항공기 부품의 초정밀 품질 검사와 제조 공정 최적화로 안전한 항공기를 생산한 벤치마크 사례',
     icon: Plane,
     color: 'sky',
-    heroImage: 'https://picsum.photos/1200/800?random=18',
+    heroImage: '/images/benchmark/20AI 기반 건설 자재 생산 최적화.png',
     companyInfo: {
       industry: '항공/우주',
       employees: '350명',
@@ -728,7 +728,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 에너지 사용량 최적화와 예측 분석으로 지속 가능한 에너지 생산을 실현한 벤치마크 사례',
     icon: Droplets,
     color: 'blue',
-    heroImage: 'https://picsum.photos/1200/800?random=19',
+    heroImage: '/images/benchmark/17AI 기반 선박 설계 최적화.png',
     companyInfo: {
       industry: '에너지/발전',
       employees: '250명',
@@ -810,7 +810,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 철강 제조 공정 최적화와 품질 관리로 고품질 철강 생산을 실현한 벤치마크 사례',
     icon: HardHat,
     color: 'gray',
-    heroImage: 'https://picsum.photos/1200/800?random=20',
+    heroImage: '/images/benchmark/21AI 기반 항공기 부품 품질 관리.png',
     companyInfo: {
       industry: '중공업/장비',
       employees: '400명',

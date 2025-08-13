@@ -32,7 +32,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 방송 제작 전 과정의 자동화로 콘텐츠 생산성과 품질을 혁신적으로 개선한 사례',
     icon: Tv,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/18AI 기반 촬영 품질 관리.png',
     companyInfo: {
       industry: '종합 방송사',
       employees: '1,800명',

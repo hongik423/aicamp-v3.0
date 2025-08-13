@@ -490,7 +490,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 클라우드 인프라 자동 모니터링과 최적화로 운영 효율성을 극대화한 벤치마크 사례',
     icon: Cloud,
     color: 'purple',
-    heroImage: '/images/benchmark/2. AI 기반 클라우드 자동화.png',
+    heroImage: '/images/benchmark/26AI 기반 하이브리드 클라우드 관리.png',
     companyInfo: {
       industry: '클라우드 인프라',
       employees: '120명',
@@ -994,7 +994,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 실시간 보안 위협 탐지와 자동 대응 시스템으로 보안 수준을 혁신적으로 향상시킨 벤치마크 사례',
     icon: Shield,
     color: 'red',
-    heroImage: '/images/benchmark/10. AI 기반 실시간 방사능 자동 감시.png',
+    heroImage: '/images/benchmark/22AI 기반 보안 관제.png',
     companyInfo: {
       industry: '네트워크 보안',
       employees: '90명',
@@ -1120,7 +1120,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 자동화된 CI/CD 파이프라인으로 개발 및 배포 속도를 혁신한 벤치마크 사례',
     icon: Zap,
     color: 'yellow',
-    heroImage: '/images/benchmark/8. 디지털 뱅킹 혁신 AI 고객 경험 혁신.png',
+    heroImage: '/images/benchmark/23AI 기반 DevOps 자동화.png',
     companyInfo: {
       industry: 'DevOps 자동화',
       employees: '75명',
@@ -1246,7 +1246,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 IoT 센서 데이터 실시간 분석과 예측 모델링으로 스마트 시티 솔루션을 혁신한 벤치마크 사례',
     icon: Network,
     color: 'orange',
-    heroImage: '/images/benchmark/9. AI 리서치&리스크 관리 AI 리포팅 자동화.png',
+    heroImage: '/images/benchmark/27AI 기반 IoT 기기 관리.png',
     companyInfo: {
       industry: 'IoT 플랫폼',
       employees: '110명',
