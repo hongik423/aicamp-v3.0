@@ -205,10 +205,13 @@ async function testErrorReport() {
       name: '프로덕션테스트담당자',
       email: 'production-test@aicamp.club',
       calculatorType: 'vat',
-      errorDetails: '부가세 계산 결과가 예상과 다릅니다. (프로덕션 테스트)',
-      expectedResult: '100,000원',
-      actualResult: '90,000원',
-      steps: '1. 매출액 입력, 2. 세율 선택, 3. 계산 실행'
+      errorDescription: '부가세 계산 결과가 예상과 다릅니다. (프로덕션 테스트)',
+      expectedBehavior: '100,000원이 표시되어야 함',
+      actualBehavior: '90,000원이 표시됨',
+      stepsToReproduce: '1. 매출액 입력, 2. 세율 선택, 3. 계산 실행',
+      browserInfo: 'Chrome 120.0.0.0',
+      deviceInfo: 'Windows 10',
+      timestamp: new Date().toISOString()
     };
 
     const response = await fetch(`${BASE_URL}/api/tax-calculator/error-report`, {
