@@ -23,8 +23,7 @@ const urlsToCache = [
   // 아이콘/매니페스트 (일부 브라우저가 자동 요청)
   '/favicon.ico',
   '/apple-touch-icon.png',
-  '/icon.svg',
-  '/manifest.webmanifest'
+  '/icon.svg'
 ];
 
 // 캐시 제외/주의 대상 URL 패턴

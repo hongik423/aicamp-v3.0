@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   AICAMP_V13_QUESTIONS, 
   DIAGNOSIS_SECTIONS, 
@@ -40,11 +41,13 @@ interface FormData {
   
   // 사업 정보
   industry: string;
+  industryCustom: string; // 직접입력시 사용
   businessType: string[];
   employeeCount: string;
   annualRevenue: string;
   establishmentYear: number;
   location: string;
+  locationCustom: string; // 직접입력시 사용
   
   // 45문항 응답
   assessmentResponses: number[];
@@ -53,6 +56,9 @@ interface FormData {
   additionalInfo: string;
   budgetAllocation: string;
   priorityFunctions: string[];
+  
+  // 개인정보 동의
+  privacyConsent: boolean;
 }
 
 interface Props {
@@ -72,7 +78,14 @@ const SECTION_ICONS = {
 const INDUSTRIES = [
   '제조업', 'IT/소프트웨어', '유통/도소매', '서비스업', '건설업', 
   '의료/헬스케어', '교육', '금융/보험', '운송/물류', '농업/수산업',
-  '에너지', '미디어/엔터테인먼트', '부동산', '기타'
+  '에너지', '미디어/엔터테인먼트', '부동산', '기타', '직접입력'
+];
+
+const REGIONS = [
+  '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', 
+  '대전광역시', '울산광역시', '세종특별자치시', '경기도', '강원특별자치도',
+  '충청북도', '충청남도', '전북특별자치도', '전라남도', '경상북도', 
+  '경상남도', '제주특별자치도', '직접입력'
 ];
 
 const EMPLOYEE_COUNTS = [
@@ -98,15 +111,18 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
     contactPhone: '',
     contactPosition: '',
     industry: '',
+    industryCustom: '',
     businessType: [],
     employeeCount: '',
     annualRevenue: '',
     establishmentYear: new Date().getFullYear(),
     location: '',
+    locationCustom: '',
     assessmentResponses: Array(45).fill(0),
     additionalInfo: '',
     budgetAllocation: '',
-    priorityFunctions: []
+    priorityFunctions: [],
+    privacyConsent: false
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,12 +158,26 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
     if (!formData.companyName.trim()) newErrors.companyName = '회사명을 입력해주세요';
     if (!formData.contactName.trim()) newErrors.contactName = '담당자명을 입력해주세요';
     if (!formData.contactEmail.trim()) newErrors.contactEmail = '이메일을 입력해주세요';
+    if (!formData.contactPhone.trim()) newErrors.contactPhone = '연락처를 입력해주세요';
     if (!formData.industry) newErrors.industry = '업종을 선택해주세요';
+    if (formData.industry === '직접입력' && !formData.industryCustom.trim()) {
+      newErrors.industryCustom = '업종을 직접 입력해주세요';
+    }
+    if (!formData.location) newErrors.location = '지역을 선택해주세요';
+    if (formData.location === '직접입력' && !formData.locationCustom.trim()) {
+      newErrors.locationCustom = '지역을 직접 입력해주세요';
+    }
     if (!formData.employeeCount) newErrors.employeeCount = '직원수를 선택해주세요';
+    if (!formData.privacyConsent) newErrors.privacyConsent = '개인정보 처리방침에 동의해주세요';
     
     // 이메일 형식 검증
     if (formData.contactEmail && !/\S+@\S+\.\S+/.test(formData.contactEmail)) {
       newErrors.contactEmail = '올바른 이메일 형식을 입력해주세요';
+    }
+    
+    // 전화번호 형식 검증
+    if (formData.contactPhone && !/^[0-9-+\s()]{8,}$/.test(formData.contactPhone)) {
+      newErrors.contactPhone = '올바른 전화번호 형식을 입력해주세요';
     }
     
     setErrors(newErrors);
@@ -210,7 +240,7 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-blue-900">
-            🚀 AICAMP V13.0 ULTIMATE
+            🎓 이교장의 AI역량진단시스템
           </CardTitle>
           <CardDescription className="text-lg">
             45문항 정밀 AI역량진단 시스템
@@ -265,12 +295,26 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
               </div>
 
               <div>
-                <Label htmlFor="contactPhone">연락처</Label>
+                <Label htmlFor="contactPhone">연락처 *</Label>
                 <Input
                   id="contactPhone"
                   value={formData.contactPhone}
                   onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                  placeholder="연락처를 입력하세요"
+                  placeholder="연락처를 입력하세요 (예: 010-1234-5678)"
+                  className={errors.contactPhone ? 'border-red-500' : ''}
+                />
+                {errors.contactPhone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.contactPhone}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="contactPosition">직책</Label>
+                <Input
+                  id="contactPosition"
+                  value={formData.contactPosition}
+                  onChange={(e) => setFormData({ ...formData, contactPosition: e.target.value })}
+                  placeholder="직책을 입력하세요 (예: 대표, 팀장, 담당자)"
                 />
               </div>
             </div>
@@ -278,7 +322,7 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="industry">업종 *</Label>
-                <Select value={formData.industry} onValueChange={(value) => setFormData({ ...formData, industry: value })}>
+                <Select value={formData.industry} onValueChange={(value) => setFormData({ ...formData, industry: value, industryCustom: '' })}>
                   <SelectTrigger className={errors.industry ? 'border-red-500' : ''}>
                     <SelectValue placeholder="업종을 선택하세요" />
                   </SelectTrigger>
@@ -290,6 +334,20 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                 </Select>
                 {errors.industry && (
                   <p className="text-red-500 text-sm mt-1">{errors.industry}</p>
+                )}
+                
+                {formData.industry === '직접입력' && (
+                  <div className="mt-2">
+                    <Input
+                      placeholder="업종을 직접 입력하세요"
+                      value={formData.industryCustom}
+                      onChange={(e) => setFormData({ ...formData, industryCustom: e.target.value })}
+                      className={errors.industryCustom ? 'border-red-500' : ''}
+                    />
+                    {errors.industryCustom && (
+                      <p className="text-red-500 text-sm mt-1">{errors.industryCustom}</p>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -325,13 +383,63 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
               </div>
 
               <div>
-                <Label htmlFor="location">지역</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="지역을 입력하세요"
-                />
+                <Label htmlFor="location">지역 *</Label>
+                <Select value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value, locationCustom: '' })}>
+                  <SelectTrigger className={errors.location ? 'border-red-500' : ''}>
+                    <SelectValue placeholder="지역을 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGIONS.map((region) => (
+                      <SelectItem key={region} value={region}>{region}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.location && (
+                  <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+                )}
+                
+                {formData.location === '직접입력' && (
+                  <div className="mt-2">
+                    <Input
+                      placeholder="지역을 직접 입력하세요"
+                      value={formData.locationCustom}
+                      onChange={(e) => setFormData({ ...formData, locationCustom: e.target.value })}
+                      className={errors.locationCustom ? 'border-red-500' : ''}
+                    />
+                    {errors.locationCustom && (
+                      <p className="text-red-500 text-sm mt-1">{errors.locationCustom}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 개인정보 동의 */}
+          <div className="border-t pt-6">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="privacyConsent"
+                checked={formData.privacyConsent}
+                onCheckedChange={(checked) => setFormData({ ...formData, privacyConsent: !!checked })}
+                className={errors.privacyConsent ? 'border-red-500' : ''}
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label
+                  htmlFor="privacyConsent"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  개인정보 처리방침에 동의합니다 *
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  진단 서비스 제공을 위해 개인정보를 수집·이용합니다. 
+                  <a href="/privacy" target="_blank" className="text-blue-600 hover:underline ml-1">
+                    자세히 보기
+                  </a>
+                </p>
+                {errors.privacyConsent && (
+                  <p className="text-red-500 text-xs mt-1">{errors.privacyConsent}</p>
+                )}
               </div>
             </div>
           </div>
