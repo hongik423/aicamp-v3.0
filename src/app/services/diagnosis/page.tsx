@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/layout/header';
-import SimplifiedDiagnosisForm from '@/components/diagnosis/SimplifiedDiagnosisForm';
+import AICampV13DiagnosisForm from '@/features/ai-diagnosis/components/AICampV13DiagnosisForm';
 import SimpleDiagnosisResults from '@/components/diagnosis/SimpleDiagnosisResults';
 import { 
   Brain, 
@@ -40,7 +40,7 @@ export default function FreeDiagnosisPage() {
 
   // 페이지 제목 설정
   useEffect(() => {
-    document.title = 'AI역량진단 신청 | AICAMP AI 교육센터';
+    document.title = 'AICAMP V13.0 ULTIMATE - 45문항 정밀 AI역량진단 | AICAMP AI 교육센터';
   }, []);
 
   const handleStartDiagnosis = () => {
@@ -108,7 +108,7 @@ export default function FreeDiagnosisPage() {
           </div>
         </div>
         <div className="container mx-auto px-4 py-8">
-          <SimplifiedDiagnosisForm 
+          <AICampV13DiagnosisForm 
             onComplete={handleDiagnosisComplete}
             onBack={handleBackToIntro}
           />
@@ -161,7 +161,7 @@ export default function FreeDiagnosisPage() {
                 onClick={handleStartDiagnosis}
                className={`group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4 h-auto transition-all duration-500 ease-expo ${accentCTA ? 'mix-blend-difference text-white animate-pulse' : ''}`}
               >
-               <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`}>AI역량진단 시작하기</span>
+               <span className={`${accentCTA ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`}>V13.0 ULTIMATE 진단 시작</span>
                <ArrowRight className={`w-5 h-5 ml-2 ${accentCTAIcon ? 'mix-blend-difference animate-pulse' : ''} group-hover:mix-blend-difference transition-all duration-500 ease-expo`} />
               </Button>
               <Button 
@@ -179,14 +179,14 @@ export default function FreeDiagnosisPage() {
             <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold text-gray-900 mb-4">
-                  AI역량진단이란?
+                  🚀 AICAMP V13.0 ULTIMATE이란?
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center max-w-4xl mx-auto">
                 <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                  기업의 현재 상태를 객관적으로 분석하여 <strong>성장 가능성</strong>과 <strong>개선 방향</strong>을 제시하는 
-                  AI 기반 진단 서비스입니다. 복잡한 경영 환경에서 우선순위를 명확히 하고, 
-                  실행 가능한 솔루션을 찾아드립니다.
+                  <strong>45문항 정밀 AI역량진단</strong>을 통해 6개 영역의 AI 준비도를 정밀 분석하고, 
+                  <strong>GEMINI 2.5 Flash</strong> 기반으로 SWOT 분석부터 실행 로드맵까지 
+                  완전 맞춤형 전략을 제공하는 최상급 통합 시스템입니다.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
