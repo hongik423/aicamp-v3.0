@@ -500,7 +500,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 공급망 최적화로 물류 효율성을 극대화하고 운영비를 대폭 절감한 성공사례',
     icon: Truck,
     color: 'green',
-    heroImage: 'https://source.unsplash.com/1200x800/?warehouse,logistics,supply%20chain,automation',
+    heroImage: '/images/benchmark/30AI 기반 공급망 관리 (SCM).png',
     companyInfo: {
       industry: '물류/도매',
       employees: '2,800명',

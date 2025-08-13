@@ -15,7 +15,7 @@ export const machineryEquipmentCase: SuccessCaseDetail = {
   description: '머신러닝 기반 고장 예측과 n8n 자동화를 통해 비계획 정지를 95% 감소시키고, 정비 비용을 60% 절감한 혁신 사례',
   icon: Settings,
   color: 'orange',
-  heroImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070',
+  heroImage: '/images/benchmark/31AI 기반 예측 정비(PdM).png',
   
   companyInfo: {
     industry: '산업용 기계 제조',

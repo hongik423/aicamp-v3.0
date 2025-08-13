@@ -16,7 +16,7 @@ export const manufacturingSmartFactoryCase: EnhancedSuccessCaseDetail = {
   description: '전통적 전자부품 제조업체가 AI와 n8n을 활용한 전면적 디지털 전환으로 업계 최고 수준의 스마트팩토리를 구축한 혁신 사례',
   icon: Factory,
   color: 'blue',
-  heroImage: 'https://picsum.photos/1200/600?random=mfg1',
+  heroImage: '/images/benchmark/28AI 기반 스마트 팩토리 제어.png',
   gallery: [
     'https://picsum.photos/800/600?random=mfg2',
     'https://picsum.photos/800/600?random=mfg3',

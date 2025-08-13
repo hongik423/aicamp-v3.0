@@ -32,7 +32,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 물류 전 과정의 최적화로 국내 물류 산업을 선도하는 디지털 전환 성공사례',
     icon: Package,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/29AI 기반 물류 창고 자동화.png',
     companyInfo: {
       industry: '종합물류서비스',
       employees: '12,000명',

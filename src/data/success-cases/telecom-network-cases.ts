@@ -35,7 +35,7 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 5G 네트워크 완전 자동화로 초연결 시대를 선도하는 통신 혁신 사례',
     icon: Signal,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1556155092-490a1ba16284?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/24AI 기반 5G 네트워크 자율 최적화.png',
     companyInfo: {
       industry: '이동통신 서비스',
       employees: '5,200명',
@@ -306,7 +306,7 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 지능형 보안 위협 대응으로 완벽한 네트워크 보안을 실현한 사이버 방어 혁신 사례',
     icon: Shield,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/25AI 기반 제로 트러스트 보안 플랫폼.png',
     companyInfo: {
       industry: '네트워크 보안',
       employees: '850명',
@@ -511,7 +511,7 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n으로 멀티클라우드 환경을 지능적으로 관리하여 최적의 성능과 비용 효율을 달성한 클라우드 혁신 사례',
     icon: Cloud,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/26AI 기반 하이브리드 클라우드 관리.png',
     companyInfo: {
       industry: '클라우드 서비스',
       employees: '1,500명',
@@ -716,7 +716,7 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 수백만 IoT 디바이스의 지능형 관리로 초연결 생태계를 구현한 IoT 혁신 사례',
     icon: Network,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/27AI 기반 IoT 기기 관리.png',
     companyInfo: {
       industry: 'IoT 플랫폼 서비스',
       employees: '9,800명',
