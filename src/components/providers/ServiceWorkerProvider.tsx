@@ -98,51 +98,34 @@ export function ServiceWorkerProvider() {
       };
     };
 
-    // 🔧 Service Worker 등록 - 중복 방지
+    // 🔧 Service Worker 등록 - 중복 방지 및 layout.tsx와 충돌 방지
     const registerServiceWorker = async () => {
+      // layout.tsx에서 이미 등록하므로 여기서는 상태만 확인
       if (!('serviceWorker' in navigator) || serviceWorkerRegistered) {
         return;
       }
 
       try {
-        // 기존 등록 확인
-        const existingRegistration = await navigator.serviceWorker.getRegistration('/sw.js');
+        // 기존 등록 확인만 수행 (새로 등록하지 않음)
+        const existingRegistration = await navigator.serviceWorker.getRegistration();
         if (existingRegistration) {
-                  console.log('🚀 Google Apps Script 시스템 초기화 완료');
-        console.log('📧 이메일 서비스: Google Apps Script');
-        console.log('🔗 연결 상태: connected');
+          console.log('🚀 Google Apps Script 시스템 초기화 완료');
+          console.log('📧 이메일 서비스: Google Apps Script');
+          console.log('🔗 연결 상태: connected');
           serviceWorkerRegistered = true;
           return;
         }
 
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
-          updateViaCache: 'none' // 캐시 우회하여 업데이트 확인
-        });
-
-        console.log('🚀 Google Apps Script 시스템 초기화 완료');
-        console.log('📧 이메일 서비스: Google Apps Script');
-        console.log('🔗 연결 상태: connected');
-
-        serviceWorkerRegistered = true;
-
-        // 업데이트 확인
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New AICAMP version available');
-              }
-            });
-          }
-        });
+        // layout.tsx에서 등록이 완료될 때까지 대기
+        console.log('⏳ Service Worker 등록 대기 중...');
 
       } catch (error: any) {
         if (!error.message?.includes('port closed') && 
             !error.message?.includes('Extension context') &&
-            !error.message?.includes('chrome-extension://')) {
-          console.warn('Service Worker registration failed:', error);
+            !error.message?.includes('chrome-extension://') &&
+            !error.message?.includes('Manifest fetch') &&
+            !error.message?.includes('manifest.json')) {
+          console.warn('Service Worker 상태 확인 실패:', error);
         }
       }
     };

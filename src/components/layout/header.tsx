@@ -11,32 +11,19 @@ import {
 } from 'lucide-react';
 
 
-// Service Worker 등록 (개발 환경에서는 비활성화)
-const registerServiceWorker = async () => {
-  // 개발 환경에서는 Service Worker 등록하지 않음
-  if (process.env.NODE_ENV === 'development') {
-    console.log('개발 환경에서는 Service Worker를 등록하지 않습니다.');
-    return;
-  }
-
+// Service Worker 등록 비활성화 (layout.tsx에서 통합 관리)
+const checkServiceWorkerStatus = async () => {
+  // layout.tsx에서 Service Worker를 통합 관리하므로 여기서는 상태만 확인
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     try {
-      // Service Worker 파일이 존재하는지 먼저 확인
-      const response = await fetch('/sw.js', { method: 'HEAD' });
-      if (!response.ok) {
-        console.log('Service Worker 파일이 존재하지 않습니다.');
-        return;
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (registration) {
+        console.log('✅ Service Worker 상태: 정상 등록됨');
+      } else {
+        console.log('⏳ Service Worker 등록 대기 중...');
       }
-
-      const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/',
-        updateViaCache: 'none'
-      });
-      
-      console.log('AICAMP Service Worker registered:', registration.scope);
-      
     } catch (error) {
-      console.warn('Service Worker registration failed:', error);
+      // Service Worker 관련 오류는 무시 (layout.tsx에서 처리)
     }
   }
 };
@@ -77,9 +64,9 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    // Service Worker 등록을 지연시켜 안전하게 처리
+    // Service Worker 상태 확인을 지연시켜 안전하게 처리
     const timer = setTimeout(() => {
-      registerServiceWorker();
+      checkServiceWorkerStatus();
     }, 1000);
 
     // 초기 계산 및 이벤트 리스너 등록

@@ -54,9 +54,44 @@ export default function FreeDiagnosisPage() {
   };
 
   const handleDiagnosisComplete = (results: any) => {
-    console.log('🔍 진단 완료 데이터:', results); // 디버깅용 로그
-    setDiagnosisResults(results);
-    setCurrentStep('results');
+    try {
+      console.log('🔍 진단 완료 데이터:', results); // 디버깅용 로그
+      console.log('🔍 데이터 타입:', typeof results);
+      console.log('🔍 데이터 키:', results ? Object.keys(results) : 'null');
+      
+      // 데이터 유효성 검사
+      if (!results) {
+        console.error('❌ 진단 결과 데이터가 null입니다');
+        throw new Error('진단 결과 데이터를 받지 못했습니다');
+      }
+
+      // 필수 필드 확인
+      const requiredFields = ['success', 'diagnosisId'];
+      const missingFields = requiredFields.filter(field => !(field in results));
+      
+      if (missingFields.length > 0) {
+        console.warn('⚠️ 누락된 필수 필드:', missingFields);
+      }
+
+      // 결과 데이터 설정
+      setDiagnosisResults(results);
+      setCurrentStep('results');
+      
+      console.log('✅ 진단 완료 처리 성공');
+      
+    } catch (error: any) {
+      console.error('❌ 진단 완료 처리 오류:', error);
+      console.error('❌ 오류 스택:', error.stack);
+      
+      // 오류 발생 시 기본 결과 화면 표시
+      setDiagnosisResults({
+        success: false,
+        error: error.message || '진단 결과 처리 중 오류가 발생했습니다',
+        diagnosisId: 'ERROR_' + Date.now(),
+        timestamp: new Date().toISOString()
+      });
+      setCurrentStep('results');
+    }
   };
 
   const handleBackToIntro = () => {

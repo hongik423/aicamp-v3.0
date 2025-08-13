@@ -224,11 +224,56 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
     }
 
     setIsSubmitting(true);
+    
     try {
-      await onComplete(formData);
-    } catch (error) {
-      console.error('진단 제출 오류:', error);
-      alert('진단 제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.log('📤 진단 데이터 전송 시작:', {
+        companyName: formData.companyName,
+        contactName: formData.contactName,
+        questionsAnswered: formData.assessmentResponses.filter(r => r > 0).length,
+        totalQuestions: formData.assessmentResponses.length
+      });
+
+      // 진단 API 직접 호출
+      const response = await fetch('/api/ai-diagnosis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      console.log('📡 API 응답 상태:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API 오류 응답:', errorText);
+        throw new Error(`진단 처리 실패: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ 진단 API 응답 성공:', {
+        success: result.success,
+        diagnosisId: result.diagnosisId,
+        hasScores: !!result.enhancedScores,
+        totalScore: result.totalScore
+      });
+
+      if (result.success) {
+        // onComplete 콜백 호출
+        await onComplete(result);
+        console.log('✅ onComplete 콜백 호출 완료');
+      } else {
+        throw new Error(result.error || '진단 처리 실패');
+      }
+
+    } catch (error: any) {
+      console.error('❌ 진단 제출 오류:', error);
+      console.error('❌ 오류 스택:', error.stack);
+      
+      // 사용자에게 구체적인 오류 메시지 표시
+      const errorMessage = error.message || '진단 제출 중 오류가 발생했습니다. 다시 시도해주세요.';
+      alert(`오류: ${errorMessage}\n\n문제가 지속되면 고객센터로 문의해주세요.`);
+      
     } finally {
       setIsSubmitting(false);
     }
