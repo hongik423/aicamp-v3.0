@@ -32,7 +32,7 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
     description: 'AI와 n8n을 활용한 법률 문서 분석과 계약 검토 자동화로 법률 서비스의 효율성과 정확성을 획기적으로 개선한 사례',
     icon: Scale,
     color: 'indigo',
-    heroImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/93AI 기반 법률 문서 분석.png',
     companyInfo: {
       industry: '법률사무소',
       employees: '1,200명',
@@ -278,7 +278,7 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
     description: 'AI와 n8n을 활용한 회계 감사 자동화와 부정 탐지로 감사 품질을 혁신적으로 개선한 사례',
     icon: Calculator,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/94AI 기반 전자증거 분석.png',
     companyInfo: {
       industry: '회계법인',
       employees: '3,500명',

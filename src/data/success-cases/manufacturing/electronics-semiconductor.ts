@@ -15,7 +15,7 @@ export const electronicsSemiconductorCase: SuccessCaseDetail = {
   description: 'AI 비전 검사 시스템과 n8n 워크플로우를 통해 반도체 생산 공정을 완전 자동화하고, 실시간 품질 예측으로 불량률을 획기적으로 감소시킨 혁신 사례',
   icon: Cpu,
   color: 'blue',
-  heroImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070',
+  heroImage: '/images/benchmark/67AI 기반 에너지 저장 최적화.png',
   
   companyInfo: {
     industry: '반도체 제조업',

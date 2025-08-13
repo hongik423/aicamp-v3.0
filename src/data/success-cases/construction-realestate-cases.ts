@@ -32,7 +32,7 @@ export const constructionRealEstateCaseDetails: { [key: string]: SuccessCaseDeta
     description: 'AI와 n8n을 활용한 건설 현장 전반의 디지털 전환으로 생산성과 안전성을 획기적으로 개선한 혁신 사례',
     icon: Building2,
     color: 'gray',
-    heroImage: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/54AI 기반 스마트 홈 제어.png',
     companyInfo: {
       industry: '종합건설업',
       employees: '8,500명',

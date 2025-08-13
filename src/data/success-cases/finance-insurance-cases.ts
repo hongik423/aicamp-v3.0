@@ -30,7 +30,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     description: '전통 은행에서 AI와 n8n을 활용한 디지털 뱅킹 혁신으로 고객 경험을 완전히 재정의한 성공사례',
     icon: DollarSign,
     color: 'blue',
-    heroImage: 'https://source.unsplash.com/1200x800/?bank,digital%20banking,finance,customer%20service',
+    heroImage: '/images/benchmark/89AI 기반 금융 사기 탐지.png',
     companyInfo: {
       industry: '은행업',
       employees: '2,500명',
@@ -268,7 +268,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     description: 'AI와 n8n을 활용한 보험금 청구 프로세스 자동화로 고객 경험을 혁신하고 운영 효율성을 극대화한 성공사례',
     icon: Shield,
     color: 'green',
-    heroImage: 'https://source.unsplash.com/1200x800/?insurance,claim,documents,ai',
+    heroImage: '/images/benchmark/91AI 기반 보험 심사 자동화.png',
     companyInfo: {
       industry: '손해보험',
       employees: '1,800명',
@@ -684,7 +684,7 @@ export const financeInsuranceCases: SuccessCase[] = [
     companyName: 'KB국민은행 (직원 2,500명)',
     title: '디지털 뱅킹 혁신과 AI 고객경험',
     description: 'AI 기반 개인화 서비스로 고객 만족도 95% 달성, 디지털 채널 이용률 80% 증가',
-    image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80',
+    image: '/images/benchmark/90AI 기반 자산 관리 최적화.png',
     icon: DollarSign,
     color: 'blue',
     results: {
@@ -706,7 +706,7 @@ export const financeInsuranceCases: SuccessCase[] = [
     companyName: '삼성화재 (직원 1,800명)',
     title: 'AI 기반 보험금 청구 자동화',
     description: '청구 처리 시간 90% 단축, 고객 만족도 98% 달성, 사기 탐지 정확도 95%',
-    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80',
+    image: '/images/benchmark/92AI 기반 보험 사기 방지.png',
     icon: Shield,
     color: 'green',
     results: {

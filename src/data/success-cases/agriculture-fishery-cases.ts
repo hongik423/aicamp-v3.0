@@ -36,7 +36,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 완전 자동화 수직농장으로 365일 안정적인 농산물 생산을 실현한 농업 혁신 사례',
     icon: Sprout,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/41. AI 기반 스마트 농업 관리.png',
     companyInfo: {
       industry: '스마트팜 운영',
       employees: '450명',
@@ -307,7 +307,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n으로 전통 농업을 과학영농으로 전환하여 생산성과 수익성을 극대화한 농촌 혁신 사례',
     icon: Wheat,
     color: 'yellow',
-    heroImage: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/42. AI 기반 작물 수확 최적화.png',
     companyInfo: {
       industry: '농산물 생산·유통',
       employees: '조합원 12,000명',
@@ -512,7 +512,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 스마트 축산으로 동물복지와 생산성을 동시에 실현한 축산업 혁신 사례',
     icon: Beef,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1562863530-97d9039f2de2?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/43. AI 기반 가축 건강 모니터링.png',
     companyInfo: {
       industry: '육계 사육·가공',
       employees: '3,200명',
@@ -717,7 +717,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 첨단 양식 기술로 지속가능한 수산업을 실현한 해양 혁신 사례',
     icon: Fish,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/44. AI 기반 수산 양식 관리.png',
     companyInfo: {
       industry: '수산 양식',
       employees: '1,850명',
@@ -922,7 +922,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 스마트 산림 관리로 산림 자원을 보호하고 탄소흡수원을 확대한 그린 혁신 사례',
     icon: TreePine,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/45. AI 기반 산림 자원 관리.png',
     companyInfo: {
       industry: '산림 관리',
       employees: '1,200명',

@@ -701,7 +701,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 음성 인식과 n8n 자동화로 언어 학습의 효과를 극대화한 혁신적 사례',
     icon: Globe,
     color: 'orange',
-    heroImage: 'https://images.unsplash.com/photo-1523240794102-9ebd0b167f70?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/95AI 기반 번역·통역 지원.png',
     companyInfo: {
       industry: '어학교육',
       employees: '850명',

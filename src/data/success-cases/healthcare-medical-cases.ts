@@ -32,7 +32,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 환자 진료 프로세스 자동화로 의료 서비스 품질을 혁신적으로 개선한 디지털 전환 성공사례',
     icon: Heart,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/40. AI 기반 응급 대응 시스템.png',
     companyInfo: {
       industry: '종합병원',
       employees: '3,500명',
@@ -303,7 +303,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: '소규모 의원에서 AI와 n8n을 활용하여 운영 전반을 혁신하고 환자 경험을 개선한 성공사례',
     icon: Stethoscope,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/36. AI 기반 원격 환자 모니터링.png',
     companyInfo: {
       industry: '내과/가정의학과',
       employees: '25명',
@@ -502,7 +502,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 약국 운영 전반의 자동화로 고객 서비스와 운영 효율을 극대화한 사례',
     icon: Pill,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/35. AI 기반 약물 개발 가속화.png',
     companyInfo: {
       industry: '약국',
       employees: '85명',
@@ -701,7 +701,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 영상 진단과 n8n 자동화로 치과 진료의 정확성과 효율성을 혁신적으로 개선한 성공사례',
     icon: Activity,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/33. AI 기반 의료 영상 분석.png',
     companyInfo: {
       industry: '치과',
       employees: '120명',
@@ -900,7 +900,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 건강검진 전 과정 자동화로 검진 효율성과 정확도를 획기적으로 개선한 사례',
     icon: Shield,
     color: 'orange',
-    heroImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/34. AI 기반 진단 지원 시스템.png',
     companyInfo: {
       industry: '건강검진센터',
       employees: '450명',
@@ -1099,7 +1099,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 동작 분석과 맞춤형 재활 프로그램으로 재활 치료의 효과를 극대화한 혁신 사례',
     icon: Users,
     color: 'teal',
-    heroImage: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/37. AI 기반 맞춤형 재활 치료.png',
     companyInfo: {
       industry: '재활병원',
       employees: '180명',
@@ -1298,7 +1298,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 감정 분석과 디지털 치료제로 정신건강 관리를 혁신한 선도적 사례',
     icon: Brain,
     color: 'indigo',
-    heroImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/38. AI 기반 질병 예측 분석.png',
     companyInfo: {
       industry: '정신건강의학과',
       employees: '35명',

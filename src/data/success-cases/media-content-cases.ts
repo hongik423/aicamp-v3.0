@@ -303,7 +303,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 초개인화 콘텐츠 추천과 자동 큐레이션으로 사용자 경험을 혁신한 사례',
     icon: Youtube,
     color: 'red',
-    heroImage: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/96AI 기반 콘텐츠 생성 자동화.png',
     companyInfo: {
       industry: 'OTT 플랫폼',
       employees: '280명',
