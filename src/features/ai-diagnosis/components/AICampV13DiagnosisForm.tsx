@@ -538,21 +538,55 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                 <RadioGroup
                   value={formData.assessmentResponses[question.id - 1]?.toString() || ""}
                   onValueChange={(value) => updateResponse(question.id, parseInt(value))}
-                  className="grid grid-cols-1 sm:grid-cols-5 gap-3"
+                  className="flex flex-col sm:flex-row gap-2 justify-center"
                 >
                   {RESPONSE_OPTIONS.map((option) => (
-                    <div key={option.value} className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-gray-50">
-                      <RadioGroupItem value={option.value.toString()} id={`q${question.id}-${option.value}`} />
-                      <Label
-                        htmlFor={`q${question.id}-${option.value}`}
-                        className="flex-1 cursor-pointer"
-                      >
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-xs text-gray-500 mt-1">{option.description}</div>
-                      </Label>
+                    <div 
+                      key={option.value} 
+                      className="flex flex-col items-center group"
+                    >
+                      <div className="relative">
+                        <RadioGroupItem 
+                          value={option.value.toString()} 
+                          id={`q${question.id}-${option.value}`}
+                          className="sr-only"
+                        />
+                        <Label
+                          htmlFor={`q${question.id}-${option.value}`}
+                          className="flex flex-col items-center cursor-pointer"
+                        >
+                          {/* 애플스토어 스타일 동그라미 */}
+                          <div className={`
+                            w-12 h-12 rounded-full border-2 transition-all duration-200 
+                            flex items-center justify-center text-sm font-medium
+                            ${formData.assessmentResponses[question.id - 1] === option.value 
+                              ? 'bg-blue-500 border-blue-500 text-white shadow-lg scale-110' 
+                              : 'bg-white border-gray-300 text-gray-600 hover:border-blue-400 hover:bg-blue-50'
+                            }
+                          `}>
+                            {option.value}
+                          </div>
+                          {/* 라벨 */}
+                          <div className="text-center mt-2 max-w-20">
+                            <div className={`text-xs font-medium transition-colors duration-200 ${
+                              formData.assessmentResponses[question.id - 1] === option.value 
+                                ? 'text-blue-600' 
+                                : 'text-gray-600'
+                            }`}>
+                              {option.label}
+                            </div>
+                          </div>
+                        </Label>
+                      </div>
                     </div>
                   ))}
                 </RadioGroup>
+                
+                {/* 점수 범위 가이드 */}
+                <div className="flex justify-between text-xs text-gray-500 mt-3 px-2">
+                  <span>전혀 그렇지 않다</span>
+                  <span>매우 그렇다</span>
+                </div>
               </CardContent>
             </Card>
           ))}
