@@ -28,7 +28,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 반도체 제조 공정 최적화와 품질 관리 자동화로 생산성과 품질을 동시에 혁신한 벤치마크 사례',
     icon: Cpu,
     color: 'blue',
-    heroImage: '/images/benchmark/15. AI 기반 반도체디스플레이 품질 관리 AI 기반 3D 스캔 및 결함 분석.png',
+    heroImage: '/images/benchmark/32. AI 기반 품질 보증(QA) 자동화.png',
     companyInfo: {
       industry: '전자/반도체',
       employees: '200명',
@@ -400,7 +400,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 섬유 생산 라인 최적화와 품질 관리로 고품질 섬유를 대량 생산한 벤치마크 사례',
     icon: Factory,
     color: 'red',
-    heroImage: '/images/benchmark/12. 로보 어드바이저 기반 개인 맞춤형 자산 관리.png',
+    heroImage: '/images/benchmark/82AI 기반 의류 생산 최적화.png',
     companyInfo: {
       industry: '섬유/의류',
       employees: '200명',
@@ -564,7 +564,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 선박 설계 최적화와 연료 효율성 향상으로 경쟁력 있는 선박을 개발한 벤치마크 사례',
     icon: Anchor,
     color: 'navy',
-    heroImage: '/images/benchmark/19AI 기반 화학 공정 최적화.png',
+    heroImage: '/images/benchmark/73AI 기반 해양 환경 모니터링.png',
     companyInfo: {
       industry: '조선/해양',
       employees: '600명',
@@ -646,7 +646,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 항공기 부품의 초정밀 품질 검사와 제조 공정 최적화로 안전한 항공기를 생산한 벤치마크 사례',
     icon: Plane,
     color: 'sky',
-    heroImage: '/images/benchmark/20AI 기반 건설 자재 생산 최적화.png',
+    heroImage: '/images/benchmark/21AI 기반 항공기 부품 품질 관리.png',
     companyInfo: {
       industry: '항공/우주',
       employees: '350명',

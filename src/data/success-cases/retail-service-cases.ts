@@ -32,7 +32,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: '전통 오프라인 소매업에서 AI와 n8n을 활용한 스마트 스토어 구축으로 고객 경험을 혁신한 성공사례',
     icon: Store,
     color: 'blue',
-    heroImage: 'https://source.unsplash.com/1200x800/?retail,smart%20store,supermarket,ai',
+    heroImage: '/images/benchmark/83AI 기반 유통 재고 관리.png',
     companyInfo: {
       industry: '대형마트',
       employees: '3,200명',
@@ -266,7 +266,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 개인화 쇼핑 경험으로 고객 충성도를 극대화하고 매출을 혁신적으로 증가시킨 성공사례',
     icon: ShoppingCart,
     color: 'orange',
-    heroImage: 'https://source.unsplash.com/1200x800/?ecommerce,online%20shopping,ai',
+    heroImage: '/images/benchmark/84AI 기반 고객 맞춤형 추천.png',
     companyInfo: {
       industry: '이커머스',
       employees: '5,000명',
@@ -500,7 +500,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 공급망 최적화로 물류 효율성을 극대화하고 운영비를 대폭 절감한 성공사례',
     icon: Truck,
     color: 'green',
-    heroImage: '/images/benchmark/30AI 기반 공급망 관리 (SCM).png',
+    heroImage: '/images/benchmark/88AI 기반 제품 수요 예측.png',
     companyInfo: {
       industry: '물류/도매',
       employees: '2,800명',
@@ -734,7 +734,7 @@ export const retailServiceCaseDetails: { [key: string]: SuccessCaseDetail } = {
     description: 'AI와 n8n을 활용한 패션 트렌드 예측과 개인화 스타일링으로 고객 경험을 혁신한 성공사례',
     icon: Heart,
     color: 'pink',
-    heroImage: 'https://source.unsplash.com/1200x800/?fashion,boutique,clothes,ai',
+    heroImage: '/images/benchmark/81AI 기반 패션 트렌드 예측.png',
     companyInfo: {
       industry: '패션/부티',
       employees: '1,200명',
@@ -1902,7 +1902,7 @@ export const retailServiceCases: SuccessCase[] = [
     companyName: '이마트 (직원 3,200명)',
     title: '스마트 스토어 혁신과 AI 고객경험',
     description: 'AI 기반 개인화 쇼핑으로 매출 40% 증가, 고객 만족도 92% 달성',
-    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80',
+    image: '/images/benchmark/87AI 기반 소비자 행동 분석.png',
     icon: Store,
     color: 'blue',
     results: {
@@ -1946,7 +1946,7 @@ export const retailServiceCases: SuccessCase[] = [
     companyName: 'CJ대한통운 (직원 2,800명)',
     title: 'AI 기반 공급망 최적화',
     description: '공급망 효율성 80% 향상, 운영비 50% 절감, 배송 시간 40% 단축',
-    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80',
+    image: '/images/benchmark/85AI 기반 가격 최적화.png',
     icon: Truck,
     color: 'green',
     results: {
@@ -1968,7 +1968,7 @@ export const retailServiceCases: SuccessCase[] = [
     companyName: '무신사 (직원 1,200명)',
     title: 'AI 기반 패션 트렌드 예측과 개인화 스타일링',
     description: '트렌드 예측 정확도 88%, 고객 만족도 94% 달성',
-    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80',
+    image: '/images/benchmark/86AI 기반 마케팅 캐페인 분석.png',
     icon: Heart,
     color: 'pink',
     results: {

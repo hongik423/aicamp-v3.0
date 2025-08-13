@@ -36,7 +36,7 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
     description: 'AI와 n8n을 활용한 정부 서비스 완전 디지털화로 국민 중심의 혁신적인 전자정부를 구현한 공공 혁신 사례',
     icon: Building2,
     color: 'blue',
-    heroImage: 'https://source.unsplash.com/1200x800/?government,city%20hall,public%20service,digital',
+    heroImage: '/images/benchmark/55AI 기반 공공 안전 모니터링.png',
     companyInfo: {
       industry: '중앙정부기관',
       employees: '12,000명',
@@ -493,7 +493,7 @@ export const publicNonprofitCases: SuccessCase[] = [
     companyName: '행정안전부',
     title: 'AI 기반 디지털 정부 통합 플랫폼',
     description: '민원 처리 시간 78% 단축, 시민 만족도 92% 달성',
-    image: 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?w=400&h=250&fit=crop&crop=center',
+    image: '/images/benchmark/56AI 기반 범죄 예측 분석.png',
     icon: Building2,
     color: 'blue',
     results: {
@@ -510,7 +510,7 @@ export const publicNonprofitCases: SuccessCase[] = [
     companyName: '서울특별시',
     title: 'AI 기반 스마트 시티 통합 플랫폼',
     description: '교통/환경/민원 예측·대응 자동화로 시민 체감 성과 달성',
-    image: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=400&h=250&fit=crop&crop=center',
+    image: '/images/benchmark/60AI 기반 국방 장비 유지보수.png',
     icon: Globe,
     color: 'green',
     results: { efficiency: '65% 향상', satisfaction: '시민만족 92%' },

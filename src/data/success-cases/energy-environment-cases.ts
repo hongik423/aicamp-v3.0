@@ -36,7 +36,7 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 태양광·풍력 발전소 통합 관리로 에너지 효율을 극대화하고 탄소중립을 실현한 혁신 사례',
     icon: Sun,
     color: 'yellow',
-    heroImage: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/80AI 기반 탄소 배출 추적.png',
     companyInfo: {
       industry: '신재생에너지 발전',
       employees: '2,300명',
@@ -307,7 +307,7 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 화력발전소 스마트 운영으로 효율을 극대화하고 환경 영향을 최소화한 혁신 사례',
     icon: Factory,
     color: 'gray',
-    heroImage: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/47. AI 기반 재난 대응 시뮬레이션.png',
     companyInfo: {
       industry: '화력발전',
       employees: '2,850명',
@@ -512,7 +512,7 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 스마트 폐기물 수거·분류·재활용으로 순환경제를 실현한 환경 혁신 사례',
     icon: Recycle,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/71AI 기반 폐기물 처리 최적화.png',
     companyInfo: {
       industry: '폐기물 처리',
       employees: '1,200명',
@@ -717,7 +717,7 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 상수도 전 과정 스마트화로 물 손실을 최소화하고 수질을 혁신적으로 개선한 사례',
     icon: Droplet,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1580227974546-fbd48825d991?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/72AI 기반 수자원 관리.png',
     companyInfo: {
       industry: '수자원 관리',
       employees: '4,500명',
@@ -922,7 +922,7 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 전사 탄소 배출 모니터링과 감축으로 2050 탄소중립을 향한 혁신적 전환 사례',
     icon: Leaf,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/65AI 기반 전력 수요 예측.png',
     companyInfo: {
       industry: '철강 제조',
       employees: '37,000명',
@@ -1128,7 +1128,7 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 환경영향평가 전 과정 자동화로 신속하고 정확한 환경 컨설팅을 실현한 혁신 사례',
     icon: Globe,
     color: 'emerald',
-    heroImage: 'https://images.unsplash.com/photo-1574482620811-1aa16ffe3c82?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark/66AI 기반 스마트 그리드 운영.png',
     companyInfo: {
       industry: '환경 서비스',
       employees: '2,100명',

@@ -15,7 +15,7 @@ export const pharmaceuticalMedicalCase: SuccessCaseDetail = {
   description: 'AI 기반 약물 설계와 n8n 연구 데이터 자동화를 통해 신약 개발 기간을 50% 단축하고 임상 성공률을 획기적으로 높인 혁신 사례',
   icon: Pill,
   color: 'purple',
-  heroImage: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?q=80&w=2070',
+  heroImage: '/images/benchmark/39. AI 기반 병원 자원 최적화.png',
   
   companyInfo: {
     industry: '제약 및 의료기기 제조',

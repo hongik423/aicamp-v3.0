@@ -15,7 +15,7 @@ export const chemicalPetrochemicalCase: SuccessCaseDetail = {
   description: 'AI 기반 화학 공정 시뮬레이션과 n8n 자동화를 통해 에너지 소비를 최소화하고 생산 수율을 극대화한 친환경 스마트 플랜트 구축 사례',
   icon: Flask,
   color: 'green',
-  heroImage: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070',
+  heroImage: '/images/benchmark/68AI 기반 석유·가스 생산 관리.png',
   
   companyInfo: {
     industry: '석유화학 제품 제조',
