@@ -499,7 +499,7 @@ export function generateEnhancedSWOTAnalysis(
   }
   
   if (scores.categoryScores.techInfrastructure >= 70) {
-    swot.strengths.technical.push('견고한 IT 인프라와 보안 체계');
+    swot.strengths.strategic.push('견고한 IT 인프라와 보안 체계');
     swot.strengths.competitive.push('확장 가능한 기술 아키텍처');
   }
   
@@ -555,4 +555,336 @@ export function generateEnhancedSWOTAnalysis(
   swot.strategicRecommendations.wt_strategies.push('AI 역량 강화를 위한 집중적 투자 및 교육');
   
   return swot;
+}
+
+// 3차원 우선순위 매트릭스 (중요도 × 긴급성 × 실현가능성)
+export interface ThreeDimensionalMatrix {
+  actionItems: Array<{
+    id: string;
+    title: string;
+    description: string;
+    source: 'strength' | 'weakness' | 'opportunity' | 'threat';
+    importance: number;      // 0-100
+    urgency: number;        // 0-100
+    feasibility: number;    // 0-100
+    priorityScore: number;  // 종합 점수
+    quadrant: 'doFirst' | 'schedule' | 'delegate' | 'eliminate';
+    aiCampPrograms: string[];
+    expectedROI: string;
+    timeline: string;
+  }>;
+  quadrants: {
+    doFirst: {      // 중요도 높음 + 긴급성 높음
+      name: string;
+      items: string[];
+      priority: number;
+    };
+    schedule: {     // 중요도 높음 + 긴급성 낮음
+      name: string;
+      items: string[];
+      priority: number;
+    };
+    delegate: {     // 중요도 낮음 + 긴급성 높음
+      name: string;
+      items: string[];
+      priority: number;
+    };
+    eliminate: {    // 중요도 낮음 + 긴급성 낮음
+      name: string;
+      items: string[];
+      priority: number;
+    };
+  };
+  executionRoadmap: {
+    immediate: string[];    // 1-3개월
+    shortTerm: string[];    // 3-6개월
+    mediumTerm: string[];   // 6-12개월
+  };
+}
+
+export function generate3DPriorityMatrix(
+  scores: EnhancedScoreResult,
+  gapAnalysis: BenchmarkGapAnalysis,
+  swotAnalysis: EnhancedSWOTAnalysis,
+  formData: any
+): ThreeDimensionalMatrix {
+  console.log('📊 3차원 우선순위 매트릭스 생성 시작...');
+  
+  // SWOT 분석 결과에서 액션 아이템 추출
+  const actionItems = extractActionItemsFromSWOT(swotAnalysis, scores, formData);
+  
+  // 각 액션 아이템에 대한 3차원 평가
+  const evaluatedItems = actionItems.map(item => {
+    const importance = calculateImportanceScore(item, scores, gapAnalysis);
+    const urgency = calculateUrgencyScore(item, scores, gapAnalysis);
+    const feasibility = calculateFeasibilityScore(item, scores, formData);
+    
+    const priorityScore = (importance * 0.4) + (urgency * 0.3) + (feasibility * 0.3);
+    const quadrant = determineQuadrant(importance, urgency);
+    
+    return {
+      ...item,
+      importance,
+      urgency,
+      feasibility,
+      priorityScore: Math.round(priorityScore),
+      quadrant,
+      aiCampPrograms: getRecommendedPrograms(item, scores),
+      expectedROI: calculateExpectedROI(item, scores),
+      timeline: determineTimeline(quadrant, feasibility)
+    };
+  });
+  
+  // 우선순위별 정렬
+  const sortedItems = evaluatedItems.sort((a, b) => b.priorityScore - a.priorityScore);
+  
+  // 쿼드런트별 분류
+  const quadrants = {
+    doFirst: {
+      name: '즉시 실행 (Do First)',
+      items: sortedItems.filter(item => item.quadrant === 'doFirst').map(item => item.title),
+      priority: 1
+    },
+    schedule: {
+      name: '계획 수립 (Schedule)',
+      items: sortedItems.filter(item => item.quadrant === 'schedule').map(item => item.title),
+      priority: 2
+    },
+    delegate: {
+      name: '위임/자동화 (Delegate)',
+      items: sortedItems.filter(item => item.quadrant === 'delegate').map(item => item.title),
+      priority: 3
+    },
+    eliminate: {
+      name: '재검토/보류 (Eliminate)',
+      items: sortedItems.filter(item => item.quadrant === 'eliminate').map(item => item.title),
+      priority: 4
+    }
+  };
+  
+  // 실행 로드맵 생성
+  const executionRoadmap = {
+    immediate: sortedItems.filter(item => item.timeline === '1-3개월').slice(0, 3).map(item => item.title),
+    shortTerm: sortedItems.filter(item => item.timeline === '3-6개월').slice(0, 3).map(item => item.title),
+    mediumTerm: sortedItems.filter(item => item.timeline === '6-12개월').slice(0, 3).map(item => item.title)
+  };
+  
+  console.log('✅ 3차원 우선순위 매트릭스 생성 완료');
+  console.log(`📈 총 ${sortedItems.length}개 액션 아이템 평가 완료`);
+  
+  return {
+    actionItems: sortedItems,
+    quadrants,
+    executionRoadmap
+  };
+}
+
+// SWOT에서 액션 아이템 추출
+function extractActionItemsFromSWOT(
+  swotAnalysis: EnhancedSWOTAnalysis,
+  scores: EnhancedScoreResult,
+  formData: any
+): Array<{
+  id: string;
+  title: string;
+  description: string;
+  source: 'strength' | 'weakness' | 'opportunity' | 'threat';
+}> {
+  const actionItems = [];
+  let itemId = 1;
+  
+  // 강점 기반 액션 아이템
+  swotAnalysis.strategicRecommendations.so_strategies.forEach(strategy => {
+    actionItems.push({
+      id: `SO-${itemId++}`,
+      title: strategy.substring(0, 50) + (strategy.length > 50 ? '...' : ''),
+      description: strategy,
+      source: 'strength' as const
+    });
+  });
+  
+  // 약점 개선 액션 아이템
+  swotAnalysis.strategicRecommendations.wo_strategies.forEach(strategy => {
+    actionItems.push({
+      id: `WO-${itemId++}`,
+      title: strategy.substring(0, 50) + (strategy.length > 50 ? '...' : ''),
+      description: strategy,
+      source: 'weakness' as const
+    });
+  });
+  
+  // 기회 활용 액션 아이템
+  swotAnalysis.strategicRecommendations.st_strategies.forEach(strategy => {
+    actionItems.push({
+      id: `ST-${itemId++}`,
+      title: strategy.substring(0, 50) + (strategy.length > 50 ? '...' : ''),
+      description: strategy,
+      source: 'opportunity' as const
+    });
+  });
+  
+  // 위협 대응 액션 아이템
+  swotAnalysis.strategicRecommendations.wt_strategies.forEach(strategy => {
+    actionItems.push({
+      id: `WT-${itemId++}`,
+      title: strategy.substring(0, 50) + (strategy.length > 50 ? '...' : ''),
+      description: strategy,
+      source: 'threat' as const
+    });
+  });
+  
+  return actionItems;
+}
+
+// 중요도 점수 계산
+function calculateImportanceScore(
+  item: any,
+  scores: EnhancedScoreResult,
+  gapAnalysis: BenchmarkGapAnalysis
+): number {
+  let importance = 50; // 기본점수
+  
+  // 전체 점수가 낮을수록 개선의 중요도가 높음
+  if (scores.totalScore < 40) importance += 30;
+  else if (scores.totalScore < 60) importance += 20;
+  else if (scores.totalScore < 80) importance += 10;
+  
+  // 약점 기반 액션은 중요도 높음
+  if (item.source === 'weakness') importance += 25;
+  if (item.source === 'threat') importance += 20;
+  
+  // 경쟁 포지션이 낮을수록 중요도 높음
+  if (gapAnalysis.competitivePosition === 'Lagging') importance += 20;
+  else if (gapAnalysis.competitivePosition === 'Below Average') importance += 15;
+  
+  // 매출/성장과 관련된 항목은 중요도 높음
+  if (item.description.includes('매출') || item.description.includes('성장') || 
+      item.description.includes('경쟁') || item.description.includes('시장')) {
+    importance += 15;
+  }
+  
+  return Math.min(100, Math.max(0, importance));
+}
+
+// 긴급성 점수 계산
+function calculateUrgencyScore(
+  item: any,
+  scores: EnhancedScoreResult,
+  gapAnalysis: BenchmarkGapAnalysis
+): number {
+  let urgency = 50; // 기본점수
+  
+  // 위협 대응은 긴급성 높음
+  if (item.source === 'threat') urgency += 30;
+  if (item.source === 'weakness') urgency += 20;
+  
+  // 전체 점수가 매우 낮으면 긴급성 높음
+  if (scores.totalScore < 30) urgency += 35;
+  else if (scores.totalScore < 50) urgency += 25;
+  
+  // 경쟁 열세 상황이면 긴급성 높음
+  if (gapAnalysis.competitivePosition === 'Lagging') urgency += 25;
+  
+  // AI 도입, 디지털 전환 관련은 긴급성 높음
+  if (item.description.includes('AI') || item.description.includes('디지털') || 
+      item.description.includes('자동화') || item.description.includes('경쟁')) {
+    urgency += 15;
+  }
+  
+  return Math.min(100, Math.max(0, urgency));
+}
+
+// 실현가능성 점수 계산
+function calculateFeasibilityScore(
+  item: any,
+  scores: EnhancedScoreResult,
+  formData: any
+): number {
+  let feasibility = 50; // 기본점수
+  
+  // 조직 준비도가 높으면 실현가능성 높음
+  if (scores.categoryScores.organizationReadiness >= 70) feasibility += 20;
+  else if (scores.categoryScores.organizationReadiness >= 50) feasibility += 10;
+  
+  // 기술 인프라가 좋으면 실현가능성 높음
+  if (scores.categoryScores.techInfrastructure >= 70) feasibility += 15;
+  
+  // 현재 AI 활용도가 높으면 실현가능성 높음
+  if (scores.categoryScores.currentAI >= 60) feasibility += 15;
+  
+  // 기업 규모별 실현가능성 조정
+  const employeeCount = formData.employeeCount || '';
+  if (employeeCount.includes('100명 이상')) feasibility += 10;
+  else if (employeeCount.includes('50-100명')) feasibility += 5;
+  else if (employeeCount.includes('10명 미만')) feasibility -= 10;
+  
+  // 파일럿, 테스트 관련 항목은 실현가능성 높음
+  if (item.description.includes('파일럿') || item.description.includes('테스트') || 
+      item.description.includes('단계적') || item.description.includes('교육')) {
+    feasibility += 20;
+  }
+  
+  // 대규모 투자나 시스템 구축은 실현가능성 낮음
+  if (item.description.includes('대규모') || item.description.includes('전면') || 
+      item.description.includes('구축')) {
+    feasibility -= 15;
+  }
+  
+  return Math.min(100, Math.max(0, feasibility));
+}
+
+// 쿼드런트 결정
+function determineQuadrant(importance: number, urgency: number): 'doFirst' | 'schedule' | 'delegate' | 'eliminate' {
+  if (importance >= 70 && urgency >= 70) return 'doFirst';
+  if (importance >= 70 && urgency < 70) return 'schedule';
+  if (importance < 70 && urgency >= 70) return 'delegate';
+  return 'eliminate';
+}
+
+// AI CAMP 프로그램 추천
+function getRecommendedPrograms(item: any, scores: EnhancedScoreResult): string[] {
+  const programs = [];
+  
+  if (item.description.includes('AI') || item.description.includes('인공지능')) {
+    if (scores.categoryScores.currentAI < 50) {
+      programs.push('AI 기초 교육과정');
+      programs.push('AI 도구 활용 실습');
+    } else {
+      programs.push('AI 고급 활용과정');
+      programs.push('AI 전략 수립 워크샵');
+    }
+  }
+  
+  if (item.description.includes('리더십') || item.description.includes('경영진')) {
+    programs.push('경영진 AI 리더십');
+    programs.push('디지털 전환 전략');
+  }
+  
+  if (item.description.includes('데이터') || item.description.includes('분석')) {
+    programs.push('데이터 분석 기초');
+    programs.push('비즈니스 인텔리전스');
+  }
+  
+  if (item.description.includes('자동화') || item.description.includes('프로세스')) {
+    programs.push('업무 자동화 실습');
+    programs.push('RPA 도입 과정');
+  }
+  
+  return programs.length > 0 ? programs : ['AI 역량 진단 상담'];
+}
+
+// ROI 예측
+function calculateExpectedROI(item: any, scores: EnhancedScoreResult): string {
+  if (item.source === 'strength') return '높음 (6개월 내)';
+  if (item.source === 'opportunity') return '매우 높음 (3-6개월)';
+  if (item.source === 'weakness') return '중간 (6-12개월)';
+  return '낮음 (12개월 이상)';
+}
+
+// 타임라인 결정
+function determineTimeline(quadrant: string, feasibility: number): string {
+  if (quadrant === 'doFirst') return '1-3개월';
+  if (quadrant === 'schedule') return feasibility >= 70 ? '3-6개월' : '6-12개월';
+  if (quadrant === 'delegate') return '1-6개월';
+  return '6-12개월';
 }

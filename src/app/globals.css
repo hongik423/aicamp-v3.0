@@ -1,6 +1,34 @@
 /* ============================================
-   AICAMP - 모바일 최적화 글로벌 CSS 
+   AICAMP V13.0 ULTIMATE - 모바일 최적화 글로벌 CSS 
    ============================================ */
+
+/* 사용자 편의성 개선 - 모든 네모박스에 라운드 적용 */
+* {
+  /* 기본 박스 요소들에 부드러운 라운드 적용 */
+  --aicamp-radius: 0.75rem; /* 12px */
+}
+
+/* 카드, 버튼, 입력 필드 등 모든 박스 요소에 라운드 적용 */
+.card, [class*="card"], 
+.btn, [class*="btn"], [class*="button"],
+input, textarea, select,
+.border, [class*="border"],
+.bg-, [class*="bg-"],
+.shadow, [class*="shadow"] {
+  border-radius: var(--aicamp-radius) !important;
+}
+
+/* 특별한 요소들은 더 큰 라운드 적용 */
+.modal, .dialog, .popover,
+[class*="modal"], [class*="dialog"], [class*="popover"] {
+  border-radius: calc(var(--aicamp-radius) * 1.5) !important;
+}
+
+/* 작은 요소들은 더 작은 라운드 적용 */
+.badge, [class*="badge"],
+.tag, [class*="tag"] {
+  border-radius: calc(var(--aicamp-radius) * 0.5) !important;
+}
 
 /* 커스텀 애니메이션 */
 @keyframes fade-in-up {
