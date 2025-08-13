@@ -3,16 +3,29 @@ import {
   calculateEnhancedScores, 
   analyzeBenchmarkGap, 
   generateEnhancedSWOTAnalysis,
+  generate3DPriorityMatrix,
   EnhancedScoreResult,
   BenchmarkGapAnalysis,
-  EnhancedSWOTAnalysis
+  EnhancedSWOTAnalysis,
+  ThreeDimensionalMatrix
 } from '@/lib/utils/enhanced-score-engine';
+import { AICampProgramMatcher, ProgramRecommendationResult } from '@/lib/utils/aicamp-program-matcher';
+import { QualityMonitoringSystem, QualityReport } from '@/lib/utils/quality-monitoring-system';
+import { HighEngagementOrganizationAnalyzer, EngagementMetrics, EngagementGaps, EngagementRoadmap } from '@/lib/utils/high-engagement-organization-metrics';
 import { 
   generateEnhancedApplicantEmailTemplate,
   generateEnhancedAdminEmailTemplate,
   generateEmailSubjects,
   EnhancedEmailData
 } from '@/lib/utils/enhanced-email-service';
+import { 
+  generatePriorityMatrix,
+  PriorityMatrixResult 
+} from '@/lib/utils/priority-matrix-engine';
+import { 
+  generateAICampRoadmap,
+  AICampRoadmapResult 
+} from '@/lib/utils/aicamp-roadmap-engine';
 
 // GEMINI API 설정
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
@@ -65,6 +78,102 @@ async function generateAdvancedSWOTAnalysis(
   return swotAnalysis;
 }
 
+// 통합 AICAMP 로드맵 생성
+async function generateEnhancedAICampRoadmap(
+  enhancedScores: EnhancedScoreResult,
+  gapAnalysis: BenchmarkGapAnalysis,
+  swotAnalysis: EnhancedSWOTAnalysis,
+  priorityMatrix: ThreeDimensionalMatrix,
+  programRecommendations: ProgramRecommendationResult,
+  engagementRoadmap: EngagementRoadmap,
+  data: any
+) {
+  console.log('🗺️ 통합 AICAMP 로드맵 생성 시작...');
+  
+  // 기본 로드맵 구조
+  const roadmap = {
+    phases: {
+      phase1: {
+        title: "AI 역량 기반 구축 및 고몰입 조직 준비",
+        duration: "1-3개월",
+        objectives: [
+          "AI 기초 역량 확보",
+          "조직 몰입도 향상", 
+          "초기 성공 사례 창출"
+        ],
+        tasks: [],
+        programs: programRecommendations.immediate || [],
+        engagement: engagementRoadmap.phase1,
+        budget: "1,000-3,000만원",
+        expectedResults: "AI 수용도 30% 향상, 조직 몰입도 15점 상승",
+        kpis: ["AI 활용률", "직원 만족도", "업무 효율성"]
+      },
+      phase2: {
+        title: "AI 활용 확산 및 고몰입 문화 정착",
+        duration: "3-6개월",
+        objectives: [
+          "AI 도구 전사 확산",
+          "협업 체계 고도화",
+          "성과 기반 문화 조성"
+        ],
+        tasks: [],
+        programs: programRecommendations.shortTerm || [],
+        engagement: engagementRoadmap.phase2,
+        budget: "3,000-5,000만원",
+        expectedResults: "생산성 50% 향상, 조직 몰입도 20점 상승",
+        kpis: ["ROI 달성률", "프로젝트 성공률", "혁신 지수"]
+      },
+      phase3: {
+        title: "AI 기반 고몰입 조직 완성 및 지속 발전",
+        duration: "6-12개월",
+        objectives: [
+          "AI 네이티브 조직 완성",
+          "자율적 혁신 문화 정착",
+          "지속적 성장 체계 구축"
+        ],
+        tasks: [],
+        programs: [...(programRecommendations.mediumTerm || []), ...(programRecommendations.longTerm || [])],
+        engagement: engagementRoadmap.phase3,
+        budget: "5,000-1억원",
+        expectedResults: "전사 디지털 전환 완료, 조직 몰입도 25점 상승",
+        kpis: ["디지털 성숙도", "경쟁력 지수", "지속가능성"]
+      }
+    },
+    totalInvestment: programRecommendations.totalInvestment || 0,
+    expectedROI: programRecommendations.expectedROI || "투자 대비 300% 수익 예상",
+    successFactors: [
+      "경영진의 강력한 의지",
+      "단계별 체계적 접근",
+      "지속적 모니터링 및 개선",
+      "구성원 참여와 소통"
+    ]
+  };
+  
+  // 우선순위 매트릭스 기반 태스크 추가
+  if (priorityMatrix.executionRoadmap) {
+    roadmap.phases.phase1.tasks = priorityMatrix.executionRoadmap.immediate || [];
+    roadmap.phases.phase2.tasks = priorityMatrix.executionRoadmap.shortTerm || [];
+    roadmap.phases.phase3.tasks = priorityMatrix.executionRoadmap.mediumTerm || [];
+  }
+  
+  // 점수 기반 맞춤화
+  if (enhancedScores.totalScore < 40) {
+    roadmap.phases.phase1.title = "AI 기초 역량 긴급 구축";
+    roadmap.phases.phase1.duration = "2-4개월";
+    roadmap.phases.phase1.budget = "2,000-5,000만원";
+  } else if (enhancedScores.totalScore >= 80) {
+    roadmap.phases.phase1.title = "AI 고도화 및 혁신 가속";
+    roadmap.phases.phase1.duration = "1-2개월";
+    roadmap.phases.phase2.duration = "2-4개월";
+  }
+  
+  console.log('✅ 통합 AICAMP 로드맵 생성 완료');
+  console.log(`💰 총 투자 규모: ${roadmap.totalInvestment.toLocaleString()}원`);
+  console.log(`📈 예상 ROI: ${roadmap.expectedROI}`);
+  
+  return roadmap;
+}
+
 // 맞춤형 실행 로드맵 생성
 async function generateCustomizedRoadmap(
   scores: EnhancedScoreResult, 
@@ -81,7 +190,7 @@ async function generateCustomizedRoadmap(
       tasks: generatePhase1Tasks(scores, gapAnalysis, data),
       budget: calculateBudgetRange(data.budgetAllocation, 0.3),
       expectedResults: scores.totalScore < 50 ? "AI 도입 기반 마련 및 조직 준비도 향상" : "AI 전략 구체화 및 실행 계획 수립",
-      priority: gapAnalysis.priorityAreas.slice(0, 2)
+      priority: gapAnalysis.priorityAreas?.slice(0, 2) || []
     },
     phase2: {
       title: scores.totalScore < 50 ? "핵심 영역 도입 (4-8개월)" : "전략적 구현 (3-6개월)",
@@ -221,87 +330,116 @@ async function callGeminiAPI(prompt: string) {
   return result.candidates[0]?.content?.parts[0]?.text || '';
 }
 
-// 고도화된 GEMINI AI 분석 보고서 생성
+// 고도화된 GEMINI AI 분석 보고서 생성 (완전한 논리적 연계)
 async function generateEnhancedAIAnalysisReport(
   data: any, 
   scores: EnhancedScoreResult, 
   gapAnalysis: BenchmarkGapAnalysis, 
   swotAnalysis: EnhancedSWOTAnalysis, 
-  roadmap: any
+  priorityMatrix: ThreeDimensionalMatrix,
+  programRecommendations: ProgramRecommendationResult,
+  engagementMetrics: EngagementMetrics,
+  aicampRoadmap: any
 ) {
   const prompt = `
-다음은 45문항 기반 고도화된 AI 역량 진단 결과입니다. 전문적이고 실용적인 분석 보고서를 작성해주세요.
+다음은 45문항 기반 완전한 논리적 연계를 통한 AI 역량 진단 결과입니다. 최고 수준의 전문적이고 실용적인 분석 보고서를 작성해주세요.
 
 **기업 정보:**
 - 회사명: ${data.companyName}
 - 업종: ${data.industry}
 - 규모: ${data.employeeCount} (${data.annualRevenue || '매출 비공개'})
-- 설립연도: ${data.establishmentYear}
-- 소재지: ${data.location}
+- 설립연도: ${data.establishmentYear || '비공개'}
+- 소재지: ${data.location || '비공개'}
 
-**45문항 기반 진단 점수 (100점 만점):**
-- 사업 기반: ${scores.categoryScores.businessFoundation}점
-- 현재 AI 활용: ${scores.categoryScores.currentAI}점
-- 조직 준비도: ${scores.categoryScores.organizationReadiness}점
-- 기술 인프라: ${scores.categoryScores.techInfrastructure}점
-- 목표 명확성: ${scores.categoryScores.goalClarity}점
-- 실행 역량: ${scores.categoryScores.executionCapability}점
-- **전체 점수: ${scores.totalScore}점 (${scores.maturityLevel} 수준)**
-- **백분위: 상위 ${100-scores.percentile}% (${scores.percentile}th percentile)**
+**45문항 기반 정밀 진단 점수 (100점 만점):**
+- 사업 기반: ${scores.categoryScores?.businessFoundation || 0}점
+- 현재 AI 활용: ${scores.categoryScores?.currentAI || 0}점
+- 조직 준비도: ${scores.categoryScores?.organizationReadiness || 0}점
+- 기술 인프라: ${scores.categoryScores?.techInfrastructure || 0}점
+- 목표 명확성: ${scores.categoryScores?.goalClarity || 0}점
+- 실행 역량: ${scores.categoryScores?.executionCapability || 0}점
+- **전체 점수: ${scores.totalScore || 0}점 (${scores.maturityLevel || 'Basic'} 수준)**
+- **백분위: 상위 ${100-(scores.percentile || 50)}% (${scores.percentile || 50}th percentile)**
 
-**업종/규모별 벤치마크 비교:**
+**업종/규모별 벤치마크 갭 분석:**
 - 경쟁 포지션: ${gapAnalysis.competitivePosition}
-- 업종 평균 대비: ${gapAnalysis.industryGap.total > 0 ? '+' : ''}${gapAnalysis.industryGap.total}점
-- 규모 평균 대비: ${gapAnalysis.sizeGap.total > 0 ? '+' : ''}${gapAnalysis.sizeGap.total}점
-- 우선순위 개선 영역: ${gapAnalysis.priorityAreas.join(', ')}
+- 업종 평균 대비: ${gapAnalysis.industryGap?.total > 0 ? '+' : ''}${gapAnalysis.industryGap?.total || 0}점
+- 규모 평균 대비: ${gapAnalysis.sizeGap?.total > 0 ? '+' : ''}${gapAnalysis.sizeGap?.total || 0}점
+- 우선순위 개선 영역: ${gapAnalysis.priorityAreas?.join(', ') || '분석 중'}
 
-**상세 분석:**
-- 주요 강점: ${scores.detailedAnalysis.strengths.join(', ')}
-- 약점 영역: ${scores.detailedAnalysis.weaknesses.join(', ')}
-- 중요 갭: ${scores.detailedAnalysis.criticalGaps.join(', ')}
-- 빠른 개선: ${scores.detailedAnalysis.quickWins.join(', ')}
+**고도화된 SWOT 분석 결과:**
+- SO 전략 (강점+기회): ${swotAnalysis.strategicRecommendations?.so_strategies?.slice(0, 2)?.join(', ') || '분석 중'}
+- WO 전략 (약점보완+기회): ${swotAnalysis.strategicRecommendations?.wo_strategies?.slice(0, 2)?.join(', ') || '분석 중'}
+- ST 전략 (강점으로 위협대응): ${swotAnalysis.strategicRecommendations?.st_strategies?.slice(0, 2)?.join(', ') || '분석 중'}
+- WT 전략 (약점보완+위협최소화): ${swotAnalysis.strategicRecommendations?.wt_strategies?.slice(0, 2)?.join(', ') || '분석 중'}
 
-**고도화된 SWOT 분석:**
-- 내부 강점: ${swotAnalysis.strengths.internal.slice(0, 3).join(', ')}
-- 경쟁 강점: ${swotAnalysis.strengths.competitive.slice(0, 2).join(', ')}
-- 운영 약점: ${swotAnalysis.weaknesses.operational.slice(0, 3).join(', ')}
-- 기술 약점: ${swotAnalysis.weaknesses.technical.slice(0, 2).join(', ')}
-- 시장 기회: ${swotAnalysis.opportunities.market.slice(0, 3).join(', ')}
-- 기술 기회: ${swotAnalysis.opportunities.technology.slice(0, 2).join(', ')}
+**중요도-긴급성-실현가능성 우선순위 매트릭스:**
+- 총 액션 아이템: ${priorityMatrix.actionItems?.length || 0}개
+- 즉시 실행 과제: ${priorityMatrix.quadrants?.doFirst?.items?.slice(0, 3)?.join(', ') || '없음'}
+- 계획 수립 과제: ${priorityMatrix.quadrants?.schedule?.items?.slice(0, 3)?.join(', ') || '없음'}
+- 위임/자동화 과제: ${priorityMatrix.quadrants?.delegate?.items?.slice(0, 3)?.join(', ') || '없음'}
 
-**맞춤형 로드맵:**
-- 1단계: ${roadmap.phase1.title} - ${roadmap.phase1.expectedResults}
-- 2단계: ${roadmap.phase2.title} - ${roadmap.phase2.expectedResults}
-- 3단계: ${roadmap.phase3.title} - ${roadmap.phase3.expectedResults}
+**AICAMP 고몰입조직구축 3단계 로드맵:**
+- 1단계 (${aicampRoadmap.phases?.phase1?.duration || '1-3개월'}): ${aicampRoadmap.phases?.phase1?.title || 'AI 역량 기반 구축'}
+  목표: ${aicampRoadmap.phases?.phase1?.objectives?.slice(0, 2)?.join(', ') || 'AI 기초 역량 확보'}
+  예산: ${aicampRoadmap.phases?.phase1?.budget || '1,000-3,000만원'}
+  
+- 2단계 (${aicampRoadmap.phases?.phase2?.duration || '3-6개월'}): ${aicampRoadmap.phases?.phase2?.title || 'AI 활용 확산'}
+  목표: ${aicampRoadmap.phases?.phase2?.objectives?.slice(0, 2)?.join(', ') || 'AI 도구 전사 확산'}
+  예산: ${aicampRoadmap.phases?.phase2?.budget || '3,000-5,000만원'}
+  
+- 3단계 (${aicampRoadmap.phases?.phase3?.duration || '6-12개월'}): ${aicampRoadmap.phases?.phase3?.title || '고몰입 조직 완성'}
+  목표: ${aicampRoadmap.phases?.phase3?.objectives?.slice(0, 2)?.join(', ') || 'AI 네이티브 조직 완성'}
+  예산: ${aicampRoadmap.phases?.phase3?.budget || '5,000-1억원'}
 
-다음 구조로 전문적인 분석 보고서를 작성해주세요:
+**예상 투자 및 효과:**
+- 총 투자 규모: ${aicampRoadmap.totalInvestment?.toLocaleString() || '5,000만-1억'}원
+- 예상 ROI: ${aicampRoadmap.expectedROI || '투자 대비 300% 수익 예상'}
+- 현재 성숙도: ${scores.maturityLevel || 'Basic'} → 목표: Advanced
 
-## 1. 진단 결과 종합 평가 (4-5문장)
-- 전체적인 AI 역량 수준과 업종/규모 대비 포지션 평가
-- 핵심 특징 및 경쟁력 분석
+다음 구조로 최고 수준의 전문적인 분석 보고서를 작성해주세요:
 
-## 2. 카테고리별 강점 분석 (3-4개)
-- 점수가 높은 영역의 구체적 강점과 활용 방안
-- 경쟁 우위로 발전시킬 수 있는 요소들
+## 1. 진단 결과 종합 평가 (5-6문장)
+- 45문항 정밀 진단을 통한 전체적인 AI 역량 수준 평가
+- 업종/규모 대비 경쟁 포지션 및 핵심 특징 분석
+- 현재 상태에서 목표 상태로의 발전 가능성 평가
 
-## 3. 우선 개선 영역 (3-4개)
-- 점수가 낮거나 업종 평균 대비 부족한 영역
-- 각 영역별 구체적 개선 방향
+## 2. 논리적 연계 분석: 점수 → SWOT → 우선순위 → 로드맵
+- 점수 분석 결과가 SWOT 전략에 어떻게 반영되었는지
+- SWOT 전략이 우선순위 매트릭스로 어떻게 구체화되었는지
+- 우선순위가 AICAMP 로드맵에 어떻게 체계적으로 연계되었는지
 
-## 4. 전략적 추진 과제 (5개)
-- SWOT 분석 기반 핵심 실행 과제
-- 단기(3개월), 중기(6개월), 장기(12개월) 관점
+## 3. 카테고리별 전략적 강점 활용 방안 (4-5개)
+- 점수가 높은 영역의 구체적 강점과 전략적 활용 방안
+- 각 강점을 SO/ST 전략으로 어떻게 발전시킬 것인지
 
-## 5. 투자 우선순위 및 ROI 전망
-- 예산 배분 권고사항
-- 단계별 기대 효과 및 투자 회수 전망
+## 4. 우선 개선 영역 및 WO/WT 전략 (4-5개)
+- 갭 분석을 통해 도출된 약점 영역의 구체적 개선 방향
+- 각 약점을 WO/WT 전략으로 어떻게 보완할 것인지
 
-## 6. 리스크 관리 방안
-- 예상 도전과제와 대응 전략
-- 성공 확률 제고 방안
+## 5. 중요도-긴급성-실현가능성 기반 실행 우선순위
+- DO (즉시 실행): ${priorityMatrix.quadrants.DO.length}개 과제
+- DECIDE (계획 후 실행): ${priorityMatrix.quadrants.DECIDE.length}개 과제  
+- 각 사분면별 핵심 과제와 실행 전략
 
-전문 컨설턴트 수준의 깊이 있는 분석과 실행 가능한 구체적 권고사항을 포함해주세요.
-업종 특성과 기업 규모를 충분히 반영하여 맞춤형 분석을 제공해주세요.
+## 6. AICAMP 고몰입조직구축 로드맵의 논리적 타당성
+- 3단계 로드맵이 우선순위 매트릭스를 어떻게 체계적으로 반영했는지
+- 각 단계별 목표와 AICAMP 프로그램의 연계성
+- 단계별 투자 대비 예상 효과 분석
+
+## 7. 투자 우선순위 및 ROI 최적화 전략
+- 총 투자 ${aicampRoadmap.overview.totalInvestment} 대비 ${aicampRoadmap.overview.expectedROI} ROI의 실현 가능성
+- 단계별 예산 배분의 전략적 타당성
+- 투자 회수 시점 및 위험 요소 분석
+
+## 8. 리스크 관리 및 성공 확률 제고 방안
+- ${aicampRoadmap.analysis.majorRisks.length}개 주요 위험 요소와 대응 전략
+- 성공적인 고몰입조직구축을 위한 핵심 성공 요인
+- 단계별 성과 측정 및 조정 방안
+
+**중요**: 이 보고서는 45문항 정밀 진단 → 갭 분석 → SWOT 전략 → 우선순위 매트릭스 → AICAMP 로드맵의 완벽한 논리적 연계를 바탕으로 작성된 것임을 강조하고, 각 단계가 어떻게 연결되어 최종 고몰입조직구축 방안으로 귀결되는지를 명확히 설명해주세요.
+
+전문 컨설턴트 수준을 넘어서는 최고 품질의 분석과 ${data.industry} 업종 특성을 완벽히 반영한 맞춤형 실행 방안을 제시해주세요.
 `;
 
   return await callGeminiAPI(prompt);
@@ -354,13 +492,14 @@ async function callGoogleAppsScript(payload: any) {
   }
 }
 
-// 고도화된 HTML 보고서 생성
+// 고도화된 HTML 보고서 생성 (완전한 논리적 연계)
 async function generateEnhancedHTMLReport(
-  data: any, 
-  scores: EnhancedScoreResult, 
-  gapAnalysis: BenchmarkGapAnalysis, 
-  swotAnalysis: EnhancedSWOTAnalysis, 
-  roadmap: any, 
+  data: any,
+  scores: EnhancedScoreResult,
+  gapAnalysis: BenchmarkGapAnalysis,
+  swotAnalysis: EnhancedSWOTAnalysis,
+  priorityMatrix: ThreeDimensionalMatrix,
+  aicampRoadmap: any,
   aiAnalysis: string
 ) {
   return `
@@ -402,7 +541,7 @@ async function generateEnhancedHTMLReport(
         <div class="header">
             <h1>${data.companyName} AI역량진단 보고서</h1>
             <p>진단일: ${new Date().toLocaleDateString('ko-KR')}</p>
-            <span class="maturity-level level-${scores.level.toLowerCase()}">${scores.level} 수준</span>
+            <span class="maturity-level level-${(scores.maturityLevel || 'basic').toLowerCase()}">${scores.maturityLevel || 'Basic'} 수준</span>
         </div>
 
         <!-- 45문항 기반 점수 대시보드 -->
@@ -444,23 +583,23 @@ async function generateEnhancedHTMLReport(
             <div class="benchmark-grid">
                 <div class="benchmark-card">
                     <div class="benchmark-title">경쟁 포지션</div>
-                    <div class="benchmark-value position-${gapAnalysis.competitivePosition.toLowerCase().replace(' ', '-')}">${gapAnalysis.competitivePosition}</div>
+                    <div class="benchmark-value position-${(gapAnalysis.competitivePosition || 'average').toLowerCase().replace(' ', '-')}">${gapAnalysis.competitivePosition || 'Average'}</div>
                 </div>
                 <div class="benchmark-card">
                     <div class="benchmark-title">업종 평균 대비</div>
-                    <div class="benchmark-value ${gapAnalysis.industryGap.total >= 0 ? 'positive' : 'negative'}">
-                        ${gapAnalysis.industryGap.total > 0 ? '+' : ''}${gapAnalysis.industryGap.total}점
+                    <div class="benchmark-value ${(gapAnalysis.industryGap?.total || 0) >= 0 ? 'positive' : 'negative'}">
+                        ${(gapAnalysis.industryGap?.total || 0) > 0 ? '+' : ''}${gapAnalysis.industryGap?.total || 0}점
                     </div>
                 </div>
                 <div class="benchmark-card">
                     <div class="benchmark-title">규모 평균 대비</div>
-                    <div class="benchmark-value ${gapAnalysis.sizeGap.total >= 0 ? 'positive' : 'negative'}">
-                        ${gapAnalysis.sizeGap.total > 0 ? '+' : ''}${gapAnalysis.sizeGap.total}점
+                    <div class="benchmark-value ${(gapAnalysis.sizeGap?.total || 0) >= 0 ? 'positive' : 'negative'}">
+                        ${(gapAnalysis.sizeGap?.total || 0) > 0 ? '+' : ''}${gapAnalysis.sizeGap?.total || 0}점
                     </div>
                 </div>
                 <div class="benchmark-card">
                     <div class="benchmark-title">백분위</div>
-                    <div class="benchmark-value">상위 ${100-scores.percentile}%</div>
+                    <div class="benchmark-value">상위 ${100-(scores.percentile || 50)}%</div>
                 </div>
             </div>
         </div>
@@ -548,6 +687,7 @@ async function generateEnhancedHTMLReport(
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     console.log('🧠 AI역량진단 API 시작 - GEMINI 2.5 Flash 모델');
     
@@ -587,24 +727,93 @@ export async function POST(request: NextRequest) {
     const swotAnalysis = await generateAdvancedSWOTAnalysis(enhancedScores, gapAnalysis, data);
     console.log('✅ SWOT 분석 완료');
 
-    // 4단계: 맞춤형 실행 로드맵 생성
-    console.log('🗺️ 4단계: 맞춤형 로드맵 생성 중...');
-    const roadmap = await generateCustomizedRoadmap(enhancedScores, gapAnalysis, swotAnalysis, data);
-    console.log('✅ 로드맵 생성 완료');
+    // 4단계: 3차원 우선순위 매트릭스 생성 (중요도×긴급성×실현가능성)
+    console.log('📊 4단계: 3차원 우선순위 매트릭스 생성 중...');
+    const priorityMatrix = generate3DPriorityMatrix(enhancedScores, gapAnalysis, swotAnalysis, data);
+    console.log('✅ 3차원 우선순위 매트릭스 생성 완료');
 
-    // 5단계: GEMINI AI 분석 보고서 생성
-    console.log('🤖 5단계: GEMINI AI 분석 보고서 생성 중...');
-    const aiAnalysis = await generateEnhancedAIAnalysisReport(data, enhancedScores, gapAnalysis, swotAnalysis, roadmap);
-    console.log('✅ AI 분석 보고서 생성 완료');
+    // 5단계: AI CAMP 프로그램 매칭 및 추천
+    console.log('🎯 5단계: AI CAMP 프로그램 매칭 중...');
+    const programRecommendations = AICampProgramMatcher.recommendPrograms(
+      enhancedScores, 
+      gapAnalysis, 
+      priorityMatrix, 
+      data
+    );
+    console.log('✅ AI CAMP 프로그램 매칭 완료');
 
-    // 6단계: 고도화된 HTML 보고서 생성
-    console.log('📄 6단계: 고도화된 HTML 보고서 생성 중...');
-    const htmlReport = await generateEnhancedHTMLReport(data, enhancedScores, gapAnalysis, swotAnalysis, roadmap, aiAnalysis);
-    console.log('✅ HTML 보고서 생성 완료');
+    // 6단계: 고몰입조직 구축 지표 분석
+    console.log('🎯 6단계: 고몰입조직 지표 분석 중...');
+    const engagementMetrics = HighEngagementOrganizationAnalyzer.analyzeEngagementMetrics(
+      data, enhancedScores, gapAnalysis, priorityMatrix
+    );
+    const engagementGaps = HighEngagementOrganizationAnalyzer.analyzeEngagementGaps(
+      engagementMetrics, gapAnalysis, data.employeeCount || ''
+    );
+    const engagementRoadmap = HighEngagementOrganizationAnalyzer.generateEngagementRoadmap(
+      engagementMetrics, engagementGaps, programRecommendations
+    );
+    console.log('✅ 고몰입조직 지표 분석 완료');
 
-    // 7단계: Google Apps Script 연동 및 이메일 발송
-    console.log('📧 7단계: Google Apps Script 연동 및 이메일 발송 중...');
+    // 7단계: AICAMP 연계 통합 로드맵 생성
+    console.log('🚀 7단계: AICAMP 통합 로드맵 생성 중...');
+    const aicampRoadmap = await generateEnhancedAICampRoadmap(
+      enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, 
+      programRecommendations, engagementRoadmap, data
+    );
+    console.log('✅ AICAMP 통합 로드맵 생성 완료');
+
+    // 8단계: GEMINI AI 분석 보고서 생성 (완전한 논리적 연계)
+    console.log('🤖 8단계: GEMINI AI 종합 분석 보고서 생성 중...');
+    let aiAnalysis = '';
+    try {
+      aiAnalysis = await generateEnhancedAIAnalysisReport(
+        data, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, 
+        programRecommendations, engagementMetrics, aicampRoadmap
+      );
+      console.log('✅ AI 분석 보고서 생성 완료');
+    } catch (aiError) {
+      console.warn('⚠️ AI 분석 보고서 생성 실패, 기본 분석으로 대체:', aiError.message);
+      aiAnalysis = `
+# ${data.companyName} AI 역량 진단 결과
+
+## 진단 점수
+- 전체 점수: ${enhancedScores.totalScore || 0}점
+- 성숙도 수준: ${enhancedScores.maturityLevel || 'Basic'}
+
+## 주요 권고사항
+1. AI 기초 역량 강화 필요
+2. 조직 준비도 향상 권장
+3. 단계적 AI 도입 계획 수립
+
+상세한 분석 보고서는 추후 제공될 예정입니다.
+      `;
+    }
+
+    // 진단 ID 생성
     const diagnosisId = `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // 9단계: 실시간 품질 모니터링 및 검증
+    console.log('🔍 9단계: 실시간 품질 모니터링 중...');
+    const qualityMonitor = QualityMonitoringSystem.getInstance();
+    const qualityReport = await qualityMonitor.evaluateDiagnosisQuality(
+      { ...data, diagnosisId }, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, programRecommendations
+    );
+    console.log(`✅ 품질 모니터링 완료: 품질 점수 ${qualityReport.overallScore}점`);
+
+    // 7단계: 고도화된 HTML 보고서 생성
+    console.log('📄 7단계: 고도화된 HTML 보고서 생성 중...');
+    let htmlReport = '';
+    try {
+      htmlReport = await generateEnhancedHTMLReport(data, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, aicampRoadmap, aiAnalysis);
+      console.log('✅ HTML 보고서 생성 완료');
+    } catch (htmlError) {
+      console.warn('⚠️ HTML 보고서 생성 실패, 기본 보고서로 대체:', htmlError.message);
+      htmlReport = `<!DOCTYPE html><html><head><title>AI 역량 진단 보고서</title></head><body><h1>${data.companyName} AI 역량 진단 결과</h1><p>총점: ${enhancedScores.totalScore}점</p><p>상세한 보고서는 추후 제공될 예정입니다.</p></body></html>`;
+    }
+
+    // 8단계: Google Apps Script 연동 및 이메일 발송
+    console.log('📧 8단계: Google Apps Script 연동 및 이메일 발송 중...');
     const reportPassword = Math.random().toString(36).substring(2, 8).toUpperCase();
     
     // 이메일 데이터 준비
@@ -617,7 +826,7 @@ export async function POST(request: NextRequest) {
       enhancedScores,
       gapAnalysis,
       swotAnalysis,
-      roadmap,
+      aicampRoadmap,
       aiAnalysis,
       htmlReport,
       diagnosisId,
@@ -667,7 +876,7 @@ export async function POST(request: NextRequest) {
           enhancedScores,
           gapAnalysis,
           swotAnalysis,
-          roadmap,
+          aicampRoadmap,
           aiAnalysis,
           htmlReport
         }
@@ -717,8 +926,24 @@ export async function POST(request: NextRequest) {
       swotAnalysis,
       strategicRecommendations: swotAnalysis.strategicRecommendations,
       
-      // 맞춤형 로드맵
-      roadmap,
+      // 3차원 우선순위 매트릭스 (중요도×긴급성×실현가능성) - ENHANCED
+      priorityMatrix,
+      actionItems: priorityMatrix.actionItems,
+      executionRoadmap: priorityMatrix.executionRoadmap,
+      
+      // AI CAMP 프로그램 추천 시스템 - NEW
+      programRecommendations,
+      totalInvestment: programRecommendations.totalInvestment,
+      expectedROI: programRecommendations.expectedROI,
+      
+      // 고몰입조직 구축 지표 - NEW
+      engagementMetrics,
+      engagementGaps,
+      engagementRoadmap,
+      overallEngagement: engagementMetrics.overallEngagement,
+      
+      // 통합 AICAMP 고몰입조직구축 로드맵
+      aicampRoadmap,
       
       // AI 분석 보고서
       aiAnalysis,
@@ -727,14 +952,24 @@ export async function POST(request: NextRequest) {
       htmlReport,
       htmlReportGenerated: true,
       
-      // 메타데이터 (V13.0 ULTIMATE)
+      // 품질 모니터링 결과 - NEW
+      qualityReport,
+      qualityScore: qualityReport.overallScore,
+      qualityAlerts: qualityReport.alerts,
+      qualityRecommendations: qualityReport.recommendations,
+      
+      // 메타데이터 (V14.0 ULTIMATE ENHANCED)
       timestamp: new Date().toISOString(),
-      version: 'V13.0-ULTIMATE-INTEGRATED-SYSTEM',
+      version: 'V14.0-ULTIMATE-ENHANCED-SYSTEM',
       model: 'gemini-2.5-flash',
       questionCount: 45,
-      analysisDepth: 'Ultimate',
+      analysisDepth: 'Ultimate Enhanced',
       benchmarkEnabled: true,
       industryComparison: true,
+      priorityMatrixEnabled: true,        // NEW
+      programMatchingEnabled: true,       // NEW  
+      engagementAnalysisEnabled: true,    // NEW
+      qualityMonitoringEnabled: true,     // NEW
       sizeComparison: true,
       systemIntegration: 'Google Apps Script V13.0',
       emailSystem: 'Enhanced Member Recognition',
@@ -750,10 +985,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ AI역량진단 오류:', error);
+    console.error('❌ 스택 트레이스:', error.stack);
     
     return NextResponse.json({
       success: false,
       error: error.message || '진단 처리 중 오류가 발생했습니다.',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       timestamp: new Date().toISOString()
     }, { 
       status: 500 
