@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { diagnosisSections } from '../constants/questions';
+import { enhancedDiagnosisSections } from '../constants/enhanced-questions';
 import { DiagnosisSection, Question, AIDiagnosisData } from '../types';
-import QuestionRenderer from './QuestionRenderer';
-import DiagnosisIntro from './DiagnosisIntro';
-import DiagnosisComplete from './DiagnosisComplete';
+import EnhancedQuestionRenderer from './EnhancedQuestionRenderer';
+import EnhancedDiagnosisIntro from './EnhancedDiagnosisIntro';
+import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete';
 
 const AIDiagnosisForm: React.FC = () => {
   const { toast } = useToast();
@@ -25,10 +25,10 @@ const AIDiagnosisForm: React.FC = () => {
 
   // 전체 진행률 계산
   const progress = currentSection === -1 ? 0 : 
-    ((currentSection + 1) / diagnosisSections.length) * 100;
+    ((currentSection + 1) / enhancedDiagnosisSections.length) * 100;
 
   // 현재 섹션 데이터
-  const currentSectionData = currentSection >= 0 ? diagnosisSections[currentSection] : null;
+  const currentSectionData = currentSection >= 0 ? enhancedDiagnosisSections[currentSection] : null;
 
   // 로컬 스토리지에 진행 상황 저장
   useEffect(() => {
@@ -123,7 +123,7 @@ const AIDiagnosisForm: React.FC = () => {
       setCompletedSections(prev => [...prev, currentSection]);
     }
 
-    if (currentSection < diagnosisSections.length - 1) {
+    if (currentSection < enhancedDiagnosisSections.length - 1) {
       setCurrentSection(prev => prev + 1);
       window.scrollTo(0, 0);
     } else {
@@ -274,12 +274,12 @@ const AIDiagnosisForm: React.FC = () => {
 
   // 완료 화면
   if (diagnosisResult) {
-    return <DiagnosisComplete result={diagnosisResult} />;
+    return <EnhancedDiagnosisComplete result={diagnosisResult} />;
   }
 
   // 인트로 화면
   if (currentSection === -1) {
-    return <DiagnosisIntro onStart={handleStart} />;
+    return <EnhancedDiagnosisIntro onStart={handleStart} />;
   }
 
   return (
@@ -310,7 +310,7 @@ const AIDiagnosisForm: React.FC = () => {
             
             {/* 섹션 인디케이터 */}
             <div className="flex justify-between">
-              {diagnosisSections.map((section, index) => (
+              {enhancedDiagnosisSections.map((section, index) => (
                 <button
                   key={section.id}
                   onClick={() => goToSection(index)}
@@ -369,14 +369,17 @@ const AIDiagnosisForm: React.FC = () => {
                           {group.description}
                         </p>
                       )}
-                      <div className="space-y-6">
-                        {group.questions.map((question) => (
-                          <QuestionRenderer
+                      <div className="space-y-8">
+                        {group.questions.map((question, questionIndex) => (
+                          <EnhancedQuestionRenderer
                             key={question.id}
                             question={question}
                             value={formData[question.id]}
                             onChange={(value) => updateFieldValue(question.id, value)}
                             error={errors[question.id]}
+                            sectionProgress={progress}
+                            questionIndex={questionIndex}
+                            totalQuestions={group.questions.length}
                           />
                         ))}
                       </div>
@@ -418,7 +421,7 @@ const AIDiagnosisForm: React.FC = () => {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 처리 중...
               </>
-            ) : currentSection === diagnosisSections.length - 1 ? (
+            ) : currentSection === enhancedDiagnosisSections.length - 1 ? (
               <>
                 제출하기
                 <Check className="ml-2 h-4 w-4" />
