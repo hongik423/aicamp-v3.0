@@ -13,6 +13,14 @@ export async function POST(request: NextRequest) {
     // 요청 데이터 파싱 (45개 질문 구조)
     const data = await request.json();
     
+    // 환경 변수 검증
+    if (!GAS_URL) {
+      return NextResponse.json(
+        { success: false, error: 'GAS URL이 설정되지 않았습니다. 환경변수 NEXT_PUBLIC_GAS_URL을 확인하세요.' },
+        { status: 500 }
+      );
+    }
+
     // 데이터 유효성 검사
     if (!data.contactEmail || !data.contactName || !data.companyName) {
       return NextResponse.json(
@@ -21,68 +29,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Google Apps Script로 전송할 데이터 준비 (45개 질문 구조에 맞춤)
-    const gasPayload = {
+    // 필드 매핑 어댑터 (프론트/다른 클라이언트의 다양한 키를 GAS 스키마로 정규화)
+    const mapToGasSchema = (src: any) => ({
       // 연락처 정보
-      contactName: data.contactName,
-      contactEmail: data.contactEmail,
-      contactPhone: data.contactPhone,
-      contactPosition: data.contactPosition,
+      contactName: src.contactName || src.name,
+      contactEmail: src.contactEmail || src.email,
+      contactPhone: src.contactPhone || src.phone,
+      contactPosition: src.contactPosition || src.position,
       
       // 기업 기본정보
-      companyName: data.companyName,
-      businessRegistration: data.businessRegistration,
-      establishmentYear: data.establishmentYear,
-      industry: data.industry,
-      businessType: data.businessType,
-      location: data.location,
-      employeeCount: data.employeeCount,
-      annualRevenue: data.annualRevenue,
+      companyName: src.companyName,
+      businessRegistration: src.businessRegistration,
+      establishmentYear: src.establishmentYear,
+      industry: src.industry || src.industryMain,
+      businessType: src.businessType || src.businessModel,
+      location: src.location,
+      employeeCount: src.employeeCount,
+      annualRevenue: src.annualRevenue,
       
       // 현재 AI/디지털 활용 현황
-      aiFamiliarity: data.aiFamiliarity,
-      currentAiTools: data.currentAiTools,
-      aiUsageDepartments: data.aiUsageDepartments,
-      automationLevelByFunction: data.automationLevelByFunction,
-      dataDigitalization: data.dataDigitalization,
-      currentSystems: data.currentSystems,
-      systemIntegration: data.systemIntegration,
-      dataManagement: data.dataManagement,
+      aiFamiliarity: src.aiFamiliarity,
+      currentAiTools: src.currentAiTools,
+      aiUsageDepartments: src.aiUsageDepartments,
+      automationLevelByFunction: src.automationLevelByFunction,
+      dataDigitalization: src.dataDigitalization,
+      currentSystems: src.currentSystems || src.itSystems,
+      systemIntegration: src.systemIntegration,
+      dataManagement: src.dataManagement,
       
       // AI 역량 및 준비도
-      changeReadiness: data.changeReadiness,
-      leadershipSupport: data.leadershipSupport,
-      employeeAttitude: data.employeeAttitude,
-      changeManagementExperience: data.changeManagementExperience,
-      budgetAllocation: data.budgetAllocation,
-      technicalPersonnel: data.technicalPersonnel,
-      externalPartnership: data.externalPartnership,
-      trainingInvestment: data.trainingInvestment,
-      dataQuality: data.dataQuality,
-      analyticsCapability: data.analyticsCapability,
-      decisionMaking: data.decisionMaking,
+      changeReadiness: src.changeReadiness,
+      leadershipSupport: src.leadershipSupport,
+      employeeAttitude: src.employeeAttitude,
+      changeManagementExperience: src.changeManagementExperience,
+      budgetAllocation: src.budgetAllocation,
+      technicalPersonnel: src.technicalPersonnel,
+      externalPartnership: src.externalPartnership,
+      trainingInvestment: src.trainingInvestment,
+      dataQuality: src.dataQuality,
+      analyticsCapability: src.analyticsCapability,
+      decisionMaking: src.decisionMaking,
       
       // 기술 인프라 및 보안
-      cloudAdoption: data.cloudAdoption,
-      systemScalability: data.systemScalability,
-      integrationCapability: data.integrationCapability,
-      securityMeasures: data.securityMeasures,
-      complianceRequirements: data.complianceRequirements,
-      riskManagement: data.riskManagement,
+      cloudAdoption: src.cloudAdoption || src.cloudUsage,
+      systemScalability: src.systemScalability,
+      integrationCapability: src.integrationCapability,
+      securityMeasures: src.securityMeasures,
+      complianceRequirements: src.complianceRequirements,
+      riskManagement: src.riskManagement,
       
       // AI 도입 목표 및 기대효과
-      aiTransformationGoals: data.aiTransformationGoals,
-      specificImprovements: data.specificImprovements,
-      expectedROI: data.expectedROI,
-      successMetrics: data.successMetrics,
-      timeframe: data.timeframe,
+      aiTransformationGoals: src.aiTransformationGoals,
+      specificImprovements: src.specificImprovements,
+      expectedROI: src.expectedROI || src.roiExpectations,
+      successMetrics: src.successMetrics || src.kpiPriorities,
+      timeframe: src.timeframe || src.implementationTimeline,
       
       // 실행 계획 및 우선순위
-      priorityFunctions: data.priorityFunctions,
-      implementationApproach: data.implementationApproach,
-      resourceAllocation: data.resourceAllocation,
-      challengesAnticipated: data.challengesAnticipated,
-      supportNeeds: data.supportNeeds
+      priorityFunctions: src.priorityFunctions,
+      implementationApproach: src.implementationApproach,
+      resourceAllocation: src.resourceAllocation,
+      challengesAnticipated: src.challengesAnticipated,
+      supportNeeds: src.supportNeeds
+    });
+
+    // Google Apps Script로 전송할 데이터 준비 (45개 질문 구조에 맞춤)
+    const gasPayload = {
+      action: 'ai_diagnosis',
+      ...mapToGasSchema(data)
     };
 
     // Google Apps Script 호출

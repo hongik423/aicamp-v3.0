@@ -378,7 +378,220 @@ function normalizeFormData(rawData) {
 // ================================================================================
 
 /**
- * GEMINI 2.5 FLASH를 사용한 45개 질문 기반 AI 분석
+ * 고도화된 AI 역량진단 평가 시스템
+ * - 점수 기반 평가
+ * - SWOT 분석
+ * - 우선순위 매트릭스
+ * - 단계별 로드맵
+ */
+function calculateDiagnosisScores(normalizedData) {
+  console.log('📊 AI 역량진단 점수 계산 시작');
+  
+  const scores = {
+    currentAI: 0,
+    readiness: 0,
+    infrastructure: 0,
+    goals: 0,
+    implementation: 0
+  };
+  
+  // 1. 현재 AI 활용 현황 점수 (0-100)
+  scores.currentAI = Math.round(
+    (normalizedData.currentAIUsage.aiFamiliarity * 10) +
+    (normalizedData.currentAIUsage.currentAiTools.length * 5) +
+    (normalizedData.currentAIUsage.dataDigitalization * 10) +
+    (normalizedData.currentAIUsage.systemIntegration * 10)
+  );
+  
+  // 2. 조직 준비도 점수 (0-100)
+  scores.readiness = Math.round(
+    (normalizedData.aiCapabilities.changeReadiness * 15) +
+    (normalizedData.aiCapabilities.leadershipSupport * 15) +
+    (normalizedData.aiCapabilities.employeeAttitude * 10) +
+    (normalizedData.aiCapabilities.trainingInvestment * 10)
+  );
+  
+  // 3. 기술 인프라 점수 (0-100)
+  scores.infrastructure = Math.round(
+    (normalizedData.techInfrastructure.cloudAdoption * 15) +
+    (normalizedData.techInfrastructure.systemScalability * 15) +
+    (normalizedData.techInfrastructure.integrationCapability * 15) +
+    (normalizedData.techInfrastructure.riskManagement * 5)
+  );
+  
+  // 4. 목표 명확성 점수 (0-100)
+  scores.goals = Math.round(
+    (normalizedData.aiGoals.aiTransformationGoals.length * 10) +
+    (normalizedData.aiGoals.successMetrics.length * 10) +
+    (normalizedData.aiGoals.specificImprovements ? 30 : 0)
+  );
+  
+  // 5. 실행 역량 점수 (0-100)
+  scores.implementation = Math.round(
+    (normalizedData.implementationPlan.priorityFunctions.length * 8) +
+    (normalizedData.implementationPlan.supportNeeds.length * 6) +
+    (normalizedData.implementationPlan.resourceAllocation ? 20 : 0)
+  );
+  
+  // 전체 평균 점수
+  const totalScore = Math.round(
+    (scores.currentAI + scores.readiness + scores.infrastructure + scores.goals + scores.implementation) / 5
+  );
+  
+  return {
+    ...scores,
+    total: totalScore,
+    level: getMaturityLevel(totalScore)
+  };
+}
+
+/**
+ * 성숙도 레벨 결정
+ */
+function getMaturityLevel(score) {
+  if (score >= 80) return 'Advanced (고도화)';
+  if (score >= 60) return 'Intermediate (중급)';
+  if (score >= 40) return 'Basic (기초)';
+  return 'Beginner (초급)';
+}
+
+/**
+ * SWOT 분석 생성
+ */
+function generateSWOTAnalysis(normalizedData, scores) {
+  const swot = {
+    strengths: [],
+    weaknesses: [],
+    opportunities: [],
+    threats: []
+  };
+  
+  // 강점 분석
+  if (scores.readiness >= 70) swot.strengths.push('강력한 조직 변화 의지와 리더십 지원');
+  if (scores.infrastructure >= 70) swot.strengths.push('견고한 IT 인프라와 클라우드 기반');
+  if (normalizedData.aiCapabilities.technicalPersonnel >= 4) swot.strengths.push('충분한 기술 인력 보유');
+  if (normalizedData.companyInfo.employeeCount.includes('100명') || normalizedData.companyInfo.employeeCount.includes('300명')) {
+    swot.strengths.push('적정 규모의 조직으로 변화 관리 용이');
+  }
+  
+  // 약점 분석
+  if (scores.currentAI < 50) swot.weaknesses.push('현재 AI 활용 수준이 낮음');
+  if (scores.infrastructure < 50) swot.weaknesses.push('IT 인프라 및 시스템 통합 부족');
+  if (normalizedData.aiCapabilities.dataQuality < 3) swot.weaknesses.push('데이터 품질 및 관리 체계 미흡');
+  if (normalizedData.aiCapabilities.analyticsCapability < 3) swot.weaknesses.push('데이터 분석 역량 부족');
+  
+  // 기회 분석
+  swot.opportunities.push('AI 기술 발전으로 인한 새로운 비즈니스 모델 창출');
+  swot.opportunities.push('정부의 디지털 전환 지원 정책 활용');
+  if (normalizedData.companyInfo.industry.includes('제조')) {
+    swot.opportunities.push('스마트팩토리 구축을 통한 생산성 혁신');
+  }
+  if (normalizedData.companyInfo.industry.includes('서비스')) {
+    swot.opportunities.push('고객 경험 개선을 통한 경쟁우위 확보');
+  }
+  
+  // 위협 분석
+  swot.threats.push('경쟁사의 빠른 디지털 전환');
+  swot.threats.push('AI 기술 변화 속도에 따른 뒤처짐 위험');
+  if (normalizedData.aiCapabilities.changeReadiness < 3) {
+    swot.threats.push('조직 내 변화 저항으로 인한 도입 지연');
+  }
+  
+  return swot;
+}
+
+/**
+ * 우선순위 매트릭스 생성 (중요도 × 긴급성 × 실현가능성)
+ */
+function generatePriorityMatrix(normalizedData, scores) {
+  const matrix = {
+    highPriority: [],
+    mediumPriority: [],
+    lowPriority: []
+  };
+  
+  // 우선순위 항목들과 점수
+  const items = [
+    { task: '리더십 및 조직문화 개선', importance: 5, urgency: scores.readiness < 50 ? 5 : 3, feasibility: 4 },
+    { task: 'IT 인프라 현대화', importance: 4, urgency: scores.infrastructure < 50 ? 5 : 2, feasibility: 3 },
+    { task: '데이터 품질 관리 체계 구축', importance: 5, urgency: 4, feasibility: 4 },
+    { task: 'AI 도구 도입 및 활용', importance: 4, urgency: 3, feasibility: 5 },
+    { task: '직원 AI 교육 및 훈련', importance: 5, urgency: 4, feasibility: 5 },
+    { task: '프로세스 자동화 구현', importance: 4, urgency: 3, feasibility: 4 },
+    { task: '고객 서비스 AI 도입', importance: 3, urgency: 2, feasibility: 4 },
+    { task: '예측 분석 시스템 구축', importance: 3, urgency: 2, feasibility: 2 }
+  ];
+  
+  // 우선순위 계산 및 분류
+  items.forEach(item => {
+    const priority = (item.importance * 0.4) + (item.urgency * 0.4) + (item.feasibility * 0.2);
+    
+    if (priority >= 4.2) {
+      matrix.highPriority.push(item.task);
+    } else if (priority >= 3.0) {
+      matrix.mediumPriority.push(item.task);
+    } else {
+      matrix.lowPriority.push(item.task);
+    }
+  });
+  
+  return matrix;
+}
+
+/**
+ * 단계별 로드맵 생성
+ */
+function generateRoadmap(normalizedData, scores, matrix) {
+  const roadmap = [];
+  
+  // Phase 1: 기반 구축 (1-3개월)
+  roadmap.push({
+    phase: 1,
+    title: '기반 구축 및 준비',
+    period: '1-3개월',
+    objectives: '조직 준비도 향상 및 기본 인프라 정비',
+    tasks: [
+      '경영진 AI 전략 수립 워크숍',
+      '현재 시스템 및 데이터 현황 정밀 진단',
+      '직원 AI 인식 개선 교육',
+      '기본 클라우드 환경 구축'
+    ],
+    investment: normalizedData.aiCapabilities.budgetAllocation.includes('1000만원') ? '1,000-3,000만원' : '3,000-5,000만원',
+    expectedOutcome: 'AI 도입을 위한 조직 및 기술적 기반 마련'
+  });
+  
+  // Phase 2: 핵심 자동화 (3-6개월)
+  roadmap.push({
+    phase: 2,
+    title: '핵심 업무 자동화',
+    period: '3-6개월',
+    objectives: '우선순위 업무 영역의 AI 도입 및 자동화',
+    tasks: matrix.highPriority.slice(0, 3),
+    investment: '5,000만원-1억원',
+    expectedOutcome: '핵심 업무의 효율성 30% 이상 향상'
+  });
+  
+  // Phase 3: 고도화 및 확산 (6-12개월)
+  roadmap.push({
+    phase: 3,
+    title: '고도화 및 전사 확산',
+    period: '6-12개월',
+    objectives: 'AI 활용 고도화 및 전 부서 확산',
+    tasks: [
+      '예측 분석 시스템 구축',
+      '고객 대응 AI 고도화',
+      '전사 데이터 통합 플랫폼 구축',
+      'AI 기반 의사결정 시스템 도입'
+    ],
+    investment: '1억원-3억원',
+    expectedOutcome: '디지털 네이티브 조직으로 전환 완료'
+  });
+  
+  return roadmap;
+}
+
+/**
+ * GEMINI 2.5 FLASH를 사용한 45개 질문 기반 AI 분석 (고도화)
  * 폴백 응답 완전 금지, 실제 신청서 데이터 기반 분석만 수행
  */
 function generateAIAnalysisReport(normalizedData) {
@@ -386,13 +599,165 @@ function generateAIAnalysisReport(normalizedData) {
   
   console.log('🚀 GEMINI 2.5 FLASH AI 분석 시작 (45개 질문 기반)');
   
-  // 45개 질문 기반 분석 프롬프트 생성
+  // 1. 점수 계산
+  const scores = calculateDiagnosisScores(normalizedData);
+  console.log('📊 진단 점수:', scores);
+  
+  // 2. SWOT 분석
+  const swot = generateSWOTAnalysis(normalizedData, scores);
+  console.log('🔍 SWOT 분석:', swot);
+  
+  // 3. 우선순위 매트릭스
+  const matrix = generatePriorityMatrix(normalizedData, scores);
+  console.log('📋 우선순위 매트릭스:', matrix);
+  
+  // 4. 로드맵 생성
+  const roadmap = generateRoadmap(normalizedData, scores, matrix);
+  console.log('🗺️ 로드맵:', roadmap);
+  
+  // 45개 질문 기반 분석 프롬프트 생성 (고도화)
   const analysisPrompt = `
 당신은 AICAMP의 AI 전문 컨설턴트 이후경입니다. 
 45개 질문 기반 AI 역량진단 결과를 바탕으로 전문적이고 실용적인 분석 보고서를 작성해주세요.
 
 ## 신청 기업 정보:
 - 회사명: ${normalizedData.companyInfo.companyName}
+- 업종: ${normalizedData.companyInfo.industry}
+- 규모: ${normalizedData.companyInfo.employeeCount} (설립: ${normalizedData.companyInfo.establishmentYear})
+- 담당자: ${normalizedData.contactInfo.name} (${normalizedData.contactInfo.position})
+
+## 진단 점수 결과:
+- 전체 점수: ${scores.total}/100 (성숙도: ${scores.level})
+- 현재 AI 활용: ${scores.currentAI}/100
+- 조직 준비도: ${scores.readiness}/100
+- 기술 인프라: ${scores.infrastructure}/100
+- 목표 명확성: ${scores.goals}/100
+- 실행 역량: ${scores.implementation}/100
+
+## SWOT 분석 결과:
+### 강점 (Strengths):
+${swot.strengths.map(s => `- ${s}`).join('\n')}
+
+### 약점 (Weaknesses):
+${swot.weaknesses.map(w => `- ${w}`).join('\n')}
+
+### 기회 (Opportunities):
+${swot.opportunities.map(o => `- ${o}`).join('\n')}
+
+### 위협 (Threats):
+${swot.threats.map(t => `- ${t}`).join('\n')}
+
+## 우선순위 매트릭스:
+### 최우선 과제:
+${matrix.highPriority.map(h => `- ${h}`).join('\n')}
+
+### 중간 우선순위:
+${matrix.mediumPriority.map(m => `- ${m}`).join('\n')}
+
+## 단계별 로드맵:
+${roadmap.map(phase => `
+### Phase ${phase.phase}: ${phase.title} (${phase.period})
+- 목표: ${phase.objectives}
+- 투자 규모: ${phase.investment}
+- 주요 과제: ${phase.tasks.join(', ')}
+- 기대 효과: ${phase.expectedOutcome}
+`).join('\n')}
+
+## 45개 질문 응답 데이터:
+
+### 1. 기업 기본정보 및 사업현황
+- 사업 유형: ${normalizedData.companyInfo.businessType}
+- 위치: ${normalizedData.companyInfo.location}
+- 매출 규모: ${normalizedData.companyInfo.annualRevenue}
+
+### 2. 현재 AI/디지털 활용 현황
+- AI 이해도: ${normalizedData.currentAIUsage.aiFamiliarity}/5
+- 현재 사용 AI 도구: ${normalizedData.currentAIUsage.currentAiTools.join(', ')}
+- AI 활용 부서: ${normalizedData.currentAIUsage.aiUsageDepartments.join(', ')}
+- 데이터 디지털화 수준: ${normalizedData.currentAIUsage.dataDigitalization}/5
+- 시스템 통합도: ${normalizedData.currentAIUsage.systemIntegration}/5
+- 현재 시스템: ${normalizedData.currentAIUsage.currentSystems.join(', ')}
+
+### 3. AI 역량 및 준비도
+- 변화 준비도: ${normalizedData.aiCapabilities.changeReadiness}/5
+- 리더십 지원: ${normalizedData.aiCapabilities.leadershipSupport}/5
+- 직원 태도: ${normalizedData.aiCapabilities.employeeAttitude}/5
+- 변화관리 경험: ${normalizedData.aiCapabilities.changeManagementExperience}/5
+- 예산 배정: ${normalizedData.aiCapabilities.budgetAllocation}
+- 기술 인력: ${normalizedData.aiCapabilities.technicalPersonnel}/5
+- 외부 파트너십: ${normalizedData.aiCapabilities.externalPartnership}/5
+- 교육 투자: ${normalizedData.aiCapabilities.trainingInvestment}/5
+- 데이터 품질: ${normalizedData.aiCapabilities.dataQuality}/5
+- 분석 역량: ${normalizedData.aiCapabilities.analyticsCapability}/5
+- 의사결정 방식: ${normalizedData.aiCapabilities.decisionMaking}/5
+
+### 4. 기술 인프라 및 보안
+- 클라우드 도입: ${normalizedData.techInfrastructure.cloudAdoption}/5
+- 시스템 확장성: ${normalizedData.techInfrastructure.systemScalability}/5
+- 통합 역량: ${normalizedData.techInfrastructure.integrationCapability}/5
+- 보안 조치: ${normalizedData.techInfrastructure.securityMeasures.join(', ')}
+- 컴플라이언스: ${normalizedData.techInfrastructure.complianceRequirements.join(', ')}
+- 리스크 관리: ${normalizedData.techInfrastructure.riskManagement}/5
+
+### 5. AI 도입 목표 및 기대효과
+- 변혁 목표: ${normalizedData.aiGoals.aiTransformationGoals.join(', ')}
+- 구체적 개선사항: ${normalizedData.aiGoals.specificImprovements}
+- 기대 ROI: ${normalizedData.aiGoals.expectedROI}
+- 성공 지표: ${normalizedData.aiGoals.successMetrics.join(', ')}
+- 추진 기간: ${normalizedData.aiGoals.timeframe}
+
+### 6. 실행 계획 및 우선순위
+- 우선순위 기능: ${normalizedData.implementationPlan.priorityFunctions.join(', ')}
+- 구현 접근법: ${normalizedData.implementationPlan.implementationApproach}
+- 예상 도전과제: ${normalizedData.implementationPlan.challengesAnticipated.join(', ')}
+- 필요 지원: ${normalizedData.implementationPlan.supportNeeds.join(', ')}
+
+## 요구사항:
+1. **폴백 응답 절대 금지** - 반드시 실제 응답 데이터와 계산된 점수를 기반으로 분석
+2. 이후경 교장의 전문적이고 실용적인 톤앤매너 적용
+3. 구체적인 점수와 데이터 기반 객관적 분석
+4. 실행 가능한 구체적 권고사항 제시
+5. AICAMP의 N8N 기반 자동화 솔루션과 교육 프로그램 자연스럽게 연계
+
+다음 구조로 보고서를 작성해주세요:
+
+# 🎯 AI 역량진단 종합 분석 보고서
+
+## 📊 진단 결과 요약
+- 전체 점수: ${scores.total}/100점 (${scores.level})
+- 핵심 강점과 개선 포인트를 점수 기반으로 명확히 제시
+
+## 🔍 상세 분석
+
+### 1. 5개 영역별 현재 상태 분석
+[각 영역별 점수와 구체적 분석]
+
+### 2. SWOT 분석 기반 전략 방향
+[계산된 SWOT 결과를 바탕으로 한 전략적 시사점]
+
+### 3. 우선순위 매트릭스 기반 실행 계획
+[중요도×긴급성×실현가능성 매트릭스 결과 반영]
+
+## 🚀 맞춤형 AI 전략 로드맵
+
+### Phase 1: ${roadmap[0].title} (${roadmap[0].period})
+[구체적 실행 계획과 투자 규모]
+
+### Phase 2: ${roadmap[1].title} (${roadmap[1].period})
+[N8N 기반 워크플로우 자동화 포함]
+
+### Phase 3: ${roadmap[2].title} (${roadmap[2].period})
+[전사 확산 및 고도화 전략]
+
+## 💡 AICAMP 맞춤 솔루션 제안
+[기업 점수와 특성에 맞는 구체적 프로그램 추천]
+
+## 📈 기대효과 및 ROI 예측
+[점수 기반 정량적 효과 예측과 투자 대비 수익률]
+
+---
+*본 보고서는 45개 질문 응답과 과학적 평가 알고리즘을 바탕으로 GEMINI 2.5 FLASH AI가 분석한 결과입니다.*
+*AICAMP 전문 컨설턴트와의 상담을 통해 더욱 구체적인 실행 계획을 수립하실 수 있습니다.*
 - 업종: ${normalizedData.companyInfo.industry}
 - 규모: ${normalizedData.companyInfo.employeeCount} (설립: ${normalizedData.companyInfo.establishmentYear})
 - 연락처: ${normalizedData.contactInfo.name} (${normalizedData.contactInfo.position})
@@ -803,18 +1168,18 @@ function sendAdminNotification(normalizedData, analysisReport) {
 // ================================================================================
 
 /**
- * 45개 질문 데이터를 구글 시트에 저장 (HTML 보고서 포함)
+ * 45개 질문 데이터를 구글 시트에 저장 (점수, SWOT, 로드맵 포함)
  */
-function saveToGoogleSheets(normalizedData, analysisReport, htmlReport) {
+function saveToGoogleSheets(normalizedData, analysisReport, htmlReport, scores, swot, roadmap) {
   const env = getEnvironmentVariables();
   
   try {
-    console.log('💾 구글 시트 데이터 저장 시작');
+    console.log('💾 구글 시트 데이터 저장 시작 (고도화)');
     
     const spreadsheet = SpreadsheetApp.openById(env.SPREADSHEET_ID);
     
-    // 1. 메인 진단 데이터 시트
-    saveMainDiagnosisData(spreadsheet, normalizedData);
+    // 1. 메인 진단 데이터 시트 (점수 포함)
+    saveMainDiagnosisData(spreadsheet, normalizedData, scores);
     
     // 2. 상세 분석 데이터 시트  
     saveDetailedAnalysisData(spreadsheet, normalizedData);
@@ -822,10 +1187,13 @@ function saveToGoogleSheets(normalizedData, analysisReport, htmlReport) {
     // 3. AI 분석 보고서 시트
     saveAnalysisReport(spreadsheet, normalizedData, analysisReport);
     
-    // 4. HTML 보고서 시트 (새로 추가)
+    // 4. HTML 보고서 시트
     saveHTMLReport(spreadsheet, normalizedData, htmlReport);
     
-    console.log('✅ 구글 시트 저장 완료 (HTML 보고서 포함)');
+    // 5. 점수 분석 시트 (새로 추가)
+    saveScoreAnalysis(spreadsheet, normalizedData, scores, swot, roadmap);
+    
+    console.log('✅ 구글 시트 저장 완료 (점수/SWOT/로드맵 포함)');
     
   } catch (error) {
     console.error('❌ 구글 시트 저장 실패:', error);
@@ -1034,6 +1402,74 @@ function saveHTMLReport(spreadsheet, data, htmlReport) {
   console.log('✅ HTML 보고서 구글 시트 저장 완료');
 }
 
+/**
+ * 점수 분석 데이터 저장 (새로 추가)
+ */
+function saveScoreAnalysis(spreadsheet, data, scores, swot, roadmap) {
+  let sheet = spreadsheet.getSheetByName('점수분석_SWOT_로드맵');
+  
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet('점수분석_SWOT_로드맵');
+    
+    // 헤더 생성
+    const headers = [
+      '제출일시', '진단ID', '회사명', '담당자', '이메일',
+      '전체점수', '성숙도레벨', '현재AI활용점수', '조직준비도점수', '기술인프라점수', '목표명확성점수', '실행역량점수',
+      '강점목록', '약점목록', '기회목록', '위협목록',
+      '최우선과제', '중간우선순위', '낮은우선순위',
+      'Phase1제목', 'Phase1기간', 'Phase1목표', 'Phase1투자', 'Phase1과제',
+      'Phase2제목', 'Phase2기간', 'Phase2목표', 'Phase2투자', 'Phase2과제',
+      'Phase3제목', 'Phase3기간', 'Phase3목표', 'Phase3투자', 'Phase3과제'
+    ];
+    
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#8b5cf6').setFontColor('white');
+  }
+  
+  // 데이터 행 추가
+  const rowData = [
+    data.timestamp,
+    data.submissionId,
+    data.companyInfo.companyName,
+    data.contactInfo.name,
+    data.contactInfo.email,
+    scores.total,
+    scores.level,
+    scores.currentAI,
+    scores.readiness,
+    scores.infrastructure,
+    scores.goals,
+    scores.implementation,
+    swot.strengths.join('; '),
+    swot.weaknesses.join('; '),
+    swot.opportunities.join('; '),
+    swot.threats.join('; '),
+    matrix.highPriority.join('; '),
+    matrix.mediumPriority.join('; '),
+    matrix.lowPriority.join('; '),
+    roadmap[0].title,
+    roadmap[0].period,
+    roadmap[0].objectives,
+    roadmap[0].investment,
+    roadmap[0].tasks.join(', '),
+    roadmap[1].title,
+    roadmap[1].period,
+    roadmap[1].objectives,
+    roadmap[1].investment,
+    roadmap[1].tasks.join(', '),
+    roadmap[2].title,
+    roadmap[2].period,
+    roadmap[2].objectives,
+    roadmap[2].investment,
+    roadmap[2].tasks.join(', ')
+  ];
+  
+  const lastRow = sheet.getLastRow();
+  sheet.getRange(lastRow + 1, 1, 1, rowData.length).setValues([rowData]);
+  
+  console.log('✅ 점수 분석 데이터 구글 시트 저장 완료');
+}
+
 // ================================================================================
 // MODULE 7: API 엔드포인트 (doPost, doGet)
 // ================================================================================
@@ -1074,10 +1510,13 @@ function doPost(e) {
         break;
         
       case 'consultation':
+      case 'submitConsultation':
         result = handleConsultationRequest(requestData);
         break;
         
       case 'error_report':
+      case 'feedback':
+      case 'tax_calculator_error':
         result = handleErrorReport(requestData);
         break;
         
@@ -1148,18 +1587,26 @@ function handleAIDiagnosisSubmission(requestData) {
     // 1. 데이터 정규화
     const normalizedData = normalizeFormData(requestData);
     
-    // 2. AI 분석 수행
+    // 2. 점수 계산 및 분석 데이터 생성
+    const scores = calculateDiagnosisScores(normalizedData);
+    const swot = generateSWOTAnalysis(normalizedData, scores);
+    const matrix = generatePriorityMatrix(normalizedData, scores);
+    const roadmap = generateRoadmap(normalizedData, scores, matrix);
+    
+    console.log('📊 분석 데이터 생성 완료:', { scores, swot, matrix, roadmap });
+    
+    // 3. AI 분석 수행 (고도화된 프롬프트 사용)
     const analysisReport = generateAIAnalysisReport(normalizedData);
     
-    // 3. HTML 보고서 생성
-    const htmlReport = generateHTMLReport(normalizedData, analysisReport);
+    // 4. HTML 보고서 생성 (점수/SWOT/로드맵 포함)
+    const htmlReport = generateHTMLReport(normalizedData, analysisReport, scores, swot, roadmap);
     
-    // 4. 데이터 저장
-    saveToGoogleSheets(normalizedData, analysisReport, htmlReport);
+    // 5. 데이터 저장 (점수 데이터 포함)
+    saveToGoogleSheets(normalizedData, analysisReport, htmlReport, scores, swot, roadmap);
     
-    // 5. 이메일 발송
+    // 6. 이메일 발송
     sendResultEmail(normalizedData, analysisReport, htmlReport);
-    sendAdminNotification(normalizedData, analysisReport);
+    sendAdminNotification(normalizedData, analysisReport, scores);
     
     console.log('✅ AI 역량진단 처리 완료:', normalizedData.submissionId);
     
@@ -1271,7 +1718,7 @@ function getSystemInfo() {
 // ================================================================================
 
 /**
- * 상담신청 처리
+ * 상담신청 처리 (완전 구현)
  */
 function handleConsultationRequest(data) {
   console.log('📞 상담신청 처리 시작');
@@ -1279,23 +1726,38 @@ function handleConsultationRequest(data) {
   try {
     const id = generateSubmissionId('CONSULT');
     
-    // 데이터 저장
-    saveConsultationData({
+    // 상담신청 데이터 정규화
+    const consultationData = {
       id: id,
       timestamp: new Date().toISOString(),
-      companyName: data.companyName || '',
+      companyName: data.companyName || data.company || '',
       contactName: data.contactName || data.name || '',
       email: data.email || data.contactEmail || '',
       phone: data.phone || data.contactPhone || '',
       position: data.position || data.contactPosition || '',
-      content: data.content || data.consultationContent || '',
+      content: data.content || data.consultationContent || data.inquiryContent || '',
       consultationType: data.consultationType || '일반상담',
-      preferredTime: data.preferredTime || '',
-      urgency: data.urgency || '보통'
-    });
+      consultationArea: data.consultationArea || data.consultingArea || '',
+      preferredTime: data.preferredTime || data.desiredTime || '',
+      urgency: data.urgency || '보통',
+      
+      // 추가 정보
+      employeeCount: data.employeeCount || '',
+      annualRevenue: data.annualRevenue || '',
+      businessHistory: data.businessHistory || '',
+      currentIssues: data.currentIssues || '',
+      expectedDuration: data.expectedDuration || '',
+      budget: data.budget || '',
+      howDidYouHear: data.howDidYouHear || '',
+      privacyConsent: data.privacyConsent ? 'Y' : 'N',
+      marketingConsent: data.marketingConsent ? 'Y' : 'N'
+    };
+    
+    // 구글시트 저장
+    saveConsultationData(consultationData);
     
     // 이메일 발송
-    sendConsultationEmails(data, id);
+    sendConsultationEmails(consultationData, id);
     
     console.log('✅ 상담신청 처리 완료:', id);
     
@@ -1320,7 +1782,7 @@ function handleConsultationRequest(data) {
 }
 
 /**
- * 오류신고 처리
+ * 오류신고 처리 (완전 구현)
  */
 function handleErrorReport(data) {
   console.log('🚨 오류신고 처리 시작');
@@ -1328,27 +1790,33 @@ function handleErrorReport(data) {
   try {
     const id = generateSubmissionId('ERROR');
     
-    // 데이터 저장
-    saveErrorReportData({
+    // 오류신고 데이터 정규화
+    const errorData = {
       id: id,
       timestamp: new Date().toISOString(),
       reporterName: data.reporterName || data.name || '',
       email: data.email || '',
       phone: data.phone || '',
-      errorType: data.errorType || '세금계산기',
+      errorType: data.errorType || data.calculatorType || '세금계산기',
       errorCategory: data.errorCategory || '계산오류',
       errorDescription: data.errorDescription || data.description || '',
       stepsToReproduce: data.stepsToReproduce || '',
-      expectedResult: data.expectedResult || '',
-      actualResult: data.actualResult || '',
+      expectedResult: data.expectedResult || data.expectedBehavior || '',
+      actualResult: data.actualResult || data.actualBehavior || '',
       browserInfo: data.browserInfo || '',
       deviceInfo: data.deviceInfo || '',
       screenshot: data.screenshot || '',
-      urgency: data.urgency || '보통'
-    });
+      additionalInfo: data.additionalInfo || '',
+      urgency: data.urgency || '보통',
+      reportType: data.reportType || 'tax_calculator_error',
+      status: '신규'
+    };
+    
+    // 구글시트 저장
+    saveErrorReportData(errorData);
     
     // 이메일 발송
-    sendErrorReportEmails(data, id);
+    sendErrorReportEmails(errorData, id);
     
     console.log('✅ 오류신고 처리 완료:', id);
     
@@ -1377,12 +1845,22 @@ function handleErrorReport(data) {
 // ================================================================================
 
 /**
- * HTML 보고서 생성 (배너 광고 형식)
+ * HTML 보고서 생성 (고도화된 배너 광고 형식)
  */
-function generateHTMLReport(normalizedData, analysisReport) {
-  console.log('📄 HTML 보고서 생성 시작');
+function generateHTMLReport(normalizedData, analysisReport, scores, swot, roadmap) {
+  console.log('📄 HTML 보고서 생성 시작 (고도화)');
   
   try {
+    // 점수 기반 색상 결정
+    const getScoreColor = (score) => {
+      if (score >= 80) return '#10b981'; // green
+      if (score >= 60) return '#3b82f6'; // blue
+      if (score >= 40) return '#f59e0b'; // yellow
+      return '#ef4444'; // red
+    };
+    
+    const totalColor = getScoreColor(scores.total);
+    
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="ko">
@@ -1551,6 +2029,244 @@ function generateHTMLReport(normalizedData, analysisReport) {
             opacity: 0.7;
         }
         
+        /* 점수 대시보드 스타일 */
+        .score-dashboard {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .score-dashboard h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .score-card {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .score-card.total-score {
+            grid-row: span 2;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border: 8px solid;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 15px auto;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .score-circle span {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .score-level {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .score-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .score-fill {
+            height: 100%;
+            transition: width 0.8s ease;
+            border-radius: 10px;
+        }
+        
+        /* SWOT 분석 스타일 */
+        .swot-analysis {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .swot-analysis h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .swot-card {
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid;
+        }
+        
+        .swot-card.strengths {
+            background: #f0fdf4;
+            border-color: #22c55e;
+        }
+        
+        .swot-card.weaknesses {
+            background: #fef2f2;
+            border-color: #ef4444;
+        }
+        
+        .swot-card.opportunities {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+        
+        .swot-card.threats {
+            background: #fefce8;
+            border-color: #eab308;
+        }
+        
+        .swot-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .swot-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .swot-card li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .swot-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        /* 로드맵 스타일 */
+        .roadmap-section {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .roadmap-section h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .roadmap-timeline {
+            position: relative;
+        }
+        
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .roadmap-phase {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .phase-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 25px;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .phase-content {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .phase-content h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .phase-period {
+            color: #6b7280;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .phase-objective {
+            margin-bottom: 15px;
+        }
+        
+        .phase-tasks {
+            margin: 15px 0;
+        }
+        
+        .task-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin: 3px;
+        }
+        
+        .phase-investment, .phase-outcome {
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
         @media (max-width: 768px) {
             .banner-container {
                 margin: 10px;
@@ -1561,8 +2277,23 @@ function generateHTMLReport(normalizedData, analysisReport) {
                 font-size: 2rem;
             }
             
-            .info-grid {
+            .info-grid, .score-grid, .swot-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .score-card.total-score {
+                grid-row: span 1;
+            }
+            
+            .roadmap-timeline::before {
+                left: 15px;
+            }
+            
+            .phase-number {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+                margin-right: 15px;
             }
         }
     </style>
@@ -1605,6 +2336,109 @@ function generateHTMLReport(normalizedData, analysisReport) {
             </div>
         </div>
         
+        <!-- 점수 대시보드 -->
+        <div class="score-dashboard">
+            <h2>📊 AI 역량 진단 점수</h2>
+            <div class="score-grid">
+                <div class="score-card total-score">
+                    <h3>전체 점수</h3>
+                    <div class="score-circle" style="border-color: ${totalColor}">
+                        <span style="color: ${totalColor}">${scores.total}</span>
+                        <small>/100</small>
+                    </div>
+                    <p class="score-level">${scores.level}</p>
+                </div>
+                <div class="score-card">
+                    <h4>현재 AI 활용</h4>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: ${scores.currentAI}%; background-color: ${getScoreColor(scores.currentAI)}"></div>
+                    </div>
+                    <span>${scores.currentAI}/100</span>
+                </div>
+                <div class="score-card">
+                    <h4>조직 준비도</h4>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: ${scores.readiness}%; background-color: ${getScoreColor(scores.readiness)}"></div>
+                    </div>
+                    <span>${scores.readiness}/100</span>
+                </div>
+                <div class="score-card">
+                    <h4>기술 인프라</h4>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: ${scores.infrastructure}%; background-color: ${getScoreColor(scores.infrastructure)}"></div>
+                    </div>
+                    <span>${scores.infrastructure}/100</span>
+                </div>
+                <div class="score-card">
+                    <h4>목표 명확성</h4>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: ${scores.goals}%; background-color: ${getScoreColor(scores.goals)}"></div>
+                    </div>
+                    <span>${scores.goals}/100</span>
+                </div>
+                <div class="score-card">
+                    <h4>실행 역량</h4>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: ${scores.implementation}%; background-color: ${getScoreColor(scores.implementation)}"></div>
+                    </div>
+                    <span>${scores.implementation}/100</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SWOT 분석 -->
+        <div class="swot-analysis">
+            <h2>🔍 SWOT 분석</h2>
+            <div class="swot-grid">
+                <div class="swot-card strengths">
+                    <h3>💪 강점 (Strengths)</h3>
+                    <ul>
+                        ${swot.strengths.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="swot-card weaknesses">
+                    <h3>⚠️ 약점 (Weaknesses)</h3>
+                    <ul>
+                        ${swot.weaknesses.map(w => `<li>${w}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="swot-card opportunities">
+                    <h3>🚀 기회 (Opportunities)</h3>
+                    <ul>
+                        ${swot.opportunities.map(o => `<li>${o}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="swot-card threats">
+                    <h3>🛡️ 위협 (Threats)</h3>
+                    <ul>
+                        ${swot.threats.map(t => `<li>${t}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 로드맵 -->
+        <div class="roadmap-section">
+            <h2>🗺️ AI 전략 로드맵</h2>
+            <div class="roadmap-timeline">
+                ${roadmap.map((phase, index) => `
+                <div class="roadmap-phase">
+                    <div class="phase-number">${phase.phase}</div>
+                    <div class="phase-content">
+                        <h3>${phase.title}</h3>
+                        <p class="phase-period">${phase.period}</p>
+                        <p class="phase-objective">${phase.objectives}</p>
+                        <div class="phase-tasks">
+                            ${phase.tasks.map(task => `<span class="task-tag">${task}</span>`).join('')}
+                        </div>
+                        <p class="phase-investment">💰 투자 규모: ${phase.investment}</p>
+                        <p class="phase-outcome">🎯 기대 효과: ${phase.expectedOutcome}</p>
+                    </div>
+                </div>
+                `).join('')}
+            </div>
+        </div>
+        
         <div class="report-content">
             <div class="highlight-box">
                 <h3>🚀 45개 질문 기반 종합 분석 완료!</h3>
@@ -1613,7 +2447,7 @@ function generateHTMLReport(normalizedData, analysisReport) {
             </div>
             
             <div class="report-section">
-                <h3>📊 AI 분석 보고서</h3>
+                <h3>📊 AI 전문 컨설턴트 분석 보고서</h3>
                 <div style="white-space: pre-wrap; font-size: 14px; line-height: 1.8; background: white; padding: 20px; border-radius: 8px;">
 ${analysisReport}
                 </div>
