@@ -35,6 +35,8 @@ const NON_CACHEABLE_PATTERNS = [
   '/_next/image',
   '/_next/webpack-hmr',
   '/sw.js',
+  '/manifest.json',
+  '/manifest.webmanifest',
   '/__NEXT',
 ];
 
@@ -283,6 +285,35 @@ self.addEventListener('unhandledrejection', (event) => {
   // 일반적인 rejection만 로깅
   console.warn('Service Worker unhandled rejection:', 
     reason?.message || reason || 'Unknown rejection');
+});
+
+// Chrome Extension 메시지 포트 오류 처리
+self.addEventListener('message', (event) => {
+  try {
+    // 안전한 메시지 처리
+    if (event.data && typeof event.data === 'object') {
+      // 필요한 경우 메시지 처리 로직 추가
+      console.log('Service Worker received message:', event.data.type || 'unknown');
+    }
+  } catch (error) {
+    // Chrome Extension 오류 무시
+    if (error.message?.includes('message port closed') || 
+        error.message?.includes('Extension context invalidated')) {
+      return; // 조용히 무시
+    }
+    console.warn('Service Worker message error:', error.message);
+  }
+});
+
+// 런타임 오류 처리 강화
+self.addEventListener('error', (event) => {
+  // Chrome Extension 관련 오류 필터링
+  if (event.error?.message?.includes('Extension context invalidated') ||
+      event.error?.message?.includes('message port closed') ||
+      event.filename?.includes('content.js')) {
+    event.preventDefault();
+    return;
+  }
 });
 
 console.log('AICAMP Service Worker loaded successfully'); 

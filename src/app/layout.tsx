@@ -17,9 +17,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'AICAMP - AI 역량진단 및 컨설팅 전문기관',
-    template: '%s | AICAMP',
+    default: '이교장의 AI역량진단시스템 - 45문항 정밀 AI역량진단',
+    template: '%s | 이교장의 AI역량진단시스템',
   },
+  manifest: '/manifest.json',
   description: '기업의 AI 역량을 진단하고 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다. 무료 AI 역량진단부터 전문 컨설팅까지 원스톱 서비스를 제공합니다.',
   keywords: 'AI 컨설팅, AI 역량진단, 디지털 전환, 기업 컨설팅, 인공지능, AI 교육, 스마트 팩토리, AICAMP, 무료진단',
   authors: [{ name: 'AICAMP', url: 'https://aicamp.club' }],
@@ -193,7 +194,7 @@ export default function RootLayout({
         <meta name="msapplication-navbutton-color" content="#3b82f6" />
         
         {/* PWA 매니페스트 - Next.js 동적 생성 사용 */}
-        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="manifest" href="/manifest.json" />
         
         {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
