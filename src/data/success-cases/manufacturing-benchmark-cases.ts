@@ -28,7 +28,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 반도체 제조 공정 최적화와 품질 관리 자동화로 생산성과 품질을 동시에 혁신한 벤치마크 사례',
     icon: Cpu,
     color: 'blue',
-    heroImage: 'https://picsum.photos/1200/800?random=11',
+    heroImage: '/images/benchmark/15. AI 기반 반도체디스플레이 품질 관리 AI 기반 3D 스캔 및 결함 분석.png',
     companyInfo: {
       industry: '전자/반도체',
       employees: '200명',
@@ -154,7 +154,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 자동차 생산 라인 최적화와 품질 관리로 고품질 자동차를 대량 생산한 벤치마크 사례',
     icon: Factory,
     color: 'red',
-    heroImage: 'https://picsum.photos/1200/800?random=12',
+    heroImage: '/images/benchmark/6. AI 기반 자동차 금융 AI 예측 최적화.png',
     companyInfo: {
       industry: '자동차 제조',
       employees: '180명',
@@ -236,7 +236,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 화학 공정 최적화와 에너지 효율성 향상으로 환경 친화적 생산을 실현한 벤치마크 사례',
     icon: Beaker,
     color: 'green',
-    heroImage: 'https://picsum.photos/1200/800?random=13',
+    heroImage: '/images/benchmark/7. AI 기반 에너지 관리 AI 기반 스마트 발전소.png',
     companyInfo: {
       industry: '화학/제약',
       employees: '300명',
@@ -318,7 +318,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 식품 안전 검사와 품질 관리 자동화로 소비자 안전을 보장한 벤치마크 사례',
     icon: Utensils,
     color: 'orange',
-    heroImage: 'https://picsum.photos/1200/800?random=14',
+    heroImage: '/images/benchmark/11. AI 신용평가 KYC 온보딩 자동화.png',
     companyInfo: {
       industry: '식품/음료',
       employees: '120명',
@@ -400,7 +400,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 섬유 생산 라인 최적화와 품질 관리로 고품질 섬유를 대량 생산한 벤치마크 사례',
     icon: Factory,
     color: 'red',
-    heroImage: 'https://picsum.photos/1200/800?random=15',
+    heroImage: '/images/benchmark/12. 로보 어드바이저 기반 개인 맞춤형 자산 관리.png',
     companyInfo: {
       industry: '섬유/의류',
       employees: '200명',
@@ -482,7 +482,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 건자재 생산 라인 최적화와 품질 관리로 고품질 건자재를 대량 생산한 벤치마크 사례',
     icon: Factory,
     color: 'gray',
-    heroImage: 'https://picsum.photos/1200/800?random=16',
+    heroImage: '/images/benchmark/13. 정산청구 자동화 AI 기반 B2B 운송 비용 자동 정산.png',
     companyInfo: {
       industry: '건자재/유리',
       employees: '150명',
