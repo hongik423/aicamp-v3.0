@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { getImagePath, getLogoPath } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface Message {
   id: string;
@@ -149,9 +150,12 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
     userSatisfaction: null as number | null
   });
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [renderedCount, setRenderedCount] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const speechRecognition = useRef<any>(null);
+  const tStartRef = useRef<number>(0);
 
   // 🎤 음성 인식 초기화
   useEffect(() => {
@@ -194,30 +198,20 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
 
   // 📝 초기 웰컴 메시지
   useEffect(() => {
-    const welcomeMessage: Message = {
+      const welcomeMessage: Message = {
       id: generateMessageId(),
-      content: `안녕하세요! AI CAMP 교장입니다.
+        content: `안녕하세요, AI CAMP 교장 이후경입니다.
 
-저는 28년간 수많은 기업과 함께 성장해온 이후경 AI CAMP 교장의 노하우를 바탕으로 상담해드리고 있어요.
+현장에서 오래 몸담으며 쌓아온 노하우로 편하게 상담 도와드릴게요.
 
-실제 검증된 성과로 증명하는 AI CAMP
+실제 현장 성과 몇 가지만 공유드리면,
+• 생산성 42% 향상
+• 품질 불량률 78% 감소
+• 반년 만에 ROI 290% 달성
 
-한국정밀기계 고객사와 함께 이뤄낸 놀라운 변화:
-- 생산성 42% 향상 (하루 100개 → 142개 생산)
-- 품질 불량률 78% 감소 (3.2% → 0.7%)
-- 6개월 만에 ROI 290% 달성
+올해는 특히 일터혁신 상생컨설팅처럼 20-99인 기업이 100% 무료로 시작할 수 있는 기회가 많습니다.
 
-2025년 특별 지원 프로그램
-
-1. BM ZEN 5단계 프레임워크 - 실제 검증된 혁신 방법론
-2. 일터혁신 상생컨설팅 - 고용노동부 20-99인 기업 100% 무료 지원
-3. AI 기반 스마트 생산시스템 - 96.8% 정확도 보장
-4. 정책자금 확보 - 25년 노하우로 평균 5억원 정부지원
-5. 전문 세금계산기 11종 - 2024년 최신 세법 완벽 반영
-
-28년간 현장에서 쌓아온 경험과 노하우로 고객사들의 성공을 함께 만들어가고 있습니다.
-
-어떤 것이든 편하게 궁금한 점을 물어보세요! 정성껏 답변드리겠습니다.`,
+지금 궁금하신 상황을 편하게 알려주시면, 실행 가능한 방향으로 하나씩 풀어드리겠습니다.`,
       sender: 'bot',
       timestamp: new Date(),
       type: 'text',
@@ -231,9 +225,20 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
     setMessages([welcomeMessage]);
   }, []);
 
-  // 📜 메시지 스크롤
+  // 📜 가상 스크롤: 많은 텍스트에서도 부드럽게 렌더링
+  const VISIBLE_WINDOW = 50;
+  const startIndex = Math.max(0, messages.length - VISIBLE_WINDOW);
+  const visibleMessages = messages.slice(startIndex);
+
+  // 📜 스크롤 유지 및 자동 스크롤 하단 고정
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = containerRef.current;
+    if (!el) return;
+
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    if (isNearBottom) {
+      el.scrollTop = el.scrollHeight;
+    }
   }, [messages]);
 
   // 🤖 AI 메시지 전송
@@ -255,6 +260,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
       setMessages(prev => [...prev, userMessage]);
       setInputValue('');
       setIsTyping(true);
+      tStartRef.current = typeof performance !== 'undefined' ? performance.now() : Date.now();
       
       setChatSession(prev => ({
         ...prev,
@@ -300,6 +306,37 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
       // 자동 음성 읽기 (옵션)
       if (isSpeaking) {
         speakText(data.response);
+      }
+      // 메트릭 로깅 (응답 길이/패러그래프/렌더 시간/스크롤)
+      const afterPaint = () => {
+        const t1 = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        const durationMs = Math.max(0, t1 - (tStartRef.current || t1));
+        const responseLength = (data.response || '').length;
+        const paragraphCount = (data.response || '').split(/\n{2,}/).length;
+        const scrollInfo = (containerRef.current ? {
+          scrollHeight: containerRef.current.scrollHeight,
+          clientHeight: containerRef.current.clientHeight,
+          scrollTop: containerRef.current.scrollTop
+        } : undefined);
+        fetch('/api/metrics/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'chat_response_metrics',
+            sessionId: chatSession.id,
+            messageId: botMessage.id,
+            responseLength,
+            paragraphCount,
+            durationMs,
+            scrollInfo,
+            ts: new Date().toISOString()
+          })
+        }).catch(() => {});
+      };
+      if (typeof requestAnimationFrame !== 'undefined') {
+        requestAnimationFrame(() => requestAnimationFrame(afterPaint));
+      } else {
+        setTimeout(afterPaint, 0);
       }
       
     } catch (error) {
@@ -418,7 +455,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
         <Card className="mb-4">
           <CardHeader className="pb-3">
                           <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center relative bg-[#4285F4]">
                   <img 
                     src={getImagePath('/counselor-icon.svg')} 
                     alt="전문상담사" 
@@ -446,12 +483,12 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
       {/* 메인 채팅 영역 */}
       <Card className="flex-1 flex flex-col">
         <CardContent className="flex-1 flex flex-col p-4">
-          {/* 메시지 영역 */}
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-            {messages.map((message) => (
+          {/* 메시지 영역 (가상 스크롤 적용) */}
+          <div ref={containerRef} className="flex-1 overflow-y-auto space-y-4 pr-2">
+            {visibleMessages.map((message) => (
               <div key={message.id} className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {message.sender === 'bot' && (
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ backgroundColor: '#4285F4' }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative bg-[#4285F4]">
                     <img 
                       src={getImagePath('/counselor-icon.svg')} 
                       alt="전문상담사" 
@@ -464,12 +501,11 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                   <div
                     className={`p-4 rounded-lg ${
                       message.sender === 'user'
-                        ? 'text-white'
+                        ? 'text-white bg-[#4285F4]'
                         : 'bg-gray-100 text-gray-900'
                     }`}
-                    style={message.sender === 'user' ? { backgroundColor: '#4285F4' } : {}}
                   >
-                    <div className="whitespace-pre-line">{message.content}</div>
+                    <SmoothText content={message.content} />
                     
                     {/* 메시지 메타데이터 */}
                     {message.metadata && message.sender === 'bot' && (
@@ -528,7 +564,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 </div>
                 
                 {message.sender === 'user' && (
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#4285F4' }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-[#4285F4]">
                     <User className="w-5 h-5 text-white" />
                   </div>
                 )}
@@ -538,7 +574,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
             {/* 타이핑 인디케이터 */}
             {isTyping && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#4285F4' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center relative bg-[#4285F4]">
                   <img 
                     src={getImagePath('/counselor-icon.svg')} 
                     alt="AI CAMP 교장" 
@@ -548,8 +584,8 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 <div className="bg-gray-100 p-4 rounded-lg">
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
                     <span className="ml-2 text-sm text-gray-500">답변 생성 중...</span>
                   </div>
                 </div>
@@ -619,8 +655,7 @@ export default function EnhancedChatbot({ className = "", embedded = false }: Ch
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputValue)}
                                   placeholder="AI CAMP AI 상담사에게 질문해보세요..."
-                className="pr-12 text-white placeholder-gray-300 border-blue-400"
-                style={{ backgroundColor: '#4285F4' }}
+                className="pr-12 text-white placeholder-gray-300 border-blue-400 bg-[#4285F4]"
                 disabled={isTyping || connectionStatus === 'error'}
               />
               
@@ -726,3 +761,27 @@ function detectIntent(message: string): string {
   
   return 'general';
 } 
+
+// ✨ 자연스러운 텍스트 출력 컴포넌트 (마크다운 기호 없이 부드러운 페이드/슬라이드)
+function SmoothText({ content }: { content: string }) {
+  const paragraphs = content
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/`/g, '')
+    .split(/\n{2,}/);
+
+  return (
+    <div className="whitespace-pre-line leading-relaxed">
+      {paragraphs.map((p, idx) => (
+        <motion.p
+          key={idx}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, delay: idx * 0.02 }}
+          style={{ willChange: 'transform, opacity' }}
+        >
+          {p}
+        </motion.p>
+      ))}
+    </div>
+  );
+}

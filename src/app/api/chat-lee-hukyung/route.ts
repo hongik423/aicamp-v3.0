@@ -1,4 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+// 출력 텍스트에서 마크다운 기호 제거 및 정리
+function sanitizePlainText(input: string): string {
+  if (!input) return '';
+  let text = input;
+  text = text.replace(/```[a-zA-Z]*\n([\s\S]*?)```/g, '$1');
+  text = text.replace(/`/g, '');
+  text = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+  text = text.replace(/__([^_]+)__/g, '$1');
+  text = text.replace(/\*([^*]+)\*/g, '$1');
+  text = text.replace(/_([^_]+)_/g, '$1');
+  text = text.replace(/^#{1,6}\s*/gm, '');
+  text = text.replace(/^>\s?/gm, '');
+  text = text.replace(/[\t\x0B\f\r]+/g, ' ');
+  return text.trim();
+}
 
 // 🎯 질문 복잡도 분석 타입
 type QuestionComplexity = 'consultation' | 'simple' | 'single-consulting' | 'complex-consulting';
@@ -226,7 +241,7 @@ class EnhancedLeeHukyungAI {
             temperature: 0.7,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: complexity === 'complex-consulting' ? 8192 : 4096,
+            maxOutputTokens: complexity === 'complex-consulting' ? 16384 : 8192,
           },
           safetySettings: [
             {
@@ -254,7 +269,7 @@ class EnhancedLeeHukyungAI {
         let response = '';
         
         if (aiData.candidates && aiData.candidates[0] && aiData.candidates[0].content) {
-          response = aiData.candidates[0].content.parts[0].text;
+          response = sanitizePlainText(aiData.candidates[0].content.parts[0].text);
         }
         
         console.log('✅ AI 연계 응답 성공:', { 
@@ -408,10 +423,10 @@ class EnhancedLeeHukyungAI {
     
     // 📏 복잡도별 길이 조정
     const maxLengths = {
-      'simple': 300,
-      'single-consulting': 2000,
-      'complex-consulting': 4000,
-      'consultation': 1000
+      'simple': 1000,
+      'single-consulting': 5000,
+      'complex-consulting': 10000,
+      'consultation': 3000
     };
     
     const maxLength = maxLengths[complexity] || 2000;

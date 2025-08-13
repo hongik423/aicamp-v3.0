@@ -282,7 +282,7 @@ ${companyData.companyName}의 종합 경영진단보고서를 작성해주세요
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 16384,
       }
     };
 

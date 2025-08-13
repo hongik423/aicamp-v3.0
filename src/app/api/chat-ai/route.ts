@@ -86,10 +86,10 @@ function analyzeQuestionAndDetermineLength(message: string): {
   if (complexPatterns.some(pattern => pattern.test(msg)) || msg.length > 200) {
     return {
       minLength: 2000,
-      maxLength: 4000,
+      maxLength: 10000,
       complexity: 'complex',
       responseType: 'comprehensive',
-      lengthGuideline: '매우 상세하고 포괄적인 답변을 2000-4000자로 제공하세요. 실제 성과 사례, 단계별 프로세스, 구체적인 수치, 다양한 옵션과 대안, 실용적인 팁을 모두 포함하여 완전한 솔루션을 제시하세요.'
+      lengthGuideline: '매우 상세하고 포괄적인 답변을 2000-10000자 범위에서 제공하세요. 실제 성과 사례, 단계별 프로세스, 구체적인 수치, 다양한 옵션과 대안, 실용적인 팁을 모두 포함하여 완전한 솔루션을 제시하세요. 필요 시 1만자까지 확장 가능합니다.'
     };
   }
   
@@ -101,6 +101,28 @@ function analyzeQuestionAndDetermineLength(message: string): {
     responseType: 'standard',
     lengthGuideline: '균형잡힌 설명으로 800-1500자 정도로 답변하세요. 핵심 정보와 실용적인 조언을 적절히 조합하여 제공하세요.'
   };
+}
+
+// 출력 텍스트에서 마크다운 기호 제거 및 정리
+function sanitizePlainText(input: string): string {
+  if (!input) return '';
+  let text = input;
+  // 코드펜스 제거
+  text = text.replace(/```[a-zA-Z]*\n([\s\S]*?)```/g, '$1');
+  // 인라인 코드 제거
+  text = text.replace(/`/g, '');
+  // 볼드/이탤릭 제거
+  text = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+  text = text.replace(/__([^_]+)__/g, '$1');
+  text = text.replace(/\*([^*]+)\*/g, '$1');
+  text = text.replace(/_([^_]+)_/g, '$1');
+  // 헤더 제거
+  text = text.replace(/^#{1,6}\s*/gm, '');
+  // 인용문 기호 제거
+  text = text.replace(/^>\s?/gm, '');
+  // 과도한 공백 정리
+  text = text.replace(/[\t\x0B\f\r]+/g, ' ');
+  return text.trim();
 }
 
 export async function POST(request: NextRequest) {
@@ -186,7 +208,7 @@ ${analysisResult.responseType === 'brief'
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: analysisResult.maxLength > 2000 ? 8192 : 4096,
+          maxOutputTokens: analysisResult.maxLength > 6000 ? 16384 : (analysisResult.maxLength > 2000 ? 8192 : 4096),
         },
         safetySettings: [
           {
@@ -217,7 +239,8 @@ ${analysisResult.responseType === 'brief'
     const data = await response.json();
     
     if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      const aiResponse = data.candidates[0].content.parts[0].text;
+      const aiRaw = data.candidates[0].content.parts[0].text;
+      const aiResponse = sanitizePlainText(aiRaw);
       
       // 응답 길이 검증 및 로깅
       const responseLength = aiResponse.length;
