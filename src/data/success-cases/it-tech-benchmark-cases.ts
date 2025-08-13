@@ -29,7 +29,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI 코드 분석과 자동 리뷰 시스템을 도입하여 개발 품질과 속도를 동시에 혁신한 벤치마크 사례',
     icon: Code,
     color: 'blue',
-    heroImage: 'https://source.unsplash.com/1200x800/?software,programming,developer,code,ai', // AI 코딩, 개발자와 AI 협업
+    heroImage: '/images/benchmark/14. AI 기반 개발 생산성 향상.png',
     companyInfo: {
       industry: '소프트웨어 개발',
       employees: '85명',
@@ -364,7 +364,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 데이터 처리 및 머신러닝 모델 학습 자동화로 빠른 데이터 분석과 예측 모델 개발을 실현한 벤치마크 사례',
     icon: Brain,
     color: 'purple',
-    heroImage: 'https://source.unsplash.com/1200x800/?machine%20learning,data%20science,training,ai', // AI/ML 모델 개발, 데이터 사이언스
+    heroImage: '/images/benchmark/1. AI 기반 머신러닝 플랫폼 자동화.png',
     companyInfo: {
       industry: 'AI/머신러닝',
       employees: '100명',
@@ -490,7 +490,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 클라우드 인프라 자동 모니터링과 최적화로 운영 효율성을 극대화한 벤치마크 사례',
     icon: Cloud,
     color: 'purple',
-    heroImage: 'https://source.unsplash.com/1200x800/?cloud,server,datacenter,devops', // 클라우드 컴퓨팅, 서버 인프라
+    heroImage: '/images/benchmark/2. AI 기반 클라우드 자동화.png',
     companyInfo: {
       industry: '클라우드 인프라',
       employees: '120명',
@@ -616,7 +616,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 모바일 앱 개발 자동화와 사용자 행동 분석으로 개발 효율성과 앱 품질을 동시에 향상시킨 벤치마크 사례',
     icon: Smartphone,
     color: 'indigo',
-    heroImage: 'https://source.unsplash.com/1200x800/?mobile%20app,smartphone,development', // 모바일 앱 개발
+    heroImage: '/images/benchmark/3. AI 기반 앱 개발 혁신.png',
     companyInfo: {
       industry: '모바일 앱 개발',
       employees: '45명',
@@ -742,7 +742,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 웹 개발 자동화와 SEO 최적화로 고품질 웹사이트를 빠르게 구축한 벤치마크 사례',
     icon: Globe,
     color: 'teal',
-    heroImage: 'https://source.unsplash.com/1200x800/?web%20development,web%20design,frontend', // 웹 개발, 디지털 전환
+    heroImage: '/images/benchmark/4. AI 기반 웹 개발 자동화.png',
     companyInfo: {
       industry: '웹 개발',
       employees: '75명',
@@ -868,7 +868,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 데이터베이스 자동 백업, 모니터링 및 복구 시스템으로 데이터 안정성과 가용성을 혁신한 벤치마크 사례',
     icon: Database,
     color: 'green',
-    heroImage: 'https://source.unsplash.com/1200x800/?database,storage,data%20center,backup', // 빅데이터, 데이터베이스
+    heroImage: '/images/benchmark/5. AI 기반 데이터베이스 관리 자동화.png',
     companyInfo: {
       industry: '데이터베이스 관리',
       employees: '65명',
@@ -994,7 +994,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 실시간 보안 위협 탐지와 자동 대응 시스템으로 보안 수준을 혁신적으로 향상시킨 벤치마크 사례',
     icon: Shield,
     color: 'red',
-    heroImage: 'https://source.unsplash.com/1200x800/?cybersecurity,network,security,shield', // 사이버 보안, 네트워크 보안
+    heroImage: '/images/benchmark/10. AI 기반 실시간 방사능 자동 감시.png',
     companyInfo: {
       industry: '네트워크 보안',
       employees: '90명',
@@ -1120,7 +1120,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 자동화된 CI/CD 파이프라인으로 개발 및 배포 속도를 혁신한 벤치마크 사례',
     icon: Zap,
     color: 'yellow',
-    heroImage: 'https://source.unsplash.com/1200x800/?devops,ci,cd,automation', // DevOps, 자동화
+    heroImage: '/images/benchmark/8. 디지털 뱅킹 혁신 AI 고객 경험 혁신.png',
     companyInfo: {
       industry: 'DevOps 자동화',
       employees: '75명',
@@ -1246,7 +1246,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 IoT 센서 데이터 실시간 분석과 예측 모델링으로 스마트 시티 솔루션을 혁신한 벤치마크 사례',
     icon: Network,
     color: 'orange',
-    heroImage: 'https://source.unsplash.com/1200x800/?iot,sensor,smart%20city,edge', // 네트워크, 인프라
+    heroImage: '/images/benchmark/9. AI 리서치&리스크 관리 AI 리포팅 자동화.png',
     companyInfo: {
       industry: 'IoT 플랫폼',
       employees: '110명',
@@ -1372,7 +1372,7 @@ export const itTechBenchmarkCases: { [key: string]: SuccessCaseDetail } = {
     description: 'AI를 활용한 블록체인 네트워크 최적화와 스마트 컨트랙트 자동화로 성능을 혁신적으로 향상시킨 벤치마크 사례',
     icon: Zap,
     color: 'yellow',
-    heroImage: 'https://source.unsplash.com/1200x800/?blockchain,cryptography,ledger', // DevOps, 자동화
+    heroImage: '/images/benchmark/16. AI 기반 섬유의류 생산 최적화.png',
     companyInfo: {
       industry: '블록체인',
       employees: '55명',
