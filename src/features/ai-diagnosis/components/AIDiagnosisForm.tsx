@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { diagnosisSections } from '../constants/questions';
-import { DiagnosisSection, Question } from '../types';
+import { DiagnosisSection, Question, AIDiagnosisData } from '../types';
 import QuestionRenderer from './QuestionRenderer';
 import DiagnosisIntro from './DiagnosisIntro';
 import DiagnosisComplete from './DiagnosisComplete';
@@ -152,6 +152,18 @@ const AIDiagnosisForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
+      // 값 정규화 보조 함수들
+      const mapCloudUsageToScale = (value: any): number => {
+        switch (value) {
+          case '전혀 사용하지 않음': return 1;
+          case '기본적인 클라우드 스토리지만': return 2;
+          case '일부 업무용 클라우드 서비스': return 3;
+          case '대부분 클라우드 기반': return 4;
+          case '완전한 클라우드 네이티브': return 5;
+          default: return typeof value === 'number' ? value : 1;
+        }
+      };
+
       // 45개 질문 데이터 구성 (formData에서 직접 매핑)
       const submissionData = {
         // 연락처 정보
@@ -164,8 +176,8 @@ const AIDiagnosisForm: React.FC = () => {
         companyName: formData.companyName || '',
         businessRegistration: formData.businessRegistration || '',
         establishmentYear: formData.establishmentYear || '',
-        industry: formData.industry || '',
-        businessType: formData.businessType || [],
+        industry: (formData as any).industryMain || (formData as any).industry || '',
+        businessType: (formData as any).businessModel || (formData as any).businessType || [],
         location: formData.location || '',
         employeeCount: formData.employeeCount || '',
         annualRevenue: formData.annualRevenue || '',
@@ -176,7 +188,7 @@ const AIDiagnosisForm: React.FC = () => {
         aiUsageDepartments: formData.aiUsageDepartments || [],
         automationLevelByFunction: formData.automationLevelByFunction || {},
         dataDigitalization: formData.dataDigitalization || 1,
-        currentSystems: formData.currentSystems || [],
+        currentSystems: (formData as any).currentSystems || (formData as any).itSystems || [],
         systemIntegration: formData.systemIntegration || 1,
         dataManagement: formData.dataManagement || 1,
         
@@ -194,7 +206,7 @@ const AIDiagnosisForm: React.FC = () => {
         decisionMaking: formData.decisionMaking || 1,
         
         // 기술 인프라 및 보안
-        cloudAdoption: formData.cloudAdoption || 1,
+        cloudAdoption: mapCloudUsageToScale((formData as any).cloudAdoption || (formData as any).cloudUsage || 1),
         systemScalability: formData.systemScalability || 1,
         integrationCapability: formData.integrationCapability || 1,
         securityMeasures: formData.securityMeasures || [],
@@ -204,9 +216,9 @@ const AIDiagnosisForm: React.FC = () => {
         // AI 도입 목표 및 기대효과
         aiTransformationGoals: formData.aiTransformationGoals || [],
         specificImprovements: formData.specificImprovements || '',
-        expectedROI: formData.expectedROI || '',
-        successMetrics: formData.successMetrics || [],
-        timeframe: formData.timeframe || '',
+        expectedROI: (formData as any).expectedROI || (formData as any).roiExpectations || '',
+        successMetrics: (formData as any).successMetrics || (formData as any).kpiPriorities || [],
+        timeframe: (formData as any).timeframe || (formData as any).implementationTimeline || '',
         
         // 실행 계획 및 우선순위
         priorityFunctions: formData.priorityFunctions || [],

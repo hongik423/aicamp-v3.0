@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Download, Mail, Calendar, ArrowRight, FileText, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,18 +8,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
+import DiagnosisReportBanner from '@/components/diagnosis/DiagnosisReportBanner';
 
 interface DiagnosisCompleteProps {
   result: {
     success: boolean;
     diagnosisId?: string;
+    submissionId?: string;
     reportUrl?: string;
     message?: string;
+    timestamp?: string;
+    version?: string;
+    htmlReportGenerated?: boolean;
+    scores?: {
+      total: number;
+      level: string;
+      currentAI: number;
+      readiness: number;
+      infrastructure: number;
+      goals: number;
+      implementation: number;
+    };
+    htmlReport?: string;
+    companyName?: string;
+    contactName?: string;
+    contactEmail?: string;
   };
 }
 
 const DiagnosisComplete: React.FC<DiagnosisCompleteProps> = ({ result }) => {
   const router = useRouter();
+  const [showBanner, setShowBanner] = useState(true);
 
   React.useEffect(() => {
     // 완료 축하 애니메이션
@@ -252,6 +271,38 @@ const DiagnosisComplete: React.FC<DiagnosisCompleteProps> = ({ result }) => {
           </p>
         </motion.div>
       </div>
+
+      {/* HTML 보고서 배너 */}
+      {showBanner && result.success && result.htmlReportGenerated && (
+        <DiagnosisReportBanner
+          reportData={{
+            submissionId: result.submissionId || result.diagnosisId || '',
+            companyName: result.companyName || '귀하의 기업',
+            contactName: result.contactName || '',
+            contactEmail: result.contactEmail || '',
+            timestamp: result.timestamp || new Date().toISOString(),
+            scores: result.scores,
+            htmlReport: result.htmlReport
+          }}
+          onConsultationRequest={() => {
+            setShowBanner(false);
+            router.push('/consultation');
+          }}
+          onDownloadReport={() => {
+            if (result.reportUrl) {
+              window.open(result.reportUrl, '_blank');
+            } else if (result.htmlReport) {
+              const blob = new Blob([result.htmlReport], { type: 'text/html' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `AI역량진단보고서_${result.submissionId || 'report'}.html`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
