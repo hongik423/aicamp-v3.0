@@ -476,7 +476,7 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                       }}
                     >
                       <Link 
-                        href="/diagnosis"
+                        href="/ai-diagnosis"
                         className="flex items-center justify-center min-h-[44px] min-w-[44px]"
                         aria-label="AI 역량진단 시작하기"
                         style={{
@@ -496,7 +496,7 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                           e.stopPropagation();
                           // 터치 종료 시 명시적으로 링크 이동
                           setTimeout(() => {
-                            window.location.href = '/diagnosis';
+                            window.location.href = '/ai-diagnosis';
                           }, 50);
                         }}
                       >

@@ -92,6 +92,127 @@
       ],
       "destination": "https://aicamp.club/$1",
       "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-ccgptrsyl-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+         {
+       "source": "/(.*)",
+       "has": [
+         {
+           "type": "host",
+           "value": "aicampv30-k1nf0l251-hongik423-3087s-projects.vercel.app"
+         }
+       ],
+       "destination": "https://aicamp.club/$1",
+       "permanent": true
+     },
+     {
+       "source": "/(.*)",
+       "has": [
+         {
+           "type": "host",
+           "value": "aicampv30-2y69jugam-hongik423-3087s-projects.vercel.app"
+         }
+       ],
+       "destination": "https://aicamp.club/$1",
+       "permanent": true
+     },
+     {
+       "source": "/(.*)",
+       "has": [
+         {
+           "type": "host",
+           "value": "aicampv30-cn507unzj-hongik423-3087s-projects.vercel.app"
+         }
+       ],
+       "destination": "https://aicamp.club/$1",
+       "permanent": true
+     },
+     {
+       "source": "/(.*)",
+       "has": [
+         {
+           "type": "host",
+           "value": "aicampv30-2tklw0vr3-hongik423-3087s-projects.vercel.app"
+         }
+       ],
+       "destination": "https://aicamp.club/$1",
+       "permanent": true
+     },
+     {
+       "source": "/(.*)",
+       "has": [
+         {
+           "type": "host",
+           "value": "aicampv30-g3sb5si17-hongik423-3087s-projects.vercel.app"
+         }
+       ],
+       "destination": "https://aicamp.club/$1",
+       "permanent": true
+     },
+     {
+       "source": "/(.*)",
+       "has": [
+         {
+           "type": "host",
+           "value": "aicampv30-jx4epkyxr-hongik423-3087s-projects.vercel.app"
+         }
+       ],
+       "destination": "https://aicamp.club/$1",
+       "permanent": true
+     },
+     {
+       "source": "/(.*)",
+       "has": [
+         {
+           "type": "host",
+           "value": "aicampv30-gyy6zjpwq-hongik423-3087s-projects.vercel.app"
+         }
+       ],
+       "destination": "https://aicamp.club/$1",
+       "permanent": true
+     },
+         {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-7b850ssp3-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-d0o0qqxnt-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-*.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
     }
   ],
   "headers": [
@@ -105,6 +226,69 @@
         {
           "key": "Link",
           "value": "<https://aicamp.club>; rel=\"canonical\""
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, OPTIONS"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, OPTIONS"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
         }
       ]
     }

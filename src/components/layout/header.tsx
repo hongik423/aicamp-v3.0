@@ -253,9 +253,9 @@ export default function Header() {
               </button>
 
               {/* 우선순위별 메뉴 그룹화 */}
-              {/* AI역량진단 특별 버튼 */}
+              {/* AI역량진단 특별 버튼 - 최신 버전으로 통일 */}
               <Link
-                href="/diagnosis"
+                href="/ai-diagnosis"
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-4"
               >

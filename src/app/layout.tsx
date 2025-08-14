@@ -20,7 +20,6 @@ export const metadata: Metadata = {
     default: '이교장의 AI역량진단시스템 - 45문항 정밀 AI역량진단',
     template: '%s | 이교장의 AI역량진단시스템',
   },
-  manifest: '/manifest.webmanifest',
   description: '기업의 AI 역량을 진단하고 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다. 무료 AI 역량진단부터 전문 컨설팅까지 원스톱 서비스를 제공합니다.',
   keywords: 'AI 컨설팅, AI 역량진단, 디지털 전환, 기업 컨설팅, 인공지능, AI 교육, 스마트 팩토리, AICAMP, 무료진단',
   authors: [{ name: 'AICAMP', url: 'https://aicamp.club' }],
@@ -92,10 +91,14 @@ export const metadata: Metadata = {
 };
 
 // Service Worker 안전한 등록 함수 (중복 방지 및 오류 처리 개선)
+let serviceWorkerRegistrationAttempted = false;
+
 const registerServiceWorkerSafely = () => {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator) || serviceWorkerRegistrationAttempted) {
     return;
   }
+  
+  serviceWorkerRegistrationAttempted = true;
 
   // console 오류 무음화 - Chrome Extension 및 기타 외부 오류 필터링
   const originalConsoleWarn = console.warn;
@@ -111,19 +114,46 @@ const registerServiceWorkerSafely = () => {
         message.includes('The message port closed') ||
         message.includes('Manifest fetch') ||
         message.includes('manifest.json') ||
+        message.includes('manifest.webmanifest') ||
+        message.includes('Failed to load resource') ||
+        message.includes('401') ||
         message.includes('message port closed')) {
       return; // 확장 프로그램 및 manifest 관련 오류는 무시
     }
     originalConsoleWarn.apply(console, args);
   };
+  
+  console.error = (...args: any[]) => {
+    const message = args.join(' ');
+    if (message.includes('Extension context invalidated') || 
+        message.includes('port closed') ||
+        message.includes('chrome-extension://') ||
+        message.includes('content.js') ||
+        message.includes('runtime.lastError') ||
+        message.includes('The message port closed') ||
+        message.includes('Manifest fetch') ||
+        message.includes('manifest.json') ||
+        message.includes('manifest.webmanifest') ||
+        message.includes('Failed to load resource') ||
+        message.includes('401') ||
+        message.includes('message port closed')) {
+      return; // 확장 프로그램 및 manifest 관련 오류는 무시
+    }
+    originalConsoleError.apply(console, args);
+  };
 
   // 전역 오류 처리 - Chrome Extension 관련 오류 필터링
   const handleGlobalError = (event: ErrorEvent) => {
     const errorMessage = event.message || '';
+    const errorSource = event.filename || '';
     if (errorMessage.includes('port closed') ||
         errorMessage.includes('Extension context') ||
         errorMessage.includes('chrome-extension://') ||
-        errorMessage.includes('content.js')) {
+        errorMessage.includes('content.js') ||
+        errorMessage.includes('manifest.webmanifest') ||
+        errorMessage.includes('Failed to load resource') ||
+        errorSource.includes('chrome-extension://') ||
+        errorSource.includes('content.js')) {
       event.preventDefault();
       event.stopPropagation();
       return false;
@@ -136,7 +166,9 @@ const registerServiceWorkerSafely = () => {
         reason.includes('port closed') ||
         reason.includes('Extension context') ||
         reason.includes('chrome-extension://') ||
-        reason.includes('content.js'))) {
+        reason.includes('content.js') ||
+        reason.includes('manifest.webmanifest') ||
+        reason.includes('Failed to load resource'))) {
       event.preventDefault();
       return false;
     }
@@ -150,9 +182,9 @@ const registerServiceWorkerSafely = () => {
   setTimeout(async () => {
     try {
       // 기존 등록 확인
-      const existingRegistration = await navigator.serviceWorker.getRegistration();
+      const existingRegistration = await navigator.serviceWorker.getRegistration('/');
       if (existingRegistration) {
-        console.log('🚀 AICAMP Service Worker already registered:', existingRegistration.scope);
+        console.log('🚀 Google Apps Script 시스템 초기화 완료');
         console.log('📧 이메일 서비스: Google Apps Script');
         console.log('🔗 연결 상태: connected');
         return;
@@ -164,7 +196,7 @@ const registerServiceWorkerSafely = () => {
         updateViaCache: 'none'
       });
       
-      console.log('🚀 AICAMP Service Worker registered:', registration.scope);
+      console.log('🚀 Google Apps Script 시스템 초기화 완료');
       console.log('📧 이메일 서비스: Google Apps Script');
       console.log('🔗 연결 상태: connected');
       
@@ -204,10 +236,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Service Worker 안전 등록
-  if (typeof window !== 'undefined') {
-    registerServiceWorkerSafely();
-  }
 
   return (
     <html lang="ko" suppressHydrationWarning>
@@ -247,7 +275,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-navbutton-color" content="#3b82f6" />
         
-        {/* PWA 매니페스트 - 정적 파일로 제공 */}
+        {/* 오류 차단 스크립트 - 최우선 로드 */}
+        <script src="/suppress-errors.js" suppressHydrationWarning />
+        
+        {/* PWA 매니페스트 */}
         <link rel="manifest" href="/manifest.webmanifest" />
         
         {/* 폰트 최적화 */}

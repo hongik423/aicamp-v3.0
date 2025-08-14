@@ -1,0 +1,123 @@
+{
+  "startTime": "2025-08-14T07:11:47.957Z",
+  "endTime": "2025-08-14T07:11:47.992Z",
+  "steps": [
+    {
+      "step": "데이터 검증",
+      "status": "START",
+      "details": "진단 데이터 유효성 검사 시작",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.958Z"
+    },
+    {
+      "step": "데이터 검증",
+      "status": "SUCCESS",
+      "details": "모든 필수 데이터 검증 완료 (45문항)",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.958Z"
+    },
+    {
+      "step": "API 호출",
+      "status": "START",
+      "details": "AI 진단 API 엔드포인트 테스트 시작",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.958Z"
+    },
+    {
+      "step": "API 호출",
+      "status": "ERROR",
+      "details": "API 호출 실패: ",
+      "duration": 30,
+      "timestamp": "2025-08-14T07:11:47.988Z"
+    },
+    {
+      "step": "GAS 연동",
+      "status": "START",
+      "details": "Google Apps Script 연동 상태 확인",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.988Z"
+    },
+    {
+      "step": "GAS 연동",
+      "status": "ERROR",
+      "details": "API 응답이 없어 GAS 연동 테스트 불가",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "이메일 발송",
+      "status": "START",
+      "details": "이메일 발송 상태 확인",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "이메일 발송",
+      "status": "ERROR",
+      "details": "API 응답이 없어 이메일 발송 테스트 불가",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "Drive 저장",
+      "status": "START",
+      "details": "Google Drive 보고서 저장 확인",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "Drive 저장",
+      "status": "ERROR",
+      "details": "API 응답이 없어 Drive 저장 테스트 불가",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "오류 처리",
+      "status": "START",
+      "details": "오류 처리 메커니즘 테스트",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "오류 처리",
+      "status": "SUCCESS",
+      "details": "오류 처리 정상 작동: ",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.992Z"
+    }
+  ],
+  "errors": [
+    {
+      "step": "API 호출",
+      "status": "ERROR",
+      "details": "API 호출 실패: ",
+      "duration": 30,
+      "timestamp": "2025-08-14T07:11:47.988Z"
+    },
+    {
+      "step": "GAS 연동",
+      "status": "ERROR",
+      "details": "API 응답이 없어 GAS 연동 테스트 불가",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "이메일 발송",
+      "status": "ERROR",
+      "details": "API 응답이 없어 이메일 발송 테스트 불가",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    },
+    {
+      "step": "Drive 저장",
+      "status": "ERROR",
+      "details": "API 응답이 없어 Drive 저장 테스트 불가",
+      "duration": 0,
+      "timestamp": "2025-08-14T07:11:47.989Z"
+    }
+  ],
+  "warnings": [],
+  "success": true,
+  "totalDuration": 35
+}

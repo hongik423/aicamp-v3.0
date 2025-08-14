@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   ArrowLeft,
   Play,
@@ -84,10 +85,14 @@ export default function SuccessCaseDetailPage({
       {/* 히어로 섹션 */}
       <div className="relative bg-gradient-to-r from-blue-600 to-blue-800 overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src={caseData.heroImage}
             alt={caseData.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
+            quality={85}
+            sizes="100vw"
           />
           {/* AI 이미지 스타일 그라디언트 - 가시성 개선 */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80" />

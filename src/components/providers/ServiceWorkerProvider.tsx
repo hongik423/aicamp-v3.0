@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 
 // Service Worker 등록 상태를 전역으로 관리
 let serviceWorkerRegistered = false;
+let registrationInProgress = false;
 
 export function ServiceWorkerProvider() {
   const errorHandlersSetup = useRef(false);
@@ -100,24 +101,38 @@ export function ServiceWorkerProvider() {
 
     // 🔧 Service Worker 등록 - 중복 방지 및 layout.tsx와 충돌 방지
     const registerServiceWorker = async () => {
-      // layout.tsx에서 이미 등록하므로 여기서는 상태만 확인
-      if (!('serviceWorker' in navigator) || serviceWorkerRegistered) {
+      // 이미 등록되었거나 등록 중이면 건너뛰기
+      if (!('serviceWorker' in navigator) || serviceWorkerRegistered || registrationInProgress) {
         return;
       }
+      
+      registrationInProgress = true;
 
       try {
-        // 기존 등록 확인만 수행 (새로 등록하지 않음)
-        const existingRegistration = await navigator.serviceWorker.getRegistration();
+        // 기존 등록 확인
+        let existingRegistration = await navigator.serviceWorker.getRegistration('/');
+        
+        // 등록이 없으면 새로 등록
+        if (!existingRegistration) {
+          try {
+            existingRegistration = await navigator.serviceWorker.register('/sw.js', {
+              scope: '/',
+              updateViaCache: 'none'
+            });
+          } catch (regError) {
+            // Service Worker 등록 실패 시 무시
+            console.log('ℹ️ Service Worker 등록 건너뛰기');
+            serviceWorkerRegistered = true;
+            return;
+          }
+        }
+        
         if (existingRegistration) {
           console.log('🚀 Google Apps Script 시스템 초기화 완료');
           console.log('📧 이메일 서비스: Google Apps Script');
           console.log('🔗 연결 상태: connected');
           serviceWorkerRegistered = true;
-          return;
         }
-
-        // layout.tsx에서 등록이 완료될 때까지 대기
-        console.log('⏳ Service Worker 등록 대기 중...');
 
       } catch (error: any) {
         if (!error.message?.includes('port closed') && 
@@ -127,6 +142,8 @@ export function ServiceWorkerProvider() {
             !error.message?.includes('manifest.json')) {
           console.warn('Service Worker 상태 확인 실패:', error);
         }
+      } finally {
+        registrationInProgress = false;
       }
     };
 

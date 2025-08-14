@@ -2,6 +2,14 @@
    AICAMP V13.0 ULTIMATE - 모바일 최적화 글로벌 CSS 
    ============================================ */
 
+/* 폰트 임포트 - 최상단에 위치 (성능 최적화) */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
+/* Tailwind CSS 지시어 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* 사용자 편의성 개선 - 모든 네모박스에 라운드 적용 */
 * {
   /* 기본 박스 요소들에 부드러운 라운드 적용 */
@@ -224,12 +232,7 @@ input, textarea, select,
   }
 }
 
-/* 폰트 임포트 - Pretendard만 사용 (성능 최적화) */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* CSS 변수와 기본 스타일 정의 */
 
 /* 기본 스타일 */
 :root {

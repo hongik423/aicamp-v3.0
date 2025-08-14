@@ -743,7 +743,7 @@ export default function ConsultationPage() {
             지금 상담 신청하시면 24시간 내에 전문가가 직접 연락드립니다
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-            <Link href="/diagnosis">
+            <Link href="/ai-diagnosis">
               <button className="flex-1 bg-green-600 text-white hover:bg-green-700 py-3 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2">
                 <Phone className="w-4 h-4" />
                 무료진단
