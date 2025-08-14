@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Real45QuestionForm from '@/features/ai-diagnosis/components/Real45QuestionForm';
+import EnhancedBehaviorEvaluationForm from '@/features/ai-diagnosis/components/EnhancedBehaviorEvaluationForm';
 
 export const metadata: Metadata = {
   title: 'AI 역량진단 45문항 | AICAMP',
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default async function AIDiagnosisPage() {
   return (
     <main className="min-h-screen">
-      <Real45QuestionForm />
+      <EnhancedBehaviorEvaluationForm />
     </main>
   );
 }

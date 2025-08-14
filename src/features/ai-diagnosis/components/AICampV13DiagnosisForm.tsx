@@ -102,12 +102,24 @@ const EMPLOYEE_COUNTS = [
 ];
 
 const ANNUAL_REVENUES = [
-  '1억원 미만', '1-5억원', '5-10억원', '10-50억원', '50-100억원', '100억원 이상'
+  '10억원 미만', 
+  '10억~20억원 미만', 
+  '20억~50억원 미만', 
+  '50억~100억원 미만', 
+  '100억~300억원 미만', 
+  '300억~500억원 미만', 
+  '500억~1000억원 미만', 
+  '1000억원 이상'
 ];
 
 const BUDGET_ALLOCATIONS = [
   '500만원 미만', '500만원-1,000만원', '1,000만원-3,000만원', 
   '3,000만원-5,000만원', '5,000만원-1억원', '1억원 이상'
+];
+
+const LOCATIONS = [
+  '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
+  '경기도', '강원특별자치도', '충청북도', '충청남도', '전라북도', '전라남도', '경상북도', '경상남도', '제주특별자치도'
 ];
 
 export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
@@ -136,22 +148,7 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 간단한 입력 핸들러들
-  const handleAddressChange = (address: string) => {
-    setFormData(prev => ({
-      ...prev,
-      location: address
-    }));
-
-    // 주소 관련 에러 제거
-    if (errors.location) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors.location;
-        return newErrors;
-      });
-    }
-  };
+  // 간단한 입력 핸들러들 (주소는 Select로 변경되어 불필요)
 
   const handlePhoneChange = (phone: string) => {
     setFormData(prev => ({
@@ -260,11 +257,31 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
     }
   };
 
-  // 응답 업데이트
+  // 응답 업데이트 (자동 진행 포함)
   const updateResponse = (questionId: number, value: number) => {
     const newResponses = [...formData.assessmentResponses];
     newResponses[questionId - 1] = value;
     setFormData({ ...formData, assessmentResponses: newResponses });
+
+    // 1초 후 자동으로 다음 질문으로 이동 (사용자 경험 개선)
+    setTimeout(() => {
+      const currentSectionQuestions = ASSESSMENT_SECTIONS[currentSection - 1].questions;
+      const currentQuestionIndex = currentSectionQuestions.findIndex(q => q.id === questionId);
+      
+      // 현재 섹션의 마지막 질문이 아니라면 자동으로 다음 섹션으로
+      if (currentQuestionIndex < currentSectionQuestions.length - 1) {
+        // 현재 섹션 내에서 다음 질문은 자연스럽게 표시됨 (이미 모든 질문이 표시되므로)
+        return;
+      } else if (currentSection < 6) {
+        // 다음 섹션으로 자동 이동
+        setCurrentSection(currentSection + 1);
+      } else {
+        // 모든 질문 완료시 자동으로 추가 정보 단계로
+        if (isAssessmentComplete()) {
+          setCurrentStep('additional');
+        }
+      }
+    }, 800); // 0.8초 후 자동 진행
   };
 
   // 폼 제출
@@ -532,16 +549,37 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <AddressInput
-                  value={formData.location}
-                  onChange={handleAddressChange}
-                  label="주소"
-                  required={true}
-                  placeholder="예: 서울특별시 강남구 역삼동"
-                  error={errors.location}
-                  className="w-full"
-                />
+              <div>
+                <Label htmlFor="location">소재지 (도/특별시/시) *</Label>
+                <Select 
+                  value={formData.location} 
+                  onValueChange={(value) => {
+                    setFormData(prev => ({ ...prev, location: value }));
+                    if (errors.location) {
+                      setErrors(prev => {
+                        const newErrors = { ...prev };
+                        delete newErrors.location;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                >
+                  <SelectTrigger className={cn(
+                    'text-lg min-h-[48px] transition-all duration-200',
+                    'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
+                    errors.location ? 'border-red-500' : ''
+                  )}>
+                    <SelectValue placeholder="소재지를 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOCATIONS.map((location) => (
+                      <SelectItem key={location} value={location}>{location}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.location && (
+                  <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+                )}
               </div>
             </div>
           </div>
