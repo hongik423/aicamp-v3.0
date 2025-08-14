@@ -68,6 +68,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   // 현재 질문 정보
   const currentQuestionData = REAL_45_QUESTIONS[formState.currentQuestion];
@@ -279,11 +280,18 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           {/* 헤더 */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <img 
-                src="/images/aicamp_leader.png" 
-                alt="이교장" 
-                className="w-16 h-16 rounded-full mr-4 shadow-lg"
-              />
+              {!imageError ? (
+                <img 
+                  src="/images/aicamp_leader.png" 
+                  alt="이교장" 
+                  className="w-16 h-16 rounded-full mr-4 shadow-lg"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full mr-4 shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                  이
+                </div>
+              )}
               <h1 className="text-3xl font-bold text-gray-900">
                 이교장의AI역량진단
               </h1>
@@ -483,11 +491,18 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         {/* 헤더 */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <img 
-              src="/images/aicamp_leader.png" 
-              alt="이교장" 
-              className="w-20 h-20 rounded-full mr-4 shadow-lg"
-            />
+            {!imageError ? (
+              <img 
+                src="/images/aicamp_leader.png" 
+                alt="이교장" 
+                className="w-20 h-20 rounded-full mr-4 shadow-lg"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full mr-4 shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+                이
+              </div>
+            )}
             <h1 className="text-3xl font-bold text-gray-900">
               이교장의AI역량진단
             </h1>
