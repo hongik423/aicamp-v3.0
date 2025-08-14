@@ -170,7 +170,7 @@ const Real45QuestionForm: React.FC = () => {
     setFormState(prev => ({ ...prev, currentQuestion: 0 }));
   };
 
-  // 답변 저장 (자동 진행 포함)
+  // 답변 저장 (자동 진행 포함) - React 오류 #418, #423 수정
   const handleAnswer = (questionId: number, score: number) => {
     setFormState(prev => ({
       ...prev,
@@ -180,14 +180,16 @@ const Real45QuestionForm: React.FC = () => {
       }
     }));
 
-    // 0.8초 후 자동으로 다음 질문으로 이동 (사용자 경험 개선)
+    // React.startTransition으로 상태 업데이트 안전하게 처리
     const timer = setTimeout(() => {
-      if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
-        setFormState(prev => ({
-          ...prev,
-          currentQuestion: prev.currentQuestion + 1
-        }));
-      }
+      React.startTransition(() => {
+        if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
+          setFormState(prev => ({
+            ...prev,
+            currentQuestion: prev.currentQuestion + 1
+          }));
+        }
+      });
     }, 800);
 
     // 타이머 정리를 위해 ref나 state에 저장할 수도 있지만, 
@@ -195,24 +197,28 @@ const Real45QuestionForm: React.FC = () => {
     return () => clearTimeout(timer);
   };
 
-  // 다음 질문
+  // 다음 질문 - React 오류 #418, #423 수정
   const handleNext = () => {
-    if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
-      setFormState(prev => ({
-        ...prev,
-        currentQuestion: prev.currentQuestion + 1
-      }));
-    }
+    React.startTransition(() => {
+      if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
+        setFormState(prev => ({
+          ...prev,
+          currentQuestion: prev.currentQuestion + 1
+        }));
+      }
+    });
   };
 
-  // 이전 질문
+  // 이전 질문 - React 오류 #418, #423 수정
   const handlePrev = () => {
-    if (formState.currentQuestion > 0) {
-      setFormState(prev => ({
-        ...prev,
-        currentQuestion: prev.currentQuestion - 1
-      }));
-    }
+    React.startTransition(() => {
+      if (formState.currentQuestion > 0) {
+        setFormState(prev => ({
+          ...prev,
+          currentQuestion: prev.currentQuestion - 1
+        }));
+      }
+    });
   };
 
   // 진단 완료 및 제출
