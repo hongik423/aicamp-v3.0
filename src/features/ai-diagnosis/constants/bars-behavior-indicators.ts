@@ -510,6 +510,20 @@ export const getAllBARSStats = () => {
   };
 };
 
+/**
+ * 점수별 아이콘 반환 함수
+ */
+export function getScoreIcon(score: number): string {
+  const icons: { [key: number]: string } = {
+    5: "🌟",
+    4: "⭐",
+    3: "✨",
+    2: "💫",
+    1: "⚡"
+  };
+  return icons[score] || "📍";
+}
+
 console.log('🎯 BARS 행동지표 시스템 로드 완료');
 console.log('📊 총 질문 수:', QUESTION_BARS_MAPPING.length);
 console.log('🎯 카테고리별 통계:', getAllBARSStats());
