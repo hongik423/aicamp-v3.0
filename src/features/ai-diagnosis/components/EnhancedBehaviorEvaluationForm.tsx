@@ -12,6 +12,9 @@ import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AddressInput from '@/components/ui/address-input';
+import PhoneInput from '@/components/ui/phone-input';
+import EmailInput from '@/components/ui/email-input';
 import { 
   BEHAVIOR_INDICATORS, 
   CATEGORY_BEHAVIOR_INDICATORS,
