@@ -44,6 +44,7 @@ interface FormState {
   currentQuestion: number;
   isCompleted: boolean;
   showCompanyForm: boolean;
+  userValidated?: boolean; // 사용자 검증 완료 플래그
 }
 
 const EnhancedBehaviorEvaluationForm: React.FC = () => {
@@ -64,7 +65,8 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     answers: {},
     currentQuestion: 0,
     isCompleted: false,
-    showCompanyForm: true
+    showCompanyForm: true,
+    userValidated: false
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -137,7 +139,8 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           answers: {},
           currentQuestion: 0,
           isCompleted: false,
-          showCompanyForm: true
+          showCompanyForm: true,
+          userValidated: false
         });
       }
     }
@@ -186,36 +189,101 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     }));
   };
 
-  // 기업정보 완료 및 질문 시작
+  // 기업정보 완료 및 질문 시작 - 강화된 검증 시스템
   const handleStartQuestions = () => {
     const { companyName, contactName, contactEmail, contactPhone, industry, employeeCount, location } = formState.companyInfo;
     
-    if (!companyName || !contactName || !contactEmail || !contactPhone || !industry || !employeeCount || !location.trim()) {
+    // 1단계: 필수 필드 검증
+    if (!companyName?.trim() || !contactName?.trim() || !contactEmail?.trim() || !contactPhone?.trim() || !industry?.trim() || !employeeCount?.trim() || !location?.trim()) {
       toast({
-        title: "필수 정보 누락",
-        description: "필수 항목을 모두 입력해주세요.",
+        title: "⚠️ 필수 정보 누락",
+        description: "모든 필수 항목을 정확히 입력해야 AI역량진단을 시작할 수 있습니다.",
         variant: "destructive",
-        className: "border-orange-200 bg-orange-50 text-orange-900"
+        className: "border-orange-200 bg-orange-50 text-orange-900",
+        duration: 5000
       });
       return;
     }
 
-    // 직접입력 선택시 내용 확인
-    if (industry === '직접입력' && !formState.companyInfo.industryCustom?.trim()) {
+    // 2단계: 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(contactEmail)) {
       toast({
-        title: "업종 직접입력 필요", 
-        description: "업종을 직접 입력해주세요.",
+        title: "📧 이메일 형식 오류",
+        description: "올바른 이메일 주소를 입력해주세요. (예: company@domain.com)",
         variant: "destructive",
-        className: "border-orange-200 bg-orange-50 text-orange-900"
+        className: "border-orange-200 bg-orange-50 text-orange-900",
+        duration: 5000
       });
       return;
     }
+
+    // 3단계: 연락처 형식 검증
+    const phoneRegex = /^[0-9-+\s()]+$/;
+    if (!phoneRegex.test(contactPhone) || contactPhone.length < 10) {
+      toast({
+        title: "📞 연락처 형식 오류",
+        description: "올바른 연락처를 입력해주세요. (예: 010-1234-5678)",
+        variant: "destructive",
+        className: "border-orange-200 bg-orange-50 text-orange-900",
+        duration: 5000
+      });
+      return;
+    }
+
+    // 4단계: 직접입력 업종 확인
+    if (industry === '직접입력' && !formState.companyInfo.industryCustom?.trim()) {
+      toast({
+        title: "🏢 업종 직접입력 필요", 
+        description: "업종을 직접 입력해주세요.",
+        variant: "destructive",
+        className: "border-orange-200 bg-orange-50 text-orange-900",
+        duration: 5000
+      });
+      return;
+    }
+
+    // 5단계: 회사명 최소 길이 검증
+    if (companyName.trim().length < 2) {
+      toast({
+        title: "🏢 회사명 확인",
+        description: "회사명을 2글자 이상 입력해주세요.",
+        variant: "destructive",
+        className: "border-orange-200 bg-orange-50 text-orange-900",
+        duration: 5000
+      });
+      return;
+    }
+
+    // 6단계: 담당자명 최소 길이 검증
+    if (contactName.trim().length < 2) {
+      toast({
+        title: "👤 담당자명 확인",
+        description: "담당자명을 2글자 이상 입력해주세요.",
+        variant: "destructive",
+        className: "border-orange-200 bg-orange-50 text-orange-900",
+        duration: 5000
+      });
+      return;
+    }
+    
+    // 모든 검증 통과 - 사용자 인증 완료 상태로 설정
+    const userSession = {
+      companyInfo: formState.companyInfo,
+      isValidated: true,
+      validatedAt: new Date().toISOString(),
+      sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    };
+    
+    // 세션 정보 저장
+    sessionStorage.setItem('aicamp_user_session', JSON.stringify(userSession));
     
     // 질문 시작 시 첫 번째 질문(index 0)부터 시작하도록 명시적으로 설정
     setFormState(prev => ({ 
       ...prev, 
       showCompanyForm: false,
-      currentQuestion: 0  // 명시적으로 첫 번째 질문부터 시작
+      currentQuestion: 0,  // 명시적으로 첫 번째 질문부터 시작
+      userValidated: true  // 사용자 검증 완료 플래그
     }));
     
     // 첫 번째 질문의 기존 답변이 있다면 로드
@@ -226,11 +294,23 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       setSelectedScore(null);
     }
     
+    // 성공 메시지
     toast({
-      title: "🚀 AI역량진단 시작!",
-      description: "45개 질문에 차례로 답변해주세요.",
-      className: "border-blue-200 bg-blue-50 text-blue-900",
+      title: "🎉 기업정보 등록 완료!",
+      description: `${companyName}의 AI역량진단을 시작합니다. 45개 질문에 차례로 답변해주세요.`,
+      className: "border-green-200 bg-green-50 text-green-900",
+      duration: 4000
     });
+
+    // 0.5초 후 시작 안내
+    setTimeout(() => {
+      toast({
+        title: "🚀 AI역량진단 시작!",
+        description: "각 질문을 신중히 읽고 현재 상황에 가장 적합한 점수를 선택해주세요.",
+        className: "border-blue-200 bg-blue-50 text-blue-900",
+        duration: 3000
+      });
+    }, 500);
   };
 
   // 점수 선택 핸들러 - 1회 클릭으로 즉시 다음으로 이동
@@ -320,14 +400,62 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     }
   };
 
-  // 진단 제출
+  // 진단 제출 - 사용자 검증 확인 포함
   const handleSubmit = async () => {
+    // 1단계: 사용자 검증 상태 확인
+    const userSession = sessionStorage.getItem('aicamp_user_session');
+    if (!userSession || !formState.userValidated) {
+      toast({
+        title: "🚫 접근 권한 없음",
+        description: "기업정보를 먼저 등록해야 AI역량진단 보고서를 받을 수 있습니다.",
+        variant: "destructive",
+        className: "border-red-200 bg-red-50 text-red-900",
+        duration: 5000
+      });
+      
+      // 기업정보 입력 화면으로 돌아가기
+      setFormState(prev => ({
+        ...prev,
+        showCompanyForm: true,
+        currentQuestion: 0,
+        userValidated: false
+      }));
+      return;
+    }
+
+    // 2단계: 세션 유효성 검증
+    try {
+      const sessionData = JSON.parse(userSession);
+      if (!sessionData.isValidated || !sessionData.companyInfo) {
+        throw new Error('Invalid session');
+      }
+    } catch (error) {
+      toast({
+        title: "🚫 세션 만료",
+        description: "세션이 만료되었습니다. 기업정보를 다시 입력해주세요.",
+        variant: "destructive",
+        className: "border-red-200 bg-red-50 text-red-900",
+        duration: 5000
+      });
+      
+      sessionStorage.removeItem('aicamp_user_session');
+      setFormState(prev => ({
+        ...prev,
+        showCompanyForm: true,
+        currentQuestion: 0,
+        userValidated: false
+      }));
+      return;
+    }
+
+    // 3단계: 답변 완성도 확인
     if (answeredCount < REAL_45_QUESTIONS.length) {
       toast({
-        title: "모든 질문에 답변해주세요",
-        description: `${REAL_45_QUESTIONS.length - answeredCount}개 질문이 남아있습니다.`,
+        title: "⚠️ 모든 질문에 답변해주세요",
+        description: `${REAL_45_QUESTIONS.length - answeredCount}개 질문이 남아있습니다. 정확한 진단을 위해 모든 질문에 답변해주세요.`,
         variant: "destructive",
-        className: "border-yellow-200 bg-yellow-50 text-yellow-900"
+        className: "border-yellow-200 bg-yellow-50 text-yellow-900",
+        duration: 5000
       });
       return;
     }
@@ -610,7 +738,13 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           {/* 기업정보 입력 폼 */}
           <Card className="shadow-xl">
             <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-              <CardTitle className="text-xl">기업 정보 입력</CardTitle>
+              <CardTitle className="text-xl flex items-center">
+                🔐 기업 정보 등록 (필수)
+              </CardTitle>
+              <p className="text-blue-100 text-sm mt-2">
+                정확한 AI역량진단 보고서 제공을 위해 기업정보를 먼저 등록해주세요.
+                <br/>모든 정보는 안전하게 보호되며, 진단 완료 후 맞춤형 보고서가 이메일로 발송됩니다.
+              </p>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
               {/* 기본 정보 */}
@@ -712,8 +846,13 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                 size="lg"
               >
                 <ArrowRight className="w-4 h-4 mr-2" />
-                AI역량진단 시작하기
+                정보 등록 완료 및 AI역량진단 시작
               </Button>
+              
+              <div className="text-center text-sm text-gray-500 mt-4">
+                <p>⚠️ 기업정보 등록 후에만 AI역량진단 보고서를 받을 수 있습니다.</p>
+                <p>📧 진단 완료 시 입력하신 이메일로 상세 보고서가 발송됩니다.</p>
+              </div>
             </CardContent>
           </Card>
         </div>
