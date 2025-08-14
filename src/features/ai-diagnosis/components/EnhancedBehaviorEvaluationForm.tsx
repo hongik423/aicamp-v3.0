@@ -70,6 +70,23 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
   const [imageError, setImageError] = useState(false);
 
+  // Hydration 완료 후 렌더링 (React 오류 #418, #423 수정)
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // 클라이언트 사이드에서만 렌더링하여 Hydration 오류 방지
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">AI역량진단 시스템 로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   // 현재 질문 정보
   const currentQuestionData = REAL_45_QUESTIONS[formState.currentQuestion];
   const currentCategoryData = currentQuestionData ? CATEGORY_BEHAVIOR_INDICATORS[currentQuestionData.category] : null;
@@ -132,7 +149,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     }, 500);
   };
 
-  // 다음 질문으로 이동
+  // 다음 질문으로 이동 (React 오류 #418, #423 수정)
   const handleNext = () => {
     if (selectedScore === null) {
       toast({
@@ -143,26 +160,38 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       return;
     }
 
-    if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
-      setFormState(prev => ({
-        ...prev,
-        currentQuestion: prev.currentQuestion + 1
-      }));
-      setSelectedScore(formState.answers[REAL_45_QUESTIONS[formState.currentQuestion + 1]?.id] || null);
-    } else {
-      // 모든 질문 완료
-      handleSubmit();
-    }
+    // React.startTransition으로 상태 업데이트 안전하게 처리
+    React.startTransition(() => {
+      if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
+        const nextQuestionIndex = formState.currentQuestion + 1;
+        const nextQuestionId = REAL_45_QUESTIONS[nextQuestionIndex]?.id;
+        
+        setFormState(prev => ({
+          ...prev,
+          currentQuestion: nextQuestionIndex
+        }));
+        setSelectedScore(formState.answers[nextQuestionId] || null);
+      } else {
+        // 모든 질문 완료
+        handleSubmit();
+      }
+    });
   };
 
-  // 이전 질문으로 이동
+  // 이전 질문으로 이동 (React 오류 #418, #423 수정)
   const handlePrevious = () => {
     if (formState.currentQuestion > 0) {
-      setFormState(prev => ({
-        ...prev,
-        currentQuestion: prev.currentQuestion - 1
-      }));
-      setSelectedScore(formState.answers[REAL_45_QUESTIONS[formState.currentQuestion - 1]?.id] || null);
+      // React.startTransition으로 상태 업데이트 안전하게 처리
+      React.startTransition(() => {
+        const prevQuestionIndex = formState.currentQuestion - 1;
+        const prevQuestionId = REAL_45_QUESTIONS[prevQuestionIndex]?.id;
+        
+        setFormState(prev => ({
+          ...prev,
+          currentQuestion: prevQuestionIndex
+        }));
+        setSelectedScore(formState.answers[prevQuestionId] || null);
+      });
     }
   };
 

@@ -257,30 +257,32 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
     }
   };
 
-  // 응답 업데이트 (자동 진행 포함)
+  // 응답 업데이트 (자동 진행 포함) - React 오류 #418, #423 수정
   const updateResponse = (questionId: number, value: number) => {
     const newResponses = [...formData.assessmentResponses];
     newResponses[questionId - 1] = value;
     setFormData({ ...formData, assessmentResponses: newResponses });
 
-    // 1초 후 자동으로 다음 질문으로 이동 (사용자 경험 개선)
+    // React.startTransition으로 상태 업데이트 안전하게 처리
     setTimeout(() => {
-      const currentSectionQuestions = ASSESSMENT_SECTIONS[currentSection - 1].questions;
-      const currentQuestionIndex = currentSectionQuestions.findIndex(q => q.id === questionId);
-      
-      // 현재 섹션의 마지막 질문이 아니라면 자동으로 다음 섹션으로
-      if (currentQuestionIndex < currentSectionQuestions.length - 1) {
-        // 현재 섹션 내에서 다음 질문은 자연스럽게 표시됨 (이미 모든 질문이 표시되므로)
-        return;
-      } else if (currentSection < 6) {
-        // 다음 섹션으로 자동 이동
-        setCurrentSection(currentSection + 1);
-      } else {
-        // 모든 질문 완료시 자동으로 추가 정보 단계로
-        if (isAssessmentComplete()) {
-          setCurrentStep('additional');
+      React.startTransition(() => {
+        const currentSectionQuestions = ASSESSMENT_SECTIONS[currentSection - 1].questions;
+        const currentQuestionIndex = currentSectionQuestions.findIndex(q => q.id === questionId);
+        
+        // 현재 섹션의 마지막 질문이 아니라면 자동으로 다음 섹션으로
+        if (currentQuestionIndex < currentSectionQuestions.length - 1) {
+          // 현재 섹션 내에서 다음 질문은 자연스럽게 표시됨 (이미 모든 질문이 표시되므로)
+          return;
+        } else if (currentSection < 6) {
+          // 다음 섹션으로 자동 이동
+          setCurrentSection(currentSection + 1);
+        } else {
+          // 모든 질문 완료시 자동으로 추가 정보 단계로
+          if (isAssessmentComplete()) {
+            setCurrentStep('additional');
+          }
         }
-      }
+      });
     }, 800); // 0.8초 후 자동 진행
   };
 
