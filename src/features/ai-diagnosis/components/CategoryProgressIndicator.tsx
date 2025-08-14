@@ -117,11 +117,11 @@ const CategoryProgressIndicator: React.FC<CategoryProgressIndicatorProps> = ({
                 <div className="mt-2">
                   <div className="text-xs text-gray-500 mb-1">현재 수준</div>
                   <div className="text-xs font-medium text-gray-700">
-                    {averageScore >= 4.5 ? '🚀 혁신적 리더십' :
-                     averageScore >= 3.5 ? '💪 전략적 실행력' :
-                     averageScore >= 2.5 ? '👍 기본적 운영' :
-                     averageScore >= 1.5 ? '📋 초기 준비단계' :
-                     '⏳ 도입 검토 필요'
+                    {averageScore >= 4.5 ? '혁신적 리더십' :
+                     averageScore >= 3.5 ? '전략적 실행력' :
+                     averageScore >= 2.5 ? '기본적 운영' :
+                     averageScore >= 1.5 ? '초기 준비단계' :
+                     '도입 검토 필요'
                     }
                   </div>
                 </div>
