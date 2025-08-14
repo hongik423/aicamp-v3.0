@@ -48,6 +48,7 @@ interface FormState {
 
 const EnhancedBehaviorEvaluationForm: React.FC = () => {
   const { toast } = useToast();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [formState, setFormState] = useState<FormState>({
     companyInfo: {
       companyName: '',
@@ -227,17 +228,48 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     }
   };
 
-  // 로컬 스토리지 저장
+  // Hydration 완료 처리
   useEffect(() => {
-    localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(formState));
-  }, [formState]);
+    setIsHydrated(true);
+    
+    // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
+    const savedData = localStorage.getItem('enhancedBehaviorEvaluationForm');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormState(parsedData);
+      } catch (error) {
+        console.error('로컬 스토리지 데이터 복원 실패:', error);
+      }
+    }
+  }, []);
+
+  // 로컬 스토리지 저장 (Hydration 완료 후에만)
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(formState));
+    }
+  }, [formState, isHydrated]);
 
   // 현재 선택된 점수 업데이트
   useEffect(() => {
     if (currentQuestionData) {
       setSelectedScore(formState.answers[currentQuestionData.id] || null);
     }
+    
+    // Cleanup 함수로 메모리 누수 방지
+    return () => {
+      setSelectedScore(null);
+    };
   }, [formState.currentQuestion, currentQuestionData, formState.answers]);
+
+  // 컴포넌트 언마운트 시 cleanup
+  useEffect(() => {
+    return () => {
+      // 진행 중인 요청이나 타이머가 있다면 정리
+      setIsSubmitting(false);
+    };
+  }, []);
 
   // 기업정보 입력 폼 렌더링
   if (formState.showCompanyForm) {
@@ -246,9 +278,19 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         <div className="container mx-auto px-4 max-w-2xl">
           {/* 헤더 */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="flex items-center justify-center mb-4">
+              <img 
+                src="/images/AICAMP-leader.png" 
+                alt="이교장" 
+                className="w-16 h-16 rounded-full mr-4 shadow-lg"
+              />
+              <h1 className="text-3xl font-bold text-gray-900">
+                이교장의AI역량진단
+              </h1>
+            </div>
+            <h2 className="text-xl font-semibold text-blue-600 mb-2">
               🏢 기업 정보 입력
-            </h1>
+            </h2>
             <p className="text-gray-600">
               정확한 진단을 위해 기업 정보를 입력해주세요
             </p>
@@ -423,16 +465,36 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     );
   }
 
-  if (!currentQuestionData) return null;
+  // Hydration이 완료되지 않았거나 현재 질문 데이터가 없으면 로딩 표시
+  if (!isHydrated || !currentQuestionData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">AI 역량진단을 준비 중입니다...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* 헤더 */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            🧠 AI 역량진단 - 행동지표 평가
-          </h1>
+          <div className="flex items-center justify-center mb-4">
+            <img 
+              src="/images/AICAMP-leader.png" 
+              alt="이교장" 
+              className="w-20 h-20 rounded-full mr-4 shadow-lg"
+            />
+            <h1 className="text-3xl font-bold text-gray-900">
+              이교장의AI역량진단
+            </h1>
+          </div>
+          <h2 className="text-xl font-semibold text-blue-600 mb-2">
+            🧠 행동지표 기반 정밀 평가
+          </h2>
           <p className="text-gray-600">
             각 질문에 대해 현재 조직의 행동 수준을 정확히 평가해주세요
           </p>
