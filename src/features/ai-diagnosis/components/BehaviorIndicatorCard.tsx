@@ -5,8 +5,12 @@ import { motion } from 'framer-motion';
 import { Check, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { 
+  BARSIndicator,
+  getBARSIndicator,
+  getScoreIcon
+} from '../constants/bars-behavior-indicators';
+import { 
   BehaviorIndicator,
-  getScoreIcon,
   getCategoryBehaviorIndicator 
 } from '../constants/behavior-indicators';
 
@@ -16,6 +20,7 @@ interface BehaviorIndicatorCardProps {
   isSelected: boolean;
   onSelect: (score: number) => void;
   index: number;
+  questionId?: number; // BARS 시스템용 질문 ID
 }
 
 const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
@@ -23,9 +28,15 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
   category,
   isSelected,
   onSelect,
-  index
+  index,
+  questionId
 }) => {
+  // BARS 시스템 사용 시 질문별 행동지표 조회, 없으면 기존 시스템 사용
+  const barsIndicator = questionId ? getBARSIndicator(questionId, indicator.score) : null;
   const categoryIndicator = getCategoryBehaviorIndicator(category as any, indicator.score);
+  
+  // BARS 우선, 없으면 기존 카테고리 지표 사용
+  const displayIndicator = barsIndicator || categoryIndicator;
   
   return (
     <motion.div
@@ -74,7 +85,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
                   ${isSelected ? `${indicator.color} border-current` : 'text-gray-600 border-gray-300'}
                 `}
               >
-                {categoryIndicator?.keyword || indicator.keyword}
+                {barsIndicator?.keywords?.[0] || displayIndicator?.keyword || indicator.keyword}
               </Badge>
             </div>
           </div>
@@ -83,8 +94,18 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
             text-sm leading-relaxed
             ${isSelected ? indicator.color : 'text-gray-600'}
           `}>
-            {categoryIndicator?.description || indicator.description}
+            {barsIndicator?.behaviorDescription || displayIndicator?.description || indicator.description}
           </p>
+          
+          {/* BARS 시스템의 실제 업무 사례 표시 */}
+          {barsIndicator?.businessExample && isSelected && (
+            <div className="mt-3 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-400">
+              <p className="text-xs text-gray-700">
+                <span className="font-semibold">실무 사례: </span>
+                {barsIndicator.businessExample}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* 선택 표시 및 상태 (오른쪽) */}
@@ -134,7 +155,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
           <div className="flex items-center text-sm">
             <TrendingUp className={`w-4 h-4 mr-2 ${indicator.color}`} />
             <span className={`font-medium ${indicator.color}`}>
-              선택된 평가: {indicator.score}점 → {categoryIndicator?.keyword || indicator.keyword}
+              선택된 평가: {indicator.score}점 → {barsIndicator?.keywords?.[0] || displayIndicator?.keyword || indicator.keyword}
             </span>
           </div>
         </motion.div>
