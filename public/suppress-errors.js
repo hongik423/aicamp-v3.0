@@ -8,6 +8,9 @@
     'port closed',
     'chrome-extension://',
     'content.js',
+    'content_script.js',
+    '2content.js',
+    'The message port closed before a response was received',
     'runtime.lastError',
     'The message port closed',
     'Manifest fetch',
@@ -85,16 +88,33 @@
     }
   }, true);
   
-  // Promise rejection 핸들러
+  // Promise rejection 핸들러 (강화됨)
   window.addEventListener('unhandledrejection', function(event) {
     const reason = event.reason?.message || event.reason || '';
-    if (shouldSuppressError(reason)) {
+    const stack = event.reason?.stack || '';
+    
+    // Chrome 확장 프로그램 관련 Promise rejection 차단
+    if (shouldSuppressError(reason) || shouldSuppressError(stack) ||
+        reason.includes('message port closed') ||
+        stack.includes('content.js') ||
+        stack.includes('chrome-extension://')) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
       return false;
     }
   }, true);
+
+  // Chrome 확장 프로그램 특별 처리
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    try {
+      // Chrome extension API 오류 무시
+      chrome.runtime.onConnect.addListener = function() {};
+      chrome.runtime.onMessage.addListener = function() {};
+    } catch (e) {
+      // Chrome API 접근 오류 무시
+    }
+  }
   
   // 안전한 URL 문자열 변환 함수
   function safeUrlToString(url) {

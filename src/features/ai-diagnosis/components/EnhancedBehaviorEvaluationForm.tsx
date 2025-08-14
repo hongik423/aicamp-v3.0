@@ -47,6 +47,7 @@ interface FormState {
 }
 
 const EnhancedBehaviorEvaluationForm: React.FC = () => {
+  // 모든 Hook을 최상단에 배치하여 순서 보장
   const { toast } = useToast();
   const [isHydrated, setIsHydrated] = useState(false);
   const [formState, setFormState] = useState<FormState>({
@@ -70,26 +71,62 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
   const [imageError, setImageError] = useState(false);
 
+  // 현재 질문 정보 (Hook 순서 보장을 위해 최상단 배치)
+  const currentQuestionData = REAL_45_QUESTIONS[formState.currentQuestion];
+  const currentCategoryData = currentQuestionData ? CATEGORY_BEHAVIOR_INDICATORS[currentQuestionData.category] : null;
+  
+  // 진행률 계산
+  const progress = ((formState.currentQuestion + 1) / REAL_45_QUESTIONS.length) * 100;
+  const answeredCount = Object.keys(formState.answers).length;
+
+  // 모든 useEffect Hook들을 최상단에 배치
   // Hydration 완료 후 렌더링 (React 오류 #418, #423 수정)
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  // 클라이언트 사이드에서만 렌더링하여 Hydration 오류 방지
-  if (!isHydrated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">AI역량진단 시스템 로딩 중...</p>
-        </div>
-      </div>
-    );
-  }
+  // Hydration 완료 처리
+  useEffect(() => {
+    if (isHydrated) {
+      // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
+      const savedData = localStorage.getItem('enhancedBehaviorEvaluationForm');
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          setFormState(parsedData);
+        } catch (error) {
+          console.error('로컬 스토리지 데이터 복원 실패:', error);
+        }
+      }
+    }
+  }, [isHydrated]);
 
-  // 현재 질문 정보
-  const currentQuestionData = REAL_45_QUESTIONS[formState.currentQuestion];
-  const currentCategoryData = currentQuestionData ? CATEGORY_BEHAVIOR_INDICATORS[currentQuestionData.category] : null;
+  // 로컬 스토리지 저장 (Hydration 완료 후에만)
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(formState));
+    }
+  }, [formState, isHydrated]);
+
+  // 현재 선택된 점수 업데이트
+  useEffect(() => {
+    if (currentQuestionData) {
+      setSelectedScore(formState.answers[currentQuestionData.id] || null);
+    }
+    
+    // Cleanup 함수로 메모리 누수 방지
+    return () => {
+      setSelectedScore(null);
+    };
+  }, [formState.currentQuestion, currentQuestionData, formState.answers]);
+
+  // 컴포넌트 언마운트 시 cleanup
+  useEffect(() => {
+    return () => {
+      // 진행 중인 요청이나 타이머가 있다면 정리
+      setIsSubmitting(false);
+    };
+  }, []);
 
   // 기업정보 입력 핸들러들
   const handleCompanyInfoChange = (field: keyof CompanyInfo, value: string) => {
@@ -127,10 +164,6 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     
     setFormState(prev => ({ ...prev, showCompanyForm: false }));
   };
-
-  // 진행률 계산
-  const progress = ((formState.currentQuestion + 1) / REAL_45_QUESTIONS.length) * 100;
-  const answeredCount = Object.keys(formState.answers).length;
 
   // 점수 선택 핸들러 - 선택 즉시 다음으로 이동
   const handleScoreSelect = (score: number) => {
@@ -215,75 +248,65 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         description,
       });
     };
-    
+
     try {
-      // 1단계: 데이터 준비
-      showProgress("📊 진단 데이터 준비 중...", "평가 결과를 분석하고 있습니다.");
-      
-      const diagnosisData = {
-        // 기업 정보
-        companyName: formState.companyInfo.companyName,
-        contactName: formState.companyInfo.contactName,
-        contactEmail: formState.companyInfo.contactEmail,
-        contactPhone: formState.companyInfo.contactPhone,
-        industry: formState.companyInfo.industry,
-        industryCustom: formState.companyInfo.industryCustom,
-        employeeCount: formState.companyInfo.employeeCount,
-        annualRevenue: formState.companyInfo.annualRevenue,
-        location: formState.companyInfo.location,
-        
-        // 45문항 응답 (기존 API 호환 배열 형태)
-        assessmentResponses: REAL_45_QUESTIONS.map(q => formState.answers[q.id] || 3),
-        
-        // 추가 메타데이터
-        timestamp: new Date().toISOString(),
-        formVersion: 'EnhancedBehaviorEvaluation',
-        totalQuestions: REAL_45_QUESTIONS.length
-      };
+      showProgress("📊 AI 분석 시작", "45문항 응답을 종합 분석 중입니다...");
 
-      // 2단계: AI 분석
-      setTimeout(() => {
-        showProgress("🤖 AI 분석 진행 중...", "GEMINI AI가 맞춤형 보고서를 작성하고 있습니다.");
-      }, 1000);
-
-      // API 호출
+      // AI 진단 API 호출
       const response = await fetch('/api/ai-diagnosis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(diagnosisData),
+        body: JSON.stringify({
+          ...formState.companyInfo,
+          answers: formState.answers,
+          diagnosisType: 'enhanced-behavior-evaluation',
+          questionCount: REAL_45_QUESTIONS.length,
+          metadata: {
+            completedAt: new Date().toISOString(),
+            totalScore: Object.values(formState.answers).reduce((sum, score) => sum + score, 0),
+            averageScore: Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / REAL_45_QUESTIONS.length,
+            categoryScores: REAL_45_QUESTIONS.reduce((acc, question) => {
+              const score = formState.answers[question.id] || 0;
+              if (!acc[question.category]) acc[question.category] = [];
+              acc[question.category].push(score);
+              return acc;
+            }, {} as Record<string, number[]>)
+          }
+        }),
       });
 
-      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(`진단 처리 실패: ${response.status}`);
+      }
 
+      const result = await response.json();
+      
       if (result.success) {
-        // 3단계: 보고서 생성 완료
-        showProgress("✅ 보고서 생성 완료!", "맥킨지 스타일의 전문 보고서가 작성되었습니다.");
-        
-        // 4단계: 이메일 발송
-        setTimeout(() => {
-          showProgress("📧 이메일 발송 중...", "관리자와 신청자에게 보고서를 발송하고 있습니다.");
-        }, 500);
+        showProgress("✅ 분석 완료", "맞춤형 보고서가 생성되었습니다!");
         
         // 로컬 스토리지 정리
         localStorage.removeItem('enhancedBehaviorEvaluationForm');
         
-        // 5단계: 결과 페이지로 이동
-        setTimeout(() => {
-          // 결과 데이터를 세션 스토리지에 저장
-          sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
-          window.location.href = '/diagnosis/result';
-        }, 2000);
+        // 완료 상태로 변경
+        setFormState(prev => ({ ...prev, isCompleted: true }));
         
+        // 성공 토스트
+        toast({
+          title: "🎉 AI역량진단 완료!",
+          description: "종합 분석 보고서가 이메일로 발송됩니다.",
+        });
+
       } else {
         throw new Error(result.error || '진단 처리 실패');
       }
+
     } catch (error: any) {
       console.error('진단 제출 오류:', error);
       toast({
-        title: "제출 오류",
-        description: error.message || "진단 제출 중 오류가 발생했습니다.",
+        title: "진단 제출 실패",
+        description: error.message || "잠시 후 다시 시도해주세요.",
         variant: "destructive"
       });
     } finally {
@@ -291,48 +314,55 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     }
   };
 
-  // Hydration 완료 처리
-  useEffect(() => {
-    setIsHydrated(true);
-    
-    // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
-    const savedData = localStorage.getItem('enhancedBehaviorEvaluationForm');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        setFormState(parsedData);
-      } catch (error) {
-        console.error('로컬 스토리지 데이터 복원 실패:', error);
-      }
-    }
-  }, []);
+  // 클라이언트 사이드에서만 렌더링하여 Hydration 오류 방지
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">AI역량진단 시스템 로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // 로컬 스토리지 저장 (Hydration 완료 후에만)
-  useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(formState));
-    }
-  }, [formState, isHydrated]);
-
-  // 현재 선택된 점수 업데이트
-  useEffect(() => {
-    if (currentQuestionData) {
-      setSelectedScore(formState.answers[currentQuestionData.id] || null);
-    }
-    
-    // Cleanup 함수로 메모리 누수 방지
-    return () => {
-      setSelectedScore(null);
-    };
-  }, [formState.currentQuestion, currentQuestionData, formState.answers]);
-
-  // 컴포넌트 언마운트 시 cleanup
-  useEffect(() => {
-    return () => {
-      // 진행 중인 요청이나 타이머가 있다면 정리
-      setIsSubmitting(false);
-    };
-  }, []);
+  // 진단 완료 화면
+  if (formState.isCompleted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-indigo-50 flex items-center justify-center py-8">
+        <div className="container mx-auto px-4 max-w-2xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-2xl p-8"
+          >
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="w-10 h-10 text-green-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              🎉 AI역량진단 완료!
+            </h1>
+            <p className="text-gray-600 mb-6">
+              45문항 정밀 진단이 성공적으로 완료되었습니다.<br/>
+              종합 분석 보고서가 이메일로 발송됩니다.
+            </p>
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 mb-6">
+              <div>총 문항 수: {REAL_45_QUESTIONS.length}개</div>
+              <div>답변 완료: {answeredCount}개</div>
+              <div>평균 점수: {(Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / answeredCount).toFixed(1)}점</div>
+              <div>총점: {Object.values(formState.answers).reduce((sum, score) => sum + score, 0)}점</div>
+            </div>
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              메인으로 돌아가기
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   // 기업정보 입력 폼 렌더링
   if (formState.showCompanyForm) {
@@ -358,176 +388,115 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                 이교장의AI역량진단
               </h1>
             </div>
-            <h2 className="text-xl font-semibold text-blue-600 mb-2">
-              기업 정보 입력
-            </h2>
-            <p className="text-gray-600">
-              정확한 진단을 위해 기업 정보를 입력해주세요
-            </p>
           </div>
 
-          <Card className="shadow-lg">
+          {/* 기업정보 입력 폼 */}
+          <Card className="shadow-xl">
             <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-              <CardTitle className="text-xl">기업 기본 정보</CardTitle>
+              <CardTitle className="text-xl">기업 정보 입력</CardTitle>
             </CardHeader>
-            
             <CardContent className="p-6 space-y-6">
-              {/* 회사명 */}
-              <div className="space-y-2">
-                <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">
-                  회사명 *
-                </Label>
-                <Input
-                  id="companyName"
-                  placeholder="회사명을 입력해주세요"
-                  value={formState.companyInfo.companyName}
-                  onChange={(e) => handleCompanyInfoChange('companyName', e.target.value)}
-                  className="w-full"
-                />
-              </div>
-
-              {/* 담당자 정보 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contactName" className="text-sm font-medium text-gray-700">
-                    담당자명 *
-                  </Label>
+              {/* 기본 정보 */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="companyName">회사명 *</Label>
                   <Input
-                    id="contactName"
-                    placeholder="담당자명을 입력해주세요"
-                    value={formState.companyInfo.contactName}
-                    onChange={(e) => handleCompanyInfoChange('contactName', e.target.value)}
+                    id="companyName"
+                    value={formState.companyInfo.companyName}
+                    onChange={(e) => handleCompanyInfoChange('companyName', e.target.value)}
+                    placeholder="회사명을 입력하세요"
                   />
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="contactPhone" className="text-sm font-medium text-gray-700">
-                    연락처 *
-                  </Label>
-                  <PhoneInput
-                    value={formState.companyInfo.contactPhone}
-                    onChange={(phone) => handleCompanyInfoChange('contactPhone', phone)}
-                    placeholder="연락처를 입력해주세요"
-                  />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contactName">담당자명 *</Label>
+                    <Input
+                      id="contactName"
+                      value={formState.companyInfo.contactName}
+                      onChange={(e) => handleCompanyInfoChange('contactName', e.target.value)}
+                      placeholder="담당자명"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="contactEmail">이메일 *</Label>
+                    <EmailInput
+                      value={formState.companyInfo.contactEmail}
+                      onChange={(value) => handleCompanyInfoChange('contactEmail', value)}
+                      placeholder="이메일 주소"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contactPhone">연락처 *</Label>
+                    <PhoneInput
+                      value={formState.companyInfo.contactPhone}
+                      onChange={(value) => handleCompanyInfoChange('contactPhone', value)}
+                      placeholder="연락처"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="industry">업종 *</Label>
+                    <Select value={formState.companyInfo.industry} onValueChange={(value) => handleCompanyInfoChange('industry', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="업종 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="제조업">제조업</SelectItem>
+                        <SelectItem value="서비스업">서비스업</SelectItem>
+                        <SelectItem value="IT/소프트웨어">IT/소프트웨어</SelectItem>
+                        <SelectItem value="유통/도소매">유통/도소매</SelectItem>
+                        <SelectItem value="건설업">건설업</SelectItem>
+                        <SelectItem value="금융업">금융업</SelectItem>
+                        <SelectItem value="교육업">교육업</SelectItem>
+                        <SelectItem value="의료업">의료업</SelectItem>
+                        <SelectItem value="직접입력">직접입력</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="employeeCount">직원 수 *</Label>
+                    <Select value={formState.companyInfo.employeeCount} onValueChange={(value) => handleCompanyInfoChange('employeeCount', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="직원 수 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-5명">1-5명</SelectItem>
+                        <SelectItem value="6-20명">6-20명</SelectItem>
+                        <SelectItem value="21-50명">21-50명</SelectItem>
+                        <SelectItem value="51-100명">51-100명</SelectItem>
+                        <SelectItem value="101-300명">101-300명</SelectItem>
+                        <SelectItem value="301명 이상">301명 이상</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="location">지역 *</Label>
+                    <AddressInput
+                      value={formState.companyInfo.location}
+                      onChange={(value) => handleCompanyInfoChange('location', value)}
+                      placeholder="지역 선택"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* 이메일 */}
-              <div className="space-y-2">
-                <Label htmlFor="contactEmail" className="text-sm font-medium text-gray-700">
-                  이메일 *
-                </Label>
-                <EmailInput
-                  value={formState.companyInfo.contactEmail}
-                  onChange={(email) => handleCompanyInfoChange('contactEmail', email)}
-                  placeholder="이메일을 입력해주세요"
-                />
-              </div>
-
-              {/* 업종 */}
-              <div className="space-y-2">
-                <Label htmlFor="industry" className="text-sm font-medium text-gray-700">
-                  업종 *
-                </Label>
-                <Select 
-                  value={formState.companyInfo.industry} 
-                  onValueChange={(value) => handleCompanyInfoChange('industry', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="업종을 선택해주세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="제조업">제조업</SelectItem>
-                    <SelectItem value="서비스업">서비스업</SelectItem>
-                    <SelectItem value="IT/소프트웨어">IT/소프트웨어</SelectItem>
-                    <SelectItem value="금융업">금융업</SelectItem>
-                    <SelectItem value="유통업">유통업</SelectItem>
-                    <SelectItem value="건설업">건설업</SelectItem>
-                    <SelectItem value="교육업">교육업</SelectItem>
-                    <SelectItem value="의료업">의료업</SelectItem>
-                    <SelectItem value="직접입력">직접입력</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                {formState.companyInfo.industry === '직접입력' && (
-                  <Input
-                    placeholder="업종을 직접 입력해주세요"
-                    value={formState.companyInfo.industryCustom || ''}
-                    onChange={(e) => handleCompanyInfoChange('industryCustom', e.target.value)}
-                    className="mt-2"
-                  />
-                )}
-              </div>
-
-              {/* 직원 수 및 매출 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="employeeCount" className="text-sm font-medium text-gray-700">
-                    직원 수 *
-                  </Label>
-                  <Select 
-                    value={formState.companyInfo.employeeCount} 
-                    onValueChange={(value) => handleCompanyInfoChange('employeeCount', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="직원 수를 선택해주세요" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-10명">1-10명</SelectItem>
-                      <SelectItem value="11-50명">11-50명</SelectItem>
-                      <SelectItem value="51-100명">51-100명</SelectItem>
-                      <SelectItem value="101-300명">101-300명</SelectItem>
-                      <SelectItem value="301-1000명">301-1000명</SelectItem>
-                      <SelectItem value="1000명 이상">1000명 이상</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="annualRevenue" className="text-sm font-medium text-gray-700">
-                    연 매출
-                  </Label>
-                  <Select 
-                    value={formState.companyInfo.annualRevenue} 
-                    onValueChange={(value) => handleCompanyInfoChange('annualRevenue', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="연 매출을 선택해주세요" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10억 미만">10억 미만</SelectItem>
-                      <SelectItem value="10억-50억">10억-50억</SelectItem>
-                      <SelectItem value="50억-100억">50억-100억</SelectItem>
-                      <SelectItem value="100억-500억">100억-500억</SelectItem>
-                      <SelectItem value="500억-1000억">500억-1000억</SelectItem>
-                      <SelectItem value="1000억 이상">1000억 이상</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* 주소 */}
-              <div className="space-y-2">
-                <Label htmlFor="location" className="text-sm font-medium text-gray-700">
-                  회사 주소 *
-                </Label>
-                <AddressInput
-                  value={formState.companyInfo.location}
-                  onChange={(address) => handleCompanyInfoChange('location', address)}
-                  placeholder="회사 주소를 입력해주세요"
-                />
-              </div>
-
-              {/* 시작 버튼 */}
-              <div className="flex justify-center pt-6">
-                <Button
-                  onClick={handleStartQuestions}
-                  className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  <ArrowRight className="w-5 h-5 mr-2" />
-                  AI 역량진단 시작하기
-                </Button>
-              </div>
+              <Button
+                onClick={handleStartQuestions}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                size="lg"
+              >
+                <ArrowRight className="w-4 h-4 mr-2" />
+                AI역량진단 시작하기
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -535,18 +504,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     );
   }
 
-  // Hydration이 완료되지 않았거나 현재 질문 데이터가 없으면 로딩 표시
-  if (!isHydrated || !currentQuestionData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">AI 역량진단을 준비 중입니다...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // 메인 진단 화면 렌더링
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
@@ -644,7 +602,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                     <Target className="w-4 h-4 mr-2" />
                     행동지표별 평가 (점수를 선택해주세요)
                   </h4>
-                  
+
                   <div className="grid gap-4">
                     {BEHAVIOR_INDICATORS.map((indicator, index) => (
                       <BehaviorIndicatorCard
