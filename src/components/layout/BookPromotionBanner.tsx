@@ -77,10 +77,11 @@ const BookPromotionBanner: React.FC = () => {
   const shouldReduceMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
-  // 모션 감소 설정 감지 및 경고 처리
+  // 모션 감소 설정 감지 및 경고 처리 (오류 방지)
   useEffect(() => {
     if (shouldReduceMotion) {
-      console.info('ℹ️ Reduced Motion이 활성화되어 애니메이션이 제한됩니다.');
+      // 콘솔 로그 제거하여 framer-motion 오류 방지
+      // console.info('ℹ️ Reduced Motion이 활성화되어 애니메이션이 제한됩니다.');
     }
   }, [shouldReduceMotion]);
 
@@ -299,7 +300,7 @@ const BookPromotionBanner: React.FC = () => {
                             src="/images/book_1_cover.JPG?v=3"
                             alt="AI 자동화 n8n 워크플로우 북커버"
                             fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, (max-width: 1024px) 256px, 256px"
                             style={{ objectFit: 'cover' }}
                             priority
                             onLoad={handleImageLoad}

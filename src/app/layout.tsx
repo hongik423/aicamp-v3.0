@@ -340,7 +340,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <Providers>
           <GlobalBanner />
           <div className="min-h-screen flex flex-col">
