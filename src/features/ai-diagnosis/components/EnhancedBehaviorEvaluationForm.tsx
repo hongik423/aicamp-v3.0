@@ -9,6 +9,9 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   BEHAVIOR_INDICATORS, 
   CATEGORY_BEHAVIOR_INDICATORS,
@@ -37,6 +40,7 @@ interface FormState {
   answers: Record<number, number>;
   currentQuestion: number;
   isCompleted: boolean;
+  showCompanyForm: boolean;
 }
 
 const EnhancedBehaviorEvaluationForm: React.FC = () => {
@@ -54,7 +58,8 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     },
     answers: {},
     currentQuestion: 0,
-    isCompleted: false
+    isCompleted: false,
+    showCompanyForm: true
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,6 +68,43 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
   // 현재 질문 정보
   const currentQuestionData = REAL_45_QUESTIONS[formState.currentQuestion];
   const currentCategoryData = currentQuestionData ? CATEGORY_BEHAVIOR_INDICATORS[currentQuestionData.category] : null;
+
+  // 기업정보 입력 핸들러들
+  const handleCompanyInfoChange = (field: keyof CompanyInfo, value: string) => {
+    setFormState(prev => ({
+      ...prev,
+      companyInfo: {
+        ...prev.companyInfo,
+        [field]: value
+      }
+    }));
+  };
+
+  // 기업정보 완료 및 질문 시작
+  const handleStartQuestions = () => {
+    const { companyName, contactName, contactEmail, contactPhone, industry, employeeCount, location } = formState.companyInfo;
+    
+    if (!companyName || !contactName || !contactEmail || !contactPhone || !industry || !employeeCount || !location.trim()) {
+      toast({
+        title: "필수 정보 누락",
+        description: "필수 항목을 모두 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 직접입력 선택시 내용 확인
+    if (industry === '직접입력' && !formState.companyInfo.industryCustom?.trim()) {
+      toast({
+        title: "업종 직접입력 필요", 
+        description: "업종을 직접 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setFormState(prev => ({ ...prev, showCompanyForm: false }));
+  };
 
   // 진행률 계산
   const progress = ((formState.currentQuestion + 1) / REAL_45_QUESTIONS.length) * 100;
@@ -127,11 +169,26 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // 진단 데이터 구성
+      // 진단 데이터 구성 (기존 API 호환 형태)
       const diagnosisData = {
-        ...formState.companyInfo,
-        assessmentResponses: REAL_45_QUESTIONS.map(q => formState.answers[q.id] || 0),
-        timestamp: new Date().toISOString()
+        // 기업 정보
+        companyName: formState.companyInfo.companyName,
+        contactName: formState.companyInfo.contactName,
+        contactEmail: formState.companyInfo.contactEmail,
+        contactPhone: formState.companyInfo.contactPhone,
+        industry: formState.companyInfo.industry,
+        industryCustom: formState.companyInfo.industryCustom,
+        employeeCount: formState.companyInfo.employeeCount,
+        annualRevenue: formState.companyInfo.annualRevenue,
+        location: formState.companyInfo.location,
+        
+        // 45문항 응답 (기존 API 호환 배열 형태)
+        assessmentResponses: REAL_45_QUESTIONS.map(q => formState.answers[q.id] || 3),
+        
+        // 추가 메타데이터
+        timestamp: new Date().toISOString(),
+        formVersion: 'EnhancedBehaviorEvaluation',
+        totalQuestions: REAL_45_QUESTIONS.length
       };
 
       // API 호출
@@ -178,6 +235,190 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       setSelectedScore(formState.answers[currentQuestionData.id] || null);
     }
   }, [formState.currentQuestion, currentQuestionData, formState.answers]);
+
+  // 기업정보 입력 폼 렌더링
+  if (formState.showCompanyForm) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
+        <div className="container mx-auto px-4 max-w-2xl">
+          {/* 헤더 */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              🏢 기업 정보 입력
+            </h1>
+            <p className="text-gray-600">
+              정확한 진단을 위해 기업 정보를 입력해주세요
+            </p>
+          </div>
+
+          <Card className="shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+              <CardTitle className="text-xl">기업 기본 정보</CardTitle>
+            </CardHeader>
+            
+            <CardContent className="p-6 space-y-6">
+              {/* 회사명 */}
+              <div className="space-y-2">
+                <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">
+                  회사명 *
+                </Label>
+                <Input
+                  id="companyName"
+                  placeholder="회사명을 입력해주세요"
+                  value={formState.companyInfo.companyName}
+                  onChange={(e) => handleCompanyInfoChange('companyName', e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              {/* 담당자 정보 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contactName" className="text-sm font-medium text-gray-700">
+                    담당자명 *
+                  </Label>
+                  <Input
+                    id="contactName"
+                    placeholder="담당자명을 입력해주세요"
+                    value={formState.companyInfo.contactName}
+                    onChange={(e) => handleCompanyInfoChange('contactName', e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="contactPhone" className="text-sm font-medium text-gray-700">
+                    연락처 *
+                  </Label>
+                  <PhoneInput
+                    value={formState.companyInfo.contactPhone}
+                    onChange={(phone) => handleCompanyInfoChange('contactPhone', phone)}
+                    placeholder="연락처를 입력해주세요"
+                  />
+                </div>
+              </div>
+
+              {/* 이메일 */}
+              <div className="space-y-2">
+                <Label htmlFor="contactEmail" className="text-sm font-medium text-gray-700">
+                  이메일 *
+                </Label>
+                <EmailInput
+                  value={formState.companyInfo.contactEmail}
+                  onChange={(email) => handleCompanyInfoChange('contactEmail', email)}
+                  placeholder="이메일을 입력해주세요"
+                />
+              </div>
+
+              {/* 업종 */}
+              <div className="space-y-2">
+                <Label htmlFor="industry" className="text-sm font-medium text-gray-700">
+                  업종 *
+                </Label>
+                <Select 
+                  value={formState.companyInfo.industry} 
+                  onValueChange={(value) => handleCompanyInfoChange('industry', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="업종을 선택해주세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="제조업">제조업</SelectItem>
+                    <SelectItem value="서비스업">서비스업</SelectItem>
+                    <SelectItem value="IT/소프트웨어">IT/소프트웨어</SelectItem>
+                    <SelectItem value="금융업">금융업</SelectItem>
+                    <SelectItem value="유통업">유통업</SelectItem>
+                    <SelectItem value="건설업">건설업</SelectItem>
+                    <SelectItem value="교육업">교육업</SelectItem>
+                    <SelectItem value="의료업">의료업</SelectItem>
+                    <SelectItem value="직접입력">직접입력</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {formState.companyInfo.industry === '직접입력' && (
+                  <Input
+                    placeholder="업종을 직접 입력해주세요"
+                    value={formState.companyInfo.industryCustom || ''}
+                    onChange={(e) => handleCompanyInfoChange('industryCustom', e.target.value)}
+                    className="mt-2"
+                  />
+                )}
+              </div>
+
+              {/* 직원 수 및 매출 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="employeeCount" className="text-sm font-medium text-gray-700">
+                    직원 수 *
+                  </Label>
+                  <Select 
+                    value={formState.companyInfo.employeeCount} 
+                    onValueChange={(value) => handleCompanyInfoChange('employeeCount', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="직원 수를 선택해주세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1-10명">1-10명</SelectItem>
+                      <SelectItem value="11-50명">11-50명</SelectItem>
+                      <SelectItem value="51-100명">51-100명</SelectItem>
+                      <SelectItem value="101-300명">101-300명</SelectItem>
+                      <SelectItem value="301-1000명">301-1000명</SelectItem>
+                      <SelectItem value="1000명 이상">1000명 이상</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="annualRevenue" className="text-sm font-medium text-gray-700">
+                    연 매출
+                  </Label>
+                  <Select 
+                    value={formState.companyInfo.annualRevenue} 
+                    onValueChange={(value) => handleCompanyInfoChange('annualRevenue', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="연 매출을 선택해주세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10억 미만">10억 미만</SelectItem>
+                      <SelectItem value="10억-50억">10억-50억</SelectItem>
+                      <SelectItem value="50억-100억">50억-100억</SelectItem>
+                      <SelectItem value="100억-500억">100억-500억</SelectItem>
+                      <SelectItem value="500억-1000억">500억-1000억</SelectItem>
+                      <SelectItem value="1000억 이상">1000억 이상</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* 주소 */}
+              <div className="space-y-2">
+                <Label htmlFor="location" className="text-sm font-medium text-gray-700">
+                  회사 주소 *
+                </Label>
+                <AddressInput
+                  value={formState.companyInfo.location}
+                  onChange={(address) => handleCompanyInfoChange('location', address)}
+                  placeholder="회사 주소를 입력해주세요"
+                />
+              </div>
+
+              {/* 시작 버튼 */}
+              <div className="flex justify-center pt-6">
+                <Button
+                  onClick={handleStartQuestions}
+                  className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <ArrowRight className="w-5 h-5 mr-2" />
+                  AI 역량진단 시작하기
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentQuestionData) return null;
 
