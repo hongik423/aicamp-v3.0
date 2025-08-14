@@ -1,151 +1,106 @@
-// Vercel 최적화 설정
-export const dynamic = 'force-dynamic';
-export const revalidate = false;
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from 'next/server';
 
-// CORS 헤더 설정
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Content-Type': 'application/json',
-};
-
-// OPTIONS 요청 처리 (CORS preflight)
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
-}
-
-/**
- * 환경변수 설정 상태 확인 API
- * GET /api/test-env
- */
 export async function GET(request: NextRequest) {
   try {
-    // 정적 빌드에서는 환경변수 검증 대신 기본 응답 반환
-    if (process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES === 'true') {
-      return NextResponse.json({
-        status: 'success',
-        message: 'GitHub Pages 환경에서 실행 중',
-        environment: 'github-pages',
-        timestamp: new Date().toISOString(),
-        staticBuild: true
-      });
-    }
+    // 환경변수 상태 확인 (보안상 실제 값은 노출하지 않음)
+    const envStatus = {
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      
+      // GEMINI API 설정
+      gemini: {
+        apiKey: !!process.env.GEMINI_API_KEY,
+        keyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0,
+        configured: !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.length > 20
+      },
+      
+      // Google Apps Script 설정
+      googleScript: {
+        url: !!process.env.GOOGLE_SCRIPT_URL,
+        urlValid: !!process.env.GOOGLE_SCRIPT_URL && process.env.GOOGLE_SCRIPT_URL.includes('script.google.com'),
+        configured: !!process.env.GOOGLE_SCRIPT_URL
+      },
+      
+      // Google 서비스 계정 설정
+      googleServiceAccount: {
+        email: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        privateKey: !!process.env.GOOGLE_PRIVATE_KEY,
+        sheetsId: !!process.env.GOOGLE_SHEETS_ID,
+        configured: !!(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && 
+                     process.env.GOOGLE_PRIVATE_KEY && 
+                     process.env.GOOGLE_SHEETS_ID)
+      },
+      
+      // 이메일 설정
+      email: {
+        smtpHost: !!process.env.SMTP_HOST,
+        smtpUser: !!process.env.SMTP_USER,
+        smtpPass: !!process.env.SMTP_PASS,
+        configured: !!(process.env.SMTP_HOST && 
+                      process.env.SMTP_USER && 
+                      process.env.SMTP_PASS)
+      },
+      
+      // 애플리케이션 설정
+      application: {
+        appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+        debug: process.env.DEBUG === 'true' || process.env.NEXT_PUBLIC_DEBUG === 'true'
+      }
+    };
 
-    // 환경변수 검증 (개발/일반 서버 환경) - 실제 설정된 환경변수들 체크
-    const envCheck = {
-      GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
-      NEXT_PUBLIC_GOOGLE_SCRIPT_URL: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
-      NEXT_PUBLIC_GAS_URL: !!process.env.NEXT_PUBLIC_GAS_URL,
-      NEXT_PUBLIC_GOOGLE_SHEETS_ID: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
-      NODE_ENV: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
+    // 전체 구성 상태 평가
+    const overallStatus = {
+      geminiReady: envStatus.gemini.configured,
+      googleScriptReady: envStatus.googleScript.configured,
+      googleSheetsReady: envStatus.googleServiceAccount.configured,
+      emailReady: envStatus.email.configured,
+      allSystemsReady: envStatus.gemini.configured && 
+                      envStatus.googleScript.configured && 
+                      envStatus.googleServiceAccount.configured &&
+                      envStatus.email.configured
     };
 
     return NextResponse.json({
-      status: 'success',
-      message: '환경변수 검증 완료',
-      environment: envCheck
-    }, { headers: corsHeaders });
+      status: overallStatus.allSystemsReady ? 'ready' : 'incomplete',
+      ...envStatus,
+      overall: overallStatus,
+      recommendations: generateRecommendations(envStatus)
+    });
 
-  } catch (error) {
-    console.error('환경변수 테스트 오류:', error);
+  } catch (error: any) {
+    console.error('Environment test error:', error);
     
     return NextResponse.json({
       status: 'error',
-      message: '환경변수 검증 실패',
-      error: error instanceof Error ? error.message : '알 수 없는 오류',
-      timestamp: new Date().toISOString()
-    }, { status: 500, headers: corsHeaders });
+      timestamp: new Date().toISOString(),
+      error: error.message
+    }, { status: 500 });
   }
 }
 
-/**
- * POST 요청으로 Gemini API 연결 테스트
- * POST /api/test-env
- */
-export async function POST(request: NextRequest) {
-  try {
-    const { testMessage = "안녕하세요, AI상담사 연결 테스트입니다." } = await request.json().catch(() => ({}));
-
-    // Gemini API 키 확인
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({
-        success: false,
-        error: 'GEMINI_API_KEY not found',
-        message: 'Gemini API 키가 환경변수에 설정되지 않았습니다.'
-      }, { status: 400 });
-    }
-
-    // 🤖 Gemini API 연결 테스트
-    try {
-      // 정적 빌드 시에는 테스트 응답 반환
-      if (process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES === 'true') {
-        return NextResponse.json({
-          success: true,
-          message: 'GitHub Pages 환경 - API 테스트 생략',
-          test: {
-            input: testMessage,
-            output: '안녕하세요! AI CAMP AI상담사입니다. 현재 정적 환경에서 실행 중입니다.',
-            model: 'static-response',
-            timestamp: new Date().toISOString()
-          },
-          status: 'GitHub Pages 정적 환경에서 작동 중입니다.'
-        });
-      }
-
-      // Google AI SDK를 동적으로 import (개발/서버 환경만)
-      const { GoogleGenerativeAI } = await import('@google/generative-ai');
-      
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-      const prompt = `당신은 AI CAMP의 AI상담사입니다. 다음 메시지에 간단히 응답해주세요: "${testMessage}"`;
-      
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-
-      return NextResponse.json({
-        success: true,
-        message: 'Gemini API 연결 성공',
-        test: {
-          input: testMessage,
-          output: text,
-          model: 'gemini-2.5-flash',
-          timestamp: new Date().toISOString()
-        },
-        status: 'Gemini API가 정상적으로 작동하고 있습니다.'
-      });
-
-    } catch (apiError) {
-      console.error('❌ Gemini API 연결 실패:', apiError);
-      
-      return NextResponse.json({
-        success: false,
-        error: 'Gemini API connection failed',
-        message: apiError instanceof Error ? apiError.message : 'Gemini API 연결에 실패했습니다.',
-        suggestions: [
-          'API 키가 올바른지 확인하세요',
-          'Gemini API 할당량을 확인하세요',
-          'Google AI Studio에서 API 키 상태를 확인하세요'
-        ]
-      }, { status: 500 });
-    }
-
-  } catch (error) {
-    console.error('❌ Gemini API 테스트 오류:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: 'Test request failed',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }, { 
-      status: 500 
-    });
+function generateRecommendations(envStatus: any): string[] {
+  const recommendations = [];
+  
+  if (!envStatus.gemini.configured) {
+    recommendations.push('GEMINI_API_KEY를 설정하세요. Google AI Studio에서 API 키를 발급받으세요.');
   }
-} 
+  
+  if (!envStatus.googleScript.configured) {
+    recommendations.push('GOOGLE_SCRIPT_URL을 설정하세요. Google Apps Script 웹앱 URL이 필요합니다.');
+  }
+  
+  if (!envStatus.googleServiceAccount.configured) {
+    recommendations.push('Google 서비스 계정 설정을 완료하세요. (GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEETS_ID)');
+  }
+  
+  if (!envStatus.email.configured) {
+    recommendations.push('이메일 SMTP 설정을 완료하세요. (SMTP_HOST, SMTP_USER, SMTP_PASS)');
+  }
+  
+  if (recommendations.length === 0) {
+    recommendations.push('모든 환경변수가 올바르게 설정되었습니다! 🎉');
+  }
+  
+  return recommendations;
+}

@@ -5,9 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-interface PhoneInputProps {
+interface AddressInputProps {
   value: string;
-  onChange: (phone: string) => void;
+  onChange: (address: string) => void;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
@@ -16,16 +16,16 @@ interface PhoneInputProps {
   error?: string;
 }
 
-export function PhoneInput({
+export function AddressInput({
   value,
   onChange,
-  placeholder = "010-0000-0000",
+  placeholder = "예: 서울특별시 강남구 역삼동",
   required = false,
   disabled = false,
   className,
-  label = "전화번호",
+  label = "주소",
   error
-}: PhoneInputProps) {
+}: AddressInputProps) {
   // 간단한 입력값 변경 처리
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -35,7 +35,7 @@ export function PhoneInput({
   return (
     <div className={cn('relative', className)}>
       {label && (
-        <Label htmlFor="phone-input" className="mb-2">
+        <Label htmlFor="address-input" className="mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
@@ -43,14 +43,13 @@ export function PhoneInput({
       
       <div className="relative">
         <Input
-          id="phone-input"
-          type="tel"
+          id="address-input"
+          type="text"
           value={value}
           onChange={handleInputChange}
           placeholder={placeholder}
           disabled={disabled}
-          autoComplete="tel"
-          inputMode="tel"
+          autoComplete="address-line1"
           className={cn(
             'text-lg min-h-[48px] transition-all duration-200',
             'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
@@ -67,4 +66,4 @@ export function PhoneInput({
   );
 }
 
-export default PhoneInput;
+export default AddressInput;

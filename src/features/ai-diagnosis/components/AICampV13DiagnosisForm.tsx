@@ -30,6 +30,15 @@ import {
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
+import { AddressInput } from '@/components/ui/address-input';
+import { AddressHelpGuide } from '@/components/ui/address-help-guide';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { EmailInput } from '@/components/ui/email-input';
+import { ContactHelpGuide } from '@/components/ui/contact-help-guide';
+import { InputPolicyBanner } from '@/components/ui/input-policy-banner';
+import { ProgressGuideSteps } from '@/components/ui/progress-guide-steps';
+import type { KoreanAddress, AddressValidationResult } from '@/lib/utils/addressValidator';
+import type { PhoneValidationResult, EmailValidationResult } from '@/lib/utils/contactValidator';
 
 interface FormData {
   // 기본 정보
@@ -127,6 +136,55 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 간단한 입력 핸들러들
+  const handleAddressChange = (address: string) => {
+    setFormData(prev => ({
+      ...prev,
+      location: address
+    }));
+
+    // 주소 관련 에러 제거
+    if (errors.location) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.location;
+        return newErrors;
+      });
+    }
+  };
+
+  const handlePhoneChange = (phone: string) => {
+    setFormData(prev => ({
+      ...prev,
+      contactPhone: phone
+    }));
+
+    // 전화번호 관련 에러 제거
+    if (errors.contactPhone) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.contactPhone;
+        return newErrors;
+      });
+    }
+  };
+
+  const handleEmailChange = (email: string) => {
+    setFormData(prev => ({
+      ...prev,
+      contactEmail: email
+    }));
+
+    // 이메일 관련 에러 제거
+    if (errors.contactEmail) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.contactEmail;
+        return newErrors;
+      });
+    }
+  };
+
   // 진행률 계산
   const getProgress = () => {
     if (currentStep === 'basic') return 10;
@@ -151,34 +209,23 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
     return formData.assessmentResponses.slice(start - 1, end).every(r => r > 0);
   };
 
-  // 기본 정보 유효성 검사
+  // 기본 정보 유효성 검사 (간소화)
   const validateBasicInfo = () => {
     const newErrors: Record<string, string> = {};
     
     if (!formData.companyName.trim()) newErrors.companyName = '회사명을 입력해주세요';
     if (!formData.contactName.trim()) newErrors.contactName = '담당자명을 입력해주세요';
     if (!formData.contactEmail.trim()) newErrors.contactEmail = '이메일을 입력해주세요';
-    if (!formData.contactPhone.trim()) newErrors.contactPhone = '연락처를 입력해주세요';
+    if (!formData.contactPhone.trim()) newErrors.contactPhone = '전화번호를 입력해주세요';
+    
     if (!formData.industry) newErrors.industry = '업종을 선택해주세요';
     if (formData.industry === '직접입력' && !formData.industryCustom.trim()) {
       newErrors.industryCustom = '업종을 직접 입력해주세요';
     }
-    if (!formData.location) newErrors.location = '지역을 선택해주세요';
-    if (formData.location === '직접입력' && !formData.locationCustom.trim()) {
-      newErrors.locationCustom = '지역을 직접 입력해주세요';
-    }
+    
+    if (!formData.location.trim()) newErrors.location = '주소를 입력해주세요';
     if (!formData.employeeCount) newErrors.employeeCount = '직원수를 선택해주세요';
     if (!formData.privacyConsent) newErrors.privacyConsent = '개인정보 처리방침에 동의해주세요';
-    
-    // 이메일 형식 검증
-    if (formData.contactEmail && !/\S+@\S+\.\S+/.test(formData.contactEmail)) {
-      newErrors.contactEmail = '올바른 이메일 형식을 입력해주세요';
-    }
-    
-    // 전화번호 형식 검증
-    if (formData.contactPhone && !/^[0-9-+\s()]{8,}$/.test(formData.contactPhone)) {
-      newErrors.contactPhone = '올바른 전화번호 형식을 입력해주세요';
-    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -191,8 +238,12 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
 
   // 다음 단계로 이동
   const handleNextStep = () => {
-    if (currentStep === 'basic' && validateBasicInfo()) {
-      setCurrentStep('assessment');
+    if (currentStep === 'basic') {
+      const isValid = validateBasicInfo();
+      
+      if (isValid) {
+        setCurrentStep('assessment');
+      }
     } else if (currentStep === 'assessment' && isAssessmentComplete()) {
       setCurrentStep('additional');
     }
@@ -218,6 +269,13 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
 
   // 폼 제출
   const handleSubmit = async () => {
+    // 기본 정보 재검증
+    if (!validateBasicInfo()) {
+      alert('기본 정보를 모두 입력해주세요.');
+      setCurrentStep('basic');
+      return;
+    }
+
     if (!isAssessmentComplete()) {
       alert('모든 문항에 응답해주세요.');
       return;
@@ -279,21 +337,51 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
     }
   };
 
+  const getValidationStatus = () => ({
+    email: true,
+    phone: true,
+    address: true,
+    basicInfo: !!(formData.companyName && formData.contactName)
+  });
+
   // 기본 정보 입력 단계
   if (currentStep === 'basic') {
     return (
-      <Card className="w-full max-w-4xl mx-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-blue-900">
-            🎓 이교장의 AI역량진단시스템
-          </CardTitle>
-          <CardDescription className="text-lg">
-            45문항 정밀 AI역량진단 시스템
-          </CardDescription>
-          <Progress value={getProgress()} className="w-full mt-4" />
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* 진행 가이드 사이드바 */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-8">
+                <ProgressGuideSteps 
+                  currentStep={currentStep}
+                  validationStatus={getValidationStatus()}
+                />
+              </div>
+            </div>
+
+            {/* 메인 콘텐츠 */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* 입력 정책 안내 배너 */}
+              <InputPolicyBanner />
+              
+              <Card className="shadow-xl border-0">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold text-blue-900">
+                    🎓 이교장의 AI역량진단시스템
+                  </CardTitle>
+                  <CardDescription className="text-lg">
+                    45문항 정밀 AI역량진단 시스템
+                  </CardDescription>
+                  <Progress value={getProgress()} className="w-full mt-4" />
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+          {/* 연락처 도움말 */}
+          <div className="flex justify-end">
+            <ContactHelpGuide />
+          </div>
+
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
@@ -303,7 +391,11 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                   placeholder="회사명을 입력하세요"
-                  className={errors.companyName ? 'border-red-500' : ''}
+                  className={cn(
+                    'text-lg min-h-[48px] transition-all duration-200',
+                    'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
+                    errors.companyName ? 'border-red-500' : ''
+                  )}
                 />
                 {errors.companyName && (
                   <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>
@@ -317,7 +409,11 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                   value={formData.contactName}
                   onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
                   placeholder="담당자명을 입력하세요"
-                  className={errors.contactName ? 'border-red-500' : ''}
+                  className={cn(
+                    'text-lg min-h-[48px] transition-all duration-200',
+                    'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
+                    errors.contactName ? 'border-red-500' : ''
+                  )}
                 />
                 {errors.contactName && (
                   <p className="text-red-500 text-sm mt-1">{errors.contactName}</p>
@@ -325,32 +421,28 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
               </div>
 
               <div>
-                <Label htmlFor="contactEmail">이메일 *</Label>
-                <Input
-                  id="contactEmail"
-                  type="email"
+                <EmailInput
                   value={formData.contactEmail}
-                  onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                  placeholder="이메일을 입력하세요"
-                  className={errors.contactEmail ? 'border-red-500' : ''}
+                  onChange={handleEmailChange}
+                  label="이메일"
+                  required={true}
+                  placeholder="example@company.com"
+                  error={errors.contactEmail}
+                  showEmailNotice={true}
+                  className="w-full"
                 />
-                {errors.contactEmail && (
-                  <p className="text-red-500 text-sm mt-1">{errors.contactEmail}</p>
-                )}
               </div>
 
               <div>
-                <Label htmlFor="contactPhone">연락처 *</Label>
-                <Input
-                  id="contactPhone"
+                <PhoneInput
                   value={formData.contactPhone}
-                  onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                  placeholder="연락처를 입력하세요 (예: 010-1234-5678)"
-                  className={errors.contactPhone ? 'border-red-500' : ''}
+                  onChange={handlePhoneChange}
+                  label="연락처"
+                  required={true}
+                  placeholder="010-0000-0000"
+                  error={errors.contactPhone}
+                  className="w-full"
                 />
-                {errors.contactPhone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.contactPhone}</p>
-                )}
               </div>
 
               <div>
@@ -360,6 +452,7 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                   value={formData.contactPosition}
                   onChange={(e) => setFormData({ ...formData, contactPosition: e.target.value })}
                   placeholder="직책을 입력하세요 (예: 대표, 팀장, 담당자)"
+                  className="text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                 />
               </div>
             </div>
@@ -368,7 +461,11 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
               <div>
                 <Label htmlFor="industry">업종 *</Label>
                 <Select value={formData.industry} onValueChange={(value) => setFormData({ ...formData, industry: value, industryCustom: '' })}>
-                  <SelectTrigger className={errors.industry ? 'border-red-500' : ''}>
+                  <SelectTrigger className={cn(
+                    'text-lg min-h-[48px] transition-all duration-200',
+                    'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
+                    errors.industry ? 'border-red-500' : ''
+                  )}>
                     <SelectValue placeholder="업종을 선택하세요" />
                   </SelectTrigger>
                   <SelectContent>
@@ -387,7 +484,11 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                       placeholder="업종을 직접 입력하세요"
                       value={formData.industryCustom}
                       onChange={(e) => setFormData({ ...formData, industryCustom: e.target.value })}
-                      className={errors.industryCustom ? 'border-red-500' : ''}
+                      className={cn(
+                        'text-lg min-h-[48px] transition-all duration-200',
+                        'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
+                        errors.industryCustom ? 'border-red-500' : ''
+                      )}
                     />
                     {errors.industryCustom && (
                       <p className="text-red-500 text-sm mt-1">{errors.industryCustom}</p>
@@ -399,7 +500,11 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
               <div>
                 <Label htmlFor="employeeCount">직원수 *</Label>
                 <Select value={formData.employeeCount} onValueChange={(value) => setFormData({ ...formData, employeeCount: value })}>
-                  <SelectTrigger className={errors.employeeCount ? 'border-red-500' : ''}>
+                  <SelectTrigger className={cn(
+                    'text-lg min-h-[48px] transition-all duration-200',
+                    'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
+                    errors.employeeCount ? 'border-red-500' : ''
+                  )}>
                     <SelectValue placeholder="직원수를 선택하세요" />
                   </SelectTrigger>
                   <SelectContent>
@@ -416,7 +521,7 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
               <div>
                 <Label htmlFor="annualRevenue">연매출</Label>
                 <Select value={formData.annualRevenue} onValueChange={(value) => setFormData({ ...formData, annualRevenue: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                     <SelectValue placeholder="연매출을 선택하세요" />
                   </SelectTrigger>
                   <SelectContent>
@@ -427,35 +532,16 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="location">지역 *</Label>
-                <Select value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value, locationCustom: '' })}>
-                  <SelectTrigger className={errors.location ? 'border-red-500' : ''}>
-                    <SelectValue placeholder="지역을 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REGIONS.map((region) => (
-                      <SelectItem key={region} value={region}>{region}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.location && (
-                  <p className="text-red-500 text-sm mt-1">{errors.location}</p>
-                )}
-                
-                {formData.location === '직접입력' && (
-                  <div className="mt-2">
-                    <Input
-                      placeholder="지역을 직접 입력하세요"
-                      value={formData.locationCustom}
-                      onChange={(e) => setFormData({ ...formData, locationCustom: e.target.value })}
-                      className={errors.locationCustom ? 'border-red-500' : ''}
-                    />
-                    {errors.locationCustom && (
-                      <p className="text-red-500 text-sm mt-1">{errors.locationCustom}</p>
-                    )}
-                  </div>
-                )}
+              <div className="space-y-2">
+                <AddressInput
+                  value={formData.location}
+                  onChange={handleAddressChange}
+                  label="주소"
+                  required={true}
+                  placeholder="예: 서울특별시 강남구 역삼동"
+                  error={errors.location}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
@@ -499,8 +585,12 @@ export default function AICampV13DiagnosisForm({ onComplete, onBack }: Props) {
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 

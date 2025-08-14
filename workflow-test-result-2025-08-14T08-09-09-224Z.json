@@ -1,0 +1,2768 @@
+{
+  "testTimestamp": "2025-08-14T08:09:09.224Z",
+  "summary": {
+    "total": 7,
+    "success": 6,
+    "failure": 1,
+    "successRate": "85.7%"
+  },
+  "results": [
+    {
+      "timestamp": "2025-08-14T08:08:09.587Z",
+      "testName": "서버 상태 확인",
+      "success": true,
+      "details": {
+        "status": 200,
+        "response": {
+          "status": "healthy",
+          "timestamp": "2025-08-14T08:08:09.575Z",
+          "service": "AICAMP AI 역량진단 시스템",
+          "version": "3.1.0",
+          "environment": "development",
+          "uptime": 850.4126179,
+          "memory": {
+            "used": 96,
+            "total": 127,
+            "unit": "MB"
+          },
+          "environmentVariables": {
+            "GEMINI_API_KEY": true,
+            "GOOGLE_SCRIPT_URL": false,
+            "GOOGLE_SERVICE_ACCOUNT_EMAIL": false,
+            "GOOGLE_PRIVATE_KEY": false,
+            "GOOGLE_SHEETS_ID": false
+          },
+          "checks": {
+            "database": "not_implemented",
+            "external_apis": "pending",
+            "email_service": "pending"
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2025-08-14T08:08:11.757Z",
+      "testName": "환경변수 확인",
+      "success": true,
+      "details": {
+        "status": 200,
+        "response": {
+          "status": "incomplete",
+          "timestamp": "2025-08-14T08:08:11.755Z",
+          "environment": "development",
+          "gemini": {
+            "apiKey": true,
+            "keyLength": 39,
+            "configured": true
+          },
+          "googleScript": {
+            "url": false,
+            "urlValid": false,
+            "configured": false
+          },
+          "googleServiceAccount": {
+            "email": false,
+            "privateKey": false,
+            "sheetsId": false,
+            "configured": false
+          },
+          "email": {
+            "smtpHost": false,
+            "smtpUser": false,
+            "smtpPass": false,
+            "configured": false
+          },
+          "application": {
+            "appUrl": "http://localhost:3000",
+            "apiUrl": "http://localhost:3000/api",
+            "debug": false
+          },
+          "overall": {
+            "geminiReady": true,
+            "googleScriptReady": false,
+            "googleSheetsReady": false,
+            "emailReady": false,
+            "allSystemsReady": false
+          },
+          "recommendations": [
+            "GOOGLE_SCRIPT_URL을 설정하세요. Google Apps Script 웹앱 URL이 필요합니다.",
+            "Google 서비스 계정 설정을 완료하세요. (GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEETS_ID)",
+            "이메일 SMTP 설정을 완료하세요. (SMTP_HOST, SMTP_USER, SMTP_PASS)"
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": "2025-08-14T08:08:16.697Z",
+      "testName": "GEMINI API 연동",
+      "success": true,
+      "details": {
+        "status": 200,
+        "response": {
+          "success": true,
+          "model": "gemini-1.5-flash",
+          "prompt": "AI 역량진단 시스템이 정상 작동하는지 간단히 확인해주세요.",
+          "response": "AI 역량 진단 시스템의 정상 작동 여부를 간단히 확인할 수 있는 방법은 없습니다.  시스템의 종류와 기능에 따라 확인 방법이 완전히 다르기 때문입니다.  \n\n예를 들어, 어떤 시스템은 특정 질문에 대한 답변 정확도를 측정하는 방식일 수도 있고, 다른 시스템은 사용자의 코드 작성 능력을 평가하는 방식일 수도 있습니다.\n\n정상 작동 여부를 확인하려면 다음 정보가 필요합니다.\n\n* **시스템의 기능:**  시스템이 무엇을 측정하고 평가하는가?\n* **입력 방식:**  시스템에 어떤 형태의 입력을 제공해야 하는가? (예: 코드, 질문, 이미지)\n* **출력 방식:**  시스템은 어떤 형태의 결과를 제공하는가? (예: 점수, 피드백, 보고서)\n* **테스트 케이스:**  시스템의 정상 작동 여부를 확인하기 위한 테스트 케이스가 있는가?\n\n이러한 정보를 제공해주시면 시스템의 정상 작동 여부를 확인하는 데 도움을 드릴 수 있습니다.  단순히 \"AI 역량 진단 시스템\"이라고만 말씀해주시면 제가 도울 수 있는 방법이 없습니다.\n",
+          "processingTime": 2716,
+          "timestamp": "2025-08-14T08:08:16.695Z",
+          "tokenCount": {
+            "promptTokens": 22,
+            "candidatesTokens": 311,
+            "totalTokens": 333
+          }
+        }
+      }
+    },
+    {
+      "timestamp": "2025-08-14T08:08:20.043Z",
+      "testName": "진단 폼 제출",
+      "success": true,
+      "details": {
+        "status": 200,
+        "response": {
+          "success": true,
+          "diagnosisId": "DIAG_1755158900023_hpzvewgea",
+          "message": "45문항 기반 AI역량진단이 성공적으로 완료되었습니다.",
+          "enhancedScores": {
+            "categoryScores": {
+              "businessFoundation": 60,
+              "currentAI": 0,
+              "organizationReadiness": 0,
+              "techInfrastructure": 0,
+              "goalClarity": 65,
+              "executionCapability": 0
+            },
+            "totalScore": 13,
+            "maturityLevel": "Beginner",
+            "percentile": 2,
+            "detailedAnalysis": {
+              "strengths": [],
+              "weaknesses": [
+                "현재 AI 활용 수준이 낮음",
+                "조직 변화 준비도 부족",
+                "기술 인프라 기반 미흡",
+                "실행 역량 부족"
+              ],
+              "criticalGaps": [
+                "AI 도구 도입 및 활용 확대",
+                "변화 관리 및 직원 교육",
+                "IT 인프라 현대화",
+                "전문 인력 확보 및 역량 강화"
+              ],
+              "quickWins": [
+                "구체적 KPI 설정 및 측정"
+              ]
+            }
+          },
+          "totalScore": 13,
+          "maturityLevel": "Beginner",
+          "percentile": 2,
+          "categoryScores": {
+            "businessFoundation": 60,
+            "currentAI": 0,
+            "organizationReadiness": 0,
+            "techInfrastructure": 0,
+            "goalClarity": 65,
+            "executionCapability": 0
+          },
+          "detailedAnalysis": {
+            "strengths": [],
+            "weaknesses": [
+              "현재 AI 활용 수준이 낮음",
+              "조직 변화 준비도 부족",
+              "기술 인프라 기반 미흡",
+              "실행 역량 부족"
+            ],
+            "criticalGaps": [
+              "AI 도구 도입 및 활용 확대",
+              "변화 관리 및 직원 교육",
+              "IT 인프라 현대화",
+              "전문 인력 확보 및 역량 강화"
+            ],
+            "quickWins": [
+              "구체적 KPI 설정 및 측정"
+            ]
+          },
+          "gapAnalysis": {
+            "industryGap": {
+              "currentAI": -55,
+              "organizationReadiness": -58,
+              "techInfrastructure": -62,
+              "goalClarity": 0,
+              "executionCapability": -58,
+              "total": -47
+            },
+            "sizeGap": {
+              "currentAI": -55,
+              "organizationReadiness": -58,
+              "techInfrastructure": -62,
+              "goalClarity": 0,
+              "executionCapability": -58,
+              "total": -47
+            },
+            "competitivePosition": "Average",
+            "priorityAreas": [
+              "AI 도구 도입",
+              "조직 준비도 향상",
+              "기술 인프라 강화"
+            ]
+          },
+          "competitivePosition": "Average",
+          "priorityAreas": [
+            "AI 도구 도입",
+            "조직 준비도 향상",
+            "기술 인프라 강화"
+          ],
+          "swotAnalysis": {
+            "strengths": {
+              "internal": [],
+              "competitive": [],
+              "strategic": []
+            },
+            "weaknesses": {
+              "operational": [
+                "변화 관리 및 프로젝트 관리 경험 미흡",
+                "업무 프로세스 디지털화 수준 낮음"
+              ],
+              "technical": [
+                "AI 도구 활용 및 데이터 분석 역량 부족"
+              ],
+              "organizational": [
+                "AI 전문 인력 및 실행 역량 부족"
+              ]
+            },
+            "opportunities": {
+              "market": [
+                "AI 기술 발전으로 인한 새로운 비즈니스 기회"
+              ],
+              "technology": [
+                "클라우드 및 SaaS 기반 AI 솔루션 접근성 향상"
+              ],
+              "strategic": [
+                "정부의 디지털 뉴딜 정책 및 지원 프로그램"
+              ]
+            },
+            "threats": {
+              "competitive": [
+                "경쟁사의 빠른 AI 도입으로 인한 경쟁 열세"
+              ],
+              "technical": [
+                "급속한 기술 변화에 대한 적응 지연 리스크"
+              ],
+              "market": [
+                "고객의 AI 기반 서비스 요구 증가"
+              ]
+            },
+            "strategicRecommendations": {
+              "so_strategies": [],
+              "wo_strategies": [
+                "외부 전문기관과의 파트너십을 통한 역량 보완",
+                "검증된 AI 솔루션의 단계적 도입으로 경험 축적"
+              ],
+              "st_strategies": [
+                "기존 강점을 바탕으로 AI 도입 속도 가속화",
+                "선제적 AI 투자를 통한 경쟁 우위 확보"
+              ],
+              "wt_strategies": [
+                "핵심 업무 영역부터 우선 자동화 추진",
+                "AI 역량 강화를 위한 집중적 투자 및 교육"
+              ]
+            }
+          },
+          "strategicRecommendations": {
+            "so_strategies": [],
+            "wo_strategies": [
+              "외부 전문기관과의 파트너십을 통한 역량 보완",
+              "검증된 AI 솔루션의 단계적 도입으로 경험 축적"
+            ],
+            "st_strategies": [
+              "기존 강점을 바탕으로 AI 도입 속도 가속화",
+              "선제적 AI 투자를 통한 경쟁 우위 확보"
+            ],
+            "wt_strategies": [
+              "핵심 업무 영역부터 우선 자동화 추진",
+              "AI 역량 강화를 위한 집중적 투자 및 교육"
+            ]
+          },
+          "priorityMatrix": {
+            "actionItems": [
+              {
+                "id": "WO-2",
+                "title": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                "description": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                "source": "weakness",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 75,
+                "priorityScore": 93,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "중간 (6-12개월)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "WT-6",
+                "title": "AI 역량 강화를 위한 집중적 투자 및 교육",
+                "description": "AI 역량 강화를 위한 집중적 투자 및 교육",
+                "source": "threat",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 75,
+                "priorityScore": 93,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "낮음 (12개월 이상)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "WO-1",
+                "title": "외부 전문기관과의 파트너십을 통한 역량 보완",
+                "description": "외부 전문기관과의 파트너십을 통한 역량 보완",
+                "source": "weakness",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 87,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 역량 진단 상담"
+                ],
+                "expectedROI": "중간 (6-12개월)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "WT-5",
+                "title": "핵심 업무 영역부터 우선 자동화 추진",
+                "description": "핵심 업무 영역부터 우선 자동화 추진",
+                "source": "threat",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 87,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "업무 자동화 실습",
+                  "RPA 도입 과정"
+                ],
+                "expectedROI": "낮음 (12개월 이상)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "ST-4",
+                "title": "선제적 AI 투자를 통한 경쟁 우위 확보",
+                "description": "선제적 AI 투자를 통한 경쟁 우위 확보",
+                "source": "opportunity",
+                "importance": 95,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 85,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "매우 높음 (3-6개월)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "ST-3",
+                "title": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+                "description": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+                "source": "opportunity",
+                "importance": 80,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 79,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "매우 높음 (3-6개월)",
+                "timeline": "1-3개월"
+              }
+            ],
+            "quadrants": {
+              "doFirst": {
+                "name": "즉시 실행 (Do First)",
+                "items": [
+                  "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                  "AI 역량 강화를 위한 집중적 투자 및 교육",
+                  "외부 전문기관과의 파트너십을 통한 역량 보완",
+                  "핵심 업무 영역부터 우선 자동화 추진",
+                  "선제적 AI 투자를 통한 경쟁 우위 확보",
+                  "기존 강점을 바탕으로 AI 도입 속도 가속화"
+                ],
+                "priority": 1
+              },
+              "schedule": {
+                "name": "계획 수립 (Schedule)",
+                "items": [],
+                "priority": 2
+              },
+              "delegate": {
+                "name": "위임/자동화 (Delegate)",
+                "items": [],
+                "priority": 3
+              },
+              "eliminate": {
+                "name": "재검토/보류 (Eliminate)",
+                "items": [],
+                "priority": 4
+              }
+            },
+            "executionRoadmap": {
+              "immediate": [
+                "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                "AI 역량 강화를 위한 집중적 투자 및 교육",
+                "외부 전문기관과의 파트너십을 통한 역량 보완"
+              ],
+              "shortTerm": [],
+              "mediumTerm": []
+            }
+          },
+          "actionItems": [
+            {
+              "id": "WO-2",
+              "title": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+              "description": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+              "source": "weakness",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 75,
+              "priorityScore": 93,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "중간 (6-12개월)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "WT-6",
+              "title": "AI 역량 강화를 위한 집중적 투자 및 교육",
+              "description": "AI 역량 강화를 위한 집중적 투자 및 교육",
+              "source": "threat",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 75,
+              "priorityScore": 93,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "낮음 (12개월 이상)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "WO-1",
+              "title": "외부 전문기관과의 파트너십을 통한 역량 보완",
+              "description": "외부 전문기관과의 파트너십을 통한 역량 보완",
+              "source": "weakness",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 87,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 역량 진단 상담"
+              ],
+              "expectedROI": "중간 (6-12개월)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "WT-5",
+              "title": "핵심 업무 영역부터 우선 자동화 추진",
+              "description": "핵심 업무 영역부터 우선 자동화 추진",
+              "source": "threat",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 87,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "업무 자동화 실습",
+                "RPA 도입 과정"
+              ],
+              "expectedROI": "낮음 (12개월 이상)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "ST-4",
+              "title": "선제적 AI 투자를 통한 경쟁 우위 확보",
+              "description": "선제적 AI 투자를 통한 경쟁 우위 확보",
+              "source": "opportunity",
+              "importance": 95,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 85,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "매우 높음 (3-6개월)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "ST-3",
+              "title": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+              "description": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+              "source": "opportunity",
+              "importance": 80,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 79,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "매우 높음 (3-6개월)",
+              "timeline": "1-3개월"
+            }
+          ],
+          "executionRoadmap": {
+            "immediate": [
+              "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+              "AI 역량 강화를 위한 집중적 투자 및 교육",
+              "외부 전문기관과의 파트너십을 통한 역량 보완"
+            ],
+            "shortTerm": [],
+            "mediumTerm": []
+          },
+          "programRecommendations": {
+            "immediate": [
+              {
+                "id": "ai-basics-101",
+                "name": "AI 기초 이해 과정",
+                "category": "basic",
+                "targetAudience": [
+                  "임직원 전체",
+                  "비전문가",
+                  "초급자"
+                ],
+                "prerequisites": {
+                  "minScore": 0,
+                  "categories": [
+                    "currentAI"
+                  ]
+                },
+                "duration": "2주 (16시간)",
+                "format": "hybrid",
+                "outcomes": [
+                  "AI 기본 개념 이해",
+                  "AI 도구 기초 활용",
+                  "AI 트렌드 인식 향상"
+                ],
+                "roi": {
+                  "timeframe": "3개월",
+                  "expectedReturn": "업무 효율성 15-25% 향상",
+                  "metrics": [
+                    "작업 시간 단축",
+                    "업무 정확도 향상",
+                    "디지털 리터러시 증가"
+                  ]
+                },
+                "pricing": {
+                  "individual": 300000,
+                  "corporate": 250000,
+                  "volume": 200000
+                },
+                "urgencyLevel": "immediate"
+              },
+              {
+                "id": "ai-leadership-strategy",
+                "name": "경영진 AI 리더십 & 전략",
+                "category": "leadership",
+                "targetAudience": [
+                  "CEO",
+                  "임원진",
+                  "부서장"
+                ],
+                "prerequisites": {
+                  "minScore": 50,
+                  "categories": [
+                    "organizationReadiness",
+                    "goalClarity"
+                  ]
+                },
+                "duration": "3일 집중과정",
+                "format": "offline",
+                "outcomes": [
+                  "AI 전략 수립 역량",
+                  "디지털 전환 리더십",
+                  "AI 투자 의사결정 프레임워크"
+                ],
+                "roi": {
+                  "timeframe": "6개월",
+                  "expectedReturn": "전사 디지털 전환 가속화",
+                  "metrics": [
+                    "AI 도입 속도",
+                    "조직 변화 관리",
+                    "경쟁력 향상"
+                  ]
+                },
+                "pricing": {
+                  "individual": 1500000,
+                  "corporate": 1200000
+                },
+                "urgencyLevel": "immediate"
+              },
+              {
+                "id": "ai-tools-practical",
+                "name": "AI 도구 실무 활용",
+                "category": "intermediate",
+                "targetAudience": [
+                  "실무진",
+                  "팀장급",
+                  "프로젝트 매니저"
+                ],
+                "prerequisites": {
+                  "minScore": 40,
+                  "categories": [
+                    "currentAI",
+                    "techInfrastructure"
+                  ]
+                },
+                "duration": "4주 (32시간)",
+                "format": "hybrid",
+                "outcomes": [
+                  "ChatGPT, Claude 등 생성형 AI 활용",
+                  "업무 자동화 구현",
+                  "AI 기반 의사결정 지원"
+                ],
+                "roi": {
+                  "timeframe": "2개월",
+                  "expectedReturn": "업무 생산성 30-50% 향상",
+                  "metrics": [
+                    "반복 업무 자동화율",
+                    "의사결정 속도",
+                    "창의적 업무 시간 증가"
+                  ]
+                },
+                "pricing": {
+                  "individual": 500000,
+                  "corporate": 400000,
+                  "volume": 350000
+                },
+                "urgencyLevel": "short-term"
+              }
+            ],
+            "shortTerm": [],
+            "mediumTerm": [],
+            "longTerm": [],
+            "totalInvestment": 1750000,
+            "expectedROI": "6개월 내 투자 대비 200-300% 수익 예상"
+          },
+          "totalInvestment": 1750000,
+          "expectedROI": "6개월 내 투자 대비 200-300% 수익 예상",
+          "engagementMetrics": {
+            "overallEngagement": 16,
+            "cognitiveEngagement": 25,
+            "emotionalEngagement": 0,
+            "behavioralEngagement": 20,
+            "aiReadiness": 0,
+            "changeAdaptability": 25,
+            "collaborationIndex": 50,
+            "innovationMindset": 35,
+            "learningAgility": 50,
+            "psychologicalSafety": 50,
+            "trustLevel": 30,
+            "communicationQuality": 35,
+            "leadershipEffectiveness": 56
+          },
+          "engagementGaps": {
+            "criticalGaps": [
+              {
+                "area": "전체 몰입도",
+                "currentLevel": 16,
+                "targetLevel": 70,
+                "gap": 54,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "인지적 몰입",
+                "currentLevel": 25,
+                "targetLevel": 65,
+                "gap": 40,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "정서적 몰입",
+                "currentLevel": 0,
+                "targetLevel": 70,
+                "gap": 70,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "행동적 몰입",
+                "currentLevel": 20,
+                "targetLevel": 75,
+                "gap": 55,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "AI 수용 준비도",
+                "currentLevel": 0,
+                "targetLevel": 60,
+                "gap": 60,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "변화 적응력",
+                "currentLevel": 25,
+                "targetLevel": 65,
+                "gap": 40,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "협업 지수",
+                "currentLevel": 50,
+                "targetLevel": 70,
+                "gap": 20,
+                "impact": "medium",
+                "urgency": "short-term"
+              },
+              {
+                "area": "혁신 마인드셋",
+                "currentLevel": 35,
+                "targetLevel": 65,
+                "gap": 30,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "학습 민첩성",
+                "currentLevel": 50,
+                "targetLevel": 70,
+                "gap": 20,
+                "impact": "medium",
+                "urgency": "short-term"
+              },
+              {
+                "area": "심리적 안전감",
+                "currentLevel": 50,
+                "targetLevel": 75,
+                "gap": 25,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "신뢰 수준",
+                "currentLevel": 30,
+                "targetLevel": 70,
+                "gap": 40,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "의사소통 품질",
+                "currentLevel": 35,
+                "targetLevel": 68,
+                "gap": 33,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "리더십 효과성",
+                "currentLevel": 56,
+                "targetLevel": 72,
+                "gap": 16,
+                "impact": "medium",
+                "urgency": "short-term"
+              }
+            ],
+            "improvementPriorities": [
+              "전체 몰입도 긴급 개선 (현재 16점 → 목표 70점)",
+              "인지적 몰입 긴급 개선 (현재 25점 → 목표 65점)",
+              "정서적 몰입 긴급 개선 (현재 0점 → 목표 70점)",
+              "행동적 몰입 긴급 개선 (현재 20점 → 목표 75점)",
+              "AI 수용 준비도 긴급 개선 (현재 0점 → 목표 60점)",
+              "변화 적응력 긴급 개선 (현재 25점 → 목표 65점)",
+              "혁신 마인드셋 긴급 개선 (현재 35점 → 목표 65점)",
+              "심리적 안전감 긴급 개선 (현재 50점 → 목표 75점)",
+              "신뢰 수준 긴급 개선 (현재 30점 → 목표 70점)",
+              "의사소통 품질 긴급 개선 (현재 35점 → 목표 68점)"
+            ],
+            "quickWins": [
+              "정기적인 소통 채널 구축 (타운홀 미팅, 피드백 세션)",
+              "AI 도입 관련 투명한 정보 공유",
+              "AI 기초 교육 프로그램 즉시 시작",
+              "학습 동기 부여 인센티브 제도 도입"
+            ],
+            "strategicInitiatives": [
+              "전사적 조직문화 혁신 프로그램",
+              "AI 기반 업무 환경 재설계",
+              "혁신 아이디어 발굴 및 실행 체계 구축",
+              "실패를 학습으로 전환하는 문화 조성"
+            ]
+          },
+          "engagementRoadmap": {
+            "phase1": {
+              "title": "몰입도 기반 구축 및 신뢰 형성",
+              "duration": "1-3개월",
+              "objectives": [
+                "조직 내 AI 도입에 대한 심리적 안전감 조성",
+                "투명한 소통 체계 구축",
+                "초기 성공 사례 창출"
+              ],
+              "initiatives": [
+                {
+                  "name": "AI 인식 개선 캠페인",
+                  "description": "AI에 대한 부정적 인식 해소 및 긍정적 기대감 조성",
+                  "expectedImpact": 15,
+                  "resources": [
+                    "내부 커뮤니케이션팀",
+                    "AI 전문가",
+                    "외부 강사"
+                  ],
+                  "kpis": [
+                    "AI 수용도 점수",
+                    "직원 만족도",
+                    "참여율"
+                  ]
+                },
+                {
+                  "name": "리더십 AI 역량 강화",
+                  "description": "경영진 및 팀장급의 AI 리더십 역량 개발",
+                  "expectedImpact": 20,
+                  "resources": [
+                    "경영진",
+                    "AI CAMP 리더십 과정",
+                    "1:1 코칭"
+                  ],
+                  "kpis": [
+                    "리더십 효과성 점수",
+                    "팀 신뢰도",
+                    "변화 추진력"
+                  ]
+                },
+                {
+                  "name": "소통 채널 혁신",
+                  "description": "양방향 소통 체계 구축 및 피드백 루프 강화",
+                  "expectedImpact": 12,
+                  "resources": [
+                    "HR팀",
+                    "디지털 협업 도구",
+                    "정기 미팅 체계"
+                  ],
+                  "kpis": [
+                    "소통 만족도",
+                    "피드백 응답률",
+                    "의견 반영률"
+                  ]
+                }
+              ],
+              "expectedEngagementIncrease": 15
+            },
+            "phase2": {
+              "title": "AI 역량 개발 및 협업 강화",
+              "duration": "3-6개월",
+              "objectives": [
+                "전 직원 AI 기초 역량 확보",
+                "부서 간 협업 체계 고도화",
+                "학습 조직 문화 정착"
+              ],
+              "initiatives": [
+                {
+                  "name": "전사 AI 교육 프로그램",
+                  "description": "직급별, 부서별 맞춤형 AI 교육 실시",
+                  "expectedImpact": 25,
+                  "resources": [
+                    "AI CAMP 교육과정",
+                    "내부 멘토",
+                    "학습 플랫폼"
+                  ],
+                  "kpis": [
+                    "교육 이수율",
+                    "AI 활용 능력",
+                    "업무 적용률"
+                  ]
+                },
+                {
+                  "name": "크로스펑셔널 AI 프로젝트",
+                  "description": "부서 간 협업을 통한 AI 도입 프로젝트 추진",
+                  "expectedImpact": 18,
+                  "resources": [
+                    "프로젝트 팀",
+                    "AI 도구",
+                    "외부 컨설턴트"
+                  ],
+                  "kpis": [
+                    "프로젝트 성공률",
+                    "협업 만족도",
+                    "ROI 달성률"
+                  ]
+                },
+                {
+                  "name": "혁신 아이디어 플랫폼",
+                  "description": "AI 활용 아이디어 제안 및 실행 지원 체계",
+                  "expectedImpact": 15,
+                  "resources": [
+                    "혁신 플랫폼",
+                    "아이디어 평가단",
+                    "실행 예산"
+                  ],
+                  "kpis": [
+                    "아이디어 제안 수",
+                    "실행률",
+                    "성과 창출률"
+                  ]
+                }
+              ],
+              "expectedEngagementIncrease": 20
+            },
+            "phase3": {
+              "title": "고몰입 조직 문화 완성 및 지속 발전",
+              "duration": "6-12개월",
+              "objectives": [
+                "자율적 학습 및 혁신 문화 정착",
+                "AI 기반 업무 방식의 완전한 내재화",
+                "지속적 개선 체계 구축"
+              ],
+              "initiatives": [
+                {
+                  "name": "AI 챔피언 네트워크",
+                  "description": "부서별 AI 전문가 양성 및 지식 공유 체계",
+                  "expectedImpact": 22,
+                  "resources": [
+                    "내부 전문가",
+                    "지식 관리 시스템",
+                    "인센티브 제도"
+                  ],
+                  "kpis": [
+                    "전문가 양성 수",
+                    "지식 공유 활동",
+                    "조직 학습 지수"
+                  ]
+                },
+                {
+                  "name": "성과 기반 인사제도",
+                  "description": "AI 활용 성과를 반영한 평가 및 보상 체계",
+                  "expectedImpact": 20,
+                  "resources": [
+                    "HR 시스템",
+                    "성과 측정 도구",
+                    "보상 체계"
+                  ],
+                  "kpis": [
+                    "성과 개선률",
+                    "직원 만족도",
+                    "이직률 감소"
+                  ]
+                },
+                {
+                  "name": "지속적 혁신 체계",
+                  "description": "정기적 혁신 활동 및 개선 사이클 운영",
+                  "expectedImpact": 18,
+                  "resources": [
+                    "혁신 조직",
+                    "개선 프로세스",
+                    "측정 시스템"
+                  ],
+                  "kpis": [
+                    "혁신 활동 수",
+                    "개선 제안률",
+                    "조직 민첩성"
+                  ]
+                }
+              ],
+              "expectedEngagementIncrease": 25
+            }
+          },
+          "overallEngagement": 16,
+          "aicampRoadmap": {
+            "phases": {
+              "phase1": {
+                "title": "AI 기초 역량 긴급 구축",
+                "duration": "2-4개월",
+                "objectives": [
+                  "AI 기초 역량 확보",
+                  "조직 몰입도 향상",
+                  "초기 성공 사례 창출"
+                ],
+                "tasks": [
+                  "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                  "AI 역량 강화를 위한 집중적 투자 및 교육",
+                  "외부 전문기관과의 파트너십을 통한 역량 보완"
+                ],
+                "programs": [
+                  {
+                    "id": "ai-basics-101",
+                    "name": "AI 기초 이해 과정",
+                    "category": "basic",
+                    "targetAudience": [
+                      "임직원 전체",
+                      "비전문가",
+                      "초급자"
+                    ],
+                    "prerequisites": {
+                      "minScore": 0,
+                      "categories": [
+                        "currentAI"
+                      ]
+                    },
+                    "duration": "2주 (16시간)",
+                    "format": "hybrid",
+                    "outcomes": [
+                      "AI 기본 개념 이해",
+                      "AI 도구 기초 활용",
+                      "AI 트렌드 인식 향상"
+                    ],
+                    "roi": {
+                      "timeframe": "3개월",
+                      "expectedReturn": "업무 효율성 15-25% 향상",
+                      "metrics": [
+                        "작업 시간 단축",
+                        "업무 정확도 향상",
+                        "디지털 리터러시 증가"
+                      ]
+                    },
+                    "pricing": {
+                      "individual": 300000,
+                      "corporate": 250000,
+                      "volume": 200000
+                    },
+                    "urgencyLevel": "immediate"
+                  },
+                  {
+                    "id": "ai-leadership-strategy",
+                    "name": "경영진 AI 리더십 & 전략",
+                    "category": "leadership",
+                    "targetAudience": [
+                      "CEO",
+                      "임원진",
+                      "부서장"
+                    ],
+                    "prerequisites": {
+                      "minScore": 50,
+                      "categories": [
+                        "organizationReadiness",
+                        "goalClarity"
+                      ]
+                    },
+                    "duration": "3일 집중과정",
+                    "format": "offline",
+                    "outcomes": [
+                      "AI 전략 수립 역량",
+                      "디지털 전환 리더십",
+                      "AI 투자 의사결정 프레임워크"
+                    ],
+                    "roi": {
+                      "timeframe": "6개월",
+                      "expectedReturn": "전사 디지털 전환 가속화",
+                      "metrics": [
+                        "AI 도입 속도",
+                        "조직 변화 관리",
+                        "경쟁력 향상"
+                      ]
+                    },
+                    "pricing": {
+                      "individual": 1500000,
+                      "corporate": 1200000
+                    },
+                    "urgencyLevel": "immediate"
+                  },
+                  {
+                    "id": "ai-tools-practical",
+                    "name": "AI 도구 실무 활용",
+                    "category": "intermediate",
+                    "targetAudience": [
+                      "실무진",
+                      "팀장급",
+                      "프로젝트 매니저"
+                    ],
+                    "prerequisites": {
+                      "minScore": 40,
+                      "categories": [
+                        "currentAI",
+                        "techInfrastructure"
+                      ]
+                    },
+                    "duration": "4주 (32시간)",
+                    "format": "hybrid",
+                    "outcomes": [
+                      "ChatGPT, Claude 등 생성형 AI 활용",
+                      "업무 자동화 구현",
+                      "AI 기반 의사결정 지원"
+                    ],
+                    "roi": {
+                      "timeframe": "2개월",
+                      "expectedReturn": "업무 생산성 30-50% 향상",
+                      "metrics": [
+                        "반복 업무 자동화율",
+                        "의사결정 속도",
+                        "창의적 업무 시간 증가"
+                      ]
+                    },
+                    "pricing": {
+                      "individual": 500000,
+                      "corporate": 400000,
+                      "volume": 350000
+                    },
+                    "urgencyLevel": "short-term"
+                  }
+                ],
+                "engagement": {
+                  "title": "몰입도 기반 구축 및 신뢰 형성",
+                  "duration": "1-3개월",
+                  "objectives": [
+                    "조직 내 AI 도입에 대한 심리적 안전감 조성",
+                    "투명한 소통 체계 구축",
+                    "초기 성공 사례 창출"
+                  ],
+                  "initiatives": [
+                    {
+                      "name": "AI 인식 개선 캠페인",
+                      "description": "AI에 대한 부정적 인식 해소 및 긍정적 기대감 조성",
+                      "expectedImpact": 15,
+                      "resources": [
+                        "내부 커뮤니케이션팀",
+                        "AI 전문가",
+                        "외부 강사"
+                      ],
+                      "kpis": [
+                        "AI 수용도 점수",
+                        "직원 만족도",
+                        "참여율"
+                      ]
+                    },
+                    {
+                      "name": "리더십 AI 역량 강화",
+                      "description": "경영진 및 팀장급의 AI 리더십 역량 개발",
+                      "expectedImpact": 20,
+                      "resources": [
+                        "경영진",
+                        "AI CAMP 리더십 과정",
+                        "1:1 코칭"
+                      ],
+                      "kpis": [
+                        "리더십 효과성 점수",
+                        "팀 신뢰도",
+                        "변화 추진력"
+                      ]
+                    },
+                    {
+                      "name": "소통 채널 혁신",
+                      "description": "양방향 소통 체계 구축 및 피드백 루프 강화",
+                      "expectedImpact": 12,
+                      "resources": [
+                        "HR팀",
+                        "디지털 협업 도구",
+                        "정기 미팅 체계"
+                      ],
+                      "kpis": [
+                        "소통 만족도",
+                        "피드백 응답률",
+                        "의견 반영률"
+                      ]
+                    }
+                  ],
+                  "expectedEngagementIncrease": 15
+                },
+                "budget": "2,000-5,000만원",
+                "expectedResults": "AI 수용도 30% 향상, 조직 몰입도 15점 상승",
+                "kpis": [
+                  "AI 활용률",
+                  "직원 만족도",
+                  "업무 효율성"
+                ]
+              },
+              "phase2": {
+                "title": "AI 활용 확산 및 고몰입 문화 정착",
+                "duration": "3-6개월",
+                "objectives": [
+                  "AI 도구 전사 확산",
+                  "협업 체계 고도화",
+                  "성과 기반 문화 조성"
+                ],
+                "tasks": [],
+                "programs": [],
+                "engagement": {
+                  "title": "AI 역량 개발 및 협업 강화",
+                  "duration": "3-6개월",
+                  "objectives": [
+                    "전 직원 AI 기초 역량 확보",
+                    "부서 간 협업 체계 고도화",
+                    "학습 조직 문화 정착"
+                  ],
+                  "initiatives": [
+                    {
+                      "name": "전사 AI 교육 프로그램",
+                      "description": "직급별, 부서별 맞춤형 AI 교육 실시",
+                      "expectedImpact": 25,
+                      "resources": [
+                        "AI CAMP 교육과정",
+                        "내부 멘토",
+                        "학습 플랫폼"
+                      ],
+                      "kpis": [
+                        "교육 이수율",
+                        "AI 활용 능력",
+                        "업무 적용률"
+                      ]
+                    },
+                    {
+                      "name": "크로스펑셔널 AI 프로젝트",
+                      "description": "부서 간 협업을 통한 AI 도입 프로젝트 추진",
+                      "expectedImpact": 18,
+                      "resources": [
+                        "프로젝트 팀",
+                        "AI 도구",
+                        "외부 컨설턴트"
+                      ],
+                      "kpis": [
+                        "프로젝트 성공률",
+                        "협업 만족도",
+                        "ROI 달성률"
+                      ]
+                    },
+                    {
+                      "name": "혁신 아이디어 플랫폼",
+                      "description": "AI 활용 아이디어 제안 및 실행 지원 체계",
+                      "expectedImpact": 15,
+                      "resources": [
+                        "혁신 플랫폼",
+                        "아이디어 평가단",
+                        "실행 예산"
+                      ],
+                      "kpis": [
+                        "아이디어 제안 수",
+                        "실행률",
+                        "성과 창출률"
+                      ]
+                    }
+                  ],
+                  "expectedEngagementIncrease": 20
+                },
+                "budget": "3,000-5,000만원",
+                "expectedResults": "생산성 50% 향상, 조직 몰입도 20점 상승",
+                "kpis": [
+                  "ROI 달성률",
+                  "프로젝트 성공률",
+                  "혁신 지수"
+                ]
+              },
+              "phase3": {
+                "title": "AI 기반 고몰입 조직 완성 및 지속 발전",
+                "duration": "6-12개월",
+                "objectives": [
+                  "AI 네이티브 조직 완성",
+                  "자율적 혁신 문화 정착",
+                  "지속적 성장 체계 구축"
+                ],
+                "tasks": [],
+                "programs": [],
+                "engagement": {
+                  "title": "고몰입 조직 문화 완성 및 지속 발전",
+                  "duration": "6-12개월",
+                  "objectives": [
+                    "자율적 학습 및 혁신 문화 정착",
+                    "AI 기반 업무 방식의 완전한 내재화",
+                    "지속적 개선 체계 구축"
+                  ],
+                  "initiatives": [
+                    {
+                      "name": "AI 챔피언 네트워크",
+                      "description": "부서별 AI 전문가 양성 및 지식 공유 체계",
+                      "expectedImpact": 22,
+                      "resources": [
+                        "내부 전문가",
+                        "지식 관리 시스템",
+                        "인센티브 제도"
+                      ],
+                      "kpis": [
+                        "전문가 양성 수",
+                        "지식 공유 활동",
+                        "조직 학습 지수"
+                      ]
+                    },
+                    {
+                      "name": "성과 기반 인사제도",
+                      "description": "AI 활용 성과를 반영한 평가 및 보상 체계",
+                      "expectedImpact": 20,
+                      "resources": [
+                        "HR 시스템",
+                        "성과 측정 도구",
+                        "보상 체계"
+                      ],
+                      "kpis": [
+                        "성과 개선률",
+                        "직원 만족도",
+                        "이직률 감소"
+                      ]
+                    },
+                    {
+                      "name": "지속적 혁신 체계",
+                      "description": "정기적 혁신 활동 및 개선 사이클 운영",
+                      "expectedImpact": 18,
+                      "resources": [
+                        "혁신 조직",
+                        "개선 프로세스",
+                        "측정 시스템"
+                      ],
+                      "kpis": [
+                        "혁신 활동 수",
+                        "개선 제안률",
+                        "조직 민첩성"
+                      ]
+                    }
+                  ],
+                  "expectedEngagementIncrease": 25
+                },
+                "budget": "5,000-1억원",
+                "expectedResults": "전사 디지털 전환 완료, 조직 몰입도 25점 상승",
+                "kpis": [
+                  "디지털 성숙도",
+                  "경쟁력 지수",
+                  "지속가능성"
+                ]
+              }
+            },
+            "totalInvestment": 1750000,
+            "expectedROI": "6개월 내 투자 대비 200-300% 수익 예상",
+            "successFactors": [
+              "경영진의 강력한 의지",
+              "단계별 체계적 접근",
+              "지속적 모니터링 및 개선",
+              "구성원 참여와 소통"
+            ]
+          },
+          "aiAnalysis": "\n# AICAMP 테스트 기업 AI 역량 진단 결과\n\n## 진단 점수\n- 전체 점수: 13점\n- 성숙도 수준: Beginner\n\n## 주요 권고사항\n1. AI 기초 역량 강화 필요\n2. 조직 준비도 향상 권장\n3. 단계적 AI 도입 계획 수립\n\n상세한 분석 보고서는 추후 제공될 예정입니다.\n      ",
+          "htmlReport": "<!DOCTYPE html><html><head><title>AI 역량 진단 보고서</title></head><body><h1>AICAMP 테스트 기업 AI 역량 진단 결과</h1><p>총점: 13점</p><p>상세한 보고서는 추후 제공될 예정입니다.</p></body></html>",
+          "htmlReportGenerated": true,
+          "qualityReport": {
+            "timestamp": "2025-08-14T08:08:20.023Z",
+            "diagnosisId": "DIAG_1755158900023_hpzvewgea",
+            "companyName": "AICAMP 테스트 기업",
+            "metrics": {
+              "accuracy": 100,
+              "consistency": 100,
+              "completeness": 2.7777777777777786,
+              "reliability": 85,
+              "userSatisfaction": 90
+            },
+            "alerts": [
+              {
+                "id": "ALERT-1755158900024-edndcb",
+                "timestamp": "2025-08-14T08:08:20.024Z",
+                "severity": "medium",
+                "category": "data",
+                "message": "데이터 완전성이 부족합니다 (2.7777777777777786%)",
+                "suggestedAction": "누락된 데이터 항목 확인 및 보완",
+                "affectedComponents": [
+                  "데이터 수집",
+                  "응답 검증"
+                ]
+              }
+            ],
+            "recommendations": [
+              "필수 응답 항목에 대한 유효성 검사 강화",
+              "사용자 인터페이스 개선으로 응답률 향상"
+            ],
+            "overallScore": 77
+          },
+          "qualityScore": 77,
+          "qualityAlerts": [
+            {
+              "id": "ALERT-1755158900024-edndcb",
+              "timestamp": "2025-08-14T08:08:20.024Z",
+              "severity": "medium",
+              "category": "data",
+              "message": "데이터 완전성이 부족합니다 (2.7777777777777786%)",
+              "suggestedAction": "누락된 데이터 항목 확인 및 보완",
+              "affectedComponents": [
+                "데이터 수집",
+                "응답 검증"
+              ]
+            }
+          ],
+          "qualityRecommendations": [
+            "필수 응답 항목에 대한 유효성 검사 강화",
+            "사용자 인터페이스 개선으로 응답률 향상"
+          ],
+          "timestamp": "2025-08-14T08:08:20.039Z",
+          "version": "V14.0-ULTIMATE-ENHANCED-SYSTEM",
+          "model": "gemini-2.5-flash",
+          "questionCount": 45,
+          "analysisDepth": "Ultimate Enhanced",
+          "benchmarkEnabled": true,
+          "industryComparison": true,
+          "priorityMatrixEnabled": true,
+          "programMatchingEnabled": true,
+          "engagementAnalysisEnabled": true,
+          "qualityMonitoringEnabled": true,
+          "sizeComparison": true,
+          "systemIntegration": "Google Apps Script V13.0",
+          "emailSystem": "Enhanced Member Recognition",
+          "dataStorage": "Google Sheets Multi-Sheet",
+          "reportPassword": "5W10RL",
+          "emailSent": true,
+          "emailTimestamp": "2025-08-14T08:08:20.039Z"
+        }
+      }
+    },
+    {
+      "timestamp": "2025-08-14T08:09:02.984Z",
+      "testName": "Google Apps Script 연동",
+      "success": true,
+      "details": {
+        "status": 200,
+        "response": {
+          "success": true,
+          "type": "ai_diagnosis",
+          "diagnosisId": "DIAG_1755158907532_1LXO1XSAS",
+          "message": "AI역량진단이 성공적으로 완료되었습니다.",
+          "results": {
+            "totalScore": 85,
+            "maturityLevel": "Advanced",
+            "reportGenerated": true,
+            "emailsSent": true,
+            "dataSaved": true
+          },
+          "processingTime": 35154,
+          "timestamp": "2025-08-14T08:09:02.280Z",
+          "version": "V13.1-FIXED"
+        }
+      }
+    },
+    {
+      "timestamp": "2025-08-14T08:09:06.114Z",
+      "testName": "이메일 시스템",
+      "success": false,
+      "details": {
+        "status": 500,
+        "response": {
+          "success": false,
+          "error": "이메일 SMTP 설정이 완료되지 않았습니다.",
+          "missing": {
+            "smtpHost": true,
+            "smtpUser": true,
+            "smtpPass": true
+          },
+          "recommendation": "SMTP_HOST, SMTP_USER, SMTP_PASS 환경변수를 설정하세요."
+        }
+      }
+    },
+    {
+      "timestamp": "2025-08-14T08:09:09.219Z",
+      "testName": "전체 워크플로우",
+      "success": true,
+      "details": {
+        "status": 200,
+        "response": {
+          "success": true,
+          "diagnosisId": "DIAG_1755158949213_f3pzlhq5f",
+          "message": "45문항 기반 AI역량진단이 성공적으로 완료되었습니다.",
+          "enhancedScores": {
+            "categoryScores": {
+              "businessFoundation": 60,
+              "currentAI": 0,
+              "organizationReadiness": 0,
+              "techInfrastructure": 0,
+              "goalClarity": 65,
+              "executionCapability": 0
+            },
+            "totalScore": 13,
+            "maturityLevel": "Beginner",
+            "percentile": 2,
+            "detailedAnalysis": {
+              "strengths": [],
+              "weaknesses": [
+                "현재 AI 활용 수준이 낮음",
+                "조직 변화 준비도 부족",
+                "기술 인프라 기반 미흡",
+                "실행 역량 부족"
+              ],
+              "criticalGaps": [
+                "AI 도구 도입 및 활용 확대",
+                "변화 관리 및 직원 교육",
+                "IT 인프라 현대화",
+                "전문 인력 확보 및 역량 강화"
+              ],
+              "quickWins": [
+                "구체적 KPI 설정 및 측정"
+              ]
+            }
+          },
+          "totalScore": 13,
+          "maturityLevel": "Beginner",
+          "percentile": 2,
+          "categoryScores": {
+            "businessFoundation": 60,
+            "currentAI": 0,
+            "organizationReadiness": 0,
+            "techInfrastructure": 0,
+            "goalClarity": 65,
+            "executionCapability": 0
+          },
+          "detailedAnalysis": {
+            "strengths": [],
+            "weaknesses": [
+              "현재 AI 활용 수준이 낮음",
+              "조직 변화 준비도 부족",
+              "기술 인프라 기반 미흡",
+              "실행 역량 부족"
+            ],
+            "criticalGaps": [
+              "AI 도구 도입 및 활용 확대",
+              "변화 관리 및 직원 교육",
+              "IT 인프라 현대화",
+              "전문 인력 확보 및 역량 강화"
+            ],
+            "quickWins": [
+              "구체적 KPI 설정 및 측정"
+            ]
+          },
+          "gapAnalysis": {
+            "industryGap": {
+              "currentAI": -55,
+              "organizationReadiness": -58,
+              "techInfrastructure": -62,
+              "goalClarity": 0,
+              "executionCapability": -58,
+              "total": -47
+            },
+            "sizeGap": {
+              "currentAI": -55,
+              "organizationReadiness": -58,
+              "techInfrastructure": -62,
+              "goalClarity": 0,
+              "executionCapability": -58,
+              "total": -47
+            },
+            "competitivePosition": "Average",
+            "priorityAreas": [
+              "AI 도구 도입",
+              "조직 준비도 향상",
+              "기술 인프라 강화"
+            ]
+          },
+          "competitivePosition": "Average",
+          "priorityAreas": [
+            "AI 도구 도입",
+            "조직 준비도 향상",
+            "기술 인프라 강화"
+          ],
+          "swotAnalysis": {
+            "strengths": {
+              "internal": [],
+              "competitive": [],
+              "strategic": []
+            },
+            "weaknesses": {
+              "operational": [
+                "변화 관리 및 프로젝트 관리 경험 미흡",
+                "업무 프로세스 디지털화 수준 낮음"
+              ],
+              "technical": [
+                "AI 도구 활용 및 데이터 분석 역량 부족"
+              ],
+              "organizational": [
+                "AI 전문 인력 및 실행 역량 부족"
+              ]
+            },
+            "opportunities": {
+              "market": [
+                "AI 기술 발전으로 인한 새로운 비즈니스 기회"
+              ],
+              "technology": [
+                "클라우드 및 SaaS 기반 AI 솔루션 접근성 향상"
+              ],
+              "strategic": [
+                "정부의 디지털 뉴딜 정책 및 지원 프로그램"
+              ]
+            },
+            "threats": {
+              "competitive": [
+                "경쟁사의 빠른 AI 도입으로 인한 경쟁 열세"
+              ],
+              "technical": [
+                "급속한 기술 변화에 대한 적응 지연 리스크"
+              ],
+              "market": [
+                "고객의 AI 기반 서비스 요구 증가"
+              ]
+            },
+            "strategicRecommendations": {
+              "so_strategies": [],
+              "wo_strategies": [
+                "외부 전문기관과의 파트너십을 통한 역량 보완",
+                "검증된 AI 솔루션의 단계적 도입으로 경험 축적"
+              ],
+              "st_strategies": [
+                "기존 강점을 바탕으로 AI 도입 속도 가속화",
+                "선제적 AI 투자를 통한 경쟁 우위 확보"
+              ],
+              "wt_strategies": [
+                "핵심 업무 영역부터 우선 자동화 추진",
+                "AI 역량 강화를 위한 집중적 투자 및 교육"
+              ]
+            }
+          },
+          "strategicRecommendations": {
+            "so_strategies": [],
+            "wo_strategies": [
+              "외부 전문기관과의 파트너십을 통한 역량 보완",
+              "검증된 AI 솔루션의 단계적 도입으로 경험 축적"
+            ],
+            "st_strategies": [
+              "기존 강점을 바탕으로 AI 도입 속도 가속화",
+              "선제적 AI 투자를 통한 경쟁 우위 확보"
+            ],
+            "wt_strategies": [
+              "핵심 업무 영역부터 우선 자동화 추진",
+              "AI 역량 강화를 위한 집중적 투자 및 교육"
+            ]
+          },
+          "priorityMatrix": {
+            "actionItems": [
+              {
+                "id": "WO-2",
+                "title": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                "description": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                "source": "weakness",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 75,
+                "priorityScore": 93,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "중간 (6-12개월)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "WT-6",
+                "title": "AI 역량 강화를 위한 집중적 투자 및 교육",
+                "description": "AI 역량 강화를 위한 집중적 투자 및 교육",
+                "source": "threat",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 75,
+                "priorityScore": 93,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "낮음 (12개월 이상)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "WO-1",
+                "title": "외부 전문기관과의 파트너십을 통한 역량 보완",
+                "description": "외부 전문기관과의 파트너십을 통한 역량 보완",
+                "source": "weakness",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 87,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 역량 진단 상담"
+                ],
+                "expectedROI": "중간 (6-12개월)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "WT-5",
+                "title": "핵심 업무 영역부터 우선 자동화 추진",
+                "description": "핵심 업무 영역부터 우선 자동화 추진",
+                "source": "threat",
+                "importance": 100,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 87,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "업무 자동화 실습",
+                  "RPA 도입 과정"
+                ],
+                "expectedROI": "낮음 (12개월 이상)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "ST-4",
+                "title": "선제적 AI 투자를 통한 경쟁 우위 확보",
+                "description": "선제적 AI 투자를 통한 경쟁 우위 확보",
+                "source": "opportunity",
+                "importance": 95,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 85,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "매우 높음 (3-6개월)",
+                "timeline": "1-3개월"
+              },
+              {
+                "id": "ST-3",
+                "title": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+                "description": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+                "source": "opportunity",
+                "importance": 80,
+                "urgency": 100,
+                "feasibility": 55,
+                "priorityScore": 79,
+                "quadrant": "doFirst",
+                "aiCampPrograms": [
+                  "AI 기초 교육과정",
+                  "AI 도구 활용 실습"
+                ],
+                "expectedROI": "매우 높음 (3-6개월)",
+                "timeline": "1-3개월"
+              }
+            ],
+            "quadrants": {
+              "doFirst": {
+                "name": "즉시 실행 (Do First)",
+                "items": [
+                  "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                  "AI 역량 강화를 위한 집중적 투자 및 교육",
+                  "외부 전문기관과의 파트너십을 통한 역량 보완",
+                  "핵심 업무 영역부터 우선 자동화 추진",
+                  "선제적 AI 투자를 통한 경쟁 우위 확보",
+                  "기존 강점을 바탕으로 AI 도입 속도 가속화"
+                ],
+                "priority": 1
+              },
+              "schedule": {
+                "name": "계획 수립 (Schedule)",
+                "items": [],
+                "priority": 2
+              },
+              "delegate": {
+                "name": "위임/자동화 (Delegate)",
+                "items": [],
+                "priority": 3
+              },
+              "eliminate": {
+                "name": "재검토/보류 (Eliminate)",
+                "items": [],
+                "priority": 4
+              }
+            },
+            "executionRoadmap": {
+              "immediate": [
+                "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                "AI 역량 강화를 위한 집중적 투자 및 교육",
+                "외부 전문기관과의 파트너십을 통한 역량 보완"
+              ],
+              "shortTerm": [],
+              "mediumTerm": []
+            }
+          },
+          "actionItems": [
+            {
+              "id": "WO-2",
+              "title": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+              "description": "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+              "source": "weakness",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 75,
+              "priorityScore": 93,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "중간 (6-12개월)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "WT-6",
+              "title": "AI 역량 강화를 위한 집중적 투자 및 교육",
+              "description": "AI 역량 강화를 위한 집중적 투자 및 교육",
+              "source": "threat",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 75,
+              "priorityScore": 93,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "낮음 (12개월 이상)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "WO-1",
+              "title": "외부 전문기관과의 파트너십을 통한 역량 보완",
+              "description": "외부 전문기관과의 파트너십을 통한 역량 보완",
+              "source": "weakness",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 87,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 역량 진단 상담"
+              ],
+              "expectedROI": "중간 (6-12개월)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "WT-5",
+              "title": "핵심 업무 영역부터 우선 자동화 추진",
+              "description": "핵심 업무 영역부터 우선 자동화 추진",
+              "source": "threat",
+              "importance": 100,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 87,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "업무 자동화 실습",
+                "RPA 도입 과정"
+              ],
+              "expectedROI": "낮음 (12개월 이상)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "ST-4",
+              "title": "선제적 AI 투자를 통한 경쟁 우위 확보",
+              "description": "선제적 AI 투자를 통한 경쟁 우위 확보",
+              "source": "opportunity",
+              "importance": 95,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 85,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "매우 높음 (3-6개월)",
+              "timeline": "1-3개월"
+            },
+            {
+              "id": "ST-3",
+              "title": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+              "description": "기존 강점을 바탕으로 AI 도입 속도 가속화",
+              "source": "opportunity",
+              "importance": 80,
+              "urgency": 100,
+              "feasibility": 55,
+              "priorityScore": 79,
+              "quadrant": "doFirst",
+              "aiCampPrograms": [
+                "AI 기초 교육과정",
+                "AI 도구 활용 실습"
+              ],
+              "expectedROI": "매우 높음 (3-6개월)",
+              "timeline": "1-3개월"
+            }
+          ],
+          "executionRoadmap": {
+            "immediate": [
+              "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+              "AI 역량 강화를 위한 집중적 투자 및 교육",
+              "외부 전문기관과의 파트너십을 통한 역량 보완"
+            ],
+            "shortTerm": [],
+            "mediumTerm": []
+          },
+          "programRecommendations": {
+            "immediate": [
+              {
+                "id": "ai-basics-101",
+                "name": "AI 기초 이해 과정",
+                "category": "basic",
+                "targetAudience": [
+                  "임직원 전체",
+                  "비전문가",
+                  "초급자"
+                ],
+                "prerequisites": {
+                  "minScore": 0,
+                  "categories": [
+                    "currentAI"
+                  ]
+                },
+                "duration": "2주 (16시간)",
+                "format": "hybrid",
+                "outcomes": [
+                  "AI 기본 개념 이해",
+                  "AI 도구 기초 활용",
+                  "AI 트렌드 인식 향상"
+                ],
+                "roi": {
+                  "timeframe": "3개월",
+                  "expectedReturn": "업무 효율성 15-25% 향상",
+                  "metrics": [
+                    "작업 시간 단축",
+                    "업무 정확도 향상",
+                    "디지털 리터러시 증가"
+                  ]
+                },
+                "pricing": {
+                  "individual": 300000,
+                  "corporate": 250000,
+                  "volume": 200000
+                },
+                "urgencyLevel": "immediate"
+              },
+              {
+                "id": "ai-leadership-strategy",
+                "name": "경영진 AI 리더십 & 전략",
+                "category": "leadership",
+                "targetAudience": [
+                  "CEO",
+                  "임원진",
+                  "부서장"
+                ],
+                "prerequisites": {
+                  "minScore": 50,
+                  "categories": [
+                    "organizationReadiness",
+                    "goalClarity"
+                  ]
+                },
+                "duration": "3일 집중과정",
+                "format": "offline",
+                "outcomes": [
+                  "AI 전략 수립 역량",
+                  "디지털 전환 리더십",
+                  "AI 투자 의사결정 프레임워크"
+                ],
+                "roi": {
+                  "timeframe": "6개월",
+                  "expectedReturn": "전사 디지털 전환 가속화",
+                  "metrics": [
+                    "AI 도입 속도",
+                    "조직 변화 관리",
+                    "경쟁력 향상"
+                  ]
+                },
+                "pricing": {
+                  "individual": 1500000,
+                  "corporate": 1200000
+                },
+                "urgencyLevel": "immediate"
+              },
+              {
+                "id": "ai-tools-practical",
+                "name": "AI 도구 실무 활용",
+                "category": "intermediate",
+                "targetAudience": [
+                  "실무진",
+                  "팀장급",
+                  "프로젝트 매니저"
+                ],
+                "prerequisites": {
+                  "minScore": 40,
+                  "categories": [
+                    "currentAI",
+                    "techInfrastructure"
+                  ]
+                },
+                "duration": "4주 (32시간)",
+                "format": "hybrid",
+                "outcomes": [
+                  "ChatGPT, Claude 등 생성형 AI 활용",
+                  "업무 자동화 구현",
+                  "AI 기반 의사결정 지원"
+                ],
+                "roi": {
+                  "timeframe": "2개월",
+                  "expectedReturn": "업무 생산성 30-50% 향상",
+                  "metrics": [
+                    "반복 업무 자동화율",
+                    "의사결정 속도",
+                    "창의적 업무 시간 증가"
+                  ]
+                },
+                "pricing": {
+                  "individual": 500000,
+                  "corporate": 400000,
+                  "volume": 350000
+                },
+                "urgencyLevel": "short-term"
+              }
+            ],
+            "shortTerm": [],
+            "mediumTerm": [],
+            "longTerm": [],
+            "totalInvestment": 1750000,
+            "expectedROI": "6개월 내 투자 대비 200-300% 수익 예상"
+          },
+          "totalInvestment": 1750000,
+          "expectedROI": "6개월 내 투자 대비 200-300% 수익 예상",
+          "engagementMetrics": {
+            "overallEngagement": 16,
+            "cognitiveEngagement": 25,
+            "emotionalEngagement": 0,
+            "behavioralEngagement": 20,
+            "aiReadiness": 0,
+            "changeAdaptability": 25,
+            "collaborationIndex": 50,
+            "innovationMindset": 35,
+            "learningAgility": 50,
+            "psychologicalSafety": 50,
+            "trustLevel": 30,
+            "communicationQuality": 35,
+            "leadershipEffectiveness": 56
+          },
+          "engagementGaps": {
+            "criticalGaps": [
+              {
+                "area": "전체 몰입도",
+                "currentLevel": 16,
+                "targetLevel": 70,
+                "gap": 54,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "인지적 몰입",
+                "currentLevel": 25,
+                "targetLevel": 65,
+                "gap": 40,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "정서적 몰입",
+                "currentLevel": 0,
+                "targetLevel": 70,
+                "gap": 70,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "행동적 몰입",
+                "currentLevel": 20,
+                "targetLevel": 75,
+                "gap": 55,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "AI 수용 준비도",
+                "currentLevel": 0,
+                "targetLevel": 60,
+                "gap": 60,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "변화 적응력",
+                "currentLevel": 25,
+                "targetLevel": 65,
+                "gap": 40,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "협업 지수",
+                "currentLevel": 50,
+                "targetLevel": 70,
+                "gap": 20,
+                "impact": "medium",
+                "urgency": "short-term"
+              },
+              {
+                "area": "혁신 마인드셋",
+                "currentLevel": 35,
+                "targetLevel": 65,
+                "gap": 30,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "학습 민첩성",
+                "currentLevel": 50,
+                "targetLevel": 70,
+                "gap": 20,
+                "impact": "medium",
+                "urgency": "short-term"
+              },
+              {
+                "area": "심리적 안전감",
+                "currentLevel": 50,
+                "targetLevel": 75,
+                "gap": 25,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "신뢰 수준",
+                "currentLevel": 30,
+                "targetLevel": 70,
+                "gap": 40,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "의사소통 품질",
+                "currentLevel": 35,
+                "targetLevel": 68,
+                "gap": 33,
+                "impact": "high",
+                "urgency": "immediate"
+              },
+              {
+                "area": "리더십 효과성",
+                "currentLevel": 56,
+                "targetLevel": 72,
+                "gap": 16,
+                "impact": "medium",
+                "urgency": "short-term"
+              }
+            ],
+            "improvementPriorities": [
+              "전체 몰입도 긴급 개선 (현재 16점 → 목표 70점)",
+              "인지적 몰입 긴급 개선 (현재 25점 → 목표 65점)",
+              "정서적 몰입 긴급 개선 (현재 0점 → 목표 70점)",
+              "행동적 몰입 긴급 개선 (현재 20점 → 목표 75점)",
+              "AI 수용 준비도 긴급 개선 (현재 0점 → 목표 60점)",
+              "변화 적응력 긴급 개선 (현재 25점 → 목표 65점)",
+              "혁신 마인드셋 긴급 개선 (현재 35점 → 목표 65점)",
+              "심리적 안전감 긴급 개선 (현재 50점 → 목표 75점)",
+              "신뢰 수준 긴급 개선 (현재 30점 → 목표 70점)",
+              "의사소통 품질 긴급 개선 (현재 35점 → 목표 68점)"
+            ],
+            "quickWins": [
+              "정기적인 소통 채널 구축 (타운홀 미팅, 피드백 세션)",
+              "AI 도입 관련 투명한 정보 공유",
+              "AI 기초 교육 프로그램 즉시 시작",
+              "학습 동기 부여 인센티브 제도 도입"
+            ],
+            "strategicInitiatives": [
+              "전사적 조직문화 혁신 프로그램",
+              "AI 기반 업무 환경 재설계",
+              "혁신 아이디어 발굴 및 실행 체계 구축",
+              "실패를 학습으로 전환하는 문화 조성"
+            ]
+          },
+          "engagementRoadmap": {
+            "phase1": {
+              "title": "몰입도 기반 구축 및 신뢰 형성",
+              "duration": "1-3개월",
+              "objectives": [
+                "조직 내 AI 도입에 대한 심리적 안전감 조성",
+                "투명한 소통 체계 구축",
+                "초기 성공 사례 창출"
+              ],
+              "initiatives": [
+                {
+                  "name": "AI 인식 개선 캠페인",
+                  "description": "AI에 대한 부정적 인식 해소 및 긍정적 기대감 조성",
+                  "expectedImpact": 15,
+                  "resources": [
+                    "내부 커뮤니케이션팀",
+                    "AI 전문가",
+                    "외부 강사"
+                  ],
+                  "kpis": [
+                    "AI 수용도 점수",
+                    "직원 만족도",
+                    "참여율"
+                  ]
+                },
+                {
+                  "name": "리더십 AI 역량 강화",
+                  "description": "경영진 및 팀장급의 AI 리더십 역량 개발",
+                  "expectedImpact": 20,
+                  "resources": [
+                    "경영진",
+                    "AI CAMP 리더십 과정",
+                    "1:1 코칭"
+                  ],
+                  "kpis": [
+                    "리더십 효과성 점수",
+                    "팀 신뢰도",
+                    "변화 추진력"
+                  ]
+                },
+                {
+                  "name": "소통 채널 혁신",
+                  "description": "양방향 소통 체계 구축 및 피드백 루프 강화",
+                  "expectedImpact": 12,
+                  "resources": [
+                    "HR팀",
+                    "디지털 협업 도구",
+                    "정기 미팅 체계"
+                  ],
+                  "kpis": [
+                    "소통 만족도",
+                    "피드백 응답률",
+                    "의견 반영률"
+                  ]
+                }
+              ],
+              "expectedEngagementIncrease": 15
+            },
+            "phase2": {
+              "title": "AI 역량 개발 및 협업 강화",
+              "duration": "3-6개월",
+              "objectives": [
+                "전 직원 AI 기초 역량 확보",
+                "부서 간 협업 체계 고도화",
+                "학습 조직 문화 정착"
+              ],
+              "initiatives": [
+                {
+                  "name": "전사 AI 교육 프로그램",
+                  "description": "직급별, 부서별 맞춤형 AI 교육 실시",
+                  "expectedImpact": 25,
+                  "resources": [
+                    "AI CAMP 교육과정",
+                    "내부 멘토",
+                    "학습 플랫폼"
+                  ],
+                  "kpis": [
+                    "교육 이수율",
+                    "AI 활용 능력",
+                    "업무 적용률"
+                  ]
+                },
+                {
+                  "name": "크로스펑셔널 AI 프로젝트",
+                  "description": "부서 간 협업을 통한 AI 도입 프로젝트 추진",
+                  "expectedImpact": 18,
+                  "resources": [
+                    "프로젝트 팀",
+                    "AI 도구",
+                    "외부 컨설턴트"
+                  ],
+                  "kpis": [
+                    "프로젝트 성공률",
+                    "협업 만족도",
+                    "ROI 달성률"
+                  ]
+                },
+                {
+                  "name": "혁신 아이디어 플랫폼",
+                  "description": "AI 활용 아이디어 제안 및 실행 지원 체계",
+                  "expectedImpact": 15,
+                  "resources": [
+                    "혁신 플랫폼",
+                    "아이디어 평가단",
+                    "실행 예산"
+                  ],
+                  "kpis": [
+                    "아이디어 제안 수",
+                    "실행률",
+                    "성과 창출률"
+                  ]
+                }
+              ],
+              "expectedEngagementIncrease": 20
+            },
+            "phase3": {
+              "title": "고몰입 조직 문화 완성 및 지속 발전",
+              "duration": "6-12개월",
+              "objectives": [
+                "자율적 학습 및 혁신 문화 정착",
+                "AI 기반 업무 방식의 완전한 내재화",
+                "지속적 개선 체계 구축"
+              ],
+              "initiatives": [
+                {
+                  "name": "AI 챔피언 네트워크",
+                  "description": "부서별 AI 전문가 양성 및 지식 공유 체계",
+                  "expectedImpact": 22,
+                  "resources": [
+                    "내부 전문가",
+                    "지식 관리 시스템",
+                    "인센티브 제도"
+                  ],
+                  "kpis": [
+                    "전문가 양성 수",
+                    "지식 공유 활동",
+                    "조직 학습 지수"
+                  ]
+                },
+                {
+                  "name": "성과 기반 인사제도",
+                  "description": "AI 활용 성과를 반영한 평가 및 보상 체계",
+                  "expectedImpact": 20,
+                  "resources": [
+                    "HR 시스템",
+                    "성과 측정 도구",
+                    "보상 체계"
+                  ],
+                  "kpis": [
+                    "성과 개선률",
+                    "직원 만족도",
+                    "이직률 감소"
+                  ]
+                },
+                {
+                  "name": "지속적 혁신 체계",
+                  "description": "정기적 혁신 활동 및 개선 사이클 운영",
+                  "expectedImpact": 18,
+                  "resources": [
+                    "혁신 조직",
+                    "개선 프로세스",
+                    "측정 시스템"
+                  ],
+                  "kpis": [
+                    "혁신 활동 수",
+                    "개선 제안률",
+                    "조직 민첩성"
+                  ]
+                }
+              ],
+              "expectedEngagementIncrease": 25
+            }
+          },
+          "overallEngagement": 16,
+          "aicampRoadmap": {
+            "phases": {
+              "phase1": {
+                "title": "AI 기초 역량 긴급 구축",
+                "duration": "2-4개월",
+                "objectives": [
+                  "AI 기초 역량 확보",
+                  "조직 몰입도 향상",
+                  "초기 성공 사례 창출"
+                ],
+                "tasks": [
+                  "검증된 AI 솔루션의 단계적 도입으로 경험 축적",
+                  "AI 역량 강화를 위한 집중적 투자 및 교육",
+                  "외부 전문기관과의 파트너십을 통한 역량 보완"
+                ],
+                "programs": [
+                  {
+                    "id": "ai-basics-101",
+                    "name": "AI 기초 이해 과정",
+                    "category": "basic",
+                    "targetAudience": [
+                      "임직원 전체",
+                      "비전문가",
+                      "초급자"
+                    ],
+                    "prerequisites": {
+                      "minScore": 0,
+                      "categories": [
+                        "currentAI"
+                      ]
+                    },
+                    "duration": "2주 (16시간)",
+                    "format": "hybrid",
+                    "outcomes": [
+                      "AI 기본 개념 이해",
+                      "AI 도구 기초 활용",
+                      "AI 트렌드 인식 향상"
+                    ],
+                    "roi": {
+                      "timeframe": "3개월",
+                      "expectedReturn": "업무 효율성 15-25% 향상",
+                      "metrics": [
+                        "작업 시간 단축",
+                        "업무 정확도 향상",
+                        "디지털 리터러시 증가"
+                      ]
+                    },
+                    "pricing": {
+                      "individual": 300000,
+                      "corporate": 250000,
+                      "volume": 200000
+                    },
+                    "urgencyLevel": "immediate"
+                  },
+                  {
+                    "id": "ai-leadership-strategy",
+                    "name": "경영진 AI 리더십 & 전략",
+                    "category": "leadership",
+                    "targetAudience": [
+                      "CEO",
+                      "임원진",
+                      "부서장"
+                    ],
+                    "prerequisites": {
+                      "minScore": 50,
+                      "categories": [
+                        "organizationReadiness",
+                        "goalClarity"
+                      ]
+                    },
+                    "duration": "3일 집중과정",
+                    "format": "offline",
+                    "outcomes": [
+                      "AI 전략 수립 역량",
+                      "디지털 전환 리더십",
+                      "AI 투자 의사결정 프레임워크"
+                    ],
+                    "roi": {
+                      "timeframe": "6개월",
+                      "expectedReturn": "전사 디지털 전환 가속화",
+                      "metrics": [
+                        "AI 도입 속도",
+                        "조직 변화 관리",
+                        "경쟁력 향상"
+                      ]
+                    },
+                    "pricing": {
+                      "individual": 1500000,
+                      "corporate": 1200000
+                    },
+                    "urgencyLevel": "immediate"
+                  },
+                  {
+                    "id": "ai-tools-practical",
+                    "name": "AI 도구 실무 활용",
+                    "category": "intermediate",
+                    "targetAudience": [
+                      "실무진",
+                      "팀장급",
+                      "프로젝트 매니저"
+                    ],
+                    "prerequisites": {
+                      "minScore": 40,
+                      "categories": [
+                        "currentAI",
+                        "techInfrastructure"
+                      ]
+                    },
+                    "duration": "4주 (32시간)",
+                    "format": "hybrid",
+                    "outcomes": [
+                      "ChatGPT, Claude 등 생성형 AI 활용",
+                      "업무 자동화 구현",
+                      "AI 기반 의사결정 지원"
+                    ],
+                    "roi": {
+                      "timeframe": "2개월",
+                      "expectedReturn": "업무 생산성 30-50% 향상",
+                      "metrics": [
+                        "반복 업무 자동화율",
+                        "의사결정 속도",
+                        "창의적 업무 시간 증가"
+                      ]
+                    },
+                    "pricing": {
+                      "individual": 500000,
+                      "corporate": 400000,
+                      "volume": 350000
+                    },
+                    "urgencyLevel": "short-term"
+                  }
+                ],
+                "engagement": {
+                  "title": "몰입도 기반 구축 및 신뢰 형성",
+                  "duration": "1-3개월",
+                  "objectives": [
+                    "조직 내 AI 도입에 대한 심리적 안전감 조성",
+                    "투명한 소통 체계 구축",
+                    "초기 성공 사례 창출"
+                  ],
+                  "initiatives": [
+                    {
+                      "name": "AI 인식 개선 캠페인",
+                      "description": "AI에 대한 부정적 인식 해소 및 긍정적 기대감 조성",
+                      "expectedImpact": 15,
+                      "resources": [
+                        "내부 커뮤니케이션팀",
+                        "AI 전문가",
+                        "외부 강사"
+                      ],
+                      "kpis": [
+                        "AI 수용도 점수",
+                        "직원 만족도",
+                        "참여율"
+                      ]
+                    },
+                    {
+                      "name": "리더십 AI 역량 강화",
+                      "description": "경영진 및 팀장급의 AI 리더십 역량 개발",
+                      "expectedImpact": 20,
+                      "resources": [
+                        "경영진",
+                        "AI CAMP 리더십 과정",
+                        "1:1 코칭"
+                      ],
+                      "kpis": [
+                        "리더십 효과성 점수",
+                        "팀 신뢰도",
+                        "변화 추진력"
+                      ]
+                    },
+                    {
+                      "name": "소통 채널 혁신",
+                      "description": "양방향 소통 체계 구축 및 피드백 루프 강화",
+                      "expectedImpact": 12,
+                      "resources": [
+                        "HR팀",
+                        "디지털 협업 도구",
+                        "정기 미팅 체계"
+                      ],
+                      "kpis": [
+                        "소통 만족도",
+                        "피드백 응답률",
+                        "의견 반영률"
+                      ]
+                    }
+                  ],
+                  "expectedEngagementIncrease": 15
+                },
+                "budget": "2,000-5,000만원",
+                "expectedResults": "AI 수용도 30% 향상, 조직 몰입도 15점 상승",
+                "kpis": [
+                  "AI 활용률",
+                  "직원 만족도",
+                  "업무 효율성"
+                ]
+              },
+              "phase2": {
+                "title": "AI 활용 확산 및 고몰입 문화 정착",
+                "duration": "3-6개월",
+                "objectives": [
+                  "AI 도구 전사 확산",
+                  "협업 체계 고도화",
+                  "성과 기반 문화 조성"
+                ],
+                "tasks": [],
+                "programs": [],
+                "engagement": {
+                  "title": "AI 역량 개발 및 협업 강화",
+                  "duration": "3-6개월",
+                  "objectives": [
+                    "전 직원 AI 기초 역량 확보",
+                    "부서 간 협업 체계 고도화",
+                    "학습 조직 문화 정착"
+                  ],
+                  "initiatives": [
+                    {
+                      "name": "전사 AI 교육 프로그램",
+                      "description": "직급별, 부서별 맞춤형 AI 교육 실시",
+                      "expectedImpact": 25,
+                      "resources": [
+                        "AI CAMP 교육과정",
+                        "내부 멘토",
+                        "학습 플랫폼"
+                      ],
+                      "kpis": [
+                        "교육 이수율",
+                        "AI 활용 능력",
+                        "업무 적용률"
+                      ]
+                    },
+                    {
+                      "name": "크로스펑셔널 AI 프로젝트",
+                      "description": "부서 간 협업을 통한 AI 도입 프로젝트 추진",
+                      "expectedImpact": 18,
+                      "resources": [
+                        "프로젝트 팀",
+                        "AI 도구",
+                        "외부 컨설턴트"
+                      ],
+                      "kpis": [
+                        "프로젝트 성공률",
+                        "협업 만족도",
+                        "ROI 달성률"
+                      ]
+                    },
+                    {
+                      "name": "혁신 아이디어 플랫폼",
+                      "description": "AI 활용 아이디어 제안 및 실행 지원 체계",
+                      "expectedImpact": 15,
+                      "resources": [
+                        "혁신 플랫폼",
+                        "아이디어 평가단",
+                        "실행 예산"
+                      ],
+                      "kpis": [
+                        "아이디어 제안 수",
+                        "실행률",
+                        "성과 창출률"
+                      ]
+                    }
+                  ],
+                  "expectedEngagementIncrease": 20
+                },
+                "budget": "3,000-5,000만원",
+                "expectedResults": "생산성 50% 향상, 조직 몰입도 20점 상승",
+                "kpis": [
+                  "ROI 달성률",
+                  "프로젝트 성공률",
+                  "혁신 지수"
+                ]
+              },
+              "phase3": {
+                "title": "AI 기반 고몰입 조직 완성 및 지속 발전",
+                "duration": "6-12개월",
+                "objectives": [
+                  "AI 네이티브 조직 완성",
+                  "자율적 혁신 문화 정착",
+                  "지속적 성장 체계 구축"
+                ],
+                "tasks": [],
+                "programs": [],
+                "engagement": {
+                  "title": "고몰입 조직 문화 완성 및 지속 발전",
+                  "duration": "6-12개월",
+                  "objectives": [
+                    "자율적 학습 및 혁신 문화 정착",
+                    "AI 기반 업무 방식의 완전한 내재화",
+                    "지속적 개선 체계 구축"
+                  ],
+                  "initiatives": [
+                    {
+                      "name": "AI 챔피언 네트워크",
+                      "description": "부서별 AI 전문가 양성 및 지식 공유 체계",
+                      "expectedImpact": 22,
+                      "resources": [
+                        "내부 전문가",
+                        "지식 관리 시스템",
+                        "인센티브 제도"
+                      ],
+                      "kpis": [
+                        "전문가 양성 수",
+                        "지식 공유 활동",
+                        "조직 학습 지수"
+                      ]
+                    },
+                    {
+                      "name": "성과 기반 인사제도",
+                      "description": "AI 활용 성과를 반영한 평가 및 보상 체계",
+                      "expectedImpact": 20,
+                      "resources": [
+                        "HR 시스템",
+                        "성과 측정 도구",
+                        "보상 체계"
+                      ],
+                      "kpis": [
+                        "성과 개선률",
+                        "직원 만족도",
+                        "이직률 감소"
+                      ]
+                    },
+                    {
+                      "name": "지속적 혁신 체계",
+                      "description": "정기적 혁신 활동 및 개선 사이클 운영",
+                      "expectedImpact": 18,
+                      "resources": [
+                        "혁신 조직",
+                        "개선 프로세스",
+                        "측정 시스템"
+                      ],
+                      "kpis": [
+                        "혁신 활동 수",
+                        "개선 제안률",
+                        "조직 민첩성"
+                      ]
+                    }
+                  ],
+                  "expectedEngagementIncrease": 25
+                },
+                "budget": "5,000-1억원",
+                "expectedResults": "전사 디지털 전환 완료, 조직 몰입도 25점 상승",
+                "kpis": [
+                  "디지털 성숙도",
+                  "경쟁력 지수",
+                  "지속가능성"
+                ]
+              }
+            },
+            "totalInvestment": 1750000,
+            "expectedROI": "6개월 내 투자 대비 200-300% 수익 예상",
+            "successFactors": [
+              "경영진의 강력한 의지",
+              "단계별 체계적 접근",
+              "지속적 모니터링 및 개선",
+              "구성원 참여와 소통"
+            ]
+          },
+          "aiAnalysis": "\n# AICAMP 워크플로우 테스트 AI 역량 진단 결과\n\n## 진단 점수\n- 전체 점수: 13점\n- 성숙도 수준: Beginner\n\n## 주요 권고사항\n1. AI 기초 역량 강화 필요\n2. 조직 준비도 향상 권장\n3. 단계적 AI 도입 계획 수립\n\n상세한 분석 보고서는 추후 제공될 예정입니다.\n      ",
+          "htmlReport": "<!DOCTYPE html><html><head><title>AI 역량 진단 보고서</title></head><body><h1>AICAMP 워크플로우 테스트 AI 역량 진단 결과</h1><p>총점: 13점</p><p>상세한 보고서는 추후 제공될 예정입니다.</p></body></html>",
+          "htmlReportGenerated": true,
+          "qualityReport": {
+            "timestamp": "2025-08-14T08:09:09.213Z",
+            "diagnosisId": "DIAG_1755158949213_f3pzlhq5f",
+            "companyName": "AICAMP 워크플로우 테스트",
+            "metrics": {
+              "accuracy": 100,
+              "consistency": 100,
+              "completeness": 2.7777777777777786,
+              "reliability": 85,
+              "userSatisfaction": 90
+            },
+            "alerts": [
+              {
+                "id": "ALERT-1755158949213-2b9xk9",
+                "timestamp": "2025-08-14T08:09:09.213Z",
+                "severity": "medium",
+                "category": "data",
+                "message": "데이터 완전성이 부족합니다 (2.7777777777777786%)",
+                "suggestedAction": "누락된 데이터 항목 확인 및 보완",
+                "affectedComponents": [
+                  "데이터 수집",
+                  "응답 검증"
+                ]
+              }
+            ],
+            "recommendations": [
+              "필수 응답 항목에 대한 유효성 검사 강화",
+              "사용자 인터페이스 개선으로 응답률 향상"
+            ],
+            "overallScore": 77
+          },
+          "qualityScore": 77,
+          "qualityAlerts": [
+            {
+              "id": "ALERT-1755158949213-2b9xk9",
+              "timestamp": "2025-08-14T08:09:09.213Z",
+              "severity": "medium",
+              "category": "data",
+              "message": "데이터 완전성이 부족합니다 (2.7777777777777786%)",
+              "suggestedAction": "누락된 데이터 항목 확인 및 보완",
+              "affectedComponents": [
+                "데이터 수집",
+                "응답 검증"
+              ]
+            }
+          ],
+          "qualityRecommendations": [
+            "필수 응답 항목에 대한 유효성 검사 강화",
+            "사용자 인터페이스 개선으로 응답률 향상"
+          ],
+          "timestamp": "2025-08-14T08:09:09.217Z",
+          "version": "V14.0-ULTIMATE-ENHANCED-SYSTEM",
+          "model": "gemini-2.5-flash",
+          "questionCount": 45,
+          "analysisDepth": "Ultimate Enhanced",
+          "benchmarkEnabled": true,
+          "industryComparison": true,
+          "priorityMatrixEnabled": true,
+          "programMatchingEnabled": true,
+          "engagementAnalysisEnabled": true,
+          "qualityMonitoringEnabled": true,
+          "sizeComparison": true,
+          "systemIntegration": "Google Apps Script V13.0",
+          "emailSystem": "Enhanced Member Recognition",
+          "dataStorage": "Google Sheets Multi-Sheet",
+          "reportPassword": "2HGGN8",
+          "emailSent": true,
+          "emailTimestamp": "2025-08-14T08:09:09.217Z"
+        },
+        "processingTime": "N/A"
+      }
+    }
+  ]
+}

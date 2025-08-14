@@ -95,8 +95,9 @@ const nextConfig = {
   // 누락된 아이콘 경로를 기존 이미지로 리라이팅하여 404 방지
   async rewrites() {
     return [
-      // manifest.json → manifest.webmanifest 정규화
-      { source: '/manifest.json', destination: '/manifest.webmanifest' },
+      // manifest 파일을 API 라우트로 리라이팅
+      { source: '/manifest.webmanifest', destination: '/api/manifest' },
+      { source: '/manifest.json', destination: '/api/manifest' },
 
       // 루트 경로 요청 대응
       { source: '/favicon.ico', destination: '/images/aicamp_logo_del_250726.png' },

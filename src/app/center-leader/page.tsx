@@ -1124,7 +1124,7 @@ export default function CenterLeaderPage() {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Link href="/diagnosis" className="block">
+            <Link href="/ai-diagnosis" className="block">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-200 cursor-pointer transform hover:scale-[1.05] active:scale-[0.95] relative overflow-hidden group">
                 <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                 <CardContent className="p-6 text-center relative z-10">
@@ -1153,7 +1153,7 @@ export default function CenterLeaderPage() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
-              href="/diagnosis"
+              href="/ai-diagnosis"
               className="inline-flex items-center justify-center bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-4 text-lg rounded-md transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl relative overflow-hidden group h-14"
             >
               <span className="absolute inset-0 bg-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>

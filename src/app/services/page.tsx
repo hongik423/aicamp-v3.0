@@ -186,7 +186,7 @@ export default async function ServicesPage() {
             맞춤형 AI 도입 전략을 제공받으세요.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/diagnosis">
+            <Link href="/ai-diagnosis">
               <Button size="lg" variant="secondary" className="text-blue-600 hover:text-blue-700">
                 <Brain className="mr-2 h-5 w-5" />
                 GEMINI AI 진단 시작

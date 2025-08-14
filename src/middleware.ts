@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  
+
+  
+  // Service Worker 요청 처리
+  if (pathname === '/sw.js') {
+    const response = NextResponse.next();
+    response.headers.set('Service-Worker-Allowed', '/');
+    response.headers.set('Content-Type', 'application/javascript');
+    response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+    return response;
+  }
+  
   // API 라우트에 대해서만 CORS 헤더 추가
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/')) {
     const response = NextResponse.next();
     
     // CORS 헤더 설정
@@ -33,5 +46,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/api/:path*',
+    '/sw.js',
   ],
 };

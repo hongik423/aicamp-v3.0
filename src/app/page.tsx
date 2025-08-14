@@ -314,7 +314,7 @@ export default function Home() {
                 </button>
               </Link>
               
-              <Link href="/diagnosis">
+              <Link href="/ai-diagnosis">
                 <button className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
                   AI역량진단
                 </button>
@@ -964,7 +964,7 @@ export default function Home() {
                     </button>
                   </Link>
                   
-                  <Link href="/diagnosis">
+                  <Link href="/ai-diagnosis">
                     <button 
                       className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       // 🔥 모바일 터치 최적화 추가
@@ -981,7 +981,7 @@ export default function Home() {
                         e.stopPropagation();
                         // 터치 종료 시 명시적으로 링크 이동
                         setTimeout(() => {
-                          window.location.href = '/diagnosis';
+                          window.location.href = '/ai-diagnosis';
                         }, 50);
                       }}
                       style={{
@@ -1146,7 +1146,7 @@ AI CAMP 교장에게 바로 문의하기
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
-                <Link href="/diagnosis">
+                <Link href="/ai-diagnosis">
                   <Button 
                     className="bg-gradient-to-r from-green-500 to-emerald-600 
                               hover:from-green-600 hover:to-emerald-700 text-white shadow-xl w-full sm:w-auto px-6 py-3 rounded-lg font-medium"
@@ -1345,7 +1345,7 @@ AI CAMP 교장에게 바로 문의하기
                 귀하의 기업이 현재 어느 단계에 있든, AI CAMP는 다음 성장을 위한 
                 최적의 로드맵을 제시합니다
               </p>
-              <Link href="/diagnosis">
+              <Link href="/ai-diagnosis">
                 <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.05] active:scale-[0.95] shadow-lg hover:shadow-xl text-white px-8 py-4 rounded-full font-medium relative overflow-hidden group">
                   <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                   <span className="relative flex items-center">
@@ -1413,7 +1413,7 @@ AI CAMP 교장에게 바로 문의하기
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                  <Link href="/diagnosis">
+                  <Link href="/ai-diagnosis">
                     {/* 개선된 AI역량진단 신청하기 버튼 */}
                     <Button 
                       className="btn-hero bg-white text-blue-600 hover:bg-gray-50 shadow-xl transform hover:scale-[1.05] active:scale-[0.95] transition-all duration-200 relative overflow-hidden group"
@@ -1431,7 +1431,7 @@ AI CAMP 교장에게 바로 문의하기
                         e.stopPropagation();
                         // 터치 종료 시 명시적으로 링크 이동
                         setTimeout(() => {
-                          window.location.href = '/diagnosis';
+                          window.location.href = '/ai-diagnosis';
                         }, 50);
                       }}
                       style={{

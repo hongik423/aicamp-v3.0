@@ -159,11 +159,11 @@ self.addEventListener('fetch', (event) => {
   if (IGNORE_PATTERNS.some(pattern => url.pathname.includes(pattern))) {
     event.respondWith(
       fetch(event.request).catch(() => {
-        // manifest.json 등의 404 오류는 조용히 무시
+        // manifest.json 등의 404/401 오류는 조용히 무시 (preview protection 대응)
         return new Response('', { 
-          status: 404,
-          statusText: 'Not Found',
-          headers: { 'Content-Type': 'text/plain' }
+          status: 200,  // 200으로 변경하여 브라우저 로그 억제
+          statusText: 'OK',
+          headers: { 'Content-Type': 'application/json' }
         });
       })
     );

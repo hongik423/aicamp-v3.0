@@ -1968,7 +1968,7 @@ export const retailServiceCases: SuccessCase[] = [
     companyName: '무신사 (직원 1,200명)',
     title: 'AI 기반 패션 트렌드 예측과 개인화 스타일링',
     description: '트렌드 예측 정확도 88%, 고객 만족도 94% 달성',
-    image: '/images/benchmark/86AI 기반 마케팅 캐페인 분석.png',
+    image: '/images/benchmark/86AI 기반 마케팅 캠페인 분석.png',
     icon: Heart,
     color: 'pink',
     results: {

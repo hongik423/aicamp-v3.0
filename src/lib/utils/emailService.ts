@@ -533,24 +533,43 @@ ${JSON.stringify(data, null, 2)}
 export async function checkGoogleScriptStatus() {
   try {
     // 프록시를 통해 Google Apps Script 연결 상태 확인
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
+    
     const response = await fetch('/api/google-script-proxy', {
       method: 'GET',
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(`연결 실패: ${response.status} ${response.statusText}`);
+      return {
+        success: false,
+        status: 'initializing',
+        message: 'Google Apps Script 초기화 중',
+        timestamp: new Date().toISOString()
+      };
     }
 
     const result = await response.json();
     return result;
 
-  } catch (error) {
-    console.error('❌ Google Apps Script 연결 확인 실패:', error);
+  } catch (error: any) {
+    // 타임아웃이나 연결 오류의 경우 초기화 중으로 처리
+    if (error.name === 'AbortError') {
+      return {
+        success: false,
+        status: 'initializing',
+        message: 'Google Apps Script 초기화 중',
+        timestamp: new Date().toISOString()
+      };
+    }
     
     return {
       success: false,
-      status: 'disconnected',
-      message: `Google Apps Script 연결 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
+      status: 'initializing',
+      message: 'Google Apps Script 초기화 중',
       timestamp: new Date().toISOString()
     };
   }

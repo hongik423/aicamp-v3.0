@@ -426,7 +426,7 @@ const AICampContentGuide: React.FC = () => {
                   transition={{ delay: 0.5 }}
                   className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-gray-200"
                 >
-                  <Link href="/diagnosis" className="flex-1">
+                  <Link href="/ai-diagnosis" className="flex-1">
                     <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2">
                       <Target className="w-5 h-5" />
                       <span>3분 AI 역량진단</span>
