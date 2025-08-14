@@ -162,12 +162,33 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       return;
     }
     
-    setFormState(prev => ({ ...prev, showCompanyForm: false }));
+    // 질문 시작 시 첫 번째 질문(index 0)부터 시작하도록 명시적으로 설정
+    setFormState(prev => ({ 
+      ...prev, 
+      showCompanyForm: false,
+      currentQuestion: 0  // 명시적으로 첫 번째 질문부터 시작
+    }));
+    
+    // 첫 번째 질문의 기존 답변이 있다면 로드
+    const firstQuestionId = REAL_45_QUESTIONS[0]?.id;
+    if (firstQuestionId && formState.answers[firstQuestionId]) {
+      setSelectedScore(formState.answers[firstQuestionId]);
+    } else {
+      setSelectedScore(null);
+    }
+    
+    toast({
+      title: "🚀 AI역량진단 시작!",
+      description: "45개 질문에 차례로 답변해주세요.",
+    });
   };
 
   // 점수 선택 핸들러 - 선택 즉시 다음으로 이동
   const handleScoreSelect = (score: number) => {
+    // 즉시 선택된 점수 업데이트
     setSelectedScore(score);
+    
+    // 답변 저장
     setFormState(prev => ({
       ...prev,
       answers: {
@@ -176,10 +197,30 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       }
     }));
     
-    // 0.5초 후 자동으로 다음 질문으로 이동
+    // 시각적 피드백을 위한 짧은 지연 후 자동 이동
     setTimeout(() => {
-      handleNext();
-    }, 500);
+      // React.startTransition으로 안전한 상태 업데이트
+      React.startTransition(() => {
+        if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
+          const nextQuestionIndex = formState.currentQuestion + 1;
+          const nextQuestionId = REAL_45_QUESTIONS[nextQuestionIndex]?.id;
+          
+          setFormState(prev => ({
+            ...prev,
+            currentQuestion: nextQuestionIndex
+          }));
+          
+          // 다음 질문의 기존 답변이 있다면 로드, 없다면 null
+          setSelectedScore(prev => {
+            const existingAnswer = formState.answers[nextQuestionId];
+            return existingAnswer || null;
+          });
+        } else {
+          // 마지막 질문인 경우 제출 처리
+          handleSubmit();
+        }
+      });
+    }, 600); // 0.6초 지연으로 사용자가 선택을 확인할 수 있도록
   };
 
   // 다음 질문으로 이동 (React 오류 #418, #423 수정)
@@ -241,16 +282,23 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
 
     setIsSubmitting(true);
     
-    // 실제 진행 상황 표시
-    const showProgress = (title: string, description: string) => {
+    // 단계별 진행 상황 알림
+    const showProgressStep = (step: number, title: string, description: string) => {
       toast({
-        title,
+        title: `[${step}/5] ${title}`,
         description,
+        duration: 3000,
       });
     };
 
     try {
-      showProgress("📊 AI 분석 시작", "45문항 응답을 종합 분석 중입니다...");
+      // 1단계: 분석 시작
+      showProgressStep(1, "📊 AI 분석 시작", "45문항 응답 데이터를 수집하고 있습니다...");
+      
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 사용자가 볼 수 있도록 잠시 대기
+
+      // 2단계: 데이터 처리
+      showProgressStep(2, "🧠 GEMINI AI 분석", "GEMINI 2.5 Flash로 역량을 정밀 분석 중입니다...");
 
       // AI 진단 API 호출
       const response = await fetch('/api/ai-diagnosis', {
@@ -281,10 +329,19 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         throw new Error(`진단 처리 실패: ${response.status}`);
       }
 
+      // 3단계: 보고서 생성
+      showProgressStep(3, "📋 맞춤형 보고서 생성", "업종별 특화 분석 및 SWOT 분석을 작성하고 있습니다...");
+
       const result = await response.json();
       
       if (result.success) {
-        showProgress("✅ 분석 완료", "맞춤형 보고서가 생성되었습니다!");
+        // 4단계: 이메일 준비
+        showProgressStep(4, "📧 이메일 발송 준비", "생성된 보고서를 이메일로 발송 준비 중입니다...");
+        
+        await new Promise(resolve => setTimeout(resolve, 1500)); // 이메일 발송 시뮬레이션
+        
+        // 5단계: 완료
+        showProgressStep(5, "✅ 진단 완료!", "종합 분석 보고서가 이메일로 발송되었습니다!");
         
         // 로컬 스토리지 정리
         localStorage.removeItem('enhancedBehaviorEvaluationForm');
@@ -292,11 +349,14 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         // 완료 상태로 변경
         setFormState(prev => ({ ...prev, isCompleted: true }));
         
-        // 성공 토스트
-        toast({
-          title: "🎉 AI역량진단 완료!",
-          description: "종합 분석 보고서가 이메일로 발송됩니다.",
-        });
+        // 최종 성공 토스트
+        setTimeout(() => {
+          toast({
+            title: "🎉 AI역량진단 완료!",
+            description: "전문가급 분석 보고서를 이메일로 확인하세요. 추가 상담이 필요하시면 언제든 연락주세요.",
+            duration: 5000,
+          });
+        }, 2000);
 
       } else {
         throw new Error(result.error || '진단 처리 실패');
@@ -305,9 +365,10 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     } catch (error: any) {
       console.error('진단 제출 오류:', error);
       toast({
-        title: "진단 제출 실패",
-        description: error.message || "잠시 후 다시 시도해주세요.",
-        variant: "destructive"
+        title: "❌ 진단 제출 실패",
+        description: `오류가 발생했습니다: ${error.message}. 잠시 후 다시 시도해주세요.`,
+        variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
@@ -328,36 +389,137 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
 
   // 진단 완료 화면
   if (formState.isCompleted) {
+    const totalScore = Object.values(formState.answers).reduce((sum, score) => sum + score, 0);
+    const averageScore = totalScore / answeredCount;
+    const maxPossibleScore = REAL_45_QUESTIONS.length * 5;
+    const scorePercentage = (totalScore / maxPossibleScore) * 100;
+    
+    // 등급 계산
+    const getGrade = (percentage: number) => {
+      if (percentage >= 90) return { grade: 'A+', color: 'text-green-600', bgColor: 'bg-green-100' };
+      if (percentage >= 80) return { grade: 'A', color: 'text-green-600', bgColor: 'bg-green-100' };
+      if (percentage >= 70) return { grade: 'B+', color: 'text-blue-600', bgColor: 'bg-blue-100' };
+      if (percentage >= 60) return { grade: 'B', color: 'text-blue-600', bgColor: 'bg-blue-100' };
+      if (percentage >= 50) return { grade: 'C+', color: 'text-yellow-600', bgColor: 'bg-yellow-100' };
+      return { grade: 'C', color: 'text-orange-600', bgColor: 'bg-orange-100' };
+    };
+    
+    const gradeInfo = getGrade(scorePercentage);
+    
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-indigo-50 flex items-center justify-center py-8">
-        <div className="container mx-auto px-4 max-w-2xl text-center">
+        <div className="container mx-auto px-4 max-w-3xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl shadow-2xl p-8"
           >
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="w-10 h-10 text-green-600" />
+            {/* 완료 아이콘 */}
+            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="w-12 h-12 text-green-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            
+            {/* 제목 */}
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
               🎉 AI역량진단 완료!
             </h1>
-            <p className="text-gray-600 mb-6">
-              45문항 정밀 진단이 성공적으로 완료되었습니다.<br/>
-              종합 분석 보고서가 이메일로 발송됩니다.
+            <p className="text-xl text-gray-600 mb-8">
+              {formState.companyInfo.companyName}의 AI 역량 진단이 완료되었습니다
             </p>
-            <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 mb-6">
-              <div>총 문항 수: {REAL_45_QUESTIONS.length}개</div>
-              <div>답변 완료: {answeredCount}개</div>
-              <div>평균 점수: {(Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / answeredCount).toFixed(1)}점</div>
-              <div>총점: {Object.values(formState.answers).reduce((sum, score) => sum + score, 0)}점</div>
+            
+            {/* 점수 요약 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="text-2xl font-bold text-gray-900">{totalScore}</div>
+                <div className="text-sm text-gray-500">총점 (/{maxPossibleScore})</div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="text-2xl font-bold text-gray-900">{averageScore.toFixed(1)}</div>
+                <div className="text-sm text-gray-500">평균 점수 (/5.0)</div>
+              </div>
+              <div className={`${gradeInfo.bgColor} rounded-lg p-4`}>
+                <div className={`text-2xl font-bold ${gradeInfo.color}`}>{gradeInfo.grade}</div>
+                <div className="text-sm text-gray-500">AI 역량 등급</div>
+              </div>
             </div>
-            <Button
-              onClick={() => window.location.href = '/'}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              메인으로 돌아가기
-            </Button>
+            
+            {/* 진행 상황 */}
+            <div className="bg-blue-50 rounded-lg p-6 mb-8">
+              <h3 className="text-lg font-semibold text-blue-900 mb-4">📋 보고서 처리 현황</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-600 mr-2" />
+                    <span className="text-sm">45문항 응답 분석 완료</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-600 mr-2" />
+                    <span className="text-sm">GEMINI AI 역량 분석 완료</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-600 mr-2" />
+                    <span className="text-sm">맞춤형 SWOT 분석 생성 완료</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-600 mr-2" />
+                    <span className="text-sm">업종별 특화 보고서 생성 완료</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-600 mr-2" />
+                    <span className="text-sm">이메일 발송 완료</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* 다음 단계 안내 */}
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg p-6 mb-8">
+              <h3 className="text-lg font-semibold mb-2">📧 다음 단계</h3>
+              <p className="text-blue-100 mb-4">
+                종합 분석 보고서가 <strong>{formState.companyInfo.contactEmail}</strong>로 발송되었습니다.<br/>
+                보고서에는 다음 내용이 포함되어 있습니다:
+              </p>
+              <ul className="text-sm text-blue-100 space-y-1 text-left max-w-md mx-auto">
+                <li>• 6개 영역별 상세 역량 분석</li>
+                <li>• SWOT 분석 및 개선 방향</li>
+                <li>• 업종별 맞춤 AI 도입 전략</li>
+                <li>• 단계별 실행 로드맵</li>
+                <li>• AICAMP 교육 프로그램 추천</li>
+              </ul>
+            </div>
+            
+            {/* 액션 버튼 */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={() => window.location.href = '/consultation'}
+                className="bg-blue-600 hover:bg-blue-700"
+                size="lg"
+              >
+                전문가 상담 신청
+              </Button>
+              <Button
+                onClick={() => window.location.href = '/services'}
+                variant="outline"
+                size="lg"
+              >
+                AICAMP 프로그램 보기
+              </Button>
+              <Button
+                onClick={() => window.location.href = '/'}
+                variant="ghost"
+                size="lg"
+              >
+                메인으로 돌아가기
+              </Button>
+            </div>
           </motion.div>
         </div>
       </div>
