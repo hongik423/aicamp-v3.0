@@ -19,6 +19,7 @@ interface CompanyInfo {
   contactEmail: string;
   contactPhone: string;
   industry: string;
+  industryCustom?: string;
   employeeCount: string;
   annualRevenue: string;
   location: string;
@@ -118,7 +119,8 @@ const Real45QuestionForm: React.FC = () => {
       contactPhone,
       industry, 
       employeeCount, 
-      location
+      location,
+      industryCustom
     } = formState.companyInfo;
     
     if (!companyName || !contactName || !contactEmail || !contactPhone || !industry || !employeeCount || !location.trim()) {
@@ -129,12 +131,22 @@ const Real45QuestionForm: React.FC = () => {
       });
       return;
     }
+
+    // 직접입력 선택시 내용 확인
+    if (industry === '직접입력' && !industryCustom?.trim()) {
+      toast({
+        title: "업종 직접입력 필요",
+        description: "업종을 직접 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setShowCompanyForm(false);
     setFormState(prev => ({ ...prev, currentQuestion: 0 }));
   };
 
-  // 답변 저장
+  // 답변 저장 (자동 진행 포함)
   const handleAnswer = (questionId: number, score: number) => {
     setFormState(prev => ({
       ...prev,
@@ -143,6 +155,16 @@ const Real45QuestionForm: React.FC = () => {
         [questionId]: score
       }
     }));
+
+    // 0.8초 후 자동으로 다음 질문으로 이동 (사용자 경험 개선)
+    setTimeout(() => {
+      if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
+        setFormState(prev => ({
+          ...prev,
+          currentQuestion: prev.currentQuestion + 1
+        }));
+      }
+    }, 800);
   };
 
   // 다음 질문
@@ -302,9 +324,30 @@ const Real45QuestionForm: React.FC = () => {
                       <option value="IT/소프트웨어">IT/소프트웨어</option>
                       <option value="금융업">금융업</option>
                       <option value="건설업">건설업</option>
-                      <option value="기타">기타</option>
+                      <option value="교육업">교육업</option>
+                      <option value="의료업">의료업</option>
+                      <option value="운송업">운송업</option>
+                      <option value="농업">농업</option>
+                      <option value="직접입력">직접입력</option>
                     </select>
                   </div>
+
+                  {/* 업종 직접입력 필드 */}
+                  {formState.companyInfo.industry === '직접입력' && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">업종 직접입력 *</label>
+                      <input
+                        type="text"
+                        value={formState.companyInfo.industryCustom || ''}
+                        onChange={(e) => setFormState(prev => ({
+                          ...prev,
+                          companyInfo: { ...prev.companyInfo, industryCustom: e.target.value }
+                        }))}
+                        className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        placeholder="업종을 직접 입력하세요"
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium mb-2">직원수 *</label>
@@ -338,21 +381,48 @@ const Real45QuestionForm: React.FC = () => {
                       aria-label="연매출 선택"
                     >
                       <option value="">연매출을 선택하세요</option>
-                      <option value="1억원 미만">1억원 미만</option>
-                      <option value="1억-10억원">1억-10억원</option>
-                      <option value="10억-100억원">10억-100억원</option>
-                      <option value="100억원 이상">100억원 이상</option>
+                      <option value="10억원 미만">10억원 미만</option>
+                      <option value="10억~20억원 미만">10억~20억원 미만</option>
+                      <option value="20억~50억원 미만">20억~50억원 미만</option>
+                      <option value="50억~100억원 미만">50억~100억원 미만</option>
+                      <option value="100억~300억원 미만">100억~300억원 미만</option>
+                      <option value="300억~500억원 미만">300억~500억원 미만</option>
+                      <option value="500억~1000억원 미만">500억~1000억원 미만</option>
+                      <option value="1000억원 이상">1000억원 이상</option>
                     </select>
                   </div>
 
-                  <AddressInput
-                    value={formState.companyInfo.location}
-                    onChange={handleAddressChange}
-                    label="주소"
-                    required={true}
-                    placeholder="예: 서울특별시 강남구 역삼동"
-                    className="w-full"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">소재지 (도/특별시/시) *</label>
+                    <select
+                      value={formState.companyInfo.location}
+                      onChange={(e) => setFormState(prev => ({
+                        ...prev,
+                        companyInfo: { ...prev.companyInfo, location: e.target.value }
+                      }))}
+                      className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      aria-label="소재지 선택"
+                    >
+                      <option value="">소재지를 선택하세요</option>
+                      <option value="서울특별시">서울특별시</option>
+                      <option value="부산광역시">부산광역시</option>
+                      <option value="대구광역시">대구광역시</option>
+                      <option value="인천광역시">인천광역시</option>
+                      <option value="광주광역시">광주광역시</option>
+                      <option value="대전광역시">대전광역시</option>
+                      <option value="울산광역시">울산광역시</option>
+                      <option value="세종특별자치시">세종특별자치시</option>
+                      <option value="경기도">경기도</option>
+                      <option value="강원특별자치도">강원특별자치도</option>
+                      <option value="충청북도">충청북도</option>
+                      <option value="충청남도">충청남도</option>
+                      <option value="전라북도">전라북도</option>
+                      <option value="전라남도">전라남도</option>
+                      <option value="경상북도">경상북도</option>
+                      <option value="경상남도">경상남도</option>
+                      <option value="제주특별자치도">제주특별자치도</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
