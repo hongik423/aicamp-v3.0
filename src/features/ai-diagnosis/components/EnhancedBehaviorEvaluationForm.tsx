@@ -85,26 +85,73 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     setIsHydrated(true);
   }, []);
 
-  // Hydration 완료 처리
+  // Hydration 완료 처리 - 새로운 진단은 항상 기본정보부터 시작
   useEffect(() => {
     if (isHydrated) {
-      // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
-      const savedData = localStorage.getItem('enhancedBehaviorEvaluationForm');
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          setFormState(parsedData);
-        } catch (error) {
-          console.error('로컬 스토리지 데이터 복원 실패:', error);
+      // URL에 특별한 파라미터가 있을 때만 이전 데이터 복원
+      const urlParams = new URLSearchParams(window.location.search);
+      const continueSession = urlParams.get('continue');
+      
+      if (continueSession === 'true') {
+        // 로컬 스토리지에서 데이터 복원 (continue=true 파라미터가 있을 때만)
+        const savedData = localStorage.getItem('enhancedBehaviorEvaluationForm');
+        if (savedData) {
+          try {
+            const parsedData = JSON.parse(savedData);
+            // 24시간 이내의 데이터만 복원
+            const saveTime = parsedData.saveTime || 0;
+            const now = Date.now();
+            const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+            
+            if (hoursDiff < 24) {
+              setFormState(parsedData);
+              toast({
+                title: "이전 진행 상황을 복원했습니다",
+                description: "이어서 진단을 진행해주세요.",
+                className: "border-purple-200 bg-purple-50 text-purple-900",
+              });
+            } else {
+              // 24시간이 지난 데이터는 삭제
+              localStorage.removeItem('enhancedBehaviorEvaluationForm');
+            }
+          } catch (error) {
+            console.error('로컬 스토리지 데이터 복원 실패:', error);
+            localStorage.removeItem('enhancedBehaviorEvaluationForm');
+          }
         }
+      } else {
+        // 새로운 진단 시작 - 기존 데이터 초기화
+        localStorage.removeItem('enhancedBehaviorEvaluationForm');
+        // 초기 상태 확실히 설정
+        setFormState({
+          companyInfo: {
+            companyName: '',
+            contactName: '',
+            contactEmail: '',
+            contactPhone: '',
+            industry: '',
+            employeeCount: '',
+            annualRevenue: '',
+            location: ''
+          },
+          answers: {},
+          currentQuestion: 0,
+          isCompleted: false,
+          showCompanyForm: true
+        });
       }
     }
   }, [isHydrated]);
 
   // 로컬 스토리지 저장 (Hydration 완료 후에만)
   useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(formState));
+    if (isHydrated && !formState.showCompanyForm) {
+      // 기본정보 입력 완료 후에만 저장 (진행 중인 상태만 저장)
+      const dataToSave = {
+        ...formState,
+        saveTime: Date.now() // 저장 시간 추가
+      };
+      localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(dataToSave));
     }
   }, [formState, isHydrated]);
 
@@ -833,12 +880,16 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
             <Button
               variant="ghost"
               onClick={() => {
-                localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(formState));
-                              toast({
-                title: "진행상황이 저장되었습니다",
-                description: "언제든 돌아와서 이어서 진행할 수 있습니다.",
-                className: "border-purple-200 bg-purple-50 text-purple-900",
-              });
+                const dataToSave = {
+                  ...formState,
+                  saveTime: Date.now()
+                };
+                localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(dataToSave));
+                toast({
+                  title: "진행상황이 저장되었습니다",
+                  description: "언제든 돌아와서 이어서 진행할 수 있습니다. (24시간 내 유효)",
+                  className: "border-purple-200 bg-purple-50 text-purple-900",
+                });
               }}
               className="flex items-center space-x-2"
             >
