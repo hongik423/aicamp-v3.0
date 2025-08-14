@@ -56,24 +56,9 @@ export default function DiagnosisResultPage() {
     const storedResult = sessionStorage.getItem('diagnosisResult');
     if (storedResult) {
       setResult(JSON.parse(storedResult));
-    }
-    setIsLoading(false);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">보고서를 불러오는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!result) {
-    // 더미 데이터로 테스트
-    result = {
+    } else {
+      // 세션 스토리지에 데이터가 없으면 더미 데이터 설정
+      setResult({
       totalScore: 68,
       grade: 'B',
       categoryScores: {
@@ -118,7 +103,30 @@ export default function DiagnosisResultPage() {
         }
       ],
       industryBenchmark: 75
-    };
+      });
+    }
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">보고서를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!result) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <p className="text-gray-600">보고서 데이터를 불러올 수 없습니다.</p>
+        </div>
+      </div>
+    );
   }
 
   const getGradeColor = (grade: string) => {
