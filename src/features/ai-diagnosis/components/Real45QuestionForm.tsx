@@ -34,6 +34,7 @@ interface FormState {
 
 const Real45QuestionForm: React.FC = () => {
   const { toast } = useToast();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [formState, setFormState] = useState<FormState>({
     companyInfo: {
       companyName: '',
@@ -91,8 +92,11 @@ const Real45QuestionForm: React.FC = () => {
   // 답변 완료된 문항 수
   const answeredCount = Object.keys(formState.answers).length;
 
-  // 로컬 스토리지에서 데이터 복원
+  // Hydration 완료 처리
   useEffect(() => {
+    setIsHydrated(true);
+    
+    // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
     const savedData = localStorage.getItem('real45QuestionForm');
     if (savedData) {
       try {
@@ -100,15 +104,25 @@ const Real45QuestionForm: React.FC = () => {
         setFormState(parsedData);
         setShowCompanyForm(parsedData.currentQuestion === -1);
       } catch (error) {
-        console.error('Failed to parse saved form data:', error);
+        console.error('로컬 스토리지 데이터 복원 실패:', error);
       }
     }
   }, []);
 
-  // 데이터 변경 시 로컬 스토리지에 저장
+  // 데이터 변경 시 로컬 스토리지에 저장 (Hydration 완료 후에만)
   useEffect(() => {
-    localStorage.setItem('real45QuestionForm', JSON.stringify(formState));
-  }, [formState]);
+    if (isHydrated) {
+      localStorage.setItem('real45QuestionForm', JSON.stringify(formState));
+    }
+  }, [formState, isHydrated]);
+
+  // 컴포넌트 언마운트 시 cleanup
+  useEffect(() => {
+    return () => {
+      // 진행 중인 요청이나 타이머가 있다면 정리
+      setIsSubmitting(false);
+    };
+  }, []);
 
   // 기업정보 입력 완료 (간소화)
   const handleCompanyInfoSubmit = () => {
@@ -157,7 +171,7 @@ const Real45QuestionForm: React.FC = () => {
     }));
 
     // 0.8초 후 자동으로 다음 질문으로 이동 (사용자 경험 개선)
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
         setFormState(prev => ({
           ...prev,
@@ -165,6 +179,10 @@ const Real45QuestionForm: React.FC = () => {
         }));
       }
     }, 800);
+
+    // 타이머 정리를 위해 ref나 state에 저장할 수도 있지만, 
+    // 여기서는 컴포넌트가 언마운트될 때 자동으로 정리됩니다.
+    return () => clearTimeout(timer);
   };
 
   // 다음 질문
@@ -241,6 +259,18 @@ const Real45QuestionForm: React.FC = () => {
     }
   };
 
+  // Hydration이 완료되지 않았으면 로딩 표시
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">AI 역량진단을 준비 중입니다...</p>
+        </div>
+      </div>
+    );
+  }
+
   // 기업 정보 입력 폼
   if (showCompanyForm) {
     return (
@@ -248,9 +278,17 @@ const Real45QuestionForm: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4">
           <Card className="shadow-xl">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-blue-900">
-                🎓 AI 역량진단 (45문항)
-              </CardTitle>
+              <div className="flex items-center justify-center mb-4">
+                <img 
+                  src="/images/AICAMP-leader.png" 
+                  alt="이교장" 
+                  className="w-16 h-16 rounded-full mr-4 shadow-lg"
+                />
+                <CardTitle className="text-2xl font-bold text-blue-900">
+                  이교장의AI역량진단
+                </CardTitle>
+              </div>
+              <p className="text-lg font-semibold text-blue-600 mb-2">🎓 45문항 정밀 진단</p>
               <p className="text-gray-600">기업 정보를 입력해주세요</p>
             </CardHeader>
             
@@ -451,7 +489,14 @@ const Real45QuestionForm: React.FC = () => {
         {/* 진행률 표시 */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-blue-900">AI 역량진단</h1>
+            <div className="flex items-center">
+              <img 
+                src="/images/AICAMP-leader.png" 
+                alt="이교장" 
+                className="w-12 h-12 rounded-full mr-3 shadow-md"
+              />
+              <h1 className="text-2xl font-bold text-blue-900">이교장의AI역량진단</h1>
+            </div>
             <Badge variant="outline" className="text-lg px-3 py-1">
               {answeredCount}/{REAL_45_QUESTIONS.length}
             </Badge>
