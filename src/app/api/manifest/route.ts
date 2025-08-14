@@ -35,7 +35,10 @@ export async function GET() {
   return NextResponse.json(manifest, {
     headers: {
       'Content-Type': 'application/manifest+json',
-      'Cache-Control': 'public, max-age=0, must-revalidate'
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
     }
   });
 }

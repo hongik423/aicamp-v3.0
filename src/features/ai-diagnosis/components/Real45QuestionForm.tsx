@@ -12,6 +12,7 @@ import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions'
 import { AddressInput } from '@/components/ui/address-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
+import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete';
 
 interface CompanyInfo {
   companyName: string;
@@ -30,6 +31,14 @@ interface FormState {
   answers: Record<number, number>; // questionId -> score
   currentQuestion: number;
   isCompleted: boolean;
+}
+
+interface DiagnosisResult {
+  success: boolean;
+  diagnosisId?: string;
+  totalScore?: number;
+  enhancedScores?: any;
+  error?: string;
 }
 
 const Real45QuestionForm: React.FC = () => {
@@ -53,6 +62,7 @@ const Real45QuestionForm: React.FC = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(true);
+  const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null);
 
   // 간단한 입력 핸들러들
   const handleAddressChange = (address: string) => {
@@ -236,16 +246,23 @@ const Real45QuestionForm: React.FC = () => {
 
       const result = await response.json();
       
-      toast({
-        title: "진단 완료!",
-        description: "진단 결과를 이메일로 발송했습니다.",
-        variant: "default"
-      });
+      if (result.success) {
+        // 진단 결과를 상태에 저장하여 완료 화면으로 전환
+        setDiagnosisResult(result);
+        
+        toast({
+          title: "진단 완료!",
+          description: "진단 결과를 확인하실 수 있습니다.",
+          variant: "default"
+        });
 
-      // 로컬 스토리지 정리
-      localStorage.removeItem('real45QuestionForm');
-      
-      setFormState(prev => ({ ...prev, isCompleted: true }));
+        // 로컬 스토리지 정리
+        localStorage.removeItem('real45QuestionForm');
+        
+        setFormState(prev => ({ ...prev, isCompleted: true }));
+      } else {
+        throw new Error(result.error || '진단 처리 중 오류가 발생했습니다.');
+      }
       
     } catch (error) {
       console.error('Submit error:', error);
@@ -258,6 +275,11 @@ const Real45QuestionForm: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  // 진단 완료 화면
+  if (diagnosisResult) {
+    return <EnhancedDiagnosisComplete result={diagnosisResult} />;
+  }
 
   // Hydration이 완료되지 않았으면 로딩 표시
   if (!isHydrated) {
@@ -280,7 +302,7 @@ const Real45QuestionForm: React.FC = () => {
             <CardHeader className="text-center">
               <div className="flex items-center justify-center mb-4">
                 <img 
-                  src="/images/AICAMP-leader.png" 
+                  src="/aicamp_leader.png" 
                   alt="이교장" 
                   className="w-16 h-16 rounded-full mr-4 shadow-lg"
                 />
@@ -491,7 +513,7 @@ const Real45QuestionForm: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
               <img 
-                src="/images/AICAMP-leader.png" 
+                src="/aicamp_leader.png" 
                 alt="이교장" 
                 className="w-12 h-12 rounded-full mr-3 shadow-md"
               />

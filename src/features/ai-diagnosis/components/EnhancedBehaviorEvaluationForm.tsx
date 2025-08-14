@@ -280,7 +280,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <img 
-                src="/images/AICAMP-leader.png" 
+                src="/images/aicamp_leader.png" 
                 alt="이교장" 
                 className="w-16 h-16 rounded-full mr-4 shadow-lg"
               />
@@ -484,7 +484,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/images/AICAMP-leader.png" 
+              src="/images/aicamp_leader.png" 
               alt="이교장" 
               className="w-20 h-20 rounded-full mr-4 shadow-lg"
             />
