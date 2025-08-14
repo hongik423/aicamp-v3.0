@@ -1,6 +1,10 @@
 /**
- * AI 역량진단 행동지표 기반 평가 시스템
- * 각 점수별 핵심 행동지표 키워드 정의
+ * ⚠️ DEPRECATED: 기존 일반적 행동지표 시스템
+ * 
+ * 🎯 새로운 BARS (Behaviorally Anchored Rating Scales) 시스템으로 교체됨
+ * @see bars-behavior-indicators.ts
+ * 
+ * 이 파일은 하위 호환성을 위해 유지되지만, 새로운 개발에서는 사용하지 말 것
  */
 
 export interface BehaviorIndicator {

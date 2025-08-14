@@ -115,7 +115,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
   const progress = ((formState.currentQuestion + 1) / REAL_45_QUESTIONS.length) * 100;
   const answeredCount = Object.keys(formState.answers).length;
 
-  // 점수 선택 핸들러
+  // 점수 선택 핸들러 - 선택 즉시 다음으로 이동
   const handleScoreSelect = (score: number) => {
     setSelectedScore(score);
     setFormState(prev => ({
@@ -125,6 +125,11 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         [currentQuestionData.id]: score
       }
     }));
+    
+    // 0.5초 후 자동으로 다음 질문으로 이동
+    setTimeout(() => {
+      handleNext();
+    }, 500);
   };
 
   // 다음 질문으로 이동
@@ -173,8 +178,19 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    
+    // 실제 진행 상황 표시
+    const showProgress = (title: string, description: string) => {
+      toast({
+        title,
+        description,
+      });
+    };
+    
     try {
-      // 진단 데이터 구성 (기존 API 호환 형태)
+      // 1단계: 데이터 준비
+      showProgress("📊 진단 데이터 준비 중...", "평가 결과를 분석하고 있습니다.");
+      
       const diagnosisData = {
         // 기업 정보
         companyName: formState.companyInfo.companyName,
@@ -196,6 +212,11 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         totalQuestions: REAL_45_QUESTIONS.length
       };
 
+      // 2단계: AI 분석
+      setTimeout(() => {
+        showProgress("🤖 AI 분석 진행 중...", "GEMINI AI가 맞춤형 보고서를 작성하고 있습니다.");
+      }, 1000);
+
       // API 호출
       const response = await fetch('/api/ai-diagnosis', {
         method: 'POST',
@@ -208,12 +229,24 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       const result = await response.json();
 
       if (result.success) {
-        toast({
-          title: "진단이 완료되었습니다!",
-          description: "결과가 이메일로 발송됩니다.",
-        });
-        setFormState(prev => ({ ...prev, isCompleted: true }));
+        // 3단계: 보고서 생성 완료
+        showProgress("✅ 보고서 생성 완료!", "맥킨지 스타일의 전문 보고서가 작성되었습니다.");
+        
+        // 4단계: 이메일 발송
+        setTimeout(() => {
+          showProgress("📧 이메일 발송 중...", "관리자와 신청자에게 보고서를 발송하고 있습니다.");
+        }, 500);
+        
+        // 로컬 스토리지 정리
         localStorage.removeItem('enhancedBehaviorEvaluationForm');
+        
+        // 5단계: 결과 페이지로 이동
+        setTimeout(() => {
+          // 결과 데이터를 세션 스토리지에 저장
+          sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
+          window.location.href = '/diagnosis/result';
+        }, 2000);
+        
       } else {
         throw new Error(result.error || '진단 처리 실패');
       }
@@ -592,6 +625,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                         isSelected={selectedScore === indicator.score}
                         onSelect={handleScoreSelect}
                         index={index}
+                        questionId={currentQuestionData.id}
                       />
                     ))}
                   </div>
@@ -668,14 +702,9 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                 <span>{isSubmitting ? '제출 중...' : '진단 완료'}</span>
               </Button>
             ) : (
-              <Button
-                onClick={handleNext}
-                disabled={selectedScore === null}
-                className="flex items-center space-x-2"
-              >
-                <span>다음</span>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+              <div className="text-sm text-gray-500 italic animate-pulse">
+                점수 선택 시 자동으로 다음 질문으로 이동합니다
+              </div>
             )}
           </div>
         </div>
