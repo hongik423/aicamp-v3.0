@@ -147,7 +147,8 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       toast({
         title: "필수 정보 누락",
         description: "필수 항목을 모두 입력해주세요.",
-        variant: "destructive"
+        variant: "destructive",
+        className: "border-orange-200 bg-orange-50 text-orange-900"
       });
       return;
     }
@@ -157,7 +158,8 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       toast({
         title: "업종 직접입력 필요", 
         description: "업종을 직접 입력해주세요.",
-        variant: "destructive"
+        variant: "destructive",
+        className: "border-orange-200 bg-orange-50 text-orange-900"
       });
       return;
     }
@@ -180,10 +182,11 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     toast({
       title: "🚀 AI역량진단 시작!",
       description: "45개 질문에 차례로 답변해주세요.",
+      className: "border-blue-200 bg-blue-50 text-blue-900",
     });
   };
 
-  // 점수 선택 핸들러 - 선택 즉시 다음으로 이동
+  // 점수 선택 핸들러 - 1회 클릭으로 즉시 다음으로 이동
   const handleScoreSelect = (score: number) => {
     // 즉시 선택된 점수 업데이트
     setSelectedScore(score);
@@ -197,7 +200,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       }
     }));
     
-    // 시각적 피드백을 위한 짧은 지연 후 자동 이동
+    // 시각적 피드백을 위한 짧은 지연 후 즉시 자동 이동 (0.3초로 단축)
     setTimeout(() => {
       // React.startTransition으로 안전한 상태 업데이트
       React.startTransition(() => {
@@ -220,7 +223,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           handleSubmit();
         }
       });
-    }, 600); // 0.6초 지연으로 사용자가 선택을 확인할 수 있도록
+    }, 300); // 0.3초로 단축하여 더 빠른 반응성 제공
   };
 
   // 다음 질문으로 이동 (React 오류 #418, #423 수정)
@@ -229,7 +232,8 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       toast({
         title: "점수를 선택해주세요",
         description: "질문에 대한 답변을 선택한 후 다음으로 진행할 수 있습니다.",
-        variant: "destructive"
+        variant: "destructive",
+        className: "border-yellow-200 bg-yellow-50 text-yellow-900"
       });
       return;
     }
@@ -275,19 +279,21 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       toast({
         title: "모든 질문에 답변해주세요",
         description: `${REAL_45_QUESTIONS.length - answeredCount}개 질문이 남아있습니다.`,
-        variant: "destructive"
+        variant: "destructive",
+        className: "border-yellow-200 bg-yellow-50 text-yellow-900"
       });
       return;
     }
 
     setIsSubmitting(true);
     
-    // 단계별 진행 상황 알림
+    // 단계별 진행 상황 알림 (AICAMP 브랜드 색상 적용)
     const showProgressStep = (step: number, title: string, description: string) => {
       toast({
         title: `[${step}/5] ${title}`,
         description,
         duration: 3000,
+        className: "border-indigo-200 bg-indigo-50 text-indigo-900",
       });
     };
 
@@ -349,12 +355,13 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         // 완료 상태로 변경
         setFormState(prev => ({ ...prev, isCompleted: true }));
         
-        // 최종 성공 토스트
+        // 최종 성공 토스트 (AICAMP 성공 색상 적용)
         setTimeout(() => {
           toast({
             title: "🎉 AI역량진단 완료!",
             description: "전문가급 분석 보고서를 이메일로 확인하세요. 추가 상담이 필요하시면 언제든 연락주세요.",
             duration: 5000,
+            className: "border-green-200 bg-green-50 text-green-900",
           });
         }, 2000);
 
@@ -369,6 +376,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         description: `오류가 발생했습니다: ${error.message}. 잠시 후 다시 시도해주세요.`,
         variant: "destructive",
         duration: 5000,
+        className: "border-red-200 bg-red-50 text-red-900",
       });
     } finally {
       setIsSubmitting(false);
@@ -826,10 +834,11 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
               variant="ghost"
               onClick={() => {
                 localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(formState));
-                toast({
-                  title: "진행상황이 저장되었습니다",
-                  description: "언제든 돌아와서 이어서 진행할 수 있습니다.",
-                });
+                              toast({
+                title: "진행상황이 저장되었습니다",
+                description: "언제든 돌아와서 이어서 진행할 수 있습니다.",
+                className: "border-purple-200 bg-purple-50 text-purple-900",
+              });
               }}
               className="flex items-center space-x-2"
             >
