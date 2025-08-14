@@ -288,7 +288,7 @@ const Real45QuestionForm: React.FC = () => {
                   이교장의AI역량진단
                 </CardTitle>
               </div>
-              <p className="text-lg font-semibold text-blue-600 mb-2">🎓 45문항 정밀 진단</p>
+              <p className="text-lg font-semibold text-blue-600 mb-2">45문항 정밀 진단</p>
               <p className="text-gray-600">기업 정보를 입력해주세요</p>
             </CardHeader>
             

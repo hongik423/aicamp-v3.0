@@ -289,7 +289,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
               </h1>
             </div>
             <h2 className="text-xl font-semibold text-blue-600 mb-2">
-              🏢 기업 정보 입력
+              기업 정보 입력
             </h2>
             <p className="text-gray-600">
               정확한 진단을 위해 기업 정보를 입력해주세요
@@ -493,7 +493,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
             </h1>
           </div>
           <h2 className="text-xl font-semibold text-blue-600 mb-2">
-            🧠 행동지표 기반 정밀 평가
+            행동지표 기반 정밀 평가
           </h2>
           <p className="text-gray-600">
             각 질문에 대해 현재 조직의 행동 수준을 정확히 평가해주세요
@@ -601,7 +601,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                         {getScoreBehaviorIndicator(selectedScore).label}
                       </span>
                       <span className="text-blue-600">
-                        → {getCategoryBehaviorIndicator(currentQuestionData.category, selectedScore)?.keyword}
+                        {getCategoryBehaviorIndicator(currentQuestionData.category, selectedScore)?.keyword}
                       </span>
                     </div>
                   </motion.div>

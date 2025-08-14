@@ -74,7 +74,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
                   ${isSelected ? `${indicator.color} border-current` : 'text-gray-600 border-gray-300'}
                 `}
               >
-                🎯 {categoryIndicator?.keyword || indicator.keyword}
+                {categoryIndicator?.keyword || indicator.keyword}
               </Badge>
             </div>
           </div>

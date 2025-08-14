@@ -61,7 +61,7 @@ export const BEHAVIOR_INDICATORS: BehaviorIndicator[] = [
 export const CATEGORY_BEHAVIOR_INDICATORS = {
   businessFoundation: {
     title: "비즈니스 기반",
-    icon: "🏗️",
+    icon: "",
     indicators: {
       5: { keyword: "AI 경영 혁신", description: "CEO가 AI를 핵심 경영전략으로 설정하고 전사 차원에서 디지털 트랜스포메이션을 주도하고 있습니다" },
       4: { keyword: "전략적 계획 수립", description: "AI 도입 로드맵과 예산이 확보되어 있으며 담당 조직이 명확히 구성되어 있습니다" },
@@ -72,7 +72,7 @@ export const CATEGORY_BEHAVIOR_INDICATORS = {
   },
   currentAI: {
     title: "현재 AI 활용",
-    icon: "🤖",
+    icon: "",
     indicators: {
       5: { keyword: "AI 업무 혁신", description: "ChatGPT, Claude 등 생성형 AI를 업무 전반에 활용하여 생산성을 크게 향상시키고 있습니다" },
       4: { keyword: "다양한 AI 도구 활용", description: "문서작성, 데이터 분석, 고객응대 등 여러 분야에서 AI 도구를 적극적으로 사용하고 있습니다" },
@@ -83,7 +83,7 @@ export const CATEGORY_BEHAVIOR_INDICATORS = {
   },
   organizationReadiness: {
     title: "조직 준비도",
-    icon: "🏢",
+    icon: "",
     indicators: {
       5: { keyword: "AI 조직문화 완성", description: "전 직원이 AI 도구를 능숙하게 사용하며, AI 교육 프로그램과 내부 전문가가 체계적으로 운영되고 있습니다" },
       4: { keyword: "적극적 학습 조직", description: "대부분 직원이 AI에 대한 관심이 높고 적극적으로 학습하며, 정기적인 교육이 이루어지고 있습니다" },
@@ -94,7 +94,7 @@ export const CATEGORY_BEHAVIOR_INDICATORS = {
   },
   techInfrastructure: {
     title: "기술 인프라",
-    icon: "💻",
+    icon: "",
     indicators: {
       5: { keyword: "클라우드 AI 플랫폼", description: "AWS, Azure, GCP 등 클라우드 AI 서비스를 활용하며 API 연동과 데이터 파이프라인이 구축되어 있습니다" },
       4: { keyword: "디지털 인프라 완비", description: "클라우드 기반 시스템과 충분한 컴퓨팅 파워, 안정적인 네트워크 환경을 갖추고 있습니다" },
@@ -105,7 +105,7 @@ export const CATEGORY_BEHAVIOR_INDICATORS = {
   },
   goalClarity: {
     title: "목표 명확성",
-    icon: "🎯",
+    icon: "",
     indicators: {
       5: { keyword: "SMART 목표 설정", description: "구체적이고 측정 가능한 AI 목표(매출 증대, 비용 절감, 효율성 향상 등)가 수치로 명확히 설정되어 있습니다" },
       4: { keyword: "체계적 목표 수립", description: "AI 도입을 통해 달성하고자 하는 목표가 명확하며 단계별 계획이 수립되어 있습니다" },
@@ -116,7 +116,7 @@ export const CATEGORY_BEHAVIOR_INDICATORS = {
   },
   executionCapability: {
     title: "실행 역량",
-    icon: "⚡",
+    icon: "",
     indicators: {
       5: { keyword: "혁신적 실행력", description: "새로운 기술이나 방법을 빠르게 도입하고 실행하는 조직 문화가 확립되어 있으며, 변화 관리 역량이 뛰어납니다" },
       4: { keyword: "체계적 실행력", description: "계획된 프로젝트를 체계적으로 실행하며, 문제 해결 능력과 추진력을 갖추고 있습니다" },
@@ -166,11 +166,11 @@ export const getScoreColor = (score: number): string => {
  */
 export const getScoreIcon = (score: number): string => {
   switch (score) {
-    case 5: return "🚀"; // 선도적
-    case 4: return "💪"; // 적극적
-    case 3: return "👍"; // 부분적
-    case 2: return "📋"; // 계획
-    case 1: return "⏳"; // 미실행
-    default: return "❓";
+    case 5: return "★"; // 선도적
+    case 4: return "●"; // 적극적
+    case 3: return "◐"; // 부분적
+    case 2: return "○"; // 계획
+    case 1: return "◯"; // 미실행
+    default: return "?";
   }
 };
