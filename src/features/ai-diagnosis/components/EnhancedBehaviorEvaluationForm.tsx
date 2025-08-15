@@ -25,7 +25,6 @@ import {
 import BehaviorIndicatorCard from './BehaviorIndicatorCard';
 import CategoryProgressIndicator from './CategoryProgressIndicator';
 import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
-import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
 
 interface CompanyInfo {
   companyName: string;
@@ -76,8 +75,6 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [progressOpen, setProgressOpen] = useState(false);
-  const [currentDiagnosisId, setCurrentDiagnosisId] = useState<string | null>(null);
   const [progressOpen, setProgressOpen] = useState(false);
   const [currentDiagnosisId, setCurrentDiagnosisId] = useState<string | null>(null);
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
