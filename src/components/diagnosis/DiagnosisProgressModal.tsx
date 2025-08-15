@@ -194,8 +194,8 @@ export default function DiagnosisProgressModal({
           const data = JSON.parse(e.data);
           setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed', endTime: s.endTime ?? Date.now() })));
           setTotalProgress(100);
-          banner.update('✅ 진단 보고서가 완성되어 이메일로 전송되었습니다.', {
-            subMessage: '이 창은 닫으셔도 됩니다. 이용해 주셔서 감사합니다.',
+          banner.update('✅ AI 역량진단이 완료되어 상세 보고서가 이메일로 발송되었습니다.', {
+            subMessage: '1차 접수확인 메일에 이어 2차 완성 보고서를 받으실 수 있습니다. 이용해 주셔서 감사합니다.',
             variant: 'success',
           });
           setTimeout(() => banner.hide(), 8000);

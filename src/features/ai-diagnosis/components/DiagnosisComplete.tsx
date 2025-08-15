@@ -55,7 +55,7 @@ const DiagnosisComplete: React.FC<DiagnosisCompleteProps> = ({ result }) => {
     {
       icon: <Mail className="w-6 h-6" />,
       title: "이메일 확인",
-      description: "입력하신 이메일로 상세 보고서가 발송되었습니다",
+      description: "1차 접수확인 메일을 확인하시고, 10-15분 후 2차 상세 보고서를 받으실 수 있습니다",
       action: "받은편지함 확인"
     },
     {
