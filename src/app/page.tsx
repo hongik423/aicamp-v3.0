@@ -375,6 +375,7 @@ export default function Home() {
                       src="/images/book_1_cover.JPG?v=3"
                       alt="AI 자동화의 끝판왕! n8n을 활용한 업무혁신 책표지"
                       fill
+                      sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, (max-width: 1024px) 256px, 288px"
                       style={{ objectFit: 'cover' }}
                       priority
                       className="group-hover:brightness-110 transition-all duration-300"
