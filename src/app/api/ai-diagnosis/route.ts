@@ -1177,6 +1177,14 @@ export async function POST(request: NextRequest) {
     console.log('📧 8-1단계: 접수확인 이메일 즉시 발송...');
     
     try {
+      // 동적 Base URL 계산 (개발/프리뷰/프로덕션 모두 동작)
+      const proto = request.headers.get('x-forwarded-proto') || 'http';
+      const host = request.headers.get('host');
+      const dynamicBase = (host ? `${proto}://${host}` : undefined)
+        || process.env.NEXT_PUBLIC_APP_URL
+        || process.env.NEXT_PUBLIC_BASE_URL
+        || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
       const confirmationEmailData = {
         contactName: data.contactName,
         contactEmail: data.contactEmail,
@@ -1189,7 +1197,7 @@ export async function POST(request: NextRequest) {
       };
 
       // 1차 접수확인 이메일 발송
-      const confirmationResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/google-script-proxy`, {
+      const confirmationResponse = await fetch(`${dynamicBase}/api/google-script-proxy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
