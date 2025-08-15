@@ -351,12 +351,16 @@ export function generateCompletionEmailTemplate(data: CompletionEmailData): stri
 /**
  * 📧 이메일 제목 생성
  */
-export function generateEmailSubjects(data: ConfirmationEmailData | CompletionEmailData, type: 'confirmation' | 'completion') {
+export function generateEmailSubjects(
+  data: ConfirmationEmailData | CompletionEmailData,
+  type: 'confirmation' | 'completion'
+) {
+  const brand = '이교장의AI역량진단보고서';
   if (type === 'confirmation') {
-    return `[AICAMP] ${data.companyName}님의 AI 역량진단 접수완료 - 분석 진행 중 (ID: ${data.diagnosisId})`;
+    return `[${brand}] ${data.companyName} 접수 완료 - 분석 진행 중 (ID: ${data.diagnosisId})`;
   } else {
     const completionData = data as CompletionEmailData;
-    return `[AICAMP] ${data.companyName}님의 AI 역량진단 완료 - 보고서 준비됨 (패스워드: ${completionData.reportPassword})`;
+    return `[${brand}] ${data.companyName} 결과보고서 준비 완료 (패스워드: ${completionData.reportPassword})`;
   }
 }
 

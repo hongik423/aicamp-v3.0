@@ -70,6 +70,8 @@ export function generateUltimateHTMLReport(data: UltimateReportData): string {
     investmentAnalysis
   } = data;
 
+  const behaviorSignals: string[] = (data as any).behaviorSignals || [];
+
   return `
 <!DOCTYPE html>
 <html lang="ko">
@@ -821,6 +823,13 @@ export function generateUltimateHTMLReport(data: UltimateReportData): string {
     <div class="executive-dashboard">
       <div class="section-number">01</div>
       <h2 class="section-title">Executive Intelligence Dashboard</h2>
+      ${behaviorSignals.length > 0 ? `
+      <div style="margin: 0 0 24px 0; padding: 16px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:12px">
+        <div style="font-weight:800;color:#334155;margin-bottom:8px">행동지표 핵심 시그널(제출 데이터 반영)</div>
+        <div style="font-size:0.95rem;color:#475569">
+          ${behaviorSignals.map(s => `<span style='display:inline-block;background:#e2e8f0;border-radius:16px;padding:6px 10px;margin:4px'>${s}</span>`).join('')}
+        </div>
+      </div>` : ''}
       
       <div class="dashboard-grid">
         <div class="insight-card">
