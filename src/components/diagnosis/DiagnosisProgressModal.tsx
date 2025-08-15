@@ -144,7 +144,9 @@ export default function DiagnosisProgressModal({
       banner.update('🔄 진단이 진행 중입니다. 보고서 생성 및 이메일 발송 준비 중...', {
         subMessage: '완료되면 이메일로 자동 발송됩니다. 창을 닫으셔도 됩니다.',
         variant: 'info',
-      });
+        progressPercent: 3,
+        stepLabel: '데이터 검증'
+      } as any);
     }
   }, [isOpen, startTime, banner]);
 
@@ -171,6 +173,14 @@ export default function DiagnosisProgressModal({
             return next;
           });
           setTotalProgress(Math.min(100, computeTotalProgressFromSteps(updated)));
+          // 배너 진행률/단계 업데이트
+          const current = updated.find((u) => u.status === 'in-progress') || updated.find((u) => u.status !== 'pending');
+          banner.update('🔄 AI 역량진단 진행 중', {
+            subMessage: snapshot?.events?.slice(-1)?.[0]?.message || 'GEMINI 분석 및 보고서 생성 중',
+            variant: 'info',
+            progressPercent: Math.min(100, computeTotalProgressFromSteps(updated)),
+            stepLabel: current?.name || '진행 중'
+          } as any);
           return updated;
         });
       };
@@ -197,7 +207,9 @@ export default function DiagnosisProgressModal({
           banner.update('✅ AI 역량진단이 완료되어 상세 보고서가 이메일로 발송되었습니다.', {
             subMessage: '1차 접수확인 메일에 이어 2차 완성 보고서를 받으실 수 있습니다. 이용해 주셔서 감사합니다.',
             variant: 'success',
-          });
+            progressPercent: 100,
+            stepLabel: '이메일 발송 완료'
+          } as any);
           setTimeout(() => banner.hide(), 8000);
           if (onComplete) onComplete({ success: true, diagnosisId, ...data });
         } catch {}
