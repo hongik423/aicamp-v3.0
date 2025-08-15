@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
-
-  
   // Service Worker 요청 처리
   if (pathname === '/sw.js') {
     const response = NextResponse.next();

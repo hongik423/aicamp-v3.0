@@ -1170,8 +1170,47 @@ export async function POST(request: NextRequest) {
     }
 
 
-    // 8단계: Google Apps Script 연동 및 이메일 발송
-    console.log('📧 8단계: Google Apps Script 연동 및 이메일 발송 중...');
+    // 8단계: 1차 이메일 발송 (접수확인) - 즉시 발송
+    console.log('📧 8-1단계: 접수확인 이메일 즉시 발송...');
+    
+    try {
+      const confirmationEmailData = {
+        contactName: data.contactName,
+        contactEmail: data.contactEmail,
+        companyName: data.companyName,
+        industry: data.industry,
+        employeeCount: data.employeeCount,
+        diagnosisId,
+        timestamp: new Date().toISOString(),
+        estimatedTime: '10-15분'
+      };
+
+      // 1차 접수확인 이메일 발송
+      const confirmationResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/google-script-proxy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send_confirmation_email',
+          emailData: confirmationEmailData
+        })
+      });
+
+      if (confirmationResponse.ok) {
+        console.log('✅ 1차 접수확인 이메일 발송 완료');
+        addProgressEvent({ 
+          diagnosisId, 
+          stepId: 'confirmation-email', 
+          status: 'completed', 
+          message: '접수확인 이메일이 발송되었습니다',
+          progressPercent: 85
+        });
+      }
+    } catch (confirmationError) {
+      console.warn('⚠️ 1차 접수확인 이메일 발송 실패:', confirmationError);
+    }
+
+    // 8-2단계: Google Apps Script 연동 및 2차 이메일 발송 준비
+    console.log('📧 8-2단계: 결과보고서 이메일 발송 중...');
 
     const reportPassword = Math.random().toString(36).substring(2, 8).toUpperCase();
     

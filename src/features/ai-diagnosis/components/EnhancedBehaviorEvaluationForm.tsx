@@ -535,10 +535,10 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         // 완료 상태로 변경
         setFormState(prev => ({ ...prev, isCompleted: true }));
         
-        // 최종 성공 토스트 (AICAMP 성공 색상 적용)
+        // 최종 성공 토스트 (2단계 이메일 시스템 안내)
         toast({
-          title: "🎉 AI역량진단 완료!",
-          description: `진단이 성공적으로 완료되었습니다. 진단ID: ${result.diagnosisId}. 약 10분 내외에 이메일로 상세한 보고서를 받으실 수 있습니다.`,
+          title: "🎉 AI역량진단 접수완료!",
+          description: `접수확인 이메일이 발송되었습니다. 진단ID: ${result.diagnosisId}. 10-15분 후 상세 보고서가 추가로 발송됩니다.`,
           duration: 8000,
           className: "border-green-200 bg-green-50 text-green-900",
         });
