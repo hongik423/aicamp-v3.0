@@ -81,6 +81,13 @@ NEXT_TELEMETRY_DISABLED=1
 
 ### 3. Google Apps Script 환경변수 설정
 
+#### 방법 1: 자동 설정 (권장) 🚀
+1. GAS 에디터에서 `docs/GAS-ENV-SETUP.gs` 파일 내용을 복사
+2. 새 스크립트 파일에 붙여넣기
+3. `setupEnvironmentVariables()` 함수 실행
+4. `checkEnvironmentVariables()` 함수로 확인
+
+#### 방법 2: 수동 설정 📝
 GAS 에디터에서 **설정 → 스크립트 속성**에 다음 환경변수를 설정하세요:
 
 ```
@@ -91,6 +98,15 @@ AICAMP_WEBSITE: aicamp.club
 DRIVE_FOLDER_ID: 1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj
 DEBUG_MODE: false
 ENVIRONMENT: production
+```
+
+#### 환경변수 설정 후 확인 ✅
+```javascript
+// GAS 에디터에서 실행
+function testEnvironment() {
+  const config = getEnvironmentConfig();
+  console.log('환경변수 로드 성공:', config.VERSION);
+}
 ```
 
 ## 🚀 환경변수 설정 방법
@@ -107,10 +123,26 @@ ENVIRONMENT: production
 4. 재배포 트리거
 
 ### Google Apps Script 환경
+
+#### 🚀 자동 설정 방법 (권장)
+1. **GAS 에디터** 열기 (script.google.com)
+2. **새 프로젝트** 생성
+3. `docs/GAS-ENV-SETUP.gs` 파일 내용을 복사하여 붙여넣기
+4. **실행** 버튼 클릭하여 `setupEnvironmentVariables()` 함수 실행
+5. 권한 승인 후 실행 완료
+6. `checkEnvironmentVariables()` 함수로 설정 확인
+
+#### 📝 수동 설정 방법
 1. GAS 에디터 열기
 2. 설정(⚙️) → 스크립트 속성
 3. 위의 환경변수들을 하나씩 추가
-4. 저장 및 배포
+4. `docs/Code.gs` 파일 내용을 메인 스크립트에 복사
+5. 저장 및 배포 → 새 배포 → 웹 앱으로 배포
+
+#### 🔧 배포 설정
+- **실행 권한**: 나
+- **액세스 권한**: 모든 사용자 (익명 포함)
+- **새 버전으로 배포** 선택
 
 ## ✅ 환경변수 검증
 
