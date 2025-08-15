@@ -575,7 +575,10 @@ async function callGoogleAppsScriptViaProxy(payload: any) {
   
   try {
     // 절대 URL로 변경하여 URL 파싱 오류 해결
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
     const proxyUrl = `${baseUrl}/api/google-script-proxy`;
     
     console.log('🔗 프록시 URL:', proxyUrl);
@@ -789,22 +792,22 @@ async function generateEnhancedHTMLReport(
         <div class="roadmap">
             <h2>추천 로드맵</h2>
             <div class="phase">
-                <div class="phase-title">${roadmap.phase1.title}</div>
-                <p><strong>주요 과제:</strong> ${roadmap.phase1.tasks.join(', ')}</p>
-                <p><strong>예상 투자:</strong> ${roadmap.phase1.budget}</p>
-                <p><strong>기대 효과:</strong> ${roadmap.phase1.expectedResults}</p>
+                <div class="phase-title">${aicampRoadmap?.phases?.phase1?.title || 'AI 역량 기반 구축'}</div>
+                <p><strong>주요 과제:</strong> ${(aicampRoadmap?.phases?.phase1?.tasks || []).join(', ')}</p>
+                <p><strong>예상 투자:</strong> ${aicampRoadmap?.phases?.phase1?.budget || '1,000-3,000만원'}</p>
+                <p><strong>기대 효과:</strong> ${aicampRoadmap?.phases?.phase1?.expectedResults || 'AI 수용도 30% 향상'}</p>
             </div>
             <div class="phase">
-                <div class="phase-title">${roadmap.phase2.title}</div>
-                <p><strong>주요 과제:</strong> ${roadmap.phase2.tasks.join(', ')}</p>
-                <p><strong>예상 투자:</strong> ${roadmap.phase2.budget}</p>
-                <p><strong>기대 효과:</strong> ${roadmap.phase2.expectedResults}</p>
+                <div class="phase-title">${aicampRoadmap?.phases?.phase2?.title || 'AI 활용 확산'}</div>
+                <p><strong>주요 과제:</strong> ${(aicampRoadmap?.phases?.phase2?.tasks || []).join(', ')}</p>
+                <p><strong>예상 투자:</strong> ${aicampRoadmap?.phases?.phase2?.budget || '3,000-5,000만원'}</p>
+                <p><strong>기대 효과:</strong> ${aicampRoadmap?.phases?.phase2?.expectedResults || '생산성 50% 향상'}</p>
             </div>
             <div class="phase">
-                <div class="phase-title">${roadmap.phase3.title}</div>
-                <p><strong>주요 과제:</strong> ${roadmap.phase3.tasks.join(', ')}</p>
-                <p><strong>예상 투자:</strong> ${roadmap.phase3.budget}</p>
-                <p><strong>기대 효과:</strong> ${roadmap.phase3.expectedResults}</p>
+                <div class="phase-title">${aicampRoadmap?.phases?.phase3?.title || '고몰입 조직 완성'}</div>
+                <p><strong>주요 과제:</strong> ${(aicampRoadmap?.phases?.phase3?.tasks || []).join(', ')}</p>
+                <p><strong>예상 투자:</strong> ${aicampRoadmap?.phases?.phase3?.budget || '5,000-1억원'}</p>
+                <p><strong>기대 효과:</strong> ${aicampRoadmap?.phases?.phase3?.expectedResults || '디지털 전환 완료'}</p>
             </div>
         </div>
 
