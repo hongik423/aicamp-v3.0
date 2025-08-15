@@ -19,16 +19,29 @@ interface PhoneInputProps {
 export function PhoneInput({
   value,
   onChange,
-  placeholder = "010-0000-0000",
+  placeholder = "숫자만 입력하세요 (예: 01012345678)",
   required = false,
   disabled = false,
   className,
   label = "전화번호",
   error
 }: PhoneInputProps) {
-  // 간단한 입력값 변경 처리
+  // 숫자만 입력되도록 처리하고 자동 하이픈 추가
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+    let newValue = e.target.value;
+    
+    // 숫자만 추출
+    const numbersOnly = newValue.replace(/[^\d]/g, '');
+    
+    // 자동 하이픈 추가 (010-1234-5678 형식)
+    if (numbersOnly.length <= 3) {
+      newValue = numbersOnly;
+    } else if (numbersOnly.length <= 7) {
+      newValue = `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3)}`;
+    } else {
+      newValue = `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3, 7)}-${numbersOnly.slice(7, 11)}`;
+    }
+    
     onChange(newValue);
   };
 

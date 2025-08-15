@@ -844,7 +844,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                       <PhoneInput
                         value={formState.companyInfo.contactPhone}
                         onChange={(value) => handleCompanyInfoChange('contactPhone', value)}
-                        placeholder="연락처를 입력하세요"
+                        placeholder="숫자만 입력하세요"
                         className="h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </div>
