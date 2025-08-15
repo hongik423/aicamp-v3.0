@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
+  // 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 - Manifest 401 오류 방지
+  console.log('📱 Manifest 요청 처리 중...');
+  
   try {
     // 인증 없이 공개적으로 접근 가능하도록 설정
     const manifest = {
@@ -39,6 +42,7 @@ export async function GET(request: NextRequest) {
       "id": "aicamp-ai-diagnosis"
     };
 
+    console.log('✅ Manifest 생성 성공');
     return new Response(JSON.stringify(manifest), {
       status: 200,
       headers: {
@@ -47,13 +51,14 @@ export async function GET(request: NextRequest) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': '*',
-        'Access-Control-Max-Age': '86400'
+        'Access-Control-Max-Age': '86400',
+        'X-Error-Shield': 'active' // 🛡️ 오류 차단 시스템 활성화 표시
       }
     });
   } catch (error) {
-    console.error('Manifest 생성 오류:', error);
+    console.error('🛡️ Manifest 생성 오류 차단:', error);
     
-    // 오류 발생 시에도 기본 manifest 반환
+    // 🛡️ 오류 발생 시에도 기본 manifest 반환 (401 오류 방지)
     const fallbackManifest = {
       "name": "AI역량진단",
       "short_name": "AI진단",
@@ -64,11 +69,12 @@ export async function GET(request: NextRequest) {
     };
 
     return new Response(JSON.stringify(fallbackManifest), {
-      status: 200,
+      status: 200, // 🛡️ 항상 200 상태 반환하여 401 오류 방지
       headers: {
         'Content-Type': 'application/manifest+json',
         'Cache-Control': 'no-cache',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'X-Error-Shield': 'fallback-active' // 🛡️ 폴백 활성화 표시
       }
     });
   }
