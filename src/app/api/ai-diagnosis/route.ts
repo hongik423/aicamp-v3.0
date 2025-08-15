@@ -944,6 +944,20 @@ export async function POST(request: NextRequest) {
     // 진단 ID 생성
     const diagnosisId = `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
+    // 8단계: 행동지표 기반 맞춤형 보고서 생성
+    progressMonitor.startStep(sessionId, 'behavior_report', '선택하신 행동지표를 상세 분석하여 맞춤형 보고서를 생성하고 있습니다');
+    console.log('📝 8단계: 행동지표 기반 보고서 생성 중...');
+    
+    let behaviorBasedReport: BehaviorBasedReport | null = null;
+    try {
+      behaviorBasedReport = generateBehaviorBasedReport(data, REAL_45_QUESTIONS);
+      console.log(`✅ 행동지표 기반 보고서 생성 완료: ${behaviorBasedReport.overallAnalysis.strongAreas.length}개 강점, ${behaviorBasedReport.overallAnalysis.improvementAreas.length}개 개선영역`);
+      progressMonitor.completeStep(sessionId, 'behavior_report', `행동지표 분석 완료: ${behaviorBasedReport.overallAnalysis.strongAreas.length}개 강점 영역 식별`);
+    } catch (behaviorError) {
+      console.warn('⚠️ 행동지표 보고서 생성 실패:', behaviorError.message);
+      progressMonitor.errorStep(sessionId, 'behavior_report', '행동지표 분석 중 오류 발생, 기본 분석으로 진행');
+    }
+    
     // 9단계: 완벽한 품질 시스템 - 100점 달성 모드
     console.log('🎯 9단계: 완벽한 품질 시스템 시작 - 100점 달성 모드');
     const perfectQualitySystem = PerfectQualitySystem.getInstance();
@@ -957,6 +971,15 @@ export async function POST(request: NextRequest) {
     let htmlReport = '';
     try {
       htmlReport = await generateEnhancedHTMLReport(data, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, aicampRoadmap, aiAnalysis);
+      
+      // 행동지표 기반 보고서가 있으면 HTML에 추가
+      if (behaviorBasedReport) {
+        const behaviorReportHTML = generateBehaviorReportHTML(behaviorBasedReport);
+        // HTML 보고서의 </body> 태그 직전에 행동지표 보고서 삽입
+        htmlReport = htmlReport.replace('</body>', `${behaviorReportHTML}</body>`);
+        console.log('✅ 행동지표 기반 분석이 HTML 보고서에 통합되었습니다');
+      }
+      
       console.log('✅ HTML 보고서 생성 완료');
     } catch (htmlError) {
       console.warn('⚠️ HTML 보고서 생성 실패, 기본 보고서로 대체:', htmlError.message);
