@@ -44,7 +44,8 @@ function getEnvironmentConfig() {
   const scriptProperties = PropertiesService.getScriptProperties();
   
   // 필수 환경변수 확인
-  const requiredVars = ['SPREADSHEET_ID', 'GEMINI_API_KEY', 'ADMIN_EMAIL', 'DRIVE_FOLDER_ID'];
+  // DRIVE_FOLDER_ID는 없을 수 있으므로 필수에서 제외 (폴백 로직에서 자동 생성/등록)
+  const requiredVars = ['SPREADSHEET_ID', 'GEMINI_API_KEY', 'ADMIN_EMAIL'];
   const missing = [];
   
   requiredVars.forEach(varName => {
@@ -1030,6 +1031,9 @@ function generateConfirmationEmailTemplateV2(data) {
       <h1>🎉 AI 역량진단 접수완료</h1>
       <p>고품질 맞춤형 분석을 위해 전문 AI가 작업을 시작했습니다</p>
     </div>
+    <div style="padding: 0 30px 10px 30px;">
+      <img src="https://aicamp.club/images/aicamp_logo_del_250726.png" alt="AICAMP" style="width:120px;height:auto;display:block;opacity:0.95;" />
+    </div>
     
     <div class="content">
       <div class="status-badge">✅ 접수 완료</div>
@@ -1863,8 +1867,30 @@ function saveReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData) {
   const config = getEnvironmentConfig();
   
   try {
-    // Google Drive 폴더 가져오기
-    const folder = DriveApp.getFolderById(config.DRIVE_FOLDER_ID);
+    // Google Drive 폴더 가져오기 (ID 우선, 실패 시 이름으로 폴백 생성)
+    let folder;
+    try {
+      folder = DriveApp.getFolderById(config.DRIVE_FOLDER_ID);
+    } catch (e) {
+      console.warn('⚠️ DRIVE_FOLDER_ID로 폴더 조회 실패, 이름 기반 폴백 시도: AICAMP_REPORTS');
+      let targetFolder = null;
+      const folders = DriveApp.getFoldersByName('AICAMP_REPORTS');
+      if (folders.hasNext()) {
+        targetFolder = folders.next();
+      } else {
+        console.log('📁 AICAMP_REPORTS 폴더가 없어 새로 생성합니다');
+        targetFolder = DriveApp.createFolder('AICAMP_REPORTS');
+      }
+      folder = targetFolder;
+      // 스크립트 속성에 폴더 ID를 저장하여 이후부터는 ID로 접근
+      try {
+        const props = PropertiesService.getScriptProperties();
+        props.setProperty('DRIVE_FOLDER_ID', folder.getId());
+        console.log('🔗 DRIVE_FOLDER_ID 업데이트 완료:', folder.getId());
+      } catch (propErr) {
+        console.warn('⚠️ DRIVE_FOLDER_ID 저장 실패(무시 가능):', propErr);
+      }
+    }
     
     // HTML 콘텐츠 준비
     const htmlContent = htmlReport.html || htmlReport;

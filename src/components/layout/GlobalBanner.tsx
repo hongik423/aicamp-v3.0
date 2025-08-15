@@ -3,6 +3,7 @@
 import React from 'react';
 import { useBannerStore } from '@/lib/stores/bannerStore';
 import { AlertCircle, CheckCircle2, Info, Loader2, Mail } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 const variantStyles: Record<string, string> = {
   info: 'from-blue-600 to-indigo-600 border-blue-500',
@@ -19,7 +20,7 @@ const variantIcon: Record<string, React.ReactNode> = {
 };
 
 export default function GlobalBanner() {
-  const { isVisible, message, subMessage, variant } = useBannerStore();
+  const { isVisible, message, subMessage, variant, progressPercent, stepLabel } = useBannerStore();
 
   if (!isVisible) return null;
 
@@ -45,10 +46,19 @@ export default function GlobalBanner() {
             {subMessage && (
               <p className={`text-xs sm:text-sm mt-0.5 ${subMessageTextClass} drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]`}>{subMessage}</p>
             )}
+            {typeof progressPercent === 'number' && (
+              <div className="mt-2">
+                <div className="flex items-center justify-between text-[10px] sm:text-xs opacity-90 mb-1">
+                  <span>{stepLabel || '진행 중'}</span>
+                  <span>{Math.round(progressPercent)}%</span>
+                </div>
+                <Progress value={progressPercent} className="h-1.5" />
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm opacity-90">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>진행 중</span>
+            <span>{typeof progressPercent === 'number' ? `${Math.round(progressPercent)}%` : '진행 중'}</span>
             <Mail className="w-4 h-4" />
           </div>
         </div>

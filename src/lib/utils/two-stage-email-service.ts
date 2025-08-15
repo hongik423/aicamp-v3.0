@@ -39,227 +39,75 @@ export function generateConfirmationEmailTemplate(data: ConfirmationEmailData): 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI 역량진단 접수확인</title>
   <style>
-    body { 
-      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; 
-      line-height: 1.6; 
-      color: #333; 
-      margin: 0; 
-      padding: 0; 
-      background-color: #f8fafc;
-    }
-    .container { 
-      max-width: 600px; 
-      margin: 0 auto; 
-      background-color: #ffffff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .header { 
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-      color: white; 
-      padding: 40px 30px; 
-      text-align: center; 
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-    .header p {
-      margin: 10px 0 0 0;
-      font-size: 16px;
-      opacity: 0.9;
-    }
-    .content { 
-      padding: 40px 30px; 
-    }
-    .status-badge {
-      display: inline-block;
-      background-color: #10b981;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-    .info-box {
-      background-color: #f0f9ff;
-      border: 1px solid #0ea5e9;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 20px 0;
-    }
-    .info-box h3 {
-      margin: 0 0 15px 0;
-      color: #0369a1;
-      font-size: 18px;
-    }
-    .info-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #e0f2fe;
-    }
-    .info-item:last-child {
-      border-bottom: none;
-    }
-    .info-label {
-      font-weight: 600;
-      color: #374151;
-    }
-    .info-value {
-      color: #1f2937;
-    }
-    .timeline {
-      background-color: #fef7ff;
-      border: 1px solid #d946ef;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 20px 0;
-    }
-    .timeline h3 {
-      margin: 0 0 15px 0;
-      color: #a21caf;
-      font-size: 18px;
-    }
-    .timeline-item {
-      display: flex;
-      align-items: center;
-      margin: 10px 0;
-    }
-    .timeline-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      margin-right: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .timeline-icon.completed {
-      background-color: #10b981;
-      color: white;
-    }
-    .timeline-icon.processing {
-      background-color: #f59e0b;
-      color: white;
-    }
-    .timeline-icon.pending {
-      background-color: #e5e7eb;
-      color: #6b7280;
-    }
-    .footer { 
-      background-color: #f8fafc;
-      text-align: center; 
-      padding: 30px; 
-      color: #6b7280; 
-      font-size: 14px; 
-    }
-    .contact-info {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #e5e7eb;
-    }
-    .highlight {
-      background-color: #fef3c7;
-      border-left: 4px solid #f59e0b;
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 0 8px 8px 0;
-    }
-    .highlight strong {
-      color: #92400e;
-    }
+    /* Apple Mail / App Store 스타일의 미니멀 & 직관적 디자인 */
+    body { margin:0; padding:0; background:#f6f7f9; color:#111827; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif; }
+    .container { max-width: 680px; margin: 0 auto; background:#fff; border-radius: 16px; overflow:hidden; box-shadow: 0 8px 28px rgba(0,0,0,0.08); }
+    .header { padding: 32px 28px; display:flex; align-items:center; gap:12px; border-bottom:1px solid #eef2f7; }
+    .badge { width: 36px; height:36px; border-radius:8px; background: linear-gradient(135deg, #2563eb, #3b82f6); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; }
+    .title { font-size:20px; font-weight:800; letter-spacing:-0.2px; color:#0f172a; }
+    .subtitle { font-size:13px; color:#475569; margin-top:2px; }
+    .content { padding: 28px; }
+    .status { background:#f0f9ff; border:1px solid #bae6fd; padding:12px 14px; border-radius: 12px; color:#0c4a6e; font-weight:600; font-size:13px; display:inline-flex; align-items:center; gap:8px; }
+    .kv { margin-top:20px; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+    .kv-row { display:flex; justify-content:space-between; padding:12px 14px; font-size:14px; }
+    .kv-row:nth-child(odd){ background:#fafafa; }
+    .kv-key { color:#6b7280; font-weight:600; }
+    .kv-val { color:#111827; font-weight:600; }
+    .hint { margin-top:20px; background:#fff7ed; border:1px solid #fed7aa; color:#7c2d12; padding:14px; border-radius:12px; font-size:13px; }
+    .timeline { margin-top:20px; border:1px solid #e5e7eb; border-radius:12px; }
+    .timeline-title { padding:12px 14px; font-weight:700; font-size:14px; color:#0f172a; border-bottom:1px solid #eef2f7; }
+    .timeline-item { display:flex; align-items:center; gap:10px; padding:10px 14px; font-size:13px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:#94a3b8; }
+    .dot.ok { background:#22c55e; }
+    .dot.go { background:#f59e0b; }
+    .footer { padding: 20px 28px; background:#f8fafc; color:#6b7280; font-size:12px; border-top:1px solid #eef2f7; }
+    a { color:#2563eb; text-decoration:none; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎉 AI 역량진단 접수완료</h1>
-      <p>고품질 맞춤형 분석을 위해 전문 AI가 작업을 시작했습니다</p>
+      <div class="badge">AI</div>
+      <div>
+        <div class="title">AI 역량진단 접수완료</div>
+        <div class="subtitle">맞춤형 분석이 바로 시작되었습니다</div>
+      </div>
+    </div>
+    <div style="padding: 0 28px 6px 28px;">
+      <img src="${(typeof window==='undefined'?'https://aicamp.club':'')}/images/aicamp_logo_del_250726.png" alt="AICAMP" style="width:120px;height:auto;display:block;opacity:0.95;" />
     </div>
     
     <div class="content">
-      <div class="status-badge">✅ 접수 완료</div>
-      
-      <p>안녕하세요, <strong>${data.contactName}</strong>님!</p>
-      <p><strong>${data.companyName}</strong>의 AI 역량진단 신청이 성공적으로 접수되었습니다.</p>
-      
-      <div class="info-box">
-        <h3>📋 접수 정보</h3>
-        <div class="info-item">
-          <span class="info-label">회사명</span>
-          <span class="info-value">${data.companyName}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">업종</span>
-          <span class="info-value">${data.industry}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">직원 수</span>
-          <span class="info-value">${data.employeeCount}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">진단 ID</span>
-          <span class="info-value">${data.diagnosisId}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">접수 시간</span>
-          <span class="info-value">${new Date(data.timestamp).toLocaleString('ko-KR')}</span>
-        </div>
+      <div class="status">✅ 접수 완료 • 분석 대기열 등록됨</div>
+
+      <div class="kv">
+        <div class="kv-row"><div class="kv-key">회사명</div><div class="kv-val">${data.companyName}</div></div>
+        <div class="kv-row"><div class="kv-key">담당자</div><div class="kv-val">${data.contactName}</div></div>
+        <div class="kv-row"><div class="kv-key">업종</div><div class="kv-val">${data.industry}</div></div>
+        <div class="kv-row"><div class="kv-key">직원 수</div><div class="kv-val">${data.employeeCount}</div></div>
+        <div class="kv-row"><div class="kv-key">진단 ID</div><div class="kv-val">${data.diagnosisId}</div></div>
+        <div class="kv-row"><div class="kv-key">접수 시간</div><div class="kv-val">${new Date(data.timestamp).toLocaleString('ko-KR')}</div></div>
+      </div>
+
+      <div class="hint">
+        ⏰ 예상 처리 시간: <strong>${data.estimatedTime}</strong><br/>
+        고품질 분석을 위해 GEMINI 2.5 Flash가 정밀 작업을 수행합니다. 완료 즉시 결과를 이메일로 보내드립니다.
       </div>
 
       <div class="timeline">
-        <h3>🔄 진행 상황</h3>
-        <div class="timeline-item">
-          <div class="timeline-icon completed">✓</div>
-          <span>진단 신청 접수 완료</span>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-icon processing">⏳</div>
-          <span>GEMINI 2.5 AI 심층 분석 진행 중</span>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-icon pending">📊</div>
-          <span>맞춤형 보고서 생성 대기 중</span>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-icon pending">📧</div>
-          <span>완성된 보고서 이메일 발송 예정</span>
-        </div>
+        <div class="timeline-title">진행 단계</div>
+        <div class="timeline-item"><div class="dot ok"></div><div>접수 완료</div></div>
+        <div class="timeline-item"><div class="dot go"></div><div>AI 심층 분석 중</div></div>
+        <div class="timeline-item"><div class="dot"></div><div>맞춤형 보고서 생성</div></div>
+        <div class="timeline-item"><div class="dot"></div><div>보고서 이메일 발송</div></div>
       </div>
-
-      <div class="highlight">
-        <strong>⏰ 예상 완료 시간: ${data.estimatedTime}</strong><br/>
-        고품질 맞춤형 분석을 위해 GEMINI 2.5 Flash AI가 귀하의 데이터를 심층 분석하고 있습니다.
-        완료되는 즉시 상세한 진단 보고서를 이메일로 보내드리겠습니다.
-      </div>
-
-      <p>분석이 완료되면 다음과 같은 내용이 포함된 상세 보고서를 받으실 수 있습니다:</p>
-      <ul>
-        <li>🎯 <strong>AI 역량 종합 점수</strong> - 6개 핵심 영역별 상세 평가</li>
-        <li>📈 <strong>SWOT 분석</strong> - 강점, 약점, 기회, 위협 요소</li>
-        <li>🛣️ <strong>AI 도입 로드맵</strong> - 단계별 실행 계획</li>
-        <li>💡 <strong>맞춤형 개선 방안</strong> - 업종별 특화 솔루션</li>
-        <li>📊 <strong>ROI 예측</strong> - 투자 대비 효과 분석</li>
-      </ul>
     </div>
     
     <div class="footer">
       <div class="contact-info">
-        <strong>AICAMP 고객지원센터</strong><br/>
-        📧 이메일: hongik423@gmail.com<br/>
-        🌐 웹사이트: <a href="https://aicamp.club" style="color: #3b82f6;">aicamp.club</a><br/>
-        📞 문의사항이 있으시면 언제든지 연락해 주세요.
+        AICAMP 고객지원센터 · 이메일: hongik423@gmail.com · 웹사이트: <a href="https://aicamp.club">aicamp.club</a>
       </div>
-      <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
-        본 메일은 AI 역량진단 신청자에게만 발송되는 자동 발송 메일입니다.<br/>
-        © 2024 AICAMP. All rights reserved.
-      </p>
+      <div style="margin-top: 12px; color:#9ca3af;">본 메일은 신청자에게만 발송되는 자동 알림입니다. © 2024 AICAMP</div>
     </div>
   </div>
 </body>
