@@ -905,7 +905,7 @@ function generateRoadmap(data: McKinseyReportData): string {
         <div class="roadmap-phase" data-phase="1단계">
           <div class="roadmap-title">🚀 AI 기초 역량 구축 (1-2개월)</div>
           <div class="roadmap-meta">
-            <span>💰 투자: 500만원</span>
+            <span>💰 투자: TBD (진단 후 맞춤 제안)</span>
             <span>👥 대상: 전 직원</span>
             <span>🎯 목표: AI 리터러시 확보</span>
           </div>
@@ -921,7 +921,7 @@ function generateRoadmap(data: McKinseyReportData): string {
         <div class="roadmap-phase" data-phase="2단계">
           <div class="roadmap-title">⚡ 업무 자동화 고도화 (3-4개월)</div>
           <div class="roadmap-meta">
-            <span>💰 투자: 1,200만원</span>
+            <span>💰 투자: TBD (진단 후 맞춤 제안)</span>
             <span>👥 대상: 핵심 인력</span>
             <span>🎯 목표: 업무 효율성 300% 향상</span>
           </div>
@@ -937,7 +937,7 @@ function generateRoadmap(data: McKinseyReportData): string {
         <div class="roadmap-phase" data-phase="3단계">
           <div class="roadmap-title">🎯 AI 전문 조직 완성 (5-6개월)</div>
           <div class="roadmap-meta">
-            <span>💰 투자: 2,000만원</span>
+            <span>💰 투자: TBD (진단 후 맞춤 제안)</span>
             <span>👥 대상: 경영진 + 리더</span>
             <span>🎯 목표: AI 기반 의사결정 체계 구축</span>
           </div>

@@ -33,7 +33,7 @@ import {
   Send,
   Loader2
 } from 'lucide-react';
-import { processConsultationSubmission, submitConsultationToGoogle } from '@/lib/utils/emailService';
+// 상담 신청은 API 엔드포인트를 통해 처리됩니다.
 import { useToast } from '@/hooks/use-toast';
 
 interface ConsultationRequestModalProps {
@@ -156,14 +156,16 @@ export default function ConsultationRequestModal({
 
       try {
         // 동적 import로 구글시트 서비스 사용
-        const { saveConsultationToGoogleSheets } = await import('@/lib/utils/googleSheetsService');
+        // Google Sheets 저장은 GAS 프록시를 통해 처리됩니다.
         
-        const sheetResult = await saveConsultationToGoogleSheets(consultationData, {
-          isLinked: !!diagnosisData,
-          score: diagnosisData?.overallScore?.toString(),
-          primaryService: diagnosisData?.primaryService,
-          resultUrl: window.location.href
+        // 상담 신청은 /api/consultation 엔드포인트를 통해 처리됩니다.
+        const response = await fetch('/api/consultation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(consultationData)
         });
+        
+        const sheetResult = await response.json();
         
         console.log('📋 구글시트 저장 결과:', sheetResult);
         

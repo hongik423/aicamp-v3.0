@@ -37,6 +37,7 @@ export default function ConsultationPage() {
   const [isOnline, setIsOnline] = useState(true);
   const [submitAttempts, setSubmitAttempts] = useState(0);
   const { toast } = useToast();
+  const [persistentNoticeOpen, setPersistentNoticeOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     consultationType: '',
@@ -89,11 +90,12 @@ export default function ConsultationPage() {
 
     setIsSubmitting(true);
     setSubmitAttempts(prev => prev + 1);
+    setPersistentNoticeOpen(true);
 
     toast({
       title: "상담 신청 처리 중...",
-      description: "잠시만 기다려 주세요.",
-      duration: 2000,
+      description: "완료 및 이메일 발송까지 안내를 유지합니다.",
+      duration: 4000,
     });
 
     try {
@@ -151,7 +153,7 @@ export default function ConsultationPage() {
         문의내용: consultationData.inquiryContent || '',
         희망상담시간: consultationData.preferredTime || '',
         개인정보동의: consultationData.privacyConsent === true ? '동의' : '미동의',
-        action: 'saveConsultation',
+        action: 'consultation',
         dataSource: '웹사이트_상담신청',
         timestamp: Date.now()
       };
@@ -160,7 +162,7 @@ export default function ConsultationPage() {
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
+        const timeoutId = setTimeout(() => controller.abort(), 600000); // 10분까지 대기 (프록시가 13.3분 처리)
 
         const response = await fetch(proxyUrl, {
           method: 'POST',
@@ -177,17 +179,19 @@ export default function ConsultationPage() {
         if (response.ok) {
           const responseText = await response.text();
           console.log('Google Apps Script 응답:', responseText);
-          
+          let parsed: any = null;
+          try { parsed = JSON.parse(responseText); } catch {}
+
           toast({
             title: "🎉 상담 신청 완료!",
-            description: "빠른 시일 내에 연락드리겠습니다. 감사합니다.",
-            duration: 5000,
+            description: parsed?.backgroundProcessing ? "백그라운드에서 처리 중이며 완료 시 이메일이 발송됩니다." : "빠른 시일 내에 연락드리겠습니다. 감사합니다.",
+            duration: 6000,
           });
 
           resetForm();
           setSubmitAttempts(0);
           
-          // 상담 신청 완료 후 페이지에 머무르기 (독립적 운영)
+          // 완료 후에도 안내 유지 (사용자 지침 반영)
           return;
         }
       } catch (error) {
@@ -761,6 +765,27 @@ export default function ConsultationPage() {
           </div>
         </div>
       </section>
+      {/* 진행 고정 오버레이 (이메일 발송까지 유지) */}
+      {persistentNoticeOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-4">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="font-semibold">상담 신청 접수 및 알림 이메일 대기</span>
+              </div>
+              <p className="text-white/80 text-sm mt-1">완료 안내 메일이 발송될 때까지 이 안내가 유지됩니다.</p>
+            </div>
+            <div className="p-4 space-y-3 text-sm text-gray-700">
+              <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
+                <p className="text-blue-900 font-medium">예상 소요 시간: 1~5분</p>
+                <p className="text-blue-800/80 mt-1">신청 정보 저장 및 확인 메일 발송 중입니다.</p>
+              </div>
+              <p className="text-xs text-gray-500">창을 닫아도 메일은 발송됩니다. 문의: 010-9251-9743</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

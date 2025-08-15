@@ -119,13 +119,16 @@ export async function POST(request: NextRequest) {
 
       let responseData;
       try {
-        responseData = JSON.parse(responseText);
+        // 응답 텍스트 정리 (제어 문자 제거)
+        const cleanResponseText = responseText.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+        responseData = JSON.parse(cleanResponseText);
       } catch (parseError) {
         console.warn('JSON 파싱 실패, 텍스트 응답 처리:', parseError);
+        console.warn('원시 응답 (처음 500자):', responseText.substring(0, 500));
         responseData = {
           success: true,
           message: '요청이 처리되었습니다',
-          rawResponse: responseText
+          rawResponse: responseText.substring(0, 1000) // 길이 제한
         };
       }
 

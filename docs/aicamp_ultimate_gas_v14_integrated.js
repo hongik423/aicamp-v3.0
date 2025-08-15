@@ -1,22 +1,22 @@
 /**
  * ================================================================================
- * 🎓 이교장의AI역량진단보고서 시스템 V14.1 ULTIMATE INTEGRATED - Google Apps Script
+ * 🎓 이교장의AI역량진단보고서 시스템 V14.2 ULTIMATE INTEGRATED - Google Apps Script
  * ================================================================================
  * 
- * 🔥 완벽한 통합 시스템 + 2단계 이메일:
- * 1. 이교장의AI역량진단보고서 (45문항 고도화 시스템)
+ * 🔥 완벽한 통합 시스템 + GEMINI 2.5 Flash 통합 + Google Drive 연동:
+ * 1. 이교장의AI역량진단보고서 (GEMINI 2.5 Flash 통합 분석)
  * 2. 상담신청 처리
  * 3. 오류신고 처리
  * 4. 실시간 진행과정 모니터링
- * 5. 정확한 이메일 제출자 전용 HTML 첨부 발송
+ * 5. Google Drive HTML 보고서 자동 업로드
  * 6. 2단계 이메일 시스템 (접수확인 + 결과보고서)
  * 
  * 🎯 핵심 특징:
- * - GEMINI 2.5 FLASH 모델 완벽 연동
+ * - GEMINI 2.5 FLASH 모델 통합 분석 (정량적+정성적)
  * - 이교장의AI역량진단보고서 브랜딩 통일
- * - 2단계 이메일 시스템 (접수확인 → 결과보고서)
+ * - Google Drive 공유 폴더 자동 업로드
  * - HTML 보고서 첨부 방식 (패스워드 불필요)
- * - Google Drive 자동 백업
+ * - n8n 워크플로우 GEMINI 기반 통합
  * - 실제 진행상황 기반 알림 시스템
  * - 정확한 이메일 인증 후 프리미엄 서비스 제공
  * - 사용자 불안감 해소 및 향상된 UX
@@ -71,8 +71,8 @@ function getEnvironmentConfig() {
     ENVIRONMENT: scriptProperties.getProperty('ENVIRONMENT') || 'production',
     
     // 시스템 정보
-    VERSION: 'V14.1-ULTIMATE-INTEGRATED-3IN1-2STAGE-EMAIL',
-    MODEL: 'GEMINI-2.5-FLASH',
+    VERSION: 'V14.2-ULTIMATE-INTEGRATED-GEMINI-DRIVE',
+    MODEL: 'GEMINI-2.5-FLASH-INTEGRATED',
     
     // API 설정
     GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
@@ -180,7 +180,7 @@ function doPost(e) {
       return handleCompletionEmail(requestData);
     }
     
-    // 요청 타입별 라우팅 (3-in-1 통합 시스템)
+    // 요청 타입별 라우팅 (통합 시스템 + Google Drive)
     let result;
     switch (requestType) {
       case 'ai_diagnosis':
@@ -196,6 +196,18 @@ function doPost(e) {
       case 'error_report':
         updateProgressStatus(progressId, 'processing', '오류신고를 처리하고 있습니다');
         result = handleErrorReportIntegrated(requestData, progressId);
+        break;
+      case 'drive_upload':
+        updateProgressStatus(progressId, 'processing', 'Google Drive에 보고서를 업로드하고 있습니다');
+        result = handleDriveUploadRequest(requestData, progressId);
+        break;
+      case 'drive_list':
+        updateProgressStatus(progressId, 'processing', 'Google Drive 파일 목록을 조회하고 있습니다');
+        result = handleDriveListRequest(requestData, progressId);
+        break;
+      case 'drive_check':
+        updateProgressStatus(progressId, 'processing', 'Google Drive 파일 상태를 확인하고 있습니다');
+        result = handleDriveCheckRequest(requestData, progressId);
         break;
       default:
         console.warn('⚠️ 알 수 없는 요청 타입, 기본 진단으로 처리:', requestType);
@@ -427,10 +439,15 @@ function handleAIDiagnosisRequest(requestData, progressId) {
     console.log('💾 10단계: 데이터 저장');
     const saveResult = saveAIDiagnosisDataIntegrated(normalizedData, aiReport, htmlReport, progressId);
     
-    // 11단계: 이교장의AI역량진단보고서 이메일 발송 (HTML 첨부)
-    updateProgressStatus(progressId, 'processing', '11단계: 완성된 보고서를 이메일로 발송하고 있습니다');
-    console.log('📧 11단계: 이교장의AI역량진단보고서 이메일 발송');
-    const emailResult = sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlReport, diagnosisId);
+    // 11단계: Google Drive에 HTML 보고서 업로드
+    updateProgressStatus(progressId, 'processing', '11단계: Google Drive에 보고서를 업로드하고 있습니다');
+    console.log('🗂️ 11단계: Google Drive HTML 보고서 업로드');
+    const driveUploadResult = uploadReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData);
+    
+    // 12단계: 이교장의AI역량진단보고서 이메일 발송 (HTML 첨부 + Drive 링크)
+    updateProgressStatus(progressId, 'processing', '12단계: 완성된 보고서를 이메일로 발송하고 있습니다');
+    console.log('📧 12단계: 이교장의AI역량진단보고서 이메일 발송');
+    const emailResult = sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlReport, diagnosisId, driveUploadResult);
     
     const processingTime = new Date().getTime() - startTime;
     console.log('🎉 이교장의AI역량진단보고서 완료 - 총 소요시간:', processingTime + 'ms');
@@ -449,7 +466,9 @@ function handleAIDiagnosisRequest(requestData, progressId) {
         reportGenerated: true,
         emailsSent: emailResult.success,
         dataSaved: saveResult.success,
-        confirmationSent: confirmationResult.success
+        confirmationSent: confirmationResult.success,
+        driveUploaded: driveUploadResult ? driveUploadResult.success : false,
+        driveFileInfo: driveUploadResult || null
       },
       processingTime: processingTime
     };
@@ -1859,10 +1878,10 @@ function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisDat
 // ================================================================================
 
 /**
- * Google Drive에 이교장의AI역량진단보고서 저장 (통합 개선 버전)
+ * Google Drive에 이교장의AI역량진단보고서 업로드 (통합 개선 버전)
  */
-function saveReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData) {
-  console.log('💾 Google Drive에 이교장의AI역량진단보고서 저장 중...');
+function uploadReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData) {
+  console.log('🗂️ Google Drive에 이교장의AI역량진단보고서 업로드 중...');
   
   const config = getEnvironmentConfig();
   
@@ -1871,6 +1890,7 @@ function saveReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData) {
     let folder;
     try {
       folder = DriveApp.getFolderById(config.DRIVE_FOLDER_ID);
+      console.log('✅ Drive 폴더 확인:', folder.getName());
     } catch (e) {
       console.warn('⚠️ DRIVE_FOLDER_ID로 폴더 조회 실패, 이름 기반 폴백 시도: AICAMP_REPORTS');
       let targetFolder = null;
@@ -1894,7 +1914,7 @@ function saveReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData) {
     
     // HTML 콘텐츠 준비
     const htmlContent = htmlReport.html || htmlReport;
-    const fileName = `${normalizedData.companyName}_이교장의AI역량진단보고서_${diagnosisId}_${new Date().toISOString().slice(0,10)}.html`;
+    const fileName = sanitizeFileName(`${normalizedData.companyName}_이교장의AI역량진단보고서_${diagnosisId}_${new Date().toISOString().slice(0,10)}.html`);
     
     // Drive에 파일 생성
     const file = folder.createFile(fileName, htmlContent, 'text/html');
@@ -1906,22 +1926,29 @@ function saveReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData) {
     const shareLink = file.getUrl();
     const directLink = `https://drive.google.com/file/d/${file.getId()}/view?usp=sharing`;
     
-    console.log('✅ Google Drive 저장 완료:', fileName);
+    console.log('✅ Google Drive 업로드 완료:', fileName);
     console.log('🔗 공유 링크:', shareLink);
     
     return {
+      success: true,
       fileId: file.getId(),
       fileName: fileName,
       shareLink: shareLink,
       directLink: directLink,
+      webViewLink: shareLink,
+      webContentLink: directLink,
       createdAt: new Date().toISOString(),
       fileSize: file.getSize(),
       branding: '이교장의AI역량진단보고서'
     };
     
   } catch (error) {
-    console.error('❌ Google Drive 저장 실패:', error);
-    throw new Error(`Google Drive 저장 실패: ${error.message}`);
+    console.error('❌ Google Drive 업로드 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      branding: '이교장의AI역량진단보고서'
+    };
   }
 }
 
@@ -1930,10 +1957,10 @@ function saveReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData) {
 // ================================================================================
 
 /**
- * 이교장의AI역량진단보고서 이메일 발송 (HTML 첨부 개선 버전)
+ * 이교장의AI역량진단보고서 이메일 발송 (HTML 첨부 + Drive 링크 개선 버전)
  */
-function sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlReport, diagnosisId) {
-  console.log('📧 이교장의AI역량진단보고서 이메일 발송 시작 (HTML 첨부 개선 버전)');
+function sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlReport, diagnosisId, driveFileInfo) {
+  console.log('📧 이교장의AI역량진단보고서 이메일 발송 시작 (HTML 첨부 + Drive 링크 개선 버전)');
   
   const config = getEnvironmentConfig();
   
@@ -1944,13 +1971,20 @@ function sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlRepor
       console.warn(`⚠️ Gmail 일일 할당량 부족: ${remainingQuota}개 남음`);
     }
     
-    // Google Drive에 HTML 보고서 저장 및 공유 링크 생성
-    const driveFileInfo = saveReportToDriveIntegrated(diagnosisId, htmlReport, normalizedData);
+    // Drive 파일 정보가 없으면 기본값 설정
+    if (!driveFileInfo || !driveFileInfo.success) {
+      console.warn('⚠️ Drive 업로드 정보가 없거나 실패했습니다');
+      driveFileInfo = {
+        success: false,
+        shareLink: 'https://drive.google.com/drive/folders/1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj',
+        fileName: `${normalizedData.companyName}_이교장의AI역량진단보고서_${diagnosisId}.html`
+      };
+    }
     
     let emailsSent = 0;
     let emailErrors = [];
     
-    // 신청자 이메일 발송 (HTML 첨부 + 다운로드 링크)
+    // 신청자 이메일 발송 (HTML 첨부 + Drive 링크)
     try {
       if (normalizedData.contactEmail && normalizedData.contactEmail !== '정보없음') {
         const applicantEmail = generateApplicantEmailWithAttachmentIntegrated(normalizedData, aiReport, diagnosisId, driveFileInfo);
@@ -1976,7 +2010,7 @@ function sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlRepor
     
     // 관리자 이메일 발송
     try {
-      const adminEmail = generateAdminEmailIntegrated(normalizedData, aiReport, diagnosisId, driveFileInfo.shareLink);
+      const adminEmail = generateAdminEmailIntegrated(normalizedData, aiReport, diagnosisId, driveFileInfo.shareLink || driveFileInfo.directLink);
       MailApp.sendEmail({
         to: config.ADMIN_EMAIL,
         subject: adminEmail.subject,
@@ -1993,6 +2027,7 @@ function sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlRepor
       success: emailsSent > 0,
       emailsSent: emailsSent,
       driveFileInfo: driveFileInfo,
+      driveUploaded: driveFileInfo ? driveFileInfo.success : false,
       errors: emailErrors,
       timestamp: new Date().toISOString(),
       branding: '이교장의AI역량진단보고서'
@@ -2065,10 +2100,10 @@ function generateApplicantEmailWithAttachmentIntegrated(normalizedData, aiReport
         <div class="drive-link-box">
             <h3>☁️ Google Drive 백업</h3>
             <p>첨부파일이 열리지 않을 경우 아래 링크를 클릭하세요:</p>
-            <a href="${driveFileInfo.shareLink}" class="download-button" target="_blank">
+            <a href="${driveFileInfo.shareLink || driveFileInfo.directLink || 'https://drive.google.com/drive/folders/1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj'}" class="download-button" target="_blank">
                 📄 Google Drive에서 보고서 열기
             </a>
-            <p style="font-size: 12px; color: #666;">링크 유효기간: 무제한 | 파일 크기: ${Math.round(driveFileInfo.fileSize/1024)}KB</p>
+            <p style="font-size: 12px; color: #666;">링크 유효기간: 무제한${driveFileInfo.fileSize ? ` | 파일 크기: ${Math.round(driveFileInfo.fileSize/1024)}KB` : ''}</p>
         </div>
         
         <div class="highlight">
@@ -2885,13 +2920,213 @@ function sendErrorReportAdminNotification(normalizedData) {
 }
 
 // ================================================================================
+// MODULE 11: Google Drive 연동 시스템 (신규 추가)
+// ================================================================================
+
+/**
+ * Google Drive HTML 보고서 업로드 요청 처리
+ */
+function handleDriveUploadRequest(requestData, progressId) {
+  console.log('🗂️ Google Drive 업로드 요청 처리 시작');
+  
+  const config = getEnvironmentConfig();
+  const startTime = new Date().getTime();
+  
+  try {
+    // 필수 데이터 검증
+    if (!requestData.fileName || !requestData.content) {
+      throw new Error('파일명과 콘텐츠가 필요합니다');
+    }
+    
+    // Google Drive 폴더 가져오기
+    let folder;
+    try {
+      folder = DriveApp.getFolderById(config.DRIVE_FOLDER_ID);
+      console.log('✅ Drive 폴더 확인:', folder.getName());
+    } catch (e) {
+      console.error('❌ Drive 폴더 접근 실패:', e);
+      throw new Error(`Drive 폴더 접근 실패: ${e.message}`);
+    }
+    
+    // 파일명 정규화
+    const sanitizedFileName = sanitizeFileName(requestData.fileName);
+    
+    // HTML 파일 생성
+    const file = folder.createFile(sanitizedFileName, requestData.content, 'text/html');
+    
+    // 공유 설정
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // 파일 정보 수집
+    const fileInfo = {
+      fileId: file.getId(),
+      fileName: sanitizedFileName,
+      webViewLink: file.getUrl(),
+      webContentLink: `https://drive.google.com/file/d/${file.getId()}/view?usp=sharing`,
+      createdTime: file.getDateCreated().toISOString(),
+      size: file.getSize()
+    };
+    
+    const processingTime = new Date().getTime() - startTime;
+    console.log('✅ Google Drive 업로드 완료:', sanitizedFileName);
+    
+    updateProgressStatus(progressId, 'completed', 'Google Drive 업로드가 완료되었습니다');
+    
+    return {
+      type: 'drive_upload',
+      success: true,
+      message: 'Google Drive 업로드가 성공적으로 완료되었습니다',
+      driveResult: fileInfo,
+      processingTime: processingTime
+    };
+    
+  } catch (error) {
+    console.error('❌ Google Drive 업로드 오류:', error);
+    updateProgressStatus(progressId, 'error', `Drive 업로드 오류: ${error.message}`);
+    
+    return {
+      type: 'drive_upload',
+      success: false,
+      error: error.message,
+      processingTime: new Date().getTime() - startTime
+    };
+  }
+}
+
+/**
+ * Google Drive 파일 목록 조회 요청 처리
+ */
+function handleDriveListRequest(requestData, progressId) {
+  console.log('📋 Google Drive 파일 목록 조회 시작');
+  
+  const config = getEnvironmentConfig();
+  const startTime = new Date().getTime();
+  
+  try {
+    // Google Drive 폴더 가져오기
+    const folder = DriveApp.getFolderById(config.DRIVE_FOLDER_ID);
+    const files = folder.getFiles();
+    
+    const fileList = [];
+    while (files.hasNext()) {
+      const file = files.next();
+      if (file.getMimeType() === 'text/html') {
+        fileList.push({
+          id: file.getId(),
+          name: file.getName(),
+          webViewLink: file.getUrl(),
+          webContentLink: `https://drive.google.com/file/d/${file.getId()}/view?usp=sharing`,
+          createdTime: file.getDateCreated().toISOString(),
+          modifiedTime: file.getLastUpdated().toISOString(),
+          size: file.getSize().toString()
+        });
+      }
+    }
+    
+    const processingTime = new Date().getTime() - startTime;
+    console.log('✅ Drive 파일 목록 조회 완료:', fileList.length + '개');
+    
+    updateProgressStatus(progressId, 'completed', `${fileList.length}개 파일 목록 조회 완료`);
+    
+    return {
+      type: 'drive_list',
+      success: true,
+      files: fileList,
+      count: fileList.length,
+      processingTime: processingTime
+    };
+    
+  } catch (error) {
+    console.error('❌ Drive 파일 목록 조회 오류:', error);
+    updateProgressStatus(progressId, 'error', `파일 목록 조회 오류: ${error.message}`);
+    
+    return {
+      type: 'drive_list',
+      success: false,
+      error: error.message,
+      files: [],
+      processingTime: new Date().getTime() - startTime
+    };
+  }
+}
+
+/**
+ * Google Drive 파일 상태 확인 요청 처리
+ */
+function handleDriveCheckRequest(requestData, progressId) {
+  console.log('🔍 Google Drive 파일 상태 확인 시작');
+  
+  const startTime = new Date().getTime();
+  
+  try {
+    if (!requestData.fileId) {
+      throw new Error('파일 ID가 필요합니다');
+    }
+    
+    // 파일 존재 여부 확인
+    const file = DriveApp.getFileById(requestData.fileId);
+    
+    const fileInfo = {
+      id: file.getId(),
+      name: file.getName(),
+      webViewLink: file.getUrl(),
+      webContentLink: `https://drive.google.com/file/d/${file.getId()}/view?usp=sharing`,
+      createdTime: file.getDateCreated().toISOString(),
+      modifiedTime: file.getLastUpdated().toISOString(),
+      size: file.getSize().toString()
+    };
+    
+    const processingTime = new Date().getTime() - startTime;
+    console.log('✅ Drive 파일 상태 확인 완료:', file.getName());
+    
+    updateProgressStatus(progressId, 'completed', '파일 상태 확인 완료');
+    
+    return {
+      type: 'drive_check',
+      success: true,
+      exists: true,
+      accessible: true,
+      fileInfo: fileInfo,
+      processingTime: processingTime
+    };
+    
+  } catch (error) {
+    console.error('❌ Drive 파일 상태 확인 오류:', error);
+    updateProgressStatus(progressId, 'error', `파일 상태 확인 오류: ${error.message}`);
+    
+    return {
+      type: 'drive_check',
+      success: false,
+      exists: false,
+      accessible: false,
+      error: error.message,
+      processingTime: new Date().getTime() - startTime
+    };
+  }
+}
+
+/**
+ * 파일명 정규화 함수
+ */
+function sanitizeFileName(fileName) {
+  return fileName
+    .replace(/[<>:"/\\|?*]/g, '_') // 특수문자를 언더스코어로 변경
+    .replace(/\s+/g, '_') // 공백을 언더스코어로 변경
+    .replace(/_+/g, '_') // 연속된 언더스코어를 하나로 변경
+    .replace(/^_|_$/g, '') // 시작과 끝의 언더스코어 제거
+    .substring(0, 100); // 길이 제한 (100자)
+}
+
+// ================================================================================
 // 시스템 초기화 및 로딩 완료
 // ================================================================================
 
-console.log('🎓 이교장의AI역량진단보고서 시스템 V14.1 ULTIMATE INTEGRATED 3-in-1 + 2단계 이메일 로드 완료');
+console.log('🎓 이교장의AI역량진단보고서 시스템 V14.2 ULTIMATE INTEGRATED GEMINI+DRIVE 로드 완료');
 console.log('📋 혁신적 통합 개선사항:');
 console.log('  ✅ 3-in-1 통합 시스템 (AI진단 + 상담신청 + 오류신고)');
 console.log('  ✅ 이교장의AI역량진단보고서 브랜딩 완전 통일');
+console.log('  ✅ GEMINI 2.5 Flash 통합 분석 (정량적+정성적)');
+console.log('  ✅ Google Drive 자동 업로드 및 공유 링크 생성');
 console.log('  ✅ 2단계 이메일 시스템 (접수확인 → 결과보고서)');
 console.log('  ✅ 사용자 불안감 해소 및 향상된 UX');
 console.log('  ✅ 별도 Google Sheets 데이터 관리');
@@ -2916,10 +3151,12 @@ console.log('📧 프리미엄 서비스: HTML 첨부 + Google Drive 백업');
 console.log('🎁 정확한 이메일 인증 후 고품질 보고서 즉시 제공');
 console.log('💡 실무진이 바로 적용 가능한 구체적 액션 플랜');
 console.log('');
-console.log('🚀 시스템 준비 완료 - 3-in-1 통합 시스템 + 2단계 이메일 서비스 시작!');
+console.log('🚀 시스템 준비 완료 - GEMINI 통합 + Google Drive 연동 시스템 시작!');
 console.log('📝 모든 환경변수 설정 완료 - 프리미엄 서비스 제공 준비됨');
+console.log('🤖 GEMINI 2.5 Flash 통합 분석: 정량적+정성적 분석 완전 통합');
+console.log('🗂️ Google Drive 자동 업로드: HTML 보고서 자동 저장 및 공유');
 console.log('📧 2단계 이메일 시스템: 접수확인 즉시 → 결과보고서 완료 후');
 console.log('📊 3가지 신청 관리: AI역량진단 + 상담신청 + 오류신고');
 console.log('💾 별도 Google Sheets: 각 신청별 독립 데이터 관리');
 console.log('🔗 Google Drive 폴더: https://drive.google.com/drive/folders/1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj');
-console.log('🎓 이교장의AI역량진단보고서 × AICAMP - 최고 수준의 통합 관리 시스템');
+console.log('🎓 이교장의AI역량진단보고서 × AICAMP - GEMINI+Drive 통합 관리 시스템');

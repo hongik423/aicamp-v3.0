@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateMcKinseyStyleReport, McKinseyReportData } from '@/lib/utils/mckinsey-style-report-generator';
 import { EnhancedScoreResult } from '@/lib/utils/enhanced-score-engine';
+import { uploadDiagnosisReport, getSharedFolderLink } from '@/lib/storage/google-drive-service';
 
 // 동적 베이스 URL 생성 함수
 function getDynamicBaseUrl(request: NextRequest): string {
@@ -9,8 +10,8 @@ function getDynamicBaseUrl(request: NextRequest): string {
   return `${protocol}://${host}`;
 }
 
-// GEMINI API 설정
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+// GEMINI API 설정 (통합 시스템)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 // 타임아웃 설정 (Vercel 최대 800초)
@@ -224,17 +225,11 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🧠 이교장의AI역량진단보고서 API 시작 - GEMINI 2.5 Flash 모델');
     
-    // 요청 데이터 파싱 - 안전한 방식으로 처리
+    // 요청 데이터 파싱 - 개선된 안전한 방식
     let data;
     try {
-      // 요청 본문이 비어있는지 먼저 확인
-      const requestText = await request.text();
-      if (!requestText || requestText.trim() === '') {
-        throw new Error('요청 본문이 비어있습니다.');
-      }
-      
-      // JSON 파싱 시도
-      data = JSON.parse(requestText);
+      // request.json() 메소드 사용 (더 안전함)
+      data = await request.json();
       
       // 데이터 유효성 기본 검증
       if (!data || typeof data !== 'object') {
@@ -369,13 +364,51 @@ export async function POST(request: NextRequest) {
         signal: AbortSignal.timeout(300000) // 5분
       });
 
+      let gasResponse: any = null;
       if (saveResponse.ok) {
-        console.log('✅ 진단 결과 저장 성공');
+        try {
+          const raw = await saveResponse.text();
+          try {
+            gasResponse = JSON.parse(raw);
+          } catch {
+            gasResponse = { raw };
+          }
+          console.log('✅ 진단 결과 저장 성공');
+        } catch (readErr) {
+          console.warn('⚠️ 진단 결과 저장 응답 파싱 실패:', readErr);
+        }
       } else {
-        console.warn('⚠️ 진단 결과 저장 실패:', await saveResponse.text());
+        try {
+          const rawErr = await saveResponse.text();
+          console.warn('⚠️ 진단 결과 저장 실패:', rawErr);
+          gasResponse = { success: false, error: rawErr };
+        } catch {}
       }
     } catch (saveError) {
       console.warn('⚠️ 진단 결과 저장 중 오류:', saveError);
+    }
+
+    // 6단계: Google Drive에 HTML 보고서 업로드
+    console.log('🗂️ 6단계: Google Drive 업로드 중...');
+    let driveUploadResult = null;
+    try {
+      driveUploadResult = await uploadDiagnosisReport(
+        data.companyName,
+        diagnosisId,
+        htmlReport
+      );
+      
+      if (driveUploadResult.success) {
+        console.log(`✅ Google Drive 업로드 성공: ${driveUploadResult.fileName}`);
+      } else {
+        console.warn(`⚠️ Google Drive 업로드 실패: ${driveUploadResult.error}`);
+      }
+    } catch (driveError) {
+      console.error('❌ Google Drive 업로드 중 오류:', driveError);
+      driveUploadResult = {
+        success: false,
+        error: driveError instanceof Error ? driveError.message : '업로드 오류'
+      };
     }
 
     // 최종 응답
@@ -392,6 +425,22 @@ export async function POST(request: NextRequest) {
       },
       htmlReport,
       analysis: aiAnalysisResult,
+      gas: gasResponse ? {
+        progressId: gasResponse.progressId || gasResponse.progress_id || null,
+        emailsSent: gasResponse?.results?.emailsSent ?? gasResponse?.emailsSent ?? null,
+        confirmationSent: gasResponse?.results?.confirmationSent ?? gasResponse?.confirmationSent ?? null,
+        dataSaved: gasResponse?.results?.dataSaved ?? gasResponse?.dataSaved ?? null,
+        raw: gasResponse?.raw ? (gasResponse.raw.length > 500 ? gasResponse.raw.slice(0, 500) + '...' : gasResponse.raw) : undefined
+      } : null,
+      driveUpload: driveUploadResult ? {
+        success: driveUploadResult.success,
+        fileName: driveUploadResult.fileName,
+        fileId: driveUploadResult.fileId,
+        webViewLink: driveUploadResult.webViewLink,
+        webContentLink: driveUploadResult.webContentLink,
+        sharedFolderLink: getSharedFolderLink(),
+        error: driveUploadResult.error
+      } : null,
       message: 'AI 역량 진단이 성공적으로 완료되었습니다.',
       timestamp: new Date().toISOString()
     }, {

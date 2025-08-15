@@ -11,7 +11,7 @@ import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ui/error-boundary';
 import { useEffect, useState } from 'react';
 import { validateEnv, logEnvStatus, isDevelopment } from '@/lib/config/env';
-import { checkGoogleScriptStatus, getEmailServiceConfig } from '@/lib/utils/emailService';
+import { checkGoogleScriptStatus, getEmailServiceConfig } from '@/lib/utils/enhanced-email-service';
 import React, { createContext, useContext, ReactNode } from 'react';
 
 function makeQueryClient() {
