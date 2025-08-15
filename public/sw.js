@@ -3,7 +3,7 @@ const CACHE_NAME = 'ai-diagnosis-v1';
 const urlsToCache = [
   '/',
   '/images/aicamp_leader.png',
-  '/manifest.webmanifest'
+  '/api/manifest'
 ];
 
 // Service Worker 설치
@@ -41,7 +41,7 @@ self.addEventListener('activate', (event) => {
 // 네트워크 요청 처리
 self.addEventListener('fetch', (event) => {
   // 매니페스트 요청에 대해서는 네트워크 우선 전략 사용
-  if (event.request.url.includes('manifest.webmanifest')) {
+  if (event.request.url.includes('manifest.webmanifest') || event.request.url.includes('/api/manifest')) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
