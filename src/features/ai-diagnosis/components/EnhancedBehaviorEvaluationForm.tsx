@@ -12,9 +12,10 @@ import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import AddressInput from '@/components/ui/address-input';
+import EnhancedAddressInput from '@/components/ui/enhanced-address-input';
 import PhoneInput from '@/components/ui/phone-input';
 import EmailInput from '@/components/ui/email-input';
+import EnhancedIndustryInput from '@/components/ui/enhanced-industry-input';
 import { 
   BEHAVIOR_INDICATORS, 
   CATEGORY_BEHAVIOR_INDICATORS,
@@ -24,6 +25,13 @@ import {
   getScoreIcon,
   BehaviorIndicator 
 } from '../constants/behavior-indicators';
+import {
+  ENHANCED_BEHAVIOR_INDICATORS,
+  ENHANCED_CATEGORY_INDICATORS,
+  getEnhancedBehaviorIndicator,
+  getEnhancedCategoryIndicator,
+  getScoreBgColor
+} from '../constants/enhanced-behavior-indicators';
 import BehaviorIndicatorCard from './BehaviorIndicatorCard';
 import CategoryProgressIndicator from './CategoryProgressIndicator';
 
@@ -33,6 +41,7 @@ interface CompanyInfo {
   contactEmail: string;
   contactPhone: string;
   industry: string;
+  customIndustry?: string; // 직접 입력한 업종
   employeeCount: string;
   annualRevenue: string;
   location: string;
@@ -58,6 +67,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       contactEmail: '',
       contactPhone: '',
       industry: '',
+      customIndustry: '',
       employeeCount: '',
       annualRevenue: '',
       location: ''
@@ -350,7 +360,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           handleSubmit();
         }
       });
-    }, 300); // 0.3초로 단축하여 더 빠른 반응성 제공
+    }, 200); // 0.2초로 더 단축하여 즉각적인 응답성 제공
   };
 
   // 다음 질문으로 이동 (React 오류 #418, #423 수정)
@@ -736,122 +746,167 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           </div>
 
           {/* 기업정보 입력 폼 */}
-          <Card className="shadow-xl">
-            <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-              <CardTitle className="text-xl flex items-center">
-                🔐 기업 정보 등록 (필수)
+          <Card className="shadow-2xl border-0 overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-8">
+              <CardTitle className="text-2xl flex items-center font-bold">
+                <span className="text-3xl mr-3">🏢</span>
+                기업 정보 등록
               </CardTitle>
-              <p className="text-blue-100 text-sm mt-2">
-                정확한 AI역량진단 보고서 제공을 위해 기업정보를 먼저 등록해주세요.
-                <br/>모든 정보는 안전하게 보호되며, 진단 완료 후 맞춤형 보고서가 이메일로 발송됩니다.
+              <p className="text-blue-100 text-base mt-3 leading-relaxed">
+                정확한 AI역량진단을 위해 기업정보를 입력해주세요.
+                <br/>입력하신 정보는 안전하게 보호되며, 맞춤형 진단 보고서 작성에만 사용됩니다.
               </p>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* 기본 정보 */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="companyName">회사명 *</Label>
-                  <Input
-                    id="companyName"
-                    value={formState.companyInfo.companyName}
-                    onChange={(e) => handleCompanyInfoChange('companyName', e.target.value)}
-                    placeholder="회사명을 입력하세요"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contactName">담당자명 *</Label>
+            <CardContent className="p-8 bg-gray-50">
+              <div className="space-y-8">
+                {/* 회사명 입력 */}
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName" className="text-sm font-semibold text-gray-700 flex items-center">
+                      <span className="text-red-500 mr-1">*</span>
+                      회사명
+                    </Label>
                     <Input
-                      id="contactName"
-                      value={formState.companyInfo.contactName}
-                      onChange={(e) => handleCompanyInfoChange('contactName', e.target.value)}
-                      placeholder="담당자명"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contactEmail">이메일 *</Label>
-                    <EmailInput
-                      value={formState.companyInfo.contactEmail}
-                      onChange={(value) => handleCompanyInfoChange('contactEmail', value)}
-                      placeholder="이메일 주소"
+                      id="companyName"
+                      value={formState.companyInfo.companyName}
+                      onChange={(e) => handleCompanyInfoChange('companyName', e.target.value)}
+                      placeholder="회사명을 입력하세요"
+                      className="h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contactPhone">연락처 *</Label>
-                    <PhoneInput
-                      value={formState.companyInfo.contactPhone}
-                      onChange={(value) => handleCompanyInfoChange('contactPhone', value)}
-                      placeholder="연락처"
-                    />
-                  </div>
+                {/* 담당자 정보 */}
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">담당자 정보</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactName" className="text-sm font-semibold text-gray-700 flex items-center">
+                        <span className="text-red-500 mr-1">*</span>
+                        담당자명
+                      </Label>
+                      <Input
+                        id="contactName"
+                        value={formState.companyInfo.contactName}
+                        onChange={(e) => handleCompanyInfoChange('contactName', e.target.value)}
+                        placeholder="담당자명을 입력하세요"
+                        className="h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                      />
+                    </div>
 
-                  <div>
-                    <Label htmlFor="industry">업종 *</Label>
-                    <Select value={formState.companyInfo.industry} onValueChange={(value) => handleCompanyInfoChange('industry', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="업종 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="제조업">제조업</SelectItem>
-                        <SelectItem value="서비스업">서비스업</SelectItem>
-                        <SelectItem value="IT/소프트웨어">IT/소프트웨어</SelectItem>
-                        <SelectItem value="유통/도소매">유통/도소매</SelectItem>
-                        <SelectItem value="건설업">건설업</SelectItem>
-                        <SelectItem value="금융업">금융업</SelectItem>
-                        <SelectItem value="교육업">교육업</SelectItem>
-                        <SelectItem value="의료업">의료업</SelectItem>
-                        <SelectItem value="직접입력">직접입력</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactEmail" className="text-sm font-semibold text-gray-700 flex items-center">
+                        <span className="text-red-500 mr-1">*</span>
+                        이메일
+                      </Label>
+                      <EmailInput
+                        value={formState.companyInfo.contactEmail}
+                        onChange={(value) => handleCompanyInfoChange('contactEmail', value)}
+                        placeholder="이메일 주소를 입력하세요"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 연락처 및 업종 */}
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">연락처 및 업종</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPhone" className="text-sm font-semibold text-gray-700 flex items-center">
+                        <span className="text-red-500 mr-1">*</span>
+                        연락처
+                      </Label>
+                      <PhoneInput
+                        value={formState.companyInfo.contactPhone}
+                        onChange={(value) => handleCompanyInfoChange('contactPhone', value)}
+                        placeholder="연락처를 입력하세요"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="industry" className="text-sm font-semibold text-gray-700 flex items-center">
+                        <span className="text-red-500 mr-1">*</span>
+                        업종
+                      </Label>
+                      <EnhancedIndustryInput
+                        value={formState.companyInfo.industry}
+                        onChange={(value) => handleCompanyInfoChange('industry', value)}
+                        customIndustry={formState.companyInfo.customIndustry}
+                        onCustomIndustryChange={(value) => handleCompanyInfoChange('customIndustry', value)}
+                        placeholder="업종을 선택하세요"
+                        className="h-12"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="employeeCount">직원 수 *</Label>
-                    <Select value={formState.companyInfo.employeeCount} onValueChange={(value) => handleCompanyInfoChange('employeeCount', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="직원 수 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1-5명">1-5명</SelectItem>
-                        <SelectItem value="6-20명">6-20명</SelectItem>
-                        <SelectItem value="21-50명">21-50명</SelectItem>
-                        <SelectItem value="51-100명">51-100명</SelectItem>
-                        <SelectItem value="101-300명">101-300명</SelectItem>
-                        <SelectItem value="301명 이상">301명 이상</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                {/* 직원수 및 지역 */}
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">기업 규모 및 위치</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="employeeCount" className="text-sm font-semibold text-gray-700 flex items-center">
+                        <span className="text-red-500 mr-1">*</span>
+                        직원 수
+                      </Label>
+                      <Select value={formState.companyInfo.employeeCount} onValueChange={(value) => handleCompanyInfoChange('employeeCount', value)}>
+                        <SelectTrigger className="h-12 text-base">
+                          <SelectValue placeholder="직원 수를 선택하세요" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1-4명">1-4명</SelectItem>
+                          <SelectItem value="5-9명">5-9명</SelectItem>
+                          <SelectItem value="10-19명">10-19명</SelectItem>
+                          <SelectItem value="20-49명">20-49명</SelectItem>
+                          <SelectItem value="50-99명">50-99명</SelectItem>
+                          <SelectItem value="100-299명">100-299명</SelectItem>
+                          <SelectItem value="300명 이상">300명 이상</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div>
-                    <Label htmlFor="location">지역 *</Label>
-                    <AddressInput
-                      value={formState.companyInfo.location}
-                      onChange={(value) => handleCompanyInfoChange('location', value)}
-                      placeholder="지역 선택"
-                    />
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="text-sm font-semibold text-gray-700 flex items-center">
+                        <span className="text-red-500 mr-1">*</span>
+                        지역
+                      </Label>
+                      <EnhancedAddressInput
+                        value={formState.companyInfo.location}
+                        onChange={(value) => handleCompanyInfoChange('location', value)}
+                        placeholder="지역을 선택하세요"
+                        className="h-12 text-base"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <Button
-                onClick={handleStartQuestions}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                size="lg"
-              >
-                <ArrowRight className="w-4 h-4 mr-2" />
-                정보 등록 완료 및 AI역량진단 시작
-              </Button>
-              
-              <div className="text-center text-sm text-gray-500 mt-4">
-                <p>⚠️ 기업정보 등록 후에만 AI역량진단 보고서를 받을 수 있습니다.</p>
-                <p>📧 진단 완료 시 입력하신 이메일로 상세 보고서가 발송됩니다.</p>
+                {/* 시작 버튼 */}
+                <div className="pt-4">
+                  <Button
+                    onClick={handleStartQuestions}
+                    className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    size="lg"
+                  >
+                    <ArrowRight className="w-5 h-5 mr-2" />
+                    AI 역량진단 시작하기
+                  </Button>
+                </div>
+                
+                {/* 안내 메시지 */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <span className="text-blue-600 text-xl mt-1">ℹ️</span>
+                    <div className="text-sm text-gray-700 space-y-1">
+                      <p className="font-semibold">안내사항</p>
+                      <ul className="list-disc list-inside space-y-1 text-gray-600">
+                        <li>모든 필수 항목(*)을 입력해주세요</li>
+                        <li>진단 완료 후 맞춤형 AI 역량진단 보고서가 이메일로 발송됩니다</li>
+                        <li>입력하신 정보는 안전하게 보호되며 진단 목적으로만 사용됩니다</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -880,7 +935,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
               </div>
             )}
             <h1 className="text-3xl font-bold text-gray-900">
-              이교장의AI역량진단
+              이교장의AI역량진단보고서
             </h1>
           </div>
           <h2 className="text-xl font-semibold text-blue-600 mb-2">
@@ -952,49 +1007,130 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                   )}
                 </div>
 
-                {/* 행동지표 기반 점수 선택 */}
+                {/* 개선된 행동지표 기반 점수 선택 */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-gray-800 mb-4 flex items-center">
                     <Target className="w-4 h-4 mr-2" />
-                    행동지표별 평가 (점수를 선택해주세요)
+                    행동지표별 평가 (현재 상황에 가장 적합한 항목을 선택해주세요)
                   </h4>
 
-                  <div className="grid gap-4">
-                    {BEHAVIOR_INDICATORS.map((indicator, index) => (
-                      <BehaviorIndicatorCard
-                        key={indicator.score}
-                        indicator={indicator}
-                        category={currentQuestionData.category}
-                        isSelected={selectedScore === indicator.score}
-                        onSelect={handleScoreSelect}
-                        index={index}
-                        questionId={currentQuestionData.id}
-                      />
-                    ))}
+                  <div className="grid gap-3">
+                    {ENHANCED_BEHAVIOR_INDICATORS.map((indicator, index) => {
+                      const categoryIndicator = getEnhancedCategoryIndicator(
+                        currentQuestionData.category,
+                        indicator.score
+                      );
+                      
+                      return (
+                        <motion.div
+                          key={indicator.score}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`
+                            relative cursor-pointer rounded-lg border-2 p-4 transition-all duration-200
+                            hover:shadow-lg hover:scale-[1.02]
+                            ${
+                              selectedScore === indicator.score
+                                ? `${indicator.bgColor} border-blue-500 shadow-md`
+                                : 'bg-white border-gray-200 hover:border-blue-300'
+                            }
+                          `}
+                          onClick={() => handleScoreSelect(indicator.score)}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0">
+                              <div className={`
+                                w-12 h-12 rounded-full flex items-center justify-center
+                                text-xl font-bold
+                                ${
+                                  selectedScore === indicator.score
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-100 text-gray-600'
+                                }
+                              `}>
+                                {indicator.score}
+                              </div>
+                            </div>
+                            
+                            <div className="flex-grow">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <span className={`font-semibold ${indicator.color}`}>
+                                  {indicator.label}
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {categoryIndicator?.indicator?.keyword || indicator.keyword}
+                                </Badge>
+                              </div>
+                              
+                              <p className="text-sm text-gray-600 mb-2">
+                                {categoryIndicator?.indicator?.description || indicator.description}
+                              </p>
+                              
+                              {/* 구체적인 행동 항목 표시 */}
+                              {categoryIndicator?.indicator?.actionItems && (
+                                <div className="mt-2 pl-4 border-l-2 border-gray-200">
+                                  <ul className="space-y-1">
+                                    {categoryIndicator.indicator.actionItems.slice(0, 2).map((item, idx) => (
+                                      <li key={idx} className="text-xs text-gray-500 flex items-start">
+                                        <span className="mr-1">•</span>
+                                        <span>{item}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {selectedScore === indicator.score && (
+                              <div className="flex-shrink-0">
+                                <Check className="w-6 h-6 text-blue-500" />
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* 선택된 점수 요약 */}
+                {/* 선택된 점수 요약 - 개선된 버전 */}
                 {selectedScore && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
+                    className="mt-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-300 rounded-xl shadow-sm"
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center mb-3">
                       <TrendingUp className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-medium text-blue-900">선택한 평가</span>
+                      <span className="font-semibold text-blue-900">선택하신 평가 내용</span>
                     </div>
-                    <div className="mt-2 flex items-center space-x-4">
-                      <Badge variant="secondary" className="text-lg px-3 py-1">
-                        {selectedScore}점
-                      </Badge>
-                      <span className="text-blue-800">
-                        {getScoreBehaviorIndicator(selectedScore).label}
-                      </span>
-                      <span className="text-blue-600">
-                        {getCategoryBehaviorIndicator(currentQuestionData.category, selectedScore)?.keyword}
-                      </span>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-4">
+                        <Badge variant="secondary" className="text-lg px-4 py-2 bg-blue-100 text-blue-800">
+                          {selectedScore}점
+                        </Badge>
+                        <span className="text-blue-800 font-medium">
+                          {getEnhancedBehaviorIndicator(selectedScore)?.label || getScoreBehaviorIndicator(selectedScore).label}
+                        </span>
+                      </div>
+                      
+                      {(() => {
+                        const enhancedIndicator = getEnhancedCategoryIndicator(currentQuestionData.category, selectedScore);
+                        if (enhancedIndicator?.indicator) {
+                          return (
+                            <div className="bg-white rounded-lg p-3 border border-blue-100">
+                              <p className="text-sm font-medium text-gray-700 mb-1">
+                                {enhancedIndicator.indicator.keyword}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {enhancedIndicator.indicator.description}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                   </motion.div>
                 )}

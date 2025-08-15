@@ -6,6 +6,7 @@ import Footer from '@/components/layout/footer';
 import Providers from './providers';
 import GlobalBanner from '@/components/layout/GlobalBanner';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
+import ServiceWorkerRegister from '@/components/service-worker-register';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -17,8 +18,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: '이교장의 AI역량진단시스템 - 45문항 정밀 AI역량진단',
-    template: '%s | 이교장의 AI역량진단시스템',
+    default: '이교장의AI역량진단보고서 - 45문항 정밀 AI역량진단',
+    template: '%s | 이교장의AI역량진단보고서',
   },
   description: '기업의 AI 역량을 진단하고 맞춤형 솔루션을 제공하는 전문 컨설팅 기관입니다. 무료 AI 역량진단부터 전문 컨설팅까지 원스톱 서비스를 제공합니다.',
   keywords: 'AI 컨설팅, AI 역량진단, 디지털 전환, 기업 컨설팅, 인공지능, AI 교육, 스마트 팩토리, AICAMP, 무료진단',
@@ -46,6 +47,7 @@ export const metadata: Metadata = {
       { url: '/images/aicamp_logo.png', sizes: '180x180' },
     ],
   },
+  manifest: '/manifest.webmanifest',
   formatDetection: {
     email: false,
     address: false,
@@ -350,6 +352,7 @@ export default function RootLayout({
             </main>
             <FloatingChatbot />
             <Footer />
+            <ServiceWorkerRegister />
           </div>
         </Providers>
       </body>
