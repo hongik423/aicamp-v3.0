@@ -65,15 +65,24 @@ export async function GET(request: NextRequest) {
       "start_url": "/",
       "display": "browser",
       "background_color": "#ffffff",
-      "theme_color": "#3b82f6"
+      "theme_color": "#3b82f6",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "any",
+          "type": "image/x-icon"
+        }
+      ]
     };
 
     return new Response(JSON.stringify(fallbackManifest), {
       status: 200, // 🛡️ 항상 200 상태 반환하여 401 오류 방지
       headers: {
         'Content-Type': 'application/manifest+json',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': '*',
         'X-Error-Shield': 'fallback-active' // 🛡️ 폴백 활성화 표시
       }
     });

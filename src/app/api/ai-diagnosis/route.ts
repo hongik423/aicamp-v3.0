@@ -126,46 +126,90 @@ function generateRecommendations(totalScore: number, scores: any): string[] {
   }
 }
 
-// GEMINI API 호출 함수
-async function callGeminiAPI(prompt: string) {
-  if (!GEMINI_API_KEY) {
-    console.warn('⚠️ GEMINI API 키가 설정되지 않았습니다. 기본 응답으로 대체합니다.');
+// GEMINI API 호출 함수 - 강화된 오류 처리
+async function callGeminiAPI(prompt: string, retryCount: number = 3) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM') {
+    console.warn('⚠️ GEMINI API 키가 설정되지 않았거나 기본값입니다. 기본 응답으로 대체합니다.');
     return generateFallbackResponse();
   }
 
-  try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 4000,
+  for (let attempt = 1; attempt <= retryCount; attempt++) {
+    try {
+      console.log(`🤖 GEMINI API 호출 시도 ${attempt}/${retryCount}`);
+      
+      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 4000,
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH", 
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ]
+        }),
+        signal: AbortSignal.timeout(45000) // 45초 타임아웃
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ GEMINI API 오류 (시도 ${attempt}):`, response.status, response.statusText, errorText);
+        
+        // 429 (Rate Limit) 또는 503 (Service Unavailable)인 경우 재시도
+        if ((response.status === 429 || response.status === 503) && attempt < retryCount) {
+          const delay = Math.pow(2, attempt) * 1000; // 지수 백오프
+          console.log(`⏳ ${delay}ms 후 재시도...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
         }
-      }),
-      signal: AbortSignal.timeout(30000) // 30초 타임아웃
-    });
+        
+        // 다른 오류는 즉시 폴백
+        return generateFallbackResponse();
+      }
 
-    if (!response.ok) {
-      console.error('GEMINI API 오류:', response.status, response.statusText);
-      return generateFallbackResponse();
+      const result = await response.json();
+      const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (generatedText) {
+        console.log('✅ GEMINI API 호출 성공');
+        return generatedText;
+      } else {
+        console.warn('⚠️ GEMINI API 응답이 비어있음');
+        return generateFallbackResponse();
+      }
+      
+    } catch (error: any) {
+      console.error(`❌ GEMINI API 호출 실패 (시도 ${attempt}):`, error.message);
+      
+      // 네트워크 오류나 타임아웃인 경우 재시도
+      if ((error.name === 'AbortError' || error.name === 'TypeError') && attempt < retryCount) {
+        const delay = Math.pow(2, attempt) * 1000;
+        console.log(`⏳ ${delay}ms 후 재시도...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
     }
-
-    const result = await response.json();
-    return result.candidates[0]?.content?.parts[0]?.text || generateFallbackResponse();
-  } catch (error) {
-    console.error('GEMINI API 호출 실패:', error);
-    return generateFallbackResponse();
   }
+  
+  console.warn('⚠️ 모든 GEMINI API 시도 실패, 기본 응답 사용');
+  return generateFallbackResponse();
 }
 
 // 대체 응답 생성
@@ -259,27 +303,35 @@ export async function POST(request: NextRequest) {
     const scores = calculateEnhancedScore(data);
     
     console.log('📊 2단계: AI 분석 시작...');
-    const aiAnalysisPrompt = `귀사의 AI 역량진단 결과를 종합하여 전문적인 분석 보고서를 작성해주세요.
+    let aiAnalysisResult = '';
     
-    회사명: ${data.companyName}
-    업종: ${data.industry}
-    총점: ${scores.totalScore}점 (${scores.maturityLevel} 수준)
-    백분위: 상위 ${100-scores.percentile}%
-    
-    카테고리별 점수:
-    - 현재 AI 활용: ${scores.categoryScores.currentAI}점
-    - 조직 준비도: ${scores.categoryScores.organizationReadiness}점
-    - 기술 인프라: ${scores.categoryScores.techInfra}점
-    - 데이터 관리: ${scores.categoryScores.dataManagement}점
-    - 전략적 계획: ${scores.categoryScores.strategicPlanning}점
-    
-    다음 구조로 분석해주세요:
-    1. 진단 결과 종합 평가
-    2. 강점 및 개선 영역 분석  
-    3. 단계별 실행 계획
-    4. 투자 우선순위 제안`;
-    
-    const aiAnalysisResult = await callGeminiAPI(aiAnalysisPrompt);
+    try {
+      const aiAnalysisPrompt = `귀사의 AI 역량진단 결과를 종합하여 전문적인 분석 보고서를 작성해주세요.
+      
+      회사명: ${data.companyName}
+      업종: ${data.industry}
+      총점: ${scores.totalScore}점 (${scores.maturityLevel} 수준)
+      백분위: 상위 ${100-scores.percentile}%
+      
+      카테고리별 점수:
+      - 현재 AI 활용: ${scores.categoryScores.currentAI}점
+      - 조직 준비도: ${scores.categoryScores.organizationReadiness}점
+      - 기술 인프라: ${scores.categoryScores.techInfra}점
+      - 데이터 관리: ${scores.categoryScores.dataManagement}점
+      - 전략적 계획: ${scores.categoryScores.strategicPlanning}점
+      
+      다음 구조로 분석해주세요:
+      1. 진단 결과 종합 평가
+      2. 강점 및 개선 영역 분석  
+      3. 단계별 실행 계획
+      4. 투자 우선순위 제안`;
+      
+      aiAnalysisResult = await callGeminiAPI(aiAnalysisPrompt, 2); // 재시도 2회로 제한
+      console.log('✅ AI 분석 완료');
+    } catch (aiError: any) {
+      console.error('❌ AI 분석 중 오류:', aiError);
+      aiAnalysisResult = generateFallbackResponse();
+    }
     
     console.log('📊 3단계: 맥킨지 스타일 HTML 보고서 생성 중...');
     
@@ -325,6 +377,7 @@ export async function POST(request: NextRequest) {
 
     // 4단계: 진단 결과 Google Apps Script에 저장
     console.log('💾 4단계: 진단 결과 저장 중...');
+    let gasResponse: any = null;
     
     try {
       const dynamicBase = getDynamicBaseUrl(request);
@@ -352,62 +405,92 @@ export async function POST(request: NextRequest) {
         assessmentResponses: data.assessmentResponses || []
       };
 
-      // Google Apps Script에 결과 저장
+      // Google Apps Script에 결과 저장 (타임아웃 단축)
       const saveResponse = await fetch(`${dynamicBase}/api/google-script-proxy`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           type: 'ai_diagnosis',
           action: 'saveDiagnosis',
           ...diagnosisData
         }),
-        signal: AbortSignal.timeout(300000) // 5분
+        signal: AbortSignal.timeout(120000) // 2분으로 단축
       });
 
-      let gasResponse: any = null;
       if (saveResponse.ok) {
         try {
           const raw = await saveResponse.text();
           try {
             gasResponse = JSON.parse(raw);
-          } catch {
-            gasResponse = { raw };
+            console.log('✅ 진단 결과 저장 성공');
+          } catch (parseErr) {
+            console.warn('⚠️ GAS 응답 파싱 실패, 원본 저장:', parseErr);
+            gasResponse = { success: true, raw: raw.substring(0, 200) };
           }
-          console.log('✅ 진단 결과 저장 성공');
         } catch (readErr) {
-          console.warn('⚠️ 진단 결과 저장 응답 파싱 실패:', readErr);
+          console.warn('⚠️ GAS 응답 읽기 실패:', readErr);
+          gasResponse = { success: true, warning: 'Response read failed' };
         }
       } else {
+        const status = saveResponse.status;
+        const statusText = saveResponse.statusText;
+        console.warn(`⚠️ 진단 결과 저장 실패: ${status} ${statusText}`);
+        
         try {
-          const rawErr = await saveResponse.text();
-          console.warn('⚠️ 진단 결과 저장 실패:', rawErr);
-          gasResponse = { success: false, error: rawErr };
-        } catch {}
+          const errorText = await saveResponse.text();
+          gasResponse = { 
+            success: false, 
+            error: `HTTP ${status}: ${errorText.substring(0, 200)}` 
+          };
+        } catch {
+          gasResponse = { 
+            success: false, 
+            error: `HTTP ${status}: ${statusText}` 
+          };
+        }
       }
-    } catch (saveError) {
-      console.warn('⚠️ 진단 결과 저장 중 오류:', saveError);
+    } catch (saveError: any) {
+      console.error('❌ 진단 결과 저장 중 오류:', saveError);
+      gasResponse = {
+        success: false,
+        error: saveError.name === 'AbortError' ? 'Timeout' : saveError.message,
+        warning: 'GAS 저장 실패하였으나 진단은 정상 완료됨'
+      };
     }
 
-    // 6단계: Google Drive에 HTML 보고서 업로드
-    console.log('🗂️ 6단계: Google Drive 업로드 중...');
+    // 5단계: Google Drive에 HTML 보고서 업로드 (선택사항)
+    console.log('🗂️ 5단계: Google Drive 업로드 중...');
     let driveUploadResult = null;
     try {
-      driveUploadResult = await uploadDiagnosisReport(
+      // 타임아웃을 짧게 설정하여 전체 프로세스 지연 방지
+      const uploadPromise = uploadDiagnosisReport(
         data.companyName,
         diagnosisId,
         htmlReport
       );
       
-      if (driveUploadResult.success) {
+      // 30초 타임아웃으로 제한
+      driveUploadResult = await Promise.race([
+        uploadPromise,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Drive upload timeout')), 30000)
+        )
+      ]) as any;
+      
+      if (driveUploadResult?.success) {
         console.log(`✅ Google Drive 업로드 성공: ${driveUploadResult.fileName}`);
       } else {
-        console.warn(`⚠️ Google Drive 업로드 실패: ${driveUploadResult.error}`);
+        console.warn(`⚠️ Google Drive 업로드 실패: ${driveUploadResult?.error || 'Unknown error'}`);
       }
-    } catch (driveError) {
-      console.error('❌ Google Drive 업로드 중 오류:', driveError);
+    } catch (driveError: any) {
+      console.warn('⚠️ Google Drive 업로드 중 오류 (진단 결과에는 영향 없음):', driveError.message);
       driveUploadResult = {
         success: false,
-        error: driveError instanceof Error ? driveError.message : '업로드 오류'
+        error: driveError.message === 'Drive upload timeout' ? 'Timeout' : driveError.message,
+        warning: 'Drive 업로드 실패하였으나 진단은 정상 완료됨'
       };
     }
 

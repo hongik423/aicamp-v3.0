@@ -8,6 +8,7 @@ import GlobalBanner from '@/components/layout/GlobalBanner';
 
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 import ServiceWorkerRegister from '@/components/service-worker-register';
+import ErrorShield from '@/components/ErrorShield';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -93,11 +94,15 @@ export const metadata: Metadata = {
   },
 };
 
-// Service Worker 안전한 등록 함수 (중복 방지 및 오류 처리 개선)
+// Service Worker 전역 상태 관리 (중복 등록 완전 방지)
 let serviceWorkerRegistrationAttempted = false;
+let serviceWorkerRegistered = false;
 
 const registerServiceWorkerSafely = () => {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator) || serviceWorkerRegistrationAttempted) {
+  if (typeof window === 'undefined' || 
+      !('serviceWorker' in navigator) ||
+      serviceWorkerRegistrationAttempted ||
+      serviceWorkerRegistered) {
     return;
   }
   
@@ -190,6 +195,7 @@ const registerServiceWorkerSafely = () => {
         console.log('🚀 Google Apps Script 시스템 초기화 완료');
         console.log('📧 이메일 서비스: Google Apps Script');
         console.log('🔗 연결 상태: connected');
+        serviceWorkerRegistered = true;
         return;
       }
 
@@ -202,6 +208,7 @@ const registerServiceWorkerSafely = () => {
       console.log('🚀 Google Apps Script 시스템 초기화 완료');
       console.log('📧 이메일 서비스: Google Apps Script');
       console.log('🔗 연결 상태: connected');
+      serviceWorkerRegistered = true;
       
       // Service Worker 업데이트 처리
       registration.addEventListener('updatefound', () => {
@@ -209,7 +216,7 @@ const registerServiceWorkerSafely = () => {
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('🔄 New AICAMP Service Worker available');
+              console.log('🔄 Service Worker 업데이트 발견');
             }
           });
         }
@@ -354,7 +361,7 @@ export default function RootLayout({
             <FloatingChatbot />
             <Footer />
             <ServiceWorkerRegister />
-
+            <ErrorShield />
           </div>
         </Providers>
       </body>
