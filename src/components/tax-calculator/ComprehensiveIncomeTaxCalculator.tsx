@@ -30,7 +30,7 @@ import { formatCurrency, formatNumber, formatNumberInput, parseFormattedNumber, 
 import { COMPREHENSIVE_TAX_LIMITS_2024 } from '@/constants/tax-rates-2024';
 import TaxCalculatorDisclaimer from './TaxCalculatorDisclaimer';
 import { BetaFeedbackForm } from '@/components/ui/beta-feedback-form';
-import { generateServiceGuideBook } from '@/lib/utils/pdfDocumentGenerator';
+// PDF 생성 기능은 현재 준비 중입니다.
 
 interface NumberInputProps {
   label: string;

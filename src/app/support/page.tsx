@@ -19,11 +19,7 @@ import {
   Play,
   ArrowRight
 } from 'lucide-react';
-import { 
-  generateServiceGuideBook, 
-  generateAIManual, 
-  generateTaxCalculatorManual 
-} from '@/lib/utils/pdfDocumentGenerator';
+// PDF 생성 기능은 현재 준비 중입니다.
 
 const faqData = [
   {
@@ -79,7 +75,7 @@ const supportResources = [
     icon: FileText,
     type: 'PDF',
     size: '2.5MB',
-    downloadAction: generateServiceGuideBook
+    downloadAction: null
   },
   {
     id: 'ai-manual',
@@ -88,7 +84,7 @@ const supportResources = [
     icon: FileText,
     type: 'PDF',
     size: '3.2MB',
-    downloadAction: generateAIManual
+    downloadAction: null
   },
   {
     id: 'tax-calculator-manual',
@@ -97,7 +93,7 @@ const supportResources = [
     icon: FileText,
     type: 'PDF',
     size: '2.1MB',
-    downloadAction: generateTaxCalculatorManual
+    downloadAction: null
   },
 
 ];

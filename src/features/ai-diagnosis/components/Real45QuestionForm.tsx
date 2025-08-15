@@ -63,6 +63,7 @@ const Real45QuestionForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(true);
   const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null);
+  const [persistentNoticeOpen, setPersistentNoticeOpen] = useState(false);
 
   // 간단한 입력 핸들러들
   const handleAddressChange = (address: string) => {
@@ -233,6 +234,7 @@ const Real45QuestionForm: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    setPersistentNoticeOpen(true);
     try {
       // API 호출 로직 (기존과 동일)
       const response = await fetch('/api/ai-diagnosis', {
@@ -284,7 +286,29 @@ const Real45QuestionForm: React.FC = () => {
 
   // 진단 완료 화면
   if (diagnosisResult) {
-    return <EnhancedDiagnosisComplete result={diagnosisResult} />;
+    return <>
+      <EnhancedDiagnosisComplete result={diagnosisResult} />
+      {persistentNoticeOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-4">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="font-semibold">결과보고서 이메일 발송 대기</span>
+              </div>
+              <p className="text-white/80 text-sm mt-1">완성된 보고서가 이메일로 전송될 때까지 이 안내가 유지됩니다.</p>
+            </div>
+            <div className="p-4 space-y-3 text-sm text-gray-700">
+              <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
+                <p className="text-blue-900 font-medium">예상 소요 시간: 5~15분</p>
+                <p className="text-blue-800/80 mt-1">GEMINI 2.5 Flash가 고품질 분석을 수행 중입니다.</p>
+              </div>
+              <p className="text-xs text-gray-500">창을 닫지 않아도 됩니다. 완료 시 이메일로 안내드립니다.</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>;
   }
 
   // Hydration이 완료되지 않았으면 로딩 표시

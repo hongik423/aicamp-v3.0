@@ -14,7 +14,8 @@ import {
   Target,
   Star,
   TrendingUp,
-  Loader2
+  Loader2,
+  Clock
 } from 'lucide-react';
 
 // PDF 및 복잡한 보고서 생성 기능 제거됨
@@ -34,6 +35,7 @@ interface SimplifiedDiagnosisResultsProps {
 export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosisResultsProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const [persistentNoticeOpen, setPersistentNoticeOpen] = useState(false);
 
   // 타임아웃/백그라운드 처리 상황 체크
   if (data?.isTimeout || data?.data?.diagnosis?.backgroundProcessing) {
@@ -219,7 +221,8 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
   // 🎯 간단한 진단 접수 제출
   const handleDiagnosisSubmit = async () => {
     setIsSubmitting(true);
-    
+    // 알림 오버레이를 결과 메일 발송까지 유지
+    setPersistentNoticeOpen(true);
     try {
       toast({
         title: "📋 AI 역량진단 접수 중...",
@@ -243,13 +246,16 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
 
       // Google Apps Script로 접수 처리
       const result = await submitDiagnosisToGoogle(diagnosisSubmissionData);
+      // 프록시/서버가 백그라운드 처리 응답을 반환하는 경우에도 알림은 유지
+      const background = (result as any)?.isTimeout || (result as any)?.backgroundProcessing;
       
       if (result.success) {
         toast({
           title: "🎉 접수 완료!",
-          description: "AI 역량진단 접수가 완료되었습니다. 접수 확인 메일을 확인해주세요.",
+          description: background ? "AI가 보고서를 생성 중입니다. 완료 시 이메일로 전달됩니다." : "AI 역량진단 접수가 완료되었습니다. 접수 확인 메일을 확인해주세요.",
           duration: 6000,
         });
+        // 성공하더라도 결과보고서 메일 발송까지 안내 오버레이 유지
       } else {
         throw new Error(result.error || '접수 처리 실패');
       }
@@ -432,6 +438,39 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
           <br />접수 확인 메일을 발송해드립니다. 전문가 상담도 함께 받아보세요!
         </p>
       </div>
+
+      {/* 진행 고정 오버레이 (결과보고서 발송까지 유지) */}
+      {persistentNoticeOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-4">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="font-semibold">AI 보고서 생성 및 이메일 발송 대기</span>
+              </div>
+              <p className="text-white/80 text-sm mt-1">완성된 결과보고서가 신청자 이메일로 전송될 때까지 이 안내는 유지됩니다.</p>
+            </div>
+            <div className="p-4 space-y-3 text-sm text-gray-700">
+              <div className="flex items-center justify-between">
+                <span>진단 ID</span>
+                <span className="font-mono text-xs">{diagnosis?.diagnosisId || '생성 중'}</span>
+              </div>
+              <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
+                <p className="text-blue-900 font-medium">예상 소요 시간: 5~15분</p>
+                <p className="text-blue-800/80 mt-1">GEMINI 2.5 Flash가 고품질 분석을 수행 중입니다.</p>
+              </div>
+              <div className="rounded-lg border bg-green-50 border-green-200 p-3">
+                <p className="text-green-900 font-medium">이메일 전송 단계</p>
+                <ul className="list-disc list-inside text-green-800/90 mt-1 space-y-1">
+                  <li>접수 확인 메일</li>
+                  <li>결과보고서 메일(HTML 첨부)</li>
+                </ul>
+              </div>
+              <p className="text-xs text-gray-500">창을 닫지 않고 대기해도 되며, 창을 닫아도 결과는 이메일로 전달됩니다.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

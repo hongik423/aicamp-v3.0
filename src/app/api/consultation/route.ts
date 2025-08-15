@@ -20,21 +20,41 @@ export async function POST(request: NextRequest) {
     
     console.log('📋 상담 ID 생성:', consultationId);
     
-    // Google Apps Script에 상담 신청 정보 저장
+    // Google Apps Script에 상담 신청 정보 저장 (프록시 사용)
     try {
-      const gasUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
-      if (gasUrl) {
-        await fetch(gasUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'saveConsultation',
-            consultationId,
-            ...data,
-            timestamp: new Date().toISOString()
-          }),
-          signal: AbortSignal.timeout(30000) // 30초 타임아웃
-        });
+      const dynamicBase = request.headers.get('host') ? 
+        `https://${request.headers.get('host')}` : 
+        'https://aicamp.club';
+      
+      const saveResponse = await fetch(`${dynamicBase}/api/google-script-proxy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'consultation',
+          action: 'consultation',
+          consultationId,
+          companyName: data.companyName,
+          contactName: data.contactName,
+          contactEmail: data.contactEmail,
+          contactPhone: data.contactPhone || '',
+          consultationType: data.consultationType || '',
+          industry: data.industry || '',
+          employeeCount: data.employeeCount || '',
+          currentChallenges: data.currentChallenges || '',
+          expectedOutcome: data.expectedOutcome || '',
+          timeline: data.timeline || '',
+          budget: data.budget || '',
+          additionalInfo: data.additionalInfo || '',
+          timestamp: new Date().toISOString()
+        }),
+        signal: AbortSignal.timeout(600000) // 10분 타임아웃
+      });
+      
+      if (saveResponse.ok) {
+        const gasResult = await saveResponse.text();
+        console.log('✅ 상담 신청 GAS 저장 성공:', gasResult);
+      } else {
+        console.warn('⚠️ 상담 신청 GAS 저장 실패:', await saveResponse.text());
       }
     } catch (saveError) {
       console.warn('⚠️ 상담 신청 저장 중 오류:', saveError);
