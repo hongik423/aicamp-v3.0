@@ -5,6 +5,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
 import GlobalBanner from '@/components/layout/GlobalBanner';
+import ErrorShield from '@/components/ErrorShield';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 import ServiceWorkerRegister from '@/components/service-worker-register';
 
@@ -353,6 +354,7 @@ export default function RootLayout({
             <FloatingChatbot />
             <Footer />
             <ServiceWorkerRegister />
+            <ErrorShield showStatus={process.env.NODE_ENV === 'development'} />
           </div>
         </Providers>
       </body>
