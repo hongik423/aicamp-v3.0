@@ -820,13 +820,16 @@ async function generateEnhancedHTMLReport(
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  const diagnosisId = `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   try {
     console.log('🧠 이교장의AI역량진단보고서 API 시작 - GEMINI 2.5 Flash 모델');
     
     // 요청 데이터 파싱 (45개 질문 구조)
     const data = await request.json();
+    // 클라이언트에서 전달된 diagnosisId가 있으면 사용, 없으면 생성
+    const diagnosisId: string = typeof data?.diagnosisId === 'string' && data.diagnosisId.trim().length > 0
+      ? data.diagnosisId
+      : `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // 진행과정 모니터링 초기화
     const progressMonitor = DiagnosisProgressMonitor.getInstance();
@@ -843,10 +846,22 @@ export async function POST(request: NextRequest) {
 
     // 데이터 유효성 검사
     progressMonitor.startStep(sessionId, 'validation', '제출하신 정보를 검증하고 있습니다');
-    try { addProgressEvent({ diagnosisId, stepId: 'data-validation', status: 'in-progress', message: '입력하신 기업정보를 검증 중입니다' }); } catch {}
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'data-validation', 
+      status: 'in-progress', 
+      message: '입력하신 기업정보를 검증 중입니다',
+      progressPercent: 10
+    });
     
     if (!data.contactEmail || !data.contactName || !data.companyName) {
       progressMonitor.errorStep(sessionId, 'validation', '필수 정보가 누락되었습니다');
+      addProgressEvent({ 
+        diagnosisId, 
+        stepId: 'data-validation', 
+        status: 'error', 
+        message: '필수 정보가 누락되어 진단을 진행할 수 없습니다' 
+      });
       return NextResponse.json(
         { success: false, error: '필수 정보가 누락되었습니다' },
         { status: 400 }
@@ -854,16 +869,36 @@ export async function POST(request: NextRequest) {
     }
 
     progressMonitor.completeStep(sessionId, 'validation', '정보 검증이 완료되었습니다');
-    try { addProgressEvent({ diagnosisId, stepId: 'data-validation', status: 'completed', message: '정보 검증 및 초기 분석이 완료되었습니다' }); } catch {}
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'data-validation', 
+      status: 'completed', 
+      message: '정보 검증 및 초기 분석이 완료되었습니다',
+      progressPercent: 20
+    });
     console.log(`📊 진단 시작: ${data.companyName} (${data.contactName})`);
 
     // 1단계: 45문항 기반 고도화된 점수 계산
     progressMonitor.startStep(sessionId, 'scoring', '45개 문항을 기반으로 점수를 계산하고 있습니다');
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'gemini-analysis', 
+      status: 'in-progress', 
+      message: 'GEMINI 2.5 Flash AI가 45개 문항을 분석하고 있습니다',
+      progressPercent: 25
+    });
     console.log('🔢 1단계: 45문항 기반 점수 계산 중...');
     
     const enhancedScores = await calculateEnhancedDiagnosisScores(data);
     
     progressMonitor.completeStep(sessionId, 'scoring', `점수 계산 완료: ${enhancedScores.totalScore}점 (${enhancedScores.maturityLevel})`);
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'gemini-analysis', 
+      status: 'completed', 
+      message: `AI 분석 완료: ${enhancedScores.totalScore}점 (${enhancedScores.maturityLevel} 수준)`,
+      progressPercent: 40
+    });
     console.log(`✅ 점수 계산 완료: ${enhancedScores.totalScore}점 (${enhancedScores.maturityLevel})`);
 
     // 2단계: 업종별/규모별 벤치마크 갭 분석
@@ -877,13 +912,25 @@ export async function POST(request: NextRequest) {
 
     // 3단계: 고도화된 SWOT 분석
     progressMonitor.startStep(sessionId, 'swot', '강점, 약점, 기회, 위협 요소를 종합 분석하고 있습니다');
-    try { addProgressEvent({ diagnosisId, stepId: 'swot-analysis', status: 'in-progress', message: 'SWOT 전략 분석을 진행 중입니다' }); } catch {}
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'swot-analysis', 
+      status: 'in-progress', 
+      message: 'SWOT 전략 분석을 진행 중입니다',
+      progressPercent: 55
+    });
     console.log('🔍 3단계: 고도화된 SWOT 분석 중...');
     
     const swotAnalysis = await generateAdvancedSWOTAnalysis(enhancedScores, gapAnalysis, data);
     
     progressMonitor.completeStep(sessionId, 'swot', 'SWOT 분석이 완료되었습니다');
-    try { addProgressEvent({ diagnosisId, stepId: 'swot-analysis', status: 'completed', message: 'SWOT 전략 분석이 완료되었습니다' }); } catch {}
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'swot-analysis', 
+      status: 'completed', 
+      message: 'SWOT 전략 분석이 완료되었습니다',
+      progressPercent: 70
+    });
     console.log('✅ SWOT 분석 완료');
 
     // 4단계: 3차원 우선순위 매트릭스 생성 (중요도×긴급성×실현가능성)
@@ -924,7 +971,14 @@ export async function POST(request: NextRequest) {
 
     // 8단계: GEMINI AI 분석 보고서 생성 (완전한 논리적 연계)
     console.log('🤖 8단계: GEMINI AI 종합 분석 보고서 생성 중...');
-    try { addProgressEvent({ diagnosisId, stepId: 'gemini-analysis', status: 'in-progress', message: 'GEMINI 2.5 Flash로 종합 분석 보고서 생성 중' }); } catch {}
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'report-generation', 
+      status: 'in-progress', 
+      message: 'GEMINI 2.5 Flash로 종합 분석 보고서 생성 중입니다',
+      progressPercent: 75
+    });
+    
     let aiAnalysis = '';
     try {
       aiAnalysis = await generateEnhancedAIAnalysisReport(
@@ -949,7 +1003,6 @@ export async function POST(request: NextRequest) {
 상세한 분석 보고서는 추후 제공될 예정입니다.
       `;
     }
-    try { addProgressEvent({ diagnosisId, stepId: 'gemini-analysis', status: 'completed', message: 'AI 종합 분석 보고서가 생성되었습니다' }); } catch {}
 
     // diagnosisId는 상단에서 생성됨
     
@@ -1017,7 +1070,14 @@ export async function POST(request: NextRequest) {
 
     // 7단계: 고도화된 HTML 보고서 생성
     console.log('📄 7단계: 고도화된 HTML 보고서 생성 중...');
-    try { addProgressEvent({ diagnosisId, stepId: 'report-generation', status: 'in-progress', message: '맞춤형 HTML 보고서를 생성 중입니다' }); } catch {}
+    addProgressEvent({ 
+      diagnosisId, 
+      stepId: 'report-generation', 
+      status: 'in-progress', 
+      message: '맞춤형 HTML 보고서를 생성 중입니다',
+      progressPercent: 85
+    });
+    
     let htmlReport = '';
     try {
       htmlReport = await generateEnhancedHTMLReport(data, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, aicampRoadmap, aiAnalysis);
@@ -1070,15 +1130,22 @@ export async function POST(request: NextRequest) {
       } catch {}
       
       console.log('✅ HTML 보고서 생성 완료');
+      addProgressEvent({ 
+        diagnosisId, 
+        stepId: 'report-generation', 
+        status: 'completed', 
+        message: '전문적인 HTML 진단 보고서가 성공적으로 생성되었습니다',
+        progressPercent: 90
+      });
     } catch (htmlError) {
       console.warn('⚠️ HTML 보고서 생성 실패, 기본 보고서로 대체:', htmlError.message);
       htmlReport = `<!DOCTYPE html><html><head><title>AI 역량 진단 보고서</title></head><body><h1>${data.companyName} AI 역량 진단 결과</h1><p>총점: ${enhancedScores.totalScore}점</p><p>상세한 보고서는 추후 제공될 예정입니다.</p></body></html>`;
     }
-    try { addProgressEvent({ diagnosisId, stepId: 'report-generation', status: 'completed', message: '맞춤형 HTML 보고서 생성이 완료되었습니다' }); } catch {}
+
 
     // 8단계: Google Apps Script 연동 및 이메일 발송
     console.log('📧 8단계: Google Apps Script 연동 및 이메일 발송 중...');
-    try { addProgressEvent({ diagnosisId, stepId: 'email-sending', status: 'in-progress', message: '보고서를 이메일로 발송 중입니다' }); } catch {}
+
     const reportPassword = Math.random().toString(36).substring(2, 8).toUpperCase();
     
     // 이메일 데이터 준비
@@ -1102,6 +1169,13 @@ export async function POST(request: NextRequest) {
     // AICAMP V13.0 ULTIMATE 시스템 호출
     try {
       console.log('🚀 AICAMP V13.0 ULTIMATE 시스템 연동 시작...');
+      addProgressEvent({ 
+        diagnosisId, 
+        stepId: 'email-sending', 
+        status: 'in-progress', 
+        message: '완성된 보고서를 이메일로 발송하고 있습니다',
+        progressPercent: 95
+      });
       
       // V13.0 ULTIMATE 시스템에 맞는 데이터 구조
       const v13PayloadData = {
@@ -1152,7 +1226,13 @@ export async function POST(request: NextRequest) {
       console.log('✅ AICAMP V13.0 ULTIMATE 시스템 호출 성공');
       console.log('📧 이메일 발송 상태:', gasResponse.success ? '성공' : '실패');
       console.log('💾 데이터 저장 상태:', gasResponse.dataSaved ? '성공' : '대기 중');
-      try { addProgressEvent({ diagnosisId, stepId: 'email-sending', status: 'completed', message: '보고서 이메일 발송이 완료되었습니다' }); } catch {}
+      addProgressEvent({ 
+        diagnosisId, 
+        stepId: 'email-sending', 
+        status: 'completed', 
+        message: '진단 보고서가 이메일로 성공적으로 발송되었습니다',
+        progressPercent: 100
+      });
       
     } catch (gasError: any) {
       console.warn('⚠️ AICAMP V13.0 ULTIMATE 시스템 호출 실패:', gasError.message);

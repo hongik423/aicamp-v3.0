@@ -24,6 +24,8 @@ import {
 } from '../constants/question-specific-behavior-indicators';
 import BehaviorIndicatorCard from './BehaviorIndicatorCard';
 import CategoryProgressIndicator from './CategoryProgressIndicator';
+import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
+import DiagnosisProgressModal from '@/components/diagnosis/DiagnosisProgressModal';
 
 interface CompanyInfo {
   companyName: string;
@@ -74,6 +76,10 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [progressOpen, setProgressOpen] = useState(false);
+  const [currentDiagnosisId, setCurrentDiagnosisId] = useState<string | null>(null);
+  const [progressOpen, setProgressOpen] = useState(false);
+  const [currentDiagnosisId, setCurrentDiagnosisId] = useState<string | null>(null);
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
   const [imageError, setImageError] = useState(false);
 
@@ -480,24 +486,18 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
 
     setIsSubmitting(true);
     
-    // 단계별 진행 상황 알림 (AICAMP 브랜드 색상 적용)
-    const showProgressStep = (step: number, title: string, description: string) => {
-      toast({
-        title: `[${step}/5] ${title}`,
-        description,
-        duration: 3000,
-        className: "border-indigo-200 bg-indigo-50 text-indigo-900",
-      });
-    };
-
     try {
-      // 1단계: 분석 시작
-      showProgressStep(1, "📊 AI 분석 시작", "45문항 응답 데이터를 수집하고 있습니다...");
-      
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 사용자가 볼 수 있도록 잠시 대기
+      // 진단 시작 알림 + 클라이언트 diagnosisId 생성 및 모달 오픈
+      toast({
+        title: "🚀 AI역량진단 시작",
+        description: "45문항 응답 데이터를 분석하여 맞춤형 보고서를 생성합니다. 약 10분 이상 소요될 수 있습니다.",
+        duration: 5000,
+        className: "border-blue-200 bg-blue-50 text-blue-900",
+      });
 
-      // 2단계: 데이터 처리
-      showProgressStep(2, "🧠 GEMINI AI 분석", "GEMINI 2.5 Flash로 역량을 정밀 분석 중입니다...");
+      const newDiagnosisId = `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setCurrentDiagnosisId(newDiagnosisId);
+      setProgressOpen(true);
 
       // AI 진단 API 호출
       const response = await fetch('/api/ai-diagnosis', {
@@ -508,6 +508,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         body: JSON.stringify({
           ...formState.companyInfo,
           answers: formState.answers,
+          diagnosisId: newDiagnosisId,
           diagnosisType: 'enhanced-behavior-evaluation',
           questionCount: REAL_45_QUESTIONS.length,
           metadata: {
@@ -528,20 +529,9 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         throw new Error(`진단 처리 실패: ${response.status}`);
       }
 
-      // 3단계: 보고서 생성
-      showProgressStep(3, "📋 맞춤형 보고서 생성", "업종별 특화 분석 및 SWOT 분석을 작성하고 있습니다...");
-
       const result = await response.json();
       
       if (result.success) {
-        // 4단계: 이메일 준비
-        showProgressStep(4, "📧 이메일 발송 준비", "생성된 보고서를 이메일로 발송 준비 중입니다...");
-        
-        await new Promise(resolve => setTimeout(resolve, 1500)); // 이메일 발송 시뮬레이션
-        
-        // 5단계: 완료
-        showProgressStep(5, "✅ 진단 완료!", "종합 분석 보고서가 이메일로 발송되었습니다!");
-        
         // 로컬 스토리지 정리
         localStorage.removeItem('enhancedBehaviorEvaluationForm');
         
@@ -549,14 +539,14 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         setFormState(prev => ({ ...prev, isCompleted: true }));
         
         // 최종 성공 토스트 (AICAMP 성공 색상 적용)
-        setTimeout(() => {
-          toast({
-            title: "🎉 AI역량진단 완료!",
-            description: "전문가급 분석 보고서를 이메일로 확인하세요. 추가 상담이 필요하시면 언제든 연락주세요.",
-            duration: 5000,
-            className: "border-green-200 bg-green-50 text-green-900",
-          });
-        }, 2000);
+        toast({
+          title: "🎉 AI역량진단 완료!",
+          description: `진단이 성공적으로 완료되었습니다. 진단ID: ${result.diagnosisId}. 약 10분 내외에 이메일로 상세한 보고서를 받으실 수 있습니다.`,
+          duration: 8000,
+          className: "border-green-200 bg-green-50 text-green-900",
+        });
+
+        // 모달은 SSE 'done' 이벤트에서 배너와 함께 자동 안내되므로 여기서는 유지
 
       } else {
         throw new Error(result.error || '진단 처리 실패');
@@ -987,6 +977,20 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
   // 메인 진단 화면 렌더링
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
+      {/* 제출 직후 진행상황 모달: 서버 SSE와 동기화됨 */}
+      <DiagnosisProgressModal
+        isOpen={progressOpen}
+        onClose={() => setProgressOpen(false)}
+        diagnosisId={currentDiagnosisId || undefined}
+        companyName={formState.companyInfo.companyName || '귀하의 기업'}
+        email={formState.companyInfo.contactEmail}
+        onComplete={() => {
+          setProgressOpen(false);
+        }}
+        onError={() => {
+          // 오류 시에도 모달은 유지하여 사용자 안내 지속
+        }}
+      />
       <div className="container mx-auto px-4 max-w-4xl">
         {/* 헤더 */}
         <div className="text-center mb-8">

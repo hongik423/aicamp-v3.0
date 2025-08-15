@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   const manifest = {
-    "name": "AICAMP AI 역량진단 시스템",
-    "short_name": "AICAMP",
-    "description": "AI 역량진단 및 컨설팅 서비스",
+    "name": "이교장의AI역량진단보고서",
+    "short_name": "AI역량진단",
+    "description": "AI 기반 기업 역량진단 및 맞춤형 보고서 제공 서비스",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
@@ -15,20 +15,19 @@ export async function GET() {
         "src": "/images/aicamp_logo.png",
         "sizes": "192x192",
         "type": "image/png",
-        "purpose": "maskable"
+        "purpose": "any maskable"
       },
       {
         "src": "/images/aicamp_logo.png",
         "sizes": "512x512",
         "type": "image/png",
-        "purpose": "any"
+        "purpose": "any maskable"
       }
     ],
     "categories": ["business", "productivity", "education"],
-    "lang": "ko-KR",
+    "lang": "ko",
     "dir": "ltr",
     "scope": "/",
-    "id": "/",
     "prefer_related_applications": false
   };
 
