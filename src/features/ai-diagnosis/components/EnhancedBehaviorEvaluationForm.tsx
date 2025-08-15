@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, Target, TrendingUp } from 'lucide-react';
+import { ChevronLeft, Check, Save, Loader2, ArrowRight, Target, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions';
+import { REAL_45_QUESTIONS } from '../constants/real-45-questions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,22 +17,7 @@ import EnhancedAddressInput from '@/components/ui/enhanced-address-input';
 import PhoneInput from '@/components/ui/phone-input';
 import EmailInput from '@/components/ui/email-input';
 import EnhancedIndustryInput from '@/components/ui/enhanced-industry-input';
-import { 
-  BEHAVIOR_INDICATORS, 
-  CATEGORY_BEHAVIOR_INDICATORS,
-  getScoreBehaviorIndicator as getOriginalScoreBehaviorIndicator,
-  getCategoryBehaviorIndicator,
-  getScoreColor,
-  getScoreIcon,
-  BehaviorIndicator 
-} from '../constants/behavior-indicators';
-import {
-  ENHANCED_BEHAVIOR_INDICATORS,
-  ENHANCED_CATEGORY_INDICATORS,
-  getEnhancedBehaviorIndicator,
-  getEnhancedCategoryIndicator,
-  getScoreBgColor
-} from '../constants/enhanced-behavior-indicators';
+import { CATEGORY_BEHAVIOR_INDICATORS } from '../constants/behavior-indicators';
 import {
   getQuestionBehaviorIndicators,
   getScoreBehaviorIndicator
@@ -845,6 +830,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                         value={formState.companyInfo.contactPhone}
                         onChange={(value) => handleCompanyInfoChange('contactPhone', value)}
                         placeholder="숫자만 입력하세요"
+                        clearOnFocus
                         className="h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </div>
@@ -1090,20 +1076,15 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                   )}
                 </div>
 
-                {/* 개선된 행동지표 기반 점수 선택 */}
+                {/* 45문항 개별 행동지표 기반 점수 선택 (질문별 지표 우선) */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-gray-800 mb-4 flex items-center">
                     <Target className="w-4 h-4 mr-2" />
-                    행동지표별 평가 (현재 상황에 가장 적합한 항목을 선택해주세요)
+                    행동지표별 평가 (질문별 맞춤 지표에서 선택하세요)
                   </h4>
 
                   <div className="grid gap-3">
-                    {ENHANCED_BEHAVIOR_INDICATORS.map((indicator, index) => {
-                      const categoryIndicator = getEnhancedCategoryIndicator(
-                        currentQuestionData.category,
-                        indicator.score
-                      );
-                      
+                    {getQuestionBehaviorIndicators(currentQuestionData.id).map((indicator, index) => {
                       return (
                         <motion.div
                           key={indicator.score}
@@ -1135,26 +1116,25 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                                 {indicator.score}
                               </div>
                             </div>
-                            
+
                             <div className="flex-grow">
                               <div className="flex items-center space-x-2 mb-1">
                                 <span className={`font-semibold ${indicator.color}`}>
                                   {indicator.label}
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {categoryIndicator?.indicator?.keyword || indicator.keyword}
+                                  {indicator.keyword}
                                 </Badge>
                               </div>
-                              
+
                               <p className="text-sm text-gray-600 mb-2">
-                                {categoryIndicator?.indicator?.description || indicator.description}
+                                {indicator.description}
                               </p>
-                              
-                              {/* 구체적인 행동 항목 표시 */}
-                              {categoryIndicator?.indicator?.actionItems && (
+
+                              {indicator.actionItems?.length ? (
                                 <div className="mt-2 pl-4 border-l-2 border-gray-200">
                                   <ul className="space-y-1">
-                                    {categoryIndicator.indicator.actionItems.slice(0, 2).map((item, idx) => (
+                                    {indicator.actionItems.slice(0, 2).map((item, idx) => (
                                       <li key={idx} className="text-xs text-gray-500 flex items-start">
                                         <span className="mr-1">•</span>
                                         <span>{item}</span>
@@ -1162,9 +1142,9 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                                     ))}
                                   </ul>
                                 </div>
-                              )}
+                              ) : null}
                             </div>
-                            
+
                             {selectedScore === indicator.score && (
                               <div className="flex-shrink-0">
                                 <Check className="w-6 h-6 text-blue-500" />

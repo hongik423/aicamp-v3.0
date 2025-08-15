@@ -2,7 +2,7 @@
   "name": "aicamp-ai-diagnosis-vercel",
   "version": "3.1.0",
   "description": "AICAMP AI 역량진단 시스템 - V10.0 PREMIUM 완전 오류 수정 버전",
-  "main": "api/diagnosis/submit.js",
+  "main": "src/app/api/ai-diagnosis/route.ts",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

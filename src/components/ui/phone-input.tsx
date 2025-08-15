@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 interface PhoneInputProps {
@@ -14,17 +13,17 @@ interface PhoneInputProps {
   className?: string;
   label?: string;
   error?: string;
+  clearOnFocus?: boolean;
 }
 
 export function PhoneInput({
   value,
   onChange,
   placeholder = "숫자만 입력하세요 (예: 01012345678)",
-  required = false,
   disabled = false,
   className,
-  label = "전화번호",
-  error
+  error,
+  clearOnFocus = false
 }: PhoneInputProps) {
   // 숫자만 입력되도록 처리하고 자동 하이픈 추가
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +51,7 @@ export function PhoneInput({
         type="tel"
         value={value}
         onChange={handleInputChange}
+        onFocus={() => { if (clearOnFocus && value) { onChange(''); } }}
         placeholder={placeholder}
         disabled={disabled}
         autoComplete="tel"

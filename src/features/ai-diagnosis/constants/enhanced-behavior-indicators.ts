@@ -1,6 +1,5 @@
-'use client';
-
 // 고도화(ENHANCED) 행동지표 - 점수 공통 지표와 카테고리 특화 지표 제공
+// 서버/클라이언트 양쪽에서 사용 가능
 
 export interface EnhancedBehaviorIndicator {
 	score: number;
