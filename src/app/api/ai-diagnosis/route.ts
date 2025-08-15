@@ -824,8 +824,35 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🧠 이교장의AI역량진단보고서 API 시작 - GEMINI 2.5 Flash 모델');
     
-    // 요청 데이터 파싱 (45개 질문 구조)
-    const data = await request.json();
+    // 요청 데이터 파싱 (45개 질문 구조) - 개선된 오류 처리
+    let data;
+    try {
+      data = await request.json();
+      
+      // 데이터 유효성 기본 검증
+      if (!data || typeof data !== 'object') {
+        throw new Error('요청 데이터가 올바른 형식이 아닙니다.');
+      }
+      
+      // 필수 필드 검증
+      if (!data.companyName || !data.contactEmail || !data.contactName) {
+        throw new Error('필수 정보가 누락되었습니다: 회사명, 담당자명, 이메일');
+      }
+      
+    } catch (parseError) {
+      console.error('❌ 요청 데이터 파싱 실패:', parseError);
+      return NextResponse.json({
+        success: false,
+        error: `요청 데이터 파싱 실패: ${parseError.message}`,
+        timestamp: new Date().toISOString()
+      }, { 
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+    }
     // 클라이언트에서 전달된 diagnosisId가 있으면 사용, 없으면 생성
     const diagnosisId: string = typeof data?.diagnosisId === 'string' && data.diagnosisId.trim().length > 0
       ? data.diagnosisId
@@ -1351,6 +1378,11 @@ export async function POST(request: NextRequest) {
       // 이메일 발송 상태
       emailSent: true,
       emailTimestamp: new Date().toISOString()
+    }, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
     });
 
   } catch (error: any) {
@@ -1363,7 +1395,11 @@ export async function POST(request: NextRequest) {
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       timestamp: new Date().toISOString()
     }, { 
-      status: 500 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
     });
   }
 }
