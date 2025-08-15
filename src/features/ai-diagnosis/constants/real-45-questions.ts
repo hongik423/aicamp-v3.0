@@ -1,4 +1,4 @@
-'use client';
+// 서버/클라이언트 양쪽에서 사용 가능한 상수
 
 export type RealQuestionCategory =
 	| 'businessFoundation'
