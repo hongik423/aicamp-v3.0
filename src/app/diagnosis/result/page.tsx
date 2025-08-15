@@ -22,7 +22,7 @@ import {
   Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { UltimateReportData, generateUltimateHTMLReport } from '@/lib/utils/ultimate-report-generator';
+import { McKinseyReportData, generateMcKinseyStyleReport } from '@/lib/utils/mckinsey-style-report-generator';
 import { 
   getIndustrySpecificRecommendations,
   getRecommendedProgramsByScore,
@@ -166,7 +166,7 @@ export default function DiagnosisResultPage() {
       const learningPath = generateLearningPath(recommendedPrograms, 'medium');
       
       // Ultimate Report 데이터 구성
-      const ultimateReportData: UltimateReportData = {
+      const ultimateReportData: McKinseyReportData = {
         companyInfo: diagnosisResult.companyInfo,
         diagnosis: {
           totalScore: diagnosisResult.totalScore,
@@ -227,7 +227,7 @@ export default function DiagnosisResultPage() {
       };
       
       // HTML 보고서 생성
-      const htmlReport = generateUltimateHTMLReport(ultimateReportData);
+      const htmlReport = generateMcKinseyStyleReport(ultimateReportData as McKinseyReportData);
       setUltimateReport(htmlReport);
       
     } catch (error) {
