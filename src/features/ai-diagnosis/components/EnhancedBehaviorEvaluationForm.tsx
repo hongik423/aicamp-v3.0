@@ -12,6 +12,7 @@ import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import EnhancedAddressInput from '@/components/ui/enhanced-address-input';
 import PhoneInput from '@/components/ui/phone-input';
 import EmailInput from '@/components/ui/email-input';
@@ -32,6 +33,10 @@ import {
   getEnhancedCategoryIndicator,
   getScoreBgColor
 } from '../constants/enhanced-behavior-indicators';
+import {
+  getQuestionBehaviorIndicators,
+  getScoreBehaviorIndicator
+} from '../constants/question-specific-behavior-indicators';
 import BehaviorIndicatorCard from './BehaviorIndicatorCard';
 import CategoryProgressIndicator from './CategoryProgressIndicator';
 
@@ -54,6 +59,8 @@ interface FormState {
   isCompleted: boolean;
   showCompanyForm: boolean;
   userValidated?: boolean; // 사용자 검증 완료 플래그
+  privacyConsent: boolean; // 개인정보 동의 플래그
+  marketingConsent: boolean; // 마케팅 동의 플래그 (선택)
 }
 
 const EnhancedBehaviorEvaluationForm: React.FC = () => {
@@ -76,7 +83,9 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     currentQuestion: 0,
     isCompleted: false,
     showCompanyForm: true,
-    userValidated: false
+    userValidated: false,
+    privacyConsent: false,
+    marketingConsent: false
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -150,7 +159,9 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
           currentQuestion: 0,
           isCompleted: false,
           showCompanyForm: true,
-          userValidated: false
+          userValidated: false,
+          privacyConsent: false,
+          marketingConsent: false
         });
       }
     }
@@ -215,6 +226,18 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       return;
     }
 
+    // 개인정보 동의 검증
+    if (!formState.privacyConsent) {
+      toast({
+        title: "⚠️ 개인정보 동의 필수",
+        description: "개인정보 수집 및 이용에 동의해야 AI역량진단을 진행할 수 있습니다.",
+        variant: "destructive",
+        className: "border-red-200 bg-red-50 text-red-900",
+        duration: 5000
+      });
+      return;
+    }
+
     // 2단계: 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(contactEmail)) {
@@ -242,7 +265,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     }
 
     // 4단계: 직접입력 업종 확인
-    if (industry === '직접입력' && !formState.companyInfo.industryCustom?.trim()) {
+    if (industry === '직접입력' && !formState.companyInfo.customIndustry?.trim()) {
       toast({
         title: "🏢 업종 직접입력 필요", 
         description: "업종을 직접 입력해주세요.",
@@ -803,6 +826,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                         value={formState.companyInfo.contactEmail}
                         onChange={(value) => handleCompanyInfoChange('contactEmail', value)}
                         placeholder="이메일 주소를 입력하세요"
+                        className="h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </div>
                   </div>
@@ -821,6 +845,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                         value={formState.companyInfo.contactPhone}
                         onChange={(value) => handleCompanyInfoChange('contactPhone', value)}
                         placeholder="연락처를 입력하세요"
+                        className="h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </div>
 
@@ -881,11 +906,69 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                   </div>
                 </div>
 
+                {/* 개인정보 동의 */}
+                <div className="bg-gray-50 p-6 rounded-lg border">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">개인정보 수집 및 이용 동의</h3>
+                  
+                  <div className="space-y-4">
+                    {/* 필수 동의 */}
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="privacy-consent"
+                        checked={formState.privacyConsent}
+                        onCheckedChange={(checked) => 
+                          setFormState(prev => ({ ...prev, privacyConsent: !!checked }))
+                        }
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <Label 
+                          htmlFor="privacy-consent" 
+                          className="text-sm font-medium text-gray-700 cursor-pointer flex items-center"
+                        >
+                          <span className="text-red-500 mr-1">*</span>
+                          개인정보 수집 및 이용에 동의합니다 (필수)
+                        </Label>
+                        <div className="text-xs text-gray-500 mt-1 bg-white p-3 rounded border">
+                          <p className="font-medium mb-1">수집목적: AI 역량진단 서비스 제공 및 결과 보고서 발송</p>
+                          <p className="mb-1">수집항목: 회사명, 담당자명, 이메일, 연락처, 업종, 직원수, 소재지</p>
+                          <p className="mb-1">보유기간: 서비스 완료 후 1년</p>
+                          <p>※ 개인정보 수집에 동의하지 않을 권리가 있으나, 동의 거부 시 서비스 이용이 제한됩니다.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 선택 동의 */}
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="marketing-consent"
+                        checked={formState.marketingConsent}
+                        onCheckedChange={(checked) => 
+                          setFormState(prev => ({ ...prev, marketingConsent: !!checked }))
+                        }
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <Label 
+                          htmlFor="marketing-consent" 
+                          className="text-sm font-medium text-gray-700 cursor-pointer"
+                        >
+                          마케팅 정보 수신에 동의합니다 (선택)
+                        </Label>
+                        <div className="text-xs text-gray-500 mt-1">
+                          AI 교육 프로그램, 세미나, 컨설팅 서비스 관련 정보를 이메일로 받아보실 수 있습니다.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* 시작 버튼 */}
                 <div className="pt-4">
                   <Button
                     onClick={handleStartQuestions}
-                    className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    disabled={!formState.privacyConsent}
+                    className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     size="lg"
                   >
                     <ArrowRight className="w-5 h-5 mr-2" />
@@ -1111,11 +1194,45 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                           {selectedScore}점
                         </Badge>
                         <span className="text-blue-800 font-medium">
-                          {getEnhancedBehaviorIndicator(selectedScore)?.label || getScoreBehaviorIndicator(selectedScore).label}
+                          {getScoreBehaviorIndicator(currentQuestionData.id, selectedScore)?.label || getEnhancedBehaviorIndicator(selectedScore)?.label || getScoreBehaviorIndicator(selectedScore).label}
                         </span>
                       </div>
                       
                       {(() => {
+                        const questionIndicator = getScoreBehaviorIndicator(currentQuestionData.id, selectedScore);
+                        if (questionIndicator) {
+                          return (
+                            <div className={`p-4 rounded-lg border ${questionIndicator.bgColor}`}>
+                              <div className="space-y-3">
+                                <div className="flex items-center space-x-2">
+                                  <span className={`font-semibold ${questionIndicator.color}`}>
+                                    {questionIndicator.keyword}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-700">
+                                  {questionIndicator.description}
+                                </p>
+                                <div className="space-y-2">
+                                  <h4 className="font-medium text-gray-800">구체적 행동 항목:</h4>
+                                  <ul className="text-sm text-gray-600 space-y-1">
+                                    {questionIndicator.actionItems.map((item, index) => (
+                                      <li key={index} className="flex items-start space-x-2">
+                                        <span className="text-blue-500 mt-1">•</span>
+                                        <span>{item}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                <div className="pt-2 border-t border-gray-200">
+                                  <p className="text-sm font-medium text-gray-800">기대 결과:</p>
+                                  <p className="text-sm text-gray-600">{questionIndicator.expectedOutcome}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        
+                        // Fallback to enhanced category indicator
                         const enhancedIndicator = getEnhancedCategoryIndicator(currentQuestionData.category, selectedScore);
                         if (enhancedIndicator?.indicator) {
                           return (

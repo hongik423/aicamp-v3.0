@@ -9,6 +9,10 @@ import {
   getEnhancedBehaviorIndicator,
   getEnhancedCategoryIndicator
 } from '@/features/ai-diagnosis/constants/enhanced-behavior-indicators';
+import {
+  getQuestionBehaviorIndicators,
+  getScoreBehaviorIndicator
+} from '@/features/ai-diagnosis/constants/question-specific-behavior-indicators';
 
 export interface BehaviorBasedAnalysis {
   questionId: number;
@@ -84,10 +88,12 @@ export function generateBehaviorBasedAnalysis(
     const selectedScore = answers[question.id];
     if (!selectedScore) return;
 
-    const behaviorIndicator = getEnhancedBehaviorIndicator(selectedScore);
+    // 질문별 개별 행동지표를 우선적으로 사용
+    const questionSpecificIndicator = getScoreBehaviorIndicator(question.id, selectedScore);
+    const behaviorIndicator = questionSpecificIndicator || getEnhancedBehaviorIndicator(selectedScore);
     const categoryIndicator = getEnhancedCategoryIndicator(question.category, selectedScore);
 
-    if (behaviorIndicator && categoryIndicator?.indicator) {
+    if (behaviorIndicator) {
       analyses.push({
         questionId: question.id,
         question: question.question,
@@ -100,10 +106,14 @@ export function generateBehaviorBasedAnalysis(
           actionItems: behaviorIndicator.actionItems,
           expectedOutcome: behaviorIndicator.expectedOutcome
         },
-        categorySpecific: {
+        categorySpecific: categoryIndicator?.indicator ? {
           keyword: categoryIndicator.indicator.keyword,
           description: categoryIndicator.indicator.description,
           actionItems: categoryIndicator.indicator.actionItems || []
+        } : {
+          keyword: behaviorIndicator.keyword,
+          description: behaviorIndicator.description,
+          actionItems: behaviorIndicator.actionItems || []
         },
         gap: 5 - selectedScore,
         improvementNeeded: selectedScore < 4
@@ -472,4 +482,153 @@ export function generateBehaviorReportHTML(report: BehaviorBasedReport): string 
       </div>
     </div>
   `;
+}
+
+/**
+ * 행동지표 기반 고도화된 프로그램 추천 시스템
+ */
+export function generateEnhancedProgramRecommendations(
+  analyses: BehaviorBasedAnalysis[],
+  companyName: string,
+  industry: string,
+  customIndustry?: string
+): {
+  immediate: Array<{
+    program: string;
+    description: string;
+    duration: string;
+    expectedROI: string;
+    behaviorTargets: string[];
+  }>;
+  shortTerm: Array<{
+    program: string;
+    description: string;
+    duration: string;
+    expectedROI: string;
+    behaviorTargets: string[];
+  }>;
+  mediumTerm: Array<{
+    program: string;
+    description: string;
+    duration: string;
+    expectedROI: string;
+    behaviorTargets: string[];
+  }>;
+  longTerm: Array<{
+    program: string;
+    description: string;
+    duration: string;
+    expectedROI: string;
+    behaviorTargets: string[];
+  }>;
+} {
+  const lowScoreAnalyses = analyses.filter(a => a.selectedScore <= 2);
+  const mediumScoreAnalyses = analyses.filter(a => a.selectedScore === 3);
+  const improvementAreas = analyses.filter(a => a.improvementNeeded);
+
+  return {
+    immediate: [
+      {
+        program: "AI 기초 역량 강화 워크숍",
+        description: "선택하신 행동지표 중 점수가 낮은 영역의 기초 역량을 집중 강화합니다",
+        duration: "2주",
+        expectedROI: "업무 효율성 20% 향상",
+        behaviorTargets: lowScoreAnalyses.map(a => a.behaviorIndicator.keyword)
+      },
+      {
+        program: "맞춤형 AI 도구 도입 컨설팅",
+        description: "귀하가 선택한 행동지표를 바탕으로 최적의 AI 도구를 선별하고 도입을 지원합니다",
+        duration: "1개월",
+        expectedROI: "작업 시간 30% 단축",
+        behaviorTargets: improvementAreas.slice(0, 3).map(a => a.behaviorIndicator.keyword)
+      }
+    ],
+    shortTerm: [
+      {
+        program: "행동지표 기반 조직 변화 관리",
+        description: "선택하신 행동지표에서 도출된 조직의 약점을 체계적으로 개선합니다",
+        duration: "3개월",
+        expectedROI: "조직 생산성 25% 향상",
+        behaviorTargets: analyses.filter(a => a.category === 'organizationReadiness' && a.improvementNeeded).map(a => a.behaviorIndicator.keyword)
+      },
+      {
+        program: `${customIndustry || industry} 특화 AI 전략 수립`,
+        description: "귀하의 업종과 선택한 행동지표를 종합하여 맞춤형 AI 전략을 수립합니다",
+        duration: "2개월",
+        expectedROI: "시장 경쟁력 15% 향상",
+        behaviorTargets: analyses.filter(a => a.category === 'goalClarity').map(a => a.behaviorIndicator.keyword)
+      }
+    ],
+    mediumTerm: [
+      {
+        program: "행동지표 기반 AI 시스템 구축",
+        description: "선택하신 행동지표의 강점을 활용하여 AI 시스템을 구축하고 약점을 보완합니다",
+        duration: "6개월",
+        expectedROI: "매출 증대 20% 이상",
+        behaviorTargets: analyses.filter(a => a.category === 'techInfrastructure').map(a => a.behaviorIndicator.keyword)
+      },
+      {
+        program: "데이터 기반 의사결정 체계 구축",
+        description: "행동지표 분석 결과를 바탕으로 데이터 기반 의사결정 체계를 구축합니다",
+        duration: "4개월",
+        expectedROI: "의사결정 정확도 40% 향상",
+        behaviorTargets: analyses.filter(a => a.category === 'businessFoundation').map(a => a.behaviorIndicator.keyword)
+      }
+    ],
+    longTerm: [
+      {
+        program: "AI 혁신 문화 정착 프로그램",
+        description: "선택하신 행동지표를 기반으로 조직 전체의 AI 혁신 문화를 정착시킵니다",
+        duration: "12개월",
+        expectedROI: "전사 혁신 역량 50% 향상",
+        behaviorTargets: analyses.map(a => a.behaviorIndicator.keyword)
+      },
+      {
+        program: "AI 기반 사업 모델 혁신",
+        description: "행동지표 분석을 통해 도출된 강점을 활용하여 새로운 사업 모델을 개발합니다",
+        duration: "18개월",
+        expectedROI: "신규 수익원 창출",
+        behaviorTargets: analyses.filter(a => a.selectedScore >= 4).map(a => a.behaviorIndicator.keyword)
+      }
+    ]
+  };
+}
+
+/**
+ * ROI 예측 계산
+ */
+export function calculateROIPrediction(
+  analyses: BehaviorBasedAnalysis[],
+  programRecommendations: any
+): {
+  immediate: { investment: string; expectedReturn: string; paybackPeriod: string; };
+  shortTerm: { investment: string; expectedReturn: string; paybackPeriod: string; };
+  mediumTerm: { investment: string; expectedReturn: string; paybackPeriod: string; };
+  longTerm: { investment: string; expectedReturn: string; paybackPeriod: string; };
+} {
+  const averageScore = analyses.reduce((sum, a) => sum + a.selectedScore, 0) / analyses.length;
+  const improvementPotential = (5 - averageScore) / 5;
+
+  return {
+    immediate: {
+      investment: "500만원 - 1,000만원",
+      expectedReturn: `${Math.round(improvementPotential * 2000)}만원 (효율성 향상)`,
+      paybackPeriod: "3-6개월"
+    },
+    shortTerm: {
+      investment: "2,000만원 - 5,000만원", 
+      expectedReturn: `${Math.round(improvementPotential * 8000)}만원 (생산성 향상)`,
+      paybackPeriod: "6-12개월"
+    },
+    mediumTerm: {
+      investment: "1억원 - 3억원",
+      expectedReturn: `${Math.round(improvementPotential * 20000)}만원 (매출 증대)`,
+      paybackPeriod: "12-24개월"
+    },
+    longTerm: {
+      investment: "3억원 - 10억원",
+      expectedReturn: `${Math.round(improvementPotential * 50000)}만원 (혁신 가치)`,
+      paybackPeriod: "24-36개월"
+    }
+  };
 }

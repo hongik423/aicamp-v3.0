@@ -45,71 +45,71 @@ export class DiagnosisProgressMonitor {
     const steps: DiagnosisStep[] = [
       {
         id: 'validation',
-        title: '📋 데이터 검증',
-        description: '제출하신 정보를 검증하고 있습니다',
+        title: '📋 기업정보 및 답변 검증',
+        description: '입력하신 기업정보와 45개 문항 응답의 유효성을 정밀 검증하고 있습니다',
         status: 'pending',
         estimatedDuration: 3
       },
       {
         id: 'analysis',
-        title: '🧠 AI 분석',
-        description: '45개 문항을 바탕으로 AI가 종합 분석 중입니다',
+        title: '🧠 GEMINI AI 심화 분석',
+        description: '최신 GEMINI 2.5 Flash 모델로 45개 문항을 바탕으로 업종별 맞춤 분석을 수행하고 있습니다',
         status: 'pending',
         estimatedDuration: 120
       },
       {
         id: 'scoring',
-        title: '📊 점수 계산',
-        description: '카테고리별 점수를 계산하고 있습니다',
+        title: '📊 AI 역량 점수 정밀 계산',
+        description: '45개 문항별 가중치를 적용하여 6개 영역별 정밀 점수를 산출하고 있습니다',
         status: 'pending',
         estimatedDuration: 15
       },
       {
         id: 'benchmark',
-        title: '📈 벤치마크 분석',
-        description: '업종별/규모별 벤치마킹을 진행하고 있습니다',
+        title: '📈 업종별 벤치마크 분석',
+        description: '귀하의 업종 내 유사 기업들과의 상대적 위치를 정밀 분석하고 있습니다',
         status: 'pending',
         estimatedDuration: 20
       },
       {
         id: 'swot',
-        title: '🎯 SWOT 분석',
-        description: '강점, 약점, 기회, 위협 요소를 분석하고 있습니다',
+        title: '🎯 SWOT 전략 분석',
+        description: 'AI 역량진단 결과를 바탕으로 강점, 약점, 기회, 위협 요소를 종합 분석하고 있습니다',
         status: 'pending',
         estimatedDuration: 25
       },
       {
         id: 'recommendations',
-        title: '💡 맞춤형 권고사항',
-        description: '귀하의 기업에 특화된 개선 방안을 생성하고 있습니다',
+        title: '💡 행동지표 기반 맞춤형 권고사항',
+        description: '선택하신 행동지표를 상세 분석하여 실무 적용 가능한 구체적 개선방안을 생성하고 있습니다',
         status: 'pending',
         estimatedDuration: 30
       },
       {
         id: 'report_generation',
-        title: '📄 보고서 생성',
-        description: '이교장의AI역량진단보고서를 작성하고 있습니다',
+        title: '📄 프리미엄 HTML 보고서 생성',
+        description: '전문적인 디자인과 상세한 분석 내용을 담은 이교장의AI역량진단보고서를 작성하고 있습니다',
         status: 'pending',
         estimatedDuration: 40
       },
       {
         id: 'quality_check',
-        title: '✅ 품질 검증',
-        description: '보고서 품질을 최종 검증하고 있습니다',
+        title: '✅ 보고서 품질 최종 검증',
+        description: '생성된 보고서의 정확성과 완성도를 최종 검증하고 있습니다',
         status: 'pending',
         estimatedDuration: 10
       },
       {
         id: 'email_preparation',
-        title: '📧 이메일 준비',
-        description: 'HTML 보고서를 첨부하여 이메일을 준비하고 있습니다',
+        title: '📧 보안 이메일 준비',
+        description: 'HTML 보고서를 첨부하여 보안 이메일을 준비하고 있습니다',
         status: 'pending',
         estimatedDuration: 8
       },
       {
         id: 'delivery',
-        title: '🚀 보고서 발송',
-        description: '이교장의AI역량진단보고서를 이메일로 발송하고 있습니다',
+        title: '🚀 이교장의AI역량진단보고서 발송',
+        description: '완성된 보고서를 귀하의 이메일로 안전하게 발송하고 있습니다',
         status: 'pending',
         estimatedDuration: 5
       }

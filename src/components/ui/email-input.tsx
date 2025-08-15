@@ -38,13 +38,6 @@ export function EmailInput({
 
   return (
     <div className={cn('relative', className)}>
-      {label && (
-        <Label htmlFor="email-input" className="mb-2">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
-      )}
-      
       <div className="relative">
         <Input
           id="email-input"
@@ -57,7 +50,8 @@ export function EmailInput({
           className={cn(
             'text-lg min-h-[48px] transition-all duration-200',
             'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
-            error && 'border-red-500'
+            error && 'border-red-500',
+            className
           )}
         />
         
