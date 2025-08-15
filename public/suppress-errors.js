@@ -136,13 +136,31 @@
       const urlString = safeUrlToString(url);
       
       // manifest 관련 요청은 실패해도 조용히 처리
-      if (urlString && (urlString.includes('manifest.webmanifest') || urlString.includes('manifest.json'))) {
+      if (urlString && (urlString.includes('manifest.webmanifest') || urlString.includes('manifest.json') || urlString.includes('/api/manifest'))) {
         return originalFetch.apply(this, [url, ...args]).catch(error => {
           // manifest 관련 오류는 조용히 무시하고 기본 응답 반환
           console.log('🔇 Manifest 오류 무시:', urlString);
-          return new Response('{}', { 
+          return new Response(JSON.stringify({
+            "name": "AI역량진단",
+            "short_name": "AI진단",
+            "start_url": "/",
+            "display": "browser",
+            "background_color": "#ffffff",
+            "theme_color": "#3b82f6"
+          }), { 
             status: 200, 
-            headers: { 'Content-Type': 'application/json' } 
+            headers: { 'Content-Type': 'application/manifest+json' } 
+          });
+        });
+      }
+      
+      // Service Worker 관련 요청도 조용히 처리
+      if (urlString && (urlString.includes('sw.js') || urlString.includes('service-worker'))) {
+        return originalFetch.apply(this, [url, ...args]).catch(error => {
+          console.log('🔇 Service Worker 오류 무시:', urlString);
+          return new Response('// Service Worker 비활성화', { 
+            status: 200, 
+            headers: { 'Content-Type': 'application/javascript' } 
           });
         });
       }
