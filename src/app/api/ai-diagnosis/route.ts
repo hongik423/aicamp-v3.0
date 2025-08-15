@@ -30,10 +30,13 @@ import {
 import {
   generateBehaviorBasedReport,
   generateBehaviorReportHTML,
-  BehaviorBasedReport
+  BehaviorBasedReport,
+  generateEnhancedProgramRecommendations,
+  calculateROIPrediction
 } from '@/lib/utils/behavior-based-report-generator';
 import { REAL_45_QUESTIONS } from '@/features/ai-diagnosis/constants/real-45-questions';
 import { DiagnosisProgressMonitor } from '@/lib/utils/diagnosis-progress-monitor';
+import { addProgressEvent } from '@/app/api/_progressStore';
 
 // GEMINI API 설정
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
@@ -636,7 +639,7 @@ async function generateEnhancedHTMLReport(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${data.companyName} AI역량진단 보고서</title>
+    <title>${data.companyName} 이교장의AI역량진단보고서</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; color: #333; }
@@ -667,7 +670,7 @@ async function generateEnhancedHTMLReport(
 <body>
     <div class="container">
         <div class="header">
-            <h1>${data.companyName} AI역량진단 보고서</h1>
+            <h1>${data.companyName} 이교장의AI역량진단보고서</h1>
             <p>진단일: ${new Date().toLocaleDateString('ko-KR')}</p>
             <span class="maturity-level level-${(scores.maturityLevel || 'basic').toLowerCase()}">${scores.maturityLevel || 'Basic'} 수준</span>
         </div>
@@ -817,6 +820,7 @@ async function generateEnhancedHTMLReport(
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const diagnosisId = `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   try {
     console.log('🧠 이교장의AI역량진단보고서 API 시작 - GEMINI 2.5 Flash 모델');
@@ -839,6 +843,7 @@ export async function POST(request: NextRequest) {
 
     // 데이터 유효성 검사
     progressMonitor.startStep(sessionId, 'validation', '제출하신 정보를 검증하고 있습니다');
+    try { addProgressEvent({ diagnosisId, stepId: 'data-validation', status: 'in-progress', message: '입력하신 기업정보를 검증 중입니다' }); } catch {}
     
     if (!data.contactEmail || !data.contactName || !data.companyName) {
       progressMonitor.errorStep(sessionId, 'validation', '필수 정보가 누락되었습니다');
@@ -849,6 +854,7 @@ export async function POST(request: NextRequest) {
     }
 
     progressMonitor.completeStep(sessionId, 'validation', '정보 검증이 완료되었습니다');
+    try { addProgressEvent({ diagnosisId, stepId: 'data-validation', status: 'completed', message: '정보 검증 및 초기 분석이 완료되었습니다' }); } catch {}
     console.log(`📊 진단 시작: ${data.companyName} (${data.contactName})`);
 
     // 1단계: 45문항 기반 고도화된 점수 계산
@@ -871,11 +877,13 @@ export async function POST(request: NextRequest) {
 
     // 3단계: 고도화된 SWOT 분석
     progressMonitor.startStep(sessionId, 'swot', '강점, 약점, 기회, 위협 요소를 종합 분석하고 있습니다');
+    try { addProgressEvent({ diagnosisId, stepId: 'swot-analysis', status: 'in-progress', message: 'SWOT 전략 분석을 진행 중입니다' }); } catch {}
     console.log('🔍 3단계: 고도화된 SWOT 분석 중...');
     
     const swotAnalysis = await generateAdvancedSWOTAnalysis(enhancedScores, gapAnalysis, data);
     
     progressMonitor.completeStep(sessionId, 'swot', 'SWOT 분석이 완료되었습니다');
+    try { addProgressEvent({ diagnosisId, stepId: 'swot-analysis', status: 'completed', message: 'SWOT 전략 분석이 완료되었습니다' }); } catch {}
     console.log('✅ SWOT 분석 완료');
 
     // 4단계: 3차원 우선순위 매트릭스 생성 (중요도×긴급성×실현가능성)
@@ -916,6 +924,7 @@ export async function POST(request: NextRequest) {
 
     // 8단계: GEMINI AI 분석 보고서 생성 (완전한 논리적 연계)
     console.log('🤖 8단계: GEMINI AI 종합 분석 보고서 생성 중...');
+    try { addProgressEvent({ diagnosisId, stepId: 'gemini-analysis', status: 'in-progress', message: 'GEMINI 2.5 Flash로 종합 분석 보고서 생성 중' }); } catch {}
     let aiAnalysis = '';
     try {
       aiAnalysis = await generateEnhancedAIAnalysisReport(
@@ -940,26 +949,66 @@ export async function POST(request: NextRequest) {
 상세한 분석 보고서는 추후 제공될 예정입니다.
       `;
     }
+    try { addProgressEvent({ diagnosisId, stepId: 'gemini-analysis', status: 'completed', message: 'AI 종합 분석 보고서가 생성되었습니다' }); } catch {}
 
-    // 진단 ID 생성
-    const diagnosisId = `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // diagnosisId는 상단에서 생성됨
     
-    // 8단계: 행동지표 기반 맞춤형 보고서 생성
+    // 8단계: 행동지표 기반 맞춤형 보고서 생성 (질문 답변 매핑: answers / assessmentResponses 모두 지원)
     progressMonitor.startStep(sessionId, 'behavior_report', '선택하신 행동지표를 상세 분석하여 맞춤형 보고서를 생성하고 있습니다');
+    try { addProgressEvent({ diagnosisId, stepId: 'behavior_report', status: 'in-progress', message: '선택하신 행동지표를 상세 분석하여 맞춤형 보고서를 생성하고 있습니다' }); } catch {}
     console.log('📝 8단계: 행동지표 기반 보고서 생성 중...');
     
     let behaviorBasedReport: BehaviorBasedReport | null = null;
     try {
-      behaviorBasedReport = generateBehaviorBasedReport(data, REAL_45_QUESTIONS);
+      const normalized = { ...data } as any;
+      if (!normalized.answers && Array.isArray(normalized.assessmentResponses)) {
+        // assessmentResponses → answers로 변환 (questionId -> value)
+        normalized.answers = Object.fromEntries(
+          normalized.assessmentResponses
+            .filter((r: any) => r && typeof r.questionId === 'number')
+            .map((r: any) => [r.questionId, r.value])
+        );
+        console.log(`🔄 assessmentResponses → answers 변환 완료: ${Object.keys(normalized.answers).length}개 질문`);
+      }
+      console.log('🎯 행동지표 보고서 생성 시작:', { hasAnswers: !!normalized.answers, questionsCount: Object.keys(normalized.answers || {}).length });
+      behaviorBasedReport = generateBehaviorBasedReport(normalized, REAL_45_QUESTIONS);
       console.log(`✅ 행동지표 기반 보고서 생성 완료: ${behaviorBasedReport.overallAnalysis.strongAreas.length}개 강점, ${behaviorBasedReport.overallAnalysis.improvementAreas.length}개 개선영역`);
       progressMonitor.completeStep(sessionId, 'behavior_report', `행동지표 분석 완료: ${behaviorBasedReport.overallAnalysis.strongAreas.length}개 강점 영역 식별`);
+      try { addProgressEvent({ diagnosisId, stepId: 'behavior_report', status: 'completed', message: `행동지표 분석 완료: ${behaviorBasedReport.overallAnalysis.strongAreas.length}개 강점 영역 식별` }); } catch {}
     } catch (behaviorError) {
-      console.warn('⚠️ 행동지표 보고서 생성 실패:', behaviorError.message);
+      console.error('❌ 행동지표 보고서 생성 실패:', behaviorError);
+      console.error('❌ 스택 트레이스:', behaviorError.stack);
       progressMonitor.errorStep(sessionId, 'behavior_report', '행동지표 분석 중 오류 발생, 기본 분석으로 진행');
+      try { addProgressEvent({ diagnosisId, stepId: 'behavior_report', status: 'error', message: '행동지표 분석 중 오류 발생, 기본 분석으로 진행' }); } catch {}
     }
     
-    // 9단계: 완벽한 품질 시스템 - 100점 달성 모드
-    console.log('🎯 9단계: 완벽한 품질 시스템 시작 - 100점 달성 모드');
+    // 9단계: 행동지표 기반 추천 및 ROI 예측
+    let behaviorProgramRecommendations = null;
+    let behaviorRoiPrediction = null;
+    
+    if (behaviorBasedReport) {
+      try {
+        console.log('🎯 행동지표 기반 프로그램 추천 생성 중...');
+        // generateEnhancedProgramRecommendations는 analyses 배열을 받습니다
+        const allAnalyses = [
+          ...behaviorBasedReport.overallAnalysis.strongAreas,
+          ...behaviorBasedReport.overallAnalysis.improvementAreas
+        ];
+        behaviorProgramRecommendations = generateEnhancedProgramRecommendations(
+          allAnalyses,
+          behaviorBasedReport.companyName,
+          behaviorBasedReport.industry,
+          behaviorBasedReport.customIndustry
+        );
+        behaviorRoiPrediction = calculateROIPrediction(allAnalyses, behaviorProgramRecommendations);
+        console.log('✅ 행동지표 기반 추천/ROI 예측 완료');
+      } catch (recError) {
+        console.warn('⚠️ 행동지표 기반 추천 생성 실패:', recError.message);
+      }
+    }
+    
+    // 10단계: 완벽한 품질 시스템 - 100점 달성 모드
+    console.log('🎯 10단계: 완벽한 품질 시스템 시작 - 100점 달성 모드');
     const perfectQualitySystem = PerfectQualitySystem.getInstance();
     const qualityOptimization = await perfectQualitySystem.achievePerfectQuality(
       { ...data, diagnosisId }, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, programRecommendations
@@ -968,6 +1017,7 @@ export async function POST(request: NextRequest) {
 
     // 7단계: 고도화된 HTML 보고서 생성
     console.log('📄 7단계: 고도화된 HTML 보고서 생성 중...');
+    try { addProgressEvent({ diagnosisId, stepId: 'report-generation', status: 'in-progress', message: '맞춤형 HTML 보고서를 생성 중입니다' }); } catch {}
     let htmlReport = '';
     try {
       htmlReport = await generateEnhancedHTMLReport(data, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, aicampRoadmap, aiAnalysis);
@@ -979,15 +1029,56 @@ export async function POST(request: NextRequest) {
         htmlReport = htmlReport.replace('</body>', `${behaviorReportHTML}</body>`);
         console.log('✅ 행동지표 기반 분석이 HTML 보고서에 통합되었습니다');
       }
+      // 행동지표 기반 프로그램 추천과 ROI 예측을 HTML에 추가 (가능하면)
+      try {
+        const { generateEnhancedProgramRecommendations, calculateROIPrediction } = await import('@/lib/utils/behavior-based-report-generator');
+        if (behaviorBasedReport) {
+          const programRecs = generateEnhancedProgramRecommendations(behaviorBasedReport.detailedBehaviorAnalysis, data.companyName, data.industry, data.customIndustry);
+          const roi = calculateROIPrediction(behaviorBasedReport.detailedBehaviorAnalysis, programRecs);
+          const extraSection = `
+            <section class="behavior-program-recommendations" style="max-width:1200px;margin:20px auto;padding:20px;background:#ffffff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.06)">
+              <h2 style="font-size:1.5em;margin-bottom:12px">🎓 행동지표 기반 맞춤형 AI 프로그램 추천</h2>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+                ${['immediate','shortTerm','mediumTerm','longTerm'].map((phase) => `
+                  <div style=\"background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px\">
+                    <h3 style=\"font-size:1.1em;margin-bottom:8px\">${phase === 'immediate' ? '즉시' : phase === 'shortTerm' ? '단기' : phase === 'mediumTerm' ? '중기' : '장기'} 프로그램</h3>
+                    <ul style=\"list-style:none;padding-left:0;margin:0\">
+                      ${(programRecs as any)[phase].slice(0,3).map((p: any) => `
+                        <li style=\\\"margin:8px 0\\\"> 
+                          <strong>${p.program}</strong>
+                          <div style=\\\"color:#374151;font-size:0.9em;margin-top:4px\\\">${p.description}</div>
+                          <div style=\\\"color:#6b7280;font-size:0.85em;margin-top:2px\\\">키워드: ${p.behaviorTargets.filter(Boolean).slice(0,5).join(', ')}</div>
+                        </li>
+                      `).join('')}
+                    </ul>
+                  </div>
+                `).join('')}
+              </div>
+              <div style="margin-top:16px;background:#eef2ff;border-left:4px solid #6366f1;padding:12px;border-radius:6px">
+                <strong>ROI 전망</strong>
+                <div style="font-size:0.95em;color:#1f2937;margin-top:6px">
+                  즉시: ${roi.immediate.expectedReturn} (회수기간: ${roi.immediate.paybackPeriod}) ·
+                  단기: ${roi.shortTerm.expectedReturn} (회수기간: ${roi.shortTerm.paybackPeriod}) ·
+                  중기: ${roi.mediumTerm.expectedReturn} (회수기간: ${roi.mediumTerm.paybackPeriod}) ·
+                  장기: ${roi.longTerm.expectedReturn} (회수기간: ${roi.longTerm.paybackPeriod})
+                </div>
+              </div>
+            </section>
+          `;
+          htmlReport = htmlReport.replace('</body>', `${extraSection}</body>`);
+        }
+      } catch {}
       
       console.log('✅ HTML 보고서 생성 완료');
     } catch (htmlError) {
       console.warn('⚠️ HTML 보고서 생성 실패, 기본 보고서로 대체:', htmlError.message);
       htmlReport = `<!DOCTYPE html><html><head><title>AI 역량 진단 보고서</title></head><body><h1>${data.companyName} AI 역량 진단 결과</h1><p>총점: ${enhancedScores.totalScore}점</p><p>상세한 보고서는 추후 제공될 예정입니다.</p></body></html>`;
     }
+    try { addProgressEvent({ diagnosisId, stepId: 'report-generation', status: 'completed', message: '맞춤형 HTML 보고서 생성이 완료되었습니다' }); } catch {}
 
     // 8단계: Google Apps Script 연동 및 이메일 발송
     console.log('📧 8단계: Google Apps Script 연동 및 이메일 발송 중...');
+    try { addProgressEvent({ diagnosisId, stepId: 'email-sending', status: 'in-progress', message: '보고서를 이메일로 발송 중입니다' }); } catch {}
     const reportPassword = Math.random().toString(36).substring(2, 8).toUpperCase();
     
     // 이메일 데이터 준비
@@ -1061,6 +1152,7 @@ export async function POST(request: NextRequest) {
       console.log('✅ AICAMP V13.0 ULTIMATE 시스템 호출 성공');
       console.log('📧 이메일 발송 상태:', gasResponse.success ? '성공' : '실패');
       console.log('💾 데이터 저장 상태:', gasResponse.dataSaved ? '성공' : '대기 중');
+      try { addProgressEvent({ diagnosisId, stepId: 'email-sending', status: 'completed', message: '보고서 이메일 발송이 완료되었습니다' }); } catch {}
       
     } catch (gasError: any) {
       console.warn('⚠️ AICAMP V13.0 ULTIMATE 시스템 호출 실패:', gasError.message);
@@ -1150,6 +1242,11 @@ export async function POST(request: NextRequest) {
       qualityRecommendations: qualityOptimization.improvements,
       perfectQuality: true, // 완벽한 품질 달성 플래그
       validationResults: qualityOptimization.validationResults,
+      
+      // 행동지표 기반 맞춤형 분석 - NEW
+      behaviorBasedReport,
+      behaviorProgramRecommendations,
+      behaviorRoiPrediction,
       
       // 메타데이터 (V14.0 ULTIMATE ENHANCED)
       timestamp: new Date().toISOString(),
