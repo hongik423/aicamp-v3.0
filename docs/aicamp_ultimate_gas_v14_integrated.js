@@ -415,7 +415,7 @@ function handleAIDiagnosisRequest(requestData, progressId) {
     // 9단계: 이교장의AI역량진단보고서 HTML 생성
     updateProgressStatus(progressId, 'processing', '9단계: 맞춤형 HTML 보고서를 생성하고 있습니다');
     console.log('📄 9단계: 이교장의AI역량진단보고서 HTML 생성');
-    const htmlReport = generateAICampHTMLReportIntegrated(normalizedData, aiReport, {
+    const htmlReport = generateMcKinseyStyleAICampReport(normalizedData, aiReport, {
       scores: scoreAnalysis,
       swot: swotAnalysis,
       matrix: priorityMatrix,
@@ -1656,10 +1656,10 @@ function generate3PhaseRoadmapIntegrated(priorityMatrix, swotAnalysis, normalize
 // ================================================================================
 
 /**
- * 이교장의AI역량진단보고서 HTML 생성 (통합 개선 버전)
+ * 🎯 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 (업그레이드 버전)
  */
-function generateAICampHTMLReportIntegrated(normalizedData, aiReport, analysisData) {
-  console.log('📄 이교장의AI역량진단보고서 HTML 생성 시작');
+function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisData) {
+  console.log('📄 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 시작');
   
   const config = getEnvironmentConfig();
   
