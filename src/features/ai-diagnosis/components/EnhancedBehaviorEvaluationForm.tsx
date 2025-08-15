@@ -20,7 +20,7 @@ import EnhancedIndustryInput from '@/components/ui/enhanced-industry-input';
 import { 
   BEHAVIOR_INDICATORS, 
   CATEGORY_BEHAVIOR_INDICATORS,
-  getScoreBehaviorIndicator,
+  getScoreBehaviorIndicator as getOriginalScoreBehaviorIndicator,
   getCategoryBehaviorIndicator,
   getScoreColor,
   getScoreIcon,
@@ -1194,7 +1194,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
                           {selectedScore}점
                         </Badge>
                         <span className="text-blue-800 font-medium">
-                          {getScoreBehaviorIndicator(currentQuestionData.id, selectedScore)?.label || getEnhancedBehaviorIndicator(selectedScore)?.label || getScoreBehaviorIndicator(selectedScore).label}
+                          {getScoreBehaviorIndicator(currentQuestionData.id, selectedScore)?.label || getEnhancedBehaviorIndicator(selectedScore)?.label || getOriginalScoreBehaviorIndicator(selectedScore).label}
                         </span>
                       </div>
                       
