@@ -210,7 +210,6 @@ export default function DiagnosisProgressModal({
             progressPercent: 100,
             stepLabel: '이메일 발송 완료'
           } as any);
-          setTimeout(() => banner.hide(), 8000);
           if (onComplete) onComplete({ success: true, diagnosisId, ...data });
         } catch {}
       });
@@ -254,12 +253,13 @@ export default function DiagnosisProgressModal({
           setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed', endTime: s.endTime ?? Date.now() })));
           setTotalProgress(100);
 
-          // 배너 성공 안내 및 자동 숨김
+          // 배너 성공 안내 유지 (자동 숨김 제거)
           banner.update('✅ 진단 보고서가 완성되어 이메일로 전송되었습니다.', {
             subMessage: '이 창은 닫으셔도 됩니다. 이용해 주셔서 감사합니다.',
             variant: 'success',
-          });
-          setTimeout(() => banner.hide(), 8000);
+            progressPercent: 100,
+            stepLabel: '이메일 발송 완료'
+          } as any);
 
           // 완료 콜백
           if (onComplete) {

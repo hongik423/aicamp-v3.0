@@ -165,7 +165,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       };
       localStorage.setItem('enhancedBehaviorEvaluationForm', JSON.stringify(dataToSave));
     }
-  }, [formState, isHydrated]);
+  }, [formState.answers, formState.currentQuestion, formState.showCompanyForm, isHydrated]);
 
   // 현재 선택된 점수 업데이트
   useEffect(() => {
@@ -177,7 +177,7 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
     return () => {
       setSelectedScore(null);
     };
-  }, [formState.currentQuestion, currentQuestionData, formState.answers]);
+  }, [formState.currentQuestion, currentQuestionData?.id]);
 
   // 컴포넌트 언마운트 시 cleanup
   useEffect(() => {
