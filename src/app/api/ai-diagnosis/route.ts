@@ -1011,8 +1011,36 @@ export async function POST(request: NextRequest) {
     
     let aiAnalysis = '';
     try {
+      // 행동지표 선택사항을 분석 프롬프트에 반영하기 위해
+      // answers 또는 assessmentResponses에서 추출된 핵심 행동 신호를 구성
+      const normalized = { ...data } as any;
+      if (!normalized.answers && Array.isArray(normalized.assessmentResponses)) {
+        normalized.answers = Object.fromEntries(
+          normalized.assessmentResponses
+            .filter((r: any) => r && typeof r.questionId === 'number')
+            .map((r: any) => [r.questionId, r.value])
+        );
+      }
+
+      // 상위 행동지표 키워드 추출(가중 평균 기준) → 프롬프트에 주입
+      const behaviorSignals = (() => {
+        try {
+          const entries = Object.entries(normalized.answers || {}) as Array<[string, number]>;
+          const ranked = entries
+            .map(([qid, val]) => ({ qid: Number(qid), val: Number(val) }))
+            .filter((x) => !Number.isNaN(x.val))
+            .sort((a, b) => b.val - a.val)
+            .slice(0, 8)
+            .map((x) => `Q${x.qid}:${x.val}`);
+          return ranked;
+        } catch {
+          return [] as string[];
+        }
+      })();
+
       aiAnalysis = await generateEnhancedAIAnalysisReport(
-        data, enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, 
+        { ...data, behaviorSignals },
+        enhancedScores, gapAnalysis, swotAnalysis, priorityMatrix, 
         programRecommendations, engagementMetrics, aicampRoadmap
       );
       console.log('✅ AI 분석 보고서 생성 완료');
