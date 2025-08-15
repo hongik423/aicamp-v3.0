@@ -99,51 +99,19 @@ export function ServiceWorkerProvider() {
       };
     };
 
-    // 🔧 Service Worker 등록 - 중복 방지 및 layout.tsx와 충돌 방지
+    // 🛡️ Service Worker 등록은 layout.tsx에서 통합 관리됨 - 중복 방지
     const registerServiceWorker = async () => {
-      // 이미 등록되었거나 등록 중이면 건너뛰기
-      if (!('serviceWorker' in navigator) || serviceWorkerRegistered || registrationInProgress) {
-        return;
-      }
-      
-      registrationInProgress = true;
-
-      try {
-        // 기존 등록 확인
-        let existingRegistration = await navigator.serviceWorker.getRegistration('/');
-        
-        // 등록이 없으면 새로 등록
-        if (!existingRegistration) {
-          try {
-            existingRegistration = await navigator.serviceWorker.register('/sw.js', {
-              scope: '/',
-              updateViaCache: 'none'
-            });
-          } catch (regError) {
-            // Service Worker 등록 실패 시 무시
-            console.log('ℹ️ Service Worker 등록 건너뛰기');
+      // Service Worker 등록은 layout.tsx에서 처리하므로 여기서는 상태만 확인
+      if ('serviceWorker' in navigator) {
+        try {
+          const existingRegistration = await navigator.serviceWorker.getRegistration('/');
+          if (existingRegistration) {
+            console.log('✅ Service Worker 상태: 정상 등록됨');
             serviceWorkerRegistered = true;
-            return;
           }
+        } catch (error: any) {
+          // 오류는 조용히 무시 (layout.tsx에서 처리됨)
         }
-        
-        if (existingRegistration) {
-          console.log('🚀 Google Apps Script 시스템 초기화 완료');
-          console.log('📧 이메일 서비스: Google Apps Script');
-          console.log('🔗 연결 상태: connected');
-          serviceWorkerRegistered = true;
-        }
-
-      } catch (error: any) {
-        if (!error.message?.includes('port closed') && 
-            !error.message?.includes('Extension context') &&
-            !error.message?.includes('chrome-extension://') &&
-            !error.message?.includes('Manifest fetch') &&
-            !error.message?.includes('manifest.json')) {
-          console.warn('Service Worker 상태 확인 실패:', error);
-        }
-      } finally {
-        registrationInProgress = false;
       }
     };
 

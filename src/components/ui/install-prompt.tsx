@@ -214,31 +214,11 @@ export function InstallPrompt() {
   );
 }
 
-// 서비스 워커 등록 훅
+// 서비스 워커 등록 훅 (layout.tsx에서 통합 관리됨)
 export function useServiceWorker() {
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((registration) => {
-          console.log('AICAMP Service Worker registered:', registration.scope);
-          
-          // 업데이트 확인
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // 새 버전 사용 가능 알림
-                  console.log('New AICAMP version available');
-                }
-              });
-            }
-          });
-        })
-        .catch((error) => {
-          console.error('AICAMP Service Worker registration failed:', error);
-        });
-    }
+    // 🛡️ Service Worker 등록은 layout.tsx에서 통합 관리됨
+    // 중복 등록 방지를 위해 이 훅은 비활성화
+    console.log('ℹ️ Service Worker는 layout.tsx에서 통합 관리됩니다.');
   }, []);
 } 

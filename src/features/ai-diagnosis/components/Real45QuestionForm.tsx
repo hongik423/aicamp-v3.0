@@ -272,13 +272,46 @@ const Real45QuestionForm: React.FC = () => {
         throw new Error(result.error || '진단 처리 중 오류가 발생했습니다.');
       }
       
-    } catch (error) {
-      console.error('Submit error:', error);
+    } catch (error: any) {
+      console.error('진단 제출 오류:', error);
+      
+      // 오류 유형에 따른 상세 메시지 제공
+      let errorMessage = "진단 제출 중 오류가 발생했습니다.";
+      let errorDescription = "잠시 후 다시 시도해주세요.";
+      
+      if (error.message?.includes('500')) {
+        errorMessage = "서버 처리 오류";
+        errorDescription = "AI 분석 중 일시적 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+      } else if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
+        errorMessage = "처리 시간 초과";
+        errorDescription = "고품질 AI 분석으로 인해 시간이 소요되고 있습니다. 잠시 후 다시 시도해주세요.";
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage = "네트워크 연결 오류";
+        errorDescription = "인터넷 연결을 확인하고 다시 시도해주세요.";
+      }
+      
       toast({
-        title: "제출 실패",
-        description: "진단 제출 중 오류가 발생했습니다. 다시 시도해주세요.",
+        title: errorMessage,
+        description: errorDescription,
         variant: "destructive"
       });
+      
+      // 오류 보고 (선택사항)
+      if (typeof window !== 'undefined') {
+        try {
+          fetch('/api/error-shield', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'diagnosis-submission-error',
+              error: error.message,
+              timestamp: new Date().toISOString(),
+              userAgent: navigator.userAgent,
+              url: window.location.href
+            })
+          }).catch(() => {}); // 오류 보고 실패는 무시
+        } catch {}
+      }
     } finally {
       setIsSubmitting(false);
     }
