@@ -27,6 +27,13 @@ import {
   generateAICampRoadmap,
   AICampRoadmapResult 
 } from '@/lib/utils/aicamp-roadmap-engine';
+import {
+  generateBehaviorBasedReport,
+  generateBehaviorReportHTML,
+  BehaviorBasedReport
+} from '@/lib/utils/behavior-based-report-generator';
+import { REAL_45_QUESTIONS } from '@/features/ai-diagnosis/constants/real-45-questions';
+import { DiagnosisProgressMonitor } from '@/lib/utils/diagnosis-progress-monitor';
 
 // GEMINI API 설정
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
@@ -809,14 +816,21 @@ async function generateEnhancedHTMLReport(
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
+  const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
   try {
-    console.log('🧠 AI역량진단 API 시작 - GEMINI 2.5 Flash 모델');
+    console.log('🧠 이교장의AI역량진단보고서 API 시작 - GEMINI 2.5 Flash 모델');
     
     // 요청 데이터 파싱 (45개 질문 구조)
     const data = await request.json();
     
+    // 진행과정 모니터링 초기화
+    const progressMonitor = DiagnosisProgressMonitor.getInstance();
+    const progress = progressMonitor.initializeDiagnosis(sessionId);
+    
     // 환경 변수 검증
     if (!GEMINI_API_KEY) {
+      progressMonitor.errorStep(sessionId, 'validation', 'GEMINI API 키가 설정되지 않았습니다');
       return NextResponse.json(
         { success: false, error: 'GEMINI API 키가 설정되지 않았습니다. 환경변수를 확인하세요.' },
         { status: 500 }
@@ -824,28 +838,44 @@ export async function POST(request: NextRequest) {
     }
 
     // 데이터 유효성 검사
+    progressMonitor.startStep(sessionId, 'validation', '제출하신 정보를 검증하고 있습니다');
+    
     if (!data.contactEmail || !data.contactName || !data.companyName) {
+      progressMonitor.errorStep(sessionId, 'validation', '필수 정보가 누락되었습니다');
       return NextResponse.json(
         { success: false, error: '필수 정보가 누락되었습니다' },
         { status: 400 }
       );
     }
 
+    progressMonitor.completeStep(sessionId, 'validation', '정보 검증이 완료되었습니다');
     console.log(`📊 진단 시작: ${data.companyName} (${data.contactName})`);
 
     // 1단계: 45문항 기반 고도화된 점수 계산
+    progressMonitor.startStep(sessionId, 'scoring', '45개 문항을 기반으로 점수를 계산하고 있습니다');
     console.log('🔢 1단계: 45문항 기반 점수 계산 중...');
+    
     const enhancedScores = await calculateEnhancedDiagnosisScores(data);
+    
+    progressMonitor.completeStep(sessionId, 'scoring', `점수 계산 완료: ${enhancedScores.totalScore}점 (${enhancedScores.maturityLevel})`);
     console.log(`✅ 점수 계산 완료: ${enhancedScores.totalScore}점 (${enhancedScores.maturityLevel})`);
 
     // 2단계: 업종별/규모별 벤치마크 갭 분석
+    progressMonitor.startStep(sessionId, 'benchmark', `${data.industry} 업종 기준 벤치마크 분석을 진행하고 있습니다`);
     console.log('🎯 2단계: 벤치마크 갭 분석 중...');
+    
     const gapAnalysis = await generateBenchmarkGapAnalysis(enhancedScores, data);
+    
+    progressMonitor.completeStep(sessionId, 'benchmark', '벤치마크 분석이 완료되었습니다');
     console.log('✅ 갭 분석 완료');
 
     // 3단계: 고도화된 SWOT 분석
+    progressMonitor.startStep(sessionId, 'swot', '강점, 약점, 기회, 위협 요소를 종합 분석하고 있습니다');
     console.log('🔍 3단계: 고도화된 SWOT 분석 중...');
+    
     const swotAnalysis = await generateAdvancedSWOTAnalysis(enhancedScores, gapAnalysis, data);
+    
+    progressMonitor.completeStep(sessionId, 'swot', 'SWOT 분석이 완료되었습니다');
     console.log('✅ SWOT 분석 완료');
 
     // 4단계: 3차원 우선순위 매트릭스 생성 (중요도×긴급성×실현가능성)

@@ -1,348 +1,87 @@
-// AICAMP Service Worker - 안전한 버전
-const CACHE_NAME = 'aicamp-v3.4-' + Date.now();
+// 이교장의AI역량진단보고서 Service Worker
+const CACHE_NAME = 'ai-diagnosis-v1';
 const urlsToCache = [
   '/',
-  '/diagnosis',
-  '/services',
-  '/services/ai-curriculum',
-  // 요청하신 추가 사전 캐시 경로들
-  '/services/investment-analysis',
-  '/services/policy-funding',
-  '/services/policy-funding/operating-funding',
-  '/services/policy-funding/facility-funding',
-  '/services/policy-funding/rd-funding',
-  '/services/policy-funding/startup-funding',
-  '/services/policy-funding/investment-analysis',
-  '/tax-calculator',
-  '/tax-calculator/error-report',
-  '/consultation',
-  '/tax-calculator',
-  '/about',
-  '/success-cases',
-  '/seminar',
-  // 아이콘/매니페스트 (일부 브라우저가 자동 요청)
-  '/favicon.ico',
-  '/apple-touch-icon.png',
-  '/icon.svg'
+  '/images/aicamp_leader.png',
+  '/manifest.webmanifest'
 ];
-
-// 캐시 제외/주의 대상 URL 패턴
-const NON_CACHEABLE_PATTERNS = [
-  '/api/',
-  '/chat',
-  '/chat-ai',
-  '/_next/data/',
-  '/_next/image',
-  '/_next/webpack-hmr',
-  '/sw.js',
-  '/manifest.json',
-  '/manifest.webmanifest',
-  '/__NEXT',
-];
-
-// manifest.json 요청 무시
-const IGNORE_PATTERNS = [
-  '/manifest.json',
-  '/manifest.webmanifest',
-  '/apple-touch-icon',
-  '/favicon.ico'
-];
-
-const NON_CACHEABLE_QUERY_KEYS = ['_rsc', 'next', 'trpc', 'no-cache'];
-
-function isSameOrigin(url) {
-  try {
-    const u = new URL(url);
-    return u.origin === self.location.origin;
-  } catch (_) {
-    return false;
-  }
-}
-
-function isNonCacheableRequest(request) {
-  // 비-GET 즉시 비캐시
-  if (request.method !== 'GET') return true;
-
-  const url = request.url;
-  if (!isSameOrigin(url)) {
-    // 교차 출처는 캐시하지 않음 (필요 시 허용 패턴 추가)
-    return true;
-  }
-
-  try {
-    const u = new URL(url);
-    // 특정 경로 제외
-    if (NON_CACHEABLE_PATTERNS.some((p) => u.pathname.startsWith(p))) return true;
-    // 특정 쿼리 키 포함 시 제외
-    for (const key of u.searchParams.keys()) {
-      if (NON_CACHEABLE_QUERY_KEYS.includes(key)) return true;
-    }
-  } catch (_) {}
-
-  // Icon/Manifest 등은 캐시 허용 (일부 브라우저 자동요청)
-  try {
-    const u = new URL(request.url);
-    const iconLike = /(?:icon|manifest)/i.test(u.pathname);
-    if (iconLike) return false;
-  } catch (_) {}
-
-  // SSE/HTML 스트림 등은 제외
-  const accept = request.headers.get('accept') || '';
-  if (accept.includes('text/event-stream')) return true;
-
-  return false;
-}
 
 // Service Worker 설치
 self.addEventListener('install', (event) => {
-  console.log('AICAMP Service Worker installing...');
-  event.waitUntil((async () => {
-    try {
-      const cache = await caches.open(CACHE_NAME);
-      console.log('Opened cache');
-      await Promise.all(
-        urlsToCache.map(async (url) => {
-          try {
-            const request = new Request(url, { method: 'GET', cache: 'reload' });
-            const response = await fetch(request);
-            if (response && response.ok) {
-              await cache.put(request, response.clone());
-            } else {
-              console.warn('Precache skipped (HTTP)', url, response?.status);
-            }
-          } catch (e) {
-            console.warn('Precache failed', url, e?.message || e);
-          }
-        })
-      );
-    } catch (error) {
-      console.warn('Service Worker cache process error:', error?.message || error);
-    }
-  })());
-  // 즉시 대기 상태 건너뛰어 빠른 업데이트 적용
-  self.skipWaiting();
+  console.log('📦 Service Worker 설치 중...');
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('✅ 캐시 생성 완료');
+        return cache.addAll(urlsToCache);
+      })
+      .catch((error) => {
+        console.error('❌ 캐시 생성 실패:', error);
+      })
+  );
 });
 
 // Service Worker 활성화
 self.addEventListener('activate', (event) => {
-  console.log('AICAMP Service Worker activating...');
+  console.log('🚀 Service Worker 활성화');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+            console.log('🗑️ 이전 캐시 삭제:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  // 즉시 클라이언트 제어
-  self.clients && self.clients.claim && self.clients.claim();
 });
 
 // 네트워크 요청 처리
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  
-  // Chrome 확장 프로그램 요청 무시
-  if (
-    event.request.url.includes('chrome-extension://') ||
-    event.request.url.includes('moz-extension://') ||
-    event.request.url.includes('safari-extension://')
-  ) {
-    return;
-  }
-
-  // manifest.json 및 기타 무시할 패턴 체크 - 조용히 처리
-  if (IGNORE_PATTERNS.some(pattern => url.pathname.includes(pattern))) {
+  // 매니페스트 요청에 대해서는 네트워크 우선 전략 사용
+  if (event.request.url.includes('manifest.webmanifest')) {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        // manifest.json 등의 404/401 오류는 조용히 무시 (preview protection 대응)
-        return new Response('', { 
-          status: 200,  // 200으로 변경하여 브라우저 로그 억제
-          statusText: 'OK',
-          headers: { 'Content-Type': 'application/json' }
-        });
-      })
+      fetch(event.request)
+        .then((response) => {
+          // 성공적으로 받아온 경우 캐시에 저장
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseClone);
+              });
+          }
+          return response;
+        })
+        .catch(() => {
+          // 네트워크 실패 시 캐시에서 반환
+          return caches.match(event.request);
+        })
     );
     return;
   }
 
-  // 캐시 부적합 요청은 그대로 네트워크만 사용
-  if (isNonCacheableRequest(event.request)) {
-    event.respondWith(
-      fetch(event.request).catch(async (error) => {
-        // manifest 관련 오류는 조용히 처리
-        if (url.pathname.includes('manifest')) {
-          return new Response('', { status: 404 });
-        }
-        console.warn('Network request failed (non-cacheable):', error?.message || error);
-        // 네비게이션 요청이면 루트로 폴백
-        if (event.request.mode === 'navigate') {
-          const fallback = await caches.open(CACHE_NAME).then((cache) => cache.match('/'));
-          return fallback || new Response('Offline', { status: 503 });
-        }
-        return new Response('Network error', { status: 503 });
+  // 일반 요청에 대한 캐시 우선 전략
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // 캐시에 있으면 반환, 없으면 네트워크에서 가져옴
+        return response || fetch(event.request);
       })
-    );
-    return;
-  }
-
-  event.respondWith((async () => {
-    const cache = await caches.open(CACHE_NAME);
-    const cacheKey = new Request(event.request.url, { method: 'GET' });
-    const cached = await cache.match(cacheKey);
-    if (cached) return cached;
-
-    try {
-      const networkResponse = await fetch(event.request);
-      if (networkResponse && networkResponse.ok && event.request.method === 'GET') {
-        try {
-          await cache.put(cacheKey, networkResponse.clone());
-        } catch (err) {
-          console.warn('Cache put failed (GET):', err?.message || err);
-        }
-      }
-      return networkResponse;
-    } catch (error) {
-      console.warn('Fetch failed:', error?.message || error);
-      const offline = await caches.match('/');
-      return offline || new Response('Offline', { status: 503 });
-    }
-  })());
+      .catch((error) => {
+        console.warn('Service Worker fetch 오류:', error);
+        return fetch(event.request);
+      })
+  );
 });
 
-// 메시지 처리 - 안전한 버전
+// 메시지 처리
 self.addEventListener('message', (event) => {
-  try {
-    // Chrome 확장 프로그램 관련 메시지 완전 무시
-    if (event.data && typeof event.data === 'string') {
-      if (event.data.includes('port closed') || 
-          event.data.includes('Extension context') ||
-          event.data.includes('chrome-extension://') ||
-          event.data.includes('content.js') ||
-          event.data.includes('runtime.lastError') ||
-          event.data.includes('The message port closed')) {
-        event.stopImmediatePropagation();
-        return;
-      }
-    }
-    
-    // 객체 타입 메시지 검사
-    if (event.data && typeof event.data === 'object') {
-      const dataStr = JSON.stringify(event.data);
-      if (dataStr.includes('chrome-extension://') ||
-          dataStr.includes('runtime.lastError') ||
-          dataStr.includes('Extension context')) {
-        event.stopImmediatePropagation();
-        return;
-      }
-    }
-    
-    // 유효한 메시지만 처리
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-      self.skipWaiting();
-    }
-  } catch (error) {
-    // 메시지 처리 중 오류 발생 시 조용히 무시
-    console.debug('Service Worker message handling error:', error.message);
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });
 
-// 오류 처리 - 안전한 버전
-self.addEventListener('error', (event) => {
-  // Chrome 확장 프로그램 오류 완전 무시
-  if (event.error && event.error.message) {
-    if (event.error.message.includes('port closed') || 
-        event.error.message.includes('Extension context') ||
-        event.error.message.includes('chrome-extension://') ||
-        event.error.message.includes('content.js') ||
-        event.error.message.includes('runtime.lastError') ||
-        event.error.message.includes('The message port closed')) {
-      return;
-    }
-  }
-  
-  // 일반적인 오류만 로깅
-  console.warn('Service Worker error:', event.error?.message || 'Unknown error');
-});
-
-// Unhandled promise rejection 처리 - 안전한 버전
-self.addEventListener('unhandledrejection', (event) => {
-  const reason = event.reason;
-  
-  // Chrome 확장 프로그램 관련 오류 완전 무시
-  if (reason && typeof reason === 'string') {
-    if (reason.includes("Request method 'HEAD' is unsupported") ||
-        reason.includes("Request method 'POST' is unsupported") ||
-        reason.includes('Failed to execute \"put\" on \"Cache\"')) {
-      event.preventDefault();
-      return;
-    }
-    if (reason.includes('port closed') || 
-        reason.includes('Extension context') ||
-        reason.includes('chrome-extension://') ||
-        reason.includes('content.js') ||
-        reason.includes('runtime.lastError') ||
-        reason.includes('The message port closed')) {
-      event.preventDefault();
-      return;
-    }
-  }
-  
-  if (reason && reason.message) {
-    const msg = reason.message;
-    if (msg.includes("Request method 'HEAD' is unsupported") ||
-        msg.includes("Request method 'POST' is unsupported") ||
-        msg.includes('Failed to execute \"put\" on \"Cache\"')) {
-      event.preventDefault();
-      return;
-    }
-    if (reason.message.includes('port closed') || 
-        reason.message.includes('Extension context') ||
-        reason.message.includes('chrome-extension://') ||
-        reason.message.includes('content.js') ||
-        reason.message.includes('runtime.lastError') ||
-        reason.message.includes('The message port closed')) {
-      event.preventDefault();
-      return;
-    }
-  }
-  
-  // 일반적인 rejection만 로깅
-  console.warn('Service Worker unhandled rejection:', 
-    reason?.message || reason || 'Unknown rejection');
-});
-
-// Chrome Extension 메시지 포트 오류 처리
-self.addEventListener('message', (event) => {
-  try {
-    // 안전한 메시지 처리
-    if (event.data && typeof event.data === 'object') {
-      // 필요한 경우 메시지 처리 로직 추가
-      console.log('Service Worker received message:', event.data.type || 'unknown');
-    }
-  } catch (error) {
-    // Chrome Extension 오류 무시
-    if (error.message?.includes('message port closed') || 
-        error.message?.includes('Extension context invalidated')) {
-      return; // 조용히 무시
-    }
-    console.warn('Service Worker message error:', error.message);
-  }
-});
-
-// 런타임 오류 처리 강화
-self.addEventListener('error', (event) => {
-  // Chrome Extension 관련 오류 필터링
-  if (event.error?.message?.includes('Extension context invalidated') ||
-      event.error?.message?.includes('message port closed') ||
-      event.filename?.includes('content.js')) {
-    event.preventDefault();
-    return;
-  }
-});
-
-console.log('AICAMP Service Worker loaded successfully'); 
+console.log('🎓 이교장의AI역량진단보고서 Service Worker 로드 완료');

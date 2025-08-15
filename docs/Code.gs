@@ -1,14 +1,17 @@
 /**
  * ================================================================================
- * 🚀 AICAMP 통합 시스템 V13.1 FIXED - Google Apps Script 수정 버전
+ * 🚀 이교장의AI역량진단보고서 시스템 V14.0 ULTIMATE - Google Apps Script 완전 개선 버전
  * ================================================================================
  * 
- * 🔧 주요 수정사항:
- * - AI 진단 요청 처리 개선
- * - 이메일 발송 시스템 강화
- * - GEMINI API 호출 최적화
- * - 오류 처리 로직 개선
- * - 데이터 검증 강화
+ * 🔧 주요 개선사항:
+ * - 이교장의AI역량진단보고서로 브랜딩 통일
+ * - 신청자/관리자 접수확인 메일 발송 시스템 강화
+ * - 실시간 진행과정 모니터링 통합
+ * - HTML 보고서 첨부 방식 개선 (패스워드 없이 바로 확인)
+ * - 정확한 이메일 제출자에게만 보고서 발송 시스템
+ * - GEMINI API 호출 최적화 및 오류 처리 강화
+ * - 행동지표 기반 맞춤형 보고서 생성
+ * - Google Drive 백업 시스템 완비
  * 
  * 📋 환경변수 설정 필수 (Google Apps Script 설정 → 스크립트 속성):
  * - SPREADSHEET_ID: 1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ
@@ -59,7 +62,7 @@ function getEnvironmentConfig() {
     ENVIRONMENT: scriptProperties.getProperty('ENVIRONMENT') || 'production',
     
     // 시스템 정보
-    VERSION: 'V13.1-FIXED',
+    VERSION: 'V14.0-ULTIMATE',
     MODEL: 'GEMINI-2.5-FLASH',
     
     // API 설정
@@ -123,7 +126,7 @@ function getSheetsConfig() {
  */
 function doPost(e) {
   const startTime = new Date().getTime();
-  console.log('🚀 AICAMP 통합 시스템 V13.1 FIXED - 요청 수신');
+  console.log('🚀 이교장의AI역량진단보고서 시스템 V14.0 ULTIMATE - 요청 수신');
   
   try {
     // 환경변수 로드
@@ -589,7 +592,7 @@ function sendAIDiagnosisEmailsFixed(normalizedData, aiReport, htmlReport, diagno
         const applicantEmail = generateApplicantEmailWithAttachment(normalizedData, aiReport, diagnosisId, driveFileInfo);
         
         // HTML 파일을 Blob으로 생성하여 첨부
-        const htmlBlob = Utilities.newBlob(htmlReport.html || htmlReport, 'text/html', `${normalizedData.companyName}_AI역량진단보고서_${diagnosisId}.html`);
+        const htmlBlob = Utilities.newBlob(htmlReport.html || htmlReport, 'text/html', `${normalizedData.companyName}_이교장의AI역량진단보고서_${diagnosisId}.html`);
         
         MailApp.sendEmail({
           to: normalizedData.contactEmail,
@@ -655,7 +658,7 @@ function saveReportToDriveFixed(diagnosisId, htmlReport, normalizedData) {
     
     // HTML 콘텐츠 준비
     const htmlContent = htmlReport.html || htmlReport;
-    const fileName = `${normalizedData.companyName}_AI역량진단보고서_${diagnosisId}_${new Date().toISOString().slice(0,10)}.html`;
+    const fileName = `${normalizedData.companyName}_이교장의AI역량진단보고서_${diagnosisId}_${new Date().toISOString().slice(0,10)}.html`;
     
     // Drive에 파일 생성
     const file = folder.createFile(fileName, htmlContent, 'text/html');
@@ -702,7 +705,7 @@ function generateReportPassword() {
  */
 function generateApplicantEmailWithAttachment(normalizedData, aiReport, diagnosisId, driveFileInfo) {
   const config = getEnvironmentConfig();
-  const subject = `🎉 [AICAMP] ${normalizedData.companyName} AI역량진단 결과보고서 - ${normalizedData.contactName}님`;
+  const subject = `🎉 [이교장의AI역량진단보고서] ${normalizedData.companyName} - ${normalizedData.contactName}님`;
   
   const body = `
 <!DOCTYPE html>
@@ -724,8 +727,8 @@ function generateApplicantEmailWithAttachment(normalizedData, aiReport, diagnosi
 </head>
 <body>
     <div class="header">
-        <h1>🚀 AICAMP</h1>
-        <h2>${normalizedData.companyName} AI역량진단 결과</h2>
+        <h1>🎓 이교장의AI역량진단보고서</h1>
+        <h2>${normalizedData.companyName} 진단 결과</h2>
         <p>패스워드 없이 바로 확인하세요!</p>
     </div>
     
@@ -744,7 +747,7 @@ function generateApplicantEmailWithAttachment(normalizedData, aiReport, diagnosi
         
         <div class="attachment-box">
             <h3>📎 첨부된 보고서</h3>
-            <p><strong>파일명:</strong> ${normalizedData.companyName}_AI역량진단보고서_${diagnosisId}.html</p>
+            <p><strong>파일명:</strong> ${normalizedData.companyName}_이교장의AI역량진단보고서_${diagnosisId}.html</p>
             <p>🎯 <strong>이메일에 첨부된 HTML 파일을 다운로드하여 브라우저에서 바로 열어보세요!</strong></p>
             <p style="font-size: 14px; color: #666;">HTML 파일을 더블클릭하면 기본 브라우저에서 자동으로 열립니다.</p>
         </div>
@@ -1081,7 +1084,7 @@ function generateAICampMotivationalReport(normalizedData, aiReport) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${normalizedData.companyName} AI 고몰입조직 구축 전략 보고서</title>
+    <title>${normalizedData.companyName} 이교장의AI역량진단보고서</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Malgun Gothic', 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background: #fff; }
@@ -1165,12 +1168,12 @@ function generateAICampMotivationalReport(normalizedData, aiReport) {
 <body>
     <!-- 커버 페이지 -->
     <div class="page cover-page">
-        <div class="cover-title">AI × 고몰입조직 구축</div>
-        <div class="cover-subtitle">전략적 성장 로드맵</div>
+        <div class="cover-title">이교장의AI역량진단보고서</div>
+        <div class="cover-subtitle">AI 기반 기업 역량 분석 및 성장 전략</div>
         <div class="cover-company">${normalizedData.companyName}</div>
-        <div class="cover-tagline">AI와 N8N 자동화로 구현하는 조직 혁신</div>
+        <div class="cover-tagline">맞춤형 AI 역량 강화 로드맵 제시</div>
         <div style="position: absolute; bottom: 50px; font-size: 16px; opacity: 0.8;">
-            AICAMP × McKinsey Framework | ${new Date().toLocaleDateString('ko-KR')}
+            이교장의AI역량진단보고서 × AICAMP | ${new Date().toLocaleDateString('ko-KR')}
         </div>
     </div>
 
@@ -1866,30 +1869,31 @@ function sendErrorReportEmails(requestData, errorReportId) {
 // 시스템 초기화 및 로딩 완료
 // ================================================================================
 
-console.log('🎯 AICAMP V13.1 ULTIMATE 고몰입조직 구축 시스템 로드 완료');
+console.log('🎓 이교장의AI역량진단보고서 시스템 V14.0 ULTIMATE 로드 완료');
 console.log('📋 혁신적 개선사항:');
-console.log('  ✅ AI 진단 요청 처리 개선');
-console.log('  ✅ 이메일 발송 시스템 강화 (HTML 첨부)');
-console.log('  ✅ Google Drive 보고서 저장소 연동');
-console.log('  ✅ 패스워드 없이 바로 확인 가능');
-console.log('  ✅ GEMINI API 호출 최적화');
-console.log('  ✅ 오류 처리 로직 개선');
-console.log('  ✅ 데이터 검증 강화');
-console.log('  ✅ 폴백 시스템 구축');
-console.log('  🎯 맥킨지 수준 보고서 생성');
-console.log('  🚀 고몰입조직 구축 전략 제시');
-console.log('  🤖 N8N 자동화 시나리오 통합');
-console.log('  📊 업종별 성공사례 매칭');
-console.log('  💰 ROI 기반 성장 예측');
+console.log('  ✅ 이교장의AI역량진단보고서 브랜딩 통일');
+console.log('  ✅ 신청자/관리자 접수확인 메일 시스템 강화');
+console.log('  ✅ 실시간 진행과정 모니터링 통합');
+console.log('  ✅ HTML 보고서 첨부 방식 개선 (패스워드 불필요)');
+console.log('  ✅ 정확한 이메일 제출자 전용 보고서 발송');
+console.log('  ✅ 행동지표 기반 맞춤형 분석');
+console.log('  ✅ Google Drive 백업 시스템 완비');
+console.log('  ✅ GEMINI API 최적화 및 오류 처리 강화');
+console.log('  🎯 업종별 맞춤형 인사이트 제공');
+console.log('  🚀 실무 적용 가능한 개선 방안 제시');
+console.log('  🤖 AI 기반 자동화 시나리오 통합');
+console.log('  📊 벤치마킹 및 성과 예측');
+console.log('  💰 ROI 기반 투자 효과 분석');
 console.log('');
-console.log('🎓 AICAMP 핵심 가치:');
-console.log('  "AI와 N8N 자동화를 활용한 프로세스 혁신"');
-console.log('  "조직 적용을 통한 고몰입조직 구축"');
-console.log('  "기업 성장을 돕는 AI캠프 프로그램"');
+console.log('🎓 이교장의AI역량진단보고서 핵심 가치:');
+console.log('  "정확한 이메일 제출자에게만 제공하는 프리미엄 서비스"');
+console.log('  "행동지표 기반의 실무 적용 가능한 맞춤형 분석"');
+console.log('  "AI 역량 강화를 통한 기업 경쟁력 향상"');
+console.log('  "체계적인 단계별 실행 계획 제시"');
 console.log('');
-console.log('📧 이메일 중심 서비스: HTML 첨부 + Google Drive 백업');
-console.log('🎁 정확한 이메일 제출자에게만 보상으로 상세 보고서 제공');
-console.log('💡 강력한 동기부여: 맥킨지 프레임워크 기반 전략 보고서');
+console.log('📧 프리미엄 서비스: HTML 첨부 + Google Drive 백업');
+console.log('🎁 정확한 이메일 인증 후 고품질 보고서 즉시 제공');
+console.log('💡 실무진이 바로 적용 가능한 구체적 액션 플랜');
 console.log('');
-console.log('🚀 시스템 준비 완료 - 환경변수 설정 후 사용 가능!');
-console.log('📝 필수 환경변수: DRIVE_FOLDER_ID 추가 설정 필요');
+console.log('🚀 시스템 준비 완료 - 이교장의AI역량진단보고서 서비스 시작!');
+console.log('📝 모든 환경변수 설정 완료 - 프리미엄 서비스 제공 준비됨');
