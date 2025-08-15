@@ -208,6 +208,28 @@
       "has": [
         {
           "type": "host",
+          "value": "aicampv30-git-dependabot-npmand-1922d8-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-phsvic2cc-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
           "value": "aicampv30-*.vercel.app"
         }
       ],
