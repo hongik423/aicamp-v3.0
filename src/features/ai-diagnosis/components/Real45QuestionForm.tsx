@@ -258,9 +258,17 @@ const Real45QuestionForm: React.FC = () => {
         // 진단 결과를 상태에 저장하여 완료 화면으로 전환
         setDiagnosisResult(result);
         
+        // 세션 스토리지에 결과 저장 (페이지 새로고침 대비)
+        try {
+          sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
+          console.log('✅ 진단 결과 세션 저장 완료');
+        } catch (storageError) {
+          console.warn('⚠️ 세션 저장 실패:', storageError);
+        }
+        
         toast({
           title: "진단 완료!",
-          description: "진단 결과를 확인하실 수 있습니다.",
+          description: "AI 분석이 완료되었습니다. 이메일로도 발송됩니다.",
           variant: "default"
         });
 
