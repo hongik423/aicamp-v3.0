@@ -644,9 +644,9 @@ export const INDUSTRY_SPECIFIC_CURRICULUM: Record<string, IndustrySpecificCurric
  */
 export function getCurriculumRecommendation(
   industryType: string,
-  companySize: string,
-  currentLevel: string,
-  specificNeeds: string[]
+  _companySize: string,
+  _currentLevel: string,
+  _specificNeeds: string[]
 ): IndustrySpecificCurriculum | null {
   const baseCurriculum = INDUSTRY_SPECIFIC_CURRICULUM[industryType];
   if (!baseCurriculum) return null;

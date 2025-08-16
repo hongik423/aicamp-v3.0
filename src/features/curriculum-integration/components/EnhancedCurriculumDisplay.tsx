@@ -318,7 +318,7 @@ interface CurriculumModuleListProps {
   industryType: string;
 }
 
-function CurriculumModuleList({ modules, category, color, onSelectModule, industryType }: CurriculumModuleListProps) {
+function CurriculumModuleList({ modules, category, color, onSelectModule: _onSelectModule, industryType }: CurriculumModuleListProps) {
   // 업종별 커리큘럼 데이터 매핑
   const getCourseLevel = (category: string): 'basic' | 'advanced' | 'executive' => {
     if (category.includes('기초')) return 'basic';

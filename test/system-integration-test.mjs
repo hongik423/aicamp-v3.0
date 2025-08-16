@@ -4,6 +4,7 @@
  */
 
 import fetch from 'node-fetch';
+import { fileURLToPath } from 'url';
 
 const TEST_DATA = {
   companyName: "테스트컴퍼니",
@@ -151,7 +152,16 @@ async function testSystemIntegration() {
 }
 
 // 테스트 실행
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isDirectRun = (() => {
+  try {
+    const thisFile = fileURLToPath(import.meta.url);
+    return thisFile === process.argv[1];
+  } catch {
+    return false;
+  }
+})();
+
+if (isDirectRun) {
   testSystemIntegration()
     .then(success => {
       console.log('\n' + '=' .repeat(60));

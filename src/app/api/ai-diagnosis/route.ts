@@ -59,9 +59,9 @@ export async function POST(request: NextRequest) {
         console.log('✅ 로컬 워크플로우 완료 - Google Apps Script로 전송');
         
         // Google Apps Script로 완성된 데이터 전송
-        const dynamicBase = request.headers.get('host') ? 
-          `https://${request.headers.get('host')}` : 
-          'https://aicamp.club';
+        const host = request.headers.get('host');
+        const protocol = host?.includes('localhost') ? 'http' : 'https';
+        const dynamicBase = host ? `${protocol}://${host}` : 'https://aicamp.club';
         
         const gasPayload = {
           type: 'ai_diagnosis_complete',
@@ -74,6 +74,8 @@ export async function POST(request: NextRequest) {
             source: 'integrated_workflow'
           }
         };
+        
+        console.log('🔗 Google Apps Script 호출 URL:', `${dynamicBase}/api/google-script-proxy`);
         
         // Google Apps Script 비동기 호출 (이메일 발송 및 저장)
         fetch(`${dynamicBase}/api/google-script-proxy`, {
@@ -134,9 +136,9 @@ export async function POST(request: NextRequest) {
         // 워크플로우 결과가 없는 경우 (실제로는 발생하지 않음)
         console.log('⚠️ 워크플로우 결과 없음 - Google Apps Script 폴백');
         
-        const dynamicBase = request.headers.get('host') ? 
-          `https://${request.headers.get('host')}` : 
-          'https://aicamp.club';
+        const host = request.headers.get('host');
+        const protocol = host?.includes('localhost') ? 'http' : 'https';
+        const dynamicBase = host ? `${protocol}://${host}` : 'https://aicamp.club';
         
         const gasResponse = await fetch(`${dynamicBase}/api/google-script-proxy`, {
           method: 'POST',
