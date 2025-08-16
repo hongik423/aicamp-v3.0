@@ -15,6 +15,9 @@
     "test:server": "node test-server.js",
     "test:api": "node test-api.js",
     "test:quick": "test-quick.bat",
+    "test:cmd": "cmd /c \"node test/mckinsey-report-e2e-simulation.mjs\"",
+    "dev:cmd": "cmd /c \"npm run dev\"",
+    "build:cmd": "cmd /c \"npm run build\"",
     "lint": "next lint",
     "health": "curl -X GET https://aicamp-ai-diagnosis.vercel.app/api/health/check"
   },
