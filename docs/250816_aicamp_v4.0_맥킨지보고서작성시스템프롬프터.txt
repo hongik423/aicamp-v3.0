@@ -1,0 +1,175 @@
+<PROMPT>
+You are an expert AI Solutions Architect and Senior Business Consultant with deep expertise in data analysis, process automation, and strategic reporting, specializing in McKinsey-style deliverables.
+
+Your primary objective is to conceptualize and outline a sophisticated system for generating high-quality competency diagnosis reports. This system should leverage AI and n8n to automate the aggregation of application assessment scores, link these scores to competency diagnosis reports, and incorporate feedback from 45 questions and sector-specific evaluation points. The ultimate goal is to create a comprehensive results report that includes strategic recommendations and an improvement roadmap, all delivered with world-class quality.
+
+Specifically, you need to define the architecture and functional components of a solution that:
+
+1.  **Aggregates Application Assessment Scores:** Develop a mechanism to collect and consolidate scores evaluated during the application process.
+2.  **Links Scores to Competency Diagnosis Reports:** Establish a direct correlation between the aggregated application scores and the content/findings within the competency diagnosis reports.
+3.  **Incorporates Detailed Evaluation Data:** Ensure the system accurately reflects and utilizes input from "45문항" (45 questions) and "분야별 평가점수" (sector-specific evaluation scores) to inform the report generation.
+4.  **Generates Strategic Recommendations and Improvement Roadmaps:** Design the output to include actionable strategic advice and a clear roadmap for improvement based on the analyzed data.
+5.  **Utilizes AI and n8n:** Propose how Artificial Intelligence (AI) and n8n will be integrated to automate these processes, from data aggregation to report generation. This includes defining the specific functions and programs to be developed.
+6.  **Achieves McKinsey-Style and World-Class Quality:** Guide the development of a system that produces reports characterized by the analytical rigor, strategic depth, and polished presentation typical of McKinsey-style consulting outputs, meeting the highest global standards.
+
+Your task is to outline the blueprint for this advanced reporting system, detailing the technical and strategic considerations for its implementation.
+</PROMPT>
+
+---
+
+**Output Format Recommendations:**
+
+The response should be structured as follows:
+
+1.  **Executive Summary:** A brief overview of the proposed solution and its key benefits.
+2.  **System Architecture:** A high-level diagram or description of the system's components and their interactions.
+3.  **Functional Breakdown:**
+    *   **Data Ingestion and Aggregation:** How application scores, 45 questions data, and sector-specific scores will be collected and processed.
+    *   **AI-Powered Analysis and Scoring:** How AI will be used to analyze the data, link scores to competency diagnosis, and identify key insights.
+    *   **n8n Workflow Automation:** Specific n8n workflows for data processing, report generation, and integration.
+    *   **Report Generation Engine:** The logic and components responsible for creating the results report, including strategic recommendations and roadmaps.
+4.  **AI and n8n Integration Strategy:** Detailed explanation of how AI models and n8n will be utilized, including potential functions and programs.
+5.  **Quality Assurance and McKinsey-Style Output:** Strategies for ensuring the report quality, strategic depth, and presentation align with world-class standards.
+6.  **Key Considerations and Challenges:** Potential obstacles and how to address them.
+7.  **Recommendations for Implementation:** Next steps and best practices.
+
+ai analysis layer 는 gemini 2.5 flash model ( GEMINI_API_KEY=AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM )만 활용 정량적.정성적 분석 통합분석 시스템...
+n8n automation layer 프로세스는  gemini 2.5 flash model을 활용한 ai analysis layer 로 통합 시스템으로 할것...
+html 보고서 생성은 이메일발송과 html 업데이트는@https://drive.google.com/drive/folders/1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj?usp=sharing공유폴더에 DRIVE_FOLDER_ID : 1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj
+저장하는 시스템
+
+시스템 수정하여줘
+
+graph TB
+    subgraph "Updated AI Analysis Layer"
+        A[GEMINI 2.5 Flash<br/>정량적 분석] --> C[GEMINI 통합<br/>분석 엔진]
+        B[GEMINI 2.5 Flash<br/>정성적 분석] --> C
+        C --> D[통합 인사이트<br/>생성]
+    end
+    
+    subgraph "Updated n8n Automation"
+        E[데이터 전처리] --> F[GEMINI 분석<br/>오케스트레이션]
+        F --> G[McKinsey 보고서<br/>생성]
+        G --> H[Google Drive<br/>업로드]
+        H --> I[이메일 발송]
+    end
+    
+    subgraph "Google Drive Integration"
+        J[HTML 보고서] --> K[Drive API<br/>업로드]
+        K --> L[공유 폴더<br/>1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj]
+        L --> M[공유 링크<br/>생성]
+    end
+    
+    D --> F
+    I --> J
+
+
+
+
+📋 현재 설계된 맥킨지 보고서 형식
+🎯 전체 구조 (11개 섹션)
+1. 표지 페이지 (Cover Page)
+이교장의AI역량진단보고서 타이틀
+McKinsey 방법론 기반 정밀 분석 서브타이틀
+회사명, 진단일, 진단 ID
+AICAMP AI 역량진단 시스템 V15.0
+2. 경영진 요약 (Executive Summary)
+🎯 핵심 진단 결과 (성숙도, 총점, 상위 백분율)
+이교장 톤앤매너 적용된 친근한 메시지
+📊 종합 점수 현황 (도넛 차트)
+⚡ 즉시 실행 권고사항
+3. 기업 정보 (Company Information)
+회사 기본 정보 (업종, 규모, 위치 등)
+진단 개요 및 방법론
+4. 진단 결과 시각화 (Diagnosis Visualization)
+6개 영역 스코어 카드:
+종합 점수
+현재 AI 활용
+조직 준비도
+기술 인프라
+목표 명확성
+실행 역량
+차트 2개:
+레이더 차트 (5개 영역 시각화)
+벤치마크 비교 차트
+5. 행동지표 기반 분석 (Behavioral Analysis)
+💪 상위 5개 강점 행동
+🚀 상위 5개 개선 필요 행동
+행동 키워드 및 설명
+6. 벤치마크 분석 (Benchmark Analysis)
+업종별 비교
+규모별 비교
+경쟁 포지션 분석
+7. SWOT 분석
+💪 강점 (Strengths) - 녹색 박스
+⚠️ 약점 (Weaknesses) - 빨간색 박스
+🚀 기회 (Opportunities) - 파란색 박스
+⚡ 위협 (Threats) - 주황색 박스
+8. 우선순위 매트릭스 (Priority Matrix)
+중요도-긴급성 매트릭스
+실행 우선순위 순서
+9. n8n 기반 실행방법론
+이교장 톤앤매너: "코딩 몰라도 괜찮습니다!"
+3개 커리큘럼 카드:
+🔄 n8n 기초 워크플로우 (12시간)
+📊 업무 자동화 실무 (16시간)
+🤖 AI + n8n 통합 (20시간)
+🎯 맞춤형 n8n 활용 시나리오
+10. AICAMP 커리큘럼 추천
+진단 결과 기반 맞춤형 교육과정
+💰 투자 대비 효과 (ROI):
+업무 효율성 300% 향상
+의사결정 속도 50% 개선
+인건비 절약 연간 2억원
+고객 만족도 40% 증가
+11. 3단계 실행 로드맵
+1단계: 🚀 AI 기초 역량 구축 (1-2개월, 500만원)
+2단계: ⚡ 업무 자동화 고도화 (3-4개월, 1,200만원)
+3단계: 🎯 AI 전문 조직 완성 (5-6개월, 2,000만원)
+12. 결론 및 다음 단계
+🎯 핵심 메시지
+이교장 톤앤매너: 격려 및 동기부여
+📞 즉시 연락 필요 사항 (3단계 액션 아이템)
+🎨 디자인 특징
+맥킨지 스타일 요소:
+깔끔한 타이포그래피
+구조화된 레이아웃
+데이터 중심 시각화
+전문적인 색상 팔레트
+이교장 톤앤매너:
+친근하고 격려하는 말투
+"걱정 마세요", "바로 시작하세요" 등
+실무적이고 구체적인 조언
+자신감을 주는 메시지
+시각화 요소:
+Chart.js 기반 동적 차트
+스코어 카드 그리드
+색상 코딩 (우수/양호/보통/미흡)
+반응형 디자인
+인터랙티브 요소:
+호버 효과
+동적 차트 애니메이션
+그리드 레이아웃
+📊 데이터 구조
+이 보고서 형식은 McKinsey의 전문성과 이교장의 친근함을 결합하여, 기업이 실제로 활용할 수 있는 실무적인 AI 역량 진단 보고서를 제공합니다.
+
+맥킨지 스타일 보고서:
+✅ 3단계 로드맵 금액: 모두 TBD (진단 후 맞춤 제안)으로 변경
+✅ GEMINI 2.5 Flash 전용 AI 분석
+✅ Google Drive 통합 저장
+✅ Chart.js 동적 시각화
+✅ 이교장 톤앤매너 완벽 적용
+시스템 아키텍처:
+✅ Next.js 14 프론트엔드
+✅ Google Apps Script 백엔드
+✅ GEMINI 2.5 Flash AI 엔진
+✅ Google Drive 파일 저장
+✅ Vercel 배포 환경
+🎊 최종 결과
+완벽하게 정리된 시스템:
+🗂️ 불필요한 파일 40+ 개 삭제
+🔧 임포트 오류 모두 해결
+💰 로드맵 금액 TBD로 변경
+✅ 빌드 100% 성공
+🚀 배포 준비 완료
+이제 시스템이 완전히 정리되고 최적화되었습니다! 맥킨지 스타일 보고서의 금액이 모두 TBD (진단 후 맞춤 제안)으로 변경되어, 고객별 맞춤 제안이 가능한 구조로 업그레이드되었습니다.
