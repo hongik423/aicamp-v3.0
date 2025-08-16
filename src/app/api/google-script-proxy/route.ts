@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 800000); // 800초 타임아웃 [[memory:5039126]]
 
-    console.log('🚀 Google Apps Script 요청 전송 중... (최대 13.33분 대기)');
+    console.log('🚀 Google Apps Script V15.0 ULTIMATE 요청 전송 중... (최대 13.33분 대기)');
     
     let response;
     
