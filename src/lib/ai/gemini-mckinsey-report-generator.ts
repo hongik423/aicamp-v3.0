@@ -59,7 +59,7 @@ export async function generateGeminiMcKinseyReport(
   try {
     console.log('🤖 GEMINI 2.5 Flash 맥킨지 보고서 생성 시작:', reportId);
     
-    const { analysisResult, reportType, language, customization } = request;
+    const { analysisResult, customization } = request;
     
     // GEMINI API 호출을 위한 fetch 기반 구현
     const sections = await Promise.allSettled([
@@ -123,7 +123,7 @@ export async function generateGeminiMcKinseyReport(
       }
     };
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ GEMINI 맥킨지 보고서 생성 실패:', error);
     
     return {
@@ -161,7 +161,7 @@ export async function generateGeminiMcKinseyReport(
 async function generateSection(
   sectionType: string, 
   analysisResult: McKinsey45QuestionsResult,
-  customization?: any
+  customization?: Record<string, unknown>
 ): Promise<string> {
   const prompt = getSectionPrompt(sectionType, analysisResult, customization);
   
@@ -210,7 +210,7 @@ async function generateSection(
 function getSectionPrompt(
   sectionType: string, 
   analysisResult: McKinsey45QuestionsResult,
-  customization?: any
+  customization?: Record<string, unknown>
 ): string {
   const { companyInfo, scoreAnalysis, diagnosisId } = analysisResult;
   

@@ -3,12 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions';
+import { getQuestionBehaviorIndicators } from '../constants/question-specific-behavior-indicators';
 import { AddressInput } from '@/components/ui/address-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
@@ -105,19 +107,26 @@ const Real45QuestionForm: React.FC = () => {
 
   // Hydration 완료 처리
   useEffect(() => {
+    console.log('🔄 Hydration 시작...');
     setIsHydrated(true);
     
     // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
-    const savedData = localStorage.getItem('real45QuestionForm');
-    if (savedData) {
-      try {
+    try {
+      const savedData = localStorage.getItem('real45QuestionForm');
+      if (savedData) {
+        console.log('📂 로컬 스토리지 데이터 발견:', savedData);
         const parsedData = JSON.parse(savedData);
         setFormState(parsedData);
         setShowCompanyForm(parsedData.currentQuestion === -1);
-      } catch (error) {
-        console.error('로컬 스토리지 데이터 복원 실패:', error);
+        console.log('✅ 데이터 복원 완료');
+      } else {
+        console.log('📝 새로운 진단 시작');
       }
+    } catch (error) {
+      console.error('❌ 로컬 스토리지 데이터 복원 실패:', error);
     }
+    
+    console.log('✅ Hydration 완료');
   }, []);
 
   // 데이터 변경 시 로컬 스토리지에 저장 (Hydration 완료 후에만)
@@ -181,6 +190,21 @@ const Real45QuestionForm: React.FC = () => {
       }
     }));
 
+    // 점수 선택 시 토스트 알림으로 즉시 피드백
+    const scoreLabels = {
+      5: "매우 우수 (5점)",
+      4: "우수 (4점)", 
+      3: "보통 (3점)",
+      2: "개선 필요 (2점)",
+      1: "매우 부족 (1점)"
+    };
+    
+    toast({
+      title: `✅ ${scoreLabels[score as keyof typeof scoreLabels]} 선택됨`,
+      description: `질문 ${questionId}번에 ${score}점을 부여했습니다.`,
+      duration: 2000,
+    });
+
     // React.startTransition으로 상태 업데이트 안전하게 처리
     const timer = setTimeout(() => {
       React.startTransition(() => {
@@ -191,7 +215,7 @@ const Real45QuestionForm: React.FC = () => {
           }));
         }
       });
-    }, 800);
+    }, 1200); // 피드백을 확인할 시간을 조금 더 줌
 
     // 타이머 정리를 위해 ref나 state에 저장할 수도 있지만, 
     // 여기서는 컴포넌트가 언마운트될 때 자동으로 정리됩니다.
@@ -378,11 +402,13 @@ const Real45QuestionForm: React.FC = () => {
 
   // Hydration이 완료되지 않았으면 로딩 표시
   if (!isHydrated) {
+    console.log('⏳ Hydration 대기 중... isHydrated:', isHydrated);
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">AI 역량진단을 준비 중입니다...</p>
+          <p className="text-xs text-gray-400 mt-2">Hydration: {isHydrated ? '완료' : '대기중'}</p>
         </div>
       </div>
     );
@@ -390,15 +416,18 @@ const Real45QuestionForm: React.FC = () => {
 
   // 기업 정보 입력 폼
   if (showCompanyForm) {
+    console.log('📝 기업 정보 입력 폼 렌더링 중... showCompanyForm:', showCompanyForm);
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <Card className="shadow-xl">
             <CardHeader className="text-center">
               <div className="flex items-center justify-center mb-6">
-                <img 
+                <Image 
                   src="/aicamp_leader.png" 
                   alt="이교장" 
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-full mr-4 shadow-lg"
                 />
                 <div className="text-center">
@@ -632,7 +661,7 @@ const Real45QuestionForm: React.FC = () => {
     );
   }
 
-  // 나머지 컴포넌트는 기존과 동일하게 유지...
+  // 질문 진행 화면
   const currentQuestion = REAL_45_QUESTIONS[formState.currentQuestion];
 
   return (
@@ -642,21 +671,38 @@ const Real45QuestionForm: React.FC = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
-              <img 
+              <Image 
                 src="/aicamp_leader.png" 
                 alt="이교장" 
+                width={48}
+                height={48}
                 className="w-12 h-12 rounded-full mr-3 shadow-md"
               />
               <h1 className="text-2xl font-bold text-blue-900">이교장의AI역량진단</h1>
             </div>
-            <Badge variant="outline" className="text-lg px-3 py-1">
-              {answeredCount}/{REAL_45_QUESTIONS.length}
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="text-lg px-3 py-1">
+                {answeredCount}/{REAL_45_QUESTIONS.length}
+              </Badge>
+              {answeredCount > 0 && (
+                <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
+                  <span className="mr-1">🎯</span>
+                  현재 점수: {Object.values(formState.answers).reduce((sum, score) => sum + score, 0)}점
+                </div>
+              )}
+            </div>
           </div>
           <Progress value={progress} className="h-3" />
-          <p className="text-sm text-gray-600 mt-2">
-            진행률: {Math.round(progress)}%
-          </p>
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-sm text-gray-600">
+              진행률: {Math.round(progress)}%
+            </p>
+            {answeredCount > 0 && (
+              <p className="text-sm text-blue-600 font-medium">
+                평균 점수: {(Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / answeredCount).toFixed(1)}점
+              </p>
+            )}
+          </div>
         </div>
 
         {/* 질문 카드 */}
@@ -692,6 +738,30 @@ const Real45QuestionForm: React.FC = () => {
               </CardHeader>
 
               <CardContent className="space-y-6">
+                {/* 점수 체계 안내 */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center mb-2">
+                    <span className="text-blue-600 font-semibold mr-2">📊 점수 체계 안내</span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2 text-xs">
+                    <div className="text-center p-2 bg-green-100 rounded text-green-800 font-medium">
+                      5점<br/>매우 우수
+                    </div>
+                    <div className="text-center p-2 bg-blue-100 rounded text-blue-800 font-medium">
+                      4점<br/>우수
+                    </div>
+                    <div className="text-center p-2 bg-yellow-100 rounded text-yellow-800 font-medium">
+                      3점<br/>보통
+                    </div>
+                    <div className="text-center p-2 bg-orange-100 rounded text-orange-800 font-medium">
+                      2점<br/>개선 필요
+                    </div>
+                    <div className="text-center p-2 bg-red-100 rounded text-red-800 font-medium">
+                      1점<br/>매우 부족
+                    </div>
+                  </div>
+                </div>
+
                 {/* 질문별 정확한 행동지표 기반 답변 옵션 */}
                 <div className="space-y-4">
                   <h4 className="font-semibold text-gray-800 mb-4">
@@ -699,47 +769,58 @@ const Real45QuestionForm: React.FC = () => {
                   </h4>
                   
                   <div className="space-y-3">
-                    {getQuestionBehaviorIndicators(currentQuestion.id).map((indicator) => (
-                      <button
-                        key={indicator.score}
-                        onClick={() => handleAnswer(currentQuestion.id, indicator.score)}
-                        className={`
-                          w-full p-4 text-left border-2 rounded-lg transition-all duration-200
-                          ${formState.answers[currentQuestion.id] === indicator.score
-                            ? `${indicator.color} ${indicator.bgColor} border-current shadow-lg`
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                          }
-                        `}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center mb-2">
-                              <span className="font-semibold text-lg mr-3">
-                                {indicator.label}
-                              </span>
-                              <span className="text-sm font-medium px-2 py-1 rounded bg-gray-100">
-                                {indicator.score}점
-                              </span>
-                            </div>
-                            <div className="mb-2">
-                              <span className="text-sm font-medium text-blue-600">
-                                {indicator.keyword}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                              {indicator.description}
-                            </p>
-                            {indicator.actionItems.length > 0 && (
-                              <div className="text-xs text-gray-600">
-                                <span className="font-medium">주요 실행과제: </span>
-                                {indicator.actionItems.slice(0, 2).join(', ')}
-                                {indicator.actionItems.length > 2 && ' 등'}
+                    {getQuestionBehaviorIndicators(currentQuestion.id).map((indicator) => {
+                      const isSelected = formState.answers[currentQuestion.id] === indicator.score;
+                      return (
+                        <button
+                          key={indicator.score}
+                          onClick={() => handleAnswer(currentQuestion.id, indicator.score)}
+                          className={`
+                            w-full p-4 text-left border-2 rounded-lg transition-all duration-300 transform
+                            ${isSelected
+                              ? `${indicator.color} ${indicator.bgColor} border-current shadow-xl scale-[1.02] ring-2 ring-blue-200`
+                              : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md hover:scale-[1.01]'
+                            }
+                          `}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center mb-2">
+                                <span className="font-semibold text-lg mr-3">
+                                  {indicator.label}
+                                </span>
+                                <div className={`
+                                  flex items-center px-3 py-1 rounded-full text-sm font-bold transition-all duration-300
+                                  ${isSelected 
+                                    ? 'bg-white text-blue-600 shadow-md ring-2 ring-blue-300 animate-pulse' 
+                                    : 'bg-gray-100 text-gray-600'
+                                  }
+                                `}>
+                                  <span className="mr-1">⭐</span>
+                                  <span>{indicator.score}점</span>
+                                  {isSelected && <span className="ml-1 text-green-500">✓</span>}
+                                </div>
                               </div>
-                            )}
+                              <div className="mb-2">
+                                <span className="text-sm font-medium text-blue-600">
+                                  {indicator.keyword}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                                {indicator.description}
+                              </p>
+                              {indicator.actionItems.length > 0 && (
+                                <div className="text-xs text-gray-600">
+                                  <span className="font-medium">주요 실행과제: </span>
+                                  {indicator.actionItems.slice(0, 2).join(', ')}
+                                  {indicator.actionItems.length > 2 && ' 등'}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
