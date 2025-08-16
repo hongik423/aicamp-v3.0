@@ -135,18 +135,40 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
 
   console.log('🔍 SimplifiedDiagnosisResults 받은 데이터:', data);
 
-  // 실제 API 응답 구조: {success: true, data: {diagnosis: {...}, summaryReport: "..."}}
-  const diagnosis = data?.data?.diagnosis;
-  const summaryReport = data?.data?.summaryReport;
+  // API 응답 구조 유연하게 처리
+  let diagnosis, summaryReport;
+  
+  // 1. 새로운 API 응답 구조: {success: true, results: {...}, htmlReport: "..."}
+  if (data?.results) {
+    diagnosis = {
+      companyName: data.results.companyName || '고객사',
+      totalScore: data.results.totalScore || 0,
+      maturityLevel: data.results.maturityLevel || 'Beginner',
+      contactName: data.results.contactName || '',
+      contactEmail: data.results.contactEmail || ''
+    };
+    summaryReport = data.analysis || data.htmlReport || '';
+  }
+  // 2. 기존 API 응답 구조: {success: true, data: {diagnosis: {...}, summaryReport: "..."}}
+  else if (data?.data?.diagnosis) {
+    diagnosis = data.data.diagnosis;
+    summaryReport = data.data.summaryReport;
+  }
+  // 3. 직접 데이터 구조
+  else if (data?.totalScore !== undefined) {
+    diagnosis = data;
+    summaryReport = data.analysis || data.summaryReport || '';
+  }
   
   // diagnosis 객체 확인
   if (!diagnosis) {
     console.error('❌ diagnosis 객체를 찾을 수 없습니다:', {
       hasData: !!data,
+      hasResults: !!data?.results,
       hasDataProperty: !!data?.data,
       hasDiagnosis: !!data?.data?.diagnosis,
       dataKeys: data ? Object.keys(data) : 'no data',
-      dataDataKeys: data?.data ? Object.keys(data.data) : 'no data.data'
+      sampleData: data ? JSON.stringify(data).substring(0, 200) : 'no data'
     });
     
     return (
@@ -183,6 +205,19 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
 
   // totalScore가 유효한 숫자인지 확인
   const validTotalScore = typeof totalScore === 'number' && !isNaN(totalScore) ? totalScore : 0;
+  
+  // 이메일 발송 상태 확인
+  const emailSent = data?.gas?.emailsSent || data?.emailStatus?.status === 'sent' || false;
+  const adminNotified = data?.gas?.adminNotified || false;
+  
+  console.log('✅ SimplifiedDiagnosisResults 데이터 추출 완료:', {
+    companyName,
+    totalScore: validTotalScore,
+    emailSent,
+    adminNotified,
+    hasGasData: !!data?.gas,
+    hasEmailStatus: !!data?.emailStatus
+  });
 
   console.log('✅ SimplifiedDiagnosisResults 데이터 추출 완료:', {
     companyName,
