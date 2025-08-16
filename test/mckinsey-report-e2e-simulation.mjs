@@ -13,7 +13,6 @@
  * 실행: npm run test:e2e:mckinsey
  */
 
-import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 
 // 테스트 설정
