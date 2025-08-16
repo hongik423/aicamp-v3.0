@@ -1,6 +1,6 @@
 /**
  * 맥킨지 역량진단 시스템 V15.0 ULTIMATE API 라우트
- * GEMINI 2.5 Flash (무제한 토큰) + Google Drive + n8n 통합
+ * GEMINI 2.5 Flash (최대 50,000 토큰) + Google Drive + n8n 통합
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -341,7 +341,7 @@ async function performQualitativeAnalysis(data: any, scoreAnalysis: any) {
 async function callGeminiAPI(prompt: string) {
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -351,7 +351,7 @@ async function callGeminiAPI(prompt: string) {
             temperature: 0.7,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 8192
+            maxOutputTokens: 50000
           }
         })
       }
