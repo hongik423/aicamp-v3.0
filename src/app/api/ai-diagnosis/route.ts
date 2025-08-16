@@ -7,10 +7,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { REAL_45_QUESTIONS } from '@/features/ai-diagnosis/constants/real-45-questions';
 import { 
-  executeMcKinseyWorkflow, 
-  validateWorkflowRequest,
-  WorkflowExecutionRequest 
-} from '@/lib/controllers/mckinsey-workflow-controller';
+  executeMcKinsey45QuestionsWorkflow,
+  McKinsey45QuestionsRequest,
+  McKinsey45QuestionsResult
+} from '@/lib/workflow/mckinsey-45-questions-workflow';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const requestData = await request.json();
     
     // 워크플로우 요청 구성
-    const workflowRequest: WorkflowExecutionRequest = {
+    const workflowRequest: McKinsey45QuestionsRequest = {
       companyName: requestData.companyName,
       contactName: requestData.contactName,
       contactEmail: requestData.contactEmail,
@@ -34,23 +34,15 @@ export async function POST(request: NextRequest) {
       mainProducts: requestData.mainProducts,
       targetCustomers: requestData.targetCustomers,
       currentChallenges: requestData.currentChallenges,
-      responses: requestData.responses,
-      options: {
-        reportType: 'detailed',
-        includeGeminiAnalysis: true,
-        includeHTMLReport: true,
-        sendEmail: true,
-        saveToSheets: true
-      }
+      responses: requestData.assessmentResponses || requestData.responses
     };
     
-    // 요청 유효성 검증
-    const validation = validateWorkflowRequest(workflowRequest);
-    if (!validation.isValid) {
+    // 기본 유효성 검증
+    if (!workflowRequest.companyName || !workflowRequest.contactName || !workflowRequest.contactEmail || !workflowRequest.responses) {
       return NextResponse.json({
         success: false,
-        error: '입력 데이터 검증 실패',
-        details: validation.errors,
+        error: '필수 입력 데이터가 누락되었습니다.',
+        details: '회사명, 담당자명, 이메일, 응답 데이터는 필수입니다.',
         retryable: false
       }, { status: 400 });
     }
@@ -59,11 +51,11 @@ export async function POST(request: NextRequest) {
     
     // 로컬 워크플로우 실행 (빠른 분석)
     try {
-      console.log('🚀 로컬 McKinsey 워크플로우 실행 시작');
+      console.log('🚀 로컬 McKinsey 45개 질문 워크플로우 실행 시작');
       
-      const workflowResult = await executeMcKinseyWorkflow(workflowRequest);
+      const workflowResult = executeMcKinsey45QuestionsWorkflow(workflowRequest);
       
-      if (workflowResult.success) {
+      if (workflowResult) {
         console.log('✅ 로컬 워크플로우 완료 - Google Apps Script로 전송');
         
         // Google Apps Script로 완성된 데이터 전송
@@ -103,14 +95,15 @@ export async function POST(request: NextRequest) {
           success: true,
           message: '🎯 AI 역량진단이 완료되었습니다!',
           data: {
-            diagnosisId: workflowResult.analysisResult?.diagnosisId || `DIAG_${Date.now()}`,
-            executionId: workflowResult.executionId,
+            diagnosisId: workflowResult.diagnosisId,
             companyName: requestData.companyName,
             contactEmail: requestData.contactEmail,
             
             // 즉시 확인 가능한 결과
-            scoreAnalysis: workflowResult.analysisResult?.scoreAnalysis,
-            processingTime: workflowResult.metadata.processingTime,
+            scoreAnalysis: workflowResult.scoreAnalysis,
+            totalScore: workflowResult.scoreAnalysis.totalScore,
+            grade: workflowResult.scoreAnalysis.grade,
+            maturityLevel: workflowResult.scoreAnalysis.maturityLevel,
             qualityScore: workflowResult.qualityMetrics.overallQuality,
             
             // 처리 상태
@@ -138,8 +131,8 @@ export async function POST(request: NextRequest) {
         });
         
       } else {
-        // 로컬 워크플로우 실패 시 기존 Google Apps Script 방식으로 폴백
-        console.log('⚠️ 로컬 워크플로우 실패 - Google Apps Script 폴백');
+        // 워크플로우 결과가 없는 경우 (실제로는 발생하지 않음)
+        console.log('⚠️ 워크플로우 결과 없음 - Google Apps Script 폴백');
         
         const dynamicBase = request.headers.get('host') ? 
           `https://${request.headers.get('host')}` : 

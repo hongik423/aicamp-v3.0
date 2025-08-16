@@ -395,25 +395,48 @@ const Real45QuestionForm: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4">
           <Card className="shadow-xl">
             <CardHeader className="text-center">
-              <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center justify-center mb-6">
                 <img 
                   src="/aicamp_leader.png" 
                   alt="이교장" 
-                  className="w-16 h-16 rounded-full mr-4 shadow-lg"
+                  className="w-20 h-20 rounded-full mr-4 shadow-lg"
                 />
-                <CardTitle className="text-2xl font-bold text-blue-900">
-                  이교장의AI역량진단
-                </CardTitle>
+                <div className="text-center">
+                  <CardTitle className="text-3xl font-bold text-blue-900 mb-2">
+                    AI 역량진단 신청서
+                  </CardTitle>
+                  <p className="text-lg font-semibold text-blue-600">45개 행동지표 기반 맞춤형 분석</p>
+                </div>
               </div>
-              <p className="text-lg font-semibold text-blue-600 mb-2">45문항 정밀 진단</p>
-              <p className="text-gray-600">기업 정보를 입력해주세요</p>
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-blue-700 font-medium">
+                      📋 신청서 작성 안내
+                    </p>
+                    <p className="text-sm text-blue-600 mt-1">
+                      정확한 진단을 위해 모든 필수 항목을 빠짐없이 작성해 주세요. 
+                      작성하신 정보는 맞춤형 AI 역량 분석에만 사용됩니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </CardHeader>
             
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">회사명 *</label>
+                <div className="space-y-6">
+                  {/* 회사명 입력 */}
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      회사명
+                    </label>
                     <input
                       type="text"
                       value={formState.companyInfo.companyName}
@@ -421,13 +444,21 @@ const Real45QuestionForm: React.FC = () => {
                         ...prev,
                         companyInfo: { ...prev.companyInfo, companyName: e.target.value }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg min-h-[56px] 
+                                transition-all duration-300 ease-in-out
+                                focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                hover:border-gray-300 hover:shadow-sm
+                                placeholder:text-gray-400"
                       placeholder="회사명을 입력하세요"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">담당자명 *</label>
+                  {/* 담당자명 입력 */}
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      담당자명
+                    </label>
                     <input
                       type="text"
                       value={formState.companyInfo.contactName}
@@ -435,7 +466,11 @@ const Real45QuestionForm: React.FC = () => {
                         ...prev,
                         companyInfo: { ...prev.companyInfo, contactName: e.target.value }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg min-h-[56px] 
+                                transition-all duration-300 ease-in-out
+                                focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                hover:border-gray-300 hover:shadow-sm
+                                placeholder:text-gray-400"
                       placeholder="담당자명을 입력하세요"
                     />
                   </div>

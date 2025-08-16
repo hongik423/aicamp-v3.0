@@ -35,8 +35,6 @@ export interface McKinsey45QuestionsResult {
   // 진단 결과
   diagnosisId: string;
   timestamp: string;
-  
-  // 회사 정보
   companyInfo: {
     name: string;
     industry: string;
@@ -44,45 +42,102 @@ export interface McKinsey45QuestionsResult {
     contact: {
       name: string;
       email: string;
-      phone: string;
+      phone?: string;
+      position?: string;
     };
   };
-  
-  // 응답 데이터
-  responses: Record<string, number>;
   
   // 점수 분석
   scoreAnalysis: {
     totalScore: number;
     averageScore: number;
-    categoryScores: Record<string, number>;
+    categoryScores: {
+      businessFoundation: number;
+      currentAI: number;
+      organizationReadiness: number;
+      techInfrastructure: number;
+      goalClarity: number;
+      executionCapability: number;
+    };
     weightedScore: number;
     percentile: number;
     grade: string;
     maturityLevel: string;
   };
   
-  // 강점/약점
-  strengths: string[];
-  weaknesses: string[];
-  
   // 상세 분석
   detailedAnalysis: {
-    strengths: string[];
-    weaknesses: string[];
+    strengths: Array<{
+      category: string;
+      score: number;
+      description: string;
+      actionItems: string[];
+    }>;
+    weaknesses: Array<{
+      category: string;
+      score: number;
+      description: string;
+      actionItems: string[];
+    }>;
     opportunities: string[];
     threats: string[];
   };
   
   // 권고사항
   recommendations: {
-    immediate: Array<any>;
-    shortTerm: Array<any>;
-    longTerm: Array<any>;
+    immediate: Array<{
+      priority: number;
+      title: string;
+      description: string;
+      timeline: string;
+      resources: string[];
+      expectedOutcome: string;
+    }>;
+    shortTerm: Array<{
+      priority: number;
+      title: string;
+      description: string;
+      timeline: string;
+      resources: string[];
+      expectedOutcome: string;
+    }>;
+    longTerm: Array<{
+      priority: number;
+      title: string;
+      description: string;
+      timeline: string;
+      resources: string[];
+      expectedOutcome: string;
+    }>;
   };
   
-  // 로드맵
-  roadmap: any;
+  // 실행 로드맵
+  roadmap: {
+    phase1: {
+      title: string;
+      duration: string;
+      objectives: string[];
+      keyActivities: string[];
+      milestones: string[];
+      budget: string;
+    };
+    phase2: {
+      title: string;
+      duration: string;
+      objectives: string[];
+      keyActivities: string[];
+      milestones: string[];
+      budget: string;
+    };
+    phase3: {
+      title: string;
+      duration: string;
+      objectives: string[];
+      keyActivities: string[];
+      milestones: string[];
+      budget: string;
+    };
+  };
   
   // 품질 메트릭
   qualityMetrics: {
@@ -92,55 +147,67 @@ export interface McKinsey45QuestionsResult {
     recommendationRelevance: number;
     overallQuality: number;
   };
+  
+  // 응답 데이터
+  responses: Record<string, number>;
 }
 
 /**
- * 45개 질문 응답 분석 및 점수 계산
+ * 45개 질문 응답 분석
  */
-export function analyze45QuestionsResponses(responses: Record<string, number>): {
-  categoryScores: Record<string, number>;
-  totalScore: number;
-  averageScore: number;
-  weightedScore: number;
-} {
-  const categoryTotals: Record<string, { score: number; weight: number; count: number }> = {};
+export function analyze45QuestionsResponses(responses: Record<string, number>) {
+  const categoryScores: Record<string, number> = {};
+  const categoryWeights: Record<string, number> = {};
+  const categoryQuestionCounts: Record<string, number> = {};
   
   // 카테고리별 점수 집계
-  REAL_45_QUESTIONS.forEach((question) => {
-    const responseKey = `q${question.id}`;
-    const response = responses[responseKey] || responses[question.id.toString()] || 0;
+  REAL_45_QUESTIONS.forEach(question => {
+    const response = responses[`q${question.id}`] || responses[question.id.toString()] || 0;
+    const category = question.category;
     
-    if (!categoryTotals[question.category]) {
-      categoryTotals[question.category] = { score: 0, weight: 0, count: 0 };
+    if (!categoryScores[category]) {
+      categoryScores[category] = 0;
+      categoryWeights[category] = question.weight;
+      categoryQuestionCounts[category] = 0;
     }
     
-    categoryTotals[question.category].score += response;
-    categoryTotals[question.category].weight += question.weight;
-    categoryTotals[question.category].count += 1;
+    categoryScores[category] += response;
+    categoryQuestionCounts[category]++;
   });
   
   // 카테고리별 평균 점수 계산
-  const categoryScores: Record<string, number> = {};
-  let totalWeightedScore = 0;
-  let totalWeight = 0;
-  
-  Object.entries(categoryTotals).forEach(([category, data]) => {
-    const categoryAverage = data.score / data.count;
-    categoryScores[category] = Math.round(categoryAverage * 20); // 100점 만점으로 변환
-    
-    totalWeightedScore += categoryAverage * data.weight;
-    totalWeight += data.weight;
+  Object.keys(categoryScores).forEach(category => {
+    categoryScores[category] = Math.round((categoryScores[category] / categoryQuestionCounts[category]) * 20); // 100점 만점으로 변환
   });
   
-  const totalScore = Math.round((totalWeightedScore / totalWeight) * 20); // 100점 만점
-  const averageScore = Object.values(categoryScores).reduce((sum, score) => sum + score, 0) / Object.keys(categoryScores).length;
-  const weightedScore = Math.round(totalWeightedScore / totalWeight * 20);
+  // 가중 평균 점수 계산
+  let weightedSum = 0;
+  let totalWeight = 0;
+  
+  Object.keys(categoryScores).forEach(category => {
+    const weight = categoryWeights[category];
+    weightedSum += categoryScores[category] * weight;
+    totalWeight += weight;
+  });
+  
+  const weightedScore = Math.round(weightedSum / totalWeight);
+  
+  // 전체 평균 점수
+  const totalScore = Math.round(Object.values(categoryScores).reduce((sum, score) => sum + score, 0) / Object.keys(categoryScores).length);
+  const averageScore = totalScore;
   
   return {
-    categoryScores,
     totalScore,
-    averageScore: Math.round(averageScore),
-    weightedScore
+    averageScore,
+    weightedScore,
+    categoryScores: {
+      businessFoundation: categoryScores.businessFoundation || 0,
+      currentAI: categoryScores.currentAI || 0,
+      organizationReadiness: categoryScores.organizationReadiness || 0,
+      techInfrastructure: categoryScores.techInfrastructure || 0,
+      goalClarity: categoryScores.goalClarity || 0,
+      executionCapability: categoryScores.executionCapability || 0
+    }
   };
 }
 
@@ -148,76 +215,136 @@ export function analyze45QuestionsResponses(responses: Record<string, number>): 
  * 성숙도 레벨 결정
  */
 export function determineMaturityLevel(totalScore: number): string {
-  if (totalScore >= 90) return 'AI 혁신 리더';
-  if (totalScore >= 80) return 'AI 활용 전문가';
-  if (totalScore >= 70) return 'AI 도입 성숙';
-  if (totalScore >= 60) return 'AI 기초 활용';
-  if (totalScore >= 50) return 'AI 도입 준비';
-  return 'AI 도입 필요';
+  if (totalScore >= 90) return 'Optimized (최적화)';
+  if (totalScore >= 80) return 'Advanced (고도화)';
+  if (totalScore >= 70) return 'Intermediate (중급)';
+  if (totalScore >= 60) return 'Basic (기초)';
+  return 'Initial (초기)';
 }
 
 /**
  * 등급 결정
  */
 export function determineGrade(totalScore: number): string {
-  if (totalScore >= 90) return 'A+';
-  if (totalScore >= 85) return 'A';
-  if (totalScore >= 80) return 'A-';
-  if (totalScore >= 75) return 'B+';
-  if (totalScore >= 70) return 'B';
-  if (totalScore >= 65) return 'B-';
-  if (totalScore >= 60) return 'C+';
-  if (totalScore >= 55) return 'C';
-  if (totalScore >= 50) return 'C-';
-  return 'D';
+  if (totalScore >= 95) return 'A+';
+  if (totalScore >= 90) return 'A';
+  if (totalScore >= 85) return 'A-';
+  if (totalScore >= 80) return 'B+';
+  if (totalScore >= 75) return 'B';
+  if (totalScore >= 70) return 'B-';
+  if (totalScore >= 65) return 'C+';
+  if (totalScore >= 60) return 'C';
+  if (totalScore >= 55) return 'C-';
+  if (totalScore >= 50) return 'D+';
+  if (totalScore >= 45) return 'D';
+  return 'F';
 }
 
 /**
- * 백분위 계산
+ * 백분위 계산 (업종별)
  */
 export function calculatePercentile(totalScore: number, industry: string): number {
-  // 업종별 기준점 설정
-  const industryBaselines: Record<string, number> = {
-    '제조업': 65,
+  // 업종별 기준 점수 (실제 데이터 기반으로 조정 필요)
+  const industryBenchmarks: Record<string, number> = {
     'IT/소프트웨어': 75,
     '금융업': 70,
+    '제조업': 65,
     '서비스업': 60,
     '유통업': 58,
     '건설업': 55,
-    '교육업': 68,
-    '의료업': 62
+    '교육업': 62,
+    '의료업': 68,
+    '운송업': 52,
+    '농업': 45
   };
   
-  const baseline = industryBaselines[industry] || 60;
-  const percentile = Math.min(95, Math.max(5, 50 + (totalScore - baseline) * 2));
-  return Math.round(percentile);
+  const benchmark = industryBenchmarks[industry] || 60;
+  
+  // 정규분포를 가정한 백분위 계산
+  const standardDeviation = 15;
+  const zScore = (totalScore - benchmark) / standardDeviation;
+  
+  // 누적분포함수를 사용한 백분위 계산
+  return Math.round(normalCDF(zScore) * 100);
+}
+
+function normalCDF(z: number): number {
+  return 0.5 * (1 + erf(z / Math.sqrt(2)));
+}
+
+function erf(x: number): number {
+  // Abramowitz and Stegun approximation
+  const a1 =  0.254829592;
+  const a2 = -0.284496736;
+  const a3 =  1.421413741;
+  const a4 = -1.453152027;
+  const a5 =  1.061405429;
+  const p  =  0.3275911;
+
+  const sign = x >= 0 ? 1 : -1;
+  x = Math.abs(x);
+
+  const t = 1.0 / (1.0 + p * x);
+  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+  return sign * y;
 }
 
 /**
  * 강점/약점 분석
  */
 export function analyzeStrengthsWeaknesses(
-  categoryScores: Record<string, number>, 
+  categoryScores: Record<string, number>,
   responses: Record<string, number>
-): { strengths: string[]; weaknesses: string[] } {
-  const categories = Object.entries(categoryScores).sort((a, b) => b[1] - a[1]);
+): {
+  strengths: Array<{ category: string; score: number; description: string; actionItems: string[] }>;
+  weaknesses: Array<{ category: string; score: number; description: string; actionItems: string[] }>;
+} {
+  const strengths: Array<{ category: string; score: number; description: string; actionItems: string[] }> = [];
+  const weaknesses: Array<{ category: string; score: number; description: string; actionItems: string[] }> = [];
   
-  const categoryNames: Record<string, string> = {
-    businessFoundation: '사업 기반',
-    currentAI: '현재 AI 활용',
-    organizationReadiness: '조직 준비도',
-    techInfrastructure: '기술 인프라',
-    goalClarity: '목표 명확성',
-    executionCapability: '실행 역량'
-  };
-  
-  const strengths = categories.slice(0, 3).map(([category, score]) => 
-    `${categoryNames[category]}: ${score}점 - 업계 평균 대비 우수한 수준`
-  );
-  
-  const weaknesses = categories.slice(-3).map(([category, score]) => 
-    `${categoryNames[category]}: ${score}점 - 개선이 필요한 영역`
-  );
+  // 카테고리별 분석
+  Object.entries(categoryScores).forEach(([category, score]) => {
+    const categoryQuestions = REAL_45_QUESTIONS.filter(q => q.category === category);
+    
+    if (score >= 75) {
+      // 강점으로 분류
+      const topQuestion = categoryQuestions.find(q => {
+        const response = responses[`q${q.id}`] || responses[q.id.toString()] || 0;
+        return response >= 4;
+      });
+      
+      if (topQuestion) {
+        const indicators = getQuestionBehaviorIndicators(topQuestion.id);
+        const indicator = indicators.find(ind => ind.score === 4 || ind.score === 5) || indicators[0];
+        
+        strengths.push({
+          category: topQuestion.sectionTitle,
+          score,
+          description: indicator.description,
+          actionItems: indicator.actionItems
+        });
+      }
+    } else if (score <= 60) {
+      // 약점으로 분류
+      const weakQuestion = categoryQuestions.find(q => {
+        const response = responses[`q${q.id}`] || responses[q.id.toString()] || 0;
+        return response <= 2;
+      });
+      
+      if (weakQuestion) {
+        const indicators = getQuestionBehaviorIndicators(weakQuestion.id);
+        const indicator = indicators.find(ind => ind.score === 1 || ind.score === 2) || indicators[0];
+        
+        weaknesses.push({
+          category: weakQuestion.sectionTitle,
+          score,
+          description: indicator.description,
+          actionItems: indicator.actionItems
+        });
+      }
+    }
+  });
   
   return { strengths, weaknesses };
 }
@@ -235,34 +362,80 @@ export function generateMcKinseyRecommendations(
   longTerm: Array<any>;
 } {
   const recommendations = {
-    immediate: [
-      {
-        title: 'AI 도구 즉시 도입',
-        description: 'ChatGPT, Claude 등 생성형 AI 도구 활용 시작',
-        impact: 'High',
-        effort: 'Low',
-        timeline: '1-2주'
-      }
-    ],
-    shortTerm: [
-      {
-        title: 'AI 활용 교육 실시',
-        description: '전 직원 대상 AI 기초 활용 교육 프로그램',
-        impact: 'High',
-        effort: 'Medium',
-        timeline: '1-3개월'
-      }
-    ],
-    longTerm: [
-      {
-        title: 'AI 전략 수립',
-        description: '장기적 AI 도입 로드맵 및 전략 수립',
-        impact: 'Very High',
-        effort: 'High',
-        timeline: '6-12개월'
-      }
-    ]
+    immediate: [] as Array<any>,
+    shortTerm: [] as Array<any>,
+    longTerm: [] as Array<any>
   };
+  
+  // 점수 기반 우선순위 권고사항
+  const { categoryScores } = scoreAnalysis;
+  
+  // 즉시 실행 (1-3개월)
+  if (categoryScores.currentAI < 60) {
+    recommendations.immediate.push({
+      priority: 1,
+      title: 'AI 도구 도입 및 활용 체계 구축',
+      description: 'ChatGPT, Claude 등 생성형 AI 도구를 활용한 업무 효율성 개선',
+      timeline: '1-2개월',
+      resources: ['AI 도구 라이선스', 'AI 활용 가이드라인', '직원 교육'],
+      expectedOutcome: '업무 효율성 30% 향상, 반복 업무 50% 감소'
+    });
+  }
+  
+  if (categoryScores.organizationReadiness < 65) {
+    recommendations.immediate.push({
+      priority: 2,
+      title: '조직 변화 관리 체계 수립',
+      description: 'AI 도입을 위한 조직 문화 개선 및 변화 관리 프로세스 구축',
+      timeline: '2-3개월',
+      resources: ['변화 관리 전문가', '리더십 교육', '커뮤니케이션 플랫폼'],
+      expectedOutcome: '직원 수용도 40% 향상, 변화 저항 60% 감소'
+    });
+  }
+  
+  // 단기 실행 (3-6개월)
+  if (categoryScores.techInfrastructure < 70) {
+    recommendations.shortTerm.push({
+      priority: 1,
+      title: '데이터 인프라 및 시스템 통합',
+      description: '클라우드 기반 데이터 플랫폼 구축 및 시스템 간 연동 강화',
+      timeline: '3-4개월',
+      resources: ['클라우드 플랫폼', 'API 개발', '데이터 엔지니어'],
+      expectedOutcome: '데이터 접근성 70% 향상, 시스템 효율성 50% 개선'
+    });
+  }
+  
+  if (categoryScores.goalClarity < 65) {
+    recommendations.shortTerm.push({
+      priority: 2,
+      title: 'AI 전략 및 로드맵 수립',
+      description: 'SMART 목표 기반 AI 도입 전략 및 단계별 실행 계획 수립',
+      timeline: '4-6개월',
+      resources: ['전략 컨설팅', 'AI 전문가', '프로젝트 매니저'],
+      expectedOutcome: '목표 달성률 60% 향상, ROI 측정 체계 확립'
+    });
+  }
+  
+  // 장기 실행 (6-12개월)
+  if (categoryScores.executionCapability < 75) {
+    recommendations.longTerm.push({
+      priority: 1,
+      title: 'AI 센터 오브 엑셀런스 구축',
+      description: 'AI 전문 조직 신설 및 고도화된 AI 솔루션 개발',
+      timeline: '6-12개월',
+      resources: ['AI 전문 인력', 'R&D 예산', '혁신 랩'],
+      expectedOutcome: 'AI 성숙도 80% 달성, 업계 리더십 확보'
+    });
+  }
+  
+  recommendations.longTerm.push({
+    priority: 2,
+    title: 'AI 기반 비즈니스 모델 혁신',
+    description: 'AI를 활용한 새로운 수익 모델 개발 및 시장 확장',
+    timeline: '9-12개월',
+    resources: ['혁신 팀', '시장 조사', '파트너십'],
+    expectedOutcome: '신규 수익원 창출, 시장 경쟁력 강화'
+  });
   
   return recommendations;
 }
@@ -284,6 +457,18 @@ export function generate3PhaseRoadmap(
         '조직 변화 관리 체계 수립',
         '데이터 기초 인프라 구축'
       ],
+      keyActivities: [
+        'ChatGPT/Claude 등 생성형 AI 도구 도입',
+        'AI 활용 가이드라인 및 정책 수립',
+        '직원 대상 AI 기초 교육 실시',
+        '데이터 현황 분석 및 정리'
+      ],
+      milestones: [
+        '전 직원 AI 도구 활용 시작',
+        'AI 정책 문서 완성',
+        '기초 교육 100% 완료',
+        '데이터 인벤토리 완성'
+      ],
       budget: '3,000만원 - 5,000만원'
     },
     phase2: {
@@ -294,15 +479,39 @@ export function generate3PhaseRoadmap(
         '데이터 기반 의사결정 체계 구축',
         'AI 성과 측정 시스템 도입'
       ],
+      keyActivities: [
+        '부서별 맞춤형 AI 솔루션 도입',
+        '워크플로우 자동화 구현',
+        'BI/분석 도구 활용 확대',
+        'AI 성과 KPI 설정 및 모니터링'
+      ],
+      milestones: [
+        '핵심 업무 50% AI 활용',
+        '자동화 프로세스 10개 이상 구축',
+        '데이터 기반 의사결정 70% 달성',
+        'AI ROI 측정 체계 완성'
+      ],
       budget: '5,000만원 - 1억원'
     },
     phase3: {
       title: 'AI 전문 조직 단계',
       duration: '6-12개월',
       objectives: [
-        'AI 전문 조직 구축',
-        '고도화된 AI 솔루션 도입',
+        'AI 센터 오브 엑셀런스 구축',
+        '고도화된 AI 솔루션 개발',
         'AI 기반 비즈니스 모델 혁신'
+      ],
+      keyActivities: [
+        'AI 전담 조직 신설',
+        '맞춤형 AI 솔루션 개발',
+        'AI 기반 신규 서비스 출시',
+        '업계 AI 리더십 확보'
+      ],
+      milestones: [
+        'AI 전담팀 구성 완료',
+        '자체 AI 솔루션 3개 이상 개발',
+        '신규 AI 서비스 출시',
+        '업계 AI 성숙도 상위 10% 달성'
       ],
       budget: '1억원 - 3억원'
     }
@@ -329,23 +538,40 @@ export function calculateQualityMetrics(
   const answeredQuestions = Object.keys(responses).length;
   const dataCompleteness = Math.round((answeredQuestions / totalQuestions) * 100);
   
-  // 응답 일관성
-  const responseValues = Object.values(responses);
-  const avgResponse = responseValues.reduce((sum, val) => sum + val, 0) / responseValues.length;
-  const variance = responseValues.reduce((sum, val) => sum + Math.pow(val - avgResponse, 2), 0) / responseValues.length;
-  const responseConsistency = Math.max(0, Math.round(100 - (variance * 10)));
+  // 응답 일관성 (같은 카테고리 내 응답의 표준편차 기반)
+  const categoryResponses: Record<string, number[]> = {};
+  REAL_45_QUESTIONS.forEach(q => {
+    const response = responses[`q${q.id}`] || responses[q.id.toString()] || 0;
+    if (!categoryResponses[q.category]) {
+      categoryResponses[q.category] = [];
+    }
+    categoryResponses[q.category].push(response);
+  });
   
-  // 분석 깊이
-  const analysisDepth = 85; // 고정값 (실제로는 분석 복잡도 기반)
+  let consistencySum = 0;
+  Object.values(categoryResponses).forEach(categoryScores => {
+    const mean = categoryScores.reduce((sum, score) => sum + score, 0) / categoryScores.length;
+    const variance = categoryScores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / categoryScores.length;
+    const consistency = Math.max(0, 100 - (Math.sqrt(variance) * 25)); // 표준편차가 클수록 일관성 낮음
+    consistencySum += consistency;
+  });
+  const responseConsistency = Math.round(consistencySum / Object.keys(categoryResponses).length);
   
-  // 권고사항 관련성
-  const recommendationRelevance = 90; // 고정값 (실제로는 업종별 맞춤도 기반)
+  // 분석 깊이 (생성된 권고사항 수 기반)
+  const totalRecommendations = (analysis.recommendations?.immediate?.length || 0) +
+                              (analysis.recommendations?.shortTerm?.length || 0) +
+                              (analysis.recommendations?.longTerm?.length || 0);
+  const analysisDepth = Math.min(100, Math.round((totalRecommendations / 6) * 100)); // 최대 6개 권고사항 기준
+  
+  // 권고사항 관련성 (점수와 권고사항의 연관성)
+  const avgScore = analysis.scoreAnalysis?.averageScore || 0;
+  const recommendationRelevance = avgScore < 60 ? 90 : avgScore > 80 ? 95 : 85;
   
   // 전체 품질
   const overallQuality = Math.round(
     (dataCompleteness * 0.3 + 
-     responseConsistency * 0.2 + 
-     analysisDepth * 0.3 + 
+     responseConsistency * 0.25 + 
+     analysisDepth * 0.25 + 
      recommendationRelevance * 0.2)
   );
   
@@ -417,8 +643,6 @@ export function executeMcKinsey45QuestionsWorkflow(
       maturityLevel,
       percentile
     },
-    strengths,
-    weaknesses,
     timestamp: new Date().toISOString(),
     detailedAnalysis: {
       strengths,
