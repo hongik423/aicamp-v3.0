@@ -618,75 +618,46 @@ export class IndustryDataService {
 }
 
 /**
- * 🚫 업종별 특화 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API 전용
+ * 🎯 맥킨지 스타일 보고서 전용 - V14.2 ULTIMATE INTEGRATED 시스템
+ * 모든 보고서 생성은 Google Apps Script GEMINI 2.5 Flash API에서 처리
  */
-export function generateIndustryEnhancedReport(
+export function generateMcKinseyStyleReport(
   industry: string, 
   companyData: any, 
   diagnosisResult: any
 ): string {
-  // 🚨 폴백 보고서 생성 금지
-  throw new Error('업종별 특화 보고서 생성 금지 - Google Apps Script GEMINI 2.5 Flash API에서만 보고서 생성');
-  
-  /* 기존 폴백 로직 비활성화
-  const insights = IndustryDataService.generateIndustryInsights(industry, {
-    ...companyData,
+  // 🚀 신규 맥킨지 보고서 시스템으로 리다이렉트
+  console.log('🔄 맥킨지 보고서 시스템으로 리다이렉트:', {
+    industry,
+    companyName: companyData.companyName,
     totalScore: diagnosisResult.totalScore
   });
-
-  const trendData = IndustryDataService.getIndustryTrends(industry);
-  const companyName = companyData.companyName || '귀사';
   
+  // Google Apps Script V14.2 ULTIMATE에서 처리하도록 안내
   return `
-${companyName}의 ${industry} 업종별 특화 AI 진단 보고서
+🎯 이교장의AI역량진단보고서 V14.2 ULTIMATE
+
+${companyData.companyName || '귀사'}의 맥킨지 스타일 AI 역량진단 보고서가 생성 중입니다.
+
+📊 진단 점수: ${diagnosisResult.totalScore}점
+🏭 업종: ${industry}
+📧 이메일 발송: 진행 중
+
+상세한 맥킨지 스타일 보고서는 Google Apps Script V14.2 ULTIMATE 시스템에서 
+GEMINI 2.5 Flash AI를 통해 생성되어 이메일로 발송됩니다.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📊 종합 진단 결과
-현재 ${diagnosisResult.totalScore}점의 진단 점수를 기록하여 ${insights.marketAnalysis}
+📧 이메일 발송 완료 후 다음 내용을 받으실 수 있습니다:
+• 맥킨지 스타일 전문 보고서 (HTML 형식)
+• SWOT 전략 매트릭스 분석
+• 3단계 실행 로드맵
+• n8n 기반 자동화 솔루션
+• 업종별 벤치마크 분석
 
-🏭 업종별 시장 동향 분석
-${insights.overview}
-
-📈 주요 트렌드 및 기회
-• 현재 주목받는 트렌드: ${insights.currentTrends.slice(0, 4).join(', ')}
-• 성장 기회: ${insights.growthOpportunities.slice(0, 3).join(', ')}
-
-⚡ 경쟁 환경 분석
-${insights.competitiveLandscape}
-
-🎯 디지털 전환 준비도
-${insights.digitalReadiness}
-
-🔍 주요 도전과제
-${insights.challenges.slice(0, 3).map(challenge => `• ${challenge}`).join('\n')}
-
-💡 맞춤형 개선 권장사항
-${insights.recommendations.slice(0, 5).map((rec, index) => `${index + 1}. ${rec}`).join('\n')}
-
-📊 업종별 벤치마크 비교
-${Object.entries(insights.benchmarkScores).map(([key, score]) => 
-  `• ${key}: ${score}점 (업계 평균)`
-).join('\n')}
-
-🚀 향후 발전 방향
-${trendData ? 
-  `${industry}의 미래는 ${trendData.trends.slice(0, 3).join(', ')} 등의 기술 혁신을 중심으로 발전할 것으로 예상됩니다. ${companyName}은 현재 역량을 바탕으로 ${insights.recommendations[0]}을 우선 실행하여 업계 경쟁력을 강화할 수 있습니다.`
-  :
-  `지속적인 혁신과 고객 중심 사고를 통해 ${industry}에서의 경쟁력을 강화해 나가시기 바랍니다.`
-}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📞 전문가 상담 안내
-더 자세한 업종별 특화 분석과 맞춤형 솔루션을 원하시면 전문가 상담을 신청하세요.
-
-연락처: 010-9251-9743 (이후경 경영지도사)
-이메일: hongik423@gmail.com
-
-*본 보고서는 2025년 최신 업종 데이터를 기반으로 한 맞춤형 분석 결과입니다.*
+📞 문의: 010-9251-9743 (이후경 교장)
+🌐 웹사이트: aicamp.club
   `.trim();
-  */
 }
 
 export default IndustryDataService; 

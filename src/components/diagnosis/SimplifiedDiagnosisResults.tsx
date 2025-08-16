@@ -253,46 +253,54 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
     return 'D';
   };
 
-  // 🎯 간단한 진단 접수 제출
-  const handleDiagnosisSubmit = async () => {
+  // 🎯 맥킨지 스타일 보고서 시스템 - V14.2 ULTIMATE INTEGRATED
+  const handleMcKinseyReportRequest = async () => {
     setIsSubmitting(true);
-    // 알림 오버레이를 결과 메일 발송까지 유지
     setPersistentNoticeOpen(true);
+    
     try {
       toast({
-        title: "📋 AI 역량진단 접수 중...",
-        description: "진단 결과를 저장하고 접수 확인 메일을 발송하고 있습니다.",
-        duration: 4000,
+        title: "🎯 맥킨지 스타일 보고서 생성 중...",
+        description: "GEMINI 2.5 Flash AI가 전문적인 분석 보고서를 생성하고 있습니다.",
+        duration: 5000,
       });
 
-      // 진단 데이터 준비
-      const diagnosisSubmissionData = {
+      // 맥킨지 보고서 데이터 준비
+      const mckinseyReportData = {
         companyName: companyName,
         contactName: diagnosis?.contactName || diagnosis?.담당자명 || '담당자',
         contactEmail: diagnosis?.email || diagnosis?.이메일 || '',
         contactPhone: diagnosis?.phone || diagnosis?.연락처 || '',
         industry: diagnosis?.industry || diagnosis?.업종 || '기타',
         totalScore: validTotalScore,
-        overallGrade: getGradeFromScore(validTotalScore),
-        timestamp: new Date().toISOString()
+        maturityLevel: validTotalScore >= 80 ? 'Expert' : validTotalScore >= 60 ? 'Advanced' : validTotalScore >= 40 ? 'Intermediate' : 'Beginner',
+        reportType: 'mckinsey_style',
+        systemVersion: 'V14.2_ULTIMATE_INTEGRATED',
+        timestamp: new Date().toISOString(),
+        // 맥킨지 보고서 전용 필드
+        requestMcKinseyReport: true,
+        includeSwotAnalysis: true,
+        includeRoadmap: true,
+        includeN8nWorkflow: true,
+        includeBenchmark: true
       };
 
-      console.log('📊 진단 접수 데이터:', diagnosisSubmissionData);
+      console.log('🎯 맥킨지 보고서 요청 데이터:', mckinseyReportData);
 
-      // Google Apps Script로 접수 처리
-      const result = await submitDiagnosisToGoogle(diagnosisSubmissionData);
-      // 프록시/서버가 백그라운드 처리 응답을 반환하는 경우에도 알림은 유지
+      // Google Apps Script V14.2 ULTIMATE로 맥킨지 보고서 요청
+      const result = await submitDiagnosisToGoogle(mckinseyReportData);
       const background = (result as any)?.isTimeout || (result as any)?.backgroundProcessing;
       
       if (result.success) {
         toast({
-          title: "🎉 접수 완료!",
-          description: background ? "AI가 보고서를 생성 중입니다. 완료 시 이메일로 전달됩니다." : "AI 역량진단 접수가 완료되었습니다. 접수 확인 메일을 확인해주세요.",
-          duration: 6000,
+          title: "🎉 맥킨지 보고서 생성 완료!",
+          description: background 
+            ? "GEMINI 2.5 Flash AI가 맥킨지 스타일 보고서를 생성 중입니다. 완료 시 이메일로 전달됩니다." 
+            : "맥킨지 스타일 AI 역량진단 보고서가 생성되었습니다. 이메일을 확인해주세요.",
+          duration: 8000,
         });
-        // 성공하더라도 결과보고서 메일 발송까지 안내 오버레이 유지
       } else {
-        throw new Error(result.error || '접수 처리 실패');
+        throw new Error(result.error || '맥킨지 보고서 생성 실패');
       }
 
     } catch (error) {
@@ -409,19 +417,19 @@ export default function SimplifiedDiagnosisResults({ data }: SimplifiedDiagnosis
       {/* 진단 접수 버튼 */}
       <div className="flex justify-center">
         <Button 
-          onClick={handleDiagnosisSubmit}
+          onClick={handleMcKinseyReportRequest}
           disabled={isSubmitting}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-w-[300px] py-3 text-lg"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 min-w-[300px] py-3 text-lg shadow-lg"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              접수 처리 중...
+              맥킨지 보고서 생성 중...
             </>
           ) : (
             <>
-              <Mail className="w-5 h-5" />
-              📋 AI 역량진단 접수 신청
+              <Award className="w-5 h-5" />
+              🎯 맥킨지 스타일 보고서 요청
             </>
           )}
         </Button>
