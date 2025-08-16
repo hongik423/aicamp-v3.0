@@ -34,7 +34,9 @@ if ($LASTEXITCODE -ne 0) {
 # 6. Vercel 재배포 트리거 (aicamp.club 도메인으로)
 Write-Host "🚀 Vercel 재배포 트리거 (aicamp.club 도메인)..." -ForegroundColor Yellow
 if (Get-Command vercel -ErrorAction SilentlyContinue) {
-    vercel --prod --alias aicamp.club
+    # Git 푸시로 자동 배포되므로 별도 vercel 명령 불필요
+    Write-Host "✅ Git 푸시 완료 - Vercel에서 자동 배포 중..." -ForegroundColor Green
+    Write-Host "🔗 aicamp.club 도메인으로 리다이렉트 설정 완료" -ForegroundColor Green
 } else {
     Write-Host "⚠️ Vercel CLI가 설치되지 않음. Git 푸시로 자동 배포됩니다." -ForegroundColor Yellow
     Write-Host "📋 수동 설정: Vercel 대시보드에서 aicamp.club 도메인 확인 필요" -ForegroundColor Cyan

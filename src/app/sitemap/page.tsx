@@ -49,8 +49,6 @@ const siteMapData = [
     category: 'API 엔드포인트',
     links: [
       { title: 'AI 진단 API', url: '/api/ai-diagnosis' },
-      { title: '진단 처리 API', url: '/api/process-diagnosis' },
-      { title: '진단 저장 API', url: '/api/save-diagnosis' },
       { title: '채팅 API', url: '/api/chat' },
       { title: '구글시트 테스트 API', url: '/api/test-googlesheets' }
     ]
