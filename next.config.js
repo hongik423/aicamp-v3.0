@@ -1,4 +1,13 @@
 const nextConfig = {
+  // 환경변수 설정 (맥킨지 보고서 시스템)
+  env: {
+    NEXT_PUBLIC_GAS_URL: 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec',
+    NEXT_PUBLIC_GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec',
+    NEXT_PUBLIC_GOOGLE_SHEETS_ID: '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ',
+    NEXT_PUBLIC_BASE_URL: 'https://aicamp.club',
+    GEMINI_API_KEY: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM'
+  },
+  
   // 개발 모드 최적화
   experimental: {
     turbo: undefined, // Turbopack 비활성화로 안정성 확보
