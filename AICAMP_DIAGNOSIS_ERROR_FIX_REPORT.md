@@ -30,15 +30,12 @@ categoryName: category.name || category.id || '알 수 없는 카테고리',
 .map(item => `${item.itemName || item.itemId || '항목'}: ${item.currentScore}점 (업계평균 대비 우수)`)
 ```
 
-### 2. `aiCampDiagnosisOrchestrator.ts` 회사명 안전성 강화
+### 2. ~~`aiCampDiagnosisOrchestrator.ts` 회사명 안전성 강화~~ (파일 삭제됨)
 
 **수정된 코드:**
 ```typescript
-// ✅ 수정 후: company.name 안전 접근
-const companyName = company.name || company.industry || '귀하의 기업';
-const vision = maturityLevel > 60 
-  ? `${companyName}을 업계 최고의 AI 혁신 기업으로 발전`
-  : `${companyName}의 AI 기반 디지털 전환 성공`;
+// ❌ 29개 문항 기반 시스템 삭제로 인해 해당 파일 제거됨
+// 더 이상 사용되지 않는 시스템
 ```
 
 ### 3. `simplified-diagnosis/route.ts` 오류 로깅 강화

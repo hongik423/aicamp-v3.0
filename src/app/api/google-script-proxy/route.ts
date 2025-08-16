@@ -41,7 +41,17 @@ export async function POST(request: NextRequest) {
           'Accept': 'application/json',
           'User-Agent': 'AICAMP-Frontend/1.0'
         },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify({
+          ...requestData,
+          timestamp: new Date().toISOString(),
+          userAgent: request.headers.get('user-agent') || 'Unknown',
+          referer: request.headers.get('referer') || 'Direct',
+          // 통합 워크플로우 결과 처리 (V15.0 신규)
+          ...(requestData.type === 'ai_diagnosis_complete' && requestData.data?.workflowResult ? {
+            integratedWorkflow: true,
+            workflowResult: requestData.data.workflowResult
+          } : {})
+        }),
         signal: controller.signal,
       });
       
