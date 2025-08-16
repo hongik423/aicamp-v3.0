@@ -236,15 +236,32 @@ const Real45QuestionForm: React.FC = () => {
     setIsSubmitting(true);
     setPersistentNoticeOpen(true);
     try {
-      // API 호출 로직 (기존과 동일)
+      // API 호출 로직 - 실제 신청서 데이터 연계 수정
       const response = await fetch('/api/ai-diagnosis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formState.companyInfo,
-          assessmentResponses: REAL_45_QUESTIONS.map(q => formState.answers[q.id] || 0)
+          // 기업 정보
+          companyName: formState.companyInfo.companyName,
+          contactName: formState.companyInfo.contactName,
+          contactEmail: formState.companyInfo.contactEmail,
+          contactPhone: formState.companyInfo.contactPhone,
+          industry: formState.companyInfo.industry === '직접입력' ? formState.companyInfo.industryCustom : formState.companyInfo.industry,
+          customIndustry: formState.companyInfo.industryCustom,
+          employeeCount: formState.companyInfo.employeeCount,
+          annualRevenue: formState.companyInfo.annualRevenue,
+          location: formState.companyInfo.location,
+          
+          // 실제 신청서 응답 데이터 - 객체 형태로 전송
+          assessmentResponses: formState.answers, // ✅ 객체 형태로 전송
+          
+          // 추가 메타데이터
+          diagnosisType: 'real-45-questions',
+          questionCount: REAL_45_QUESTIONS.length,
+          businessContent: '', // 기본값
+          challenges: '', // 기본값
         }),
       });
 

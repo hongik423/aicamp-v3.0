@@ -9,6 +9,7 @@ import GlobalBanner from '@/components/layout/GlobalBanner';
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 import ServiceWorkerRegister from '@/components/service-worker-register';
 import ErrorShield from '@/components/ErrorShield';
+import ChromeExtensionErrorSuppressor from '@/components/ChromeExtensionErrorSuppressor';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -362,6 +363,7 @@ export default function RootLayout({
             <Footer />
             <ServiceWorkerRegister />
             <ErrorShield />
+            <ChromeExtensionErrorSuppressor />
           </div>
         </Providers>
       </body>

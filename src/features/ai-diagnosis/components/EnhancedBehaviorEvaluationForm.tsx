@@ -496,22 +496,40 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
       setCurrentDiagnosisId(newDiagnosisId);
       setProgressOpen(true);
 
-      // AI 진단 API 호출
+      // AI 진단 API 호출 - 실제 신청서 데이터 연계 수정
       const response = await fetch('/api/ai-diagnosis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formState.companyInfo,
-          answers: formState.answers,
+          // 기업 정보
+          companyName: formState.companyInfo.companyName,
+          contactName: formState.companyInfo.contactName,
+          contactEmail: formState.companyInfo.contactEmail,
+          contactPhone: formState.companyInfo.contactPhone,
+          industry: formState.companyInfo.industry === '직접입력' ? formState.companyInfo.customIndustry : formState.companyInfo.industry,
+          customIndustry: formState.companyInfo.customIndustry,
+          employeeCount: formState.companyInfo.employeeCount,
+          annualRevenue: formState.companyInfo.annualRevenue,
+          location: formState.companyInfo.location,
+          
+          // 실제 신청서 응답 데이터 - API가 기대하는 형식으로 전송
+          assessmentResponses: formState.answers, // ✅ 이 부분이 핵심 수정사항
+          
+          // 추가 메타데이터
           diagnosisId: newDiagnosisId,
           diagnosisType: 'enhanced-behavior-evaluation',
           questionCount: REAL_45_QUESTIONS.length,
+          businessContent: '', // 기본값
+          challenges: '', // 기본값
+          
+          // 통계 정보
           metadata: {
             completedAt: new Date().toISOString(),
             totalScore: Object.values(formState.answers).reduce((sum, score) => sum + score, 0),
             averageScore: Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / REAL_45_QUESTIONS.length,
+            responseCount: Object.keys(formState.answers).length,
             categoryScores: REAL_45_QUESTIONS.reduce((acc, question) => {
               const score = formState.answers[question.id] || 0;
               if (!acc[question.category]) acc[question.category] = [];

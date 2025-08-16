@@ -8,11 +8,22 @@ export interface EnhancedScoreResult {
   maturityLevel: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
   percentile: number;
   categoryScores: {
+    businessFoundation?: number; // 비즈니스 기반 (신규)
     currentAI: number;
     organizationReadiness: number;
     techInfra: number;
-    dataManagement: number;
-    strategicPlanning: number;
+    dataManagement?: number; // 호환성을 위해 유지
+    strategicPlanning?: number; // 호환성을 위해 유지
+    goalClarity?: number; // 목표 명확성 (신규)
+    executionCapability?: number; // 실행 역량 (신규)
+  };
+  categoryStats?: {
+    [key: string]: {
+      responses: number;
+      average: number;
+      min: number;
+      max: number;
+    };
   };
   detailedAnalysis: {
     strengths: string[];
@@ -20,6 +31,8 @@ export interface EnhancedScoreResult {
     opportunities: string[];
     recommendations: string[];
   };
+  rawResponses?: any; // 원본 응답 데이터
+  responseCount?: number; // 실제 응답 수
 }
 
 export interface BenchmarkGapAnalysis {
