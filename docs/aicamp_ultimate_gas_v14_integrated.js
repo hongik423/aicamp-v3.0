@@ -1,18 +1,24 @@
 /**
  * ================================================================================
- * 🎓 이교장의AI역량진단보고서 시스템 V14.2 ULTIMATE INTEGRATED - Google Apps Script
+ * 🎓 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE INTEGRATED - Google Apps Script
  * ================================================================================
  * 
- * 🔥 완벽한 통합 시스템 + GEMINI 2.5 Flash 통합 + Google Drive 연동:
- * 1. 이교장의AI역량진단보고서 (GEMINI 2.5 Flash 통합 분석)
- * 2. 상담신청 처리
- * 3. 오류신고 처리
- * 4. 실시간 진행과정 모니터링
- * 5. Google Drive HTML 보고서 자동 업로드
- * 6. 2단계 이메일 시스템 (접수확인 + 결과보고서)
+ * 🔥 완벽한 통합 시스템 + 45개 행동지표 + GEMINI 2.5 Flash 통합 + Google Drive 연동:
+ * 1. 45개 행동지표 기반 정밀 AI 역량진단
+ * 2. GEMINI 2.5 Flash 통합 분석 (정량적+정성적)
+ * 3. 맥킨지 스타일 보고서 자동 생성
+ * 4. 애플 스타일 미니멀 이메일 시스템
+ * 5. 상담신청 처리
+ * 6. 오류신고 처리
+ * 7. 실시간 진행과정 모니터링
+ * 8. Google Drive HTML 보고서 자동 업로드
+ * 9. 통합 워크플로우 결과 처리
  * 
  * 🎯 핵심 특징:
+ * - 45개 행동지표 기반 정밀 분석 시스템
  * - GEMINI 2.5 FLASH 모델 통합 분석 (정량적+정성적)
+ * - 통합 워크플로우 결과 자동 처리
+ * - 애플 스타일 미니멀 이메일 디자인
  * - 이교장의AI역량진단보고서 브랜딩 통일
  * - Google Drive 공유 폴더 자동 업로드
  * - HTML 보고서 첨부 방식 (패스워드 불필요)
@@ -163,6 +169,11 @@ function doPost(e) {
     const requestType = requestData.type || requestData.action || 'ai_diagnosis';
     
     console.log('📋 요청 타입:', requestType);
+    
+    // V15.0 신규: 통합 워크플로우 결과 처리 확인
+    if (requestData.integratedWorkflow && requestData.workflowResult) {
+      console.log('🎯 통합 워크플로우 결과 감지 - 특별 처리 모드');
+    }
     console.log('📊 요청 시작 시간:', new Date().toLocaleString('ko-KR'));
     
     // 진행상황 모니터링 시작
@@ -187,6 +198,12 @@ function doPost(e) {
       case 'saveDiagnosis':
         updateProgressStatus(progressId, 'processing', '이교장의AI역량진단보고서 생성을 시작합니다');
         result = handleAIDiagnosisRequest(requestData, progressId);
+        break;
+      case 'ai_diagnosis_complete':
+      case 'processCompletedAnalysis':
+        // V15.0 신규: 통합 워크플로우 완료 결과 처리
+        updateProgressStatus(progressId, 'processing', '통합 워크플로우 결과를 처리하고 있습니다');
+        result = handleIntegratedWorkflowResult(requestData, progressId);
         break;
       case 'consultation_request':
       case 'consultation':
@@ -3956,3 +3973,288 @@ function getDiagnosisResultIntegrated(diagnosisId) {
 }
 
 console.log('🔍 진단 결과 조회 시스템 로드 완료 - getDiagnosisResultIntegrated 함수 추가됨');
+
+// ================================================================================
+// 🎯 V15.0 신규: 통합 워크플로우 결과 처리 함수
+// ================================================================================
+
+/**
+ * 통합 워크플로우 완료 결과 처리 (V15.0 신규)
+ * Next.js에서 완성된 분석 결과를 받아 이메일 발송 및 저장 처리
+ */
+function handleIntegratedWorkflowResult(requestData, progressId) {
+  try {
+    console.log('🎯 통합 워크플로우 결과 처리 시작 - V15.0');
+    
+    const { workflowResult } = requestData;
+    
+    if (!workflowResult || !workflowResult.success) {
+      throw new Error('통합 워크플로우 결과가 유효하지 않습니다.');
+    }
+    
+    const { analysisResult, geminiReport, htmlReport } = workflowResult;
+    
+    // 1단계: 진행 상황 업데이트
+    updateProgressStatus(progressId, 'processing', '통합 워크플로우 결과를 처리하고 있습니다');
+    
+    // 2단계: Google Sheets에 결과 저장
+    console.log('📊 Google Sheets 저장 시작');
+    updateProgressStatus(progressId, 'processing', 'Google Sheets에 분석 결과를 저장하고 있습니다');
+    
+    const sheetsResult = saveIntegratedResultToSheets({
+      diagnosisId: analysisResult.diagnosisId,
+      companyInfo: analysisResult.companyInfo,
+      scoreAnalysis: analysisResult.scoreAnalysis,
+      qualityMetrics: analysisResult.qualityMetrics,
+      geminiReport: geminiReport,
+      timestamp: new Date().toISOString(),
+      version: 'V15.0-ULTIMATE-45Q'
+    });
+    
+    // 3단계: HTML 보고서 Google Drive 업로드
+    let driveFileUrl = null;
+    if (htmlReport) {
+      console.log('📁 Google Drive 업로드 시작');
+      updateProgressStatus(progressId, 'processing', 'HTML 보고서를 Google Drive에 업로드하고 있습니다');
+      
+      try {
+        const fileName = `${analysisResult.companyInfo.name}_AI역량진단보고서_${analysisResult.diagnosisId}.html`;
+        driveFileUrl = uploadHTMLToDrive(htmlReport, fileName);
+        console.log('✅ Google Drive 업로드 완료:', driveFileUrl);
+      } catch (driveError) {
+        console.error('⚠️ Google Drive 업로드 실패 (비차단):', driveError.message);
+      }
+    }
+    
+    // 4단계: 애플 스타일 이메일 발송
+    console.log('📧 애플 스타일 이메일 발송 시작');
+    updateProgressStatus(progressId, 'processing', '애플 스타일 이메일을 발송하고 있습니다');
+    
+    const emailResult = sendAppleStyleEmail({
+      companyName: analysisResult.companyInfo.name,
+      contactName: analysisResult.companyInfo.contact.name,
+      contactEmail: analysisResult.companyInfo.contact.email,
+      scoreAnalysis: analysisResult.scoreAnalysis,
+      diagnosisId: analysisResult.diagnosisId,
+      driveFileUrl: driveFileUrl,
+      geminiReport: geminiReport
+    });
+    
+    // 5단계: 관리자 알림 이메일
+    console.log('📨 관리자 알림 발송');
+    sendAdminNotificationEmail({
+      companyName: analysisResult.companyInfo.name,
+      contactName: analysisResult.companyInfo.contact.name,
+      contactEmail: analysisResult.companyInfo.contact.email,
+      scoreAnalysis: analysisResult.scoreAnalysis,
+      diagnosisId: analysisResult.diagnosisId,
+      processingTime: workflowResult.metadata.processingTime
+    });
+    
+    // 완료 처리
+    updateProgressStatus(progressId, 'completed', '통합 워크플로우 처리가 완료되었습니다');
+    
+    console.log('✅ 통합 워크플로우 결과 처리 완료');
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: true,
+        message: '통합 워크플로우 결과 처리 완료',
+        data: {
+          diagnosisId: analysisResult.diagnosisId,
+          sheetsResult: sheetsResult,
+          emailResult: emailResult,
+          driveFileUrl: driveFileUrl,
+          version: 'V15.0-ULTIMATE-45Q'
+        }
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    console.error('❌ 통합 워크플로우 결과 처리 실패:', error);
+    updateProgressStatus(progressId, 'error', `처리 실패: ${error.message}`);
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: '통합 워크플로우 결과 처리 실패',
+        details: error.message
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * 통합 결과를 Google Sheets에 저장
+ */
+function saveIntegratedResultToSheets(data) {
+  try {
+    const sheet = getOrCreateSheet('AI역량진단결과_V15');
+    
+    // 헤더 설정 (최초 실행시)
+    if (sheet.getLastRow() === 0) {
+      const headers = [
+        '진단ID', '회사명', '담당자', '이메일', '업종', '규모',
+        '총점', '등급', '성숙도', '백분위',
+        '사업기반', '현재AI', '조직준비', '기술인프라', '목표명확', '실행역량',
+        '품질점수', '데이터완성도', 'AI분석깊이',
+        'GEMINI성공', 'GEMINI단어수', 'GEMINI신뢰도',
+        '처리시간', '버전', '생성일시'
+      ];
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    }
+    
+    // 데이터 행 추가
+    const rowData = [
+      data.diagnosisId,
+      data.companyInfo.name,
+      data.companyInfo.contact.name,
+      data.companyInfo.contact.email,
+      data.companyInfo.industry,
+      data.companyInfo.size,
+      data.scoreAnalysis.totalScore,
+      data.scoreAnalysis.grade,
+      data.scoreAnalysis.maturityLevel,
+      data.scoreAnalysis.percentile,
+      data.scoreAnalysis.categoryScores.businessFoundation || 0,
+      data.scoreAnalysis.categoryScores.currentAI || 0,
+      data.scoreAnalysis.categoryScores.organizationReadiness || 0,
+      data.scoreAnalysis.categoryScores.techInfrastructure || 0,
+      data.scoreAnalysis.categoryScores.goalClarity || 0,
+      data.scoreAnalysis.categoryScores.executionCapability || 0,
+      data.qualityMetrics.overallQuality,
+      data.qualityMetrics.dataCompleteness,
+      data.qualityMetrics.aiAnalysisDepth || 0,
+      data.geminiReport?.success || false,
+      data.geminiReport?.metadata?.wordCount || 0,
+      data.geminiReport?.metadata?.confidence || 0,
+      data.timestamp,
+      data.version,
+      new Date().toLocaleString('ko-KR')
+    ];
+    
+    sheet.appendRow(rowData);
+    
+    console.log('✅ Google Sheets 저장 완료');
+    return { success: true, row: sheet.getLastRow() };
+    
+  } catch (error) {
+    console.error('❌ Google Sheets 저장 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 애플 스타일 이메일 발송
+ */
+function sendAppleStyleEmail(data) {
+  try {
+    const { companyName, contactName, contactEmail, scoreAnalysis, diagnosisId, driveFileUrl } = data;
+    
+    const subject = `🎯 [${companyName}] AI 역량진단 완료 - ${scoreAnalysis.grade}등급 (${scoreAnalysis.totalScore}점)`;
+    
+    const htmlBody = generateAppleStyleEmailHTML({
+      companyName,
+      contactName,
+      scoreAnalysis,
+      diagnosisId,
+      driveFileUrl,
+      reportUrl: `https://aicamp.club/diagnosis/report/${diagnosisId}`
+    });
+    
+    // 이메일 발송
+    MailApp.sendEmail({
+      to: contactEmail,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: '이교장의AI역량진단보고서',
+      replyTo: 'hongik423@gmail.com'
+    });
+    
+    console.log('✅ 애플 스타일 이메일 발송 완료:', contactEmail);
+    return { success: true, recipient: contactEmail };
+    
+  } catch (error) {
+    console.error('❌ 애플 스타일 이메일 발송 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 애플 스타일 이메일 HTML 생성
+ */
+function generateAppleStyleEmailHTML(data) {
+  const { companyName, contactName, scoreAnalysis, diagnosisId, driveFileUrl, reportUrl } = data;
+  
+  return `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 역량진단 결과 - ${companyName}</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1d1d1f; background-color: #f5f5f7; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center; color: white; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .content { padding: 40px 30px; }
+        .score-card { background: #f8f9fa; border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; }
+        .score-value { font-size: 48px; font-weight: 700; color: #007aff; margin-bottom: 8px; }
+        .grade-badge { display: inline-block; background: #007aff; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; }
+        .cta-button { display: inline-block; background: #007aff; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 10px; }
+        .footer { background: #f8f9fa; padding: 30px; text-align: center; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI 역량진단 완료</h1>
+            <p>45개 행동지표 기반 맞춤형 분석 결과</p>
+        </div>
+        <div class="content">
+            <div style="font-size: 18px; font-weight: 500; margin-bottom: 20px;">
+                안녕하세요, ${contactName}님! 👋
+            </div>
+            <p><strong>${companyName}</strong>의 AI 역량진단이 완료되었습니다.<br>45개 행동지표를 바탕으로 한 정밀 분석 결과를 안내드립니다.</p>
+            
+            <div class="score-card">
+                <div class="score-value">${scoreAnalysis.totalScore}</div>
+                <div style="color: #6c757d; margin-bottom: 15px;">종합 점수 (100점 만점)</div>
+                <div class="grade-badge">${scoreAnalysis.grade}등급 · ${scoreAnalysis.maturityLevel}</div>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                ${driveFileUrl ? `<a href="${driveFileUrl}" class="cta-button">📊 상세 보고서 보기</a>` : ''}
+                <a href="https://aicamp.club/consultation" class="cta-button" style="background: #6c757d;">💬 전문가 상담 신청</a>
+            </div>
+            
+            <div style="background: #fff3cd; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <h4 style="margin-top: 0; color: #856404;">🎁 특별 혜택</h4>
+                <p style="margin-bottom: 0; color: #856404;">
+                    진단 완료 고객 대상 <strong>무료 AI 전략 컨설팅 (1시간)</strong>을 제공합니다.<br>
+                    <strong>010-9251-9743</strong>으로 연락주시면 일정을 조율해드리겠습니다.
+                </p>
+            </div>
+        </div>
+        <div class="footer">
+            <div style="font-size: 20px; font-weight: 700; color: #007aff; margin-bottom: 15px;">AICAMP</div>
+            <div><strong>이교장의AI역량진단보고서 V15.0 ULTIMATE</strong></div>
+            <div style="margin-top: 15px; font-size: 13px;">
+                📞 010-9251-9743 | 📧 hongik423@gmail.com<br>
+                🌐 aicamp.club | 진단 ID: ${diagnosisId}
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
+// ================================================================================
+// 🎯 V15.0 시스템 완료
+// ================================================================================
+
+console.log('✅ 이교장의AI역량진단보고서 V15.0 ULTIMATE 시스템 로드 완료');
+console.log('📊 시스템 상태: 모든 기능 활성화 (45개 행동지표 + 통합 워크플로우)');
+console.log('🔗 연동 서비스: GEMINI 2.5 Flash, Google Drive, Gmail, Sheets');
+console.log('🎯 준비 완료: AI 역량진단, 통합 워크플로우, 상담신청, 오류신고 처리 가능');
