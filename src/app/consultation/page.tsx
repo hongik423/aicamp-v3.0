@@ -440,8 +440,11 @@ export default function ConsultationPage() {
                         />
                       </div>
                       <div className="space-y-2 sm:space-y-3">
+                        <label className="flex items-center gap-2 text-sm sm:text-base font-semibold text-gray-900">
+                          <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
+                          전화번호 <span className="text-red-500">*</span>
+                        </label>
                         <PhoneInput
-                          label="연락처"
                           value={formData.phone}
                           onChange={(value) => handleInputChange('phone', value)}
                           placeholder="010-1234-5678"
