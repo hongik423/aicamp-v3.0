@@ -26,8 +26,14 @@ export async function GET(request: NextRequest) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const sendEvent = (event: string, data: unknown) => {
-        const payload = `event: ${event}\n` + `data: ${JSON.stringify(data)}\n\n`;
-        controller.enqueue(encoder.encode(payload));
+        if (closed) return; // 이미 닫힌 경우 전송하지 않음
+        try {
+          const payload = `event: ${event}\n` + `data: ${JSON.stringify(data)}\n\n`;
+          controller.enqueue(encoder.encode(payload));
+        } catch (error) {
+          console.warn('SSE 이벤트 전송 실패:', error);
+          closed = true;
+        }
       };
 
       // 초기 이벤트
@@ -64,6 +70,8 @@ export async function GET(request: NextRequest) {
       };
 
       const poll = async () => {
+        if (closed) return; // 이미 닫힌 경우 폴링 중단
+        
         const elapsedMs = Date.now() - startTime;
         if (elapsedMs > softTimeoutMs) {
           sendEvent('timeout', {

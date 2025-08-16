@@ -1,0 +1,27 @@
+
+🔧 AICAMP v3.0 수동 설정 가이드
+
+다음 단계를 순서대로 진행하세요:
+
+1. 📧 Gmail 앱 비밀번호 설정
+   - Gmail 계정 → 설정 → 보안 → 2단계 인증 활성화
+   - 앱 비밀번호 생성 → "AICAMP" 이름으로 생성
+   - 16자리 비밀번호를 .env.local의 EMAIL_APP_PASSWORD에 입력
+
+2. 🔑 Google AI API 키 설정
+   - https://makersuite.google.com/app/apikey 방문
+   - API 키 생성 (AIzaSy로 시작)
+   - .env.local의 GEMINI_API_KEY에 입력
+
+3. 🗂️ Google Drive 권한 확인
+   - 공유 폴더: https://drive.google.com/drive/u/0/folders/1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj
+   - 편집 권한이 있는지 확인
+
+4. 🔄 시스템 재시작
+   - npm run dev 명령어로 개발 서버 재시작
+   - npm run test:api로 API 테스트 실행
+
+5. ✅ 테스트 진단 실행
+   - http://localhost:3000/ai-diagnosis 접속
+   - 테스트 데이터로 진단 실행
+   - 이메일 수신 및 Drive 업로드 확인

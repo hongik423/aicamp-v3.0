@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-08-16T08:34:15.823Z",
+  "testData": {
+    "companyName": "테스트회사_1755333246253",
+    "industry": "IT/소프트웨어",
+    "employeeCount": "10-50명",
+    "contactName": "홍길동",
+    "contactEmail": "test@aicamp.club",
+    "contactPhone": "010-1234-5678",
+    "currentAIUsage": "basic",
+    "businessGoals": "업무 자동화를 통한 효율성 향상",
+    "challenges": "반복 업무가 많아 직원들이 피로감을 느끼고 있음",
+    "expectedOutcomes": "AI 도입으로 30% 이상의 업무 효율성 향상 기대",
+    "timestamp": "2025-08-16T08:34:06.253Z"
+  },
+  "diagnosisId": null,
+  "results": {
+    "environment": false,
+    "gasConnection": true,
+    "submission": false,
+    "resultRetrieval": false
+  }
+}
