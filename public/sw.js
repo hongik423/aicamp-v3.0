@@ -1,10 +1,15 @@
 // 이교장의AI역량진단보고서 Service Worker
-const CACHE_NAME = 'ai-diagnosis-v1';
+const CACHE_NAME = 'aicamp-v3.5-' + new Date().getTime();
 const urlsToCache = [
   '/',
-  '/images/aicamp_leader.png',
+  '/images/aicamp_logo.png',
+  '/images/aicamp_logo_del_250726.png',
   '/api/manifest'
 ];
+
+// 캐시 버전 체크 및 강제 업데이트
+const CACHE_VERSION = '3.5';
+const FORCE_UPDATE_KEY = 'aicamp-force-update-' + CACHE_VERSION;
 
 // Service Worker 설치
 self.addEventListener('install', (event) => {
@@ -40,6 +45,31 @@ self.addEventListener('activate', (event) => {
 
 // 네트워크 요청 처리
 self.addEventListener('fetch', (event) => {
+  // Next.js 정적 파일에 대해서는 네트워크 우선 전략 사용 (캐시 버스팅)
+  if (event.request.url.includes('/_next/static/') || 
+      event.request.url.includes('.js') || 
+      event.request.url.includes('.css')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // 성공적으로 받아온 경우에만 캐시에 저장
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseClone);
+              });
+          }
+          return response;
+        })
+        .catch(() => {
+          // 네트워크 실패 시에만 캐시에서 반환
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
   // 매니페스트 요청에 대해서는 네트워크 우선 전략 사용
   if (event.request.url.includes('manifest.webmanifest') || event.request.url.includes('/api/manifest')) {
     event.respondWith(
