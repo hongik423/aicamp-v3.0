@@ -81,7 +81,7 @@ export default function RealtimeProgressBanner({
   onComplete,
   onError,
   onClose,
-  autoHideOnComplete = true,
+  autoHideOnComplete = false, // 🔧 자동 숨김 비활성화 - 사용자가 수동으로 닫을 때까지 유지
   autoHideDelay = 8000
 }: RealtimeProgressBannerProps) {
   const [progressState, setProgressState] = useState<DiagnosisProgressState | null>(null);

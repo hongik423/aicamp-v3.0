@@ -981,8 +981,10 @@ const EnhancedBehaviorEvaluationForm: React.FC = () => {
         diagnosisId={currentDiagnosisId || undefined}
         companyName={formState.companyInfo.companyName || '귀하의 기업'}
         email={formState.companyInfo.contactEmail}
+        persistent={true} // 🔧 완료 후에도 사용자가 수동으로 닫을 때까지 유지
         onComplete={() => {
-          setProgressOpen(false);
+          // 완료되어도 자동으로 닫지 않음 (persistent 모드)
+          console.log('✅ 진단 완료 - 모달은 사용자가 수동으로 닫을 때까지 유지');
         }}
         onError={() => {
           // 오류 시에도 모달은 유지하여 사용자 안내 지속
