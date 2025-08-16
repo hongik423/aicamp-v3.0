@@ -675,9 +675,12 @@ const Real45QuestionForm: React.FC = () => {
                     질문 {formState.currentQuestion + 1}
                   </Badge>
                   <Badge variant="outline" className={
-                    currentQuestion.category === 'business' ? 'bg-blue-50 text-blue-700' :
-                    currentQuestion.category === 'technology' ? 'bg-green-50 text-green-700' :
-                    currentQuestion.category === 'organization' ? 'bg-purple-50 text-purple-700' :
+                    currentQuestion.category === 'businessFoundation' ? 'bg-blue-50 text-blue-700' :
+                    currentQuestion.category === 'currentAI' ? 'bg-green-50 text-green-700' :
+                    currentQuestion.category === 'organizationReadiness' ? 'bg-purple-50 text-purple-700' :
+                    currentQuestion.category === 'techInfrastructure' ? 'bg-indigo-50 text-indigo-700' :
+                    currentQuestion.category === 'goalClarity' ? 'bg-yellow-50 text-yellow-700' :
+                    currentQuestion.category === 'executionCapability' ? 'bg-red-50 text-red-700' :
                     'bg-gray-50 text-gray-700'
                   }>
                     {currentQuestion.category}
@@ -688,34 +691,56 @@ const Real45QuestionForm: React.FC = () => {
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                {/* 답변 옵션 */}
-                <div className="grid gap-3">
-                  {[5, 4, 3, 2, 1].map((score) => (
-                    <button
-                      key={score}
-                      onClick={() => handleAnswer(currentQuestion.id, score)}
-                      className={`
-                        p-4 text-left border-2 rounded-lg transition-all duration-200
-                        ${formState.answers[currentQuestion.id] === score
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                        }
-                      `}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">
-                          {score === 5 ? '매우 그렇다' :
-                           score === 4 ? '그렇다' :
-                           score === 3 ? '보통이다' :
-                           score === 2 ? '그렇지 않다' : '전혀 그렇지 않다'}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          {score}점
-                        </span>
-                      </div>
-                    </button>
-                  ))}
+              <CardContent className="space-y-6">
+                {/* 질문별 정확한 행동지표 기반 답변 옵션 */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-800 mb-4">
+                    행동지표별 평가 (해당하는 수준을 선택해주세요)
+                  </h4>
+                  
+                  <div className="space-y-3">
+                    {getQuestionBehaviorIndicators(currentQuestion.id).map((indicator) => (
+                      <button
+                        key={indicator.score}
+                        onClick={() => handleAnswer(currentQuestion.id, indicator.score)}
+                        className={`
+                          w-full p-4 text-left border-2 rounded-lg transition-all duration-200
+                          ${formState.answers[currentQuestion.id] === indicator.score
+                            ? `${indicator.color} ${indicator.bgColor} border-current shadow-lg`
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }
+                        `}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center mb-2">
+                              <span className="font-semibold text-lg mr-3">
+                                {indicator.label}
+                              </span>
+                              <span className="text-sm font-medium px-2 py-1 rounded bg-gray-100">
+                                {indicator.score}점
+                              </span>
+                            </div>
+                            <div className="mb-2">
+                              <span className="text-sm font-medium text-blue-600">
+                                {indicator.keyword}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                              {indicator.description}
+                            </p>
+                            {indicator.actionItems.length > 0 && (
+                              <div className="text-xs text-gray-600">
+                                <span className="font-medium">주요 실행과제: </span>
+                                {indicator.actionItems.slice(0, 2).join(', ')}
+                                {indicator.actionItems.length > 2 && ' 등'}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* 네비게이션 */}

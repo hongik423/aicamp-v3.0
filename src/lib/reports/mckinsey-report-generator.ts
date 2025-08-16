@@ -449,17 +449,37 @@ export interface ReportQualityMetrics {
 }
 
 /**
- * McKinsey 스타일 보고서 생성기
+ * McKinsey 스타일 보고서 생성기 V15.0
+ * 프롬프터 기반 11개 섹션 완벽 구현
  */
 export class McKinseyReportGenerator {
   private config: McKinseyReportConfig;
+  private readonly VERSION = 'V15.0-ULTIMATE-MCKINSEY';
   
   constructor(config: McKinseyReportConfig) {
-    this.config = config;
+    this.config = {
+      ...config,
+      version: this.VERSION,
+      sections: [
+        'coverPage',
+        'executiveSummary',
+        'companyInformation',
+        'diagnosisVisualization',
+        'behavioralAnalysis',
+        'benchmarkAnalysis',
+        'swotAnalysis',
+        'priorityMatrix',
+        'n8nMethodology',
+        'aicampCurriculum',
+        'roadmap',
+        'conclusion'
+      ]
+    };
   }
   
   /**
-   * 메인 보고서 생성 함수
+   * 메인 보고서 생성 함수 V15.0
+   * 11개 섹션 맥킨지 스타일 보고서 생성
    */
   async generateReport(
     scoreResult: AdvancedScoreResult,

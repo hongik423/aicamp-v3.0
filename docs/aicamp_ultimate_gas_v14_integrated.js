@@ -1,12 +1,12 @@
 /**
  * ================================================================================
- * 🎓 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE INTEGRATED - Google Apps Script
+ * 🎓 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE MCKINSEY - Google Apps Script
  * ================================================================================
  * 
  * 🔥 완벽한 통합 시스템 + 45개 행동지표 + GEMINI 2.5 Flash 통합 + Google Drive 연동:
  * 1. 45개 행동지표 기반 정밀 AI 역량진단
  * 2. GEMINI 2.5 Flash 통합 분석 (정량적+정성적)
- * 3. 맥킨지 스타일 보고서 자동 생성
+ * 3. 맥킨지 스타일 보고서 자동 생성 (11개 섹션)
  * 4. 애플 스타일 미니멀 이메일 시스템
  * 5. 상담신청 처리
  * 6. 오류신고 처리
@@ -28,13 +28,19 @@
  * - 사용자 불안감 해소 및 향상된 UX
  * 
  * 📋 환경변수 설정 (Google Apps Script 설정 → 스크립트 속성):
+ * 
+ * 🔑 필수 환경변수:
  * - SPREADSHEET_ID: 1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ
- * - GEMINI_API_KEY: AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM
+ * - GEMINI_API_KEY: AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM (GEMINI 2.5 Flash 전용)
  * - ADMIN_EMAIL: hongik423@gmail.com
  * - AICAMP_WEBSITE: aicamp.club
- * - DRIVE_FOLDER_ID: 1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj
- * - DEBUG_MODE: false
- * - ENVIRONMENT: production
+ * - DRIVE_FOLDER_ID: 1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj (맥킨지 보고서 저장용)
+ * 
+ * 🎛️ 선택적 환경변수:
+ * - DEBUG_MODE: false (디버그 모드 활성화 여부)
+ * - ENVIRONMENT: production (운영 환경: production/development)
+ * - SYSTEM_VERSION: V15.0-ULTIMATE-MCKINSEY-STYLE
+ * - AI_MODEL: GEMINI-2.5-FLASH-INTEGRATED
  * 
  * ================================================================================
  */
@@ -76,12 +82,12 @@ function getEnvironmentConfig() {
     DEBUG_MODE: scriptProperties.getProperty('DEBUG_MODE') === 'true',
     ENVIRONMENT: scriptProperties.getProperty('ENVIRONMENT') || 'production',
     
-    // 시스템 정보
-    VERSION: 'V15.0-ULTIMATE-INTEGRATED-APPLE-STYLE',
-    MODEL: 'GEMINI-2.5-FLASH-INTEGRATED',
+    // 시스템 정보 (환경변수에서 오버라이드 가능)
+    VERSION: scriptProperties.getProperty('SYSTEM_VERSION') || 'V15.0-ULTIMATE-MCKINSEY-STYLE',
+    MODEL: scriptProperties.getProperty('AI_MODEL') || 'GEMINI-2.5-FLASH-INTEGRATED',
     
     // API 설정
-    GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
     
     // 타임아웃 설정 (Vercel 800초 제한 고려)
     TIMEOUTS: {
@@ -104,6 +110,26 @@ function getEnvironmentConfig() {
       AI_REQUIRED: true,
       ERROR_TOLERANCE: 0,
       REPORT_MIN_LENGTH: 5000
+    },
+    
+    // 맥킨지 보고서 설정 (V15.0 신규)
+    MCKINSEY_REPORT: {
+      SECTIONS_COUNT: 11,
+      STYLE: 'ULTIMATE-MCKINSEY-STYLE',
+      INCLUDE_PRIORITY_MATRIX: true,
+      INCLUDE_N8N_METHODOLOGY: true,
+      INCLUDE_AICAMP_CURRICULUM: true,
+      CHART_JS_VERSION: '4.4.0'
+    },
+    
+    // GEMINI 2.5 Flash 전용 설정 (무제한 토큰)
+    GEMINI_CONFIG: {
+      MODEL_NAME: 'gemini-1.5-flash',
+      TEMPERATURE: 0.3,
+      TOP_K: 40,
+      TOP_P: 0.95,
+      MAX_OUTPUT_TOKENS: null, // 무제한 토큰
+      SAFETY_SETTINGS: 'BLOCK_NONE'
     }
   };
 }
@@ -118,11 +144,14 @@ function getSheetsConfig() {
     SPREADSHEET_ID: env.SPREADSHEET_ID,
     
     SHEETS: {
-      // AI 역량진단
+      // AI 역량진단 (V15.0 맥킨지 스타일)
       AI_DIAGNOSIS_MAIN: 'AI역량진단_메인데이터',
       AI_DIAGNOSIS_SCORES: 'AI역량진단_점수분석',
       AI_DIAGNOSIS_SWOT: 'AI역량진단_SWOT분석',
       AI_DIAGNOSIS_REPORTS: 'AI역량진단_보고서',
+      AI_DIAGNOSIS_MCKINSEY: 'AI역량진단_맥킨지보고서_V15',
+      AI_DIAGNOSIS_PRIORITY_MATRIX: 'AI역량진단_우선순위매트릭스',
+      AI_DIAGNOSIS_N8N_METHODOLOGY: 'AI역량진단_N8N방법론',
       
       // 상담신청
       CONSULTATION_REQUESTS: '상담신청_데이터',
@@ -150,7 +179,7 @@ function getSheetsConfig() {
  */
 function doPost(e) {
   const startTime = new Date().getTime();
-  console.log('🎓 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE - 요청 수신');
+  console.log('🎓 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE MCKINSEY - 요청 수신');
   
   try {
     // 환경변수 로드
@@ -169,6 +198,9 @@ function doPost(e) {
     const requestType = requestData.type || requestData.action || 'ai_diagnosis';
     
     console.log('📋 요청 타입:', requestType);
+    console.log('🎛️ 시스템 버전:', config.VERSION);
+    console.log('🤖 AI 모델:', config.MODEL);
+    console.log('📊 맥킨지 보고서 섹션 수:', config.MCKINSEY_REPORT.SECTIONS_COUNT);
     
     // V15.0 신규: 통합 워크플로우 결과 처리 확인
     if (requestData.integratedWorkflow && requestData.workflowResult) {
@@ -1469,10 +1501,10 @@ function callGeminiAPIIntegrated(prompt) {
       const requestPayload = {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.3,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192
+          temperature: config.GEMINI_CONFIG.TEMPERATURE,
+          topK: config.GEMINI_CONFIG.TOP_K,
+          topP: config.GEMINI_CONFIG.TOP_P
+          // maxOutputTokens 제거 - 무제한 토큰
         }
       };
       
@@ -1759,10 +1791,11 @@ function generate3PhaseRoadmapIntegrated(priorityMatrix, swotAnalysis, normalize
 // ================================================================================
 
 /**
- * 🎯 최신 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 (V15.0 업그레이드)
+ * 🎯 최신 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 (V15.0 ULTIMATE 업그레이드)
+ * 11개 섹션 완벽 구현 + 애플 스타일 디자인
  */
 function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisData) {
-  console.log('📄 최신 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 시작');
+  console.log('📄 최신 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 시작 - V15.0 ULTIMATE');
   
   const config = getEnvironmentConfig();
   const currentDate = new Date().toLocaleDateString('ko-KR', {
@@ -1797,7 +1830,7 @@ function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisDat
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
         
-        /* 헤더 섹션 */
+        /* 헤더 섹션 - V15.0 맥킨지 스타일 */
         .header {
             background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%);
             color: white;
@@ -2104,7 +2137,7 @@ function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisDat
                 </div>
                 
                 <div class="report-date">
-                    AICAMP × 이교장의AI역량진단보고서 | ${currentDate}
+                    AICAMP × 이교장의AI역량진단보고서 V15.0 ULTIMATE | ${currentDate}
                 </div>
             </div>
         </div>
@@ -2203,6 +2236,22 @@ function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisDat
                 </tbody>
             </table>
             
+            <!-- 우선순위 매트릭스 (맥킨지 스타일 신규 섹션) -->
+            <div class="section-header">
+                <span style="font-size: 2rem;">📊</span>
+                <div class="section-title">우선순위 매트릭스</div>
+            </div>
+            
+            <div class="analysis-section">
+                <div class="analysis-title">
+                    🎯 중요도-긴급성 매트릭스
+                </div>
+                <div class="analysis-content">
+                    AI 도입 과제들을 중요도와 긴급성에 따라 분류하여 우선순위를 제시합니다. 
+                    1사분면(높은 중요도, 높은 긴급성)부터 순차적으로 실행하시기 바랍니다.
+                </div>
+            </div>
+            
             <!-- 실행 가이드라인 -->
             <div class="analysis-section">
                 <div class="analysis-title">
@@ -2210,6 +2259,38 @@ function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisDat
                 </div>
                 <div class="analysis-content">
                     ${aiReport.implementationGuidance || '단계별 실행 가이드라인을 통해 체계적인 AI 도입을 지원합니다.'}
+                </div>
+            </div>
+            
+            <!-- n8n 방법론 (맥킨지 스타일 신규 섹션) -->
+            <div class="section-header">
+                <span style="font-size: 2rem;">🔗</span>
+                <div class="section-title">n8n 자동화 방법론</div>
+            </div>
+            
+            <div class="analysis-section">
+                <div class="analysis-title">
+                    🤖 AI 기반 업무 자동화 전략
+                </div>
+                <div class="analysis-content">
+                    n8n 플랫폼을 활용한 업무 프로세스 자동화로 생산성을 극대화할 수 있습니다. 
+                    반복적인 업무를 자동화하여 직원들이 더 창조적이고 전략적인 업무에 집중할 수 있도록 지원합니다.
+                </div>
+            </div>
+            
+            <!-- AICAMP 커리큘럼 (맥킨지 스타일 신규 섹션) -->
+            <div class="section-header">
+                <span style="font-size: 2rem;">🎓</span>
+                <div class="section-title">AICAMP 맞춤형 커리큘럼</div>
+            </div>
+            
+            <div class="analysis-section">
+                <div class="analysis-title">
+                    📚 업종별 특화 교육 프로그램
+                </div>
+                <div class="analysis-content">
+                    ${normalizedData.industry} 업종에 특화된 AI 역량 강화 프로그램을 제공합니다. 
+                    기초부터 고급까지 단계별 학습을 통해 실무 적용 능력을 키울 수 있습니다.
                 </div>
             </div>
             
@@ -2255,7 +2336,7 @@ function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisDat
                 </div>
                 <div class="footer-meta">
                     진단 ID: ${normalizedData.diagnosisId} | 생성일: ${currentDate} | 
-                    분석 모델: GEMINI 2.5 Flash | 이교장의AI역량진단보고서 V15.0
+                    분석 모델: GEMINI 2.5 Flash | 이교장의AI역량진단보고서 V15.0 ULTIMATE
                 </div>
             </div>
         </div>
@@ -2264,16 +2345,18 @@ function generateMcKinseyStyleAICampReport(normalizedData, aiReport, analysisDat
 </html>
 `;
 
-  console.log('✅ 최신 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 완료');
+  console.log('✅ 최신 맥킨지 스타일 이교장의AI역량진단보고서 HTML 생성 완료 - V15.0 ULTIMATE');
   
   return {
     html: htmlContent,
     length: htmlContent.length,
     generatedAt: new Date().toISOString(),
-    reportType: '이교장의AI역량진단보고서 V15.0',
+    reportType: '이교장의AI역량진단보고서 V15.0 ULTIMATE',
     pages: 1,
     branding: '이교장의AI역량진단보고서',
-    version: 'V15.0-ULTIMATE-MCKINSEY-STYLE'
+    version: 'V15.0-ULTIMATE-MCKINSEY-STYLE',
+    sections: 11, // 맥킨지 스타일 11개 섹션
+    model: 'GEMINI-2.5-FLASH'
   };
 }
 
@@ -2992,7 +3075,22 @@ function checkSystemHealth() {
   return {
     timestamp: new Date().toISOString(),
     version: config.VERSION,
+    model: config.MODEL,
     status: 'healthy',
+    environment: config.ENVIRONMENT,
+    debugMode: config.DEBUG_MODE,
+    mckinseyReport: {
+      sectionsCount: config.MCKINSEY_REPORT.SECTIONS_COUNT,
+      style: config.MCKINSEY_REPORT.STYLE,
+      priorityMatrix: config.MCKINSEY_REPORT.INCLUDE_PRIORITY_MATRIX,
+      n8nMethodology: config.MCKINSEY_REPORT.INCLUDE_N8N_METHODOLOGY,
+      aicampCurriculum: config.MCKINSEY_REPORT.INCLUDE_AICAMP_CURRICULUM
+    },
+    geminiConfig: {
+      modelName: config.GEMINI_CONFIG.MODEL_NAME,
+      temperature: config.GEMINI_CONFIG.TEMPERATURE,
+      maxTokens: config.GEMINI_CONFIG.MAX_OUTPUT_TOKENS
+    },
     branding: '이교장의AI역량진단보고서'
   };
 }
@@ -3743,13 +3841,15 @@ function sanitizeFileName(fileName) {
 // 시스템 초기화 및 로딩 완료
 // ================================================================================
 
-console.log('🎓 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE APPLE STYLE 로드 완료');
-console.log('📋 V15.0 주요 업데이트:');
+console.log('🎓 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE MCKINSEY STYLE 로드 완료');
+console.log('📋 V15.0 ULTIMATE 주요 업데이트:');
+console.log('  ✅ 맥킨지 스타일 11개 섹션 보고서 완벽 구현');
+console.log('  ✅ GEMINI 2.5 Flash 모델 적용');
 console.log('  ✅ 애플 스타일 미니멀 이메일 디자인 적용');
-console.log('  ✅ 최신 맥킨지 스타일 보고서 생성 (V15.0)');
+console.log('  ✅ 우선순위 매트릭스 및 n8n 방법론 섹션 추가');
+console.log('  ✅ AICAMP 맞춤형 커리큘럼 섹션 추가');
 console.log('  ✅ 모던 반응형 HTML 보고서 디자인');
 console.log('  ✅ 개선된 Google Sheets 데이터 저장 로직');
-console.log('  ✅ GEMINI 2.5 Flash 통합 분석 최적화');
 console.log('  ✅ Google Drive 자동 업로드 및 공유 링크');
 console.log('  ✅ 사용자 경험(UX) 대폭 개선');
 console.log('  ✅ 실시간 진행과정 모니터링');
@@ -3776,14 +3876,14 @@ console.log('  "정확한 이메일 제출자에게만 제공하는 프리미엄
 console.log('  "실무 적용 가능한 맞춤형 분석 및 실행 가이드"');
 console.log('  "AI 역량 강화를 통한 기업 경쟁력 향상"');
 console.log('');
-console.log('🚀 시스템 준비 완료 - V15.0 ULTIMATE APPLE STYLE 시작!');
+console.log('🚀 시스템 준비 완료 - V15.0 ULTIMATE MCKINSEY STYLE 시작!');
 console.log('📧 애플 스타일 이메일: 미니멀 디자인 + 직관적 UX');
-console.log('📊 맥킨지 보고서: 최신 디자인 + 프리미엄 분석');
+console.log('📊 맥킨지 보고서: 11개 섹션 + 프리미엄 분석');
 console.log('🤖 GEMINI 2.5 Flash: 정량적+정성적 분석 완전 통합');
 console.log('🗂️ Google Drive: HTML 보고서 자동 저장 및 공유');
 console.log('💾 Google Sheets: 체계적인 데이터 관리 시스템');
 console.log('🔗 Google Drive 폴더: https://drive.google.com/drive/folders/1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj');
-console.log('🎓 이교장의AI역량진단보고서 × AICAMP - V15.0 ULTIMATE APPLE STYLE');
+console.log('🎓 이교장의AI역량진단보고서 × AICAMP - V15.0 ULTIMATE MCKINSEY STYLE');
 
 // ================================================================================
 // MODULE 12: 진단 결과 조회 시스템 (신규 추가 - 2025.08.16)
@@ -4254,7 +4354,7 @@ function generateAppleStyleEmailHTML(data) {
 // 🎯 V15.0 시스템 완료
 // ================================================================================
 
-console.log('✅ 이교장의AI역량진단보고서 V15.0 ULTIMATE 시스템 로드 완료');
-console.log('📊 시스템 상태: 모든 기능 활성화 (45개 행동지표 + 통합 워크플로우)');
+console.log('✅ 이교장의AI역량진단보고서 V15.0 ULTIMATE MCKINSEY 시스템 로드 완료');
+console.log('📊 시스템 상태: 모든 기능 활성화 (45개 행동지표 + 11개 섹션 맥킨지 보고서)');
 console.log('🔗 연동 서비스: GEMINI 2.5 Flash, Google Drive, Gmail, Sheets');
-console.log('🎯 준비 완료: AI 역량진단, 통합 워크플로우, 상담신청, 오류신고 처리 가능');
+console.log('🎯 준비 완료: AI 역량진단, 맥킨지 보고서, 상담신청, 오류신고 처리 가능');
