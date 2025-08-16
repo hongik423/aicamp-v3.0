@@ -43,6 +43,7 @@ interface DiagnosisProgressModalProps {
   onError?: (error: string) => void;
   pollApiPath?: string; // 진행 상태/결과 조회 API 경로 (기본: /api/diagnosis-results/[id])
   pollIntervalMs?: number; // 폴링 주기
+  persistent?: boolean; // 🔧 완료 후에도 사용자가 수동으로 닫을 때까지 유지
 }
 
 export default function DiagnosisProgressModal({ 
@@ -55,7 +56,8 @@ export default function DiagnosisProgressModal({
   onComplete,
   onError,
   pollApiPath = '/api/diagnosis-results/',
-  pollIntervalMs = 15000
+  pollIntervalMs = 15000,
+  persistent = true // 🔧 기본값: 완료 후에도 사용자가 수동으로 닫을 때까지 유지
 }: DiagnosisProgressModalProps) {
   const banner = useBannerStore();
   const [steps, setSteps] = useState<DiagnosisStep[]>([
@@ -253,12 +255,15 @@ export default function DiagnosisProgressModal({
           setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed', endTime: s.endTime ?? Date.now() })));
           setTotalProgress(100);
 
-          // 배너 성공 안내 유지 (자동 숨김 제거)
+          // 배너 성공 안내 (persistent 모드 고려)
           banner.update('✅ 진단 보고서가 완성되어 이메일로 전송되었습니다.', {
-            subMessage: '이 창은 닫으셔도 됩니다. 이용해 주셔서 감사합니다.',
+            subMessage: persistent 
+              ? '완료되었습니다! 우측 상단 ✕ 버튼을 클릭하여 창을 닫으세요.' 
+              : '이 창은 닫으셔도 됩니다. 이용해 주셔서 감사합니다.',
             variant: 'success',
             progressPercent: 100,
-            stepLabel: '이메일 발송 완료'
+            stepLabel: '이메일 발송 완료',
+            persistent: persistent
           } as any);
 
           // 완료 콜백
