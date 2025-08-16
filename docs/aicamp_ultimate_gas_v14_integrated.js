@@ -128,7 +128,7 @@ function getEnvironmentConfig() {
       TEMPERATURE: 0.3,
       TOP_K: 40,
       TOP_P: 0.95,
-      MAX_OUTPUT_TOKENS: null, // 무제한 토큰
+      MAX_OUTPUT_TOKENS: 50000, // 최대 토큰 상한 설정
       SAFETY_SETTINGS: 'BLOCK_NONE'
     }
   };
