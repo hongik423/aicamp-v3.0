@@ -6,8 +6,8 @@ import { Check, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { 
   BARSIndicator,
-  getBARSIndicator,
-  getScoreIcon
+  getBARSIndicators,
+  getBehaviorAnchor
 } from '../constants/bars-behavior-indicators';
 import { 
   BehaviorIndicator,
@@ -32,7 +32,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
   questionId
 }) => {
   // BARS 시스템 사용 시 질문별 행동지표 조회, 없으면 기존 시스템 사용
-  const barsIndicator = questionId ? getBARSIndicator(questionId, indicator.score) : null;
+  const barsIndicator = questionId ? getBehaviorAnchor(questionId, indicator.score) : null;
   const categoryIndicator = getCategoryBehaviorIndicator(category as any, indicator.score);
   
   // BARS 우선, 없으면 기존 카테고리 지표 사용
@@ -73,7 +73,12 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
         {/* 행동지표 내용 (중앙) */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center mb-3">
-            <span className="text-2xl mr-3">{getScoreIcon(indicator.score)}</span>
+            <span className="text-2xl mr-3">
+              {indicator.score === 5 ? '★' : 
+               indicator.score === 4 ? '●' : 
+               indicator.score === 3 ? '◐' : 
+               indicator.score === 2 ? '○' : '◯'}
+            </span>
             <div className="flex flex-col">
               <span className={`font-bold text-lg ${isSelected ? indicator.color : 'text-gray-800'}`}>
                 {indicator.label}
@@ -85,7 +90,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
                   ${isSelected ? `${indicator.color} border-current` : 'text-gray-600 border-gray-300'}
                 `}
               >
-                {barsIndicator?.keywords?.[0] || displayIndicator?.keyword || indicator.keyword}
+{displayIndicator?.keyword || indicator.keyword}
               </Badge>
             </div>
           </div>
@@ -94,15 +99,15 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
             text-sm leading-relaxed
             ${isSelected ? indicator.color : 'text-gray-600'}
           `}>
-            {barsIndicator?.behaviorDescription || displayIndicator?.description || indicator.description}
+{barsIndicator?.behaviorDescription || displayIndicator?.description || indicator.description}
           </p>
           
           {/* BARS 시스템의 실제 업무 사례 표시 */}
-          {barsIndicator?.businessExample && isSelected && (
+          {barsIndicator?.businessImpact && isSelected && (
             <div className="mt-3 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-400">
               <p className="text-xs text-gray-700">
-                <span className="font-semibold">실무 사례: </span>
-                {barsIndicator.businessExample}
+                <span className="font-semibold">비즈니스 임팩트: </span>
+                {barsIndicator.businessImpact}
               </p>
             </div>
           )}
