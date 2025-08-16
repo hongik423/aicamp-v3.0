@@ -29,8 +29,19 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   
-  // 웹팩 설정 최적화 - 기본 설정 사용
+  // 웹팩 설정 최적화 - 캐시 버스팅 강화
   webpack: (config, { dev, isServer }) => {
+    // 프로덕션 환경에서 캐시 버스팅 강화
+    if (!dev && !isServer) {
+      config.output = {
+        ...config.output,
+        filename: 'static/chunks/[name].[contenthash].js',
+        chunkFilename: 'static/chunks/[name].[contenthash].js',
+        assetModuleFilename: 'static/media/[name].[contenthash][ext]',
+        chunkLoadTimeout: 120000, // 120초로 증가
+      };
+    }
+    
     // 개발 모드에서만 기본적인 최적화
     if (dev) {
       config.watchOptions = {
