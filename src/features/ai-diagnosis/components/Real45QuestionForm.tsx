@@ -66,6 +66,16 @@ const Real45QuestionForm: React.FC = () => {
   const [showCompanyForm, setShowCompanyForm] = useState(true);
   const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null);
   const [persistentNoticeOpen, setPersistentNoticeOpen] = useState(false);
+  const [showProgressGuide, setShowProgressGuide] = useState(false);
+  const [showMissingAnswerAlert, setShowMissingAnswerAlert] = useState(false);
+  const [progressData, setProgressData] = useState<any>(null);
+  const [progressSteps, setProgressSteps] = useState({
+    'data-validation': { status: 'pending', progress: 0, label: '데이터 검증' },
+    'gemini-analysis': { status: 'pending', progress: 0, label: 'AI 분석' },
+    'swot-analysis': { status: 'pending', progress: 0, label: 'SWOT 분석' },
+    'report-generation': { status: 'pending', progress: 0, label: '보고서 생성' },
+    'email-sending': { status: 'pending', progress: 0, label: '이메일 발송' }
+  });
 
   // 간단한 입력 핸들러들
   const handleAddressChange = (address: string) => {
@@ -107,26 +117,19 @@ const Real45QuestionForm: React.FC = () => {
 
   // Hydration 완료 처리
   useEffect(() => {
-    console.log('🔄 Hydration 시작...');
     setIsHydrated(true);
     
     // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
     try {
       const savedData = localStorage.getItem('real45QuestionForm');
       if (savedData) {
-        console.log('📂 로컬 스토리지 데이터 발견:', savedData);
         const parsedData = JSON.parse(savedData);
         setFormState(parsedData);
         setShowCompanyForm(parsedData.currentQuestion === -1);
-        console.log('✅ 데이터 복원 완료');
-      } else {
-        console.log('📝 새로운 진단 시작');
       }
     } catch (error) {
-      console.error('❌ 로컬 스토리지 데이터 복원 실패:', error);
+      console.error('로컬 스토리지 데이터 복원 실패:', error);
     }
-    
-    console.log('✅ Hydration 완료');
   }, []);
 
   // 데이터 변경 시 로컬 스토리지에 저장 (Hydration 완료 후에만)
@@ -143,6 +146,119 @@ const Real45QuestionForm: React.FC = () => {
       setIsSubmitting(false);
     };
   }, []);
+
+  // 진행 상황 안내 표시
+  const showProgressGuidance = () => {
+    setShowProgressGuide(true);
+    setTimeout(() => setShowProgressGuide(false), 5000); // 5초 후 자동 닫기
+  };
+
+  // 역량진단 시작 시 진행 상황 안내
+  useEffect(() => {
+    if (!showCompanyForm && formState.currentQuestion === 0) {
+      showProgressGuidance();
+    }
+  }, [showCompanyForm, formState.currentQuestion]);
+
+  // 실시간 진행상황 추적
+  const startProgressTracking = (diagnosisId: string) => {
+    if (!diagnosisId) return;
+
+    // SSE 연결로 실시간 진행상황 추적
+    const eventSource = new EventSource(`/api/diagnosis-progress?diagnosisId=${encodeURIComponent(diagnosisId)}`);
+    
+    eventSource.onopen = () => {
+      console.log('진행상황 추적 시작:', diagnosisId);
+    };
+
+    eventSource.addEventListener('started', (event) => {
+      const data = JSON.parse(event.data);
+      setProgressData(data);
+      updateProgressSteps('data-validation', 'in-progress', 20);
+    });
+
+    eventSource.addEventListener('progress', (event) => {
+      const data = JSON.parse(event.data);
+      setProgressData(data);
+      
+      // 진행 단계별 업데이트
+      const elapsedMs = data.elapsedMs || 0;
+      const elapsedMinutes = Math.floor(elapsedMs / 60000);
+      
+      if (elapsedMinutes < 1) {
+        updateProgressSteps('data-validation', 'in-progress', 60);
+      } else if (elapsedMinutes < 3) {
+        updateProgressSteps('data-validation', 'completed', 100);
+        updateProgressSteps('gemini-analysis', 'in-progress', 40);
+      } else if (elapsedMinutes < 6) {
+        updateProgressSteps('gemini-analysis', 'in-progress', 80);
+        updateProgressSteps('swot-analysis', 'in-progress', 30);
+      } else if (elapsedMinutes < 8) {
+        updateProgressSteps('gemini-analysis', 'completed', 100);
+        updateProgressSteps('swot-analysis', 'in-progress', 70);
+        updateProgressSteps('report-generation', 'in-progress', 20);
+      } else {
+        updateProgressSteps('swot-analysis', 'completed', 100);
+        updateProgressSteps('report-generation', 'in-progress', 60);
+        updateProgressSteps('email-sending', 'in-progress', 10);
+      }
+    });
+
+    eventSource.addEventListener('done', (event) => {
+      const data = JSON.parse(event.data);
+      setProgressData(data);
+      
+      // 모든 단계 완료
+      Object.keys(progressSteps).forEach(step => {
+        updateProgressSteps(step, 'completed', 100);
+      });
+      
+      setPersistentNoticeOpen(false);
+      
+      toast({
+        title: "🎉 진단 완료!",
+        description: "맥킨지 스타일 보고서가 이메일로 발송되었습니다.",
+        variant: "default"
+      });
+      
+      eventSource.close();
+    });
+
+    eventSource.addEventListener('timeout', (event) => {
+      const data = JSON.parse(event.data);
+      setPersistentNoticeOpen(false);
+      
+      toast({
+        title: "⏰ 처리 시간 초과",
+        description: "고품질 분석으로 인해 시간이 소요되고 있습니다. 이메일로 결과를 확인해주세요.",
+        variant: "default"
+      });
+      
+      eventSource.close();
+    });
+
+    eventSource.onerror = (error) => {
+      console.error('진행상황 추적 오류:', error);
+      eventSource.close();
+    };
+
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      eventSource.close();
+    };
+  };
+
+  // 진행 단계 업데이트 함수
+  const updateProgressSteps = (stepKey: string, status: string, progress: number) => {
+    setProgressSteps(prev => ({
+      ...prev,
+      [stepKey]: {
+        ...prev[stepKey as keyof typeof prev],
+        status,
+        progress
+      }
+    }));
+  };
 
   // 기업정보 입력 완료 (간소화)
   const handleCompanyInfoSubmit = () => {
@@ -302,14 +418,18 @@ const Real45QuestionForm: React.FC = () => {
         // 세션 스토리지에 결과 저장 (페이지 새로고침 대비)
         try {
           sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
-          console.log('✅ 진단 결과 세션 저장 완료');
         } catch (storageError) {
-          console.warn('⚠️ 세션 저장 실패:', storageError);
+          console.warn('세션 저장 실패:', storageError);
+        }
+        
+        // 실시간 진행상황 추적 시작
+        if (result.diagnosisId) {
+          startProgressTracking(result.diagnosisId);
         }
         
         toast({
-          title: "진단 완료!",
-          description: "AI 분석이 완료되었습니다. 이메일로도 발송됩니다.",
+          title: "진단 제출 완료!",
+          description: "AI 분석을 시작합니다. 실시간 진행상황을 확인하세요.",
           variant: "default"
         });
 
@@ -379,20 +499,90 @@ const Real45QuestionForm: React.FC = () => {
       </div>
       {persistentNoticeOpen && (
         <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden">
+          <div className="w-full max-w-lg rounded-2xl shadow-2xl bg-white overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-4">
               <div className="flex items-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="font-semibold">결과보고서 이메일 발송 대기</span>
+                <span className="font-semibold">AI 역량진단 보고서 생성 중</span>
               </div>
-              <p className="text-white/80 text-sm mt-1">완성된 보고서가 이메일로 전송될 때까지 이 안내가 유지됩니다.</p>
+              <p className="text-white/80 text-sm mt-1">실시간 진행상황을 확인하세요</p>
             </div>
-            <div className="p-4 space-y-3 text-sm text-gray-700">
-              <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
-                <p className="text-blue-900 font-medium">예상 소요 시간: 5~15분</p>
-                <p className="text-blue-800/80 mt-1">GEMINI 2.5 Flash가 고품질 분석을 수행 중입니다.</p>
+            
+            <div className="p-4 space-y-4">
+              {/* 전체 진행률 */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-700">전체 진행률</span>
+                  <span className="text-sm text-gray-500">
+                    {Math.round(Object.values(progressSteps).reduce((acc, step) => acc + step.progress, 0) / 5)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.round(Object.values(progressSteps).reduce((acc, step) => acc + step.progress, 0) / 5)}%`
+                    }}
+                  />
+                </div>
               </div>
-              <p className="text-xs text-gray-500">창을 닫지 않아도 됩니다. 완료 시 이메일로 안내드립니다.</p>
+
+              {/* 단계별 진행상황 */}
+              <div className="space-y-3">
+                {Object.entries(progressSteps).map(([key, step]) => (
+                  <div key={key} className="flex items-center gap-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                      step.status === 'completed' ? 'bg-green-500 text-white' :
+                      step.status === 'in-progress' ? 'bg-blue-500 text-white animate-pulse' :
+                      'bg-gray-200 text-gray-500'
+                    }`}>
+                      {step.status === 'completed' ? '✓' : 
+                       step.status === 'in-progress' ? '⚡' : '○'}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className={`text-sm font-medium ${
+                          step.status === 'completed' ? 'text-green-700' :
+                          step.status === 'in-progress' ? 'text-blue-700' :
+                          'text-gray-500'
+                        }`}>
+                          {step.label}
+                        </span>
+                        <span className="text-xs text-gray-500">{step.progress}%</span>
+                      </div>
+                      
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div 
+                          className={`h-1.5 rounded-full transition-all duration-500 ${
+                            step.status === 'completed' ? 'bg-green-500' :
+                            step.status === 'in-progress' ? 'bg-blue-500' :
+                            'bg-gray-300'
+                          }`}
+                          style={{ width: `${step.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 예상 시간 및 안내 */}
+              <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
+                <p className="text-blue-900 font-medium text-sm">📊 고품질 AI 분석 진행 중</p>
+                <p className="text-blue-800/80 text-xs mt-1">
+                  GEMINI 2.5 Flash가 45개 항목을 종합 분석하여 맥킨지 스타일 보고서를 생성합니다.
+                </p>
+                <p className="text-blue-700 text-xs mt-2 font-medium">
+                  예상 완료 시간: 5~15분 | 완료 시 자동으로 이메일 발송됩니다
+                </p>
+              </div>
+              
+              {progressData && (
+                <div className="text-xs text-gray-500 text-center">
+                  진단 ID: {progressData.diagnosisId || diagnosisResult?.diagnosisId}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -402,7 +592,6 @@ const Real45QuestionForm: React.FC = () => {
 
   // Hydration이 완료되지 않았으면 로딩 표시
   if (!isHydrated) {
-    console.log('⏳ Hydration 대기 중... isHydrated:', isHydrated);
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -416,7 +605,6 @@ const Real45QuestionForm: React.FC = () => {
 
   // 기업 정보 입력 폼
   if (showCompanyForm) {
-    console.log('📝 기업 정보 입력 폼 렌더링 중... showCompanyForm:', showCompanyForm);
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
         <div className="max-w-4xl mx-auto px-4">
@@ -504,24 +692,38 @@ const Real45QuestionForm: React.FC = () => {
                     />
                   </div>
 
-                  <EmailInput
-                    value={formState.companyInfo.contactEmail}
-                    onChange={handleEmailChange}
-                    label="이메일"
-                    required={true}
-                    placeholder="example@company.com"
-                    showEmailNotice={true}
-                    className="w-full"
-                  />
+                  {/* 이메일 입력 */}
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      이메일 주소
+                    </label>
+                    <EmailInput
+                      value={formState.companyInfo.contactEmail}
+                      onChange={handleEmailChange}
+                      label=""
+                      required={true}
+                      placeholder="example@company.com"
+                      showEmailNotice={true}
+                      className="w-full"
+                    />
+                  </div>
 
-                  <PhoneInput
-                    value={formState.companyInfo.contactPhone}
-                    onChange={handlePhoneChange}
-                    label="연락처"
-                    required={true}
-                    placeholder="010-0000-0000"
-                    className="w-full"
-                  />
+                  {/* 전화번호 입력 */}
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      전화번호
+                    </label>
+                    <PhoneInput
+                      value={formState.companyInfo.contactPhone}
+                      onChange={handlePhoneChange}
+                      label=""
+                      required={true}
+                      placeholder="010-0000-0000"
+                      className="w-full"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -837,9 +1039,20 @@ const Real45QuestionForm: React.FC = () => {
 
                   {formState.currentQuestion === REAL_45_QUESTIONS.length - 1 ? (
                     <Button
-                      onClick={handleSubmit}
-                      disabled={isSubmitting || answeredCount < REAL_45_QUESTIONS.length}
-                      className="px-8"
+                      onClick={() => {
+                        if (answeredCount < REAL_45_QUESTIONS.length) {
+                          setShowMissingAnswerAlert(true);
+                          setTimeout(() => setShowMissingAnswerAlert(false), 3000);
+                          return;
+                        }
+                        handleSubmit();
+                      }}
+                      disabled={isSubmitting}
+                      className={`px-8 transition-all duration-300 ${
+                        answeredCount < REAL_45_QUESTIONS.length 
+                          ? 'bg-gray-400 hover:bg-gray-500 cursor-not-allowed' 
+                          : 'bg-green-600 hover:bg-green-700'
+                      }`}
                     >
                       {isSubmitting ? (
                         <>
@@ -849,7 +1062,7 @@ const Real45QuestionForm: React.FC = () => {
                       ) : (
                         <>
                           <Check className="mr-2 h-4 w-4" />
-                          진단 완료
+                          진단 완료 {answeredCount < REAL_45_QUESTIONS.length && `(${REAL_45_QUESTIONS.length - answeredCount}개 남음)`}
                         </>
                       )}
                     </Button>
@@ -884,9 +1097,59 @@ const Real45QuestionForm: React.FC = () => {
             진행상황 자동 저장됨
           </Button>
         </div>
+              </div>
+
+        {/* 진행 상황 안내 모달 */}
+        {showProgressGuide && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🎯</span>
+                  <span className="font-semibold">AI 역량진단 시작!</span>
+                </div>
+                <p className="text-white/90 text-sm mt-1">45개 문항으로 정밀 분석을 시작합니다</p>
+              </div>
+              <div className="p-4 space-y-3 text-sm text-gray-700">
+                <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
+                  <p className="text-blue-900 font-medium mb-2">📋 진행 방법 안내</p>
+                  <ul className="text-blue-800/80 space-y-1 text-xs">
+                    <li>• 각 질문을 신중히 읽고 현재 상황에 맞는 점수를 선택하세요</li>
+                    <li>• 진행 상황은 자동으로 저장됩니다</li>
+                    <li>• 모든 문항 완료 후 맥킨지 스타일 보고서가 생성됩니다</li>
+                  </ul>
+                </div>
+                <div className="text-center">
+                  <button
+                    onClick={() => setShowProgressGuide(false)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    시작하기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 답변 누락 알림 */}
+        {showMissingAnswerAlert && (
+          <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right-full duration-300">
+            <div className="bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg max-w-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="font-semibold">답변이 완료되지 않았습니다</p>
+                  <p className="text-sm text-red-100">
+                    {REAL_45_QUESTIONS.length - answeredCount}개 문항이 남아있습니다
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default Real45QuestionForm;
