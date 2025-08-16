@@ -4,6 +4,7 @@ import { EnhancedScoreResult } from '@/lib/utils/enhanced-score-engine';
 import { uploadDiagnosisReport, getSharedFolderLink } from '@/lib/storage/google-drive-service';
 import { performGeminiAnalysis } from '@/lib/services/enhanced-gemini-service';
 import { sendDiagnosisEmail } from '@/lib/services/simple-email-service';
+import { saveToGoogleSheets } from '@/app/api/aicamp/services/googleSheets';
 import { orchestrateDiagnosisWorkflow } from '@/lib/utils/aiCampDiagnosisOrchestrator';
 
 // 동적 베이스 URL 생성 함수
@@ -419,6 +420,27 @@ export async function POST(request: NextRequest) {
     
     const htmlReport = generateMcKinseyStyleReport(mckinseyData);
 
+    // 3.5단계: 신청 데이터 선저장 (구글시트 - 신청서)
+    try {
+      await saveToGoogleSheets('AI_역량진단신청', {
+        timestamp: new Date().toISOString(),
+        diagnosisId,
+        status: '완료',
+        companyName: data.companyName,
+        industry: data.industry,
+        contactManager: data.contactName,
+        email: data.contactEmail,
+        phone: data.contactPhone || '',
+        employeeCount: data.employeeCount || '',
+        annualRevenue: data.annualRevenue || '',
+        privacyConsent: 'Y',
+        marketingConsent: 'N'
+      });
+      console.log('✅ 신청 데이터 선저장 완료 (AI_역량진단신청)');
+    } catch (sheetSaveErr: any) {
+      console.warn('⚠️ 신청 데이터 선저장 실패(계속 진행):', sheetSaveErr?.message || sheetSaveErr);
+    }
+
     // 4단계: 진단 결과 Google Apps Script에 저장
     console.log('💾 4단계: 진단 결과 저장 중...');
     let gasResponse: any = null;
@@ -537,6 +559,34 @@ export async function POST(request: NextRequest) {
         error: saveError.name === 'AbortError' ? 'Timeout' : saveError.message,
         warning: 'GAS 저장 실패하였으나 진단은 정상 완료됨'
       };
+    }
+
+    // 4.5단계: 결과 데이터 저장 (구글시트 - 결과 보고서)
+    try {
+      await saveToGoogleSheets('AI_역량진단결과', {
+        timestamp: new Date().toISOString(),
+        diagnosisId,
+        status: '완료',
+        companyName: data.companyName,
+        industry: data.industry,
+        overallScore: scores.totalScore,
+        aiCapabilityScores: JSON.stringify(scores.categoryScores),
+        practicalCapabilityScores: '',
+        executiveSummary: (geminiAnalysis?.analysis || '').slice(0, 500),
+        keyFindings: '',
+        swotAnalysis: JSON.stringify({
+          strengths: scores.detailedAnalysis.strengths,
+          weaknesses: scores.detailedAnalysis.weaknesses,
+          opportunities: scores.detailedAnalysis.opportunities,
+          threats: ['경쟁사의 빠른 AI 도입', 'AI 기술 변화 속도', '인재 확보 경쟁']
+        }),
+        recommendations: (scores.detailedAnalysis.recommendations || []).slice(0, 5).join(', '),
+        roadmap: '1) 기초 교육 → 2) 파일럿 → 3) 확산',
+        curriculum: 'AICAMP 맞춤 커리큘럼'
+      });
+      console.log('✅ 결과 데이터 저장 완료 (AI_역량진단결과)');
+    } catch (sheetResultErr: any) {
+      console.warn('⚠️ 결과 데이터 저장 실패(계속 진행):', sheetResultErr?.message || sheetResultErr);
     }
 
     // 5단계: Google Drive에 HTML 보고서 업로드 (선택사항)
