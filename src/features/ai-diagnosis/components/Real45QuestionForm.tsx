@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -12,7 +12,7 @@ import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions'
 import { AddressInput } from '@/components/ui/address-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
-import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete';
+// import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete'; // 삭제된 컴포넌트
 
 interface CompanyInfo {
   companyName: string;
@@ -345,7 +345,14 @@ const Real45QuestionForm: React.FC = () => {
   // 진단 완료 화면
   if (diagnosisResult) {
     return <>
-      <EnhancedDiagnosisComplete result={diagnosisResult} />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">진단 완료!</h2>
+          <p className="text-gray-600 mb-4">맥킨지 스타일 보고서가 이메일로 발송됩니다.</p>
+          <p className="text-sm text-gray-500">진단 ID: {diagnosisResult.diagnosisId}</p>
+        </div>
+      </div>
       {persistentNoticeOpen && (
         <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden">
