@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, AlertCircle, Loader2, FileText } from 'lucide-react';
-import SimpleDiagnosisResults from '@/components/diagnosis/SimpleDiagnosisResults';
+import { PremiumMcKinseyReport } from '@/components/diagnosis/PremiumMcKinseyReport';
 
 type ParamsPromise = Promise<{ id: string }>; // 약속된 규칙: page.tsx params는 Promise 사용
 
@@ -135,8 +135,8 @@ export default function DiagnosisResultPage({ params }: { params: ParamsPromise 
     );
   }
 
-  // 정상 결과일 때는 SimpleDiagnosisResults 컴포넌트가 전체 레이아웃을 담당
-  return report ? <SimpleDiagnosisResults data={report} /> : null;
+  // 정상 결과일 때는 PremiumMcKinseyReport 컴포넌트가 전체 레이아웃을 담당
+  return report ? <PremiumMcKinseyReport data={report} /> : null;
 }
 
 

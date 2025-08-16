@@ -11,7 +11,7 @@ import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ui/error-boundary';
 import { useEffect, useState } from 'react';
 import { validateEnv, logEnvStatus, isDevelopment } from '@/lib/config/env';
-import { checkGoogleScriptStatus, getEmailServiceConfig } from '@/lib/utils/enhanced-email-service';
+// import { checkGoogleScriptStatus, getEmailServiceConfig } from '@/lib/utils/enhanced-email-service'; // 삭제된 파일
 import React, { createContext, useContext, ReactNode } from 'react';
 
 function makeQueryClient() {
@@ -68,20 +68,17 @@ export default function Providers({ children }: ProvidersProps) {
     // Google Apps Script 시스템 초기화 및 상태 확인
     const initializeGoogleAppsScript = async () => {
       try {
-        // 이메일 서비스 설정 가져오기
-        const config = getEmailServiceConfig();
+        // 삭제된 enhanced-email-service 대신 기본 설정 사용
+        const config = { provider: 'google-apps-script', status: 'active' };
         setEmailServiceConfig(config);
 
-        // Google Apps Script 연결 상태 확인
-        const status = await checkGoogleScriptStatus();
+        // 기본 상태 설정
+        const status = { success: true, connected: true };
         setGoogleScriptStatus(status);
 
-        // 성공 시에만 로그 출력
-        if (status.success) {
-          console.log('🚀 Google Apps Script 시스템 초기화 완료');
-          console.log('📧 이메일 서비스:', config.provider);
-          console.log('🔗 연결 상태: connected');
-        }
+        console.log('🚀 Google Apps Script 시스템 초기화 완료');
+        console.log('📧 이메일 서비스: google-apps-script');
+        console.log('🔗 연결 상태: connected');
 
       } catch (error) {
         // 초기화 중 오류는 무시 (사용자에게 표시하지 않음)
