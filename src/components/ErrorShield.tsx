@@ -19,15 +19,22 @@ export default function ErrorShield() {
     const originalConsoleWarn = console.warn;
     const originalConsoleLog = console.log;
 
-    // 차단할 오류 패턴들
+    // 차단할 오류 패턴들 - 강화된 버전
     const blockedPatterns = [
-      // Chrome Extension 관련
+      // Chrome Extension 관련 (강화)
       'Extension context invalidated',
       'port closed',
-      'chrome-extension://',
-      'content.js',
+      'message port closed',
+      'The message port closed before a response was received',
+      'Unchecked runtime.lastError',
       'runtime.lastError',
-      'The message port closed',
+      'chrome-extension://',
+      'extension://',
+      'content.js',
+      'content_script',
+      'injected.js',
+      'inject.js',
+      'Cannot access',
       
       // Manifest 관련
       'Manifest fetch',
@@ -42,7 +49,13 @@ export default function ErrorShield() {
       // 기타 외부 오류
       'net::ERR_',
       'ERR_INTERNET_DISCONNECTED',
-      'ERR_NETWORK_CHANGED'
+      'ERR_NETWORK_CHANGED',
+      
+      // 추가 Chrome 관련 오류
+      'chrome.runtime',
+      'chrome.tabs',
+      'chrome.storage',
+      'chrome.webNavigation'
     ];
 
     // 오류 메시지 필터링 함수
@@ -119,41 +132,48 @@ export default function ErrorShield() {
       return true;
     };
 
-    // 처리되지 않은 Promise 거부 핸들러
+    // 처리되지 않은 Promise 거부 핸들러 - 강화된 버전
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason?.message || event.reason || '';
+      const reasonStr = String(reason);
       
-      if (typeof reason === 'string') {
-        // Chrome Extension 오류 차단
-        if (reason.includes('port closed') ||
-            reason.includes('Extension context') ||
-            reason.includes('chrome-extension://')) {
-          event.preventDefault();
-          return false;
-        }
-
-        // Manifest 오류 차단
-        if (reason.includes('manifest.webmanifest') ||
-            reason.includes('Failed to load resource') ||
-            reason.includes('401')) {
-          event.preventDefault();
-          return false;
-        }
-
-        // Service Worker 오류 차단
-        if (reason.includes('service-worker') ||
-            reason.includes('sw.js')) {
-          event.preventDefault();
-          return false;
-        }
+      // 차단할 오류인지 확인
+      if (shouldBlockError(reasonStr)) {
+        event.preventDefault();
+        return false;
       }
 
-      // 실제 오류인 경우 로깅
-      console.warn('🚨 처리되지 않은 Promise 거부:', {
-        reason: String(reason).substring(0, 100)
-      });
+      // 실제 오류인 경우에만 로깅
+      if (!shouldBlockError(reasonStr)) {
+        console.warn('🚨 처리되지 않은 Promise 거부:', {
+          reason: reasonStr.substring(0, 100)
+        });
+      }
 
       return true;
+    };
+
+    // 추가 Chrome Runtime 오류 차단
+    const setupChromeRuntimeErrorHandler = () => {
+      // Chrome Runtime API 오류 차단
+      if (typeof window !== 'undefined') {
+        const originalAddEventListener = window.addEventListener;
+        window.addEventListener = function(type: string, listener: any, options?: any) {
+          if (type === 'error' || type === 'unhandledrejection') {
+            const wrappedListener = (event: any) => {
+              const message = event.message || event.reason?.message || event.reason || '';
+              if (shouldBlockError(String(message))) {
+                event.preventDefault?.();
+                event.stopPropagation?.();
+                return false;
+              }
+              return listener(event);
+            };
+            return originalAddEventListener.call(this, type, wrappedListener, options);
+          }
+          return originalAddEventListener.call(this, type, listener, options);
+        };
+      }
     };
 
     // Fetch 오버라이드 (추가 보호)
@@ -184,6 +204,19 @@ export default function ErrorShield() {
       return originalFetch.apply(this, [url, ...args]);
     };
 
+    // Chrome Runtime 오류 핸들러 설정
+    setupChromeRuntimeErrorHandler();
+
+    // 추가 Chrome Extension 오류 차단
+    const originalOnerror = window.onerror;
+    window.onerror = function(message, source, lineno, colno, error) {
+      const messageStr = String(message || '');
+      if (shouldBlockError(messageStr)) {
+        return true; // 오류 차단
+      }
+      return originalOnerror ? originalOnerror.call(this, message, source, lineno, colno, error) : false;
+    };
+
     // 이벤트 리스너 등록
     window.addEventListener('error', handleGlobalError, true);
     window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
@@ -199,6 +232,9 @@ export default function ErrorShield() {
       
       // 원본 fetch 복원
       window.fetch = originalFetch;
+      
+      // 원본 onerror 복원
+      window.onerror = originalOnerror;
       
       // 이벤트 리스너 제거
       window.removeEventListener('error', handleGlobalError, true);
