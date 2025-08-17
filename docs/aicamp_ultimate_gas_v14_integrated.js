@@ -3559,9 +3559,9 @@ function checkSystemHealth() {
     leekyojangReport: {
       sectionsCount: config.LEEKYOJANG_REPORT.SECTIONS_COUNT,
       style: config.LEEKYOJANG_REPORT.STYLE,
-      priorityMatrix: config.MCKINSEY_REPORT.INCLUDE_PRIORITY_MATRIX,
-      n8nMethodology: config.MCKINSEY_REPORT.INCLUDE_N8N_METHODOLOGY,
-      aicampCurriculum: config.MCKINSEY_REPORT.INCLUDE_AICAMP_CURRICULUM
+      priorityMatrix: config.LEEKYOJANG_REPORT.INCLUDE_PRIORITY_MATRIX,
+      n8nMethodology: config.LEEKYOJANG_REPORT.INCLUDE_N8N_METHODOLOGY,
+      aicampCurriculum: config.LEEKYOJANG_REPORT.INCLUDE_AICAMP_CURRICULUM
     },
     geminiConfig: {
       modelName: config.GEMINI_CONFIG.MODEL_NAME,

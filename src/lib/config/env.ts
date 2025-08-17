@@ -5,8 +5,8 @@
 
 import { z } from 'zod';
 
-// 🔧 **실제 AICAMP 구글시트 정보** (V14.2 ULTIMATE INTEGRATED와 일치)
-const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec';
+// 🔧 **실제 AICAMP 구글시트 정보** (V15.0 ULTIMATE MCKINSEY + Google Drive 연동)
+const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec'; // 새 URL로 교체 필요
 const GOOGLE_SHEETS_ID = '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ';
 
 // 환경변수 스키마 정의 (EmailJS 제거됨)
