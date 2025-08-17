@@ -618,7 +618,10 @@ function handleAIDiagnosisRequest(requestData, progressId) {
   console.log('🎓 이교장의AI역량진단보고서 처리 시작 - 통합 개선 시스템');
   
   const config = getEnvironmentConfig();
-  const diagnosisId = generateDiagnosisId();
+  // 전달된 diagnosisId가 있으면 그대로 사용하여 프런트/백엔드/SSE 식별자를 일치시킨다
+  const diagnosisId = requestData && (requestData.diagnosisId || (requestData.data && requestData.data.diagnosisId))
+    ? (requestData.diagnosisId || requestData.data.diagnosisId)
+    : generateDiagnosisId();
   const startTime = new Date().getTime();
   
   try {
@@ -751,7 +754,58 @@ function normalizeAIDiagnosisDataIntegrated(rawData, diagnosisId) {
   if (!contactEmail || contactEmail === '정보없음' || !contactEmail.includes('@')) {
     throw new Error('올바른 이메일 주소를 입력해주세요.');
   }
+  // 개인정보 수집·이용 동의 (선택값이 없으면 false로 간주)
+  const privacyConsent = !!(data.privacyConsent || data.consent || data.개인정보동의);
+  if (!privacyConsent) {
+    throw new Error('개인정보 수집·이용 동의가 필요합니다.');
+  }
   
+  // 45문항 응답 정규화: 객체/배열/숫자 배열 모두 지원하여 분석 및 시트 저장에 활용
+  const normalizedResponses = (function () {
+    const src = data.assessmentResponses || data.responses || [];
+    const asArray = Array.isArray(src) ? src : Object.keys(src || {}).map(function (k) {
+      return { questionId: k, answer: src[k] };
+    });
+
+    // 숫자 배열 형태 [3,4,...] → {questionId, answer}
+    if (Array.isArray(asArray) && asArray.length > 0 && (typeof asArray[0] === 'number' || typeof asArray[0] === 'string')) {
+      var resultA = [];
+      for (var i = 0; i < asArray.length; i++) {
+        var val = parseInt(asArray[i], 10);
+        if (isNaN(val)) val = 0;
+        if (val < 0) val = 0; if (val > 5) val = 5;
+        resultA.push({ questionId: String(i + 1), answer: val });
+      }
+      return resultA;
+    }
+
+    // 객체 배열 형태 [{questionId,id,q, answer,score}]
+    var resultB = [];
+    for (var j = 0; j < asArray.length; j++) {
+      var item = asArray[j] || {};
+      var qid = item.questionId || item.id || item.q || item.key || (item.name && item.name.replace(/[^0-9]/g, '')) || (j + 1);
+      var ans = item.answer != null ? item.answer : (item.score != null ? item.score : item.value);
+      var num = parseInt(ans, 10);
+      if (isNaN(num)) num = 0;
+      if (num < 0) num = 0; if (num > 5) num = 5;
+      resultB.push({ questionId: String(qid), answer: num });
+    }
+    return resultB;
+  })();
+
+  // Q1~Q45 맵 생성
+  var responsesMap = {};
+  for (var qi = 1; qi <= 45; qi++) {
+    responsesMap['Q' + qi] = 0;
+  }
+  for (var ri = 0; ri < normalizedResponses.length; ri++) {
+    var r = normalizedResponses[ri];
+    var idx = parseInt(String(r.questionId).replace(/[^0-9]/g, ''), 10);
+    if (!isNaN(idx) && idx >= 1 && idx <= 45) {
+      responsesMap['Q' + idx] = parseInt(r.answer, 10) || 0;
+    }
+  }
+
   return {
     // 기본 정보
     diagnosisId: diagnosisId,
@@ -772,13 +826,16 @@ function normalizeAIDiagnosisDataIntegrated(rawData, diagnosisId) {
     establishmentYear: data.establishmentYear || new Date().getFullYear(),
     location: data.location || data.소재지 || '',
     
-    // 45문항 응답 (있는 경우)
+    // 45문항 응답 (정규화 결과 포함)
     assessmentResponses: data.assessmentResponses || [],
+    responses: normalizedResponses,
+    responsesMap: responsesMap,
     
     // 추가 정보
     additionalInfo: data.additionalInfo || data.추가정보 || '',
     mainConcerns: data.mainConcerns || data.주요고민사항 || '',
     expectedBenefits: data.expectedBenefits || data.예상혜택 || '',
+    privacyConsent: privacyConsent,
     
     // 시스템 정보
     version: config.VERSION,
@@ -996,12 +1053,13 @@ function sendApplicationConfirmationEmails(normalizedData, diagnosisId) {
     try {
       if (normalizedData.contactEmail && normalizedData.contactEmail !== '정보없음') {
         const applicantEmail = generateApplicantConfirmationEmail(normalizedData, diagnosisId);
-        
-        MailApp.sendEmail({
+        const sendResult = sendEmailWithRetry({
           to: normalizedData.contactEmail,
           subject: applicantEmail.subject,
-          htmlBody: applicantEmail.body
-        });
+          htmlBody: applicantEmail.body,
+          name: '이교장의AI역량진단보고서'
+        }, 3);
+        if (!sendResult.success) throw new Error(sendResult.error || 'unknown');
         console.log('✅ 신청자 접수확인 메일 발송 완료:', normalizedData.contactEmail);
         emailsSent++;
       }
@@ -1013,11 +1071,13 @@ function sendApplicationConfirmationEmails(normalizedData, diagnosisId) {
     // 관리자 접수확인 메일 발송
     try {
       const adminEmail = generateAdminConfirmationEmail(normalizedData, diagnosisId);
-      MailApp.sendEmail({
+      const sendResult2 = sendEmailWithRetry({
         to: config.ADMIN_EMAIL,
         subject: adminEmail.subject,
-        htmlBody: adminEmail.body
-      });
+        htmlBody: adminEmail.body,
+        name: 'AICAMP 시스템 알림'
+      }, 3);
+      if (!sendResult2.success) throw new Error(sendResult2.error || 'unknown');
       console.log('✅ 관리자 접수확인 메일 발송 완료:', config.ADMIN_EMAIL);
       emailsSent++;
     } catch (error) {
@@ -1048,7 +1108,8 @@ function sendApplicationConfirmationEmails(normalizedData, diagnosisId) {
  */
 function generateApplicantConfirmationEmail(normalizedData, diagnosisId) {
   const config = getEnvironmentConfig();
-  const subject = `✅ [이교장의AI역량진단보고서] 접수확인 - ${normalizedData.companyName}`;
+  const logoUrl = `https://${config.AICAMP_WEBSITE}/images/aicamp_logo_del_250726.png`;
+  const subject = `AICAMP | AI 역량진단 접수 완료 - ${normalizedData.companyName}`;
   
   const body = `
 <!DOCTYPE html>
@@ -1056,20 +1117,25 @@ function generateApplicantConfirmationEmail(normalizedData, diagnosisId) {
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: 'Malgun Gothic', Arial, sans-serif; line-height: 1.6; color: #333; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Sans KR', Arial, sans-serif; line-height: 1.6; color: #1d1d1f; background:#f5f5f7; }
+        .header { background: #000; color: #fff; padding: 32px 24px; text-align: center; }
+        .brand { display:flex; align-items:center; justify-content:center; gap:12px; }
+        .brand img { width:120px; height:auto; display:block; }
+        .brand h1 { margin:0; font-size:22px; font-weight:700; letter-spacing:-0.3px; }
         .content { padding: 30px; }
-        .info-box { background: #e8f5e8; border: 2px solid #4caf50; padding: 20px; border-radius: 10px; margin: 20px 0; }
-        .timeline-box { background: #e3f2fd; border: 2px solid #2196f3; padding: 20px; border-radius: 10px; margin: 20px 0; }
-        .footer { background: #2c3e50; color: white; padding: 20px; text-align: center; }
-        .highlight { background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 15px 0; }
+        .info-box { background: #f0f9ff; border: 1px solid #0ea5e9; padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .timeline-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .footer { background: #111827; color: #e5e7eb; padding: 20px; text-align: center; font-size:13px; }
+        .highlight { background: #eef2ff; padding: 15px; border-left: 4px solid #6366f1; margin: 15px 0; border-radius:8px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🎓 이교장의AI역량진단보고서</h1>
-        <h2>접수확인</h2>
-        <p>귀하의 신청이 성공적으로 접수되었습니다!</p>
+      <div class="brand">
+        <img src="${logoUrl}" alt="AICAMP" />
+        <h1>AI 역량진단 접수 완료</h1>
+      </div>
+      <p style="opacity:.8;margin-top:8px">신청이 성공적으로 접수되었습니다</p>
     </div>
     
     <div class="content">
@@ -1115,10 +1181,9 @@ function generateApplicantConfirmationEmail(normalizedData, diagnosisId) {
     </div>
     
     <div class="footer">
-        <p><strong>이교장의AI역량진단보고서 고객지원센터</strong></p>
-        <p>📧 ${config.ADMIN_EMAIL} | 🌐 https://${config.AICAMP_WEBSITE}</p>
-        <p>AI 역량강화를 통한 고몰입조직구축의 파트너, AICAMP</p>
-        <p>접수 ID: ${diagnosisId} | 접수일시: ${new Date().toLocaleString('ko-KR')}</p>
+        <p><strong>AICAMP 이후경 교장</strong> | 📧 ${config.ADMIN_EMAIL}</p>
+        <p>🌐 https://${config.AICAMP_WEBSITE} | ☎ 010-9251-9743</p>
+        <p style="opacity:.7">접수 ID: ${diagnosisId} · ${new Date().toLocaleString('ko-KR')}</p>
     </div>
 </body>
 </html>
@@ -1132,7 +1197,8 @@ function generateApplicantConfirmationEmail(normalizedData, diagnosisId) {
  */
 function generateAdminConfirmationEmail(normalizedData, diagnosisId) {
   const config = getEnvironmentConfig();
-  const subject = `🔔 [신규접수] 이교장의AI역량진단보고서 - ${normalizedData.companyName}`;
+  const logoUrl = `https://${config.AICAMP_WEBSITE}/images/aicamp_logo_del_250726.png`;
+  const subject = `AICAMP | 신규 접수 알림 - ${normalizedData.companyName}`;
   
   const body = `
 <!DOCTYPE html>
@@ -1140,8 +1206,8 @@ function generateAdminConfirmationEmail(normalizedData, diagnosisId) {
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: 'Malgun Gothic', Arial, sans-serif; line-height: 1.6; color: #333; }
-        .header { background: #2c3e50; color: white; padding: 20px; text-align: center; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Sans KR', Arial, sans-serif; line-height: 1.6; color: #1d1d1f; }
+        .header { background: #000; color: #fff; padding: 20px; text-align: center; }
         .content { padding: 20px; }
         .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         .info-table th, .info-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
@@ -1152,12 +1218,15 @@ function generateAdminConfirmationEmail(normalizedData, diagnosisId) {
 </head>
 <body>
     <div class="header">
-        <h2>🎓 이교장의AI역량진단보고서 신규 접수</h2>
+        <div style="display:flex;justify-content:center;align-items:center;gap:12px;">
+          <img src="${logoUrl}" alt="AICAMP" style="width:100px;height:auto;" />
+          <h2 style="margin:0">AI 역량진단 신규 접수</h2>
+        </div>
     </div>
     
     <div class="content">
         <div class="success">
-            <strong>✅ 새로운 이교장의AI역량진단보고서 신청이 접수되었습니다!</strong>
+            <strong>✅ 새로운 AI 역량진단 신청이 접수되었습니다</strong>
             <br><strong>📧 신청자에게 접수확인 메일이 자동 발송되었습니다.</strong>
         </div>
         
@@ -1495,28 +1564,70 @@ function generateCompletionEmailTemplateV2(data) {
  * 📧 재시도 기능이 있는 이메일 발송 (V2 - 개선된 버전)
  */
 function sendEmailWithRetry(emailOptions, maxRetries = 3) {
-  let retryCount = 0;
-  
+  var retryCount = 0;
+  var lastError = null;
+
+  // 안전한 옵션 구성
+  var to = emailOptions.to;
+  var subject = emailOptions.subject || '';
+  var htmlBody = emailOptions.htmlBody || '';
+  var attachments = emailOptions.attachments || [];
+  var name = emailOptions.name || 'AICAMP';
+  var replyTo = emailOptions.replyTo || '';
+
+  // 이메일 형식 간단 검증
+  if (!to || String(to).indexOf('@') === -1) {
+    return { success: false, error: '유효하지 않은 수신자 이메일' };
+  }
+
   while (retryCount < maxRetries) {
     try {
-      MailApp.sendEmail(emailOptions);
-      console.log(`✅ 이메일 발송 성공 (${retryCount + 1}/${maxRetries}):`, emailOptions.to);
-      return { success: true };
+      // 우선 GmailApp 사용 (옵션 기반 htmlBody/첨부 지원)
+      try {
+        GmailApp.sendEmail(to, subject, emailOptions.plainBody || '', {
+          htmlBody: htmlBody,
+          attachments: attachments,
+          name: name,
+          replyTo: replyTo
+        });
+        console.log('✅ GmailApp 이메일 발송 성공:', to);
+        return { success: true, provider: 'GmailApp' };
+      } catch (gmailErr) {
+        lastError = gmailErr;
+        console.warn('⚠️ GmailApp 발송 실패, MailApp로 폴백 시도:', gmailErr.message);
+      }
+
+      // MailApp 폴백
+      try {
+        MailApp.sendEmail({
+          to: to,
+          subject: subject,
+          htmlBody: htmlBody,
+          attachments: attachments,
+          name: name,
+          replyTo: replyTo
+        });
+        console.log('✅ MailApp 이메일 발송 성공:', to);
+        return { success: true, provider: 'MailApp' };
+      } catch (mailErr) {
+        lastError = mailErr;
+        throw mailErr;
+      }
+
     } catch (error) {
       retryCount++;
-      console.warn(`⚠️ 이메일 발송 실패 (${retryCount}/${maxRetries}):`, error.message);
-      
+      var remaining = 0;
+      try { remaining = MailApp.getRemainingDailyQuota(); } catch (q) { remaining = -1; }
+      console.warn('⚠️ 이메일 발송 실패(' + retryCount + '/' + maxRetries + '):', error.message, '잔여쿼타:', remaining);
       if (retryCount >= maxRetries) {
-        console.error('❌ 최대 재시도 횟수 초과, 이메일 발송 포기');
-        return { success: false, error: error.message };
+        console.error('❌ 최대 재시도 초과. 이메일 발송 중단:', to);
+        return { success: false, error: (lastError && lastError.message) || error.message };
       }
-      
-      // 재시도 전 잠시 대기
       Utilities.sleep(1000 * retryCount);
     }
   }
-  
-  return { success: false, error: '알 수 없는 오류' };
+
+  return { success: false, error: (lastError && lastError.message) || '알 수 없는 오류' };
 }
 
 // ================================================================================
@@ -2767,16 +2878,15 @@ function sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlRepor
     try {
       if (normalizedData.contactEmail && normalizedData.contactEmail !== '정보없음') {
         const applicantEmail = generateApplicantEmailWithAttachmentIntegrated(normalizedData, aiReport, diagnosisId, driveFileInfo);
-        
-        // HTML 파일을 Blob으로 생성하여 첨부
         const htmlBlob = Utilities.newBlob(htmlReport.html || htmlReport, 'text/html', `${normalizedData.companyName}_이교장의AI역량진단보고서_${diagnosisId}.html`);
-        
-        MailApp.sendEmail({
+        const sendResult3 = sendEmailWithRetry({
           to: normalizedData.contactEmail,
           subject: applicantEmail.subject,
           htmlBody: applicantEmail.body,
-          attachments: [htmlBlob]
-        });
+          attachments: [htmlBlob],
+          name: '이교장의AI역량진단보고서'
+        }, 3);
+        if (!sendResult3.success) throw new Error(sendResult3.error || 'unknown');
         console.log('✅ 신청자 이교장의AI역량진단보고서 이메일 발송 완료 (HTML 첨부):', normalizedData.contactEmail);
         emailsSent++;
       } else {
@@ -2790,11 +2900,13 @@ function sendAICampDiagnosisEmailsIntegrated(normalizedData, aiReport, htmlRepor
     // 관리자 이메일 발송
     try {
       const adminEmail = generateAdminEmailIntegrated(normalizedData, aiReport, diagnosisId, driveFileInfo.shareLink || driveFileInfo.directLink);
-      MailApp.sendEmail({
+      const sendResult4 = sendEmailWithRetry({
         to: config.ADMIN_EMAIL,
         subject: adminEmail.subject,
-        htmlBody: adminEmail.body
-      });
+        htmlBody: adminEmail.body,
+        name: 'AICAMP 시스템 알림'
+      }, 3);
+      if (!sendResult4.success) throw new Error(sendResult4.error || 'unknown');
       console.log('✅ 관리자 이메일 발송 완료:', config.ADMIN_EMAIL);
       emailsSent++;
     } catch (error) {
@@ -3150,7 +3262,7 @@ function saveAIDiagnosisDataIntegrated(normalizedData, aiReport, htmlReport, pro
         '진단ID', '접수일시', '회사명', '담당자명', '이메일', '연락처', '직책',
         '업종', '직원수', '연매출', '소재지', '주요고민사항', '기대효과',
         '총점', '성숙도', '백분위수', 'AI분석완료', 'HTML생성완료', '이메일발송완료',
-        '버전', '모델', '처리시간', '진행ID'
+        '버전', '모델', '처리시간', '진행ID', '개인정보동의'
       ];
       mainSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       mainSheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#4285f4').setFontColor('white');
@@ -3180,7 +3292,8 @@ function saveAIDiagnosisDataIntegrated(normalizedData, aiReport, htmlReport, pro
       normalizedData.version,
       normalizedData.model || 'GEMINI-2.5-FLASH',
       '완료',
-      progressId
+      progressId,
+      normalizedData.privacyConsent === true
     ];
     
     mainSheet.appendRow(mainRow);
@@ -3221,11 +3334,27 @@ function saveAIDiagnosisDataIntegrated(normalizedData, aiReport, htmlReport, pro
     reportSheet.appendRow(reportRow);
     console.log('✅ 보고서 데이터 저장 완료:', normalizedData.diagnosisId);
     
+    // 45문항 원시 응답 저장 시트 (세부 응답 이력)
+    const responsesSheet = getOrCreateSheetFixed(spreadsheet, 'AI역량진단_45문항응답');
+    if (responsesSheet.getLastRow() === 0) {
+      var baseHeaders = ['진단ID', '저장일시'];
+      for (var qi2 = 1; qi2 <= 45; qi2++) { baseHeaders.push('Q' + qi2); }
+      responsesSheet.getRange(1, 1, 1, baseHeaders.length).setValues([baseHeaders]);
+      responsesSheet.getRange(1, 1, 1, baseHeaders.length).setFontWeight('bold').setBackground('#fbbc05').setFontColor('black');
+    }
+
+    var rowVals = [
+      normalizedData.diagnosisId,
+      new Date().toISOString()
+    ];
+    for (var qi3 = 1; qi3 <= 45; qi3++) { rowVals.push(normalizedData.responsesMap ? normalizedData.responsesMap['Q' + qi3] : 0); }
+    responsesSheet.appendRow(rowVals);
+
     return { 
       success: true, 
       diagnosisId: normalizedData.diagnosisId,
       timestamp: new Date().toISOString(),
-      sheetsUpdated: ['AI_DIAGNOSIS_MAIN', 'AI_DIAGNOSIS_REPORTS']
+      sheetsUpdated: ['AI_DIAGNOSIS_MAIN', 'AI_DIAGNOSIS_REPORTS', 'AI역량진단_45문항응답']
     };
     
   } catch (error) {
@@ -4199,6 +4328,10 @@ function getDiagnosisResultIntegrated(diagnosisId) {
       
       // 2. 대체 시트명들 시도 (우선순위 순서로 정렬)
       const alternativeNames = [
+        // 최신 통합 저장 시트명 (V15.0)
+        'AI_DIAGNOSIS_MAIN',
+        'AI_DIAGNOSIS_REPORTS',
+        // 과거/기타 호환 시트명
         'AI_진단결과', 
         'AI역량진단보고서',
         'AI진단결과', 

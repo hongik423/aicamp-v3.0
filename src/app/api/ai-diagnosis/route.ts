@@ -39,11 +39,11 @@ export async function POST(request: NextRequest) {
     };
     
     // 기본 유효성 검증
-    if (!workflowRequest.companyName || !workflowRequest.contactName || !workflowRequest.contactEmail || !workflowRequest.responses) {
+    if (!workflowRequest.companyName || !workflowRequest.contactName || !workflowRequest.contactEmail || !workflowRequest.responses || requestData.privacyConsent !== true) {
       return NextResponse.json({
         success: false,
-        error: '필수 입력 데이터가 누락되었습니다.',
-        details: '회사명, 담당자명, 이메일, 응답 데이터는 필수입니다.',
+        error: '필수 입력/동의가 누락되었습니다.',
+        details: '회사명, 담당자명, 이메일, 응답 데이터, 개인정보 수집·이용 동의는 필수입니다.',
         retryable: false
       }, { status: 400 });
     }
@@ -100,6 +100,7 @@ export async function POST(request: NextRequest) {
           employeeCount: requestData.employeeCount,
           annualRevenue: requestData.annualRevenue,
           location: requestData.location,
+          privacyConsent: requestData.privacyConsent === true,
           
           // 45문항 응답 (GAS 호환 형식)
           assessmentResponses: requestData.assessmentResponses,
@@ -207,6 +208,7 @@ export async function POST(request: NextRequest) {
             industry: requestData.industry,
             employeeCount: requestData.employeeCount,
             assessmentResponses: requestData.assessmentResponses,
+            privacyConsent: requestData.privacyConsent === true,
             timestamp: new Date().toISOString(),
             version: 'V15.0-ULTIMATE-FALLBACK',
             source: 'web_form_fallback'

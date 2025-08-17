@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,7 @@ interface CompanyInfo {
   employeeCount: string;
   annualRevenue: string;
   location: string;
+  privacyConsent?: boolean;
 }
 
 interface FormState {
@@ -56,7 +58,8 @@ const Real45QuestionForm: React.FC = () => {
       industry: '',
       employeeCount: '',
       annualRevenue: '',
-      location: ''
+      location: '',
+      privacyConsent: false
     },
     answers: {},
     currentQuestion: -1, // -1 = 기업정보 입력, 0-44 = 질문
@@ -339,10 +342,10 @@ const Real45QuestionForm: React.FC = () => {
       industryCustom
     } = formState.companyInfo;
     
-    if (!companyName || !contactName || !contactEmail || !contactPhone || !industry || !employeeCount || !location.trim()) {
+    if (!companyName || !contactName || !contactEmail || !contactPhone || !industry || !employeeCount || !location.trim() || !formState.companyInfo.privacyConsent) {
       toast({
-        title: "필수 정보 누락",
-        description: "필수 항목을 모두 입력해주세요.",
+        title: "필수 동의/정보 누락",
+        description: !formState.companyInfo.privacyConsent ? "개인정보 수집·이용 동의가 필요합니다." : "필수 항목을 모두 입력해주세요.",
         variant: "destructive"
       });
       return;
@@ -490,6 +493,7 @@ const Real45QuestionForm: React.FC = () => {
           employeeCount: formState.companyInfo.employeeCount,
           annualRevenue: formState.companyInfo.annualRevenue,
           location: formState.companyInfo.location,
+          privacyConsent: !!formState.companyInfo.privacyConsent,
           
           // 실제 신청서 응답 데이터 - 객체 형태로 전송
           assessmentResponses: formState.answers, // ✅ 객체 형태로 전송
@@ -636,6 +640,22 @@ const Real45QuestionForm: React.FC = () => {
                     }}
                   />
                 </div>
+              </div>
+
+              {/* 개인정보 수집·이용 동의 */}
+              <div className="mt-2 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <label className="flex items-start gap-3">
+                  <Checkbox
+                    checked={!!formState.companyInfo.privacyConsent}
+                    onCheckedChange={(v) => setFormState(prev => ({
+                      ...prev,
+                      companyInfo: { ...prev.companyInfo, privacyConsent: Boolean(v) }
+                    }))}
+                  />
+                  <span className="text-sm text-gray-700">
+                    개인정보 수집·이용에 동의합니다. 수집 항목: 회사/담당자 정보, 진단 응답. 이용 목적: AI 역량진단 분석 및 보고서 발송. 보유 기간: 목적 달성 후 즉시 파기(법령상 보관 의무 제외). 동의하지 않을 권리가 있으나, 동의하지 않을 경우 서비스 제공이 제한될 수 있습니다.
+                  </span>
+                </label>
               </div>
 
               {/* 단계별 진행상황 */}
