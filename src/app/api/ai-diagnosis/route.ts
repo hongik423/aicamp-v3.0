@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
           success: true,
           message: '🎯 AI 역량진단이 완료되었습니다!',
           data: {
-            diagnosisId: workflowResult.diagnosisId,
+            diagnosisId: workflowResult.diagnosisId || `AICAMP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             companyName: requestData.companyName,
             contactEmail: requestData.contactEmail,
             

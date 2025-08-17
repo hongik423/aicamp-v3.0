@@ -160,85 +160,126 @@ const Real45QuestionForm: React.FC = () => {
     }
   }, [showCompanyForm, formState.currentQuestion]);
 
-  // 실시간 진행상황 추적
+  // 실제 진행상황 기반 실시간 추적
   const startProgressTracking = (diagnosisId: string) => {
     if (!diagnosisId) return;
 
+    console.log('🎯 실제 진행상황 추적 시작:', diagnosisId);
+    
     // SSE 연결로 실시간 진행상황 추적
     const eventSource = new EventSource(`/api/diagnosis-progress?diagnosisId=${encodeURIComponent(diagnosisId)}`);
     
     eventSource.onopen = () => {
-      console.log('진행상황 추적 시작:', diagnosisId);
+      console.log('✅ SSE 연결 성공 - 실시간 모니터링 시작:', diagnosisId);
+      updateProgressSteps('data-validation', 'in-progress', 20);
     };
 
     eventSource.addEventListener('started', (event) => {
       const data = JSON.parse(event.data);
+      console.log('📊 진행상황 추적 시작됨:', data);
       setProgressData(data);
-      updateProgressSteps('data-validation', 'in-progress', 20);
+      updateProgressSteps('data-validation', 'in-progress', 30);
     });
 
     eventSource.addEventListener('progress', (event) => {
       const data = JSON.parse(event.data);
+      console.log('📈 실제 진행상황 업데이트:', data);
       setProgressData(data);
       
-      // 진행 단계별 업데이트
-      const elapsedMs = data.elapsedMs || 0;
-      const elapsedMinutes = Math.floor(elapsedMs / 60000);
-      
-      if (elapsedMinutes < 1) {
-        updateProgressSteps('data-validation', 'in-progress', 60);
-      } else if (elapsedMinutes < 3) {
-        updateProgressSteps('data-validation', 'completed', 100);
-        updateProgressSteps('gemini-analysis', 'in-progress', 40);
-      } else if (elapsedMinutes < 6) {
-        updateProgressSteps('gemini-analysis', 'in-progress', 80);
-        updateProgressSteps('swot-analysis', 'in-progress', 30);
-      } else if (elapsedMinutes < 8) {
-        updateProgressSteps('gemini-analysis', 'completed', 100);
-        updateProgressSteps('swot-analysis', 'in-progress', 70);
-        updateProgressSteps('report-generation', 'in-progress', 20);
+      // 실제 Google Sheets 데이터 기반 진행상황 반영
+      if (data.snapshot && data.snapshot.steps) {
+        const steps = data.snapshot.steps;
+        Object.keys(steps).forEach(stepKey => {
+          const step = steps[stepKey];
+          updateProgressSteps(stepKey, step.status, step.progress);
+        });
       } else {
-        updateProgressSteps('swot-analysis', 'completed', 100);
-        updateProgressSteps('report-generation', 'in-progress', 60);
-        updateProgressSteps('email-sending', 'in-progress', 10);
+        // 폴백: 경과 시간 기반 추정
+        const elapsedMs = data.elapsedMs || 0;
+        const elapsedMinutes = Math.floor(elapsedMs / 60000);
+        
+        if (elapsedMinutes < 2) {
+          updateProgressSteps('data-validation', 'completed', 100);
+          updateProgressSteps('gemini-analysis', 'in-progress', Math.min(80, 20 + elapsedMinutes * 30));
+        } else if (elapsedMinutes < 5) {
+          updateProgressSteps('data-validation', 'completed', 100);
+          updateProgressSteps('gemini-analysis', 'completed', 100);
+          updateProgressSteps('swot-analysis', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 25));
+        } else if (elapsedMinutes < 8) {
+          updateProgressSteps('data-validation', 'completed', 100);
+          updateProgressSteps('gemini-analysis', 'completed', 100);
+          updateProgressSteps('swot-analysis', 'completed', 100);
+          updateProgressSteps('report-generation', 'in-progress', Math.min(80, (elapsedMinutes - 5) * 25));
+        } else {
+          updateProgressSteps('data-validation', 'completed', 100);
+          updateProgressSteps('gemini-analysis', 'completed', 100);
+          updateProgressSteps('swot-analysis', 'completed', 100);
+          updateProgressSteps('report-generation', 'in-progress', 90);
+          updateProgressSteps('email-sending', 'in-progress', Math.min(80, (elapsedMinutes - 8) * 20));
+        }
       }
     });
 
     eventSource.addEventListener('done', (event) => {
       const data = JSON.parse(event.data);
+      console.log('🎉 실제 진행상황 완료:', data);
       setProgressData(data);
       
       // 모든 단계 완료
-      Object.keys(progressSteps).forEach(step => {
-        updateProgressSteps(step, 'completed', 100);
-      });
+      updateProgressSteps('data-validation', 'completed', 100);
+      updateProgressSteps('gemini-analysis', 'completed', 100);
+      updateProgressSteps('swot-analysis', 'completed', 100);
+      updateProgressSteps('report-generation', 'completed', 100);
+      updateProgressSteps('email-sending', 'completed', 100);
       
-      setPersistentNoticeOpen(false);
-      
-      toast({
-        title: "🎉 진단 완료!",
-        description: "맥킨지 스타일 보고서가 이메일로 발송되었습니다.",
-        variant: "default"
-      });
+      setTimeout(() => {
+        setPersistentNoticeOpen(false);
+        toast({
+          title: "🎉 진단 완료!",
+          description: "맥킨지 스타일 보고서가 이메일로 발송되었습니다.",
+          variant: "default"
+        });
+      }, 2000);
       
       eventSource.close();
     });
 
     eventSource.addEventListener('timeout', (event) => {
       const data = JSON.parse(event.data);
-      setPersistentNoticeOpen(false);
+      console.log('⏰ 진행상황 추적 타임아웃:', data);
       
-      toast({
-        title: "⏰ 처리 시간 초과",
-        description: "고품질 분석으로 인해 시간이 소요되고 있습니다. 이메일로 결과를 확인해주세요.",
-        variant: "default"
-      });
+      // 타임아웃 시에도 완료 처리 (백그라운드에서 계속 진행)
+      updateProgressSteps('data-validation', 'completed', 100);
+      updateProgressSteps('gemini-analysis', 'completed', 100);
+      updateProgressSteps('swot-analysis', 'completed', 100);
+      updateProgressSteps('report-generation', 'completed', 100);
+      updateProgressSteps('email-sending', 'completed', 100);
+      
+      setTimeout(() => {
+        setPersistentNoticeOpen(false);
+        toast({
+          title: "⏰ 처리 시간 초과",
+          description: "고품질 분석으로 인해 시간이 소요되고 있습니다. 이메일로 결과를 확인해주세요.",
+          variant: "default"
+        });
+      }, 2000);
       
       eventSource.close();
     });
 
     eventSource.onerror = (error) => {
-      console.error('진행상황 추적 오류:', error);
+      console.error('❌ SSE 연결 오류:', error);
+      
+      // 연결 오류 시 폴백 처리
+      setTimeout(() => {
+        setPersistentNoticeOpen(false);
+        toast({
+          title: "📡 연결 오류",
+          description: "진행상황 추적 중 연결 문제가 발생했습니다. 보고서는 백그라운드에서 계속 생성되어 이메일로 발송됩니다.",
+          variant: "default"
+        });
+      }, 2000);
+      
       eventSource.close();
     };
 
@@ -259,6 +300,8 @@ const Real45QuestionForm: React.FC = () => {
       }
     }));
   };
+
+
 
   // 기업정보 입력 완료 (간소화)
   const handleCompanyInfoSubmit = () => {
@@ -413,19 +456,23 @@ const Real45QuestionForm: React.FC = () => {
       
       if (result.success) {
         // 진단 결과를 상태에 저장하여 완료 화면으로 전환
-        setDiagnosisResult(result);
+        const diagnosisId = result.diagnosisId || result.data?.diagnosisId || `TEMP-${Date.now()}`;
+        const enhancedResult = {
+          ...result,
+          diagnosisId: diagnosisId
+        };
+        
+        setDiagnosisResult(enhancedResult);
         
         // 세션 스토리지에 결과 저장 (페이지 새로고침 대비)
         try {
-          sessionStorage.setItem('diagnosisResult', JSON.stringify(result));
+          sessionStorage.setItem('diagnosisResult', JSON.stringify(enhancedResult));
         } catch (storageError) {
           console.warn('세션 저장 실패:', storageError);
         }
         
-        // 실시간 진행상황 추적 시작
-        if (result.diagnosisId) {
-          startProgressTracking(result.diagnosisId);
-        }
+        // 실제 진행상황 추적 시작
+        startProgressTracking(diagnosisId);
         
         toast({
           title: "진단 제출 완료!",
@@ -646,11 +693,11 @@ const Real45QuestionForm: React.FC = () => {
             </CardHeader>
             
             <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   {/* 회사명 입력 */}
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
                       회사명
                     </label>
@@ -661,7 +708,7 @@ const Real45QuestionForm: React.FC = () => {
                         ...prev,
                         companyInfo: { ...prev.companyInfo, companyName: e.target.value }
                       }))}
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg min-h-[56px] 
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg h-[56px] 
                                 transition-all duration-300 ease-in-out
                                 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
                                 hover:border-gray-300 hover:shadow-sm
@@ -671,8 +718,8 @@ const Real45QuestionForm: React.FC = () => {
                   </div>
 
                   {/* 담당자명 입력 */}
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
                       담당자명
                     </label>
@@ -683,7 +730,7 @@ const Real45QuestionForm: React.FC = () => {
                         ...prev,
                         companyInfo: { ...prev.companyInfo, contactName: e.target.value }
                       }))}
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg min-h-[56px] 
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg h-[56px] 
                                 transition-all duration-300 ease-in-out
                                 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
                                 hover:border-gray-300 hover:shadow-sm
@@ -693,8 +740,8 @@ const Real45QuestionForm: React.FC = () => {
                   </div>
 
                   {/* 이메일 입력 */}
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
                       이메일 주소
                     </label>
@@ -710,8 +757,8 @@ const Real45QuestionForm: React.FC = () => {
                   </div>
 
                   {/* 전화번호 입력 */}
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
                       전화번호
                     </label>
@@ -726,16 +773,22 @@ const Real45QuestionForm: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">업종 *</label>
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      업종
+                    </label>
                     <select
                       value={formState.companyInfo.industry}
                       onChange={(e) => setFormState(prev => ({
                         ...prev,
                         companyInfo: { ...prev.companyInfo, industry: e.target.value }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg h-[56px] 
+                                transition-all duration-300 ease-in-out
+                                focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                hover:border-gray-300 hover:shadow-sm"
                       aria-label="업종 선택"
                     >
                       <option value="">업종을 선택하세요</option>
@@ -755,8 +808,11 @@ const Real45QuestionForm: React.FC = () => {
 
                   {/* 업종 직접입력 필드 */}
                   {formState.companyInfo.industry === '직접입력' && (
-                    <div>
-                      <label className="block text-sm font-medium mb-2">업종 직접입력 *</label>
+                    <div className="space-y-3">
+                      <label className="flex items-center text-sm font-semibold text-gray-700">
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                        업종 직접입력
+                      </label>
                       <input
                         type="text"
                         value={formState.companyInfo.industryCustom || ''}
@@ -764,21 +820,31 @@ const Real45QuestionForm: React.FC = () => {
                           ...prev,
                           companyInfo: { ...prev.companyInfo, industryCustom: e.target.value }
                         }))}
-                        className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg h-[56px] 
+                                  transition-all duration-300 ease-in-out
+                                  focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                  hover:border-gray-300 hover:shadow-sm
+                                  placeholder:text-gray-400"
                         placeholder="업종을 직접 입력하세요"
                       />
                     </div>
                   )}
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">직원수 *</label>
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      직원수
+                    </label>
                     <select
                       value={formState.companyInfo.employeeCount}
                       onChange={(e) => setFormState(prev => ({
                         ...prev,
                         companyInfo: { ...prev.companyInfo, employeeCount: e.target.value }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg h-[56px] 
+                                transition-all duration-300 ease-in-out
+                                focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                hover:border-gray-300 hover:shadow-sm"
                       aria-label="직원수 선택"
                     >
                       <option value="">직원수를 선택하세요</option>
@@ -790,15 +856,21 @@ const Real45QuestionForm: React.FC = () => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">연매출</label>
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
+                      <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs font-bold mr-2">선택</span>
+                      연매출
+                    </label>
                     <select
                       value={formState.companyInfo.annualRevenue}
                       onChange={(e) => setFormState(prev => ({
                         ...prev,
                         companyInfo: { ...prev.companyInfo, annualRevenue: e.target.value }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg h-[56px] 
+                                transition-all duration-300 ease-in-out
+                                focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                hover:border-gray-300 hover:shadow-sm"
                       aria-label="연매출 선택"
                     >
                       <option value="">연매출을 선택하세요</option>
@@ -813,15 +885,21 @@ const Real45QuestionForm: React.FC = () => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">소재지 (도/특별시/시) *</label>
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      소재지 (도/특별시/시)
+                    </label>
                     <select
                       value={formState.companyInfo.location}
                       onChange={(e) => setFormState(prev => ({
                         ...prev,
                         companyInfo: { ...prev.companyInfo, location: e.target.value }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[48px] transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-lg h-[56px] 
+                                transition-all duration-300 ease-in-out
+                                focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                hover:border-gray-300 hover:shadow-sm"
                       aria-label="소재지 선택"
                     >
                       <option value="">소재지를 선택하세요</option>
@@ -896,9 +974,17 @@ const Real45QuestionForm: React.FC = () => {
           </div>
           <Progress value={progress} className="h-3" />
           <div className="flex justify-between items-center mt-2">
-            <p className="text-sm text-gray-600">
-              진행률: {Math.round(progress)}%
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-gray-600">
+                진행률: {Math.round(progress)}%
+              </p>
+              {answeredCount < REAL_45_QUESTIONS.length && (
+                <div className="flex items-center text-sm text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-200">
+                  <span className="mr-1">⚠️</span>
+                  <span className="font-medium">{REAL_45_QUESTIONS.length - answeredCount}개 미답변</span>
+                </div>
+              )}
+            </div>
             {answeredCount > 0 && (
               <p className="text-sm text-blue-600 font-medium">
                 평균 점수: {(Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / answeredCount).toFixed(1)}점
@@ -940,27 +1026,95 @@ const Real45QuestionForm: React.FC = () => {
               </CardHeader>
 
               <CardContent className="space-y-6">
-                {/* 점수 체계 안내 */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-center mb-2">
-                    <span className="text-blue-600 font-semibold mr-2">📊 점수 체계 안내</span>
+                {/* 점수 체계 안내 - 고도화된 버전 */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+                  <div className="flex items-center mb-4">
+                    <div className="flex items-center bg-blue-100 px-3 py-1 rounded-full mr-3">
+                      <span className="text-blue-600 font-bold text-sm">📊</span>
+                    </div>
+                    <div>
+                      <h4 className="text-blue-800 font-bold text-lg">점수체계 안내 & 행동지표 평가 가이드</h4>
+                      <p className="text-blue-600 text-sm mt-1">각 문항별 구체적인 행동지표를 기준으로 정확한 자가평가를 진행하세요</p>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-5 gap-2 text-xs">
-                    <div className="text-center p-2 bg-green-100 rounded text-green-800 font-medium">
-                      5점<br/>매우 우수
+                  
+                  {/* 점수 막대 그래프 스타일 안내 */}
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-6 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">5</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-green-800 font-semibold text-sm">매우 우수 (5점)</span>
+                          <span className="text-green-600 text-xs bg-green-100 px-2 py-1 rounded-full">90-100% 수준</span>
+                        </div>
+                        <p className="text-green-700 text-xs mt-1">해당 영역에서 업계 최고 수준의 역량을 보유하고 있음</p>
+                      </div>
                     </div>
-                    <div className="text-center p-2 bg-blue-100 rounded text-blue-800 font-medium">
-                      4점<br/>우수
+                    
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-6 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">4</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-blue-800 font-semibold text-sm">우수 (4점)</span>
+                          <span className="text-blue-600 text-xs bg-blue-100 px-2 py-1 rounded-full">70-89% 수준</span>
+                        </div>
+                        <p className="text-blue-700 text-xs mt-1">해당 영역에서 평균 이상의 우수한 역량을 보유하고 있음</p>
+                      </div>
                     </div>
-                    <div className="text-center p-2 bg-yellow-100 rounded text-yellow-800 font-medium">
-                      3점<br/>보통
+                    
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-6 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">3</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-yellow-800 font-semibold text-sm">보통 (3점)</span>
+                          <span className="text-yellow-600 text-xs bg-yellow-100 px-2 py-1 rounded-full">50-69% 수준</span>
+                        </div>
+                        <p className="text-yellow-700 text-xs mt-1">해당 영역에서 평균적인 수준의 역량을 보유하고 있음</p>
+                      </div>
                     </div>
-                    <div className="text-center p-2 bg-orange-100 rounded text-orange-800 font-medium">
-                      2점<br/>개선 필요
+                    
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-6 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">2</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-orange-800 font-semibold text-sm">개선 필요 (2점)</span>
+                          <span className="text-orange-600 text-xs bg-orange-100 px-2 py-1 rounded-full">30-49% 수준</span>
+                        </div>
+                        <p className="text-orange-700 text-xs mt-1">해당 영역에서 기본적인 역량은 있으나 개선이 필요함</p>
+                      </div>
                     </div>
-                    <div className="text-center p-2 bg-red-100 rounded text-red-800 font-medium">
-                      1점<br/>매우 부족
+                    
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-6 bg-gradient-to-r from-red-400 to-red-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">1</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-red-800 font-semibold text-sm">매우 부족 (1점)</span>
+                          <span className="text-red-600 text-xs bg-red-100 px-2 py-1 rounded-full">0-29% 수준</span>
+                        </div>
+                        <p className="text-red-700 text-xs mt-1">해당 영역에서 역량이 부족하여 집중적인 개선이 필요함</p>
+                      </div>
                     </div>
+                  </div>
+                  
+                  {/* 평가 방법 안내 */}
+                  <div className="mt-4 p-3 bg-white/70 rounded-lg border border-blue-100">
+                    <div className="flex items-center mb-2">
+                      <span className="text-blue-600 font-semibold text-sm mr-2">💡 평가 방법</span>
+                    </div>
+                    <p className="text-blue-700 text-xs leading-relaxed">
+                      각 문항의 <strong>행동지표</strong>를 꼼꼼히 읽어보시고, 현재 귀사의 상황과 가장 일치하는 수준을 선택해주세요. 
+                      정확한 진단을 위해 <strong>객관적이고 솔직한 평가</strong>가 중요합니다.
+                    </p>
                   </div>
                 </div>
 
@@ -1067,13 +1221,25 @@ const Real45QuestionForm: React.FC = () => {
                       )}
                     </Button>
                   ) : (
-                    <Button
-                      onClick={handleNext}
-                      disabled={!formState.answers[currentQuestion.id]}
-                    >
-                      다음
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <div className="flex flex-col items-end">
+                      {!formState.answers[currentQuestion.id] && (
+                        <div className="mb-2 text-sm text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200 animate-pulse">
+                          ⚠️ 점수를 선택해주세요 (필수)
+                        </div>
+                      )}
+                      <Button
+                        onClick={handleNext}
+                        disabled={!formState.answers[currentQuestion.id]}
+                        className={`transition-all duration-300 ${
+                          !formState.answers[currentQuestion.id] 
+                            ? 'bg-gray-300 hover:bg-gray-300 cursor-not-allowed opacity-50' 
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        }`}
+                      >
+                        다음
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -1132,17 +1298,55 @@ const Real45QuestionForm: React.FC = () => {
           </div>
         )}
 
-        {/* 답변 누락 알림 */}
+        {/* 답변 누락 알림 - 강화된 버전 */}
         {showMissingAnswerAlert && (
-          <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right-full duration-300">
-            <div className="bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg max-w-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">⚠️</span>
-                <div>
-                  <p className="font-semibold">답변이 완료되지 않았습니다</p>
-                  <p className="text-sm text-red-100">
-                    {REAL_45_QUESTIONS.length - answeredCount}개 문항이 남아있습니다
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
+              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                    <span className="text-2xl">⚠️</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">답변 미완료</h3>
+                    <p className="text-red-100 text-sm">모든 문항에 답변해주세요</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-red-600 mb-2">
+                    {REAL_45_QUESTIONS.length - answeredCount}개
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    문항이 아직 답변되지 않았습니다
                   </p>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                    <p className="text-yellow-800 text-sm">
+                      <strong>정확한 진단</strong>을 위해 모든 문항에 답변이 필요합니다
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowMissingAnswerAlert(false)}
+                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    계속 답변하기
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMissingAnswerAlert(false);
+                      // 첫 번째 미답변 문항으로 이동
+                      const firstUnanswered = REAL_45_QUESTIONS.findIndex((_, index) => !formState.answers[index]);
+                      if (firstUnanswered !== -1) {
+                        setFormState(prev => ({ ...prev, currentQuestion: firstUnanswered }));
+                      }
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    미답변 문항으로
+                  </button>
                 </div>
               </div>
             </div>
