@@ -36,6 +36,7 @@ import {
 } from '@/data/success-cases/benchmark-cases-index';
 import { SuccessCaseDetail } from '@/types/success-case.types';
 import { getNormalizedBenchmarks, parsePercentToNumber } from '@/lib/utils/benchmarkNormalization';
+import ErrorBoundary from '@/components/ui/error-boundary';
 
 interface BenchmarkShowcaseProps {
   onCaseSelect?: (caseData: SuccessCaseDetail) => void;
@@ -147,61 +148,90 @@ export default function BenchmarkShowcase({
     return 'text-gray-600';
   };
 
+  // 이미지 로딩 오류 처리 함수
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, caseData: any) => {
+    console.warn(`이미지 로딩 실패: ${caseData.title}`);
+    const target = e.target as HTMLImageElement;
+    
+    if (!target.dataset.fallbackAttempted) {
+      // 첫 번째 대체: via.placeholder.com 사용
+      target.dataset.fallbackAttempted = 'true';
+      const industryText = (caseData as any).subIndustry || caseData.industry || 'AI 벤치마크';
+      target.src = `https://via.placeholder.com/1200x800/3B82F6/FFFFFF?text=${encodeURIComponent(industryText)}`;
+    } else if (!target.dataset.secondFallbackAttempted) {
+      // 두 번째 대체: 다른 placeholder 서비스
+      target.dataset.secondFallbackAttempted = 'true';
+      target.src = `https://dummyimage.com/1200x800/3B82F6/FFFFFF&text=${encodeURIComponent(caseData.title)}`;
+    } else {
+      // 세 번째 실패 시 CSS 대체 요소 표시
+      target.style.display = 'none';
+      const fallbackDiv = target.nextElementSibling as HTMLElement;
+      if (fallbackDiv) {
+        fallbackDiv.style.display = 'flex';
+      }
+    }
+  };
+
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* 헤더 섹션 (히어로) */}
       <section className="relative py-20 overflow-hidden">
         {/* 배경 이미지 + 오버레이 */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=1920&auto=format&fit=crop"
             alt="AI 벤치마크 배경"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/60 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/60 to-black/80 z-10" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center text-white">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="relative z-30"
             >
-              <Badge className="mb-4 bg-white/20 text-white">
+              <Badge className="mb-4 bg-white/20 text-white border-white/30 relative z-40"
+                     style={{ color: '#ffffff !important' }}>
                 <Star className="w-4 h-4 mr-1" />
                 업종별 최적화 AI 벤치마크
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-2xl">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white drop-shadow-2xl relative z-40" 
+                  style={{ color: '#ffffff !important', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
                 업종별 AI 성공사례 AI벤치마크
               </h1>
-              <p className="text-xl mb-8 max-w-3xl mx-auto opacity-95 drop-shadow">
+              <p className="text-xl mb-8 max-w-3xl mx-auto text-white drop-shadow-lg relative z-40"
+                 style={{ color: '#ffffff !important', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
                 업종별 프로세스 자동화와 고몰입 조직구축을 위한 최고 수준의 AI & n8n 도입 모델을 벤치마크하세요
               </p>
               
               {/* 통계 카드 */}
-              <div className="grid md:grid-cols-4 gap-6 mb-8">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+              <div className="grid md:grid-cols-4 gap-6 mb-8 relative z-40">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white relative z-50">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold">{stats.totalCases}</div>
-                    <div className="text-sm opacity-80">총 벤치마크 사례</div>
+                    <div className="text-2xl font-bold text-white">{stats.totalCases}</div>
+                    <div className="text-sm text-white/80">총 벤치마크 사례</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white relative z-50">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold">{stats.industries}</div>
-                    <div className="text-sm opacity-80">업종 분야</div>
+                    <div className="text-2xl font-bold text-white">{stats.industries}</div>
+                    <div className="text-sm text-white/80">업종 분야</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white relative z-50">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold">{stats.averageROI}%</div>
-                    <div className="text-sm opacity-80">평균 ROI</div>
+                    <div className="text-2xl font-bold text-white">{stats.averageROI}%</div>
+                    <div className="text-sm text-white/80">평균 ROI</div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white relative z-50">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold">{stats.averageTimeReduction}%</div>
-                    <div className="text-sm opacity-80">평균 시간 단축</div>
+                    <div className="text-2xl font-bold text-white">{stats.averageTimeReduction}%</div>
+                    <div className="text-sm text-white/80">평균 시간 단축</div>
                   </CardContent>
                 </Card>
               </div>
@@ -327,11 +357,45 @@ export default function BenchmarkShowcase({
                     <Card className="h-full hover:shadow-lg transition-all cursor-pointer group"
                           onClick={() => onCaseSelect?.(caseData)}>
                       <div className="relative">
-                <img
-                  src={(caseData as any).heroImage || (caseData as any).image || `https://picsum.photos/seed/${encodeURIComponent((caseData as any).subIndustry || caseData.industry || caseData.title)}/1200/800`}
+                        {/* 로딩 스피너 */}
+                        <div className="absolute inset-0 w-full h-48 flex items-center justify-center bg-gray-100 rounded-t-lg">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                        
+                        <img
+                          src={(caseData as any).heroImage || (caseData as any).image || `https://picsum.photos/seed/${encodeURIComponent((caseData as any).subIndustry || caseData.industry || caseData.title)}/1200/800`}
                           alt={caseData.title}
-                          className="w-full h-48 object-cover rounded-t-lg"
+                          className="w-full h-48 object-cover rounded-t-lg relative z-10"
+                          onLoad={(e) => {
+                            // 이미지 로딩 완료 시 스피너 숨기기
+                            const target = e.target as HTMLImageElement;
+                            const spinner = target.previousElementSibling as HTMLElement;
+                            if (spinner) {
+                              spinner.style.display = 'none';
+                            }
+                          }}
+                          onError={(e) => {
+                            // 오류 시에도 스피너 숨기기
+                            const target = e.target as HTMLImageElement;
+                            const spinner = target.previousElementSibling as HTMLElement;
+                            if (spinner) {
+                              spinner.style.display = 'none';
+                            }
+                            handleImageError(e, caseData);
+                          }}
                         />
+                        
+                        {/* 최종 대체 요소 */}
+                        <div 
+                          className="hidden w-full h-48 items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 rounded-t-lg"
+                          style={{ display: 'none' }}
+                        >
+                          <div className="text-center text-blue-600">
+                            <div className="text-4xl mb-2">📊</div>
+                            <div className="text-sm font-medium">{(caseData as any).subIndustry || caseData.industry}</div>
+                            <div className="text-xs opacity-75">AI 벤치마크</div>
+                          </div>
+                        </div>
                         <div className="absolute top-4 left-4">
                         <Badge className="bg-white/90 text-gray-800">
                           <IndustryIcon className="w-3 h-3 mr-1" />
@@ -455,5 +519,6 @@ export default function BenchmarkShowcase({
         </div>
       </section>
     </div>
+    </ErrorBoundary>
   );
 }

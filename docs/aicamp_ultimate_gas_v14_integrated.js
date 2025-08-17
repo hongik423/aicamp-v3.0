@@ -258,6 +258,11 @@ function doPost(e) {
         updateProgressStatus(progressId, 'processing', 'Google Drive 파일 상태를 확인하고 있습니다');
         result = handleDriveCheckRequest(requestData, progressId);
         break;
+      case 'checkProgress':
+        // 진행상황 조회 (실시간 모니터링용)
+        console.log('📊 진행상황 조회 요청:', requestData.diagnosisId);
+        result = getProgressStatus(requestData.diagnosisId);
+        break;
       default:
         console.warn('⚠️ 알 수 없는 요청 타입, 기본 진단으로 처리:', requestType);
         updateProgressStatus(progressId, 'processing', '기본 AI역량진단으로 처리합니다');
@@ -413,16 +418,18 @@ function doGet(e) {
  * 진행상황 모니터링 시작
  */
 function startProgressMonitoring(requestType, requestData) {
-  const progressId = `PROG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // diagnosisId가 있으면 사용, 없으면 생성
+  const diagnosisId = requestData.diagnosisId || requestData.data?.diagnosisId || `AICAMP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const progressId = `PROG_${diagnosisId}_${Date.now()}`;
   
   try {
     const sheetsConfig = getSheetsConfig();
     const spreadsheet = SpreadsheetApp.openById(sheetsConfig.SPREADSHEET_ID);
     const progressSheet = getOrCreateSheetFixed(spreadsheet, sheetsConfig.SHEETS.PROGRESS_MONITORING);
     
-    // 헤더 설정 (최초 1회)
+    // 헤더 설정 (최초 1회) - diagnosisId 컬럼 추가
     if (progressSheet.getLastRow() === 0) {
-      const headers = ['진행ID', '요청타입', '시작시간', '상태', '메시지', '업데이트시간', '완료시간'];
+      const headers = ['진행ID', '진단ID', '요청타입', '시작시간', '상태', '메시지', '업데이트시간', '완료시간'];
       progressSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       progressSheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#4285f4').setFontColor('white');
     }
@@ -430,6 +437,7 @@ function startProgressMonitoring(requestType, requestData) {
     // 초기 진행상황 저장
     const row = [
       progressId,
+      diagnosisId,  // 진단ID 추가
       requestType,
       new Date(),
       'started',
@@ -439,7 +447,7 @@ function startProgressMonitoring(requestType, requestData) {
     ];
     
     progressSheet.appendRow(row);
-    console.log('📊 진행상황 모니터링 시작:', progressId);
+    console.log('📊 진행상황 모니터링 시작:', progressId, '진단ID:', diagnosisId);
     
   } catch (error) {
     console.error('❌ 진행상황 모니터링 시작 실패:', error);
@@ -463,14 +471,14 @@ function updateProgressStatus(progressId, status, message) {
     const data = progressSheet.getDataRange().getValues();
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === progressId) {
-        // 상태, 메시지, 업데이트시간 업데이트
-        progressSheet.getRange(i + 1, 4).setValue(status);
-        progressSheet.getRange(i + 1, 5).setValue(message);
-        progressSheet.getRange(i + 1, 6).setValue(new Date());
+        // 새로운 구조에 맞게 컬럼 인덱스 조정: 상태(5), 메시지(6), 업데이트시간(7), 완료시간(8)
+        progressSheet.getRange(i + 1, 5).setValue(status);
+        progressSheet.getRange(i + 1, 6).setValue(message);
+        progressSheet.getRange(i + 1, 7).setValue(new Date());
         
         // 완료 상태인 경우 완료시간 설정
         if (status === 'completed' || status === 'error') {
-          progressSheet.getRange(i + 1, 7).setValue(new Date());
+          progressSheet.getRange(i + 1, 8).setValue(new Date());
         }
         
         console.log(`📈 진행상황 업데이트 [${progressId}]: ${status} - ${message}`);
@@ -480,6 +488,122 @@ function updateProgressStatus(progressId, status, message) {
     
   } catch (error) {
     console.error('❌ 진행상황 업데이트 실패:', error);
+  }
+}
+
+/**
+ * 진행상황 조회 (실시간 모니터링용)
+ */
+function getProgressStatus(diagnosisId) {
+  try {
+    const sheetsConfig = getSheetsConfig();
+    const spreadsheet = SpreadsheetApp.openById(sheetsConfig.SPREADSHEET_ID);
+    const progressSheet = spreadsheet.getSheetByName(sheetsConfig.SHEETS.PROGRESS_MONITORING);
+    
+    if (!progressSheet) {
+      return {
+        success: false,
+        error: '진행상황 시트를 찾을 수 없습니다'
+      };
+    }
+    
+    // diagnosisId로 진행상황 찾기
+    const data = progressSheet.getDataRange().getValues();
+    let progressInfo = null;
+    
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      // 새로운 구조: [진행ID, 진단ID, 요청타입, 시작시간, 상태, 메시지, 업데이트시간, 완료시간]
+      if (row[1] === diagnosisId || (row[0] && row[0].includes(diagnosisId))) {
+        progressInfo = {
+          progressId: row[0],
+          diagnosisId: row[1],
+          requestType: row[2],
+          startTime: row[3],
+          status: row[4],
+          message: row[5],
+          updateTime: row[6],
+          completeTime: row[7]
+        };
+        break;
+      }
+    }
+    
+    if (!progressInfo) {
+      return {
+        success: false,
+        error: '해당 진단의 진행상황을 찾을 수 없습니다',
+        diagnosisId: diagnosisId
+      };
+    }
+    
+    // 상태에 따른 진행률 계산
+    const statusMap = {
+      'started': { progress: 10, step: 'data-validation' },
+      'processing': { progress: 30, step: 'gemini-analysis' },
+      'analyzing': { progress: 50, step: 'swot-analysis' },
+      'generating': { progress: 70, step: 'report-generation' },
+      'sending': { progress: 90, step: 'email-sending' },
+      'completed': { progress: 100, step: 'completed' },
+      'error': { progress: 0, step: 'error' }
+    };
+    
+    const currentStatus = statusMap[progressInfo.status] || { progress: 20, step: 'processing' };
+    
+    // 경과 시간 계산
+    const startTime = new Date(progressInfo.startTime);
+    const now = new Date();
+    const elapsedMs = now.getTime() - startTime.getTime();
+    const elapsedMinutes = Math.floor(elapsedMs / 60000);
+    
+    // 단계별 상태 생성
+    const steps = {
+      'data-validation': { 
+        status: currentStatus.progress >= 10 ? 'completed' : 'pending', 
+        progress: Math.min(100, Math.max(0, currentStatus.progress >= 10 ? 100 : currentStatus.progress * 10))
+      },
+      'gemini-analysis': { 
+        status: currentStatus.progress >= 50 ? 'completed' : (currentStatus.progress >= 10 ? 'in-progress' : 'pending'),
+        progress: Math.min(100, Math.max(0, currentStatus.progress >= 50 ? 100 : (currentStatus.progress - 10) * 2.5))
+      },
+      'swot-analysis': { 
+        status: currentStatus.progress >= 70 ? 'completed' : (currentStatus.progress >= 50 ? 'in-progress' : 'pending'),
+        progress: Math.min(100, Math.max(0, currentStatus.progress >= 70 ? 100 : (currentStatus.progress - 50) * 5))
+      },
+      'report-generation': { 
+        status: currentStatus.progress >= 90 ? 'completed' : (currentStatus.progress >= 70 ? 'in-progress' : 'pending'),
+        progress: Math.min(100, Math.max(0, currentStatus.progress >= 90 ? 100 : (currentStatus.progress - 70) * 5))
+      },
+      'email-sending': { 
+        status: currentStatus.progress >= 100 ? 'completed' : (currentStatus.progress >= 90 ? 'in-progress' : 'pending'),
+        progress: Math.min(100, Math.max(0, currentStatus.progress >= 100 ? 100 : (currentStatus.progress - 90) * 10))
+      }
+    };
+    
+    return {
+      success: true,
+      diagnosisId: diagnosisId,
+      overallProgress: currentStatus.progress,
+      currentStep: currentStatus.step,
+      status: progressInfo.status,
+      message: progressInfo.message,
+      steps: steps,
+      elapsedMs: elapsedMs,
+      elapsedMinutes: elapsedMinutes,
+      estimatedTimeRemaining: Math.max(0, 600000 - elapsedMs), // 10분 - 경과시간
+      completed: progressInfo.status === 'completed',
+      lastUpdated: progressInfo.updateTime,
+      startTime: progressInfo.startTime,
+      completeTime: progressInfo.completeTime
+    };
+    
+  } catch (error) {
+    console.error('❌ 진행상황 조회 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      diagnosisId: diagnosisId
+    };
   }
 }
 

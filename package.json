@@ -13,6 +13,7 @@
     "test:e2e": "node test/ai-diagnosis-workflow-simulation.mjs",
     "test:e2e:mckinsey": "node test/mckinsey-report-e2e-simulation.mjs",
     "test:server": "node test-server.js",
+    "test:client": "node test-client.js",
     "test:api": "node test-api.js",
     "test:quick": "test-quick.bat",
     "test:cmd": "cmd /c \"node test/mckinsey-report-e2e-simulation.mjs\"",
