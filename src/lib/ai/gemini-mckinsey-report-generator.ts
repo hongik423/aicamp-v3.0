@@ -1,6 +1,6 @@
 /**
  * 🎯 GEMINI 2.5 Flash 기반 세계 최고 수준 맥킨지 보고서 생성기
- * McKinsey 방법론 + 이교장 톤앤매너 + 45개 행동지표 정밀 분석
+ * 이교장 방법론 + 이교장 톤앤매너 + 45개 행동지표 정밀 분석
  */
 
 import { McKinsey45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
@@ -231,11 +231,11 @@ function getSectionPrompt(
       return `
 ${baseContext}
 
-당신은 세계 최고 수준의 McKinsey 컨설턴트입니다. 전문적인 표지 페이지를 작성해주세요.
+당신은 세계 최고 수준의 이교장 컨설턴트입니다. 전문적인 표지 페이지를 작성해주세요.
 
 요구사항:
 1. 이교장의AI역량진단보고서 (메인 타이틀)
-2. McKinsey 방법론 기반 정밀 분석 (서브타이틀)
+2. 이교장 방법론 기반 정밀 분석 (서브타이틀)
 3. 회사 정보 및 진단 정보 표시
 4. AICAMP AI 역량진단 시스템 V15.0 브랜딩
 5. 전문적이고 신뢰감 있는 디자인
@@ -268,7 +268,7 @@ HTML 형식으로 응답하되, 이모지와 함께 작성해주세요.
       return `
 ${baseContext}
 
-McKinsey 스타일로 기업 정보 섹션을 작성해주세요.
+이교장 스타일로 기업 정보 섹션을 작성해주세요.
 
 요구사항:
 1. 회사 기본 정보 정리
@@ -291,7 +291,7 @@ ${baseContext}
 - 목표 명확성: ${scoreAnalysis.categoryScores.goalClarity}점
 - 실행 역량: ${scoreAnalysis.categoryScores.executionCapability}점
 
-McKinsey 스타일 진단 결과 시각화 섹션을 작성해주세요.
+이교장 스타일 진단 결과 시각화 섹션을 작성해주세요.
 
 요구사항:
 1. 6개 영역 스코어 카드 설명
@@ -335,7 +335,7 @@ HTML 형식으로 응답해주세요.
       return `
 ${baseContext}
 
-McKinsey 스타일 벤치마크 분석을 작성해주세요.
+이교장 스타일 벤치마크 분석을 작성해주세요.
 
 요구사항:
 1. 업종별 비교 분석
@@ -365,7 +365,7 @@ ${companyInfo.name}의 AI 역량에 대한 전문적인 SWOT 분석을 작성해
       return `
 ${baseContext}
 
-McKinsey 스타일 우선순위 매트릭스를 작성해주세요.
+이교장 스타일 우선순위 매트릭스를 작성해주세요.
 
 요구사항:
 1. 중요도-긴급성 매트릭스 (2x2 그리드)
@@ -478,7 +478,7 @@ function generateFallbackContent(sectionIndex: number, analysisResult: McKinsey4
     // 0: Cover Page
     `<div class="cover-page">
       <h1>이교장의AI역량진단보고서</h1>
-      <h2>McKinsey 방법론 기반 정밀 분석</h2>
+      <h2>이교장 방법론 기반 정밀 분석</h2>
       <div class="company-info">
         <p><strong>회사명:</strong> ${companyInfo.name}</p>
         <p><strong>업종:</strong> ${companyInfo.industry}</p>

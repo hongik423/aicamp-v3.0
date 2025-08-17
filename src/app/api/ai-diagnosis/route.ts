@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const requestData = await request.json();
     
     // 워크플로우 요청 구성
-    const workflowRequest: McKinsey45QuestionsRequest = {
+    const workflowRequest: LeeKyoJang45QuestionsRequest = {
       companyName: requestData.companyName,
       contactName: requestData.contactName,
       contactEmail: requestData.contactEmail,
@@ -52,9 +52,9 @@ export async function POST(request: NextRequest) {
     
     // 로컬 워크플로우 실행 (빠른 분석)
     try {
-      console.log('🚀 로컬 McKinsey 45개 질문 워크플로우 실행 시작');
+      console.log('🚀 로컬 LeeKyoJang 45개 질문 워크플로우 실행 시작');
       
-      const workflowResult = executeMcKinsey45QuestionsWorkflow(workflowRequest);
+      const workflowResult = executeLeeKyoJang45QuestionsWorkflow(workflowRequest);
       
       if (workflowResult) {
         console.log('✅ 로컬 워크플로우 완료 - Google Apps Script로 전송');
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
             features: [
               '45개 행동지표 정밀 분석 완료',
               'GEMINI 2.5 Flash AI 보고서 생성',
-              '맥킨지 스타일 HTML 보고서',
+              '이교장 스타일 HTML 보고서',
               '애플 스타일 이메일 발송 예정'
             ]
           },
@@ -273,7 +273,7 @@ export async function GET(request: NextRequest) {
     description: 'AI 기반 기업 역량진단 및 맞춤형 보고서 생성 서비스',
     features: [
       '애플 스타일 미니멀 이메일 디자인',
-      '최신 맥킨지 스타일 보고서',
+      '최신 이교장 스타일 보고서',
       'GEMINI 2.5 Flash AI 통합 분석',
       'Google Drive 자동 업로드',
       '실시간 진행상황 모니터링'

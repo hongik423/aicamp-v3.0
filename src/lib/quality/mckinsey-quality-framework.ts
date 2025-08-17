@@ -628,7 +628,7 @@ export class McKinseyQualityAssessor {
   // 헬퍼 메서드들
   private buildQualityAssessmentPrompt(report: any, criterion: QualityCriterion): string {
     return `
-다음 AI 역량진단 보고서의 "${criterion.name}" 품질을 평가해주세요.
+다음 이교장의 AI역량진단보고서의 "${criterion.name}" 품질을 평가해주세요.
 
 평가 기준: ${criterion.description}
 

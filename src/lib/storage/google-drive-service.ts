@@ -278,7 +278,7 @@ export async function uploadDiagnosisReport(
   htmlContent: string
 ): Promise<DriveUploadResult> {
   const fileName = googleDriveService.generateReportFileName(companyName, diagnosisId);
-  const description = `AI 역량진단 보고서 - ${companyName} (${diagnosisId})`;
+  const description = `이교장의 AI역량진단보고서 - ${companyName} (${diagnosisId})`;
   
   return await googleDriveService.uploadHTMLReport(fileName, htmlContent, description);
 }

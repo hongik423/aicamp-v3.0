@@ -22,7 +22,7 @@ import {
   Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { generateMcKinseyStyleReport } from '@/lib/utils/industryDataService';
+import { generateLeeKyoJangStyleReport } from '@/lib/utils/industryDataService';
 import { 
   getIndustrySpecificRecommendations,
   getRecommendedProgramsByScore,
@@ -227,7 +227,7 @@ export default function DiagnosisResultPage() {
       };
       
       // HTML 보고서 생성
-      const htmlReport = generateMcKinseyStyleReport(
+      const htmlReport = generateLeeKyoJangStyleReport(
         ultimateReportData.companyInfo?.industry || '기타',
         ultimateReportData.companyInfo || {},
         ultimateReportData.diagnosis || {}

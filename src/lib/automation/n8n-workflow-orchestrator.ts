@@ -1,6 +1,6 @@
 /**
  * 🔄 n8n 워크플로우 오케스트레이션 시스템
- * AI 역량진단 보고서 생성 자동화 엔진
+ * 이교장의 AI역량진단보고서 생성 자동화 엔진
  */
 
 import { AdvancedScoreResult } from '../analysis/advanced-scoring-engine';

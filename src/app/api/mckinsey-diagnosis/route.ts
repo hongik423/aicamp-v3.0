@@ -400,7 +400,7 @@ async function generateMcKinseyReport(params: any): Promise<McKinseyReportStruct
   return {
     coverPage: {
       title: '이교장의AI역량진단보고서',
-      subtitle: 'McKinsey 방법론 기반 정밀 분석',
+      subtitle: '이교장 방법론 기반 정밀 분석',
       companyName: normalizedData.companyName,
       diagnosisDate: new Date().toLocaleDateString('ko-KR'),
       diagnosisId: diagnosisId,

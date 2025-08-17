@@ -637,7 +637,7 @@ export function generateLeeKyoJangStyleReport(
   return `
 🎯 이교장의AI역량진단보고서 V14.2 ULTIMATE
 
-${companyData.companyName || '귀사'}의 이교장 스타일 AI 역량진단 보고서가 생성 중입니다.
+${companyData.companyName || '귀사'}의 이교장의 AI역량진단보고서가 생성 중입니다.
 
 📊 진단 점수: ${diagnosisResult.totalScore}점
 🏭 업종: ${industry}

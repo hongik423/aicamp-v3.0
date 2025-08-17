@@ -101,9 +101,9 @@ export const PremiumMcKinseyReport: React.FC<McKinseyReportProps> = ({ data, onD
               
               <div>
                 <div className="flex items-center space-x-3 mb-2">
-                  <h1 className="text-3xl font-bold text-white">AI 역량진단 보고서</h1>
+                  <h1 className="text-3xl font-bold text-white">이교장의 AI역량진단보고서</h1>
                   <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
-                    McKinsey Style
+                    LeeKyoJang Style
                   </Badge>
                 </div>
                 <p className="text-xl text-slate-300">{data.companyName}</p>

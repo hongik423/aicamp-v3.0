@@ -605,7 +605,7 @@ const Real45QuestionForm: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="font-semibold">AI 역량진단 보고서 생성 중</span>
+                  <span className="font-semibold">이교장의 AI역량진단보고서 생성 중</span>
                 </div>
                 <Button
                   variant="ghost"
