@@ -78,9 +78,9 @@ const Real45QuestionForm: React.FC = () => {
     'email-sending': { status: 'pending', progress: 0, label: '이메일 발송' }
   });
   
-  // 점수체계 안내 모달 상태
+  // 점수체계 안내 모달 상태 (비활성화)
   const [showScoreGuide, setShowScoreGuide] = useState(false);
-  const [hasShownGuide, setHasShownGuide] = useState(false);
+  const [hasShownGuide, setHasShownGuide] = useState(true); // 항상 표시된 것으로 처리
 
   // 간단한 입력 핸들러들
   const handleAddressChange = (address: string) => {
@@ -360,13 +360,16 @@ const Real45QuestionForm: React.FC = () => {
     
     setShowCompanyForm(false);
     
-    // 점수체계 안내 모달 표시 (처음 한 번만)
-    if (!hasShownGuide) {
-      setShowScoreGuide(true);
-      setHasShownGuide(true);
-    } else {
-      setFormState(prev => ({ ...prev, currentQuestion: 0 }));
-    }
+    // 점수체계 안내 모달 비활성화 (평가자가 문항에만 집중할 수 있도록)
+    // if (!hasShownGuide) {
+    //   setShowScoreGuide(true);
+    //   setHasShownGuide(true);
+    // } else {
+    //   setFormState(prev => ({ ...prev, currentQuestion: 0 }));
+    // }
+    
+    // 바로 진단 시작
+    setFormState(prev => ({ ...prev, currentQuestion: 0 }));
   };
 
   // 점수체계 안내 모달 완료 후 진단 시작
@@ -1087,94 +1090,12 @@ const Real45QuestionForm: React.FC = () => {
               </CardHeader>
 
               <CardContent className="space-y-6">
-                {/* 점수 체계 안내 - 고도화된 버전 */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-                  <div className="flex items-center mb-4">
-                    <div className="flex items-center bg-blue-100 px-3 py-1 rounded-full mr-3">
-                      <span className="text-blue-600 font-bold text-sm">📊</span>
-                    </div>
-                    <div>
-                      <h4 className="text-blue-800 font-bold text-lg">점수체계 안내 & 행동지표 평가 가이드</h4>
-                      <p className="text-blue-600 text-sm mt-1">각 문항별 구체적인 행동지표를 기준으로 정확한 자가평가를 진행하세요</p>
-                    </div>
-                  </div>
-                  
-                  {/* 점수 막대 그래프 스타일 안내 */}
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-6 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">5</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-green-800 font-semibold text-sm">매우 우수 (5점)</span>
-                          <span className="text-green-600 text-xs bg-green-100 px-2 py-1 rounded-full">90-100% 수준</span>
-                        </div>
-                        <p className="text-green-700 text-xs mt-1">해당 영역에서 업계 최고 수준의 역량을 보유하고 있음</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-6 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">4</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-blue-800 font-semibold text-sm">우수 (4점)</span>
-                          <span className="text-blue-600 text-xs bg-blue-100 px-2 py-1 rounded-full">70-89% 수준</span>
-                        </div>
-                        <p className="text-blue-700 text-xs mt-1">해당 영역에서 평균 이상의 우수한 역량을 보유하고 있음</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-6 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">3</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-yellow-800 font-semibold text-sm">보통 (3점)</span>
-                          <span className="text-yellow-600 text-xs bg-yellow-100 px-2 py-1 rounded-full">50-69% 수준</span>
-                        </div>
-                        <p className="text-yellow-700 text-xs mt-1">해당 영역에서 평균적인 수준의 역량을 보유하고 있음</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-6 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">2</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-orange-800 font-semibold text-sm">개선 필요 (2점)</span>
-                          <span className="text-orange-600 text-xs bg-orange-100 px-2 py-1 rounded-full">30-49% 수준</span>
-                        </div>
-                        <p className="text-orange-700 text-xs mt-1">해당 영역에서 기본적인 역량은 있으나 개선이 필요함</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-6 bg-gradient-to-r from-red-400 to-red-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">1</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-red-800 font-semibold text-sm">매우 부족 (1점)</span>
-                          <span className="text-red-600 text-xs bg-red-100 px-2 py-1 rounded-full">0-29% 수준</span>
-                        </div>
-                        <p className="text-red-700 text-xs mt-1">해당 영역에서 역량이 부족하여 집중적인 개선이 필요함</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* 평가 방법 안내 */}
-                  <div className="mt-4 p-3 bg-white/70 rounded-lg border border-blue-100">
-                    <div className="flex items-center mb-2">
-                      <span className="text-blue-600 font-semibold text-sm mr-2">💡 평가 방법</span>
-                    </div>
-                    <p className="text-blue-700 text-xs leading-relaxed">
-                      각 문항의 <strong>행동지표</strong>를 꼼꼼히 읽어보시고, 현재 귀사의 상황과 가장 일치하는 수준을 선택해주세요. 
-                      정확한 진단을 위해 <strong>객관적이고 솔직한 평가</strong>가 중요합니다.
+                {/* 간소화된 평가 안내 - 평가자가 문항에만 집중할 수 있도록 */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center">
+                    <span className="text-blue-600 font-semibold text-sm mr-2">💡</span>
+                    <p className="text-blue-700 text-sm">
+                      각 문항의 행동지표를 읽고 현재 상황에 맞는 수준을 선택해주세요.
                     </p>
                   </div>
                 </div>
@@ -1343,12 +1264,12 @@ const Real45QuestionForm: React.FC = () => {
         </div>
               </div>
 
-        {/* 점수체계 안내 모달 */}
-        <ScoreGuideModal
+        {/* 점수체계 안내 모달 (비활성화) */}
+        {/* <ScoreGuideModal
           isVisible={showScoreGuide}
           onClose={() => setShowScoreGuide(false)}
           onStart={handleScoreGuideComplete}
-        />
+        /> */}
 
         {/* 진행 상황 안내 모달 */}
         {showProgressGuide && (

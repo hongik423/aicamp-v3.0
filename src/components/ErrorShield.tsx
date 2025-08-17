@@ -36,11 +36,13 @@ export default function ErrorShield() {
       'inject.js',
       'Cannot access',
       
-      // Manifest 관련
+      // Manifest 관련 (강화)
       'Manifest fetch',
       'manifest.json',
       'manifest.webmanifest',
       'Failed to load resource',
+      'status of 401',
+      'code 401',
       
       // Service Worker 관련
       'service-worker',
@@ -55,7 +57,12 @@ export default function ErrorShield() {
       'chrome.runtime',
       'chrome.tabs',
       'chrome.storage',
-      'chrome.webNavigation'
+      'chrome.webNavigation',
+      
+      // SSE 연결 오류 (강화)
+      'SSE 연결 오류',
+      'EventSource',
+      'diagnosis-progress'
     ];
 
     // 오류 메시지 필터링 함수

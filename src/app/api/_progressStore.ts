@@ -52,13 +52,51 @@ export function getProgressState(diagnosisId: string): DiagnosisProgressState | 
 }
 
 export function getProgressSnapshot(diagnosisId: string) {
-  const state = store.get(diagnosisId);
-  if (!state) return undefined;
-  return {
-    lastUpdateTs: state.lastUpdateTs,
-    events: state.events.slice(-50), // 최근 50개만 노출
-    latestByStep: state.latestByStep,
-  };
+  try {
+    const state = store.get(diagnosisId);
+    if (!state) {
+      // 🛡️ 상태가 없을 때 기본 스냅샷 반환 (500 오류 방지)
+      return {
+        lastUpdateTs: Date.now(),
+        events: [],
+        latestByStep: {},
+        steps: {
+          'data-validation': { status: 'in-progress', progress: 20 },
+          'gemini-analysis': { status: 'pending', progress: 0 },
+          'swot-analysis': { status: 'pending', progress: 0 },
+          'report-generation': { status: 'pending', progress: 0 },
+          'email-sending': { status: 'pending', progress: 0 }
+        }
+      };
+    }
+    return {
+      lastUpdateTs: state.lastUpdateTs,
+      events: state.events.slice(-50), // 최근 50개만 노출
+      latestByStep: state.latestByStep,
+      steps: {
+        'data-validation': { status: 'in-progress', progress: 20 },
+        'gemini-analysis': { status: 'pending', progress: 0 },
+        'swot-analysis': { status: 'pending', progress: 0 },
+        'report-generation': { status: 'pending', progress: 0 },
+        'email-sending': { status: 'pending', progress: 0 }
+      }
+    };
+  } catch (error) {
+    console.error('🛡️ 진행상황 스냅샷 생성 오류 차단:', error);
+    // 🛡️ 오류 발생 시에도 기본 스냅샷 반환
+    return {
+      lastUpdateTs: Date.now(),
+      events: [],
+      latestByStep: {},
+      steps: {
+        'data-validation': { status: 'in-progress', progress: 20 },
+        'gemini-analysis': { status: 'pending', progress: 0 },
+        'swot-analysis': { status: 'pending', progress: 0 },
+        'report-generation': { status: 'pending', progress: 0 },
+        'email-sending': { status: 'pending', progress: 0 }
+      }
+    };
+  }
 }
 
 

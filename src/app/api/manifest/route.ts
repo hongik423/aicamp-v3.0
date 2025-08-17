@@ -4,6 +4,12 @@ export async function GET(request: NextRequest) {
   // 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 - Manifest 401 오류 방지
   console.log('📱 Manifest 요청 처리 중...');
   
+  // 🛡️ 인증 헤더 확인 및 무시 (401 오류 방지)
+  const authHeader = request.headers.get('authorization');
+  if (authHeader) {
+    console.log('🔐 인증 헤더 감지, 무시 처리:', authHeader.substring(0, 20) + '...');
+  }
+  
   try {
     // 인증 없이 공개적으로 접근 가능하도록 설정
     const manifest = {
