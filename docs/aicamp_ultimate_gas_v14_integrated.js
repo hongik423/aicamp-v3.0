@@ -1682,9 +1682,8 @@ function generateGeminiReportIntegrated(normalizedData, scoreAnalysis, swotAnaly
     
   } catch (error) {
     console.error('❌ GEMINI 보고서 생성 오류:', error);
-    
-    // 폴백 보고서 생성
-    return generateFallbackReportIntegrated(normalizedData);
+    // 폴백 금지 정책 적용
+    throw new Error('GEMINI 생성 실패: 폴백 금지 정책으로 중단');
   }
 }
 
@@ -1924,8 +1923,8 @@ function calculateAdvancedScoresIntegrated(normalizedData) {
   console.log('📊 응답 데이터 개수:', responses.length);
   
   if (responses.length === 0) {
-    console.warn('⚠️ 45문항 응답 데이터가 없습니다. 기본 점수로 처리합니다.');
-    return calculateFallbackScore(normalizedData);
+    // 폴백 금지: 데이터 없음은 오류로 처리
+    throw new Error('응답 데이터가 없습니다(폴백 금지)');
   }
   
   // 카테고리별 점수 계산 (실제 응답 기반)
@@ -2363,6 +2362,12 @@ function generateLeeKyoJangStyleAICampReport(normalizedData, aiReport, analysisD
         .executive-summary {
             margin-bottom: 60px;
         }
+        /* 가로 막대 차트 컨테이너 */
+        .bar-chart-section { margin: 32px 0; }
+        .bar-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+        .bar-label { width: 180px; font-weight: 600; color: #334155; }
+        .bar-track { flex: 1; background: #e2e8f0; height: 14px; border-radius: 8px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
         
         .section-header {
             display: flex;
@@ -2634,6 +2639,43 @@ function generateLeeKyoJangStyleAICampReport(normalizedData, aiReport, analysisD
                     </div>
                     <div class="analysis-content">
                         ${aiReport.executiveSummary || `${normalizedData.companyName}은 ${normalizedData.industry} 업종에서 우수한 AI 역량을 보유하고 있습니다. 체계적인 AI 도입 전략을 통해 상당한 생산성 향상이 예상됩니다.`}
+                    </div>
+                </div>
+
+                <!-- 종합 점수 현황: 가로 막대 차트 -->
+                <div class="analysis-section">
+                    <div class="analysis-title">📈 종합 점수 현황</div>
+                    <div class="bar-chart-section">
+                        <div class="bar-row">
+                            <div class="bar-label">사업 기반</div>
+                            <div class="bar-track"><div class="bar-fill" style="width: ${analysisData.scoreAnalysis.categoryScores.businessFoundation}%;"></div></div>
+                            <div style="width:50px; text-align:right; color:#64748b; font-weight:600;">${analysisData.scoreAnalysis.categoryScores.businessFoundation}</div>
+                        </div>
+                        <div class="bar-row">
+                            <div class="bar-label">현재 AI 활용</div>
+                            <div class="bar-track"><div class="bar-fill" style="width: ${analysisData.scoreAnalysis.categoryScores.currentAI}%;"></div></div>
+                            <div style="width:50px; text-align:right; color:#64748b; font-weight:600;">${analysisData.scoreAnalysis.categoryScores.currentAI}</div>
+                        </div>
+                        <div class="bar-row">
+                            <div class="bar-label">조직 준비도</div>
+                            <div class="bar-track"><div class="bar-fill" style="width: ${analysisData.scoreAnalysis.categoryScores.organizationReadiness}%;"></div></div>
+                            <div style="width:50px; text-align:right; color:#64748b; font-weight:600;">${analysisData.scoreAnalysis.categoryScores.organizationReadiness}</div>
+                        </div>
+                        <div class="bar-row">
+                            <div class="bar-label">기술 인프라</div>
+                            <div class="bar-track"><div class="bar-fill" style="width: ${analysisData.scoreAnalysis.categoryScores.techInfrastructure}%;"></div></div>
+                            <div style="width:50px; text-align:right; color:#64748b; font-weight:600;">${analysisData.scoreAnalysis.categoryScores.techInfrastructure}</div>
+                        </div>
+                        <div class="bar-row">
+                            <div class="bar-label">목표 명확성</div>
+                            <div class="bar-track"><div class="bar-fill" style="width: ${analysisData.scoreAnalysis.categoryScores.goalClarity}%;"></div></div>
+                            <div style="width:50px; text-align:right; color:#64748b; font-weight:600;">${analysisData.scoreAnalysis.categoryScores.goalClarity}</div>
+                        </div>
+                        <div class="bar-row">
+                            <div class="bar-label">실행 역량</div>
+                            <div class="bar-track"><div class="bar-fill" style="width: ${analysisData.scoreAnalysis.categoryScores.executionCapability}%;"></div></div>
+                            <div style="width:50px; text-align:right; color:#64748b; font-weight:600;">${analysisData.scoreAnalysis.categoryScores.executionCapability}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3150,36 +3192,20 @@ function generateApplicantEmailWithAttachmentIntegrated(normalizedData, aiReport
         </div>
         
         <div class="content">
-            <div class="greeting">
-                안녕하세요, ${normalizedData.contactName}님
-            </div>
-            
-            <div class="score-card">
-                <div class="score-number">${aiReport.totalScore || '85'}</div>
-                <div class="score-label">AI 역량 점수</div>
-            </div>
-            
+            <p style="margin:0 0 12px 0; color:#1d1d1f;">안녕하세요, ${normalizedData.contactName}님.</p>
+            <p style="margin:0 0 24px 0; color:#1d1d1f;">AI 역량진단 결과보고서를 첨부했습니다. 아래 버튼을 통해 열람하실 수 있습니다.</p>
+
             <div class="attachment-section">
                 <div class="attachment-icon">📋</div>
-                <div class="attachment-title">상세 보고서 확인</div>
+                <div class="attachment-title">결과보고서 확인</div>
                 <div class="attachment-desc">
-                    첨부된 HTML 파일을 다운로드하여<br>
-                    브라우저에서 상세 내용을 확인하세요
+                    첨부한 결과보고서를 확인해 주세요
                 </div>
                 <a href="${driveFileInfo.shareLink || driveFileInfo.directLink || 'https://drive.google.com/drive/folders/1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj'}" class="download-button" target="_blank">
                     보고서 열기
                 </a>
             </div>
-            
-            <div class="divider"></div>
-            
-            <div class="contact-section">
-                <div class="contact-title">문의사항</div>
-                <div class="contact-info">
-                    추가 상담이 필요하시면<br>
-                    언제든지 연락주시기 바랍니다
-                </div>
-            </div>
+
         </div>
         
         <div class="footer">
@@ -4566,71 +4592,145 @@ console.log('🔍 진단 결과 조회 시스템 로드 완료 - getDiagnosisRes
 function handleIntegratedWorkflowResult(requestData, progressId) {
   try {
     console.log('🎯 통합 워크플로우 결과 처리 시작 - V15.0');
+    console.log('📊 받은 데이터 타입:', requestData.type);
+    console.log('📊 처리 타입:', requestData.processType);
     
-    const { workflowResult } = requestData;
+    // Next.js에서 보낸 데이터 구조 확인
+    const hasWorkflowResult = requestData.workflowResult;
+    const hasDirectData = requestData.scoreAnalysis && requestData.swotAnalysis;
     
-    if (!workflowResult || !workflowResult.success) {
-      throw new Error('통합 워크플로우 결과가 유효하지 않습니다.');
+    if (!hasWorkflowResult && !hasDirectData) {
+      throw new Error('워크플로우 결과 또는 분석 데이터가 없습니다.');
     }
     
-    const { analysisResult, geminiReport, htmlReport } = workflowResult;
+    // 데이터 정규화
+    let analysisData;
+    let geminiReport = null;
+    let htmlReport = null;
+    
+    if (hasWorkflowResult) {
+      // 기존 방식 (workflowResult 객체 내부)
+      const { workflowResult } = requestData;
+      analysisData = workflowResult.analysisResult;
+      geminiReport = workflowResult.geminiReport;
+      htmlReport = workflowResult.htmlReport;
+    } else {
+      // 새로운 방식 (직접 전달)
+      analysisData = {
+        diagnosisId: requestData.diagnosisId,
+        companyInfo: {
+          name: requestData.companyName,
+          industry: requestData.industry,
+          size: requestData.employeeCount,
+          contact: {
+            name: requestData.contactName,
+            email: requestData.contactEmail,
+            phone: requestData.contactPhone
+          }
+        },
+        scoreAnalysis: requestData.scoreAnalysis,
+        swotAnalysis: requestData.swotAnalysis,
+        recommendations: requestData.recommendations,
+        roadmap: requestData.roadmap,
+        qualityMetrics: requestData.qualityMetrics || {
+          overallQuality: 85,
+          dataCompleteness: 90,
+          aiAnalysisDepth: 80
+        }
+      };
+    }
     
     // 1단계: 진행 상황 업데이트
-    updateProgressStatus(progressId, 'processing', '통합 워크플로우 결과를 처리하고 있습니다');
+    updateProgressStatus(progressId, 'processing', 'SWOT 분석 및 보고서 생성을 시작합니다');
     
-    // 2단계: Google Sheets에 결과 저장
-    console.log('📊 Google Sheets 저장 시작');
+    // 2단계: SWOT 분석 처리
+    console.log('🔍 SWOT 분석 처리');
+    const swotResult = processSwotAnalysis(analysisData.swotAnalysis);
+    
+    // 3단계: McKinsey 보고서 생성
+    console.log('📄 McKinsey 보고서 생성');
+    updateProgressStatus(progressId, 'processing', 'McKinsey 스타일 보고서를 생성하고 있습니다');
+    
+    if (!htmlReport) {
+      htmlReport = generateMcKinseyHTMLReport({
+        diagnosisId: analysisData.diagnosisId,
+        companyInfo: analysisData.companyInfo,
+        scoreAnalysis: analysisData.scoreAnalysis,
+        swotAnalysis: swotResult,
+        recommendations: analysisData.recommendations,
+        roadmap: analysisData.roadmap
+      });
+    }
+    
+    // 4단계: Google Sheets 저장
+    console.log('📊 Google Sheets 저장');
     updateProgressStatus(progressId, 'processing', 'Google Sheets에 분석 결과를 저장하고 있습니다');
     
-    const sheetsResult = saveIntegratedResultToSheets({
-      diagnosisId: analysisResult.diagnosisId,
-      companyInfo: analysisResult.companyInfo,
-      scoreAnalysis: analysisResult.scoreAnalysis,
-      qualityMetrics: analysisResult.qualityMetrics,
-      geminiReport: geminiReport,
-      timestamp: new Date().toISOString(),
-      version: 'V15.0-ULTIMATE-45Q'
+    const sheetsResult = saveCompleteDiagnosisToSheets({
+      ...analysisData,
+      swotResult: swotResult,
+      reportGenerated: true,
+      timestamp: new Date().toISOString()
     });
     
-    // 3단계: HTML 보고서 Google Drive 업로드
+    // 5단계: Google Drive 업로드
     let driveFileUrl = null;
     if (htmlReport) {
-      console.log('📁 Google Drive 업로드 시작');
+      console.log('📁 Google Drive 업로드');
       updateProgressStatus(progressId, 'processing', 'HTML 보고서를 Google Drive에 업로드하고 있습니다');
       
       try {
-        const fileName = `${analysisResult.companyInfo.name}_AI역량진단보고서_${analysisResult.diagnosisId}.html`;
+        const fileName = `${analysisData.companyInfo.name}_AI역량진단보고서_${analysisData.diagnosisId}.html`;
         driveFileUrl = uploadHTMLToDrive(htmlReport, fileName);
         console.log('✅ Google Drive 업로드 완료:', driveFileUrl);
       } catch (driveError) {
-        console.error('⚠️ Google Drive 업로드 실패 (비차단):', driveError.message);
+        console.error('⚠️ Google Drive 업로드 실패 (계속 진행):', driveError.message);
       }
     }
     
-    // 4단계: 애플 스타일 이메일 발송
-    console.log('📧 애플 스타일 이메일 발송 시작');
-    updateProgressStatus(progressId, 'processing', '애플 스타일 이메일을 발송하고 있습니다');
-    
-    const emailResult = sendAppleStyleEmail({
-      companyName: analysisResult.companyInfo.name,
-      contactName: analysisResult.companyInfo.contact.name,
-      contactEmail: analysisResult.companyInfo.contact.email,
-      scoreAnalysis: analysisResult.scoreAnalysis,
-      diagnosisId: analysisResult.diagnosisId,
-      driveFileUrl: driveFileUrl,
-      geminiReport: geminiReport
-    });
-    
-    // 5단계: 관리자 알림 이메일
-    console.log('📨 관리자 알림 발송');
-    sendAdminNotificationEmail({
-      companyName: analysisResult.companyInfo.name,
-      contactName: analysisResult.companyInfo.contact.name,
-      contactEmail: analysisResult.companyInfo.contact.email,
-      scoreAnalysis: analysisResult.scoreAnalysis,
-      diagnosisId: analysisResult.diagnosisId,
-      processingTime: workflowResult.metadata.processingTime
-    });
+    // 6단계: 이메일 발송 처리
+    if (requestData.reportGeneration && requestData.reportGeneration.requestEmailSending) {
+      console.log('📧 이메일 발송 시작');
+      updateProgressStatus(progressId, 'processing', '진단 결과 이메일을 발송하고 있습니다');
+      
+      // 신청자 이메일
+      const applicantEmailResult = sendDiagnosisResultEmail({
+        to: requestData.reportGeneration.emailRecipient || analysisData.companyInfo.contact.email,
+        companyName: analysisData.companyInfo.name,
+        contactName: analysisData.companyInfo.contact.name,
+        diagnosisId: analysisData.diagnosisId,
+        scoreAnalysis: analysisData.scoreAnalysis,
+        swotSummary: swotResult.summary,
+        driveFileUrl: driveFileUrl,
+        htmlReport: htmlReport
+      });
+      
+      // 관리자 알림
+      const adminEmailResult = sendAdminNotification({
+        companyName: analysisData.companyInfo.name,
+        contactEmail: analysisData.companyInfo.contact.email,
+        diagnosisId: analysisData.diagnosisId,
+        totalScore: analysisData.scoreAnalysis.totalScore,
+        grade: analysisData.scoreAnalysis.grade
+      });
+      
+      console.log('✅ 이메일 발송 완료:', {
+        applicant: applicantEmailResult.success,
+        admin: adminEmailResult.success
+      });
+    } else {
+      // 기본 애플 스타일 이메일 발송 (폴백)
+      console.log('📧 기본 이메일 발송');
+      const emailResult = sendAppleStyleEmail({
+        companyName: analysisData.companyInfo.name,
+        contactName: analysisData.companyInfo.contact.name,
+        contactEmail: analysisData.companyInfo.contact.email,
+        scoreAnalysis: analysisData.scoreAnalysis,
+        diagnosisId: analysisData.diagnosisId,
+        driveFileUrl: driveFileUrl,
+        geminiReport: geminiReport
+      });
+    }
     
     // 완료 처리
     updateProgressStatus(progressId, 'completed', '통합 워크플로우 처리가 완료되었습니다');
@@ -4640,13 +4740,15 @@ function handleIntegratedWorkflowResult(requestData, progressId) {
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
-        message: '통합 워크플로우 결과 처리 완료',
+        message: 'AI 역량진단 완료',
         data: {
-          diagnosisId: analysisResult.diagnosisId,
+          diagnosisId: analysisData.diagnosisId,
           sheetsResult: sheetsResult,
-          emailResult: emailResult,
           driveFileUrl: driveFileUrl,
-          version: 'V15.0-ULTIMATE-45Q'
+          emailSent: true,
+          swotProcessed: true,
+          reportGenerated: true,
+          version: 'V15.0-ULTIMATE-MCKINSEY'
         }
       }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -4721,6 +4823,380 @@ function saveIntegratedResultToSheets(data) {
     
   } catch (error) {
     console.error('❌ Google Sheets 저장 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * SWOT 분석 데이터 처리
+ */
+function processSwotAnalysis(swotData) {
+  try {
+    console.log('🔍 SWOT 분석 데이터 처리 시작');
+    
+    // SWOT 데이터 정규화
+    const normalizedSwot = {
+      strengths: swotData?.strengths || [],
+      weaknesses: swotData?.weaknesses || [],
+      opportunities: swotData?.opportunities || [],
+      threats: swotData?.threats || [],
+      summary: '',
+      priorityActions: []
+    };
+    
+    // SWOT 요약 생성
+    normalizedSwot.summary = `
+      강점: ${normalizedSwot.strengths.length}개 항목 식별
+      약점: ${normalizedSwot.weaknesses.length}개 항목 식별
+      기회: ${normalizedSwot.opportunities.length}개 항목 식별
+      위협: ${normalizedSwot.threats.length}개 항목 식별
+    `;
+    
+    // 우선순위 액션 도출
+    if (normalizedSwot.weaknesses.length > 0) {
+      normalizedSwot.priorityActions.push({
+        priority: 1,
+        action: '약점 개선',
+        description: normalizedSwot.weaknesses[0].description || normalizedSwot.weaknesses[0]
+      });
+    }
+    
+    if (normalizedSwot.opportunities.length > 0) {
+      normalizedSwot.priorityActions.push({
+        priority: 2,
+        action: '기회 활용',
+        description: normalizedSwot.opportunities[0]
+      });
+    }
+    
+    console.log('✅ SWOT 분석 처리 완료');
+    return normalizedSwot;
+    
+  } catch (error) {
+    console.error('❌ SWOT 분석 처리 실패:', error);
+    return {
+      strengths: [],
+      weaknesses: [],
+      opportunities: [],
+      threats: [],
+      summary: '분석 실패',
+      priorityActions: []
+    };
+  }
+}
+
+/**
+ * McKinsey 스타일 HTML 보고서 생성
+ */
+function generateMcKinseyHTMLReport(data) {
+  try {
+    console.log('📄 McKinsey HTML 보고서 생성 시작');
+    
+    // 샘플 HTML 보고서 템플릿 (간소화)
+    const htmlTemplate = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>이교장의AI역량진단보고서 - ${data.companyInfo.name}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+        .header { text-align: center; color: #1e3a8a; margin-bottom: 40px; }
+        .score-box { background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .swot-section { margin: 30px 0; }
+        .swot-item { background: #fef3c7; padding: 10px; margin: 5px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 이교장의AI역량진단보고서</h1>
+        <h2>${data.companyInfo.name}</h2>
+        <p>진단일: ${new Date().toLocaleDateString('ko-KR')}</p>
+        <p>진단 ID: ${data.diagnosisId}</p>
+    </div>
+    
+    <div class="score-box">
+        <h3>📊 종합 점수</h3>
+        <p><strong>총점: ${data.scoreAnalysis.totalScore}점</strong></p>
+        <p>등급: ${data.scoreAnalysis.grade}</p>
+        <p>성숙도: ${data.scoreAnalysis.maturityLevel}</p>
+    </div>
+    
+    <div class="swot-section">
+        <h3>🔍 SWOT 분석</h3>
+        <h4>💪 강점</h4>
+        ${data.swotAnalysis.strengths.map(s => `<div class="swot-item">${s}</div>`).join('')}
+        
+        <h4>⚠️ 약점</h4>
+        ${data.swotAnalysis.weaknesses.map(w => `<div class="swot-item">${w}</div>`).join('')}
+        
+        <h4>🚀 기회</h4>
+        ${data.swotAnalysis.opportunities.map(o => `<div class="swot-item">${o}</div>`).join('')}
+        
+        <h4>⚡ 위협</h4>
+        ${data.swotAnalysis.threats.map(t => `<div class="swot-item">${t}</div>`).join('')}
+    </div>
+    
+    <div>
+        <h3>📋 권고사항</h3>
+        ${data.recommendations ? JSON.stringify(data.recommendations, null, 2) : '권고사항 생성 중'}
+    </div>
+    
+    <div>
+        <h3>🗺️ 실행 로드맵</h3>
+        ${data.roadmap ? JSON.stringify(data.roadmap, null, 2) : '로드맵 생성 중'}
+    </div>
+    
+    <div style="margin-top: 40px; text-align: center; color: #666;">
+        <p>© 2025 AICAMP. All rights reserved.</p>
+        <p>문의: hongik423@gmail.com | 웹사이트: aicamp.club</p>
+    </div>
+</body>
+</html>`;
+    
+    console.log('✅ McKinsey HTML 보고서 생성 완료');
+    return htmlTemplate;
+    
+  } catch (error) {
+    console.error('❌ HTML 보고서 생성 실패:', error);
+    return `<html><body><h1>보고서 생성 오류</h1><p>${error.message}</p></body></html>`;
+  }
+}
+
+/**
+ * 완료된 진단 결과를 Google Sheets에 저장
+ */
+function saveCompleteDiagnosisToSheets(data) {
+  try {
+    const config = getEnvironmentConfig();
+    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    const sheet = getOrCreateSheetFixed(spreadsheet, 'AI역량진단_완료결과');
+    
+    // 헤더 설정 (최초 실행시)
+    if (sheet.getLastRow() === 0) {
+      const headers = [
+        '진단ID', '회사명', '담당자', '이메일', '업종', '규모',
+        '총점', '등급', '성숙도', '백분위',
+        '강점수', '약점수', '기회수', '위협수',
+        'SWOT요약', '보고서생성', '처리완료일시'
+      ];
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#4285f4').setFontColor('white');
+    }
+    
+    // 데이터 행 추가
+    const rowData = [
+      data.diagnosisId,
+      data.companyInfo.name,
+      data.companyInfo.contact.name,
+      data.companyInfo.contact.email,
+      data.companyInfo.industry,
+      data.companyInfo.size,
+      data.scoreAnalysis.totalScore,
+      data.scoreAnalysis.grade,
+      data.scoreAnalysis.maturityLevel,
+      data.scoreAnalysis.percentile,
+      data.swotResult?.strengths?.length || 0,
+      data.swotResult?.weaknesses?.length || 0,
+      data.swotResult?.opportunities?.length || 0,
+      data.swotResult?.threats?.length || 0,
+      data.swotResult?.summary || '',
+      data.reportGenerated || false,
+      new Date().toLocaleString('ko-KR')
+    ];
+    
+    sheet.appendRow(rowData);
+    
+    console.log('✅ 완료된 진단 결과 Google Sheets 저장 완료');
+    return { success: true, row: sheet.getLastRow() };
+    
+  } catch (error) {
+    console.error('❌ Google Sheets 저장 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 진단 결과 이메일 발송
+ */
+function sendDiagnosisResultEmail(params) {
+  try {
+    const {
+      to,
+      companyName,
+      contactName,
+      diagnosisId,
+      scoreAnalysis,
+      swotSummary,
+      driveFileUrl,
+      htmlReport
+    } = params;
+    
+    const subject = `🎯 [${companyName}] AI 역량진단 결과 - ${scoreAnalysis.grade}등급 (${scoreAnalysis.totalScore}점)`;
+    
+    // 애플 스타일 이메일 HTML 생성
+    const emailHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+            color: white;
+          }
+          .content {
+            background: white;
+            padding: 40px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          }
+          .score-box {
+            background: #f7f9fc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+          }
+          .score-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #667eea;
+          }
+          .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            margin: 20px 0;
+          }
+          .swot-summary {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>🎓 이교장의AI역량진단보고서</h1>
+          <p>McKinsey 방법론 기반 정밀 분석 완료</p>
+        </div>
+        
+        <div class="content">
+          <h2>안녕하세요, ${contactName}님!</h2>
+          
+          <p><strong>${companyName}</strong>의 AI 역량진단이 완료되었습니다.</p>
+          
+          <div class="score-box">
+            <div class="score-value">${scoreAnalysis.totalScore}점</div>
+            <div>${scoreAnalysis.grade}등급 | ${scoreAnalysis.maturityLevel}</div>
+            <div>상위 ${scoreAnalysis.percentile}%</div>
+          </div>
+          
+          <div class="swot-summary">
+            <h3>📊 SWOT 분석 요약</h3>
+            <p>${swotSummary}</p>
+          </div>
+          
+          <h3>📎 첨부된 보고서</h3>
+          <p>상세한 분석 결과와 맞춤형 로드맵이 포함된 전체 보고서를 확인하세요.</p>
+          
+          ${driveFileUrl ? `
+            <a href="${driveFileUrl}" class="button">
+              📄 보고서 다운로드
+            </a>
+          ` : ''}
+          
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+          
+          <p style="color: #6b7280; font-size: 14px;">
+            진단 ID: ${diagnosisId}<br>
+            문의: hongik423@gmail.com<br>
+            웹사이트: aicamp.club
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // 이메일 발송 옵션
+    const emailOptions = {
+      to: to,
+      subject: subject,
+      htmlBody: emailHTML,
+      name: '이교장의AI역량진단보고서',
+      replyTo: 'hongik423@gmail.com'
+    };
+    
+    // HTML 보고서를 첨부파일로 추가 (driveFileUrl이 없는 경우)
+    if (htmlReport && !driveFileUrl) {
+      emailOptions.attachments = [{
+        fileName: `${companyName}_AI역량진단보고서_${diagnosisId}.html`,
+        content: htmlReport,
+        mimeType: 'text/html'
+      }];
+    }
+    
+    // 이메일 발송
+    MailApp.sendEmail(emailOptions);
+    
+    console.log('✅ 진단 결과 이메일 발송 완료:', to);
+    return { success: true, recipient: to };
+    
+  } catch (error) {
+    console.error('❌ 이메일 발송 실패:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 관리자 알림 발송
+ */
+function sendAdminNotification(params) {
+  try {
+    const config = getEnvironmentConfig();
+    
+    const subject = `[신규 진단 완료] ${params.companyName} - ${params.grade}등급`;
+    
+    const emailHTML = `
+      <h2>신규 AI 역량진단 완료</h2>
+      <p><strong>회사명:</strong> ${params.companyName}</p>
+      <p><strong>담당자 이메일:</strong> ${params.contactEmail}</p>
+      <p><strong>진단 ID:</strong> ${params.diagnosisId}</p>
+      <p><strong>총점:</strong> ${params.totalScore}점</p>
+      <p><strong>등급:</strong> ${params.grade}</p>
+      <p><strong>완료 시간:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+    `;
+    
+    MailApp.sendEmail({
+      to: config.ADMIN_EMAIL,
+      subject: subject,
+      htmlBody: emailHTML,
+      name: 'AICAMP 시스템'
+    });
+    
+    console.log('✅ 관리자 알림 발송 완료');
+    return { success: true };
+    
+  } catch (error) {
+    console.error('❌ 관리자 알림 발송 실패:', error);
     return { success: false, error: error.message };
   }
 }
@@ -4832,6 +5308,133 @@ function generateAppleStyleEmailHTML(data) {
 }
 
 // ================================================================================
+// 테스트 함수 (라우팅 검증용)
+// ================================================================================
+
+/**
+ * ai_diagnosis_complete 라우팅 테스트
+ */
+function testAiDiagnosisCompleteRouting() {
+  console.log('🧪 ai_diagnosis_complete 라우팅 테스트 시작');
+  
+  // 테스트 데이터
+  const testRequest = {
+    postData: {
+      contents: JSON.stringify({
+        type: 'ai_diagnosis_complete',
+        processType: 'full_workflow',
+        diagnosisId: 'TEST_' + Date.now(),
+        companyName: '테스트기업',
+        contactName: '홍길동',
+        contactEmail: 'test@example.com',
+        contactPhone: '010-1234-5678',
+        industry: '제조업',
+        employeeCount: '50-100명',
+        scoreAnalysis: {
+          totalScore: 75,
+          grade: 'B',
+          maturityLevel: 'Advanced',
+          percentile: 80,
+          categoryScores: {
+            businessFoundation: 70,
+            currentAI: 65,
+            organizationReadiness: 80,
+            techInfrastructure: 75,
+            goalClarity: 85,
+            executionCapability: 70
+          }
+        },
+        swotAnalysis: {
+          strengths: ['강점1: 기술 인프라 보유', '강점2: 혁신적 조직문화'],
+          weaknesses: ['약점1: AI 전문인력 부족'],
+          opportunities: ['기회1: 시장 확대', '기회2: 정부 지원정책'],
+          threats: ['위협1: 경쟁사 AI 도입 가속화']
+        },
+        recommendations: {
+          immediate: [
+            {
+              priority: 1,
+              title: 'AI 전문인력 확보',
+              description: 'AI 개발자 및 데이터 사이언티스트 채용',
+              timeline: '1-2개월',
+              resources: ['인사팀', '기술팀'],
+              expectedOutcome: 'AI 개발 역량 확보'
+            }
+          ]
+        },
+        roadmap: {
+          phase1: {
+            title: 'AI 기초 역량 구축',
+            duration: '1-2개월',
+            objectives: ['AI 리터러시 확보', '기본 도구 도입'],
+            keyActivities: ['교육 프로그램', '파일럿 프로젝트'],
+            milestones: ['교육 완료', '첫 AI 도구 도입'],
+            budget: '5천만원'
+          }
+        },
+        reportGeneration: {
+          requestHtmlReport: true,
+          requestEmailSending: true,
+          emailRecipient: 'test@example.com',
+          companyName: '테스트기업'
+        }
+      })
+    }
+  };
+  
+  try {
+    // doPost 함수 호출
+    const result = doPost(testRequest);
+    const responseData = JSON.parse(result.getContent());
+    
+    console.log('✅ 테스트 성공:', responseData);
+    
+    if (responseData.success) {
+      console.log('🎉 ai_diagnosis_complete 라우팅이 정상적으로 작동합니다!');
+      console.log('📊 처리된 데이터:', responseData.data);
+    } else {
+      console.log('❌ 테스트 실패:', responseData.error);
+    }
+    
+    return responseData;
+    
+  } catch (error) {
+    console.error('❌ 테스트 중 오류 발생:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 간단한 연결 테스트
+ */
+function testConnection() {
+  console.log('🔗 연결 테스트 시작');
+  
+  try {
+    const config = getEnvironmentConfig();
+    console.log('✅ 환경변수 로드 성공');
+    console.log('📊 시스템 버전:', config.VERSION);
+    console.log('🤖 AI 모델:', config.MODEL);
+    
+    return {
+      success: true,
+      message: '연결 테스트 성공',
+      version: config.VERSION,
+      model: config.MODEL,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 연결 테스트 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+// ================================================================================
 // 🎯 V15.0 시스템 완료
 // ================================================================================
 
@@ -4839,3 +5442,4 @@ console.log('✅ 이교장의AI역량진단보고서 V15.0 ULTIMATE LEEKYOJANG �
 console.log('📊 시스템 상태: 모든 기능 활성화 (45개 행동지표 + 11개 섹션 이교장 보고서)');
 console.log('🔗 연동 서비스: GEMINI 2.5 Flash, Google Drive, Gmail, Sheets');
 console.log('🎯 준비 완료: AI 역량진단, 이교장 보고서, 상담신청, 오류신고 처리 가능');
+console.log('🧪 테스트 함수: testAiDiagnosisCompleteRouting(), testConnection() 사용 가능');

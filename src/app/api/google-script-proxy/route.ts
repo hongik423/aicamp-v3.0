@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
       action: requestData.action || 'unknown'
     });
 
-    // Google Apps Script 타임아웃을 800초로 설정 (Vercel Pro 최대)
+    // Google Apps Script 타임아웃을 890초로 설정 (Vercel Pro Fluid Compute)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 800000); // 800초 타임아웃
+    const timeoutId = setTimeout(() => controller.abort(), 890000); // 890초 타임아웃
 
-    console.log('🚀 Google Apps Script V15.0 ULTIMATE MCKINSEY 요청 전송 중... (최대 13.33분 대기)');
+    console.log('🚀 Google Apps Script V15.0 ULTIMATE MCKINSEY 요청 전송 중... (최대 14.83분 대기)');
     
     let response;
     
@@ -42,14 +42,23 @@ export async function POST(request: NextRequest) {
           'User-Agent': 'AICAMP-Frontend/1.0'
         },
         body: JSON.stringify({
+          // GAS 라우팅 개선 (SWOT 및 보고서 생성 지원)
+          type: requestData.type || requestData.action || 'ai_diagnosis',
+          action: requestData.action || requestData.type || 'ai_diagnosis',
+          processType: requestData.type === 'ai_diagnosis_complete' ? 'full_workflow' : 'standard',
           ...requestData,
           timestamp: new Date().toISOString(),
           userAgent: request.headers.get('user-agent') || 'Unknown',
           referer: request.headers.get('referer') || 'Direct',
-          // 통합 워크플로우 결과 처리 (V15.0 신규)
-          ...(requestData.type === 'ai_diagnosis_complete' && requestData.data?.workflowResult ? {
+          // 통합 워크플로우 결과 처리 (SWOT 및 보고서 포함)
+          ...(requestData.type === 'ai_diagnosis_complete' ? {
             integratedWorkflow: true,
-            workflowResult: requestData.data.workflowResult
+            workflowResult: requestData.workflowResult,
+            swotAnalysis: requestData.swotAnalysis,
+            reportGeneration: requestData.reportGeneration,
+            scoreAnalysis: requestData.scoreAnalysis,
+            recommendations: requestData.recommendations,
+            roadmap: requestData.roadmap
           } : {})
         }),
         signal: controller.signal,
@@ -67,11 +76,16 @@ export async function POST(request: NextRequest) {
         // 타임아웃이지만 성공으로 처리 (백그라운드에서 계속 처리됨)
         return NextResponse.json({
           success: true,
-          message: '🤖 AI 분석이 진행 중입니다. 고품질 보고서 생성을 위해 추가 시간이 필요하며, 완료 시 이메일로 안내드리겠습니다.',
-          diagnosisId: `TIMEOUT_${Date.now()}`,
+          message: '🤖 AI 역량진단이 정상적으로 접수되었습니다. SWOT 분석 및 McKinsey 보고서 생성이 진행 중이며, 완료 시 이메일로 발송드리겠습니다.',
+          diagnosisId: requestData.diagnosisId || `TIMEOUT_${Date.now()}`,
           isTimeout: true,
-          estimatedTime: '5-15분',
-          backgroundProcessing: true
+          estimatedTime: '10-15분',
+          backgroundProcessing: true,
+          processingSteps: [
+            'SWOT 분석 진행 중',
+            'McKinsey 보고서 생성 중',
+            '이메일 발송 대기 중'
+          ]
         }, { 
           status: 200,
           headers: {
@@ -160,7 +174,7 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeoutId);
       
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        console.error('❌ Google Apps Script 타임아웃 (13.33분)');
+        console.error('❌ Google Apps Script 타임아웃 (14.83분)');
         
         // 타임아웃 시 백업 처리 - 요청은 백그라운드에서 계속 진행될 수 있음
         return NextResponse.json({

@@ -37,27 +37,33 @@ export default function DiagnosisReportPage() {
   const fetchReport = async () => {
     try {
       setLoading(true);
-      
-      // Google Apps Script에서 HTML 보고서 가져오기
-      const response = await fetch('/api/google-script-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'get_html_report',
-          diagnosisId: diagnosisId
-        })
+      // 폴백 금지: 서버 라우트를 통해 GAS에서만 취득
+      const response = await fetch(`/api/diagnosis-results/${encodeURIComponent(diagnosisId)}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       });
 
       const result = await response.json();
-      
-      if (result.success && result.reportData) {
-        setReport(result.reportData);
+
+      if (response.ok && result?.success && (result?.data?.report || result?.data?.htmlContent)) {
+        const data = result.data;
+        setReport({
+          diagnosisId,
+          companyName: data.companyInfo?.name || data.companyName || '',
+          contactEmail: data.companyInfo?.contact?.email || data.contactEmail || '',
+          createdAt: data.createdAt || new Date().toISOString(),
+          htmlContent: data.report?.html || data.htmlContent || '',
+          scoreAnalysis: data.scoreAnalysis || {
+            totalScore: data.totalScore || 0,
+            grade: data.grade || '',
+            maturityLevel: data.maturityLevel || '',
+            categoryScores: data.categoryScores || {}
+          }
+        });
       } else {
-        // 폴백: 기본 HTML 보고서 생성
-        const fallbackReport = generateFallbackReport();
-        setReport(fallbackReport);
+        throw new Error('보고서 데이터가 없습니다');
       }
-      
+
     } catch (err) {
       console.error('보고서 로딩 실패:', err);
       setError('보고서를 불러오는 중 오류가 발생했습니다.');

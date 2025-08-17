@@ -247,7 +247,7 @@ export default function CertificationPage() {
     ],
     primaryCTA: {
       text: "무료 진단 시작하기",
-      href: "/diagnosis"
+      href: "/ai-diagnosis"
     },
     secondaryCTA: {
       text: "서비스 둘러보기",
@@ -462,7 +462,7 @@ export default function CertificationPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link href="/diagnosis">
+            <Link href="/ai-diagnosis">
               <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
                 <Sparkles className="w-5 h-5 mr-2" />
                 무료 진단 받기

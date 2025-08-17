@@ -16,6 +16,7 @@ import { AddressInput } from '@/components/ui/address-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
 import ScoreGuideModal from '@/components/diagnosis/ScoreGuideModal';
+import ConsultationRequestModal from '@/components/diagnosis/ConsultationRequestModal';
 // import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete'; // 삭제된 컴포넌트
 
 interface CompanyInfo {
@@ -75,6 +76,7 @@ const Real45QuestionForm: React.FC = () => {
   const [showProgressGuide, setShowProgressGuide] = useState(false);
   const [showMissingAnswerAlert, setShowMissingAnswerAlert] = useState(false);
   const [progressData, setProgressData] = useState<any>(null);
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [progressSteps, setProgressSteps] = useState({
     'data-validation': { status: 'pending', progress: 0, label: '데이터 검증' },
     'gemini-analysis': { status: 'pending', progress: 0, label: 'AI 분석' },
@@ -125,20 +127,83 @@ const Real45QuestionForm: React.FC = () => {
   // 답변 완료된 문항 수
   const answeredCount = Object.keys(formState.answers).length;
 
+  // 회사정보 입력 유효성 (개인정보 동의 포함)
+  const isCompanyFormValid = Boolean(
+    formState.companyInfo.companyName?.trim() &&
+    formState.companyInfo.contactName?.trim() &&
+    formState.companyInfo.contactEmail?.trim() &&
+    formState.companyInfo.contactPhone?.trim() &&
+    formState.companyInfo.industry?.trim() &&
+    formState.companyInfo.employeeCount?.trim() &&
+    formState.companyInfo.location?.trim() &&
+    formState.companyInfo.privacyConsent === true
+  );
+
+  // 진단 초기화 함수
+  const resetDiagnosis = () => {
+    const initialState = {
+      companyInfo: {
+        companyName: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        industry: '',
+        employeeCount: '',
+        annualRevenue: '',
+        location: '',
+        privacyConsent: false,
+        marketingConsent: false
+      },
+      answers: {},
+      currentQuestion: -1,
+      isCompleted: false
+    };
+    
+    setFormState(initialState);
+    setShowCompanyForm(true);
+    setDiagnosisResult(null);
+    setIsSubmitting(false);
+    
+    // 로컬 스토리지도 초기화
+    localStorage.removeItem('real45QuestionForm');
+    
+    console.log('🔄 진단이 초기화되었습니다');
+  };
+
   // Hydration 완료 처리
   useEffect(() => {
     setIsHydrated(true);
+    
+    // URL 파라미터로 초기화 요청 확인
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldReset = urlParams.get('reset') === 'true';
+    
+    if (shouldReset) {
+      resetDiagnosis();
+      // URL에서 reset 파라미터 제거
+      window.history.replaceState({}, '', window.location.pathname);
+      return;
+    }
     
     // 로컬 스토리지에서 데이터 복원 (클라이언트에서만)
     try {
       const savedData = localStorage.getItem('real45QuestionForm');
       if (savedData) {
         const parsedData = JSON.parse(savedData);
+        
+        // 진단이 완료된 상태라면 초기화
+        if (parsedData.isCompleted || parsedData.currentQuestion >= REAL_45_QUESTIONS.length - 1) {
+          console.log('🔄 완료된 진단 감지 - 자동 초기화');
+          resetDiagnosis();
+          return;
+        }
+        
         setFormState(parsedData);
         setShowCompanyForm(parsedData.currentQuestion === -1);
       }
     } catch (error) {
       console.error('로컬 스토리지 데이터 복원 실패:', error);
+      resetDiagnosis();
     }
   }, []);
 
@@ -495,7 +560,8 @@ const Real45QuestionForm: React.FC = () => {
           employeeCount: formState.companyInfo.employeeCount,
           annualRevenue: formState.companyInfo.annualRevenue,
           location: formState.companyInfo.location,
-          privacyConsent: !!formState.companyInfo.privacyConsent,
+          privacyConsent: formState.companyInfo.privacyConsent === true,
+          marketingConsent: formState.companyInfo.marketingConsent === true,
           
           // 실제 신청서 응답 데이터 - 객체 형태로 전송
           assessmentResponses: formState.answers, // ✅ 객체 형태로 전송
@@ -595,8 +661,9 @@ const Real45QuestionForm: React.FC = () => {
 
   // 진단 완료 화면
   if (diagnosisResult) {
-    return <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-lg">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">🎉 진단 완료!</h2>
@@ -613,6 +680,14 @@ const Real45QuestionForm: React.FC = () => {
             </Button>
             
             <Button 
+              onClick={() => setShowConsultationModal(true)}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              size="lg"
+            >
+              💬 전문가 상담 신청
+            </Button>
+            
+            <Button 
               onClick={() => window.location.href = '/'}
               variant="outline"
               className="w-full"
@@ -626,6 +701,23 @@ const Real45QuestionForm: React.FC = () => {
             * 이메일 발송은 백그라운드에서 진행됩니다 (2-3분 소요)
           </p>
         </div>
+
+        {/* 상담 신청 모달 */}
+        <ConsultationRequestModal
+          isOpen={showConsultationModal}
+          onClose={() => setShowConsultationModal(false)}
+          diagnosisData={diagnosisResult}
+          companyName={formState.companyInfo.companyName}
+          contactEmail={formState.companyInfo.contactEmail}
+          contactName={formState.companyInfo.contactName}
+          contactPhone={formState.companyInfo.contactPhone}
+          initialData={{
+            industry: formState.companyInfo.industry,
+            inquiryType: 'diagnosis',
+            consultationArea: 'diagnosis',
+            inquiryContent: `AI 역량진단 결과에 대한 전문가 상담을 요청합니다.`
+          }}
+        />
       </div>
       {persistentNoticeOpen && (
         <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/40 p-4">
@@ -781,7 +873,8 @@ const Real45QuestionForm: React.FC = () => {
           </div>
         </div>
       )}
-    </>;
+      </>
+    );
   }
 
   // Hydration이 완료되지 않았으면 로딩 표시
@@ -792,6 +885,26 @@ const Real45QuestionForm: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">AI 역량진단을 준비 중입니다...</p>
           <p className="text-xs text-gray-400 mt-2">Hydration: {isHydrated ? '완료' : '대기중'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 디버깅 로그
+  console.log('🔍 Real45QuestionForm 렌더링 상태:', {
+    isHydrated,
+    showCompanyForm,
+    currentQuestion: formState.currentQuestion,
+    diagnosisResult: !!diagnosisResult
+  });
+
+  // Hydration 완료 전에는 로딩 표시
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">진단 폼을 불러오는 중...</p>
         </div>
       </div>
     );
@@ -1069,6 +1182,48 @@ const Real45QuestionForm: React.FC = () => {
                       <option value="제주특별자치도">제주특별자치도</option>
                     </select>
                   </div>
+
+                  {/* 개인정보 동의 (필수) */}
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                      개인정보 수집·이용 동의
+                    </label>
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4">
+                      <label className="flex items-start gap-3">
+                        <Checkbox
+                          checked={!!formState.companyInfo.privacyConsent}
+                          onCheckedChange={(v) => setFormState(prev => ({
+                            ...prev,
+                            companyInfo: { ...prev.companyInfo, privacyConsent: v === true }
+                          }))}
+                        />
+                        <span className="text-sm text-gray-700">
+                          [필수] 개인정보 수집·이용에 동의합니다. 수집 항목: 회사/담당자/연락처/소재지/45문항 응답. 이용 목적: AI 역량진단 분석 및 결과 발송. 보유 기간: 목적 달성 후 즉시 파기(법령상 보관 의무 제외).
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {/* 마케팅 정보 수신 동의 (선택) */}
+                  <div className="space-y-3">
+                    <label className="flex items-center text-sm font-semibold text-gray-700">
+                      <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs font-bold mr-2">선택</span>
+                      마케팅 정보 수신 동의
+                    </label>
+                    <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
+                      <label className="flex items-start gap-3">
+                        <Checkbox
+                          checked={!!formState.companyInfo.marketingConsent}
+                          onCheckedChange={(v) => setFormState(prev => ({
+                            ...prev,
+                            companyInfo: { ...prev.companyInfo, marketingConsent: v === true }
+                          }))}
+                        />
+                        <span className="text-sm text-gray-600">[선택] AICAMP 교육/세미나/서비스 소식 안내 수신에 동의합니다. 동의하지 않아도 서비스 이용에는 영향이 없습니다.</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1076,7 +1231,12 @@ const Real45QuestionForm: React.FC = () => {
                 <Button
                   onClick={handleCompanyInfoSubmit}
                   size="lg"
-                  className="px-8 py-3 text-lg"
+                  disabled={!isCompanyFormValid}
+                  className={`px-8 py-3 text-lg ${
+                    isCompanyFormValid
+                      ? ''
+                      : 'opacity-60 cursor-not-allowed'
+                  }`}
                 >
                   진단 시작하기 <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -1114,7 +1274,7 @@ const Real45QuestionForm: React.FC = () => {
               {answeredCount > 0 && (
                 <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
                   <span className="mr-1">🎯</span>
-                  현재 점수: {Object.values(formState.answers).reduce((sum, score) => sum + score, 0)}점
+                  <span className="font-bold">현재 점수: {Object.values(formState.answers).reduce((sum, score) => sum + score, 0)}점</span>
                 </div>
               )}
             </div>
@@ -1188,7 +1348,6 @@ const Real45QuestionForm: React.FC = () => {
                   <h4 className="font-semibold text-gray-800 mb-4">
                     행동지표별 평가 (해당하는 수준을 선택해주세요)
                   </h4>
-                  
                   <div className="space-y-3">
                     {currentQuestion && getQuestionBehaviorIndicators(currentQuestion.id).map((indicator) => {
                       const isSelected = formState.answers[currentQuestion.id] === indicator.score;
@@ -1196,7 +1355,6 @@ const Real45QuestionForm: React.FC = () => {
                         <button
                           key={indicator.score}
                           onClick={() => {
-                            // 단순히 답변만 저장 - 자동 이동 제거
                             handleAnswer(currentQuestion.id, indicator.score);
                           }}
                           className={`
@@ -1249,44 +1407,32 @@ const Real45QuestionForm: React.FC = () => {
                 </div>
 
                 {/* 네비게이션 */}
-                <div className="flex justify-between pt-6">
-                  <Button
-                    variant="outline"
-                    onClick={handlePrev}
-                    disabled={formState.currentQuestion === 0}
-                  >
-                    <ChevronLeft className="mr-2 h-4 w-4" />
-                    이전
-                  </Button>
+                <div className="flex justify-between items-center pt-6">
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={handlePrev} disabled={formState.currentQuestion === 0}>
+                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      이전
+                    </Button>
+                    <Button variant="outline" onClick={resetDiagnosis} className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300">
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      처음부터
+                    </Button>
+                  </div>
 
                   {formState.currentQuestion === REAL_45_QUESTIONS.length - 1 ? (
-                    <Button
-                      onClick={() => {
-                        if (answeredCount < REAL_45_QUESTIONS.length) {
-                          setShowMissingAnswerAlert(true);
-                          setTimeout(() => setShowMissingAnswerAlert(false), 3000);
-                          return;
-                        }
-                        handleSubmit();
-                      }}
-                      disabled={isSubmitting}
-                      className={`px-8 transition-all duration-300 ${
-                        answeredCount < REAL_45_QUESTIONS.length 
-                          ? 'bg-gray-400 hover:bg-gray-500 cursor-not-allowed' 
-                          : 'bg-green-600 hover:bg-green-700'
-                      }`}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          제출 중...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="mr-2 h-4 w-4" />
-                          진단 완료 {answeredCount < REAL_45_QUESTIONS.length && `(${REAL_45_QUESTIONS.length - answeredCount}개 남음)`}
-                        </>
-                      )}
+                    <Button onClick={() => {
+                      if (answeredCount < REAL_45_QUESTIONS.length) {
+                        setShowMissingAnswerAlert(true);
+                        setTimeout(() => setShowMissingAnswerAlert(false), 3000);
+                        return;
+                      }
+                      handleSubmit();
+                    }} disabled={isSubmitting} className={`px-8 transition-all duration-300 ${
+                      answeredCount < REAL_45_QUESTIONS.length 
+                        ? 'bg-gray-400 hover:bg-gray-500 cursor-not-allowed' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    }`}>
+                      {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />제출 중...</>) : (<><Check className="mr-2 h-4 w-4" />진단 완료 {answeredCount < REAL_45_QUESTIONS.length && `(${REAL_45_QUESTIONS.length - answeredCount}개 남음)`}</>)}
                     </Button>
                   ) : (
                     <div className="flex flex-col items-end">
@@ -1295,15 +1441,11 @@ const Real45QuestionForm: React.FC = () => {
                           ⚠️ 점수를 선택해주세요 (필수)
                         </div>
                       )}
-                      <Button
-                        onClick={handleNext}
-                        disabled={!currentQuestion || !formState.answers[currentQuestion.id]}
-                        className={`transition-all duration-300 ${
-                          !currentQuestion || !formState.answers[currentQuestion.id] 
-                            ? 'bg-gray-300 hover:bg-gray-300 cursor-not-allowed opacity-50' 
-                            : 'bg-blue-600 hover:bg-blue-700'
-                        }`}
-                      >
+                      <Button onClick={handleNext} disabled={!currentQuestion || !formState.answers[currentQuestion.id]} className={`transition-all duration-300 ${
+                        !currentQuestion || !formState.answers[currentQuestion.id] 
+                          ? 'bg-gray-300 hover:bg-gray-300 cursor-not-allowed opacity-50' 
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      }`}>
                         다음
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
@@ -1317,129 +1459,103 @@ const Real45QuestionForm: React.FC = () => {
 
         {/* 저장 및 미답변 문항 안내 */}
         <div className="mt-6 text-center space-y-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              toast({
-                title: "자동 저장됨",
-                description: "진행 상황이 자동으로 저장되었습니다.",
-              });
-            }}
-          >
+          <Button variant="ghost" size="sm" onClick={() => {
+            toast({ title: "자동 저장됨", description: "진행 상황이 자동으로 저장되었습니다." });
+          }}>
             <Save className="mr-2 h-4 w-4" />
             진행상황 자동 저장됨
           </Button>
-          
+
           {answeredCount < REAL_45_QUESTIONS.length && (
             <div className="mt-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={moveToNextUnanswered}
-                className="text-red-600 border-red-200 hover:bg-red-50"
-              >
+              <Button variant="outline" size="sm" onClick={moveToNextUnanswered} className="text-red-600 border-red-200 hover:bg-red-50">
                 <ArrowRight className="mr-2 h-4 w-4" />
                 미답변 문항으로 이동 ({REAL_45_QUESTIONS.length - answeredCount}개 남음)
               </Button>
             </div>
           )}
         </div>
-              </div>
-
-        {/* 점수체계 안내 모달 (비활성화) */}
-        {/* <ScoreGuideModal
-          isVisible={showScoreGuide}
-          onClose={() => setShowScoreGuide(false)}
-          onStart={handleScoreGuideComplete}
-        /> */}
-
-        {/* 진행 상황 안내 모달 */}
-        {showProgressGuide && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">🎯</span>
-                  <span className="font-semibold">AI 역량진단 시작!</span>
-                </div>
-                <p className="text-white/90 text-sm mt-1">45개 문항으로 정밀 분석을 시작합니다</p>
-              </div>
-              <div className="p-4 space-y-3 text-sm text-gray-700">
-                <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
-                  <p className="text-blue-900 font-medium mb-2">📋 진행 방법 안내</p>
-                  <ul className="text-blue-800/80 space-y-1 text-xs">
-                    <li>• 각 질문을 신중히 읽고 현재 상황에 맞는 점수를 선택하세요</li>
-                    <li>• 진행 상황은 자동으로 저장됩니다</li>
-                    <li>• 모든 문항 완료 후 이교장 스타일 보고서가 생성됩니다</li>
-                  </ul>
-                </div>
-                <div className="text-center">
-                  <button
-                    onClick={() => setShowProgressGuide(false)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    시작하기
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 답변 누락 알림 - 강화된 버전 */}
-        {showMissingAnswerAlert && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
-              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">⚠️</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">답변 미완료</h3>
-                    <p className="text-red-100 text-sm">모든 문항에 답변해주세요</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-red-600 mb-2">
-                    {REAL_45_QUESTIONS.length - answeredCount}개
-                  </div>
-                  <p className="text-gray-700 mb-4">
-                    문항이 아직 답변되지 않았습니다
-                  </p>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                    <p className="text-yellow-800 text-sm">
-                      <strong>정확한 진단</strong>을 위해 모든 문항에 답변이 필요합니다
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowMissingAnswerAlert(false)}
-                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-                  >
-                    계속 답변하기
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowMissingAnswerAlert(false);
-                      // 첫 번째 미답변 문항으로 이동
-                      moveToNextUnanswered();
-                    }}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    미답변 문항으로 자동 이동
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-    );
-  };
+
+      {/* 점수체계 안내 모달 (비활성화) */}
+      {/* <ScoreGuideModal isVisible={showScoreGuide} onClose={() => setShowScoreGuide(false)} onStart={handleScoreGuideComplete} /> */}
+
+      {/* 진행 상황 안내 모달 */}
+      {showProgressGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🎯</span>
+                <span className="font-semibold">AI 역량진단 시작!</span>
+              </div>
+              <p className="text-white/90 text-sm mt-1">45개 문항으로 정밀 분석을 시작합니다</p>
+            </div>
+            <div className="p-4 space-y-3 text-sm text-gray-700">
+              <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
+                <p className="text-blue-900 font-medium mb-2">📋 진행 방법 안내</p>
+                <ul className="text-blue-800/80 space-y-1 text-xs">
+                  <li>• 각 질문을 신중히 읽고 현재 상황에 맞는 점수를 선택하세요</li>
+                  <li>• 진행 상황은 자동으로 저장됩니다</li>
+                  <li>• 모든 문항 완료 후 이교장 스타일 보고서가 생성됩니다</li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <button onClick={() => setShowProgressGuide(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">시작하기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 답변 누락 알림 - 강화된 버전 */}
+      {showMissingAnswerAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl shadow-2xl bg-white overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center"><span className="text-2xl">⚠️</span></div>
+                <div>
+                  <h3 className="font-bold text-lg">답변 미완료</h3>
+                  <p className="text-red-100 text-sm">모든 문항에 답변해주세요</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-red-600 mb-2">{REAL_45_QUESTIONS.length - answeredCount}개</div>
+                <p className="text-gray-700 mb-4">문항이 아직 답변되지 않았습니다</p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                  <p className="text-yellow-800 text-sm"><strong>정확한 진단</strong>을 위해 모든 문항에 답변이 필요합니다</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setShowMissingAnswerAlert(false)} className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">계속 답변하기</button>
+                <button onClick={() => { setShowMissingAnswerAlert(false); moveToNextUnanswered(); }} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">미답변 문항으로 자동 이동</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 상담 신청 모달 */}
+      <ConsultationRequestModal
+        isOpen={showConsultationModal}
+        onClose={() => setShowConsultationModal(false)}
+        diagnosisData={diagnosisResult}
+        companyName={formState.companyInfo.companyName}
+        contactEmail={formState.companyInfo.contactEmail}
+        contactName={formState.companyInfo.contactName}
+        contactPhone={formState.companyInfo.contactPhone}
+        initialData={{
+          industry: formState.companyInfo.industry,
+          inquiryType: 'diagnosis',
+          consultationArea: 'diagnosis',
+          inquiryContent: `AI 역량진단 결과에 대한 전문가 상담을 요청합니다.`
+        }}
+      />
+    </div>
+  );
+};
 
 export default Real45QuestionForm;

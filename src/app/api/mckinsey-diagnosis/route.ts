@@ -130,23 +130,35 @@ export async function POST(request: NextRequest) {
     // 8단계: Google Drive 업로드
     const driveUploadResult = await uploadToGoogleDrive(htmlReport, diagnosisId);
     
-    // 9단계: 이메일 발송
-    const emailResult = await sendEmailNotification({
+    // 9단계: 이메일 발송 (병렬 처리)
+    const emailPromise = sendEmailNotification({
       ...normalizedData,
       diagnosisId,
       driveLink: driveUploadResult.shareLink,
-      reportData: mckinseyReport
+      reportData: mckinseyReport,
+      email: normalizedData.contactEmail || normalizedData.email,
+      companyName: normalizedData.companyName,
+      contactName: normalizedData.contactName || normalizedData.contactManager
     });
     
-    // 10단계: Google Apps Script 데이터 저장
-    if (GAS_DEPLOYMENT_URL) {
-      await saveToGoogleSheets({
-        diagnosisId,
-        ...normalizedData,
-        ...scoreAnalysis,
-        ...mckinseyReport
-      });
-    }
+    // 10단계: Google Apps Script 데이터 저장 (병렬 처리)
+    const sheetsPromise = saveToGoogleSheets({
+      diagnosisId,
+      ...normalizedData,
+      ...scoreAnalysis,
+      ...mckinseyReport
+    });
+    
+    // 병렬 처리 결과 대기
+    const [emailResult, sheetsResult] = await Promise.allSettled([
+      emailPromise,
+      sheetsPromise
+    ]);
+    
+    console.log('📊 처리 결과:', {
+      email: emailResult.status,
+      sheets: sheetsResult.status
+    });
     
     const processingTime = Date.now() - startTime;
     
@@ -577,32 +589,93 @@ async function uploadToGoogleDrive(htmlContent: string, diagnosisId: string) {
 }
 
 /**
- * 이메일 발송
+ * 이메일 발송 (Google Apps Script 연동)
  */
 async function sendEmailNotification(params: any) {
-  // 이메일 발송 로직
-  return { success: true };
+  try {
+    console.log('📧 이메일 발송 시작:', params.email);
+    
+    // Google Apps Script로 이메일 발송 요청
+    const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
+                  process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
+                  'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec';
+    
+    const emailPayload = {
+      type: 'send_email',
+      action: 'send_diagnosis_report',
+      to: params.email,
+      companyName: params.companyName,
+      contactName: params.contactName || params.contactManager,
+      diagnosisId: params.diagnosisId,
+      driveLink: params.driveLink,
+      reportData: params.reportData,
+      timestamp: new Date().toISOString()
+    };
+    
+    const response = await fetch(gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(emailPayload),
+      signal: AbortSignal.timeout(30000) // 30초 타임아웃
+    });
+    
+    if (!response.ok) {
+      throw new Error(`이메일 발송 실패: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ 이메일 발송 완료:', result);
+    
+    return { success: true, result };
+    
+  } catch (error) {
+    console.error('❌ 이메일 발송 오류:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 /**
- * Google Sheets 저장
+ * Google Sheets 저장 (개선된 버전)
  */
 async function saveToGoogleSheets(data: any) {
-  if (!GAS_DEPLOYMENT_URL) return;
+  const gasUrl = GAS_DEPLOYMENT_URL || 
+                process.env.NEXT_PUBLIC_GAS_URL || 
+                process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
+                
+  if (!gasUrl) {
+    console.warn('⚠️ Google Apps Script URL이 설정되지 않았습니다');
+    return { success: false, error: 'GAS URL not configured' };
+  }
   
   try {
-    const response = await fetch(GAS_DEPLOYMENT_URL, {
+    console.log('💾 Google Sheets 저장 시작');
+    
+    const response = await fetch(gasUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        type: 'ai_diagnosis',
-        data: data
-      })
+        type: 'save_diagnosis',
+        action: 'ai_diagnosis',
+        data: {
+          ...data,
+          timestamp: new Date().toISOString(),
+          version: 'V15.0-MCKINSEY'
+        }
+      }),
+      signal: AbortSignal.timeout(30000) // 30초 타임아웃
     });
     
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(`Sheets 저장 실패: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Google Sheets 저장 완료:', result);
+    
+    return result;
   } catch (error) {
-    console.error('Google Sheets 저장 실패:', error);
+    console.error('❌ Google Sheets 저장 실패:', error);
+    return { success: false, error: error.message };
   }
 }
 

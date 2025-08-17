@@ -612,7 +612,7 @@ export default function DiagnosisResultPage() {
               </p>
               <div className="flex gap-3">
                 <Button
-                  onClick={() => router.push('/diagnosis')}
+                  onClick={() => router.push('/ai-diagnosis')}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Brain className="w-4 h-4 mr-2" />

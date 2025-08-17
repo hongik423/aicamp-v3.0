@@ -98,7 +98,7 @@ export default function TechStartupPage() {
     },
     secondaryCTA: {
       text: "기술사업화 적합성 진단",
-      href: "/diagnosis"
+      href: "/ai-diagnosis"
     }
   };
 
@@ -894,7 +894,7 @@ export default function TechStartupPage() {
                 variant="outline"
                 size="lg"
                 className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4"
-                onClick={() => router.push('/diagnosis')}
+                onClick={() => router.push('/ai-diagnosis')}
               >
                 <Brain className="w-5 h-5 mr-2" />
                 기술사업화 적합성 진단

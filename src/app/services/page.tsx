@@ -64,7 +64,7 @@ export default async function ServicesPage() {
       title: 'AI 역량진단',
       description: 'GEMINI 2.5 Flash Model로 기업 AI 활용도를 정밀 진단하세요',
       icon: <Brain className="h-6 w-6 text-blue-600" />,
-      href: '/diagnosis',
+      href: '/ai-diagnosis',
       badge: 'GEMINI 2.5',
       features: [
         'GEMINI 2.5 Flash AI 분석',

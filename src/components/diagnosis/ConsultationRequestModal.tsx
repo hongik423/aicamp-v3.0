@@ -76,7 +76,7 @@ export default function ConsultationRequestModal({
     consultationArea: initialData?.consultationArea || 'diagnosis',
     inquiryContent: initialData?.inquiryContent || '무료 AI 진단 결과에 대한 전문가 상담을 요청합니다.',
     preferredTime: 'flexible',
-    privacyConsent: false
+    privacyConsent: true // 진단 시 이미 동의받았으므로 자동으로 true 설정
   });
 
   // 모달이 닫혀있으면 렌더링하지 않음
@@ -92,11 +92,8 @@ export default function ConsultationRequestModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.privacyConsent) {
-      setSubmitError('개인정보 처리방침에 동의해주세요.');
-      return;
-    }
-
+    // 진단 시 이미 개인정보 동의를 받았으므로 별도 검증 불필요
+    
     if (!formData.name || !formData.phone || !formData.email) {
       setSubmitError('필수 정보를 모두 입력해주세요.');
       return;
@@ -466,30 +463,15 @@ export default function ConsultationRequestModal({
               />
             </div>
 
-            {/* 개인정보 동의 */}
-            <div className="flex items-start space-x-4 p-6 bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-200 rounded-xl shadow-sm">
-              <Checkbox
-                id="privacyConsent"
-                checked={formData.privacyConsent}
-                onCheckedChange={(checked) => {
-                  // 🛡️ 개인정보 동의 상태 강화된 검증
-                  const isChecked = checked === true;
-                  console.log('🛡️ 상담신청 개인정보 동의 상태 변경:', {
-                    input: checked,
-                    processed: isChecked,
-                    type: typeof checked
-                  });
-                  handleInputChange('privacyConsent', isChecked);
-                }}
-                required
-                className="w-7 h-7 border-4 border-black shadow-lg ring-2 ring-blue-500 ring-offset-2 data-[state=checked]:bg-blue-600 data-[state=checked]:border-black data-[state=checked]:ring-green-500 rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-xl focus:ring-4 focus:ring-blue-300"
-              />
+            {/* 개인정보 동의 완료 안내 */}
+            <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-xl shadow-sm">
+              <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
               <div className="flex-1">
-                <Label htmlFor="privacyConsent" className="text-base font-bold text-gray-800 cursor-pointer hover:text-blue-700 transition-colors">
-                  개인정보 수집 및 이용 동의 *
-                </Label>
-                <p className="text-sm text-gray-700 mt-2 leading-relaxed">
-                  상담 서비스 제공 및 마케팅 활용을 위한 개인정보 수집 및 이용에 동의합니다. 수집된 정보는 상담 진행, 맞춤형 서비스 제공, 마케팅 정보 안내 목적으로 사용되며, 개인정보보호법에 따라 3년간 보관됩니다.
+                <div className="text-base font-bold text-green-800 mb-1">
+                  ✅ 개인정보 동의 완료
+                </div>
+                <p className="text-sm text-green-700 leading-relaxed">
+                  AI 역량진단 시 개인정보 수집 및 이용에 이미 동의하셨습니다. 별도 동의 없이 상담 신청이 가능합니다.
                 </p>
               </div>
             </div>
@@ -529,7 +511,7 @@ export default function ConsultationRequestModal({
               <Button
                 type="submit"
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
-                disabled={isSubmitting || !formData.privacyConsent}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? '상담 신청 중...' : '상담 신청하기'}
               </Button>

@@ -48,6 +48,13 @@ export function middleware(request: NextRequest) {
     return response;
   }
   
+  // 구경로 강제 리다이렉트: /diagnosis → /ai-diagnosis
+  if (pathname === '/diagnosis') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/ai-diagnosis';
+    return NextResponse.redirect(url, 308);
+  }
+
   return NextResponse.next();
 }
 
@@ -56,5 +63,6 @@ export const config = {
     '/api/:path*',
     '/sw.js',
     '/manifest.webmanifest',
+    '/diagnosis',
   ],
 };

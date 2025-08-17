@@ -380,7 +380,7 @@ export default function InvestmentAnalysisPage() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="border-purple-200 hover:bg-purple-50">
-                <Link href="/diagnosis">
+                <Link href="/ai-diagnosis">
                   <Zap className="mr-2 h-5 w-5" />
                   AI역량진단 받기
                 </Link>

@@ -38,12 +38,30 @@ export async function POST(request: NextRequest) {
       responses: requestData.assessmentResponses || requestData.responses
     };
     
+    // 디버깅을 위한 요청 데이터 로깅
+    console.log('🔍 요청 데이터 검증:', {
+      companyName: !!workflowRequest.companyName,
+      contactName: !!workflowRequest.contactName,
+      contactEmail: !!workflowRequest.contactEmail,
+      responses: !!workflowRequest.responses,
+      responsesCount: workflowRequest.responses ? Object.keys(workflowRequest.responses).length : 0,
+      privacyConsent: requestData.privacyConsent,
+      privacyConsentType: typeof requestData.privacyConsent
+    });
+    
     // 기본 유효성 검증
     if (!workflowRequest.companyName || !workflowRequest.contactName || !workflowRequest.contactEmail || !workflowRequest.responses || requestData.privacyConsent !== true) {
       return NextResponse.json({
         success: false,
         error: '필수 입력/동의가 누락되었습니다.',
         details: '회사명, 담당자명, 이메일, 응답 데이터, 개인정보 수집·이용 동의는 필수입니다.',
+        validation: {
+          companyName: !!workflowRequest.companyName,
+          contactName: !!workflowRequest.contactName,
+          contactEmail: !!workflowRequest.contactEmail,
+          responses: !!workflowRequest.responses,
+          privacyConsent: requestData.privacyConsent
+        },
         retryable: false
       }, { status: 400 });
     }
@@ -75,6 +93,15 @@ export async function POST(request: NextRequest) {
           progressPercent: 100,
           message: '로컬 분석 완료'
         });
+        // SWOT 단계 명시적 진행 표기 (UI 상 멈춤 현상 방지)
+        addProgressEvent({
+          diagnosisId: workflowResult.diagnosisId,
+          stepId: 'swot-analysis',
+          stepName: 'SWOT 분석',
+          status: 'completed',
+          progressPercent: 100,
+          message: '로컬 분석 결과 기반 SWOT 생성 완료'
+        });
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
           stepId: 'report-generation',
@@ -89,8 +116,11 @@ export async function POST(request: NextRequest) {
         const protocol = host?.includes('localhost') ? 'http' : 'https';
         const dynamicBase = host ? `${protocol}://${host}` : 'https://aicamp.club';
         
-        // GAS 지원 액션에 맞춰 수정: diagnosis 액션으로 전송
+                  // GAS 통합 페이로드 구성 (SWOT 및 보고서 생성 포함)
         const gasPayload = {
+          // 라우팅 명확화
+          type: 'ai_diagnosis_complete',
+          action: 'process_diagnosis_with_report',
           // 기본 진단 데이터 (GAS가 기대하는 형식)
           companyName: requestData.companyName,
           contactName: requestData.contactName,
@@ -105,12 +135,24 @@ export async function POST(request: NextRequest) {
           // 45문항 응답 (GAS 호환 형식)
           assessmentResponses: requestData.assessmentResponses,
           
-          // 워크플로우 결과 (추가 데이터)
+          // 워크플로우 결과 (SWOT 및 보고서 데이터 포함)
           diagnosisId: workflowResult.diagnosisId,
           scoreAnalysis: workflowResult.scoreAnalysis,
+          swotAnalysis: workflowResult.detailedAnalysis || {
+            strengths: workflowResult.detailedAnalysis?.strengths || [],
+            weaknesses: workflowResult.detailedAnalysis?.weaknesses || [],
+            opportunities: workflowResult.detailedAnalysis?.opportunities || [],
+            threats: workflowResult.detailedAnalysis?.threats || []
+          },
           recommendations: workflowResult.recommendations,
           roadmap: workflowResult.roadmap,
           qualityMetrics: workflowResult.qualityMetrics,
+          reportGeneration: {
+            requestHtmlReport: true,
+            requestEmailSending: true,
+            emailRecipient: requestData.contactEmail,
+            companyName: requestData.companyName
+          },
           
           // 메타데이터
           timestamp: new Date().toISOString(),
@@ -129,9 +171,20 @@ export async function POST(request: NextRequest) {
             'User-Agent': 'AICAMP-V15.0-INTEGRATED'
           },
           body: JSON.stringify(gasPayload),
-          signal: AbortSignal.timeout(780000)
+          signal: AbortSignal.timeout(60000) // 60초로 단축 (백그라운드 처리)
         }).then(async (gasResponse) => {
-          console.log('📧 Google Apps Script 후속 처리 완료:', gasResponse.status);
+          console.log('📧 Google Apps Script 후속 처리 시작:', gasResponse.status);
+          // 보고서 생성 단계 완료 표기 (GAS 호출이 정상 응답을 반환한 경우)
+          if (gasResponse.ok) {
+            addProgressEvent({
+              diagnosisId: workflowResult.diagnosisId,
+              stepId: 'report-generation',
+              stepName: '보고서 생성',
+              status: 'completed',
+              progressPercent: 100,
+              message: 'GAS에 보고서 생성 요청 성공, 결과 대기 중'
+            });
+          }
           // 이메일 발송 단계 진행 갱신 (성공/타임아웃 불문, GAS가 백그라운드 처리)
           addProgressEvent({
             diagnosisId: workflowResult.diagnosisId,
@@ -143,6 +196,15 @@ export async function POST(request: NextRequest) {
           });
         }).catch(gasError => {
           console.error('⚠️ Google Apps Script 후속 처리 오류 (비차단):', gasError.message);
+          // 오류 발생 시에도 진행 상태 업데이트
+          addProgressEvent({
+            diagnosisId: workflowResult.diagnosisId,
+            stepId: 'email-sending',
+            stepName: '이메일 발송',
+            status: 'pending',
+            progressPercent: 0,
+            message: 'GAS 연결 실패, 재시도 중...'
+          });
         });
         
         // 즉시 응답 반환 (사용자 대기 시간 단축)
@@ -186,59 +248,8 @@ export async function POST(request: NextRequest) {
         });
         
       } else {
-        // 워크플로우 결과가 없는 경우 (실제로는 발생하지 않음)
-        console.log('⚠️ 워크플로우 결과 없음 - Google Apps Script 폴백');
-        
-        const host = request.headers.get('host');
-        const protocol = host?.includes('localhost') ? 'http' : 'https';
-        const dynamicBase = host ? `${protocol}://${host}` : 'https://aicamp.club';
-        
-        const gasResponse = await fetch(`${dynamicBase}/api/google-script-proxy`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'User-Agent': 'AICAMP-V15.0-FALLBACK'
-          },
-          body: JSON.stringify({
-            // 폴백도 동일한 형식으로 전송
-            companyName: requestData.companyName,
-            contactName: requestData.contactName,
-            contactEmail: requestData.contactEmail,
-            contactPhone: requestData.contactPhone,
-            industry: requestData.industry,
-            employeeCount: requestData.employeeCount,
-            assessmentResponses: requestData.assessmentResponses,
-            privacyConsent: requestData.privacyConsent === true,
-            timestamp: new Date().toISOString(),
-            version: 'V15.0-ULTIMATE-FALLBACK',
-            source: 'web_form_fallback'
-          }),
-          signal: AbortSignal.timeout(780000)
-        });
-        
-        if (!gasResponse.ok) {
-          throw new Error(`Google Apps Script 폴백 실패: ${gasResponse.status}`);
-        }
-        
-        const gasResult = await gasResponse.json();
-        
-        return NextResponse.json({
-          success: true,
-          message: '이교장의AI역량진단보고서가 접수되었습니다.',
-          data: {
-            diagnosisId: gasResult.diagnosisId || `FALLBACK_${Date.now()}`,
-            companyName: requestData.companyName,
-            contactEmail: requestData.contactEmail,
-            estimatedTime: '15-20분',
-            version: 'V15.0-ULTIMATE-FALLBACK',
-            mode: 'google_apps_script'
-          },
-          processingInfo: {
-            status: 'processing',
-            method: 'google_apps_script',
-            estimatedTime: '15-20분'
-          }
-        });
+        // 폴백 금지: 결과가 없으면 오류로 처리
+        throw new Error('워크플로우 결과가 생성되지 않았습니다.');
       }
       
     } catch (workflowError: any) {

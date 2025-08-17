@@ -679,7 +679,7 @@ export default function EnhancedSuccessCaseDetail({
               size="lg"
               variant="outline"
               className="text-white border-white hover:bg-white/10"
-              onClick={() => router.push('/diagnosis')}
+              onClick={() => router.push('/ai-diagnosis')}
             >
               AI 도입 진단받기
             </Button>

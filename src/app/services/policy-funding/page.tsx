@@ -655,7 +655,7 @@ export default function PolicyFundingPage() {
               </Link>
             </Button>
             <Button size="lg" variant="outline">
-              <Link href="/diagnosis" className="flex items-center gap-2">
+              <Link href="/ai-diagnosis" className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
                 AI 진단 받기
               </Link>

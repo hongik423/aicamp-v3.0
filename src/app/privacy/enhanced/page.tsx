@@ -616,7 +616,7 @@ export default function EnhancedPrivacyPolicyPage() {
               </p>
             </div>
             <div className="flex gap-3">
-              <Link href="/diagnosis">
+              <Link href="/ai-diagnosis">
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Zap className="w-4 h-4 mr-2" />
                   무료 진단 시작하기

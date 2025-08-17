@@ -229,7 +229,7 @@ export default function FactoryAuctionPage() {
                     className="border-white text-white hover:bg-white hover:text-blue-600"
                     asChild
                   >
-                    <Link href="/diagnosis">
+                    <Link href="/ai-diagnosis">
                       <FileText className="w-5 h-5 mr-2" />
                       투자 역량 진단
                     </Link>

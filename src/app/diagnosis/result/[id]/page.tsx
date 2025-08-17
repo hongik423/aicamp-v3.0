@@ -120,7 +120,7 @@ export default function DiagnosisResultPage({ params }: { params: ParamsPromise 
                   요청하신 결과 페이지를 찾지 못했습니다. 분석 완료 후 이메일로 보고서가 발송됩니다. 잠시 후 다시 확인해주세요.
                 </div>
                 <div className="flex gap-3">
-                  <Link href="/diagnosis">
+                  <Link href="/ai-diagnosis">
                     <Button variant="outline">진단 다시 진행</Button>
                   </Link>
                   <Link href="/">

@@ -111,10 +111,10 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* AI역량진단 버튼 - 데스크톱 */}
+          {/* AI역량진단 버튼 - 데스크톱 (최신 경로로 통일) */}
           <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0">
             <Link
-              href="/diagnosis"
+              href="/ai-diagnosis"
               className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
               <span>AI역량진단</span>
@@ -162,10 +162,10 @@ export default function Header() {
             </button>
           </div>
 
-          {/* AI역량진단 버튼 - 태블릿용 */}
+          {/* AI역량진단 버튼 - 태블릿용 (최신 경로로 통일) */}
           <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0">
             <Link
-              href="/diagnosis"
+              href="/ai-diagnosis"
               className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
               <span className="hidden sm:inline">AI역량진단</span>
