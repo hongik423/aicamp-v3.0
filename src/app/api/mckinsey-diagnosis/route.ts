@@ -524,14 +524,56 @@ async function generateHTMLReport(report: McKinseyReportStructure) {
 }
 
 /**
- * Google Drive 업로드
+ * Google Drive 업로드 (실제 구현)
  */
 async function uploadToGoogleDrive(htmlContent: string, diagnosisId: string) {
-  // Google Drive API 호출 로직
-  return {
-    success: true,
-    shareLink: `https://drive.google.com/file/d/${diagnosisId}/view`
-  };
+  try {
+    console.log('🗂️ Google Drive 업로드 시작:', diagnosisId);
+    
+    // Google Apps Script를 통한 업로드
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp.club'}/api/google-script-proxy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'drive_upload',
+        action: 'uploadHTMLReport',
+        folderId: '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj',
+        fileName: `AI역량진단보고서_${diagnosisId}_${new Date().toISOString().slice(0,10)}.html`,
+        content: htmlContent,
+        mimeType: 'text/html',
+        description: `이교장의AI역량진단보고서 - ${diagnosisId}`
+      }),
+      signal: AbortSignal.timeout(120000) // 2분 타임아웃
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Drive 업로드 실패: ${response.status} ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    
+    if (result.success && result.driveResult) {
+      console.log('✅ Google Drive 업로드 성공:', result.driveResult.webViewLink);
+      return {
+        success: true,
+        shareLink: result.driveResult.webViewLink,
+        fileId: result.driveResult.fileId,
+        fileName: result.driveResult.fileName
+      };
+    } else {
+      throw new Error(result.error || 'Drive 업로드 실패');
+    }
+    
+  } catch (error) {
+    console.error('❌ Google Drive 업로드 오류:', error);
+    
+    // 업로드 실패해도 시스템은 계속 진행
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '알 수 없는 오류',
+      shareLink: null
+    };
+  }
 }
 
 /**

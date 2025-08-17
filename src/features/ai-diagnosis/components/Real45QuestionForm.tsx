@@ -597,11 +597,34 @@ const Real45QuestionForm: React.FC = () => {
   if (diagnosisResult) {
     return <>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-lg">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">진단 완료!</h2>
-          <p className="text-gray-600 mb-4">이교장 스타일 보고서가 이메일로 발송됩니다.</p>
-          <p className="text-sm text-gray-500">진단 ID: {diagnosisResult.diagnosisId}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">🎉 진단 완료!</h2>
+          <p className="text-gray-600 mb-4">이교장 스타일 보고서가 생성되었습니다.</p>
+          <p className="text-sm text-gray-500 mb-6">진단 ID: {diagnosisResult.diagnosisId}</p>
+          
+          <div className="space-y-3">
+            <Button 
+              onClick={() => window.open(`/diagnosis/report/${diagnosisResult.diagnosisId}`, '_blank')}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              size="lg"
+            >
+              📄 HTML 보고서 보기
+            </Button>
+            
+            <Button 
+              onClick={() => window.location.href = '/'}
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              홈으로 돌아가기
+            </Button>
+          </div>
+          
+          <p className="text-xs text-gray-400 mt-4">
+            * 이메일 발송은 백그라운드에서 진행됩니다 (2-3분 소요)
+          </p>
         </div>
       </div>
       {persistentNoticeOpen && (
