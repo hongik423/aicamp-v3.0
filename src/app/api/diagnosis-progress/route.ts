@@ -105,11 +105,16 @@ export async function GET(request: NextRequest) {
             console.warn('진행 스냅샷 조회 실패:', error);
           }
 
-          // 2) 결과 준비 여부 확인: 완료 시 'done' 이벤트로 종료  
-          const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-          const res = await fetch(`${baseUrl}/api/diagnosis-results/${encodeURIComponent(diagnosisId)}`, {
+          // 2) 결과 준비 여부 확인: 완료 시 'done' 이벤트로 종료
+          //    - 보호된 프리뷰 도메인(401) 회피를 위해 현재 요청의 origin을 사용하고 쿠키를 전달
+          const origin = getOrigin();
+          const res = await fetch(`${origin}/api/diagnosis-results/${encodeURIComponent(diagnosisId)}`, {
             method: 'GET',
-            headers: { 'Accept': 'application/json' },
+            headers: {
+              'Accept': 'application/json',
+              // 프리뷰 보호 해제를 위한 쿠키 전달 (x-vercel-protection-bypass 등)
+              'cookie': request.headers.get('cookie') || ''
+            },
           });
           
           // 응답 상태 확인
