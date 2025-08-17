@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
             'User-Agent': 'AICAMP-V15.0-INTEGRATED'
           },
           body: JSON.stringify(gasPayload),
-          signal: AbortSignal.timeout(870000)
+          signal: AbortSignal.timeout(780000)
         }).then(async (gasResponse) => {
           console.log('📧 Google Apps Script 후속 처리 완료:', gasResponse.status);
           // 이메일 발송 단계 진행 갱신 (성공/타임아웃 불문, GAS가 백그라운드 처리)
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
             version: 'V15.0-ULTIMATE-FALLBACK',
             source: 'web_form_fallback'
           }),
-          signal: AbortSignal.timeout(870000)
+          signal: AbortSignal.timeout(780000)
         });
         
         if (!gasResponse.ok) {

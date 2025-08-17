@@ -89,12 +89,12 @@ function getEnvironmentConfig() {
     // API 설정
     GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-exp:generateContent',
     
-    // 타임아웃 설정 (Vercel Pro Fluid Compute 890초)
+    // 타임아웃 설정 (Vercel Pro 최대 800초)
     TIMEOUTS: {
-      GEMINI_API: 720000,      // 12분 (720초)
+      GEMINI_API: 600000,      // 10분 (600초)
       EMAIL_SEND: 60000,       // 1분
       SHEET_SAVE: 30000,       // 30초
-      TOTAL_PROCESS: 850000    // 14분 10초 (최대)
+      TOTAL_PROCESS: 780000    // 13분 (최대)
     },
     
     // 재시도 설정
