@@ -406,6 +406,7 @@ const Real45QuestionForm: React.FC = () => {
       contactPhone,
       industry, 
       employeeCount, 
+      annualRevenue,
       location,
       industryCustom
     } = formState.companyInfo;
