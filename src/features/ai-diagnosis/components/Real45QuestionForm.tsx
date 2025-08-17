@@ -135,6 +135,7 @@ const Real45QuestionForm: React.FC = () => {
     formState.companyInfo.contactPhone?.trim() &&
     formState.companyInfo.industry?.trim() &&
     formState.companyInfo.employeeCount?.trim() &&
+    formState.companyInfo.annualRevenue?.trim() &&
     formState.companyInfo.location?.trim() &&
     formState.companyInfo.privacyConsent === true
   );
@@ -409,7 +410,7 @@ const Real45QuestionForm: React.FC = () => {
       industryCustom
     } = formState.companyInfo;
     
-    if (!companyName || !contactName || !contactEmail || !contactPhone || !industry || !employeeCount || !location.trim() || !formState.companyInfo.privacyConsent) {
+    if (!companyName || !contactName || !contactEmail || !contactPhone || !industry || !employeeCount || !annualRevenue || !location.trim() || !formState.companyInfo.privacyConsent) {
       toast({
         title: "필수 동의/정보 누락",
         description: !formState.companyInfo.privacyConsent ? "개인정보 수집·이용 동의가 필요합니다." : "필수 항목을 모두 입력해주세요.",
