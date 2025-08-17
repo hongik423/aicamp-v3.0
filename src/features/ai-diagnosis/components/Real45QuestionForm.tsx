@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import { getQuestionBehaviorIndicators } from '../constants/question-specific-be
 import { AddressInput } from '@/components/ui/address-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
+import ScoreGuideModal from '@/components/diagnosis/ScoreGuideModal';
 // import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete'; // 삭제된 컴포넌트
 
 interface CompanyInfo {
@@ -76,6 +77,10 @@ const Real45QuestionForm: React.FC = () => {
     'report-generation': { status: 'pending', progress: 0, label: '보고서 생성' },
     'email-sending': { status: 'pending', progress: 0, label: '이메일 발송' }
   });
+  
+  // 점수체계 안내 모달 상태
+  const [showScoreGuide, setShowScoreGuide] = useState(false);
+  const [hasShownGuide, setHasShownGuide] = useState(false);
 
   // 간단한 입력 핸들러들
   const handleAddressChange = (address: string) => {
@@ -232,14 +237,12 @@ const Real45QuestionForm: React.FC = () => {
       updateProgressSteps('report-generation', 'completed', 100);
       updateProgressSteps('email-sending', 'completed', 100);
       
-      setTimeout(() => {
-        setPersistentNoticeOpen(false);
-        toast({
-          title: "🎉 진단 완료!",
-          description: "맥킨지 스타일 보고서가 이메일로 발송되었습니다.",
-          variant: "default"
-        });
-      }, 2000);
+      // 완료 후에도 배너를 지속적으로 표시 (사용자가 수동으로 닫을 때까지)
+      toast({
+        title: "🎉 진단 완료!",
+        description: "맥킨지 스타일 보고서가 이메일로 발송되었습니다.",
+        variant: "default"
+      });
       
       eventSource.close();
     });
@@ -255,14 +258,12 @@ const Real45QuestionForm: React.FC = () => {
       updateProgressSteps('report-generation', 'completed', 100);
       updateProgressSteps('email-sending', 'completed', 100);
       
-      setTimeout(() => {
-        setPersistentNoticeOpen(false);
-        toast({
-          title: "⏰ 처리 시간 초과",
-          description: "고품질 분석으로 인해 시간이 소요되고 있습니다. 이메일로 결과를 확인해주세요.",
-          variant: "default"
-        });
-      }, 2000);
+      // 타임아웃 시에도 배너를 지속적으로 표시
+      toast({
+        title: "⏰ 처리 시간 초과",
+        description: "고품질 분석으로 인해 시간이 소요되고 있습니다. 이메일로 결과를 확인해주세요.",
+        variant: "default"
+      });
       
       eventSource.close();
     });
@@ -270,15 +271,12 @@ const Real45QuestionForm: React.FC = () => {
     eventSource.onerror = (error) => {
       console.error('❌ SSE 연결 오류:', error);
       
-      // 연결 오류 시 폴백 처리
-      setTimeout(() => {
-        setPersistentNoticeOpen(false);
-        toast({
-          title: "📡 연결 오류",
-          description: "진행상황 추적 중 연결 문제가 발생했습니다. 보고서는 백그라운드에서 계속 생성되어 이메일로 발송됩니다.",
-          variant: "default"
-        });
-      }, 2000);
+      // 연결 오류 시에도 배너를 지속적으로 표시
+      toast({
+        title: "📡 연결 오류",
+        description: "진행상황 추적 중 연결 문제가 발생했습니다. 보고서는 백그라운드에서 계속 생성되어 이메일로 발송됩니다.",
+        variant: "default"
+      });
       
       eventSource.close();
     };
@@ -301,8 +299,10 @@ const Real45QuestionForm: React.FC = () => {
     }));
   };
 
-  // 미답변 문항 자동화 시스템
-  const goToNextUnansweredQuestion = () => {
+
+
+  // 미답변 문항으로 이동하는 함수 (수동 트리거용)
+  const moveToNextUnanswered = () => {
     const unansweredQuestions = REAL_45_QUESTIONS
       .map((_, index) => index + 1)
       .filter(questionId => !formState.answers[questionId]);
@@ -311,59 +311,19 @@ const Real45QuestionForm: React.FC = () => {
       const nextUnanswered = unansweredQuestions[0];
       setFormState(prev => ({ ...prev, currentQuestion: nextUnanswered - 1 }));
       
-      // 알림 표시
       toast({
         title: `📝 ${unansweredQuestions.length}개 미답변 문항`,
-        description: `${nextUnanswered}번 문항으로 이동했습니다. 답변 후 자동으로 다음 미답변 문항으로 이동합니다.`,
+        description: `${nextUnanswered}번 문항으로 이동했습니다.`,
         variant: "default"
       });
     } else {
-      // 모든 문항 완료시 자동 제출
+      // 모든 문항 완료시 제출 화면으로
       toast({
         title: "🎉 모든 문항 완료!",
-        description: "자동으로 진단 제출 화면으로 이동합니다.",
+        description: "진단 제출이 가능합니다.",
         variant: "default"
       });
-      
-      setTimeout(() => {
-        setFormState(prev => ({ ...prev, currentQuestion: REAL_45_QUESTIONS.length }));
-      }, 1500);
     }
-  };
-
-  // 답변 완료 후 자동 이동 처리
-  const handleAnswerWithAutoMove = (questionId: number, score: number) => {
-    // 기본 답변 처리
-    handleAnswer(questionId, score);
-    
-    // 0.5초 후 다음 미답변 문항으로 자동 이동
-    setTimeout(() => {
-      const unansweredQuestions = REAL_45_QUESTIONS
-        .map((_, index) => index + 1)
-        .filter(qId => qId !== questionId && !formState.answers[qId]);
-      
-      if (unansweredQuestions.length > 0) {
-        const nextUnanswered = unansweredQuestions[0];
-        setFormState(prev => ({ ...prev, currentQuestion: nextUnanswered - 1 }));
-        
-        toast({
-          title: `✅ ${questionId}번 완료`,
-          description: `${unansweredQuestions.length}개 남음. ${nextUnanswered}번으로 자동 이동`,
-          variant: "default"
-        });
-      } else {
-        // 모든 문항 완료
-        toast({
-          title: "🎉 모든 문항 완료!",
-          description: "진단 제출 화면으로 자동 이동합니다.",
-          variant: "default"
-        });
-        
-        setTimeout(() => {
-          setFormState(prev => ({ ...prev, currentQuestion: REAL_45_QUESTIONS.length }));
-        }, 1000);
-      }
-    }, 500);
   };
 
   // 기업정보 입력 완료 (간소화)
@@ -399,11 +359,29 @@ const Real45QuestionForm: React.FC = () => {
     }
     
     setShowCompanyForm(false);
+    
+    // 점수체계 안내 모달 표시 (처음 한 번만)
+    if (!hasShownGuide) {
+      setShowScoreGuide(true);
+      setHasShownGuide(true);
+    } else {
+      setFormState(prev => ({ ...prev, currentQuestion: 0 }));
+    }
+  };
+
+  // 점수체계 안내 모달 완료 후 진단 시작
+  const handleScoreGuideComplete = () => {
+    setShowScoreGuide(false);
     setFormState(prev => ({ ...prev, currentQuestion: 0 }));
   };
 
-  // 답변 저장 (자동 진행 포함) - React 오류 #418, #423 수정
+  // 답변 저장 및 자동 진행 - 개선된 버전
   const handleAnswer = (questionId: number, score: number) => {
+    // 중복 클릭 방지 - 이미 답변된 경우 무시
+    if (formState.answers[questionId] === score) {
+      return;
+    }
+
     setFormState(prev => ({
       ...prev,
       answers: {
@@ -424,28 +402,38 @@ const Real45QuestionForm: React.FC = () => {
     toast({
       title: `✅ ${scoreLabels[score as keyof typeof scoreLabels]} 선택됨`,
       description: `질문 ${questionId}번에 ${score}점을 부여했습니다.`,
-      duration: 2000,
+      duration: 1500,
     });
 
-    // React.startTransition으로 상태 업데이트 안전하게 처리
-    const timer = setTimeout(() => {
-      React.startTransition(() => {
-        if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
-          setFormState(prev => ({
-            ...prev,
-            currentQuestion: prev.currentQuestion + 1
-          }));
-        }
-      });
-    }, 1200); // 피드백을 확인할 시간을 조금 더 줌
-
-    // 타이머 정리를 위해 ref나 state에 저장할 수도 있지만, 
-    // 여기서는 컴포넌트가 언마운트될 때 자동으로 정리됩니다.
-    return () => clearTimeout(timer);
+    // 자동 진행 로직 - 0.5초 후 다음 질문으로 이동
+    setTimeout(() => {
+      if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
+        setFormState(prev => ({
+          ...prev,
+          currentQuestion: prev.currentQuestion + 1
+        }));
+      } else {
+        // 마지막 질문인 경우 제출 처리
+        handleSubmit();
+      }
+    }, 500);
   };
 
-  // 다음 질문 - React 오류 #418, #423 수정
+  // 다음 질문 - 필수 답변 검증 강화
   const handleNext = () => {
+    const currentQuestionId = formState.currentQuestion + 1;
+    
+    // 현재 질문에 답변이 없으면 진행 불가
+    if (!formState.answers[currentQuestionId]) {
+      toast({
+        title: "⚠️ 답변 필수",
+        description: "현재 질문에 답변해야 다음으로 진행할 수 있습니다.",
+        variant: "destructive",
+        duration: 3000
+      });
+      return;
+    }
+
     React.startTransition(() => {
       if (formState.currentQuestion < REAL_45_QUESTIONS.length - 1) {
         setFormState(prev => ({
@@ -611,9 +599,19 @@ const Real45QuestionForm: React.FC = () => {
         <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-lg rounded-2xl shadow-2xl bg-white overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-4">
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="font-semibold">AI 역량진단 보고서 생성 중</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="font-semibold">AI 역량진단 보고서 생성 중</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPersistentNoticeOpen(false)}
+                  className="text-white hover:bg-white/20 h-8 w-8 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
               <p className="text-white/80 text-sm mt-1">실시간 진행상황을 확인하세요</p>
             </div>
@@ -1042,9 +1040,9 @@ const Real45QuestionForm: React.FC = () => {
                 진행률: {Math.round(progress)}%
               </p>
               {answeredCount < REAL_45_QUESTIONS.length && (
-                <div className="flex items-center text-sm text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-200">
+                <div className="flex items-center text-sm text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200 animate-pulse">
                   <span className="mr-1">⚠️</span>
-                  <span className="font-medium">{REAL_45_QUESTIONS.length - answeredCount}개 미답변</span>
+                  <span className="font-bold">{REAL_45_QUESTIONS.length - answeredCount}개 미답변 (필수)</span>
                 </div>
               )}
             </div>
@@ -1194,13 +1192,8 @@ const Real45QuestionForm: React.FC = () => {
                         <button
                           key={indicator.score}
                           onClick={() => {
-                            // 미답변 문항이 있으면 자동 이동 모드, 없으면 일반 모드
-                            const unansweredCount = REAL_45_QUESTIONS.length - Object.keys(formState.answers).length;
-                            if (unansweredCount > 1) {
-                              handleAnswerWithAutoMove(currentQuestion.id, indicator.score);
-                            } else {
-                              handleAnswer(currentQuestion.id, indicator.score);
-                            }
+                            // 단순히 답변만 저장 - 자동 이동 제거
+                            handleAnswer(currentQuestion.id, indicator.score);
                           }}
                           className={`
                             w-full p-4 text-left border-2 rounded-lg transition-all duration-300 transform
@@ -1318,8 +1311,8 @@ const Real45QuestionForm: React.FC = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* 저장 버튼 */}
-        <div className="mt-6 text-center">
+        {/* 저장 및 미답변 문항 안내 */}
+        <div className="mt-6 text-center space-y-3">
           <Button
             variant="ghost"
             size="sm"
@@ -1333,8 +1326,29 @@ const Real45QuestionForm: React.FC = () => {
             <Save className="mr-2 h-4 w-4" />
             진행상황 자동 저장됨
           </Button>
+          
+          {answeredCount < REAL_45_QUESTIONS.length && (
+            <div className="mt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={moveToNextUnanswered}
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                <ArrowRight className="mr-2 h-4 w-4" />
+                미답변 문항으로 이동 ({REAL_45_QUESTIONS.length - answeredCount}개 남음)
+              </Button>
+            </div>
+          )}
         </div>
               </div>
+
+        {/* 점수체계 안내 모달 */}
+        <ScoreGuideModal
+          isVisible={showScoreGuide}
+          onClose={() => setShowScoreGuide(false)}
+          onStart={handleScoreGuideComplete}
+        />
 
         {/* 진행 상황 안내 모달 */}
         {showProgressGuide && (
@@ -1408,8 +1422,8 @@ const Real45QuestionForm: React.FC = () => {
                   <button
                     onClick={() => {
                       setShowMissingAnswerAlert(false);
-                      // 첫 번째 미답변 문항으로 이동하고 자동화 모드 활성화
-                      goToNextUnansweredQuestion();
+                      // 첫 번째 미답변 문항으로 이동
+                      moveToNextUnanswered();
                     }}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   >

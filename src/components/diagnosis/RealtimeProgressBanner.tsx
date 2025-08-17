@@ -82,7 +82,7 @@ export default function RealtimeProgressBanner({
   onError,
   onClose,
   autoHideOnComplete = false, // 🔧 자동 숨김 비활성화 - 사용자가 수동으로 닫을 때까지 유지
-  autoHideDelay = 8000
+  autoHideDelay = 0 // 완료 후에도 자동으로 사라지지 않음
 }: RealtimeProgressBannerProps) {
   const [progressState, setProgressState] = useState<DiagnosisProgressState | null>(null);
   const [hasError, setHasError] = useState(false);
@@ -129,15 +129,10 @@ export default function RealtimeProgressBanner({
     }
   }, [isVisible, diagnosisId, companyName, handleProgressUpdate]);
 
-  // 자동 숨김 처리
+  // 자동 숨김 처리 - 완전히 비활성화하여 지속 표시
   useEffect(() => {
-    if (progressState?.isCompleted && autoHideOnComplete) {
-      const timer = setTimeout(() => {
-        if (onClose) onClose();
-      }, autoHideDelay);
-
-      return () => clearTimeout(timer);
-    }
+    // autoHideOnComplete가 false이므로 자동 숨김 처리하지 않음
+    // 사용자가 수동으로 닫을 때까지 배너가 지속적으로 표시됨
   }, [progressState?.isCompleted, autoHideOnComplete, autoHideDelay, onClose]);
 
   // 진행 상태가 없으면 렌더링하지 않음

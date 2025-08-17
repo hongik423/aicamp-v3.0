@@ -89,9 +89,57 @@ export async function GET(request: NextRequest) {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
           });
+          
+          // 응답 상태 확인
+          if (res.status === 404) {
+            // 결과가 아직 준비되지 않음 - 정상적인 상황
+            sendEvent('progress', {
+              success: true,
+              diagnosisId,
+              status: 'processing',
+              elapsedMs,
+              etaHint: '약 10분 내외',
+              timestamp: new Date().toISOString(),
+              snapshot: getProgressSnapshot(diagnosisId) || null,
+            });
+            return;
+          }
+          
+          if (res.status === 500) {
+            // 서버 오류 - 진행 상태 유지
+            console.warn('⚠️ 진단 결과 조회 서버 오류 (500), 진행 상태 유지:', diagnosisId);
+            sendEvent('progress', {
+              success: true,
+              diagnosisId,
+              status: 'processing',
+              note: '서버 처리 중, 잠시 후 다시 확인합니다',
+              elapsedMs,
+              etaHint: '약 10분 내외',
+              timestamp: new Date().toISOString(),
+              snapshot: getProgressSnapshot(diagnosisId) || null,
+            });
+            return;
+          }
+          
+          if (!res.ok) {
+            // 기타 HTTP 오류
+            console.warn('⚠️ 진단 결과 조회 HTTP 오류:', res.status, diagnosisId);
+            sendEvent('progress', {
+              success: true,
+              diagnosisId,
+              status: 'processing',
+              note: '상태 확인 중 일시적 문제 발생',
+              elapsedMs,
+              etaHint: '약 10분 내외',
+              timestamp: new Date().toISOString(),
+              snapshot: getProgressSnapshot(diagnosisId) || null,
+            });
+            return;
+          }
+
           const data = await res.json();
 
-          if (res.ok && data?.success) {
+          if (data?.success) {
             // 결과 준비 완료
             sendEvent('done', { success: true, diagnosisId, ...data });
             cleanup();
@@ -110,12 +158,16 @@ export async function GET(request: NextRequest) {
           });
         } catch (error: any) {
           // 네트워크/임시 오류: 진행 유지
+          console.warn('⚠️ 진단 결과 조회 네트워크 오류:', error?.message, diagnosisId);
           sendEvent('progress', {
             success: true,
             diagnosisId,
             status: 'processing',
             note: '상태 확인 중 일시적 연결 문제 발생',
             error: error?.message,
+            elapsedMs,
+            etaHint: '약 10분 내외',
+            timestamp: new Date().toISOString(),
             snapshot: getProgressSnapshot(diagnosisId) || null,
           });
         }
