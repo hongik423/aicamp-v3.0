@@ -5,8 +5,7 @@
 import fetch from 'node-fetch';
 
 const PRODUCTION_URLS = [
-  'https://aicamp.club',
-  'https://aicamp-v3-0.vercel.app'
+  'https://aicamp.club'
 ];
 
 const testData = {
@@ -18,7 +17,12 @@ const testData = {
   aiFamiliarity: 3,
   currentAiTools: 2,
   changeReadiness: 3,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
+  // 필수: 45문항 응답 데이터 추가
+  assessmentResponses: Array.from({ length: 45 }, (_, i) => [i + 1, Math.floor(Math.random() * 5) + 1]).reduce((acc, [id, score]) => {
+    acc[id] = score;
+    return acc;
+  }, {})
 };
 
 async function testProductionAPI(baseUrl) {

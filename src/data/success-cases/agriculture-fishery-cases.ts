@@ -36,7 +36,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 완전 자동화 수직농장으로 365일 안정적인 농산물 생산을 실현한 농업 혁신 사례',
     icon: Sprout,
     color: 'green',
-    heroImage: '/images/benchmark/41. AI 기반 스마트 농업 관리.png',
+    heroImage: '/images/benchmark2/완전 자율 스마트팔 운영 시스템.png',
     companyInfo: {
       industry: '스마트팜 운영',
       employees: '450명',
@@ -307,7 +307,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n으로 전통 농업을 과학영농으로 전환하여 생산성과 수익성을 극대화한 농촌 혁신 사례',
     icon: Wheat,
     color: 'yellow',
-    heroImage: '/images/benchmark/42. AI 기반 작물 수확 최적화.png',
+    heroImage: '/images/benchmark2/AI 기반 전통농업 디지털 전환.png',
     companyInfo: {
       industry: '농산물 생산·유통',
       employees: '조합원 12,000명',
@@ -512,7 +512,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 스마트 축산으로 동물복지와 생산성을 동시에 실현한 축산업 혁신 사례',
     icon: Beef,
     color: 'red',
-    heroImage: '/images/benchmark/43. AI 기반 가축 건강 모니터링.png',
+    heroImage: '/images/benchmark2/AI 축산 통합 관리 플랫폼.png',
     companyInfo: {
       industry: '육계 사육·가공',
       employees: '3,200명',
@@ -717,7 +717,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 첨단 양식 기술로 지속가능한 수산업을 실현한 해양 혁신 사례',
     icon: Fish,
     color: 'blue',
-    heroImage: '/images/benchmark/44. AI 기반 수산 양식 관리.png',
+    heroImage: '/images/benchmark2/AI 스마트 양식장 운영 시스템.png',
     companyInfo: {
       industry: '수산 양식',
       employees: '1,850명',
@@ -922,7 +922,7 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 스마트 산림 관리로 산림 자원을 보호하고 탄소흡수원을 확대한 그린 혁신 사례',
     icon: TreePine,
     color: 'green',
-    heroImage: '/images/benchmark/45. AI 기반 산림 자원 관리.png',
+    heroImage: '/images/benchmark2/AI 산림 통합 관리 시스템.png',
     companyInfo: {
       industry: '산림 관리',
       employees: '1,200명',

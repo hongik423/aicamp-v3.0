@@ -32,7 +32,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 물류 전 과정의 최적화로 국내 물류 산업을 선도하는 디지털 전환 성공사례',
     icon: Package,
     color: 'blue',
-    heroImage: '/images/benchmark/29AI 기반 물류 창고 자동화.png',
+    heroImage: '/images/benchmark2/이커머스 물류 AI 자동화.png',
     companyInfo: {
       industry: '종합물류서비스',
       employees: '12,000명',
@@ -303,7 +303,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 선박 운항 최적화와 컨테이너 관리 자동화로 글로벌 해운 경쟁력을 강화한 사례',
     icon: Ship,
     color: 'cyan',
-    heroImage: '/images/benchmark/48. AI 기반 도시 교통 최적화.png',
+    heroImage: '/images/benchmark2/스마트 철도 물류 혁신.png',
     companyInfo: {
       industry: '해운업',
       employees: '6,500명',
@@ -503,7 +503,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 항공 화물 운송 최적화로 글로벌 물류 경쟁력을 강화한 혁신 사례',
     icon: Plane,
     color: 'sky',
-    heroImage: '/images/benchmark/49. AI 기반 대중교통 운영 최적화.png',
+    heroImage: '/images/benchmark2/스마트 해운 디지털 전환.png',
     companyInfo: {
       industry: '항공화물운송',
       employees: '3,200명',
@@ -528,7 +528,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 철도 화물 운송 자동화로 친환경 물류를 실현한 사례',
     icon: Navigation,
     color: 'green',
-    heroImage: '/images/benchmark/50. AI 기반 물류 차량 경로 최적화.png',
+    heroImage: '/images/benchmark2/라스트마일 배송 AI 혁신.png',
     companyInfo: {
       industry: '철도물류',
       employees: '2,800명',
@@ -552,7 +552,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 라스트마일 배송 최적화로 도심 물류를 혁신한 사례',
     icon: MapPin,
     color: 'purple',
-    heroImage: '/images/benchmark/59AI 기반 군사 전략 시뮬레이션.png',
+    heroImage: '/images/benchmark2/AI 항공 화물 최적화 시스템.png',
     companyInfo: {
       industry: '라스트마일 배송',
       employees: '850명',
@@ -576,7 +576,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 콜드체인 물류 최적화로 신선도를 완벽하게 유지한 혁신 사례',
     icon: Box,
     color: 'blue',
-    heroImage: '/images/benchmark/52AI 기반 선박 운항 관리.png',
+    heroImage: '/images/benchmark2/AI 콜드체인 관리 시스템.png',
     companyInfo: {
       industry: '콜드체인 물류',
       employees: '1,500명',
@@ -600,7 +600,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
     description: 'AI와 n8n을 활용한 이커머스 풀필먼트 센터 완전 자동화로 초고속 배송을 실현한 사례',
     icon: Truck,
     color: 'red',
-    heroImage: '/images/benchmark/50. AI 기반 물류 차량 경로 최적화.png',
+    heroImage: '/images/benchmark2/라스트마일 배송 AI 혁신.png',
     companyInfo: {
       industry: '이커머스 물류',
       employees: '25,000명',

@@ -32,7 +32,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 대학 교육 및 행정 전반의 디지털 전환으로 미래형 스마트 캠퍼스를 구현한 혁신 사례',
     icon: GraduationCap,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1523240794102-9ebd0b167f70?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark2/AI 기반 스마트 캠퍼스 혁신.png',
     companyInfo: {
       industry: '종합대학',
       employees: '4,200명',
@@ -303,7 +303,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 적응형 학습과 n8n 자동화로 모든 학생에게 최적화된 교육을 제공하는 혁신 사례',
     icon: School,
     color: 'green',
-    heroImage: 'https://images.unsplash.com/photo-1523240794102-9ebd0b167f70?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark2/K-12 AI 맞춤형 학습 혁신.png',
     companyInfo: {
       industry: '초중고 사립학교',
       employees: '320명',
@@ -502,7 +502,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 시뮬레이션과 n8n 자동화로 산업 현장 맞춤형 인재를 양성하는 직업교육 혁신 사례',
     icon: BookOpen,
     color: 'purple',
-    heroImage: 'https://images.unsplash.com/photo-1523240794102-9ebd0b167f70?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark2/기업 맞춤형 AI 교육 혁신.png',
     companyInfo: {
       industry: '직업능력개발',
       employees: '1,200명',
@@ -701,7 +701,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 음성 인식과 n8n 자동화로 언어 학습의 효과를 극대화한 혁신적 사례',
     icon: Globe,
     color: 'orange',
-    heroImage: '/images/benchmark/95AI 기반 번역·통역 지원.png',
+    heroImage: '/images/benchmark2/AI 언어 학습 플랫폼 혁신.png',
     companyInfo: {
       industry: '어학교육',
       employees: '850명',
@@ -900,7 +900,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 연구 프로세스 혁신으로 R&D 효율을 극대화한 사례',
     icon: Microscope,
     color: 'indigo',
-    heroImage: 'https://images.unsplash.com/photo-1523240794102-9ebd0b167f70?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark2/실무 중심 AI 직업교육 혁신.png',
     companyInfo: {
       industry: '국책연구소',
       employees: '2,100명',
@@ -1099,7 +1099,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 콘텐츠 최적화와 n8n 자동화로 온라인 교육의 효과를 극대화한 플랫폼 혁신 사례',
     icon: Library,
     color: 'pink',
-    heroImage: 'https://images.unsplash.com/photo-1523240794102-9ebd0b167f70?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark2/크리에이터 교육 AI 혁신.png',
     companyInfo: {
       industry: '온라인 교육 플랫폼',
       employees: '280명',
@@ -1298,7 +1298,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 기반 맞춤형 기업교육으로 임직원 역량을 획기적으로 향상시킨 HRD 혁신 사례',
     icon: Award,
     color: 'yellow',
-    heroImage: 'https://images.unsplash.com/photo-1523240794102-9ebd0b167f70?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark2/AI 기반 스마트 캠퍼스 혁신.png',
     companyInfo: {
       industry: '기업교육서비스',
       employees: '520명',

@@ -28,7 +28,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 반도체 제조 공정 최적화와 품질 관리 자동화로 생산성과 품질을 동시에 혁신한 벤치마크 사례',
     icon: Cpu,
     color: 'blue',
-    heroImage: '/images/benchmark/32. AI 기반 품질 보증(QA) 자동화.png',
+    heroImage: '/images/benchmark2/AI 기반 스마트 건설 현장 혁신.png',
     companyInfo: {
       industry: '전자/반도체',
       employees: '200명',
@@ -154,7 +154,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 자동차 생산 라인 최적화와 품질 관리로 고품질 자동차를 대량 생산한 벤치마크 사례',
     icon: Factory,
     color: 'red',
-    heroImage: '/images/benchmark/6. AI 기반 자동차 금융 AI 예측 최적화.png',
+    heroImage: '/images/benchmark2/모듈러 건축 AI 생산 혁신.png',
     companyInfo: {
       industry: '자동차 제조',
       employees: '180명',
@@ -236,7 +236,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 화학 공정 최적화와 에너지 효율성 향상으로 환경 친화적 생산을 실현한 벤치마크 사례',
     icon: Beaker,
     color: 'green',
-    heroImage: '/images/benchmark/7. AI 기반 에너지 관리 AI 기반 스마트 발전소.png',
+    heroImage: '/images/benchmark2/AI 화력발전소 운영 최적화.png',
     companyInfo: {
       industry: '화학/제약',
       employees: '300명',
@@ -318,7 +318,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 식품 안전 검사와 품질 관리 자동화로 소비자 안전을 보장한 벤치마크 사례',
     icon: Utensils,
     color: 'orange',
-    heroImage: '/images/benchmark/11. AI 신용평가 KYC 온보딩 자동화.png',
+    heroImage: '/images/benchmark2/스마트 약국 운영 자동화.png',
     companyInfo: {
       industry: '식품/음료',
       employees: '120명',
@@ -400,7 +400,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 섬유 생산 라인 최적화와 품질 관리로 고품질 섬유를 대량 생산한 벤치마크 사례',
     icon: Factory,
     color: 'red',
-    heroImage: '/images/benchmark/82AI 기반 의류 생산 최적화.png',
+    heroImage: '/images/benchmark2/AI 디자인 생성 혁신.png',
     companyInfo: {
       industry: '섬유/의류',
       employees: '200명',
@@ -482,7 +482,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 건자재 생산 라인 최적화와 품질 관리로 고품질 건자재를 대량 생산한 벤치마크 사례',
     icon: Factory,
     color: 'gray',
-    heroImage: '/images/benchmark/13. 정산청구 자동화 AI 기반 B2B 운송 비용 자동 정산.png',
+    heroImage: '/images/benchmark2/스마트 인프라 건설 혁신.png',
     companyInfo: {
       industry: '건자재/유리',
       employees: '150명',
@@ -564,7 +564,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 선박 설계 최적화와 연료 효율성 향상으로 경쟁력 있는 선박을 개발한 벤치마크 사례',
     icon: Anchor,
     color: 'navy',
-    heroImage: '/images/benchmark/73AI 기반 해양 환경 모니터링.png',
+    heroImage: '/images/benchmark2/스마트 해운 디지털 전환.png',
     companyInfo: {
       industry: '조선/해양',
       employees: '600명',
@@ -646,7 +646,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 항공기 부품의 초정밀 품질 검사와 제조 공정 최적화로 안전한 항공기를 생산한 벤치마크 사례',
     icon: Plane,
     color: 'sky',
-    heroImage: '/images/benchmark/21AI 기반 항공기 부품 품질 관리.png',
+    heroImage: '/images/benchmark2/AI 항공 화물 최적화 시스템.png',
     companyInfo: {
       industry: '항공/우주',
       employees: '350명',
@@ -728,7 +728,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 에너지 사용량 최적화와 예측 분석으로 지속 가능한 에너지 생산을 실현한 벤치마크 사례',
     icon: Droplets,
     color: 'blue',
-    heroImage: '/images/benchmark/17AI 기반 선박 설계 최적화.png',
+    heroImage: '/images/benchmark2/AI 기반 신재생에너지 통합 관리 플랫폼.png',
     companyInfo: {
       industry: '에너지/발전',
       employees: '250명',
@@ -810,7 +810,7 @@ export const manufacturingBenchmarkCases: { [key: string]: SuccessCaseDetail } =
     description: 'AI를 활용한 철강 제조 공정 최적화와 품질 관리로 고품질 철강 생산을 실현한 벤치마크 사례',
     icon: HardHat,
     color: 'gray',
-    heroImage: '/images/benchmark/21AI 기반 항공기 부품 품질 관리.png',
+    heroImage: '/images/benchmark2/AI 기반 스마트 물류 혁신 플랫폼.png',
     companyInfo: {
       industry: '중공업/장비',
       employees: '400명',

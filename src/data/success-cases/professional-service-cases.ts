@@ -32,7 +32,7 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
     description: 'AI와 n8n을 활용한 법률 문서 분석과 계약 검토 자동화로 법률 서비스의 효율성과 정확성을 획기적으로 개선한 사례',
     icon: Scale,
     color: 'indigo',
-    heroImage: '/images/benchmark/93AI 기반 법률 문서 분석.png',
+    heroImage: '/images/benchmark2/AI 법률 서비스 자동화 혁신.png',
     companyInfo: {
       industry: '법률사무소',
       employees: '1,200명',
@@ -278,7 +278,7 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
     description: 'AI와 n8n을 활용한 회계 감사 자동화와 부정 탐지로 감사 품질을 혁신적으로 개선한 사례',
     icon: Calculator,
     color: 'green',
-    heroImage: '/images/benchmark/94AI 기반 전자증거 분석.png',
+    heroImage: '/images/benchmark2/AI 회계 감사 혁신 플랫폼.png',
     companyInfo: {
       industry: '회계법인',
       employees: '3,500명',
@@ -465,7 +465,7 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
     description: 'AI 기반 시장/재무/운영 데이터 분석 자동화와 전략 시뮬레이션으로 프로젝트 납기를 단축하고 품질을 고도화',
     icon: Briefcase,
     color: 'blue',
-    heroImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop&crop=center',
+    heroImage: '/images/benchmark2/AI 경영 분석 자동화분.png',
     companyInfo: { industry: '경영컨설팅', employees: '1,000명', revenue: '연 매출 8,500억원', location: '서울 강남' },
     challenges: [
       { title: '수작업 리서치 의존', description: '분산된 데이터 수집/정제에 과다 시간', impact: '인사이트 도출 지연' },

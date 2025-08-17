@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getProgressSnapshot } from '../_progressStore';
+import { getProgressSnapshot, getProgressState } from '../_progressStore';
 
 // SSE로 진단 진행상황을 스트리밍합니다.
 // 내부적으로 10초 간격으로 `/api/diagnosis-results/[id]`를 폴링하여
@@ -52,7 +52,8 @@ export async function GET(request: NextRequest) {
         diagnosisId,
         message: 'SSE 연결 성공: 진행상태를 모니터링합니다',
         timestamp: new Date().toISOString(),
-        snapshot: getProgressSnapshot(diagnosisId) || null,
+        // 스토어에 실제 진행 데이터가 존재할 때만 스냅샷 제공
+        snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
       });
 
       const cleanup = () => {
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
               elapsedMs,
               etaHint: '약 10분 내외',
               timestamp: new Date().toISOString(),
-              snapshot: getProgressSnapshot(diagnosisId) || null,
+              snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
             });
             return;
           }
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest) {
               elapsedMs,
               etaHint: '약 10분 내외',
               timestamp: new Date().toISOString(),
-              snapshot: getProgressSnapshot(diagnosisId) || null,
+              snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
             });
             return;
           }
@@ -139,7 +140,7 @@ export async function GET(request: NextRequest) {
               elapsedMs,
               etaHint: '약 10분 내외',
               timestamp: new Date().toISOString(),
-              snapshot: getProgressSnapshot(diagnosisId) || null,
+              snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
             });
             return;
           }
@@ -161,7 +162,7 @@ export async function GET(request: NextRequest) {
             elapsedMs,
             etaHint: '약 10분 내외',
             timestamp: new Date().toISOString(),
-            snapshot: getProgressSnapshot(diagnosisId) || null,
+            snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
           });
         } catch (error: any) {
           // 네트워크/임시 오류: 진행 유지
@@ -175,7 +176,7 @@ export async function GET(request: NextRequest) {
             elapsedMs,
             etaHint: '약 10분 내외',
             timestamp: new Date().toISOString(),
-            snapshot: getProgressSnapshot(diagnosisId) || null,
+            snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
           });
         }
       };
