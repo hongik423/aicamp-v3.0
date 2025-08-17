@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
       action: requestData.action || 'unknown'
     });
 
-    // Google Apps Script 타임아웃을 800초로 설정 (Vercel 최대 제한)
+    // Google Apps Script 타임아웃을 890초로 설정 (Vercel Pro Fluid Compute)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 800000); // 800초 타임아웃 [[memory:5039126]]
+    const timeoutId = setTimeout(() => controller.abort(), 890000); // 890초 타임아웃
 
     console.log('🚀 Google Apps Script V15.0 ULTIMATE MCKINSEY 요청 전송 중... (최대 13.33분 대기)');
     

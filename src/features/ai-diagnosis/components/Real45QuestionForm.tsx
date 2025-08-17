@@ -678,10 +678,19 @@ const Real45QuestionForm: React.FC = () => {
                 <label className="flex items-start gap-3">
                   <Checkbox
                     checked={!!formState.companyInfo.privacyConsent}
-                    onCheckedChange={(v) => setFormState(prev => ({
-                      ...prev,
-                      companyInfo: { ...prev.companyInfo, privacyConsent: Boolean(v) }
-                    }))}
+                    onCheckedChange={(v) => {
+                      // 🛡️ 개인정보 동의 상태 강화된 검증
+                      const isChecked = v === true;
+                      console.log('🛡️ AI진단 개인정보 동의 상태 변경:', {
+                        input: v,
+                        processed: isChecked,
+                        type: typeof v
+                      });
+                      setFormState(prev => ({
+                        ...prev,
+                        companyInfo: { ...prev.companyInfo, privacyConsent: isChecked }
+                      }));
+                    }}
                   />
                   <span className="text-sm text-gray-700">
                     개인정보 수집·이용에 동의합니다. 수집 항목: 회사/담당자 정보, 진단 응답. 이용 목적: AI 역량진단 분석 및 보고서 발송. 보유 기간: 목적 달성 후 즉시 파기(법령상 보관 의무 제외). 동의하지 않을 권리가 있으나, 동의하지 않을 경우 서비스 제공이 제한될 수 있습니다.

@@ -2,7 +2,7 @@
 (function() {
   'use strict';
   
-  // 차단할 오류 패턴 (확장됨)
+  // 차단할 오류 패턴 (확장됨) - 개인정보 동의 관련 추가
   const errorPatterns = [
     'Extension context invalidated',
     'port closed',
@@ -18,17 +18,23 @@
     'manifest.webmanifest',
     'Failed to load resource',
     '401',
+    '403',
     'Authentication Required',
     'Uncaught (in promise)',
     'Failed to fetch RSC payload',
     'Falling back to browser navigation',
     'TypeError: url.includes is not a function',
     'Failed to load resource: the server responded with a status of 401',
+    'Failed to load resource: the server responded with a status of 403',
     'Manifest fetch from',
     'failed, code 401',
+    'failed, code 403',
     'Failed to load resource: the server responded with a status of 401 ()',
+    'Failed to load resource: the server responded with a status of 403 ()',
     'Manifest fetch from https://',
     'failed, code 401',
+    'failed, code 403',
+    'aicampv30-bbd4jhdaj-hongik423-3087s-projects.vercel.app',
     'aicampv30-2tklw0vr3-hongik423-3087s-projects.vercel.app',
     'aicampv30-jx4epkyxr-hongik423-3087s-projects.vercel.app',
     'aicampv30-4kouuv7eo-hongik423-3087s-projects.vercel.app',
@@ -41,7 +47,13 @@
     'extension://',
     'moz-extension://',
     'safari-extension://',
-    'ms-browser-extension://'
+    'ms-browser-extension://',
+    '개인정보 동의',
+    'privacyConsent',
+    '개인정보 수집',
+    '개인정보 처리방침',
+    'privacy consent',
+    'Privacy Policy'
   ];
   
   // 오류 메시지 필터링 함수

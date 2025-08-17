@@ -34,7 +34,7 @@ function isValidApiKey(): boolean {
   }
 }
 
-// GEMINI API 호출
+// GEMINI 2.5 Flash API 호출 (최적화된 버전)
 export async function callGeminiAPI(prompt: string, retryCount: number = 3): Promise<any> {
   console.log('🚀 GEMINI 2.5 Flash API 호출 시작');
   console.log('🔧 모델:', GEMINI_MODEL);
@@ -49,6 +49,10 @@ export async function callGeminiAPI(prompt: string, retryCount: number = 3): Pro
       }
 
       console.log(`📡 시도 ${attempt}/${retryCount}`);
+      
+      // 🔍 토큰 사용량 추정 (GEMINI 2.5 Flash 최적화)
+      const estimatedInputTokens = Math.ceil(prompt.length / 3.5);
+      console.log(`📊 예상 입력 토큰: ${estimatedInputTokens.toLocaleString()}`);
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 300000); // 5분 타임아웃
@@ -112,7 +116,11 @@ export async function callGeminiAPI(prompt: string, retryCount: number = 3): Pro
       throw new Error('응답에서 텍스트를 찾을 수 없습니다');
     }
 
-      console.log('✅ GEMINI 2.5 Flash 응답 수신 - 길이:', textContent.length);
+      // 🔍 출력 토큰 사용량 분석
+      const estimatedOutputTokens = Math.ceil(textContent.length / 3.5);
+      console.log('✅ GEMINI 2.5 Flash 응답 수신');
+      console.log(`📊 출력 토큰 분석: ${estimatedOutputTokens.toLocaleString()} 토큰`);
+      console.log(`📏 생성된 텍스트 길이: ${textContent.length.toLocaleString()} 글자`);
 
       // JSON 응답 파싱 시도
       try {

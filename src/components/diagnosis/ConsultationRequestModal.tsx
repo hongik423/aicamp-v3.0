@@ -471,7 +471,16 @@ export default function ConsultationRequestModal({
               <Checkbox
                 id="privacyConsent"
                 checked={formData.privacyConsent}
-                onCheckedChange={(checked) => handleInputChange('privacyConsent', !!checked)}
+                onCheckedChange={(checked) => {
+                  // 🛡️ 개인정보 동의 상태 강화된 검증
+                  const isChecked = checked === true;
+                  console.log('🛡️ 상담신청 개인정보 동의 상태 변경:', {
+                    input: checked,
+                    processed: isChecked,
+                    type: typeof checked
+                  });
+                  handleInputChange('privacyConsent', isChecked);
+                }}
                 required
                 className="w-7 h-7 border-4 border-black shadow-lg ring-2 ring-blue-500 ring-offset-2 data-[state=checked]:bg-blue-600 data-[state=checked]:border-black data-[state=checked]:ring-green-500 rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-xl focus:ring-4 focus:ring-blue-300"
               />

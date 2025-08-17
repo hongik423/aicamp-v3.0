@@ -127,8 +127,11 @@ const registerServiceWorkerSafely = () => {
         message.includes('manifest.webmanifest') ||
         message.includes('Failed to load resource') ||
         message.includes('401') ||
+        message.includes('403') ||
+        message.includes('개인정보 동의') ||
+        message.includes('privacyConsent') ||
         message.includes('message port closed')) {
-      return; // 확장 프로그램 및 manifest 관련 오류는 무시
+      return; // 🛡️ 확장 프로그램, manifest, 개인정보 관련 오류는 무시
     }
     originalConsoleWarn.apply(console, args);
   };
@@ -146,8 +149,11 @@ const registerServiceWorkerSafely = () => {
         message.includes('manifest.webmanifest') ||
         message.includes('Failed to load resource') ||
         message.includes('401') ||
+        message.includes('403') ||
+        message.includes('개인정보 동의') ||
+        message.includes('privacyConsent') ||
         message.includes('message port closed')) {
-      return; // 확장 프로그램 및 manifest 관련 오류는 무시
+      return; // 🛡️ 확장 프로그램, manifest, 개인정보 관련 오류는 무시
     }
     originalConsoleError.apply(console, args);
   };
@@ -162,6 +168,10 @@ const registerServiceWorkerSafely = () => {
         errorMessage.includes('content.js') ||
         errorMessage.includes('manifest.webmanifest') ||
         errorMessage.includes('Failed to load resource') ||
+        errorMessage.includes('401') ||
+        errorMessage.includes('403') ||
+        errorMessage.includes('개인정보 동의') ||
+        errorMessage.includes('privacyConsent') ||
         errorSource.includes('chrome-extension://') ||
         errorSource.includes('content.js')) {
       event.preventDefault();
@@ -178,7 +188,11 @@ const registerServiceWorkerSafely = () => {
         reason.includes('chrome-extension://') ||
         reason.includes('content.js') ||
         reason.includes('manifest.webmanifest') ||
-        reason.includes('Failed to load resource'))) {
+        reason.includes('Failed to load resource') ||
+        reason.includes('401') ||
+        reason.includes('403') ||
+        reason.includes('개인정보 동의') ||
+        reason.includes('privacyConsent'))) {
       event.preventDefault();
       return false;
     }
@@ -253,6 +267,7 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+        <link rel="apple-touch-icon" href="/images/aicamp_logo_del_250726.png" sizes="180x180" />
         
         {/* 강력한 캐시 무효화 - 일관된 최신 버전 보장 */}
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -324,13 +339,19 @@ export default function RootLayout({
                   optimizeFontLoading();
                 }
                 
-                // Chrome 확장 프로그램 오류 방지
+                // 🛡️ Chrome 확장 프로그램 및 manifest 오류 방지 강화
                 window.addEventListener('error', function(e) {
                   const msg = e.message || '';
                   if (msg.includes('runtime.lastError') || 
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
-                      msg.includes('The message port closed')) {
+                      msg.includes('The message port closed') ||
+                      msg.includes('manifest.webmanifest') ||
+                      msg.includes('Failed to load resource') ||
+                      msg.includes('401') ||
+                      msg.includes('403') ||
+                      msg.includes('개인정보 동의') ||
+                      msg.includes('privacyConsent')) {
                     e.preventDefault();
                     return false;
                   }
@@ -341,7 +362,13 @@ export default function RootLayout({
                   if (msg.includes('runtime.lastError') || 
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
-                      msg.includes('The message port closed')) {
+                      msg.includes('The message port closed') ||
+                      msg.includes('manifest.webmanifest') ||
+                      msg.includes('Failed to load resource') ||
+                      msg.includes('401') ||
+                      msg.includes('403') ||
+                      msg.includes('개인정보 동의') ||
+                      msg.includes('privacyConsent')) {
                     e.preventDefault();
                     return false;
                   }

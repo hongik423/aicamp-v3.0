@@ -111,22 +111,29 @@ export default function ConsultationPage() {
         throw new Error('VALIDATION_ERROR');
       }
 
-      // 개인정보 동의 재확인 (더 명확한 검증)
-      console.log('개인정보 동의 상태 상세 확인:', {
+      // 🛡️ 개인정보 동의 재확인 (더 명확한 검증)
+      console.log('🛡️ 개인정보 동의 상태 상세 확인:', {
         privacyConsent: formData.privacyConsent,
         type: typeof formData.privacyConsent,
-        strictCheck: formData.privacyConsent === true
+        strictCheck: formData.privacyConsent === true,
+        booleanCheck: Boolean(formData.privacyConsent),
+        isExactlyTrue: formData.privacyConsent === true
       });
       
-      if (!formData.privacyConsent || formData.privacyConsent !== true) {
-        console.error('개인정보 동의 상태 확인 실패:', formData.privacyConsent);
+      if (formData.privacyConsent !== true) {
+        console.error('🛡️ 개인정보 동의 상태 확인 실패:', {
+          value: formData.privacyConsent,
+          type: typeof formData.privacyConsent,
+          reason: '정확히 true가 아님'
+        });
         toast({
           variant: "destructive",
-          title: "개인정보 동의 필요",
+          title: "🛡️ 개인정보 동의 필요",
           description: "개인정보 수집 및 이용에 동의해주세요. 이는 필수 사항입니다.",
           duration: 5000,
         });
         setIsSubmitting(false);
+        setPersistentNoticeOpen(false);
         return;
       }
       

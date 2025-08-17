@@ -87,14 +87,14 @@ function getEnvironmentConfig() {
     MODEL: scriptProperties.getProperty('AI_MODEL') || 'GEMINI-2.5-FLASH-INTEGRATED',
     
     // API 설정
-    GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+    GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-exp:generateContent',
     
-    // 타임아웃 설정 (Vercel 800초 제한 고려)
+    // 타임아웃 설정 (Vercel Pro Fluid Compute 890초)
     TIMEOUTS: {
-      GEMINI_API: 600000,      // 10분 (600초)
+      GEMINI_API: 720000,      // 12분 (720초)
       EMAIL_SEND: 60000,       // 1분
       SHEET_SAVE: 30000,       // 30초
-      TOTAL_PROCESS: 720000    // 12분 (최대)
+      TOTAL_PROCESS: 850000    // 14분 10초 (최대)
     },
     
     // 재시도 설정
@@ -122,13 +122,14 @@ function getEnvironmentConfig() {
       CHART_JS_VERSION: '4.4.0'
     },
     
-    // GEMINI 2.5 Flash 전용 설정 (무제한 토큰)
+    // GEMINI 2.5 Flash 전용 설정 (최적화된 토큰)
     GEMINI_CONFIG: {
-      MODEL_NAME: 'gemini-1.5-flash',
+      MODEL_NAME: 'gemini-2.5-flash-exp',
       TEMPERATURE: 0.3,
       TOP_K: 40,
       TOP_P: 0.95,
-      MAX_OUTPUT_TOKENS: 50000, // 최대 토큰 상한 설정
+      MAX_OUTPUT_TOKENS: 32768, // GEMINI 2.5 Flash 최대 출력 토큰 (32K 추정)
+      MAX_INPUT_TOKENS: 2000000, // GEMINI 2.5 Flash 최대 입력 토큰 (2M 추정)
       SAFETY_SETTINGS: 'BLOCK_NONE'
     }
   };
@@ -1688,6 +1689,31 @@ function generateGeminiReportIntegrated(normalizedData, scoreAnalysis, swotAnaly
 }
 
 /**
+ * 프롬프트 토큰 최적화 (GEMINI 2.5 Flash)
+ */
+function optimizePromptForTokens(prompt) {
+  const config = getEnvironmentConfig();
+  const estimatedTokens = Math.ceil(prompt.length / 3.5);
+  
+  if (estimatedTokens > config.GEMINI_CONFIG.MAX_INPUT_TOKENS * 0.8) {
+    console.warn(`⚠️ 프롬프트 토큰 최적화 필요: ${estimatedTokens} 토큰`);
+    
+    // 프롬프트 압축 (중복 제거, 불필요한 공백 제거)
+    let optimizedPrompt = prompt
+      .replace(/\n\s*\n\s*\n/g, '\n\n') // 연속된 빈 줄 제거
+      .replace(/\s+/g, ' ') // 연속된 공백 제거
+      .trim();
+    
+    const optimizedTokens = Math.ceil(optimizedPrompt.length / 3.5);
+    console.log(`🔧 프롬프트 최적화: ${estimatedTokens} → ${optimizedTokens} 토큰 (${Math.round((1 - optimizedTokens/estimatedTokens) * 100)}% 절약)`);
+    
+    return optimizedPrompt;
+  }
+  
+  return prompt;
+}
+
+/**
  * GEMINI 프롬프트 구성 (통합 개선 버전)
  */
 function buildGeminiPromptIntegrated(normalizedData, scoreAnalysis, swotAnalysis) {
@@ -1729,17 +1755,35 @@ function callGeminiAPIIntegrated(prompt) {
   const maxRetries = config.RETRY.MAX_ATTEMPTS;
   let lastError;
   
+  // 🔧 프롬프트 토큰 최적화
+  const optimizedPrompt = optimizePromptForTokens(prompt);
+  
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`🔄 GEMINI API 호출 시도 ${attempt}/${maxRetries}`);
+      console.log(`🔄 GEMINI 2.5 Flash API 호출 시도 ${attempt}/${maxRetries}`);
+      
+      // 🔍 토큰 사용량 추정 (GEMINI 2.5 Flash 최적화)
+      const estimatedInputTokens = Math.ceil(optimizedPrompt.length / 3.5); // GEMINI 2.5 Flash: 1토큰 ≈ 3.5글자 (한국어 최적화)
+      const tokenUsagePercent = Math.round((estimatedInputTokens / config.GEMINI_CONFIG.MAX_INPUT_TOKENS) * 100);
+      
+      console.log(`📊 GEMINI 2.5 Flash 토큰 분석:`);
+      console.log(`   입력 토큰: ${estimatedInputTokens.toLocaleString()} / ${config.GEMINI_CONFIG.MAX_INPUT_TOKENS.toLocaleString()} (${tokenUsagePercent}%)`);
+      console.log(`   최대 출력: ${config.GEMINI_CONFIG.MAX_OUTPUT_TOKENS.toLocaleString()} 토큰`);
+      
+      if (estimatedInputTokens > config.GEMINI_CONFIG.MAX_INPUT_TOKENS) {
+        console.error(`🚨 입력 토큰 한도 초과: ${estimatedInputTokens.toLocaleString()} > ${config.GEMINI_CONFIG.MAX_INPUT_TOKENS.toLocaleString()}`);
+        throw new Error(`입력 토큰 한도 초과: ${estimatedInputTokens} > ${config.GEMINI_CONFIG.MAX_INPUT_TOKENS}`);
+      } else if (tokenUsagePercent > 80) {
+        console.warn(`⚠️ 토큰 사용량 높음 (${tokenUsagePercent}%) - 프롬프트 최적화 권장`);
+      }
       
       const requestPayload = {
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ parts: [{ text: optimizedPrompt }] }],
         generationConfig: {
           temperature: config.GEMINI_CONFIG.TEMPERATURE,
           topK: config.GEMINI_CONFIG.TOP_K,
-          topP: config.GEMINI_CONFIG.TOP_P
-          // maxOutputTokens 제거 - 무제한 토큰
+          topP: config.GEMINI_CONFIG.TOP_P,
+          maxOutputTokens: config.GEMINI_CONFIG.MAX_OUTPUT_TOKENS // GEMINI 2.5 Flash 32K 토큰 최적화
         }
       };
       
@@ -1757,7 +1801,19 @@ function callGeminiAPIIntegrated(prompt) {
         const jsonResponse = JSON.parse(responseText);
         if (jsonResponse.candidates && jsonResponse.candidates[0] && jsonResponse.candidates[0].content) {
           const generatedText = jsonResponse.candidates[0].content.parts[0].text;
-          console.log('✅ GEMINI API 호출 성공');
+          
+          // 🔍 출력 토큰 사용량 분석
+          const estimatedOutputTokens = Math.ceil(generatedText.length / 3.5);
+          const outputUsagePercent = Math.round((estimatedOutputTokens / config.GEMINI_CONFIG.MAX_OUTPUT_TOKENS) * 100);
+          
+          console.log('✅ GEMINI 2.5 Flash API 호출 성공');
+          console.log(`📊 출력 토큰 분석: ${estimatedOutputTokens.toLocaleString()} / ${config.GEMINI_CONFIG.MAX_OUTPUT_TOKENS.toLocaleString()} (${outputUsagePercent}%)`);
+          console.log(`📏 생성된 텍스트 길이: ${generatedText.length.toLocaleString()} 글자`);
+          
+          if (outputUsagePercent > 90) {
+            console.warn(`⚠️ 출력 토큰 사용량 매우 높음 (${outputUsagePercent}%) - 토큰 한도 증가 검토 필요`);
+          }
+          
           return generatedText;
         } else {
           throw new Error('GEMINI API 응답에서 콘텐츠를 찾을 수 없습니다.');

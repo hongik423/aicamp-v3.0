@@ -22,10 +22,17 @@ export default function PrivacyConsent({
 }: PrivacyConsentProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleConsentChange = (newChecked: boolean) => {
-    console.log('개인정보 동의 상태 변경:', newChecked);
+  const handleConsentChange = (newChecked: boolean | 'indeterminate') => {
+    // 🛡️ 개인정보 동의 상태 검증 강화
+    const isChecked = newChecked === true;
+    console.log('🛡️ 개인정보 동의 상태 변경:', {
+      input: newChecked,
+      processed: isChecked,
+      type: typeof newChecked
+    });
+    
     if (onCheckedChange && typeof onCheckedChange === 'function') {
-      onCheckedChange(newChecked);
+      onCheckedChange(isChecked);
     }
   };
 
