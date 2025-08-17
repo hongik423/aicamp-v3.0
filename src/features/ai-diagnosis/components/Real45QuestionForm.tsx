@@ -29,6 +29,7 @@ interface CompanyInfo {
   annualRevenue: string;
   location: string;
   privacyConsent?: boolean;
+  marketingConsent?: boolean;
 }
 
 interface FormState {
@@ -59,7 +60,8 @@ const Real45QuestionForm: React.FC = () => {
       employeeCount: '',
       annualRevenue: '',
       location: '',
-      privacyConsent: false
+      privacyConsent: false,
+      marketingConsent: false
     },
     answers: {},
     currentQuestion: -1, // -1 = 기업정보 입력, 0-44 = 질문
@@ -640,6 +642,35 @@ const Real45QuestionForm: React.FC = () => {
                     }}
                   />
                 </div>
+              </div>
+
+              {/* 개인정보 수집·이용 동의 (필수) + 마케팅 선택동의 */}
+              <div className="mt-2 space-y-3 p-4 bg-white rounded-xl border border-gray-200">
+                <label className="flex items-start gap-3">
+                  <Checkbox
+                    checked={!!formState.companyInfo.privacyConsent}
+                    onCheckedChange={(v) => setFormState(prev => ({
+                      ...prev,
+                      companyInfo: { ...prev.companyInfo, privacyConsent: Boolean(v) }
+                    }))}
+                  />
+                  <span className="text-sm text-gray-700">
+                    개인정보 수집·이용(필수)에 동의합니다. 수집 항목: 회사/담당자 정보, 진단 응답. 이용 목적: AI 역량진단 분석/보고서 발송. 보유 기간: 목적 달성 후 즉시 파기(법령상 보관 의무 제외).
+                  </span>
+                </label>
+                <label className="flex items-start gap-3">
+                  <Checkbox
+                    checked={!!formState.companyInfo.marketingConsent}
+                    onCheckedChange={(v) => setFormState(prev => ({
+                      ...prev,
+                      companyInfo: { ...prev.companyInfo, marketingConsent: Boolean(v) }
+                    }))}
+                  />
+                  <span className="text-sm text-gray-500">
+                    선택: 교육/세미나 등 AICAMP 소식 안내 수신에 동의합니다.
+                  </span>
+                </label>
+                <p className="text-xs text-gray-400">동의하지 않아도 서비스 이용은 가능하지만, 필수 동의 미체크 시 제출할 수 없습니다.</p>
               </div>
 
               {/* 개인정보 수집·이용 동의 */}
