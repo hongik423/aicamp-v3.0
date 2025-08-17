@@ -32,6 +32,9 @@ export async function GET(request: NextRequest) {
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
+      let intervalId: NodeJS.Timeout | null = null;
+      let closed = false;
+
       const sendEvent = (event: string, data: unknown) => {
         if (closed) return; // 이미 닫힌 경우 전송하지 않음
         try {
@@ -51,9 +54,6 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString(),
         snapshot: getProgressSnapshot(diagnosisId) || null,
       });
-
-      let intervalId: NodeJS.Timeout | null = null;
-      let closed = false;
 
       const cleanup = () => {
         if (intervalId) clearInterval(intervalId);

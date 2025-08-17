@@ -42,15 +42,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/images/aicamp_logo_del_250726.png', type: 'image/png', sizes: '32x32' },
       { url: '/images/aicamp_logo_del_250726.png', type: 'image/png', sizes: '16x16' }
     ],
-    shortcut: ['/images/aicamp_logo_del_250726.png'],
+    shortcut: ['/favicon.ico'],
     apple: [
-      { url: '/images/aicamp_logo.png', sizes: '180x180' },
+      { url: '/apple-touch-icon.png', sizes: '180x180' },
     ],
   },
-  manifest: '/api/manifest',
+  manifest: '/manifest.webmanifest',
   formatDetection: {
     email: false,
     address: false,
@@ -251,8 +252,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* 애플 터치 아이콘 - head 최상단 명시 */}
-        <link rel="apple-touch-icon" href="/images/aicamp_logo.png" sizes="180x180" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         
         {/* 강력한 캐시 무효화 - 일관된 최신 버전 보장 */}
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -289,8 +289,8 @@ export default function RootLayout({
         {/* 오류 차단 스크립트 - 최우선 로드 */}
         <script src="/suppress-errors.js" suppressHydrationWarning />
         
-        {/* PWA 매니페스트 */}
-        <link rel="manifest" href="/api/manifest" />
+        {/* PWA 매니페스트 - 표준 경로로 연결 */}
+        <link rel="manifest" href="/manifest.webmanifest" />
         
         {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
