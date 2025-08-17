@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       mainProducts: requestData.mainProducts,
       targetCustomers: requestData.targetCustomers,
       currentChallenges: requestData.currentChallenges,
-      responses: requestData.assessmentResponses || requestData.responses
+      responses: requestData.assessmentResponses || requestData.responses || requestData.answers
     };
     
     // 디버깅을 위한 요청 데이터 로깅
