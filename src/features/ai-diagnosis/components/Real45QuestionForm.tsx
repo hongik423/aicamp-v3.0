@@ -788,30 +788,7 @@ const Real45QuestionForm: React.FC = () => {
                 <p className="text-xs text-gray-400">동의하지 않아도 서비스 이용은 가능하지만, 필수 동의 미체크 시 제출할 수 없습니다.</p>
               </div>
 
-              {/* 개인정보 수집·이용 동의 */}
-              <div className="mt-2 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <label className="flex items-start gap-3">
-                  <Checkbox
-                    checked={!!formState.companyInfo.privacyConsent}
-                    onCheckedChange={(v) => {
-                      // 🛡️ 개인정보 동의 상태 강화된 검증
-                      const isChecked = v === true;
-                      console.log('🛡️ AI진단 개인정보 동의 상태 변경:', {
-                        input: v,
-                        processed: isChecked,
-                        type: typeof v
-                      });
-                      setFormState(prev => ({
-                        ...prev,
-                        companyInfo: { ...prev.companyInfo, privacyConsent: isChecked }
-                      }));
-                    }}
-                  />
-                  <span className="text-sm text-gray-700">
-                    개인정보 수집·이용에 동의합니다. 수집 항목: 회사/담당자 정보, 진단 응답. 이용 목적: AI 역량진단 분석 및 보고서 발송. 보유 기간: 목적 달성 후 즉시 파기(법령상 보관 의무 제외). 동의하지 않을 권리가 있으나, 동의하지 않을 경우 서비스 제공이 제한될 수 있습니다.
-                  </span>
-                </label>
-              </div>
+
 
               {/* 단계별 진행상황 */}
               <div className="space-y-3">
@@ -890,13 +867,7 @@ const Real45QuestionForm: React.FC = () => {
     );
   }
 
-  // 디버깅 로그
-  console.log('🔍 Real45QuestionForm 렌더링 상태:', {
-    isHydrated,
-    showCompanyForm,
-    currentQuestion: formState.currentQuestion,
-    diagnosisResult: !!diagnosisResult
-  });
+  // 디버깅 로그 제거 (무한 렌더링 방지)
 
   // Hydration 완료 전에는 로딩 표시
   if (!isHydrated) {
