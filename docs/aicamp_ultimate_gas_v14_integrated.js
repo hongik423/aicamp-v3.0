@@ -1747,52 +1747,220 @@ function generateFallbackReportIntegrated(normalizedData) {
 // ================================================================================
 
 /**
- * 고도화 점수 계산 시스템 (통합 간소화)
+ * 실제 45문항 응답 기반 점수 계산 시스템 (수정됨)
  */
 function calculateAdvancedScoresIntegrated(normalizedData) {
-  console.log('🧮 고도화 점수 계산 시작 (통합 버전)');
+  console.log('🧮 실제 45문항 응답 기반 점수 계산 시작');
   
-  // 기본 점수 계산 (45문항 응답이 있는 경우 활용, 없으면 기본 점수)
-  let totalScore = 75; // 기본 점수
-  let maturityLevel = 'Intermediate';
+  // 실제 45문항 응답 데이터 확인
+  const responses = normalizedData.responses || [];
+  console.log('📊 응답 데이터 개수:', responses.length);
+  
+  if (responses.length === 0) {
+    console.warn('⚠️ 45문항 응답 데이터가 없습니다. 기본 점수로 처리합니다.');
+    return calculateFallbackScore(normalizedData);
+  }
+  
+  // 카테고리별 점수 계산 (실제 응답 기반)
+  const categoryScores = {
+    businessFoundation: 0,    // 1-8번 문항
+    currentAI: 0,            // 9-16번 문항  
+    organizationReadiness: 0, // 17-24번 문항
+    techInfrastructure: 0,   // 25-32번 문항
+    goalClarity: 0,          // 33-40번 문항
+    executionCapability: 0   // 41-45번 문항
+  };
+  
+  const categoryWeights = {
+    businessFoundation: 1.0,
+    currentAI: 1.2,
+    organizationReadiness: 1.3,
+    techInfrastructure: 1.3,
+    goalClarity: 1.4,
+    executionCapability: 1.5
+  };
+  
+  const categoryQuestionCounts = {
+    businessFoundation: 8,    // 1-8
+    currentAI: 8,            // 9-16
+    organizationReadiness: 8, // 17-24
+    techInfrastructure: 8,   // 25-32
+    goalClarity: 8,          // 33-40
+    executionCapability: 5   // 41-45
+  };
+  
+  // 각 응답을 카테고리별로 분류하여 점수 계산
+  responses.forEach(response => {
+    const questionId = parseInt(response.questionId);
+    const score = parseInt(response.answer) || parseInt(response.score) || 0;
+    
+    if (questionId >= 1 && questionId <= 8) {
+      categoryScores.businessFoundation += score;
+    } else if (questionId >= 9 && questionId <= 16) {
+      categoryScores.currentAI += score;
+    } else if (questionId >= 17 && questionId <= 24) {
+      categoryScores.organizationReadiness += score;
+    } else if (questionId >= 25 && questionId <= 32) {
+      categoryScores.techInfrastructure += score;
+    } else if (questionId >= 33 && questionId <= 40) {
+      categoryScores.goalClarity += score;
+    } else if (questionId >= 41 && questionId <= 45) {
+      categoryScores.executionCapability += score;
+    }
+  });
+  
+  // 카테고리별 평균 점수 계산 (5점 만점을 100점 만점으로 변환)
+  const categoryAverages = {};
+  let weightedTotal = 0;
+  let totalWeight = 0;
+  
+  Object.keys(categoryScores).forEach(category => {
+    const questionCount = categoryQuestionCounts[category];
+    const categoryAverage = (categoryScores[category] / questionCount) * 20; // 5점 → 100점 변환
+    categoryAverages[category] = Math.round(categoryAverage);
+    
+    const weight = categoryWeights[category];
+    weightedTotal += categoryAverage * weight;
+    totalWeight += weight;
+  });
+  
+  // 가중평균으로 총점 계산
+  const totalScore = Math.round(weightedTotal / totalWeight);
+  
+  // 업종별 보정 (±5점 이내)
+  const industryAdjustment = {
+    'IT/소프트웨어': 3,
+    '제조업': 1,
+    '금융/보험': 2,
+    '유통/도소매': 0,
+    '건설/부동산': -1,
+    '의료/헬스케어': 2
+  };
+  
+  const adjustedScore = Math.min(Math.max(
+    totalScore + (industryAdjustment[normalizedData.industry] || 0), 
+    20
+  ), 100);
+  
+  // 성숙도 레벨 결정 (실제 점수 기반)
+  let maturityLevel = 'Beginner';
+  let grade = 'D';
+  
+  if (adjustedScore >= 90) {
+    maturityLevel = 'Expert';
+    grade = 'A+';
+  } else if (adjustedScore >= 85) {
+    maturityLevel = 'Expert';
+    grade = 'A';
+  } else if (adjustedScore >= 80) {
+    maturityLevel = 'Advanced';
+    grade = 'A-';
+  } else if (adjustedScore >= 75) {
+    maturityLevel = 'Advanced';
+    grade = 'B+';
+  } else if (adjustedScore >= 70) {
+    maturityLevel = 'Advanced';
+    grade = 'B';
+  } else if (adjustedScore >= 65) {
+    maturityLevel = 'Intermediate';
+    grade = 'B-';
+  } else if (adjustedScore >= 60) {
+    maturityLevel = 'Intermediate';
+    grade = 'C+';
+  } else if (adjustedScore >= 55) {
+    maturityLevel = 'Intermediate';
+    grade = 'C';
+  } else if (adjustedScore >= 50) {
+    maturityLevel = 'Basic';
+    grade = 'C-';
+  } else if (adjustedScore >= 40) {
+    maturityLevel = 'Basic';
+    grade = 'D+';
+  } else {
+    maturityLevel = 'Beginner';
+    grade = 'D';
+  }
+  
+  console.log('✅ 실제 응답 기반 점수 계산 완료:', {
+    totalScore: adjustedScore,
+    maturityLevel,
+    grade,
+    categoryAverages
+  });
+  
+  return {
+    totalScore: adjustedScore,
+    maturityLevel: maturityLevel,
+    grade: grade,
+    percentile: Math.min(Math.max(adjustedScore - 10, 5), 95),
+    categoryScores: categoryAverages,
+    calculatedAt: new Date().toISOString(),
+    method: 'real_45_responses_based',
+    responseCount: responses.length
+  };
+}
+
+/**
+ * 폴백 점수 계산 (응답 데이터가 없는 경우)
+ */
+function calculateFallbackScore(normalizedData) {
+  console.log('🔄 폴백 점수 계산 (응답 데이터 없음)');
+  
+  let totalScore = 65; // 기본 점수 (낮춤)
   
   // 업종별 기본 점수 조정
   const industryScoreAdjustment = {
-    'IT/소프트웨어': 10,
-    '제조업': 5,
-    '금융/보험': 8,
-    '유통/도소매': 3,
-    '건설/부동산': 0,
-    '의료/헬스케어': 7
+    'IT/소프트웨어': 8,
+    '제조업': 3,
+    '금융/보험': 5,
+    '유통/도소매': 1,
+    '건설/부동산': -2,
+    '의료/헬스케어': 4
   };
   
   totalScore += industryScoreAdjustment[normalizedData.industry] || 0;
   
   // 규모별 점수 조정
   const sizeScoreAdjustment = {
-    '1-10명': -5,
-    '11-30명': 0,
-    '31-50명': 5,
-    '51-100명': 8,
-    '101-300명': 10,
-    '300명 이상': 12
+    '1-10명': -8,
+    '11-30명': -3,
+    '31-50명': 2,
+    '51-100명': 5,
+    '101-300명': 8,
+    '300명 이상': 10
   };
   
   totalScore += sizeScoreAdjustment[normalizedData.employeeCount] || 0;
+  totalScore = Math.min(Math.max(totalScore, 30), 85); // 최대 85점으로 제한
   
-  // 성숙도 레벨 결정
-  if (totalScore >= 85) maturityLevel = 'Expert';
-  else if (totalScore >= 70) maturityLevel = 'Advanced';
-  else if (totalScore >= 55) maturityLevel = 'Intermediate';
-  else if (totalScore >= 40) maturityLevel = 'Basic';
-  else maturityLevel = 'Beginner';
+  let maturityLevel = 'Basic';
+  let grade = 'C';
+  
+  if (totalScore >= 80) {
+    maturityLevel = 'Advanced';
+    grade = 'B+';
+  } else if (totalScore >= 70) {
+    maturityLevel = 'Intermediate';
+    grade = 'B';
+  } else if (totalScore >= 60) {
+    maturityLevel = 'Intermediate';
+    grade = 'C+';
+  } else if (totalScore >= 50) {
+    maturityLevel = 'Basic';
+    grade = 'C';
+  } else {
+    maturityLevel = 'Beginner';
+    grade = 'D';
+  }
   
   return {
-    totalScore: Math.min(Math.max(totalScore, 30), 100),
+    totalScore: totalScore,
     maturityLevel: maturityLevel,
-    percentile: Math.min(Math.max(totalScore - 20, 10), 95),
+    grade: grade,
+    percentile: Math.min(Math.max(totalScore - 15, 5), 80),
     calculatedAt: new Date().toISOString(),
-    method: 'integrated_simplified'
+    method: 'fallback_no_responses',
+    responseCount: 0
   };
 }
 
