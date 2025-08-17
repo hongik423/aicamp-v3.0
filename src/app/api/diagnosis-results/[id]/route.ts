@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGasUrl } from '@/lib/config/env';
+import { getProgressSnapshot } from '../../_progressStore';
 
 // CORS 헤더 설정
 const corsHeaders = {
@@ -129,7 +130,18 @@ export async function GET(
         throw new Error(`Google Apps Script 오류: ${scriptResponse.status} - ${errorBody || scriptResponse.statusText}`);
       }
 
-      const result = await scriptResponse.json();
+      let result: any;
+      try {
+        result = await scriptResponse.json();
+      } catch {
+        // 일부 배포에서 health 응답 형태가 내려오면 JSON 파싱 실패 가능 → 텍스트 기반 처리
+        try {
+          const txt = await scriptResponse.text();
+          result = JSON.parse(txt);
+        } catch {
+          result = null;
+        }
+      }
       
       console.log('✅ 진단 결과 조회 성공:', {
         success: result.success,
@@ -156,7 +168,7 @@ export async function GET(
       return NextResponse.json(
         { 
           success: true, 
-          data: result.data || result,
+          data: result?.data || result,
           diagnosisId: diagnosisId,
           timestamp: new Date().toISOString()
         },

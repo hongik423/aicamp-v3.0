@@ -32,7 +32,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 환자 진료 프로세스 자동화로 의료 서비스 품질을 혁신적으로 개선한 디지털 전환 성공사례',
     icon: Heart,
     color: 'red',
-    heroImage: '/images/benchmark2/중증 외원 AI 운영 혁신.png',
+    heroImage: '/images/benchmark2/AI 기반 환자 케어 자동화 시스템.png',
     companyInfo: {
       industry: '종합병원',
       employees: '3,500명',
@@ -303,7 +303,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: '소규모 의원에서 AI와 n8n을 활용하여 운영 전반을 혁신하고 환자 경험을 개선한 성공사례',
     icon: Stethoscope,
     color: 'green',
-    heroImage: '/images/benchmark2/AI 기반 환자 케어 자동화 시스템.png',
+    heroImage: '/images/benchmark2/중증 외원 AI 운영 혁신.png',
     companyInfo: {
       industry: '내과/가정의학과',
       employees: '25명',
@@ -701,7 +701,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 영상 진단과 n8n 자동화로 치과 진료의 정확성과 효율성을 혁신적으로 개선한 성공사례',
     icon: Activity,
     color: 'blue',
-    heroImage: '/images/benchmark2/건강검진 프로세스 완전 자동화.png',
+    heroImage: '/images/benchmark2/치과 진료 AI 혁신 시스템.png',
     companyInfo: {
       industry: '치과',
       employees: '120명',
@@ -900,7 +900,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 건강검진 전 과정 자동화로 검진 효율성과 정확도를 획기적으로 개선한 사례',
     icon: Shield,
     color: 'orange',
-    heroImage: '/images/benchmark2/치과 진료 AI 혁신 시스템.png',
+    heroImage: '/images/benchmark2/건강검진 프로세스 완전 자동화.png',
     companyInfo: {
       industry: '건강검진센터',
       employees: '450명',

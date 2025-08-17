@@ -17,13 +17,18 @@ interface DiagnosisProgressState {
   latestByStep: Record<string, DiagnosisProgressEvent | undefined>;
 }
 
-const globalAny = global as unknown as { __AICAMP_PROGRESS_STORE__?: Map<string, DiagnosisProgressState> };
+const globalAny = global as unknown as { __AICAMP_PROGRESS_STORE__?: Map<string, DiagnosisProgressState>, __AICAMP_LOCAL_RESULTS__?: Map<string, any> };
 
 const store: Map<string, DiagnosisProgressState> =
   globalAny.__AICAMP_PROGRESS_STORE__ || new Map<string, DiagnosisProgressState>();
+const localResultsStore: Map<string, any> =
+  globalAny.__AICAMP_LOCAL_RESULTS__ || new Map<string, any>();
 
 if (!globalAny.__AICAMP_PROGRESS_STORE__) {
   globalAny.__AICAMP_PROGRESS_STORE__ = store;
+}
+if (!globalAny.__AICAMP_LOCAL_RESULTS__) {
+  globalAny.__AICAMP_LOCAL_RESULTS__ = localResultsStore;
 }
 
 export function addProgressEvent(event: DiagnosisProgressEvent) {
@@ -69,11 +74,24 @@ export function getProgressSnapshot(diagnosisId: string) {
         }
       };
     }
+    // 최신 이벤트 기반으로 단계 구성
+    const stepKeys = ['data-validation','gemini-analysis','swot-analysis','report-generation','email-sending'] as const;
+    const composedSteps: Record<string, { status: string; progress: number }> = {};
+    stepKeys.forEach((key) => {
+      const ev = state.latestByStep[key as string];
+      if (ev) {
+        composedSteps[key as string] = {
+          status: (ev.status as string) || 'in-progress',
+          progress: typeof ev.progressPercent === 'number' ? Math.max(0, Math.min(100, Math.round(ev.progressPercent))) : 0,
+        };
+      }
+    });
+
     return {
       lastUpdateTs: state.lastUpdateTs,
       events: state.events.slice(-50), // 최근 50개만 노출
       latestByStep: state.latestByStep,
-      steps: {
+      steps: Object.keys(composedSteps).length > 0 ? composedSteps : {
         'data-validation': { status: 'in-progress', progress: 20 },
         'gemini-analysis': { status: 'pending', progress: 0 },
         'swot-analysis': { status: 'pending', progress: 0 },

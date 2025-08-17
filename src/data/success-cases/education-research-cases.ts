@@ -502,7 +502,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 시뮬레이션과 n8n 자동화로 산업 현장 맞춤형 인재를 양성하는 직업교육 혁신 사례',
     icon: BookOpen,
     color: 'purple',
-    heroImage: '/images/benchmark2/기업 맞춤형 AI 교육 혁신.png',
+    heroImage: '/images/benchmark2/실무 중심 AI 직업교육 혁신.png',
     companyInfo: {
       industry: '직업능력개발',
       employees: '1,200명',
@@ -900,7 +900,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI와 n8n을 활용한 연구 프로세스 혁신으로 R&D 효율을 극대화한 사례',
     icon: Microscope,
     color: 'indigo',
-    heroImage: '/images/benchmark2/실무 중심 AI 직업교육 혁신.png',
+    heroImage: '/images/benchmark2/AI 연구 가속화 플랫폼.png',
     companyInfo: {
       industry: '국책연구소',
       employees: '2,100명',
@@ -1298,7 +1298,7 @@ export const educationResearchCaseDetails: { [key: string]: SuccessCaseDetail } 
     description: 'AI 기반 맞춤형 기업교육으로 임직원 역량을 획기적으로 향상시킨 HRD 혁신 사례',
     icon: Award,
     color: 'yellow',
-    heroImage: '/images/benchmark2/AI 기반 스마트 캠퍼스 혁신.png',
+    heroImage: '/images/benchmark2/기업 맞춤형 AI 교육 혁신.png',
     companyInfo: {
       industry: '기업교육서비스',
       employees: '520명',

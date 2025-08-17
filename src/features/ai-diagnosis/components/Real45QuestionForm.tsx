@@ -240,7 +240,7 @@ const Real45QuestionForm: React.FC = () => {
       // 완료 후에도 배너를 지속적으로 표시 (사용자가 수동으로 닫을 때까지)
       toast({
         title: "🎉 진단 완료!",
-        description: "맥킨지 스타일 보고서가 이메일로 발송되었습니다.",
+        description: "이교장 스타일 보고서가 이메일로 발송되었습니다.",
         variant: "default"
       });
       
@@ -594,7 +594,7 @@ const Real45QuestionForm: React.FC = () => {
         <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">진단 완료!</h2>
-          <p className="text-gray-600 mb-4">맥킨지 스타일 보고서가 이메일로 발송됩니다.</p>
+          <p className="text-gray-600 mb-4">이교장 스타일 보고서가 이메일로 발송됩니다.</p>
           <p className="text-sm text-gray-500">진단 ID: {diagnosisResult.diagnosisId}</p>
         </div>
       </div>
@@ -682,7 +682,7 @@ const Real45QuestionForm: React.FC = () => {
               <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
                 <p className="text-blue-900 font-medium text-sm">📊 고품질 AI 분석 진행 중</p>
                 <p className="text-blue-800/80 text-xs mt-1">
-                  GEMINI 2.5 Flash가 45개 항목을 종합 분석하여 맥킨지 스타일 보고서를 생성합니다.
+                  GEMINI 2.5 Flash가 45개 항목을 종합 분석하여 이교장 스타일 보고서를 생성합니다.
                 </p>
                 <p className="text-blue-700 text-xs mt-2 font-medium">
                   예상 완료 시간: 5~15분 | 완료 시 자동으로 이메일 발송됩니다
@@ -1288,7 +1288,7 @@ const Real45QuestionForm: React.FC = () => {
                   <ul className="text-blue-800/80 space-y-1 text-xs">
                     <li>• 각 질문을 신중히 읽고 현재 상황에 맞는 점수를 선택하세요</li>
                     <li>• 진행 상황은 자동으로 저장됩니다</li>
-                    <li>• 모든 문항 완료 후 맥킨지 스타일 보고서가 생성됩니다</li>
+                    <li>• 모든 문항 완료 후 이교장 스타일 보고서가 생성됩니다</li>
                   </ul>
                 </div>
                 <div className="text-center">

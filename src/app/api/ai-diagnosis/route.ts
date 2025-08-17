@@ -1,16 +1,17 @@
 /**
  * AI 역량진단 API 엔드포인트
- * 45개 행동지표 기반 맥킨지 수준 컨설팅 보고서 생성 시스템
+ * 45개 행동지표 기반 이교장 수준 컨설팅 보고서 생성 시스템
  * 이교장의AI역량진단보고서 V15.0 ULTIMATE
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { REAL_45_QUESTIONS } from '@/features/ai-diagnosis/constants/real-45-questions';
 import { 
-  executeMcKinsey45QuestionsWorkflow,
-  McKinsey45QuestionsRequest,
-  McKinsey45QuestionsResult
+  executeLeeKyoJang45QuestionsWorkflow,
+  LeeKyoJang45QuestionsRequest,
+  LeeKyoJang45QuestionsResult
 } from '@/lib/workflow/mckinsey-45-questions-workflow';
+import { addProgressEvent } from '../_progressStore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,22 +58,64 @@ export async function POST(request: NextRequest) {
       
       if (workflowResult) {
         console.log('✅ 로컬 워크플로우 완료 - Google Apps Script로 전송');
+        // 워크플로우 단계 진행 이벤트 기록 (사실 기반 진행 공유)
+        addProgressEvent({
+          diagnosisId: workflowResult.diagnosisId,
+          stepId: 'data-validation',
+          stepName: '데이터 검증',
+          status: 'completed',
+          progressPercent: 100,
+          message: '입력 데이터 검증 완료'
+        });
+        addProgressEvent({
+          diagnosisId: workflowResult.diagnosisId,
+          stepId: 'gemini-analysis',
+          stepName: 'AI 분석',
+          status: 'completed',
+          progressPercent: 100,
+          message: '로컬 분석 완료'
+        });
+        addProgressEvent({
+          diagnosisId: workflowResult.diagnosisId,
+          stepId: 'report-generation',
+          stepName: '보고서 생성',
+          status: 'in-progress',
+          progressPercent: 60,
+          message: 'GAS로 보고서 생성/저장/발송 요청'
+        });
         
         // Google Apps Script로 완성된 데이터 전송
         const host = request.headers.get('host');
         const protocol = host?.includes('localhost') ? 'http' : 'https';
         const dynamicBase = host ? `${protocol}://${host}` : 'https://aicamp.club';
         
+        // GAS 지원 액션에 맞춰 수정: diagnosis 액션으로 전송
         const gasPayload = {
-          type: 'ai_diagnosis_complete',
-          action: 'processCompletedAnalysis',
-          data: {
-            ...requestData,
-            workflowResult,
-            timestamp: new Date().toISOString(),
-            version: 'V15.0-ULTIMATE-45Q',
-            source: 'integrated_workflow'
-          }
+          // 기본 진단 데이터 (GAS가 기대하는 형식)
+          companyName: requestData.companyName,
+          contactName: requestData.contactName,
+          contactEmail: requestData.contactEmail,
+          contactPhone: requestData.contactPhone,
+          industry: requestData.industry,
+          employeeCount: requestData.employeeCount,
+          annualRevenue: requestData.annualRevenue,
+          location: requestData.location,
+          
+          // 45문항 응답 (GAS 호환 형식)
+          assessmentResponses: requestData.assessmentResponses,
+          
+          // 워크플로우 결과 (추가 데이터)
+          diagnosisId: workflowResult.diagnosisId,
+          scoreAnalysis: workflowResult.scoreAnalysis,
+          recommendations: workflowResult.recommendations,
+          roadmap: workflowResult.roadmap,
+          qualityMetrics: workflowResult.qualityMetrics,
+          
+          // 메타데이터
+          timestamp: new Date().toISOString(),
+          version: 'V15.0-ULTIMATE-45Q',
+          source: 'integrated_workflow',
+          diagnosisType: 'real-45-questions'
         };
         
         console.log('🔗 Google Apps Script 호출 URL:', `${dynamicBase}/api/google-script-proxy`);
@@ -86,8 +129,17 @@ export async function POST(request: NextRequest) {
           },
           body: JSON.stringify(gasPayload),
           signal: AbortSignal.timeout(780000)
-        }).then(gasResponse => {
+        }).then(async (gasResponse) => {
           console.log('📧 Google Apps Script 후속 처리 완료:', gasResponse.status);
+          // 이메일 발송 단계 진행 갱신 (성공/타임아웃 불문, GAS가 백그라운드 처리)
+          addProgressEvent({
+            diagnosisId: workflowResult.diagnosisId,
+            stepId: 'email-sending',
+            stepName: '이메일 발송',
+            status: 'in-progress',
+            progressPercent: 50,
+            message: '이메일 발송 대기/진행'
+          });
         }).catch(gasError => {
           console.error('⚠️ Google Apps Script 후속 처리 오류 (비차단):', gasError.message);
         });
@@ -147,14 +199,17 @@ export async function POST(request: NextRequest) {
             'User-Agent': 'AICAMP-V15.0-FALLBACK'
           },
           body: JSON.stringify({
-            type: 'ai_diagnosis',
-            action: 'saveDiagnosis',
-            data: {
-              ...requestData,
-              timestamp: new Date().toISOString(),
-              version: 'V15.0-ULTIMATE-FALLBACK',
-              source: 'web_form_fallback'
-            }
+            // 폴백도 동일한 형식으로 전송
+            companyName: requestData.companyName,
+            contactName: requestData.contactName,
+            contactEmail: requestData.contactEmail,
+            contactPhone: requestData.contactPhone,
+            industry: requestData.industry,
+            employeeCount: requestData.employeeCount,
+            assessmentResponses: requestData.assessmentResponses,
+            timestamp: new Date().toISOString(),
+            version: 'V15.0-ULTIMATE-FALLBACK',
+            source: 'web_form_fallback'
           }),
           signal: AbortSignal.timeout(780000)
         });

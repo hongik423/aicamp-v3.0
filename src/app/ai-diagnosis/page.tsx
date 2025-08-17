@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: '이교장의AI역량진단, 45문항 진단, 디지털 전환, AI 컨설팅, 기업 진단, AICAMP, GEMINI 2.5 Flash',
 };
 
-export default async function AIDiagnosisPage() {
+export default function AIDiagnosisPage() {
   return (
     <main className="min-h-screen">
       <Real45QuestionForm />

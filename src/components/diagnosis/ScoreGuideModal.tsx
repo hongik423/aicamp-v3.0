@@ -149,7 +149,7 @@ const ScoreGuideModal: React.FC<ScoreGuideModalProps> = ({
                       <li>• 각 질문을 신중히 읽고 현재 상황을 정확히 파악하세요</li>
                       <li>• 객관적이고 솔직한 답변이 정확한 진단의 핵심입니다</li>
                       <li>• 점수 선택 시 자동으로 다음 질문으로 이동됩니다</li>
-                      <li>• 모든 문항 완료 후 맥킨지 스타일 보고서가 생성됩니다</li>
+                      <li>• 모든 문항 완료 후 이교장 스타일 보고서가 생성됩니다</li>
                     </ul>
                   </div>
 
@@ -197,7 +197,7 @@ const ScoreGuideModal: React.FC<ScoreGuideModalProps> = ({
             <div className="text-sm text-gray-600">
               <span className="font-medium">이교장의AI역량진단보고서 V15.0</span>
               <span className="mx-2">•</span>
-              <span>맥킨지 스타일 종합 분석</span>
+              <span>이교장 스타일 종합 분석</span>
             </div>
             <div className="flex gap-3">
               <Button

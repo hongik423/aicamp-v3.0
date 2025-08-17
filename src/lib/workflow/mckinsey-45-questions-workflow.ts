@@ -1,12 +1,12 @@
 /**
- * 🎯 45개 행동지표 기반 맥킨지 컨설팅 보고서 생성 통합 워크플로우
- * 완전 자동화된 맥킨지 수준의 컨설팅 보고서 생성 시스템
+ * 🎯 45개 행동지표 기반 이교장 컨설팅 보고서 생성 통합 워크플로우
+ * 완전 자동화된 이교장 수준의 컨설팅 보고서 생성 시스템
  */
 
 import { REAL_45_QUESTIONS, RealQuestion } from '@/features/ai-diagnosis/constants/real-45-questions';
 import { getQuestionBehaviorIndicators } from '@/features/ai-diagnosis/constants/question-specific-behavior-indicators';
 
-export interface McKinsey45QuestionsRequest {
+export interface LeeKyoJang45QuestionsRequest {
   // 기본 정보
   companyName: string;
   contactName: string;
@@ -31,7 +31,7 @@ export interface McKinsey45QuestionsRequest {
   responses: Record<string, number>;
 }
 
-export interface McKinsey45QuestionsResult {
+export interface LeeKyoJang45QuestionsResult {
   // 진단 결과
   diagnosisId: string;
   timestamp: string;
@@ -352,7 +352,7 @@ export function analyzeStrengthsWeaknesses(
 /**
  * 맥킨지 스타일 권고사항 생성
  */
-export function generateMcKinseyRecommendations(
+export function generateLeeKyoJangRecommendations(
   scoreAnalysis: any,
   industry: string,
   companySize: string
@@ -587,10 +587,10 @@ export function calculateQualityMetrics(
 /**
  * 메인 워크플로우 실행 함수
  */
-export function executeMcKinsey45QuestionsWorkflow(
-  request: McKinsey45QuestionsRequest
-): McKinsey45QuestionsResult {
-  console.log('🎯 45개 행동지표 기반 맥킨지 워크플로우 시작:', request.companyName);
+export function executeLeeKyoJang45QuestionsWorkflow(
+  request: LeeKyoJang45QuestionsRequest
+): LeeKyoJang45QuestionsResult {
+  console.log('🎯 45개 행동지표 기반 이교장 워크플로우 시작:', request.companyName);
   
   // 1. 점수 분석
   const scoreAnalysis = analyze45QuestionsResponses(request.responses);
@@ -602,7 +602,7 @@ export function executeMcKinsey45QuestionsWorkflow(
   const { strengths, weaknesses } = analyzeStrengthsWeaknesses(scoreAnalysis.categoryScores, request.responses);
   
   // 3. 맥킨지 스타일 권고사항 생성
-  const recommendations = generateMcKinseyRecommendations(
+  const recommendations = generateLeeKyoJangRecommendations(
     { ...scoreAnalysis, totalScore: scoreAnalysis.totalScore },
     request.industry,
     request.employeeCount
@@ -624,7 +624,7 @@ export function executeMcKinsey45QuestionsWorkflow(
   // 6. 최종 결과 구성
   const diagnosisId = `DIAG_45Q_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
-  const result: McKinsey45QuestionsResult = {
+  const result: LeeKyoJang45QuestionsResult = {
     diagnosisId,
     companyInfo: {
       name: request.companyName,
@@ -665,7 +665,7 @@ export function executeMcKinsey45QuestionsWorkflow(
     qualityMetrics
   };
   
-  console.log('✅ 45개 행동지표 맥킨지 워크플로우 완료:', {
+  console.log('✅ 45개 행동지표 이교장 워크플로우 완료:', {
     diagnosisId: result.diagnosisId,
     totalScore: result.scoreAnalysis.totalScore,
     grade: result.scoreAnalysis.grade,

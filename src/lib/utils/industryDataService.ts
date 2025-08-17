@@ -618,16 +618,16 @@ export class IndustryDataService {
 }
 
 /**
- * 🎯 맥킨지 스타일 보고서 전용 - V14.2 ULTIMATE INTEGRATED 시스템
+ * 🎯 이교장 스타일 보고서 전용 - V14.2 ULTIMATE INTEGRATED 시스템
  * 모든 보고서 생성은 Google Apps Script GEMINI 2.5 Flash API에서 처리
  */
-export function generateMcKinseyStyleReport(
+export function generateLeeKyoJangStyleReport(
   industry: string, 
   companyData: any, 
   diagnosisResult: any
 ): string {
-  // 🚀 신규 맥킨지 보고서 시스템으로 리다이렉트
-  console.log('🔄 맥킨지 보고서 시스템으로 리다이렉트:', {
+  // 🚀 신규 이교장 보고서 시스템으로 리다이렉트
+  console.log('🔄 이교장 보고서 시스템으로 리다이렉트:', {
     industry,
     companyName: companyData.companyName,
     totalScore: diagnosisResult.totalScore
@@ -637,19 +637,19 @@ export function generateMcKinseyStyleReport(
   return `
 🎯 이교장의AI역량진단보고서 V14.2 ULTIMATE
 
-${companyData.companyName || '귀사'}의 맥킨지 스타일 AI 역량진단 보고서가 생성 중입니다.
+${companyData.companyName || '귀사'}의 이교장 스타일 AI 역량진단 보고서가 생성 중입니다.
 
 📊 진단 점수: ${diagnosisResult.totalScore}점
 🏭 업종: ${industry}
 📧 이메일 발송: 진행 중
 
-상세한 맥킨지 스타일 보고서는 Google Apps Script V14.2 ULTIMATE 시스템에서 
+상세한 이교장 스타일 보고서는 Google Apps Script V14.2 ULTIMATE 시스템에서 
 GEMINI 2.5 Flash AI를 통해 생성되어 이메일로 발송됩니다.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📧 이메일 발송 완료 후 다음 내용을 받으실 수 있습니다:
-• 맥킨지 스타일 전문 보고서 (HTML 형식)
+• 이교장 스타일 전문 보고서 (HTML 형식)
 • SWOT 전략 매트릭스 분석
 • 3단계 실행 로드맵
 • n8n 기반 자동화 솔루션

@@ -93,7 +93,21 @@ export async function GET(request: NextRequest) {
         }
 
         try {
-          const res = await fetch(`${getOrigin()}/api/diagnosis-results/${encodeURIComponent(diagnosisId)}`, {
+          // 1) 진행 스냅샷: 서버 이벤트 스토어에서 사실 기반 데이터 확보
+          let progressSnapshot: any = null;
+          try {
+            // 내부 함수 직접 호출로 변경 (fetch 대신)
+            const progressState = getProgressState(diagnosisId);
+            if (progressState) {
+              progressSnapshot = getProgressSnapshot(diagnosisId);
+            }
+          } catch (error) {
+            console.warn('진행 스냅샷 조회 실패:', error);
+          }
+
+          // 2) 결과 준비 여부 확인: 완료 시 'done' 이벤트로 종료  
+          const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+          const res = await fetch(`${baseUrl}/api/diagnosis-results/${encodeURIComponent(diagnosisId)}`, {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
           });
@@ -108,7 +122,7 @@ export async function GET(request: NextRequest) {
               elapsedMs,
               etaHint: '약 10분 내외',
               timestamp: new Date().toISOString(),
-              snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
+              snapshot: progressSnapshot,
             });
             return;
           }
@@ -124,7 +138,7 @@ export async function GET(request: NextRequest) {
               elapsedMs,
               etaHint: '약 10분 내외',
               timestamp: new Date().toISOString(),
-              snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
+              snapshot: progressSnapshot,
             });
             return;
           }
@@ -140,7 +154,7 @@ export async function GET(request: NextRequest) {
               elapsedMs,
               etaHint: '약 10분 내외',
               timestamp: new Date().toISOString(),
-              snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
+              snapshot: progressSnapshot,
             });
             return;
           }
@@ -162,7 +176,7 @@ export async function GET(request: NextRequest) {
             elapsedMs,
             etaHint: '약 10분 내외',
             timestamp: new Date().toISOString(),
-            snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
+            snapshot: progressSnapshot || (getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null),
           });
         } catch (error: any) {
           // 네트워크/임시 오류: 진행 유지
@@ -176,7 +190,7 @@ export async function GET(request: NextRequest) {
             elapsedMs,
             etaHint: '약 10분 내외',
             timestamp: new Date().toISOString(),
-            snapshot: getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null,
+            snapshot: (getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null),
           });
         }
       };

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProgressSnapshot, getProgressState } from '../../_progressStore';
 
 export async function GET(
   request: NextRequest,
@@ -14,48 +15,47 @@ export async function GET(
       );
     }
 
-    // Google Apps Script에서 진행 상태 확인
+    // Google Apps Script 진행 상태 + 로컬 스토어 진행 상태 병합
     const gasUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
-    if (!gasUrl) {
-      throw new Error('Google Apps Script URL이 설정되지 않았습니다');
+
+    let progressData: any = null;
+    if (gasUrl) {
+      try {
+        const progressResponse = await fetch(gasUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'checkProgress', diagnosisId })
+        });
+        if (progressResponse.ok) {
+          progressData = await progressResponse.json();
+        }
+      } catch {}
     }
 
-    const progressResponse = await fetch(gasUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'checkProgress',
-        diagnosisId: diagnosisId
-      })
-    });
-
-    if (!progressResponse.ok) {
-      throw new Error(`Google Apps Script 응답 오류: ${progressResponse.status}`);
-    }
-
-    const progressData = await progressResponse.json();
+    // 로컬 스토어 스냅샷 (사실 기반 이벤트 우선)
+    const storeSnapshot = getProgressState(diagnosisId) ? getProgressSnapshot(diagnosisId) : null;
 
     // 진행 상태 데이터 구조화
     const response = {
       success: true,
       diagnosisId,
       progress: {
-        overallProgress: progressData.overallProgress || 0,
-        currentStep: progressData.currentStep || 'data-validation',
-        steps: progressData.steps || {
-          'data-validation': { status: 'in-progress', progress: 50 },
-          'gemini-analysis': { status: 'pending', progress: 0 },
-          'swot-analysis': { status: 'pending', progress: 0 },
-          'report-generation': { status: 'pending', progress: 0 },
-          'email-sending': { status: 'pending', progress: 0 }
-        },
-        estimatedTimeRemaining: progressData.estimatedTimeRemaining || 480000, // 8분
+        overallProgress: progressData?.overallProgress || 0,
+        currentStep: progressData?.currentStep || 'data-validation',
+        steps: (storeSnapshot?.steps && Object.keys(storeSnapshot.steps).length > 0)
+          ? storeSnapshot.steps
+          : (progressData?.steps || {
+              'data-validation': { status: 'in-progress', progress: 50 },
+              'gemini-analysis': { status: 'pending', progress: 0 },
+              'swot-analysis': { status: 'pending', progress: 0 },
+              'report-generation': { status: 'pending', progress: 0 },
+              'email-sending': { status: 'pending', progress: 0 }
+            }),
+        estimatedTimeRemaining: progressData?.estimatedTimeRemaining || 480000,
         lastUpdated: Date.now()
       },
-      completed: progressData.completed || false,
-      result: progressData.result || null
+      completed: progressData?.completed || false,
+      result: progressData?.result || null
     };
 
     return NextResponse.json(response, {
