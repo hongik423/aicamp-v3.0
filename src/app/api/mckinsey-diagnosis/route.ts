@@ -225,7 +225,7 @@ function generateDiagnosisId(): string {
  */
 async function calculate45QuestionScores(data: any) {
   const responses = data.assessmentResponses || [];
-  const totalScore = responses.reduce((sum: number, score: number) => sum + score, 0) / responses.length * 20;
+  const totalScore = responses.reduce((sum: number, score: number) => sum + score, 0);
   
   // 카테고리별 점수 계산
   const categoryScores = {

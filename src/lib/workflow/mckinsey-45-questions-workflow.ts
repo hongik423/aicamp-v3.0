@@ -51,6 +51,8 @@ export interface LeeKyoJang45QuestionsResult {
   scoreAnalysis: {
     totalScore: number;
     averageScore: number;
+    // 0~100 퍼센트 점수 (총점/최대점수)
+    percentage?: number;
     categoryScores: {
       businessFoundation: number;
       currentAI: number;
@@ -156,50 +158,54 @@ export interface LeeKyoJang45QuestionsResult {
  * 45개 질문 응답 분석
  */
 export function analyze45QuestionsResponses(responses: Record<string, number>) {
-  const categoryScores: Record<string, number> = {};
-  const categoryWeights: Record<string, number> = {};
-  const categoryQuestionCounts: Record<string, number> = {};
-  
-  // 카테고리별 점수 집계
-  REAL_45_QUESTIONS.forEach(question => {
-    const response = responses[`q${question.id}`] || responses[question.id.toString()] || 0;
-    const category = question.category;
-    
-    if (!categoryScores[category]) {
-      categoryScores[category] = 0;
-      categoryWeights[category] = question.weight;
-      categoryQuestionCounts[category] = 0;
+  // 1) 원시 응답값 배열 구성 (q1~q45, '1'~'45' 키 지원)
+  const answerValues: number[] = REAL_45_QUESTIONS.map(q => {
+    const v = (responses[`q${q.id}`] ?? responses[q.id.toString()] ?? 0) as number;
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : 0;
+  });
+
+  const numQuestions = answerValues.length;
+  const maxPossibleScore = numQuestions * 5; // 45 * 5 = 225
+  const totalScore = answerValues.reduce((sum, n) => sum + n, 0); // 0~225
+  const averageScore = totalScore / (numQuestions || 1); // 0~5
+  const percentage = Math.round((totalScore / (maxPossibleScore || 1)) * 100); // 0~100
+
+  // 2) 카테고리별 점수(0~100) 계산은 유지
+  const categoryScoresRaw: Record<string, { sum: number; count: number; weight: number }> = {};
+  REAL_45_QUESTIONS.forEach(q => {
+    const category = q.category;
+    if (!categoryScoresRaw[category]) {
+      categoryScoresRaw[category] = { sum: 0, count: 0, weight: q.weight };
     }
-    
-    categoryScores[category] += response;
-    categoryQuestionCounts[category]++;
+    const v = (responses[`q${q.id}`] ?? responses[q.id.toString()] ?? 0) as number;
+    const n = Number.isFinite(Number(v)) ? Math.max(0, Math.min(5, Number(v))) : 0;
+    categoryScoresRaw[category].sum += n;
+    categoryScoresRaw[category].count += 1;
   });
-  
-  // 카테고리별 평균 점수 계산
-  Object.keys(categoryScores).forEach(category => {
-    categoryScores[category] = Math.round((categoryScores[category] / categoryQuestionCounts[category]) * 20); // 100점 만점으로 변환
+
+  const categoryScores: Record<string, number> = {};
+  Object.keys(categoryScoresRaw).forEach(category => {
+    const { sum, count } = categoryScoresRaw[category];
+    const avg = count ? sum / count : 0; // 0~5
+    categoryScores[category] = Math.round(avg * 20); // 0~100 스케일
   });
-  
-  // 가중 평균 점수 계산
+
+  // 3) 가중 평균 점수(0~100) 산출 유지
   let weightedSum = 0;
   let totalWeight = 0;
-  
-  Object.keys(categoryScores).forEach(category => {
-    const weight = categoryWeights[category];
-    weightedSum += categoryScores[category] * weight;
+  Object.keys(categoryScoresRaw).forEach(category => {
+    const weight = categoryScoresRaw[category].weight;
+    weightedSum += (categoryScores[category] || 0) * weight;
     totalWeight += weight;
   });
-  
-  const weightedScore = Math.round(weightedSum / totalWeight);
-  
-  // 전체 평균 점수
-  const totalScore = Math.round(Object.values(categoryScores).reduce((sum, score) => sum + score, 0) / Object.keys(categoryScores).length);
-  const averageScore = totalScore;
-  
+  const weightedScore = totalWeight ? Math.round(weightedSum / totalWeight) : 0;
+
   return {
-    totalScore,
-    averageScore,
-    weightedScore,
+    totalScore, // 0~225
+    averageScore: Math.round(averageScore * 100) / 100, // 소수 2자리 고정
+    percentage, // 0~100
+    weightedScore, // 0~100
     categoryScores: {
       businessFoundation: categoryScores.businessFoundation || 0,
       currentAI: categoryScores.currentAI || 0,
@@ -592,11 +598,12 @@ export function executeLeeKyoJang45QuestionsWorkflow(
 ): LeeKyoJang45QuestionsResult {
   console.log('🎯 45개 행동지표 기반 이교장 워크플로우 시작:', request.companyName);
   
-  // 1. 점수 분석
+  // 1. 점수 분석 (총점은 0~225, 등급/성숙도/백분위는 percentage(0~100) 기준)
   const scoreAnalysis = analyze45QuestionsResponses(request.responses);
-  const maturityLevel = determineMaturityLevel(scoreAnalysis.totalScore);
-  const grade = determineGrade(scoreAnalysis.totalScore);
-  const percentile = calculatePercentile(scoreAnalysis.totalScore, request.industry);
+  const percentageForGrading = (scoreAnalysis as any).percentage ?? Math.round((scoreAnalysis.totalScore / (45 * 5)) * 100);
+  const maturityLevel = determineMaturityLevel(percentageForGrading);
+  const grade = determineGrade(percentageForGrading);
+  const percentile = calculatePercentile(percentageForGrading, request.industry);
   
   // 2. 강점/약점 분석
   const { strengths, weaknesses } = analyzeStrengthsWeaknesses(scoreAnalysis.categoryScores, request.responses);

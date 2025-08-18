@@ -508,20 +508,20 @@ function handleAIDiagnosisRequest(requestData, progressId) {
     console.log('⚡ 5단계: SWOT 분석');
     const swotAnalysis = generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis);
     
-    // 6단계: 중요도-긴급성 매트릭스 생성
-    updateProgressStatus(progressId, 'processing', '6단계: 우선순위 매트릭스를 생성하고 있습니다');
-    console.log('📈 6단계: 우선순위 매트릭스');
-    const priorityMatrixData = generatePriorityMatrix(swotAnalysis, scoreAnalysis, normalizedData);
+    // 6단계: 핵심 실행 과제 생성
+    updateProgressStatus(progressId, 'processing', '6단계: 핵심 실행 과제를 생성하고 있습니다');
+    console.log('🎯 6단계: 핵심 실행 과제');
+    const keyActionItems = generateKeyActionItems(swotAnalysis, scoreAnalysis, normalizedData);
     
     // 7단계: 3단계 실행 로드맵 생성
     updateProgressStatus(progressId, 'processing', '7단계: 3단계 실행 로드맵을 수립하고 있습니다');
     console.log('🗺️ 7단계: 실행 로드맵');
-    const executionRoadmap = generate3PhaseRoadmap(priorityMatrixData, swotAnalysis, normalizedData);
+    const executionRoadmap = generate3PhaseRoadmap(keyActionItems, swotAnalysis, normalizedData);
     
     // 8단계: GEMINI AI 종합 보고서 생성 (핵심)
     updateProgressStatus(progressId, 'processing', '8단계: GEMINI 2.5 Flash로 종합 분석 보고서를 생성하고 있습니다');
     console.log('🤖 8단계: GEMINI AI 종합 분석');
-    const aiReport = generateGeminiAIReport(normalizedData, scoreAnalysis, swotAnalysis, priorityMatrixData, executionRoadmap);
+    const aiReport = generateGeminiAIReport(normalizedData, scoreAnalysis, swotAnalysis, keyActionItems, executionRoadmap);
     
     // 9단계: 이교장의AI역량진단보고서 HTML 생성
     updateProgressStatus(progressId, 'processing', '9단계: 맞춤형 HTML 보고서를 생성하고 있습니다');
@@ -529,7 +529,7 @@ function handleAIDiagnosisRequest(requestData, progressId) {
     const htmlReport = generateLeeKyoJangStyleReport(normalizedData, aiReport, {
       scores: scoreAnalysis,
       swot: swotAnalysis,
-      priorityMatrix: priorityMatrixData, // matrix → priorityMatrix로 수정
+      actionItems: keyActionItems, // matrix 완전 제거, actionItems로 대체
       roadmap: executionRoadmap
     });
     
@@ -767,91 +767,123 @@ function normalizeAIDiagnosisData(rawData, diagnosisId) {
 }
 
 /**
- * 45문항 점수 계산 (V15.0 간소화)
+ * 45문항 점수 계산 (V15.0 정확한 계산 시스템)
  */
 function calculateAdvancedScores(normalizedData) {
-  const responses = normalizedData.responses || {};
-  const responseValues = Object.values(responses).map(v => parseInt(v) || 0);
+  const responses = normalizedData.responses || [];
+  const responseValues = Array.isArray(responses) ? 
+    responses.map(v => parseInt(v) || 0) : 
+    Object.values(responses).map(v => parseInt(v) || 0);
+  
+  // 🔍 디버깅 로그 추가
+  console.log('🔍 DEBUG - 응답 데이터 분석:');
+  console.log('원본 responses:', responses);
+  console.log('변환된 responseValues:', responseValues);
+  console.log('응답 개수:', responseValues.length);
+  console.log('응답 합계:', responseValues.reduce((sum, score) => sum + score, 0));
   
   if (responseValues.length === 0) {
     return {
       totalScore: 0,
       averageScore: 0,
+      percentage: 0,
       grade: 'F',
-      maturityLevel: '초급',
+      maturityLevel: '미흡',
       sectionScores: {},
       percentile: 0
     };
   }
   
   const totalScore = responseValues.reduce((sum, score) => sum + score, 0);
+  const maxPossibleScore = responseValues.length * 5; // 45문항 × 5점 = 225점
   const averageScore = totalScore / responseValues.length;
+  const percentage = Math.round((totalScore / maxPossibleScore) * 100);
   
-  // 등급 계산
+  // 정확한 등급 계산 (백분율 기준)
   let grade = 'F';
-  let maturityLevel = '초급';
+  let maturityLevel = '미흡';
   
-  if (averageScore >= 4.5) {
+  if (percentage >= 90) {
     grade = 'A+';
-    maturityLevel = '전문가';
-  } else if (averageScore >= 4.0) {
+    maturityLevel = '최우수';
+  } else if (percentage >= 80) {
     grade = 'A';
-    maturityLevel = '고급';
-  } else if (averageScore >= 3.5) {
+    maturityLevel = '우수';
+  } else if (percentage >= 70) {
     grade = 'B+';
-    maturityLevel = '중급';
-  } else if (averageScore >= 3.0) {
+    maturityLevel = '양호';
+  } else if (percentage >= 60) {
     grade = 'B';
-    maturityLevel = '중급';
-  } else if (averageScore >= 2.5) {
+    maturityLevel = '보통';
+  } else if (percentage >= 50) {
+    grade = 'C+';
+    maturityLevel = '개선필요';
+  } else if (percentage >= 40) {
     grade = 'C';
-    maturityLevel = '초급';
+    maturityLevel = '미흡';
   } else {
     grade = 'F';
-    maturityLevel = '초급';
+    maturityLevel = '매우미흡';
   }
+  
+  // 섹션별 점수 (45문항을 5개 영역으로 분할)
+  const questionsPerSection = Math.floor(responseValues.length / 5);
+  const sectionScores = {
+    strategy: calculateSectionScore(responseValues.slice(0, 9)),
+    technology: calculateSectionScore(responseValues.slice(9, 18)),
+    data: calculateSectionScore(responseValues.slice(18, 27)),
+    process: calculateSectionScore(responseValues.slice(27, 36)),
+    culture: calculateSectionScore(responseValues.slice(36, 45))
+  };
   
   return {
     totalScore: totalScore,
+    maxScore: maxPossibleScore,
     averageScore: Math.round(averageScore * 100) / 100,
+    percentage: percentage,
     grade: grade,
     maturityLevel: maturityLevel,
-    sectionScores: {
-      strategy: Math.round(averageScore * 20),
-      technology: Math.round(averageScore * 18),
-      data: Math.round(averageScore * 22),
-      process: Math.round(averageScore * 20),
-      culture: Math.round(averageScore * 20)
-    },
-    percentile: Math.min(95, Math.round(averageScore * 20))
+    sectionScores: sectionScores,
+    percentile: Math.min(95, percentage)
   };
+}
+
+/**
+ * 섹션별 점수 계산 헬퍼 함수
+ */
+function calculateSectionScore(sectionResponses) {
+  if (!sectionResponses || sectionResponses.length === 0) return 0;
+  const sectionTotal = sectionResponses.reduce((sum, score) => sum + score, 0);
+  const sectionMax = sectionResponses.length * 5;
+  return Math.round((sectionTotal / sectionMax) * 100);
 }
 
 /**
  * 업종별 벤치마크 분석 (V15.0 ULTIMATE FINAL)
  */
 function performBenchmarkAnalysis(scoreAnalysis, normalizedData) {
+  // 업종별 벤치마크 (백분율 기준)
   const industryBenchmarks = {
-    'IT/소프트웨어': { average: 3.8, top10: 4.5 },
-    '제조업': { average: 3.2, top10: 4.0 },
-    '금융업': { average: 3.6, top10: 4.3 },
-    '서비스업': { average: 3.1, top10: 3.8 },
-    '기타': { average: 3.0, top10: 3.7 }
+    'IT/소프트웨어': { average: 76, top10: 90 },
+    '제조업': { average: 64, top10: 80 },
+    '금융업': { average: 72, top10: 86 },
+    '서비스업': { average: 62, top10: 76 },
+    '기타': { average: 60, top10: 74 }
   };
   
   const benchmark = industryBenchmarks[normalizedData.industry] || industryBenchmarks['기타'];
-  const userScore = scoreAnalysis.averageScore;
+  const userPercentage = scoreAnalysis.percentage;
   
   return {
     industryAverage: benchmark.average,
     industryTop10: benchmark.top10,
-    userScore: userScore,
-    percentileRank: Math.min(95, Math.round((userScore / benchmark.top10) * 100)),
+    userScore: userPercentage,
+    percentileRank: Math.min(95, Math.round((userPercentage / benchmark.top10) * 100)),
     gapAnalysis: {
-      vsAverage: userScore - benchmark.average,
-      vsTop10: userScore - benchmark.top10
+      vsAverage: userPercentage - benchmark.average,
+      vsTop10: userPercentage - benchmark.top10
     },
-    recommendations: userScore < benchmark.average ? 
+    recommendations: userPercentage < benchmark.average ? 
       ['업종 평균 수준 달성을 위한 집중 투자 필요'] : 
       ['업종 상위권 진입을 위한 차별화 전략 수립']
   };
@@ -861,7 +893,7 @@ function performBenchmarkAnalysis(scoreAnalysis, normalizedData) {
  * 고도화된 SWOT 분석 (V15.0 ULTIMATE FINAL)
  */
 function generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis) {
-  const isAboveAverage = scoreAnalysis.averageScore > benchmarkAnalysis.industryAverage;
+  const isAboveAverage = scoreAnalysis.percentage > benchmarkAnalysis.industryAverage;
   
   return {
     strengths: isAboveAverage ? [
@@ -902,28 +934,64 @@ function generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis) 
 }
 
 /**
- * 우선순위 매트릭스 (V15.0 간소화 - matrix 오류 완전 수정)
+ * 핵심 실행 과제 생성 (V15.0 Matrix 대체 - 오류 없는 안정적 구조)
  */
-function generatePriorityMatrix(swotAnalysis, scoreAnalysis, normalizedData) {
-  console.log('📈 우선순위 매트릭스 생성 (V15.0 ULTIMATE FINAL)');
+function generateKeyActionItems(swotAnalysis, scoreAnalysis, normalizedData) {
+  console.log('🎯 핵심 실행 과제 생성 (V15.0 MATRIX-FREE)');
+  
+  // 점수 기반 맞춤형 과제 생성
+  const isHighPerformer = scoreAnalysis.percentage >= 80;
+  const isAdvanced = scoreAnalysis.maturityLevel === '우수' || scoreAnalysis.maturityLevel === '최우수';
+  
+  const immediateActions = isHighPerformer ? [
+    '🚀 AI 센터 오브 엑셀런스 구축',
+    '📊 고도화된 데이터 분석 체계 도입',
+    '🤖 맞춤형 AI 솔루션 개발'
+  ] : [
+    '📚 AI 기초 교육 및 인식 개선',
+    '📋 데이터 정리 및 관리 체계 구축',
+    '🔧 기본 AI 도구 도입 및 활용'
+  ];
+  
+  const shortTermGoals = isAdvanced ? [
+    '💡 AI 기반 비즈니스 모델 혁신',
+    '🔗 업계 파트너십 및 생태계 구축',
+    '📈 AI ROI 측정 및 최적화 시스템'
+  ] : [
+    '⚡ 업무 프로세스 AI 통합',
+    '📊 성과 측정 체계 구축',
+    '👥 조직 역량 강화 프로그램'
+  ];
   
   return {
-    topPriorities: [
-      { item: 'AI 기초 교육 실시', importance: 9, urgency: 8, feasibility: 8 },
-      { item: '데이터 관리 체계 구축', importance: 8, urgency: 7, feasibility: 7 },
-      { item: '조직 문화 개선', importance: 7, urgency: 6, feasibility: 6 },
-      { item: '기술 인프라 강화', importance: 8, urgency: 5, feasibility: 5 },
-      { item: '전략적 파트너십 구축', importance: 6, urgency: 5, feasibility: 7 }
+    actionItems: {
+      immediate: immediateActions,
+      shortTerm: shortTermGoals,
+      longTerm: [
+        '🏆 업계 AI 리더십 확보',
+        '🌐 AI 기반 글로벌 경쟁력 강화',
+        '🔄 지속적 혁신 체계 구축'
+      ]
+    },
+    implementation: {
+      phase1: '즉시 실행 (1-3개월)',
+      phase2: '단기 목표 (3-6개월)', 
+      phase3: '장기 비전 (6-12개월)'
+    },
+    success_metrics: [
+      'AI 도입률 50% 이상',
+      '업무 효율성 30% 향상',
+      'ROI 200% 이상 달성'
     ],
     createdAt: new Date().toISOString(),
-    version: 'V15.0-ULTIMATE-FINAL'
+    version: 'V15.0-MATRIX-FREE-STABLE'
   };
 }
 
 /**
  * 3단계 실행 로드맵 (V15.0 간소화)
  */
-function generate3PhaseRoadmap(priorityMatrixData, swotAnalysis, normalizedData) {
+function generate3PhaseRoadmap(keyActionItems, swotAnalysis, normalizedData) {
   return {
     phase1: {
       title: '1단계: 기반 구축',
@@ -954,15 +1022,15 @@ function generate3PhaseRoadmap(priorityMatrixData, swotAnalysis, normalizedData)
 /**
  * GEMINI AI 종합 보고서 생성 (V15.0 ULTIMATE FINAL)
  */
-function generateGeminiAIReport(normalizedData, scoreAnalysis, swotAnalysis, priorityMatrix, executionRoadmap) {
+function generateGeminiAIReport(normalizedData, scoreAnalysis, swotAnalysis, keyActionItems, executionRoadmap) {
   try {
     console.log('🤖 GEMINI AI 보고서 생성 시작');
     
     const env = getEnvironmentConfig();
     
     if (!env.GEMINI_API_KEY) {
-      console.warn('⚠️ GEMINI API 키가 설정되지 않음. 기본 보고서 생성');
-      return generateDefaultReport(normalizedData, scoreAnalysis, swotAnalysis);
+      console.error('❌ GEMINI API 키가 설정되지 않음. 필수 설정 필요!');
+      throw new Error('GEMINI API 키가 설정되지 않았습니다. 고품질 보고서 생성을 위해 GEMINI API 키 설정이 필요합니다.');
     }
     
     // 🚀 GEMINI 2.5 Flash 최고 품질 프롬프트 (V15.0 ULTIMATE)
@@ -999,11 +1067,15 @@ ${swotAnalysis.opportunities.map((o, i) => `${i+1}. ${o}`).join('\n')}
 ### ⚠️ 위협 (Threats)
 ${swotAnalysis.threats.map((t, i) => `${i+1}. ${t}`).join('\n')}
 
-## 📈 우선순위 매트릭스 (중요도-긴급도-실행가능성 분석)
-${priorityMatrix.topPriorities.map((p, i) => `${i+1}. ${p.item}
-   - 중요도: ${p.importance}/10
-   - 긴급도: ${p.urgency}/10  
-   - 실행가능성: ${p.feasibility}/10`).join('\n')}
+## 🎯 핵심 실행 과제 (단계별 액션플랜)
+### 즉시 실행 과제 (1-3개월)
+${keyActionItems.actionItems.immediate.map((item, i) => `${i+1}. ${item}`).join('\n')}
+
+### 단기 목표 (3-6개월)  
+${keyActionItems.actionItems.shortTerm.map((item, i) => `${i+1}. ${item}`).join('\n')}
+
+### 장기 비전 (6-12개월)
+${keyActionItems.actionItems.longTerm.map((item, i) => `${i+1}. ${item}`).join('\n')}
 
 ## 🗺️ 3단계 실행 로드맵
 ### ${executionRoadmap.phase1.title} (${executionRoadmap.phase1.duration})
@@ -1041,7 +1113,33 @@ ${priorityMatrix.topPriorities.map((p, i) => `${i+1}. ${p.item}
 각 섹션은 데이터 기반의 객관적 분석과 실행 가능한 구체적 제안을 포함해야 합니다.
 `;
 
-    const response = callGeminiAPI(prompt);
+    // GEMINI API 호출 (재시도 로직 포함)
+    let response = null;
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    while (attempts < maxAttempts && !response) {
+      attempts++;
+      console.log(`🔄 GEMINI API 호출 시도 ${attempts}/${maxAttempts}`);
+      
+      try {
+        response = callGeminiAPI(prompt);
+        if (response && response.candidates && response.candidates[0]) {
+          console.log('✅ GEMINI API 호출 성공');
+          break;
+        } else {
+          console.warn(`⚠️ GEMINI API 응답 불완전 (시도 ${attempts})`);
+          response = null;
+        }
+      } catch (apiError) {
+        console.error(`❌ GEMINI API 호출 실패 (시도 ${attempts}):`, apiError.message);
+        if (attempts === maxAttempts) {
+          throw new Error(`GEMINI API 호출 ${maxAttempts}회 실패: ${apiError.message}`);
+        }
+        // 재시도 전 잠시 대기
+        Utilities.sleep(1000 * attempts);
+      }
+    }
     
     if (response && response.candidates && response.candidates[0]) {
       const aiContent = response.candidates[0].content.parts[0].text;
@@ -1057,7 +1155,7 @@ ${priorityMatrix.topPriorities.map((p, i) => `${i+1}. ${p.item}
         successMetrics: `성공 지표: AI 도입률, 업무 효율성 개선도, ROI 달성률 등을 핵심 KPI로 설정하여 측정합니다.`,
         timeline: `${executionRoadmap.phase1.duration} + ${executionRoadmap.phase2.duration} + ${executionRoadmap.phase3.duration}의 단계별 실행 타임라인을 제시합니다.`,
         resourceRequirements: `${normalizedData.employeeCount} 규모의 조직에 적합한 인적, 물적 자원 투자 계획을 수립했습니다.`,
-        nextSteps: `즉시 실행 과제: ${priorityMatrix.topPriorities.slice(0, 2).map(p => p.item).join(', ')} 등을 우선 추진하시기 바랍니다.`,
+        nextSteps: `즉시 실행 과제: ${keyActionItems.actionItems.immediate.slice(0, 2).join(', ')} 등을 우선 추진하시기 바랍니다.`,
         totalScore: scoreAnalysis.totalScore,
         grade: scoreAnalysis.grade,
         maturityLevel: scoreAnalysis.maturityLevel,
@@ -1165,10 +1263,10 @@ function generateDefaultReport(normalizedData, scoreAnalysis, swotAnalysis) {
 function generateLeeKyoJangStyleReport(normalizedData, aiReport, analysisData) {
   console.log('📄 이교장 스타일 HTML 보고서 생성 (V15.0 ULTIMATE FINAL)');
   
-  // analysisData에서 안전하게 데이터 추출 (matrix 오류 방지)
+  // analysisData에서 안전하게 데이터 추출 (matrix 완전 제거)
   const scores = analysisData.scores || {};
   const swot = analysisData.swot || {};
-  const priorityMatrix = analysisData.priorityMatrix || analysisData.matrix || {}; // 안전한 fallback
+  const actionItems = analysisData.actionItems || {}; // matrix 대신 actionItems 사용
   const roadmap = analysisData.roadmap || {};
   
   const htmlContent = `
@@ -1331,20 +1429,20 @@ function generateLeeKyoJangStyleReport(normalizedData, aiReport, analysisData) {
             <h2 class="section-title">📊 진단 개요</h2>
             <div class="score-grid">
                 <div class="score-card">
-                    <div class="score-value">${scores.totalScore || 0}</div>
+                    <div class="score-value">${scores.totalScore || 0}/${scores.maxScore || 225}</div>
                     <div class="score-label">총점</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value">${scores.percentage || 0}%</div>
+                    <div class="score-label">달성률</div>
                 </div>
                 <div class="score-card">
                     <div class="score-value">${scores.grade || 'F'}</div>
                     <div class="score-label">등급</div>
                 </div>
                 <div class="score-card">
-                    <div class="score-value">${scores.maturityLevel || '초급'}</div>
+                    <div class="score-value">${scores.maturityLevel || '미흡'}</div>
                     <div class="score-label">성숙도</div>
-                </div>
-                <div class="score-card">
-                    <div class="score-value">${scores.percentile || 0}%</div>
-                    <div class="score-label">상위 백분율</div>
                 </div>
             </div>
         </div>
@@ -1380,17 +1478,42 @@ function generateLeeKyoJangStyleReport(normalizedData, aiReport, analysisData) {
             </div>
         </div>
 
-        <!-- 우선순위 매트릭스 -->
+        <!-- 핵심 실행 과제 -->
         <div class="section">
-            <h2 class="section-title">📈 우선순위 매트릭스</h2>
+            <h2 class="section-title">🎯 핵심 실행 과제</h2>
+            
+            <div class="action-phase">
+                <h3 style="color: #e74c3c; margin-bottom: 15px;">🚀 즉시 실행 (1-3개월)</h3>
             <ul class="priority-list">
-                ${(priorityMatrix.topPriorities || []).map(item => `
-                    <li class="priority-item">
-                        <strong>${item.item}</strong><br>
-                        중요도: ${item.importance}/10, 긴급도: ${item.urgency}/10, 실행가능성: ${item.feasibility}/10
+                    ${(actionItems.actionItems?.immediate || []).map(item => `
+                        <li class="priority-item" style="border-left-color: #e74c3c;">
+                            ${item}
                     </li>
                 `).join('')}
             </ul>
+            </div>
+            
+            <div class="action-phase" style="margin-top: 25px;">
+                <h3 style="color: #f39c12; margin-bottom: 15px;">⚡ 단기 목표 (3-6개월)</h3>
+                <ul class="priority-list">
+                    ${(actionItems.actionItems?.shortTerm || []).map(item => `
+                        <li class="priority-item" style="border-left-color: #f39c12;">
+                            ${item}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="action-phase" style="margin-top: 25px;">
+                <h3 style="color: #27ae60; margin-bottom: 15px;">🏆 장기 비전 (6-12개월)</h3>
+                <ul class="priority-list">
+                    ${(actionItems.actionItems?.longTerm || []).map(item => `
+                        <li class="priority-item" style="border-left-color: #27ae60;">
+                            ${item}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
         </div>
 
         <!-- 3단계 실행 로드맵 -->
@@ -2783,7 +2906,7 @@ function sendErrorReportAdminNotification(normalizedData) {
 
 console.log('🚀 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE FINAL 로드 완료');
 console.log('✅ V11.0 코드 완전 제거 및 V14 통합 워크플로우 적용');
-console.log('✅ matrix 오류 완전 수정 (priorityMatrix 변수명 통일)');
+console.log('✅ Matrix 완전 제거 및 안정적 ActionItems 시스템 구현 완료');
 console.log('✅ 12단계 완전한 AI 역량진단 워크플로우 구현');
 console.log('✅ 진행상황 실시간 모니터링 시스템 통합');
 console.log('✅ 접수확인 메일 자동 발송 시스템');
