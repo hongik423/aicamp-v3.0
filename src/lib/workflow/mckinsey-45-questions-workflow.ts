@@ -157,11 +157,14 @@ export interface LeeKyoJang45QuestionsResult {
 /**
  * 45개 질문 응답 분석
  */
-export function analyze45QuestionsResponses(responses: Record<string, number>) {
+export function analyze45QuestionsResponses(responses: Record<string, number> | number[]) {
   // 1) 원시 응답값 배열 구성 (q1~q45, '1'~'45' 키 지원)
+  const isArrayInput = Array.isArray(responses);
   const answerValues: number[] = REAL_45_QUESTIONS.map(q => {
-    const v = (responses[`q${q.id}`] ?? responses[q.id.toString()] ?? 0) as number;
-    const n = Number(v);
+    const raw = isArrayInput
+      ? (responses as number[])[q.id - 1] // 배열 입력일 경우 0-기반 인덱스 보정
+      : (responses as Record<string, number>)[`q${q.id}`] ?? (responses as Record<string, number>)[q.id.toString()];
+    const n = Number(raw);
     return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : 0;
   });
 
@@ -178,8 +181,10 @@ export function analyze45QuestionsResponses(responses: Record<string, number>) {
     if (!categoryScoresRaw[category]) {
       categoryScoresRaw[category] = { sum: 0, count: 0, weight: q.weight };
     }
-    const v = (responses[`q${q.id}`] ?? responses[q.id.toString()] ?? 0) as number;
-    const n = Number.isFinite(Number(v)) ? Math.max(0, Math.min(5, Number(v))) : 0;
+    const raw = isArrayInput
+      ? (responses as number[])[q.id - 1]
+      : (responses as Record<string, number>)[`q${q.id}`] ?? (responses as Record<string, number>)[q.id.toString()];
+    const n = Number.isFinite(Number(raw)) ? Math.max(0, Math.min(5, Number(raw))) : 0;
     categoryScoresRaw[category].sum += n;
     categoryScoresRaw[category].count += 1;
   });
