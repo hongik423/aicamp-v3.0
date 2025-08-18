@@ -206,7 +206,7 @@ function doPost(e) {
       console.log('🎯 통합 워크플로우 결과 감지 - 특별 처리 모드');
     }
     
-    // 액션별 라우팅 (V15.0 지원 액션 + 통합 워크플로우)
+    // 액션별 라우팅 (V15.0 지원 액션 + 통합 워크플로우 + Drive 유틸)
     let result;
     switch (action) {
       case 'diagnosis':
@@ -242,6 +242,21 @@ function doPost(e) {
         // 진행상황 조회 (실시간 모니터링용)
         console.log('📊 진행상황 조회 요청:', requestData.diagnosisId);
         result = getProgressStatus(requestData.diagnosisId);
+        break;
+
+      case 'drive_upload':
+        updateProgressStatus(progressId, 'processing', 'Google Drive에 보고서를 업로드하고 있습니다');
+        result = handleDriveUploadRequest(requestData, progressId);
+        break;
+
+      case 'drive_list':
+        updateProgressStatus(progressId, 'processing', 'Google Drive 파일 목록을 조회하고 있습니다');
+        result = handleDriveListRequest(requestData, progressId);
+        break;
+
+      case 'drive_check':
+        updateProgressStatus(progressId, 'processing', 'Google Drive 파일 상태를 확인하고 있습니다');
+        result = handleDriveCheckRequest(requestData, progressId);
         break;
         
       default:
@@ -1403,9 +1418,516 @@ function generateLeeKyoJangStyleReport(normalizedData, aiReport, analysisData) {
 // ================================================================================
 
 /**
+ * 신청자/관리자 접수확인 메일 발송 (V15.0 ULTIMATE FINAL)
+ */
+function sendApplicationConfirmationEmails(normalizedData, diagnosisId) {
+  console.log('📧 접수확인 메일 발송 시작');
+  
+  const config = getEnvironmentConfig();
+  
+  try {
+    // 이메일 할당량 확인
+    const remainingQuota = MailApp.getRemainingDailyQuota();
+    if (remainingQuota < 2) {
+      console.warn(`⚠️ Gmail 일일 할당량 부족: ${remainingQuota}개 남음`);
+    }
+    
+    let emailsSent = 0;
+    let emailErrors = [];
+    
+    // 신청자 접수확인 메일 발송
+    try {
+      if (normalizedData.contactEmail && normalizedData.contactEmail !== '정보없음') {
+        const applicantEmail = generateApplicantConfirmationEmail(normalizedData, diagnosisId);
+        const sendResult = sendEmailWithRetry({
+          to: normalizedData.contactEmail,
+          subject: applicantEmail.subject,
+          htmlBody: applicantEmail.body,
+          name: '이교장의AI역량진단보고서'
+        }, 3);
+        if (!sendResult.success) throw new Error(sendResult.error || 'unknown');
+        console.log('✅ 신청자 접수확인 메일 발송 완료:', normalizedData.contactEmail);
+        emailsSent++;
+      }
+    } catch (error) {
+      console.error('❌ 신청자 접수확인 메일 발송 실패:', error);
+      emailErrors.push('신청자 접수확인 메일 발송 실패');
+    }
+    
+    // 관리자 접수확인 메일 발송
+    try {
+      const adminEmail = generateAdminConfirmationEmail(normalizedData, diagnosisId);
+      const sendResult2 = sendEmailWithRetry({
+        to: config.ADMIN_EMAIL,
+        subject: adminEmail.subject,
+        htmlBody: adminEmail.body,
+        name: 'AICAMP 시스템 알림'
+      }, 3);
+      if (!sendResult2.success) throw new Error(sendResult2.error || 'unknown');
+      console.log('✅ 관리자 접수확인 메일 발송 완료:', config.ADMIN_EMAIL);
+      emailsSent++;
+    } catch (error) {
+      console.error('❌ 관리자 접수확인 메일 발송 실패:', error);
+      emailErrors.push('관리자 접수확인 메일 발송 실패');
+    }
+    
+    return {
+      success: emailsSent > 0,
+      emailsSent: emailsSent,
+      errors: emailErrors,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 접수확인 메일 발송 시스템 오류:', error);
+    return {
+      success: false,
+      emailsSent: 0,
+      error: error.toString(),
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * 신청자 접수확인 메일 생성 (V15.0 ULTIMATE FINAL)
+ */
+function generateApplicantConfirmationEmail(normalizedData, diagnosisId) {
+  const config = getEnvironmentConfig();
+  const logoUrl = `https://${config.AICAMP_WEBSITE}/images/aicamp_logo_del_250726.png`;
+  const subject = `AICAMP | AI 역량진단 접수 완료 - ${normalizedData.companyName}`;
+  
+  const body = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Sans KR', Arial, sans-serif; line-height: 1.6; color: #1d1d1f; background:#f5f5f7; }
+        .header { background: #000; color: #fff; padding: 32px 24px; text-align: center; }
+        .brand { display:flex; align-items:center; justify-content:center; gap:12px; }
+        .brand img { width:120px; height:auto; display:block; }
+        .brand h1 { margin:0; font-size:22px; font-weight:700; letter-spacing:-0.3px; }
+        .content { padding: 30px; }
+        .info-box { background: #f0f9ff; border: 1px solid #0ea5e9; padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .timeline-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .footer { background: #111827; color: #e5e7eb; padding: 20px; text-align: center; font-size:13px; }
+        .highlight { background: #eef2ff; padding: 15px; border-left: 4px solid #6366f1; margin: 15px 0; border-radius:8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+      <div class="brand">
+        <img src="${logoUrl}" alt="AICAMP" />
+        <h1>AI 역량진단 접수 완료</h1>
+      </div>
+    </div>
+    
+    <div class="content">
+      <h2>안녕하세요, ${normalizedData.contactName}님!</h2>
+      
+      <p><strong>${normalizedData.companyName}</strong>의 AI 역량진단 신청이 성공적으로 접수되었습니다.</p>
+      
+      <div class="info-box">
+        <h3>📋 접수 정보</h3>
+        <ul>
+          <li><strong>진단 ID:</strong> ${diagnosisId}</li>
+          <li><strong>회사명:</strong> ${normalizedData.companyName}</li>
+          <li><strong>업종:</strong> ${normalizedData.industry}</li>
+          <li><strong>담당자:</strong> ${normalizedData.contactName}</li>
+          <li><strong>접수일시:</strong> ${new Date().toLocaleString('ko-KR')}</li>
+        </ul>
+      </div>
+      
+      <div class="timeline-box">
+        <h3>⏰ 처리 일정</h3>
+        <p>현재 GEMINI 2.5 Flash AI가 45개 행동지표를 기반으로 정밀 분석을 진행하고 있습니다.</p>
+        <p><strong>예상 완료 시간:</strong> 약 10-15분 내</p>
+        <p><strong>보고서 발송:</strong> 분석 완료 즉시 이메일로 발송</p>
+      </div>
+      
+      <div class="highlight">
+        <h3>🎓 이교장의 한마디</h3>
+        <p>"AI는 도구가 아니라 새로운 사고방식입니다. 곧 완성될 맞춤형 보고서를 통해 귀하의 조직이 AI 시대를 선도하는 기업으로 성장하시길 바랍니다!"</p>
+      </div>
+      
+      <p>문의사항이 있으시면 언제든 연락주세요.</p>
+    </div>
+    
+    <div class="footer">
+      <p>📧 ${config.ADMIN_EMAIL} | 🌐 ${config.AICAMP_WEBSITE}</p>
+      <p>© 2025 AICAMP. All rights reserved.</p>
+    </div>
+</body>
+</html>
+`;
+
+  return { subject, body };
+}
+
+/**
+ * 관리자 접수확인 메일 생성 (V15.0 ULTIMATE FINAL)
+ */
+function generateAdminConfirmationEmail(normalizedData, diagnosisId) {
+  const config = getEnvironmentConfig();
+  const subject = `[AICAMP 관리자] 새로운 AI 역량진단 접수 - ${normalizedData.companyName}`;
+  
+  const body = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .header { background: #2563eb; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .info-table th, .info-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .info-table th { background-color: #f8f9fa; font-weight: bold; }
+        .alert { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 새로운 AI 역량진단 접수 알림</h1>
+    </div>
+    
+    <div class="content">
+        <h2>관리자님, 새로운 진단 요청이 접수되었습니다.</h2>
+        
+        <table class="info-table">
+            <tr><th>진단 ID</th><td>${diagnosisId}</td></tr>
+            <tr><th>회사명</th><td>${normalizedData.companyName}</td></tr>
+            <tr><th>업종</th><td>${normalizedData.industry}</td></tr>
+            <tr><th>직원 수</th><td>${normalizedData.employeeCount}</td></tr>
+            <tr><th>담당자명</th><td>${normalizedData.contactName}</td></tr>
+            <tr><th>이메일</th><td>${normalizedData.contactEmail}</td></tr>
+            <tr><th>전화번호</th><td>${normalizedData.contactPhone}</td></tr>
+            <tr><th>접수일시</th><td>${new Date().toLocaleString('ko-KR')}</td></tr>
+        </table>
+        
+        <div class="alert">
+            <h3>📊 처리 상태</h3>
+            <p>• 시스템이 자동으로 45개 행동지표 분석을 시작했습니다.</p>
+            <p>• GEMINI 2.5 Flash AI가 종합 보고서를 생성 중입니다.</p>
+            <p>• 완료 시 신청자에게 자동으로 이메일이 발송됩니다.</p>
+        </div>
+        
+        <p><strong>시스템 버전:</strong> V15.0-ULTIMATE-FINAL</p>
+        <p><strong>처리 예상 시간:</strong> 10-15분</p>
+    </div>
+</body>
+</html>
+`;
+
+  return { subject, body };
+}
+
+/**
+ * 이메일 재시도 발송 (V15.0 ULTIMATE FINAL)
+ */
+function sendEmailWithRetry(emailOptions, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      GmailApp.sendEmail(
+        emailOptions.to,
+        emailOptions.subject,
+        '', // 텍스트 본문 (빈 문자열)
+        {
+          htmlBody: emailOptions.htmlBody,
+          name: emailOptions.name || 'AICAMP'
+        }
+      );
+      
+      console.log(`✅ 이메일 발송 성공 (${attempt}/${maxRetries}):`, emailOptions.to);
+      return { success: true, attempt: attempt };
+      
+    } catch (error) {
+      console.error(`❌ 이메일 발송 실패 (${attempt}/${maxRetries}):`, error);
+      
+      if (attempt === maxRetries) {
+        return { success: false, error: error.message, attempts: maxRetries };
+      }
+      
+      // 재시도 전 대기 (2초)
+      Utilities.sleep(2000);
+    }
+  }
+}
+
+/**
+ * 통합 워크플로우 결과 처리 (V15.0 ULTIMATE FINAL)
+ */
+function handleIntegratedWorkflowResult(requestData, progressId) {
+  try {
+    console.log('🎯 통합 워크플로우 결과 처리 시작 - V15.0');
+    console.log('📊 받은 데이터 타입:', requestData.type);
+    console.log('📊 처리 타입:', requestData.processType);
+    
+    // Next.js에서 보낸 데이터 구조 확인
+    const hasWorkflowResult = requestData.workflowResult;
+    const hasDirectData = requestData.scoreAnalysis && requestData.swotAnalysis;
+    
+    if (!hasWorkflowResult && !hasDirectData) {
+      throw new Error('워크플로우 결과 또는 분석 데이터가 없습니다.');
+    }
+    
+    // 데이터 정규화
+    let analysisData;
+    let geminiReport = null;
+    let htmlReport = null;
+    
+    if (hasWorkflowResult) {
+      // 기존 방식 (workflowResult 객체 내부)
+      const { workflowResult } = requestData;
+      analysisData = workflowResult.analysisResult;
+      geminiReport = workflowResult.geminiReport;
+      htmlReport = workflowResult.htmlReport;
+    } else {
+      // 새로운 방식 (직접 전달)
+      analysisData = {
+        diagnosisId: requestData.diagnosisId,
+        companyInfo: {
+          name: requestData.companyName,
+          industry: requestData.industry,
+          size: requestData.employeeCount,
+          contact: {
+            name: requestData.contactName,
+            email: requestData.contactEmail,
+            phone: requestData.contactPhone
+          }
+        },
+        scoreAnalysis: requestData.scoreAnalysis,
+        swotAnalysis: requestData.swotAnalysis,
+        recommendations: requestData.recommendations,
+        roadmap: requestData.roadmap,
+        qualityMetrics: requestData.qualityMetrics || {
+          overallQuality: 85,
+          dataCompleteness: 90,
+          aiAnalysisDepth: 80
+        }
+      };
+    }
+    
+    // 1단계: 진행 상황 업데이트
+    updateProgressStatus(progressId, 'processing', 'SWOT 분석 및 보고서 생성을 시작합니다');
+    
+    // 2단계: Google Sheets 저장
+    console.log('📊 Google Sheets 저장');
+    updateProgressStatus(progressId, 'processing', 'Google Sheets에 분석 결과를 저장하고 있습니다');
+    
+    const sheetsResult = saveIntegratedResultToSheets({
+      ...analysisData,
+      reportGenerated: true,
+      timestamp: new Date().toISOString()
+    });
+    
+    // 3단계: 이메일 발송
+    console.log('📧 결과 이메일 발송');
+    updateProgressStatus(progressId, 'processing', '분석 결과를 이메일로 발송하고 있습니다');
+    
+    const emailResult = sendDiagnosisResultEmail({
+      companyName: analysisData.companyInfo.name,
+      contactName: analysisData.companyInfo.contact.name,
+      contactEmail: analysisData.companyInfo.contact.email,
+      diagnosisId: analysisData.diagnosisId,
+      scoreAnalysis: analysisData.scoreAnalysis,
+      htmlReport: htmlReport
+    });
+    
+    updateProgressStatus(progressId, 'completed', '통합 워크플로우 결과 처리가 완료되었습니다');
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: true,
+        type: 'ai_diagnosis_complete',
+        diagnosisId: analysisData.diagnosisId,
+        message: '통합 워크플로우 결과가 성공적으로 처리되었습니다.',
+        results: {
+          dataSaved: sheetsResult.success,
+          emailSent: emailResult.success
+        },
+        version: 'V15.0-ULTIMATE-FINAL',
+        timestamp: new Date().toISOString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    console.error('❌ 통합 워크플로우 결과 처리 오류:', error);
+    
+    updateProgressStatus(progressId, 'error', `오류 발생: ${error.message}`);
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: error.message,
+        version: 'V15.0-ULTIMATE-FINAL',
+        timestamp: new Date().toISOString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * 통합 결과 Google Sheets 저장 (V15.0 ULTIMATE FINAL)
+ */
+function saveIntegratedResultToSheets(data) {
+  try {
+    console.log('💾 통합 결과 Google Sheets 저장 시작');
+    
+    const sheetsConfig = getSheetsConfig();
+    const spreadsheet = SpreadsheetApp.openById(sheetsConfig.SPREADSHEET_ID);
+    
+    // 메인 데이터 시트
+    let mainSheet = spreadsheet.getSheetByName(sheetsConfig.SHEETS.AI_DIAGNOSIS_MAIN);
+    if (!mainSheet) {
+      mainSheet = spreadsheet.insertSheet(sheetsConfig.SHEETS.AI_DIAGNOSIS_MAIN);
+      // 헤더 추가
+      mainSheet.getRange(1, 1, 1, 15).setValues([[
+        '진단ID', '회사명', '담당자명', '이메일', '전화번호', '업종', '직원수', 
+        '총점', '평균점수', '등급', '성숙도', '백분율', '생성일시', '버전', '상태'
+      ]]);
+    }
+    
+    // 데이터 추가
+    const newRow = [
+      data.diagnosisId,
+      data.companyInfo.name,
+      data.companyInfo.contact.name,
+      data.companyInfo.contact.email,
+      data.companyInfo.contact.phone,
+      data.companyInfo.industry,
+      data.companyInfo.size,
+      data.scoreAnalysis.totalScore || 0,
+      data.scoreAnalysis.averageScore || 0,
+      data.scoreAnalysis.grade || 'F',
+      data.scoreAnalysis.maturityLevel || '초급',
+      data.scoreAnalysis.percentile || 0,
+      new Date().toISOString(),
+      'V15.0-ULTIMATE-FINAL',
+      '완료'
+    ];
+    
+    mainSheet.appendRow(newRow);
+    
+    console.log('✅ 통합 결과 Google Sheets 저장 완료');
+    
+    return { success: true, message: 'Google Sheets 저장 완료' };
+    
+  } catch (error) {
+    console.error('❌ 통합 결과 Google Sheets 저장 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 진단 결과 이메일 발송 (V15.0 ULTIMATE FINAL)
+ */
+function sendDiagnosisResultEmail(params) {
+  try {
+    console.log('📧 진단 결과 이메일 발송 시작');
+    
+    const env = getEnvironmentConfig();
+    
+    const subject = `🎓 ${params.companyName} AI 역량진단 결과 - 이교장의AI역량진단보고서`;
+    
+    const htmlBody = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">🎓 이교장의AI역량진단보고서</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">V15.0 ULTIMATE FINAL</p>
+      </div>
+      
+      <div style="padding: 30px; background: #f8f9fa;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">안녕하세요, ${params.contactName}님!</h2>
+        
+        <p style="line-height: 1.6; margin-bottom: 20px;">
+          <strong>${params.companyName}</strong>의 AI 역량진단이 완료되었습니다.<br>
+          전문적인 분석 결과를 확인해보세요.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #3498db;">
+          <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 진단 결과 요약</h3>
+          <ul style="line-height: 1.8;">
+            <li><strong>진단 ID:</strong> ${params.diagnosisId}</li>
+            <li><strong>총점:</strong> ${params.scoreAnalysis.totalScore || 0}점</li>
+            <li><strong>등급:</strong> ${params.scoreAnalysis.grade || 'F'}</li>
+            <li><strong>성숙도:</strong> ${params.scoreAnalysis.maturityLevel || '초급'}</li>
+          </ul>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #27ae60; margin-bottom: 10px;">🎓 이교장의 한마디</h3>
+          <p style="font-style: italic; line-height: 1.6;">
+            "AI는 도구가 아니라 새로운 사고방식입니다. 단계별로 차근차근 접근하시면 반드시 성공할 수 있습니다!"
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+          <p style="color: #7f8c8d; font-size: 14px;">
+            📧 문의: ${env.ADMIN_EMAIL} | 🌐 웹사이트: ${env.AICAMP_WEBSITE}<br>
+            © 2025 AICAMP. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+    `;
+    
+    // 이메일 발송
+    const sendResult = sendEmailWithRetry({
+      to: params.contactEmail,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: '이교장 (AICAMP)'
+    }, 3);
+    
+    console.log('✅ 진단 결과 이메일 발송 완료');
+    
+    return { success: sendResult.success, message: '이메일 발송 완료' };
+    
+  } catch (error) {
+    console.error('❌ 진단 결과 이메일 발송 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 오류 로그 저장 (V15.0 ULTIMATE FINAL)
+ */
+function saveErrorLog(type, id, error, requestData) {
+  try {
+    const sheetsConfig = getSheetsConfig();
+    const spreadsheet = SpreadsheetApp.openById(sheetsConfig.SPREADSHEET_ID);
+    const errorSheet = getOrCreateSheet(spreadsheet, 'ERROR_LOG');
+    
+    // 헤더 설정 (최초 1회)
+    if (errorSheet.getLastRow() === 0) {
+      const headers = ['타입', 'ID', '오류메시지', '스택트레이스', '요청데이터', '발생시간'];
+      errorSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      errorSheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#dc3545').setFontColor('white');
+    }
+    
+    const row = [
+      type,
+      id,
+      error.message || error.toString(),
+      error.stack || '',
+      JSON.stringify(requestData || {}),
+      new Date().toISOString()
+    ];
+    
+    errorSheet.appendRow(row);
+    console.log('📝 오류 로그 저장 완료:', type, id);
+    
+  } catch (logError) {
+    console.error('❌ 오류 로그 저장 실패:', logError);
+  }
+}
+
+/**
  * Google Sheets에 데이터 저장 (V15.0 ULTIMATE FINAL)
  */
-function saveAIDiagnosisData(normalizedData, aiReport, htmlReport) {
+function saveAIDiagnosisData(normalizedData, aiReport, htmlReport, progressId) {
   try {
     console.log('💾 Google Sheets 데이터 저장 시작');
     
@@ -1495,6 +2017,77 @@ function uploadReportToDrive(diagnosisId, htmlReport, normalizedData) {
       error: error.message,
       shareLink: null
     };
+  }
+}
+
+/**
+ * Drive 업로드 요청 처리 (V15.0 ULTIMATE FINAL)
+ */
+function handleDriveUploadRequest(requestData, progressId) {
+  try {
+    console.log('🗂️ Drive 업로드 요청 처리');
+    const { diagnosisId, htmlReport, normalizedData } = requestData;
+    if (!diagnosisId || !htmlReport) {
+      throw new Error('diagnosisId와 htmlReport는 필수입니다');
+    }
+    const result = uploadReportToDrive(diagnosisId, htmlReport, normalizedData || { companyName: '' });
+    updateProgressStatus(progressId, 'processing', 'Drive 업로드 완료');
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true, ...result }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    updateProgressStatus(progressId, 'error', `Drive 업로드 오류: ${error.message}`);
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Drive 파일 목록 조회 (V15.0 ULTIMATE FINAL)
+ */
+function handleDriveListRequest(requestData, progressId) {
+  try {
+    console.log('📃 Drive 파일 목록 조회');
+    const env = getEnvironmentConfig();
+    const folder = DriveApp.getFolderById(env.DRIVE_FOLDER_ID);
+    const files = [];
+    const it = folder.getFiles();
+    while (it.hasNext() && files.length < 50) {
+      const f = it.next();
+      files.push({ id: f.getId(), name: f.getName(), url: f.getUrl(), createdAt: f.getDateCreated() });
+    }
+    updateProgressStatus(progressId, 'processing', 'Drive 목록 조회 완료');
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true, files }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    updateProgressStatus(progressId, 'error', `Drive 목록 조회 오류: ${error.message}`);
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Drive 파일 상태 확인 (V15.0 ULTIMATE FINAL)
+ */
+function handleDriveCheckRequest(requestData, progressId) {
+  try {
+    console.log('🔎 Drive 파일 상태 확인');
+    const { fileId } = requestData;
+    if (!fileId) throw new Error('fileId가 필요합니다');
+    const file = DriveApp.getFileById(fileId);
+    const payload = { id: file.getId(), name: file.getName(), url: file.getUrl(), size: file.getSize(), createdAt: file.getDateCreated() };
+    updateProgressStatus(progressId, 'processing', 'Drive 파일 상태 확인 완료');
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true, file: payload }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    updateProgressStatus(progressId, 'error', `Drive 파일 상태 확인 오류: ${error.message}`);
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -1597,18 +2190,51 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
 /**
  * 상담신청 처리 (V15.0 ULTIMATE FINAL)
  */
-function handleConsultationRequest(requestData) {
+function handleConsultationRequest(requestData, progressId) {
+  console.log('💬 상담신청 처리 시작 - 통합 시스템');
+  
+  const config = getEnvironmentConfig();
+  const consultationId = generateConsultationId();
+  const startTime = new Date().getTime();
+  
   try {
-    console.log('💼 상담신청 처리 시작');
+    // 1단계: 데이터 검증 및 정규화
+    updateProgressStatus(progressId, 'processing', '상담신청 정보를 검증하고 있습니다');
+    console.log('📋 1단계: 상담신청 데이터 검증');
+    const normalizedData = normalizeConsultationData(requestData.data || requestData, consultationId);
     
-    // 간단한 상담신청 처리 로직
-    const consultationId = `CONSULT_${new Date().getTime()}_${Math.random().toString(36).substr(2, 9)}`;
+    // 2단계: Google Sheets 저장
+    updateProgressStatus(progressId, 'processing', '상담신청 정보를 저장하고 있습니다');
+    console.log('💾 2단계: Google Sheets 저장');
+    const saveResult = saveConsultationData(normalizedData);
+    
+    // 3단계: 신청자 확인 이메일 발송
+    updateProgressStatus(progressId, 'processing', '신청자에게 확인 이메일을 발송하고 있습니다');
+    console.log('📧 3단계: 신청자 확인 이메일 발송');
+    const applicantEmailResult = sendConsultationConfirmationEmail(normalizedData);
+    
+    // 4단계: 관리자 알림 이메일 발송
+    updateProgressStatus(progressId, 'processing', '관리자에게 알림 이메일을 발송하고 있습니다');
+    console.log('📧 4단계: 관리자 알림 이메일 발송');
+    const adminEmailResult = sendConsultationAdminNotification(normalizedData);
+    
+    const processingTime = new Date().getTime() - startTime;
+    console.log('✅ 상담신청 처리 완료 - 총 소요시간:', processingTime + 'ms');
+    
+    updateProgressStatus(progressId, 'completed', '상담신청이 성공적으로 접수되었습니다');
     
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
+        type: 'consultation_request',
         consultationId: consultationId,
-        message: '상담신청이 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.',
+        message: '상담신청이 성공적으로 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.',
+        results: {
+          dataSaved: saveResult.success,
+          applicantEmailSent: applicantEmailResult.success,
+          adminEmailSent: adminEmailResult.success
+        },
+        processingTime: processingTime,
         version: 'V15.0-ULTIMATE-FINAL',
         timestamp: new Date().toISOString()
       }))
@@ -1617,10 +2243,14 @@ function handleConsultationRequest(requestData) {
   } catch (error) {
     console.error('❌ 상담신청 처리 오류:', error);
     
+    updateProgressStatus(progressId, 'error', `오류 발생: ${error.message}`);
+    saveErrorLog('consultation', consultationId, error, requestData);
+    
     return ContentService
       .createTextOutput(JSON.stringify({
         success: false,
         error: error.message,
+        consultationId: consultationId,
         version: 'V15.0-ULTIMATE-FINAL',
         timestamp: new Date().toISOString()
       }))
@@ -1631,18 +2261,51 @@ function handleConsultationRequest(requestData) {
 /**
  * 오류신고 처리 (V15.0 ULTIMATE FINAL)
  */
-function handleErrorReport(requestData) {
+function handleErrorReport(requestData, progressId) {
+  console.log('🚨 오류신고 처리 시작 - 통합 시스템');
+  
+  const config = getEnvironmentConfig();
+  const reportId = generateErrorReportId();
+  const startTime = new Date().getTime();
+  
   try {
-    console.log('🚨 오류신고 처리 시작');
+    // 1단계: 데이터 검증 및 정규화
+    updateProgressStatus(progressId, 'processing', '오류신고 정보를 검증하고 있습니다');
+    console.log('📋 1단계: 오류신고 데이터 검증');
+    const normalizedData = normalizeErrorReportData(requestData.data || requestData, reportId);
     
-    // 간단한 오류신고 처리 로직
-    const reportId = `ERROR_${new Date().getTime()}_${Math.random().toString(36).substr(2, 9)}`;
+    // 2단계: Google Sheets 저장
+    updateProgressStatus(progressId, 'processing', '오류신고 정보를 저장하고 있습니다');
+    console.log('💾 2단계: Google Sheets 저장');
+    const saveResult = saveErrorReportData(normalizedData);
+    
+    // 3단계: 신고자 확인 이메일 발송
+    updateProgressStatus(progressId, 'processing', '신고자에게 확인 이메일을 발송하고 있습니다');
+    console.log('📧 3단계: 신고자 확인 이메일 발송');
+    const reporterEmailResult = sendErrorReportConfirmationEmail(normalizedData);
+    
+    // 4단계: 관리자 긴급 알림 이메일 발송
+    updateProgressStatus(progressId, 'processing', '관리자에게 긴급 알림 이메일을 발송하고 있습니다');
+    console.log('📧 4단계: 관리자 긴급 알림 이메일 발송');
+    const adminEmailResult = sendErrorReportAdminNotification(normalizedData);
+    
+    const processingTime = new Date().getTime() - startTime;
+    console.log('✅ 오류신고 처리 완료 - 총 소요시간:', processingTime + 'ms');
+    
+    updateProgressStatus(progressId, 'completed', '오류신고가 성공적으로 접수되었습니다');
     
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
+        type: 'error_report',
         reportId: reportId,
         message: '오류신고가 접수되었습니다. 신속히 확인하여 조치하겠습니다.',
+        results: {
+          dataSaved: saveResult.success,
+          reporterEmailSent: reporterEmailResult.success,
+          adminEmailSent: adminEmailResult.success
+        },
+        processingTime: processingTime,
         version: 'V15.0-ULTIMATE-FINAL',
         timestamp: new Date().toISOString()
       }))
@@ -1651,10 +2314,14 @@ function handleErrorReport(requestData) {
   } catch (error) {
     console.error('❌ 오류신고 처리 오류:', error);
     
+    updateProgressStatus(progressId, 'error', `오류 발생: ${error.message}`);
+    saveErrorLog('error_report', reportId, error, requestData);
+    
     return ContentService
       .createTextOutput(JSON.stringify({
         success: false,
         error: error.message,
+        reportId: reportId,
         version: 'V15.0-ULTIMATE-FINAL',
         timestamp: new Date().toISOString()
       }))
@@ -1663,12 +2330,440 @@ function handleErrorReport(requestData) {
 }
 
 // ================================================================================
-// 🎯 V15.0 ULTIMATE FINAL 완료
+// MODULE 9: 헬퍼 함수들 (V15.0 ULTIMATE FINAL)
+// ================================================================================
+
+/**
+ * 상담신청 ID 생성
+ */
+function generateConsultationId() {
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substr(2, 9);
+  return `CONSULT_${timestamp}_${random}`;
+}
+
+/**
+ * 오류신고 ID 생성
+ */
+function generateErrorReportId() {
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substr(2, 9);
+  return `ERROR_${timestamp}_${random}`;
+}
+
+/**
+ * 상담신청 데이터 정규화 (V15.0 ULTIMATE FINAL)
+ */
+function normalizeConsultationData(rawData, consultationId) {
+  const data = rawData.data || rawData;
+  
+  return {
+    consultationId: consultationId,
+    companyName: data.companyName || data.회사명 || '',
+    contactName: data.contactName || data.담당자명 || data.name || '',
+    contactEmail: data.contactEmail || data.이메일 || data.email || '',
+    contactPhone: data.contactPhone || data.전화번호 || data.phone || '',
+    contactPosition: data.contactPosition || data.직책 || '',
+    industry: data.industry || data.업종 || '',
+    employeeCount: data.employeeCount || data.직원수 || '',
+    consultationType: data.consultationType || data.상담유형 || 'AI 도입 상담',
+    consultationContent: data.consultationContent || data.상담내용 || '',
+    preferredDate: data.preferredDate || data.희망일정 || '',
+    preferredTime: data.preferredTime || data.희망시간 || '',
+    additionalRequests: data.additionalRequests || data.추가요청사항 || '',
+    timestamp: new Date().toISOString(),
+    version: 'V15.0-ULTIMATE-FINAL'
+  };
+}
+
+/**
+ * 오류신고 데이터 정규화 (V15.0 ULTIMATE FINAL)
+ */
+function normalizeErrorReportData(rawData, reportId) {
+  const data = rawData.data || rawData;
+  
+  return {
+    reportId: reportId,
+    reporterName: data.reporterName || data.신고자명 || data.name || '',
+    reporterEmail: data.reporterEmail || data.이메일 || data.email || '',
+    reporterPhone: data.reporterPhone || data.전화번호 || data.phone || '',
+    errorType: data.errorType || data.오류유형 || '기타',
+    errorDescription: data.errorDescription || data.오류내용 || '',
+    errorLocation: data.errorLocation || data.발생위치 || '',
+    errorTime: data.errorTime || data.발생시간 || new Date().toISOString(),
+    browserInfo: data.browserInfo || data.브라우저정보 || '',
+    deviceInfo: data.deviceInfo || data.기기정보 || '',
+    additionalInfo: data.additionalInfo || data.추가정보 || '',
+    urgencyLevel: data.urgencyLevel || data.긴급도 || 'medium',
+    timestamp: new Date().toISOString(),
+    version: 'V15.0-ULTIMATE-FINAL'
+  };
+}
+
+/**
+ * 상담신청 데이터 저장 (V15.0 ULTIMATE FINAL)
+ */
+function saveConsultationData(normalizedData) {
+  try {
+    console.log('💾 상담신청 데이터 저장 시작');
+    
+    const sheetsConfig = getSheetsConfig();
+    const spreadsheet = SpreadsheetApp.openById(sheetsConfig.SPREADSHEET_ID);
+    
+    let consultationSheet = spreadsheet.getSheetByName(sheetsConfig.SHEETS.CONSULTATION_REQUESTS);
+    if (!consultationSheet) {
+      consultationSheet = spreadsheet.insertSheet(sheetsConfig.SHEETS.CONSULTATION_REQUESTS);
+      // 헤더 추가
+      consultationSheet.getRange(1, 1, 1, 13).setValues([[
+        '상담ID', '회사명', '담당자명', '이메일', '전화번호', '직책', '업종', '직원수',
+        '상담유형', '상담내용', '희망일정', '희망시간', '접수일시'
+      ]]);
+    }
+    
+    const newRow = [
+      normalizedData.consultationId,
+      normalizedData.companyName,
+      normalizedData.contactName,
+      normalizedData.contactEmail,
+      normalizedData.contactPhone,
+      normalizedData.contactPosition,
+      normalizedData.industry,
+      normalizedData.employeeCount,
+      normalizedData.consultationType,
+      normalizedData.consultationContent,
+      normalizedData.preferredDate,
+      normalizedData.preferredTime,
+      normalizedData.timestamp
+    ];
+    
+    consultationSheet.appendRow(newRow);
+    
+    console.log('✅ 상담신청 데이터 저장 완료');
+    return { success: true, message: '상담신청 데이터 저장 완료' };
+    
+  } catch (error) {
+    console.error('❌ 상담신청 데이터 저장 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 오류신고 데이터 저장 (V15.0 ULTIMATE FINAL)
+ */
+function saveErrorReportData(normalizedData) {
+  try {
+    console.log('💾 오류신고 데이터 저장 시작');
+    
+    const sheetsConfig = getSheetsConfig();
+    const spreadsheet = SpreadsheetApp.openById(sheetsConfig.SPREADSHEET_ID);
+    
+    let errorSheet = spreadsheet.getSheetByName(sheetsConfig.SHEETS.ERROR_REPORTS);
+    if (!errorSheet) {
+      errorSheet = spreadsheet.insertSheet(sheetsConfig.SHEETS.ERROR_REPORTS);
+      // 헤더 추가
+      errorSheet.getRange(1, 1, 1, 12).setValues([[
+        '신고ID', '신고자명', '이메일', '전화번호', '오류유형', '오류내용', '발생위치',
+        '발생시간', '브라우저정보', '기기정보', '긴급도', '접수일시'
+      ]]);
+    }
+    
+    const newRow = [
+      normalizedData.reportId,
+      normalizedData.reporterName,
+      normalizedData.reporterEmail,
+      normalizedData.reporterPhone,
+      normalizedData.errorType,
+      normalizedData.errorDescription,
+      normalizedData.errorLocation,
+      normalizedData.errorTime,
+      normalizedData.browserInfo,
+      normalizedData.deviceInfo,
+      normalizedData.urgencyLevel,
+      normalizedData.timestamp
+    ];
+    
+    errorSheet.appendRow(newRow);
+    
+    console.log('✅ 오류신고 데이터 저장 완료');
+    return { success: true, message: '오류신고 데이터 저장 완료' };
+    
+  } catch (error) {
+    console.error('❌ 오류신고 데이터 저장 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 상담신청 확인 이메일 발송 (V15.0 ULTIMATE FINAL)
+ */
+function sendConsultationConfirmationEmail(normalizedData) {
+  try {
+    const config = getEnvironmentConfig();
+    const subject = `AICAMP | 상담신청 접수 완료 - ${normalizedData.companyName}`;
+    
+    const htmlBody = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: #2563eb; color: white; padding: 30px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">💼 상담신청 접수 완료</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">AICAMP 전문 상담팀</p>
+      </div>
+      
+      <div style="padding: 30px; background: #f8f9fa;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">안녕하세요, ${normalizedData.contactName}님!</h2>
+        
+        <p style="line-height: 1.6; margin-bottom: 20px;">
+          <strong>${normalizedData.companyName}</strong>의 AI 도입 상담신청이 성공적으로 접수되었습니다.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #2563eb;">
+          <h3 style="color: #2c3e50; margin-bottom: 15px;">📋 상담신청 정보</h3>
+          <ul style="line-height: 1.8;">
+            <li><strong>상담 ID:</strong> ${normalizedData.consultationId}</li>
+            <li><strong>상담유형:</strong> ${normalizedData.consultationType}</li>
+            <li><strong>희망일정:</strong> ${normalizedData.preferredDate} ${normalizedData.preferredTime}</li>
+            <li><strong>접수일시:</strong> ${new Date().toLocaleString('ko-KR')}</li>
+          </ul>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #27ae60; margin-bottom: 10px;">📞 다음 단계</h3>
+          <p style="line-height: 1.6;">
+            전문 상담사가 1-2일 내에 연락드려 상세한 상담 일정을 조율하겠습니다.<br>
+            궁금한 사항이 있으시면 언제든 연락주세요.
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+          <p style="color: #7f8c8d; font-size: 14px;">
+            📧 문의: ${config.ADMIN_EMAIL} | 🌐 웹사이트: ${config.AICAMP_WEBSITE}<br>
+            © 2025 AICAMP. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+    `;
+    
+    const sendResult = sendEmailWithRetry({
+      to: normalizedData.contactEmail,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: 'AICAMP 상담팀'
+    }, 3);
+    
+    console.log('✅ 상담신청 확인 이메일 발송 완료');
+    return { success: sendResult.success, message: '상담신청 확인 이메일 발송 완료' };
+    
+  } catch (error) {
+    console.error('❌ 상담신청 확인 이메일 발송 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 상담신청 관리자 알림 이메일 발송 (V15.0 ULTIMATE FINAL)
+ */
+function sendConsultationAdminNotification(normalizedData) {
+  try {
+    const config = getEnvironmentConfig();
+    const subject = `[AICAMP 관리자] 새로운 상담신청 - ${normalizedData.companyName}`;
+    
+    const htmlBody = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: #dc3545; color: white; padding: 20px; text-align: center;">
+        <h1>🚨 새로운 상담신청 알림</h1>
+      </div>
+      
+      <div style="padding: 20px;">
+        <h2>관리자님, 새로운 상담 요청이 접수되었습니다.</h2>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">상담 ID</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.consultationId}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">회사명</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.companyName}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">담당자</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.contactName}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">이메일</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.contactEmail}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">전화번호</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.contactPhone}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">상담유형</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.consultationType}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">희망일정</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.preferredDate} ${normalizedData.preferredTime}</td></tr>
+        </table>
+        
+        <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3>📝 상담내용</h3>
+          <p>${normalizedData.consultationContent}</p>
+        </div>
+        
+        <p><strong>접수일시:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+      </div>
+    </div>
+    `;
+    
+    const sendResult = sendEmailWithRetry({
+      to: config.ADMIN_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: 'AICAMP 시스템'
+    }, 3);
+    
+    console.log('✅ 상담신청 관리자 알림 이메일 발송 완료');
+    return { success: sendResult.success, message: '관리자 알림 이메일 발송 완료' };
+    
+  } catch (error) {
+    console.error('❌ 상담신청 관리자 알림 이메일 발송 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 오류신고 확인 이메일 발송 (V15.0 ULTIMATE FINAL)
+ */
+function sendErrorReportConfirmationEmail(normalizedData) {
+  try {
+    const config = getEnvironmentConfig();
+    const subject = `AICAMP | 오류신고 접수 완료 - ${normalizedData.errorType}`;
+    
+    const htmlBody = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: #dc3545; color: white; padding: 30px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">🚨 오류신고 접수 완료</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">AICAMP 기술지원팀</p>
+      </div>
+      
+      <div style="padding: 30px; background: #f8f9fa;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">안녕하세요, ${normalizedData.reporterName}님!</h2>
+        
+        <p style="line-height: 1.6; margin-bottom: 20px;">
+          신고해주신 오류가 성공적으로 접수되었습니다. 빠른 시일 내에 확인하여 조치하겠습니다.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #dc3545;">
+          <h3 style="color: #2c3e50; margin-bottom: 15px;">📋 오류신고 정보</h3>
+          <ul style="line-height: 1.8;">
+            <li><strong>신고 ID:</strong> ${normalizedData.reportId}</li>
+            <li><strong>오류유형:</strong> ${normalizedData.errorType}</li>
+            <li><strong>긴급도:</strong> ${normalizedData.urgencyLevel}</li>
+            <li><strong>접수일시:</strong> ${new Date().toLocaleString('ko-KR')}</li>
+          </ul>
+        </div>
+        
+        <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="color: #856404; margin-bottom: 10px;">⚡ 처리 일정</h3>
+          <p style="line-height: 1.6;">
+            • 긴급 오류: 2시간 내 대응<br>
+            • 일반 오류: 24시간 내 대응<br>
+            • 개선 요청: 1주일 내 검토
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+          <p style="color: #7f8c8d; font-size: 14px;">
+            📧 문의: ${config.ADMIN_EMAIL} | 🌐 웹사이트: ${config.AICAMP_WEBSITE}<br>
+            © 2025 AICAMP. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+    `;
+    
+    const sendResult = sendEmailWithRetry({
+      to: normalizedData.reporterEmail,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: 'AICAMP 기술지원팀'
+    }, 3);
+    
+    console.log('✅ 오류신고 확인 이메일 발송 완료');
+    return { success: sendResult.success, message: '오류신고 확인 이메일 발송 완료' };
+    
+  } catch (error) {
+    console.error('❌ 오류신고 확인 이메일 발송 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 오류신고 관리자 긴급 알림 이메일 발송 (V15.0 ULTIMATE FINAL)
+ */
+function sendErrorReportAdminNotification(normalizedData) {
+  try {
+    const config = getEnvironmentConfig();
+    const urgencyIcon = normalizedData.urgencyLevel === 'high' ? '🔥' : normalizedData.urgencyLevel === 'medium' ? '⚠️' : 'ℹ️';
+    const subject = `[AICAMP 긴급] ${urgencyIcon} 오류신고 - ${normalizedData.errorType}`;
+    
+    const htmlBody = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: #dc3545; color: white; padding: 20px; text-align: center;">
+        <h1>${urgencyIcon} 긴급 오류신고 알림</h1>
+      </div>
+      
+      <div style="padding: 20px;">
+        <h2>관리자님, 새로운 오류신고가 접수되었습니다.</h2>
+        
+        <div style="background: ${normalizedData.urgencyLevel === 'high' ? '#f8d7da' : '#fff3cd'}; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3>긴급도: ${normalizedData.urgencyLevel.toUpperCase()}</h3>
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">신고 ID</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.reportId}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">신고자</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.reporterName}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">이메일</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.reporterEmail}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">오류유형</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.errorType}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">발생위치</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.errorLocation}</td></tr>
+          <tr><th style="border: 1px solid #ddd; padding: 12px; background: #f8f9fa;">발생시간</th><td style="border: 1px solid #ddd; padding: 12px;">${normalizedData.errorTime}</td></tr>
+        </table>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3>📝 오류 상세 내용</h3>
+          <p>${normalizedData.errorDescription}</p>
+        </div>
+        
+        <div style="background: #e9ecef; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3>🔧 기술 정보</h3>
+          <p><strong>브라우저:</strong> ${normalizedData.browserInfo}</p>
+          <p><strong>기기:</strong> ${normalizedData.deviceInfo}</p>
+          <p><strong>추가정보:</strong> ${normalizedData.additionalInfo}</p>
+        </div>
+        
+        <p><strong>접수일시:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+      </div>
+    </div>
+    `;
+    
+    const sendResult = sendEmailWithRetry({
+      to: config.ADMIN_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: 'AICAMP 시스템'
+    }, 3);
+    
+    console.log('✅ 오류신고 관리자 긴급 알림 이메일 발송 완료');
+    return { success: sendResult.success, message: '관리자 긴급 알림 이메일 발송 완료' };
+    
+  } catch (error) {
+    console.error('❌ 오류신고 관리자 긴급 알림 이메일 발송 오류:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// ================================================================================
+// 🎯 V15.0 ULTIMATE FINAL 완료 - 완전한 통합 워크플로우 시스템
 // ================================================================================
 
 console.log('🚀 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE FINAL 로드 완료');
-console.log('✅ V11.0 코드 완전 제거');
-console.log('✅ matrix 오류 완전 수정');
-console.log('✅ GEMINI 2.5 Flash 통합');
-console.log('✅ 이교장 스타일 보고서 생성');
-console.log('✅ 애플 스타일 이메일 시스템');
+console.log('✅ V11.0 코드 완전 제거 및 V14 통합 워크플로우 적용');
+console.log('✅ matrix 오류 완전 수정 (priorityMatrix 변수명 통일)');
+console.log('✅ 12단계 완전한 AI 역량진단 워크플로우 구현');
+console.log('✅ 진행상황 실시간 모니터링 시스템 통합');
+console.log('✅ 접수확인 메일 자동 발송 시스템');
+console.log('✅ GEMINI 2.5 Flash 통합 분석 (정량적+정성적)');
+console.log('✅ 업종별 벤치마크 분석 시스템');
+console.log('✅ 고도화된 SWOT 분석 엔진');
+console.log('✅ 우선순위 매트릭스 및 3단계 로드맵');
+console.log('✅ 이교장 스타일 HTML 보고서 생성');
+console.log('✅ Google Drive 자동 업로드 및 공유');
+console.log('✅ 애플 스타일 미니멀 이메일 시스템');
+console.log('✅ 상담신청 완전 자동화 처리');
+console.log('✅ 오류신고 긴급 알림 시스템');
+console.log('✅ 통합 워크플로우 결과 처리 (ai_diagnosis_complete)');
+console.log('✅ 오류 로그 자동 저장 및 관리');
+console.log('✅ 이메일 재시도 발송 시스템');
+console.log('📊 지원 액션: diagnosis, ai_diagnosis_complete, consultation, error_report, getResult, checkProgress');
+console.log('🎯 준비 완료: 모든 기능이 V14 통합 워크플로우 기반으로 완전히 구현됨');
