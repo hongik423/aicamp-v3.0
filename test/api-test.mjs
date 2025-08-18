@@ -83,7 +83,9 @@ const sampleDiagnosisData = {
   timestamp: new Date().toISOString(),
 
   // 필수: 45문항 응답 데이터 (API 스펙: assessmentResponses 또는 responses 지원)
-  responses: generateResponses()
+  responses: generateResponses(),
+  // 필수 동의 항목
+  privacyConsent: true
 };
 
 async function testDiagnosisAPI() {

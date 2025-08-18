@@ -118,9 +118,9 @@ export async function POST(request: NextRequest) {
         
                   // GAS 통합 페이로드 구성 (SWOT 및 보고서 생성 포함)
         const gasPayload = {
-          // 라우팅 명확화
-          type: 'ai_diagnosis_complete',
-          action: 'process_diagnosis_with_report',
+          // 라우팅 명확화 - GAS 지원 액션 사용
+          type: 'diagnosis',
+          action: 'diagnosis',
           // 기본 진단 데이터 (GAS가 기대하는 형식)
           companyName: requestData.companyName,
           contactName: requestData.contactName,

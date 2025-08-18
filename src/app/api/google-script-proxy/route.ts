@@ -42,9 +42,9 @@ export async function POST(request: NextRequest) {
           'User-Agent': 'AICAMP-Frontend/1.0'
         },
         body: JSON.stringify({
-          // GAS 라우팅 개선 (SWOT 및 보고서 생성 지원)
-          type: requestData.type || requestData.action || 'ai_diagnosis',
-          action: requestData.action || requestData.type || 'ai_diagnosis',
+          // GAS 라우팅 개선 - 지원되는 액션만 사용
+          type: requestData.type === 'ai_diagnosis_complete' ? 'diagnosis' : (requestData.type || 'diagnosis'),
+          action: requestData.action === 'process_diagnosis_with_report' ? 'diagnosis' : (requestData.action || 'diagnosis'),
           processType: requestData.type === 'ai_diagnosis_complete' ? 'full_workflow' : 'standard',
           ...requestData,
           timestamp: new Date().toISOString(),

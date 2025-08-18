@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getGasUrl } from '@/lib/config/env';
 import { getProgressSnapshot, getProgressState } from '../../_progressStore';
 
 export async function GET(
@@ -16,7 +17,7 @@ export async function GET(
     }
 
     // Google Apps Script 진행 상태 + 로컬 스토어 진행 상태 병합
-    const gasUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
+    const gasUrl = getGasUrl();
 
     let progressData: any = null;
     if (gasUrl) {

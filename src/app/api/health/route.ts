@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getGasUrl } from '@/lib/config/env';
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,10 +23,12 @@ export async function GET(request: NextRequest) {
     // 환경변수 기본 확인 (보안상 값은 노출하지 않음)
     const envCheck = {
       GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
-      GOOGLE_SCRIPT_URL: !!process.env.GOOGLE_SCRIPT_URL,
-      GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      GOOGLE_PRIVATE_KEY: !!process.env.GOOGLE_PRIVATE_KEY,
-      GOOGLE_SHEETS_ID: !!process.env.GOOGLE_SHEETS_ID
+      NEXT_PUBLIC_GAS_URL: !!process.env.NEXT_PUBLIC_GAS_URL,
+      NEXT_PUBLIC_GOOGLE_SCRIPT_URL: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
+      NEXT_PUBLIC_GOOGLE_SHEETS_ID: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
+      NEXT_PUBLIC_BASE_URL: !!process.env.NEXT_PUBLIC_BASE_URL,
+      // 실사용 GAS URL 해석 결과 (마스킹된 상태 표시)
+      GAS_URL_RESOLVED: !!getGasUrl()
     };
 
     return NextResponse.json({

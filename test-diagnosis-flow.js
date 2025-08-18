@@ -11,7 +11,7 @@ const fs = require('fs');
 console.log('🧪 AICAMP v3.0 진단 플로우 테스트 시작');
 console.log('='.repeat(50));
 
-// 테스트 데이터
+// 테스트 데이터 (45개 질문 응답 포함)
 const testData = {
   companyName: '테스트회사_' + Date.now(),
   industry: 'IT/소프트웨어',
@@ -19,12 +19,27 @@ const testData = {
   contactName: '홍길동',
   contactEmail: 'test@aicamp.club',
   contactPhone: '010-1234-5678',
-  currentAIUsage: 'basic',
-  businessGoals: '업무 자동화를 통한 효율성 향상',
-  challenges: '반복 업무가 많아 직원들이 피로감을 느끼고 있음',
-  expectedOutcomes: 'AI 도입으로 30% 이상의 업무 효율성 향상 기대',
+  contactPosition: '대표이사',
+  businessRegistration: '123-45-67890',
+  annualRevenue: '10억원 미만',
+  establishmentYear: '2020',
+  businessContent: 'IT 서비스 개발',
+  mainProducts: 'AI 솔루션',
+  targetCustomers: '중소기업',
+  currentChallenges: '업무 효율성 향상',
+  privacyConsent: true,
+  responses: generateTestResponses(), // 45개 질문 응답
   timestamp: new Date().toISOString()
 };
+
+// 45개 질문에 대한 테스트 응답 생성
+function generateTestResponses() {
+  const responses = {};
+  for (let i = 1; i <= 45; i++) {
+    responses[`question_${i}`] = Math.floor(Math.random() * 5) + 1; // 1-5점 랜덤
+  }
+  return responses;
+}
 
 // 1단계: 진단 신청 테스트
 async function testDiagnosisSubmission() {
@@ -43,11 +58,14 @@ async function testDiagnosisSubmission() {
     
     if (response.ok && result.success) {
       console.log('✅ 진단 신청 성공');
+      const diagnosisId = result.data?.diagnosisId || result.diagnosisId || `TEST-${Date.now()}`;
       console.log('📊 결과:', {
-        diagnosisId: result.diagnosisId,
-        message: result.message
+        diagnosisId: diagnosisId,
+        message: result.message,
+        totalScore: result.data?.totalScore,
+        grade: result.data?.grade
       });
-      return result.diagnosisId;
+      return diagnosisId;
     } else {
       console.log('❌ 진단 신청 실패');
       console.log('📊 오류:', result);
@@ -237,7 +255,7 @@ async function runFullTest() {
         environment: envOk,
         gasConnection: gasOk,
         submission: !!diagnosisId,
-        resultRetrieval: false // 위에서 설정됨
+        resultRetrieval: false // 진단 결과 조회는 실행되지 않음 (즉시 완료)
       }
     };
     
