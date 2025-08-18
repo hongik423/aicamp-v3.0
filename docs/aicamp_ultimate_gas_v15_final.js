@@ -965,46 +965,80 @@ function generateGeminiAIReport(normalizedData, scoreAnalysis, swotAnalysis, pri
       return generateDefaultReport(normalizedData, scoreAnalysis, swotAnalysis);
     }
     
+    // 🚀 GEMINI 2.5 Flash 최고 품질 프롬프트 (V15.0 ULTIMATE)
     const prompt = `
-당신은 이교장의AI역량진단보고서 시스템의 AI 전문가입니다. 다음 정보를 바탕으로 포괄적인 AI 역량진단 보고서를 작성해주세요.
+당신은 "이교장의AI역량진단보고서" 시스템의 최고 AI 전문가입니다. 
+McKinsey, BCG 수준의 전략 컨설팅 품질로 포괄적인 AI 역량진단 보고서를 작성해주세요.
 
-## 기업 정보
+## 🏢 기업 정보
 - 회사명: ${normalizedData.companyName}
 - 업종: ${normalizedData.industry}
 - 직원 수: ${normalizedData.employeeCount}
-- 연매출: ${normalizedData.annualRevenue}
-- 설립년도: ${normalizedData.establishmentYear}
+- 연매출: ${normalizedData.annualRevenue || '정보없음'}
+- 설립년도: ${normalizedData.establishmentYear || '정보없음'}
+- 사업내용: ${normalizedData.businessContent || '정보없음'}
+- 주요제품: ${normalizedData.mainProducts || '정보없음'}
 
-## 진단 결과 (45개 행동지표 기반)
-- 총점: ${scoreAnalysis.totalScore}점
-- 평균: ${scoreAnalysis.averageScore}점
-- 등급: ${scoreAnalysis.grade}
-- 성숙도: ${scoreAnalysis.maturityLevel}
-- 백분율: ${scoreAnalysis.percentile}%
+## 📊 진단 결과 (45개 행동지표 기반 정밀 분석)
+- 총점: ${scoreAnalysis.totalScore}점 (225점 만점)
+- 평균: ${scoreAnalysis.averageScore}점 (5점 만점)
+- 등급: ${scoreAnalysis.grade} (A+~F 등급)
+- AI 성숙도: ${scoreAnalysis.maturityLevel}
+- 업종 내 위치: 상위 ${scoreAnalysis.percentile}%
 
-## SWOT 분석 결과
-강점: ${swotAnalysis.strengths.join(', ')}
-약점: ${swotAnalysis.weaknesses.join(', ')}
-기회: ${swotAnalysis.opportunities.join(', ')}
-위협: ${swotAnalysis.threats.join(', ')}
+## ⚡ SWOT 분석 결과
+### 💪 강점 (Strengths)
+${swotAnalysis.strengths.map((s, i) => `${i+1}. ${s}`).join('\n')}
 
-## 우선순위 매트릭스
-${priorityMatrix.topPriorities.map(p => `- ${p.item} (중요도: ${p.importance}/10)`).join('\n')}
+### 🔧 약점 (Weaknesses)  
+${swotAnalysis.weaknesses.map((w, i) => `${i+1}. ${w}`).join('\n')}
 
-## 3단계 로드맵
-1단계: ${executionRoadmap.phase1.title} (${executionRoadmap.phase1.duration})
-2단계: ${executionRoadmap.phase2.title} (${executionRoadmap.phase2.duration})
-3단계: ${executionRoadmap.phase3.title} (${executionRoadmap.phase3.duration})
+### 🚀 기회 (Opportunities)
+${swotAnalysis.opportunities.map((o, i) => `${i+1}. ${o}`).join('\n')}
 
-## 요구사항
-1. 현재 AI 역량 수준에 대한 객관적이고 상세한 평가
-2. ${normalizedData.industry} 업종 특성을 고려한 맞춤형 분석
-3. 구체적이고 실행 가능한 개선 방안 (단기/중기/장기)
-4. ROI 관점에서의 투자 우선순위 제시
-5. 리스크 요소와 대응 방안
-6. 성공 지표와 측정 방법
+### ⚠️ 위협 (Threats)
+${swotAnalysis.threats.map((t, i) => `${i+1}. ${t}`).join('\n')}
 
-보고서는 경영진이 의사결정할 수 있는 수준의 전문성과 실행력을 갖춰 작성해주세요.
+## 📈 우선순위 매트릭스 (중요도-긴급도-실행가능성 분석)
+${priorityMatrix.topPriorities.map((p, i) => `${i+1}. ${p.item}
+   - 중요도: ${p.importance}/10
+   - 긴급도: ${p.urgency}/10  
+   - 실행가능성: ${p.feasibility}/10`).join('\n')}
+
+## 🗺️ 3단계 실행 로드맵
+### ${executionRoadmap.phase1.title} (${executionRoadmap.phase1.duration})
+- 주요활동: ${executionRoadmap.phase1.activities.join(', ')}
+- 예상성과: ${executionRoadmap.phase1.outcomes.join(', ')}
+
+### ${executionRoadmap.phase2.title} (${executionRoadmap.phase2.duration})  
+- 주요활동: ${executionRoadmap.phase2.activities.join(', ')}
+- 예상성과: ${executionRoadmap.phase2.outcomes.join(', ')}
+
+### ${executionRoadmap.phase3.title} (${executionRoadmap.phase3.duration})
+- 주요활동: ${executionRoadmap.phase3.activities.join(', ')}
+- 예상성과: ${executionRoadmap.phase3.outcomes.join(', ')}
+
+## 🎯 최고 품질 요구사항 (McKinsey 수준)
+1. **현황 진단**: ${normalizedData.industry} 업종 특성을 반영한 객관적 AI 역량 평가
+2. **벤치마킹**: 동종업계 선도기업 대비 포지셔닝 분석  
+3. **전략 수립**: 단기(3개월), 중기(6개월), 장기(12개월) 실행 전략
+4. **ROI 분석**: 투자 대비 예상 효과 및 우선순위 제시
+5. **리스크 관리**: 주요 위험요소와 선제적 대응방안
+6. **KPI 설정**: 측정 가능한 성공지표와 모니터링 방법
+7. **실행 가이드**: CEO/임원진 의사결정을 위한 구체적 액션플랜
+
+## 📋 보고서 구조 (경영진 브리핑 수준)
+다음 8개 섹션으로 구성하여 각각 200-300자 분량으로 작성:
+1. 핵심 요약 (Executive Summary)
+2. 현황 분석 (Current State Analysis)  
+3. 업종 벤치마크 (Industry Benchmark)
+4. 갭 분석 (Gap Analysis)
+5. 전략적 권고 (Strategic Recommendations)
+6. 실행 가이드 (Implementation Guidance)
+7. 리스크 평가 (Risk Assessment)
+8. 성공 지표 (Success Metrics)
+
+각 섹션은 데이터 기반의 객관적 분석과 실행 가능한 구체적 제안을 포함해야 합니다.
 `;
 
     const response = callGeminiAPI(prompt);
