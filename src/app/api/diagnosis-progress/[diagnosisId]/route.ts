@@ -9,9 +9,21 @@ export async function GET(
   try {
     const { diagnosisId } = await params;
     
+    console.log('📊 진행상황 조회 요청:', diagnosisId);
+    
     if (!diagnosisId) {
+      console.warn('⚠️ 진단 ID 누락');
       return NextResponse.json(
         { success: false, error: '진단 ID가 필요합니다' },
+        { status: 400 }
+      );
+    }
+    
+    // diagnosisId 유효성 검증
+    if (typeof diagnosisId !== 'string' || diagnosisId.trim().length === 0) {
+      console.warn('⚠️ 유효하지 않은 진단 ID:', diagnosisId);
+      return NextResponse.json(
+        { success: false, error: '유효하지 않은 진단 ID입니다' },
         { status: 400 }
       );
     }

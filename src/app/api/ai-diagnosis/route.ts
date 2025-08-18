@@ -208,11 +208,14 @@ export async function POST(request: NextRequest) {
         });
         
         // 즉시 응답 반환 (사용자 대기 시간 단축)
+        const finalDiagnosisId = workflowResult.diagnosisId || `AICAMP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
         return NextResponse.json({
           success: true,
           message: '🎯 AI 역량진단이 완료되었습니다!',
+          diagnosisId: finalDiagnosisId, // 최상위 레벨에 추가 (정합성 향상)
           data: {
-            diagnosisId: workflowResult.diagnosisId || `AICAMP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            diagnosisId: finalDiagnosisId,
             companyName: requestData.companyName,
             contactEmail: requestData.contactEmail,
             
