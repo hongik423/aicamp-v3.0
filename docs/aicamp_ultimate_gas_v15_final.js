@@ -2017,7 +2017,7 @@ function sendDiagnosisResultEmail(params) {
         <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0;">
           <h3 style="color: #27ae60; margin-bottom: 10px;">🎓 이교장의 한마디</h3>
           <p style="font-style: italic; line-height: 1.6;">
-            "AI는 도구가 아니라 새로운 사고방식입니다. 단계별로 차근차근 접근하시면 반드시 성공할 수 있습니다!"
+            ${generatePrincipalInsight(params.scoreAnalysis)}
           </p>
         </div>
         
@@ -2296,7 +2296,7 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
         <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0;">
           <h3 style="color: #27ae60; margin-bottom: 10px;">🎓 이교장의 한마디</h3>
           <p style="font-style: italic; line-height: 1.6;">
-            "AI는 도구가 아니라 새로운 사고방식입니다. 단계별로 차근차근 접근하시면 반드시 성공할 수 있습니다!"
+            ${generatePrincipalInsight(scoreAnalysis)}
           </p>
         </div>
         
@@ -2925,3 +2925,79 @@ console.log('✅ 오류 로그 자동 저장 및 관리');
 console.log('✅ 이메일 재시도 발송 시스템');
 console.log('📊 지원 액션: diagnosis, ai_diagnosis_complete, consultation, error_report, getResult, checkProgress');
 console.log('🎯 준비 완료: 모든 기능이 V14 통합 워크플로우 기반으로 완전히 구현됨');
+
+/**
+ * 이교장의 한마디 생성 함수 (V15.0 ULTIMATE FINAL)
+ * 점수와 영역별 평가에 따른 상세한 인사이트 제공
+ */
+function generatePrincipalInsight(scoreAnalysis) {
+  try {
+    const { totalScore, percentage, grade, maturityLevel, categoryScores } = scoreAnalysis;
+    
+    // 등급별 기본 메시지
+    let baseMessage = '';
+    let specificAdvice = '';
+    
+    if (grade === 'A+' || grade === 'A') {
+      baseMessage = '"정말 훌륭합니다! 귀사의 AI 역량은 이미 최고 수준입니다. 이제 더 나은 미래를 위한 혁신적인 도약을 준비하시죠."';
+      specificAdvice = '다음 단계로는 AI 윤리 가이드라인 수립과 지속적인 혁신 문화 조성에 집중하시기 바랍니다.';
+    } else if (grade === 'B+' || grade === 'B') {
+      baseMessage = '"좋은 기반을 갖추고 계십니다! 체계적인 접근으로 한 단계 더 발전할 수 있는 충분한 잠재력이 있습니다."';
+      specificAdvice = '특히 조직 문화와 인력 교육에 투자하시면 빠른 성장을 기대할 수 있습니다.';
+    } else if (grade === 'C+' || grade === 'C') {
+      baseMessage = '"AI 여정의 중요한 단계에 계십니다. 체계적인 계획과 단계별 실행으로 확실한 성과를 만들어가시죠."';
+      specificAdvice = '우선순위를 정하고 핵심 영역부터 차근차근 개선해 나가는 것이 성공의 열쇠입니다.';
+    } else if (grade === 'D+' || grade === 'D') {
+      baseMessage = '"AI 도입의 첫걸음을 내딛고 계십니다. 겁내지 마세요, 모든 성공한 기업들이 거쳐온 과정입니다."';
+      specificAdvice = '기본 인프라 구축과 팀 교육부터 시작하여 단계적으로 발전시켜 나가시기 바랍니다.';
+    } else {
+      baseMessage = '"AI는 도구가 아니라 새로운 사고방식입니다. 지금부터 시작하시면 반드시 성공할 수 있습니다!"';
+      specificAdvice = '기본적인 디지털 전환부터 차근차근 시작하여 AI 역량을 단계적으로 구축해 나가시기 바랍니다.';
+    }
+    
+    // 영역별 특화 조언
+    let areaAdvice = '';
+    if (categoryScores) {
+      const lowestArea = Object.entries(categoryScores).reduce((a, b) => a[1] < b[1] ? a : b);
+      const highestArea = Object.entries(categoryScores).reduce((a, b) => a[1] > b[1] ? a : b);
+      
+      const areaNames = {
+        businessFoundation: '사업 기반',
+        currentAI: '현재 AI 활용',
+        organizationReadiness: '조직 준비도',
+        techInfrastructure: '기술 인프라',
+        goalClarity: '목표 명확성',
+        executionCapability: '실행 역량'
+      };
+      
+      if (lowestArea[1] < 60) {
+        areaAdvice = ` 특히 ${areaNames[lowestArea[0]]} 영역(${lowestArea[1]}점)의 개선이 시급합니다. `;
+      }
+      
+      if (highestArea[1] > 80) {
+        areaAdvice += ` ${areaNames[highestArea[0]]} 영역(${highestArea[1]}점)은 이미 우수한 수준입니다. `;
+      }
+    }
+    
+    // 성숙도별 추가 조언
+    let maturityAdvice = '';
+    if (maturityLevel.includes('Initial') || maturityLevel.includes('초기')) {
+      maturityAdvice = '기본적인 디지털 전환부터 시작하여 단계적으로 AI 역량을 구축해 나가시기 바랍니다.';
+    } else if (maturityLevel.includes('Basic') || maturityLevel.includes('기본')) {
+      maturityAdvice = '체계적인 계획과 실행으로 중급 수준으로 발전할 수 있는 충분한 기반이 마련되어 있습니다.';
+    } else if (maturityLevel.includes('Advanced') || maturityLevel.includes('고도화')) {
+      maturityAdvice = '이미 고도화된 수준이므로 지속적인 혁신과 최적화를 통해 최고 수준으로 도약하시기 바랍니다.';
+    } else if (maturityLevel.includes('Optimized') || maturityLevel.includes('최적화')) {
+      maturityAdvice = '최적화된 상태를 유지하면서 새로운 기술 트렌드에 대한 지속적인 학습과 적용이 필요합니다.';
+    }
+    
+    // 최종 메시지 조합
+    const finalMessage = `${baseMessage} ${specificAdvice}${areaAdvice}${maturityAdvice}`;
+    
+    return finalMessage;
+    
+  } catch (error) {
+    console.error('❌ 이교장의 한마디 생성 오류:', error);
+    return '"AI는 도구가 아니라 새로운 사고방식입니다. 단계별로 차근차근 접근하시면 반드시 성공할 수 있습니다!"';
+  }
+}
