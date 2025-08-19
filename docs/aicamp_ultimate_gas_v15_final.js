@@ -775,12 +775,13 @@ function calculateAdvancedScores(normalizedData) {
     responses.map(v => parseInt(v) || 0) : 
     Object.values(responses).map(v => parseInt(v) || 0);
   
-  // 🔍 디버깅 로그 추가
-  console.log('🔍 DEBUG - 응답 데이터 분석:');
-  console.log('원본 responses:', responses);
-  console.log('변환된 responseValues:', responseValues);
-  console.log('응답 개수:', responseValues.length);
-  console.log('응답 합계:', responseValues.reduce((sum, score) => sum + score, 0));
+  // 점수 계산 로그
+  console.log('📊 45문항 점수 계산:', {
+    응답개수: responseValues.length,
+    총점: responseValues.reduce((sum, score) => sum + score, 0),
+    최대점수: maxPossibleScore,
+    달성률: percentage + '%'
+  });
   
   if (responseValues.length === 0) {
     return {
