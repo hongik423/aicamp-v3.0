@@ -54,7 +54,7 @@ function getEnvironmentConfig() {
   return {
     // 필수 환경변수
     SPREADSHEET_ID: properties.getProperty('SPREADSHEET_ID') || '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ',
-    GEMINI_API_KEY: properties.getProperty('GEMINI_API_KEY') || 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM',
+    GEMINI_API_KEY: properties.getProperty('GEMINI_API_KEY') || '',
     ADMIN_EMAIL: properties.getProperty('ADMIN_EMAIL') || 'hongik423@gmail.com',
     AICAMP_WEBSITE: properties.getProperty('AICAMP_WEBSITE') || 'aicamp.club',
     DRIVE_FOLDER_ID: properties.getProperty('DRIVE_FOLDER_ID') || '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj',
@@ -2291,15 +2291,22 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
     
     const env = getEnvironmentConfig();
     
+    // 이메일 할당량 확인
+    const remainingQuota = MailApp.getRemainingDailyQuota();
+    if (remainingQuota < 2) {
+      console.warn(`⚠️ Gmail 일일 할당량 부족: ${remainingQuota}개 남음`);
+      throw new Error(`Gmail 일일 할당량이 부족합니다: ${remainingQuota}개 남음`);
+    }
+    
     const subject = `🎓 ${normalizedData.companyName} AI 역량진단 결과 - 이교장의AI역량진단보고서`;
     
-    // aiReport에서 scoreAnalysis 데이터 추출
+    // aiReport에서 scoreAnalysis 데이터 추출 (안전한 방식)
     const scoreAnalysis = {
-      totalScore: aiReport.totalScore || 0,
-      percentage: aiReport.percentage || 0,
-      grade: aiReport.grade || 'F',
-      maturityLevel: aiReport.maturityLevel || '초급',
-      categoryScores: aiReport.categoryScores || {}
+      totalScore: aiReport.totalScore || aiReport.scoreAnalysis?.totalScore || 0,
+      percentage: aiReport.percentage || aiReport.scoreAnalysis?.percentage || 0,
+      grade: aiReport.grade || aiReport.scoreAnalysis?.grade || 'F',
+      maturityLevel: aiReport.maturityLevel || aiReport.scoreAnalysis?.maturityLevel || '초급',
+      categoryScores: aiReport.categoryScores || aiReport.scoreAnalysis?.categoryScores || {}
     };
     
     const htmlBody = `
@@ -2987,7 +2994,14 @@ console.log('🎯 준비 완료: 모든 기능이 V14 통합 워크플로우 기
  */
 function generatePrincipalInsight(scoreAnalysis) {
   try {
-    const { totalScore, percentage, grade, maturityLevel, categoryScores } = scoreAnalysis;
+    // 안전한 데이터 추출
+    const totalScore = scoreAnalysis?.totalScore || 0;
+    const percentage = scoreAnalysis?.percentage || 0;
+    const grade = scoreAnalysis?.grade || 'F';
+    const maturityLevel = scoreAnalysis?.maturityLevel || '초급';
+    const categoryScores = scoreAnalysis?.categoryScores || {};
+    
+    console.log('🎓 이교장의 한마디 생성:', { totalScore, percentage, grade, maturityLevel });
     
     // 등급별 기본 메시지
     let baseMessage = '';
