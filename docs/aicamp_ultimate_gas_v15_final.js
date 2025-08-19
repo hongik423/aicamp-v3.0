@@ -2148,8 +2148,21 @@ function uploadReportToDrive(diagnosisId, htmlReport, normalizedData) {
       throw new Error('Google Drive 폴더 ID가 설정되지 않았습니다');
     }
     
-    const folder = DriveApp.getFolderById(folderId);
-    const fileName = `이교장의AI역량진단보고서_${normalizedData.companyName}_${diagnosisId}.html`;
+    // 폴더 존재 확인
+    let folder;
+    try {
+      folder = DriveApp.getFolderById(folderId);
+    } catch (folderError) {
+      console.error('❌ Google Drive 폴더 접근 오류:', folderError);
+      throw new Error(`Google Drive 폴더에 접근할 수 없습니다: ${folderError.message}`);
+    }
+    
+    const fileName = `이교장의AI역량진단보고서_${normalizedData.companyName || 'Unknown'}_${diagnosisId}.html`;
+    
+    // HTML 내용 검증
+    if (!htmlReport || typeof htmlReport !== 'string') {
+      throw new Error('HTML 보고서 내용이 유효하지 않습니다');
+    }
     
     const blob = Utilities.newBlob(htmlReport, 'text/html', fileName);
     const file = folder.createFile(blob);
@@ -2160,20 +2173,40 @@ function uploadReportToDrive(diagnosisId, htmlReport, normalizedData) {
     const shareLink = file.getUrl();
     
     console.log('✅ Google Drive 업로드 완료:', shareLink);
+    console.log('📁 파일 정보:', {
+      fileId: file.getId(),
+      fileName: fileName,
+      fileSize: file.getSize(),
+      shareLink: shareLink
+    });
     
     return {
       success: true,
       fileId: file.getId(),
       shareLink: shareLink,
-      fileName: fileName
+      fileName: fileName,
+      fileSize: file.getSize()
     };
     
   } catch (error) {
     console.error('❌ Google Drive 업로드 오류:', error);
+    console.error('❌ 오류 상세:', {
+      diagnosisId: diagnosisId,
+      companyName: normalizedData?.companyName,
+      htmlReportLength: htmlReport?.length,
+      errorMessage: error.message,
+      errorStack: error.stack
+    });
+    
     return {
       success: false,
       error: error.message,
-      shareLink: null
+      shareLink: null,
+      details: {
+        diagnosisId: diagnosisId,
+        companyName: normalizedData?.companyName,
+        htmlReportLength: htmlReport?.length
+      }
     };
   }
 }
@@ -2260,6 +2293,15 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
     
     const subject = `🎓 ${normalizedData.companyName} AI 역량진단 결과 - 이교장의AI역량진단보고서`;
     
+    // aiReport에서 scoreAnalysis 데이터 추출
+    const scoreAnalysis = {
+      totalScore: aiReport.totalScore || 0,
+      percentage: aiReport.percentage || 0,
+      grade: aiReport.grade || 'F',
+      maturityLevel: aiReport.maturityLevel || '초급',
+      categoryScores: aiReport.categoryScores || {}
+    };
+    
     const htmlBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
@@ -2279,9 +2321,9 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
           <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 진단 결과 요약</h3>
           <ul style="line-height: 1.8;">
             <li><strong>진단 ID:</strong> ${diagnosisId}</li>
-            <li><strong>총점:</strong> ${aiReport.totalScore || 0}점</li>
-            <li><strong>등급:</strong> ${aiReport.grade || 'F'}</li>
-            <li><strong>성숙도:</strong> ${aiReport.maturityLevel || '초급'}</li>
+            <li><strong>총점:</strong> ${scoreAnalysis.totalScore}점</li>
+            <li><strong>등급:</strong> ${scoreAnalysis.grade}</li>
+            <li><strong>성숙도:</strong> ${scoreAnalysis.maturityLevel}</li>
           </ul>
         </div>
         
@@ -2310,7 +2352,8 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
     </div>
     `;
     
-    // 이메일 발송
+    // 이메일 발송 (신청자)
+    console.log('📧 신청자 이메일 발송 시작:', normalizedData.contactEmail);
     GmailApp.sendEmail(
       normalizedData.contactEmail,
       subject,
@@ -2320,8 +2363,10 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
         name: '이교장 (AICAMP)'
       }
     );
+    console.log('✅ 신청자 이메일 발송 완료');
     
     // 관리자에게도 사본 발송
+    console.log('📧 관리자 이메일 발송 시작:', env.ADMIN_EMAIL);
     GmailApp.sendEmail(
       env.ADMIN_EMAIL,
       `[관리자] ${subject}`,
@@ -2330,10 +2375,20 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
         name: 'AICAMP 시스템'
       }
     );
+    console.log('✅ 관리자 이메일 발송 완료');
     
-    console.log('✅ 이메일 발송 완료');
+    console.log('✅ 모든 이메일 발송 완료');
     
-    return { success: true, message: '이메일 발송 완료' };
+    return { 
+      success: true, 
+      message: '이메일 발송 완료',
+      details: {
+        applicantEmail: normalizedData.contactEmail,
+        adminEmail: env.ADMIN_EMAIL,
+        driveLink: driveLink,
+        diagnosisId: diagnosisId
+      }
+    };
     
   } catch (error) {
     console.error('❌ 이메일 발송 오류:', error);
