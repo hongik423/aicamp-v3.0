@@ -1,8 +1,8 @@
 // GEMINI API 서비스
-// GEMINI 2.5 Flash 모델 설정 - 환경변수 우선 사용
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
-const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+// GEMINI 2.5 Flash 모델 설정 - 환경변수 우선 사용 (하드코딩 금지)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-exp:generateContent';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-exp';
 
 interface GeminiResponse {
   candidates?: Array<{
@@ -70,10 +70,10 @@ export async function callGeminiAPI(prompt: string, retryCount: number = 3): Pro
           }]
         }],
         generationConfig: {
-          temperature: 0.85,      // GEMINI 2.5 Flash 최적화
-          topK: 60,               // 더 다양한 표현력
-          topP: 0.98,             // 최고 품질 응답
-          maxOutputTokens: 65536, // GEMINI 2.5 Flash 최대 토큰 (8배 증가)
+          temperature: 0.7,
+          topK: 50,
+          topP: 0.95,
+          maxOutputTokens: 32768,
         },
         safetySettings: [
           {

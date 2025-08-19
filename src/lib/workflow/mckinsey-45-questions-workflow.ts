@@ -28,7 +28,8 @@ export interface LeeKyoJang45QuestionsRequest {
   currentChallenges?: string;
   
   // 45개 질문 응답 (1-5점 척도)
-  responses: Record<string, number>;
+  // 배열(number[]) 또는 맵(Record<string, number>) 모두 허용
+  responses: Record<string, number> | number[];
 }
 
 export interface LeeKyoJang45QuestionsResult {
@@ -306,13 +307,26 @@ function erf(x: number): number {
  */
 export function analyzeStrengthsWeaknesses(
   categoryScores: Record<string, number>,
-  responses: Record<string, number>
+  responses: Record<string, number> | number[]
 ): {
   strengths: Array<{ category: string; score: number; description: string; actionItems: string[] }>;
   weaknesses: Array<{ category: string; score: number; description: string; actionItems: string[] }>;
 } {
   const strengths: Array<{ category: string; score: number; description: string; actionItems: string[] }> = [];
   const weaknesses: Array<{ category: string; score: number; description: string; actionItems: string[] }> = [];
+  const isArrayInput = Array.isArray(responses);
+
+  const getResponseValue = (questionId: number): number => {
+    if (isArrayInput) {
+      const v = (responses as number[])[questionId - 1];
+      const n = Number(v);
+      return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : 0;
+    }
+    const map = responses as Record<string, number>;
+    const v = map[`q${questionId}`] ?? map[questionId.toString()];
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : 0;
+  };
   
   // 카테고리별 분석
   Object.entries(categoryScores).forEach(([category, score]) => {
@@ -320,10 +334,7 @@ export function analyzeStrengthsWeaknesses(
     
     if (score >= 75) {
       // 강점으로 분류
-      const topQuestion = categoryQuestions.find(q => {
-        const response = responses[`q${q.id}`] || responses[q.id.toString()] || 0;
-        return response >= 4;
-      });
+      const topQuestion = categoryQuestions.find(q => getResponseValue(q.id) >= 4);
       
       if (topQuestion) {
         const indicators = getQuestionBehaviorIndicators(topQuestion.id);
@@ -338,10 +349,7 @@ export function analyzeStrengthsWeaknesses(
       }
     } else if (score <= 60) {
       // 약점으로 분류
-      const weakQuestion = categoryQuestions.find(q => {
-        const response = responses[`q${q.id}`] || responses[q.id.toString()] || 0;
-        return response <= 2;
-      });
+      const weakQuestion = categoryQuestions.find(q => getResponseValue(q.id) <= 2);
       
       if (weakQuestion) {
         const indicators = getQuestionBehaviorIndicators(weakQuestion.id);
@@ -535,7 +543,7 @@ export function generate3PhaseRoadmap(
  * 품질 메트릭 계산
  */
 export function calculateQualityMetrics(
-  responses: Record<string, number>,
+  responses: Record<string, number> | number[],
   analysis: any
 ): {
   dataCompleteness: number;
@@ -546,13 +554,28 @@ export function calculateQualityMetrics(
 } {
   // 데이터 완성도
   const totalQuestions = 45;
-  const answeredQuestions = Object.keys(responses).length;
+  const answeredQuestions = Array.isArray(responses)
+    ? (responses as number[]).filter(v => Number.isFinite(Number(v))).length
+    : Object.keys(responses as Record<string, number>).length;
   const dataCompleteness = Math.round((answeredQuestions / totalQuestions) * 100);
   
   // 응답 일관성 (같은 카테고리 내 응답의 표준편차 기반)
   const categoryResponses: Record<string, number[]> = {};
+  const isArrayInput = Array.isArray(responses);
+  const getResponseValue = (questionId: number): number => {
+    if (isArrayInput) {
+      const v = (responses as number[])[questionId - 1];
+      const n = Number(v);
+      return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : 0;
+    }
+    const map = responses as Record<string, number>;
+    const v = map[`q${questionId}`] ?? map[questionId.toString()];
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : 0;
+  };
+
   REAL_45_QUESTIONS.forEach(q => {
-    const response = responses[`q${q.id}`] || responses[q.id.toString()] || 0;
+    const response = getResponseValue(q.id);
     if (!categoryResponses[q.category]) {
       categoryResponses[q.category] = [];
     }
