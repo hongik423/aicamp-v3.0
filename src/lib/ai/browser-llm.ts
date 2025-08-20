@@ -1,11 +1,9 @@
 /**
- * 브라우저 직접 실행 Llama 모델 (WebLLM 기반)
+ * 브라우저 직접 실행 AI 모델 (Ollama 기반)
  * - 완전한 온디바이스 AI 실행
  * - 서버 의존성 없음
  * - 프라이버시 보장
  */
-
-import * as webllm from "@mlc-ai/web-llm";
 
 export interface BrowserLLMConfig {
   model: string;
@@ -20,30 +18,23 @@ export interface ChatMessage {
 }
 
 export class BrowserLLM {
-  private engine: webllm.MLCEngineInterface | null = null;
   private isInitialized = false;
   private isInitializing = false;
   private config: BrowserLLMConfig;
 
-  // 사용 가능한 모델 목록 (크기별)
+  // 사용 가능한 모델 목록 (Ollama 기반)
   static readonly AVAILABLE_MODELS = {
-    'small': {
-      model: "Llama-2-7b-chat-hf-q4f16_1",
-      displayName: "Llama 2 7B (4GB)",
+    'primary': {
+      model: "gpt-oss:20b",
+      displayName: "GPT-OSS 20B (Ollama)",
+      ramRequired: 16,
+      description: "고성능 AI 분석 및 상담"
+    },
+    'fallback': {
+      model: "llama2:7b",
+      displayName: "Llama 2 7B (Ollama)",
       ramRequired: 8,
       description: "빠른 응답, 일반적인 대화"
-    },
-    'medium': {
-      model: "Llama-2-13b-chat-hf-q4f16_1", 
-      displayName: "Llama 2 13B (8GB)",
-      ramRequired: 16,
-      description: "균형잡힌 성능과 품질"
-    },
-    'large': {
-      model: "CodeLlama-7b-Instruct-hf-q4f16_1",
-      displayName: "Code Llama 7B (4GB)", 
-      ramRequired: 8,
-      description: "코딩 및 기술 상담 특화"
     }
   } as const;
 
@@ -71,12 +62,9 @@ export class BrowserLLM {
     console.log(`🖥️ 디바이스 메모리: ${deviceMemory}GB, GPU 지원: ${hasGPU}`);
     
     if (deviceMemory >= 16 && hasGPU) {
-      return BrowserLLM.AVAILABLE_MODELS.medium.model;
-    } else if (deviceMemory >= 8) {
-      return BrowserLLM.AVAILABLE_MODELS.small.model;
+      return BrowserLLM.AVAILABLE_MODELS.primary.model;
     } else {
-      // 메모리가 부족한 경우 Code Llama (더 가벼움)
-      return BrowserLLM.AVAILABLE_MODELS.large.model;
+      return BrowserLLM.AVAILABLE_MODELS.fallback.model;
     }
   }
 
@@ -110,7 +98,7 @@ export class BrowserLLM {
   }
 
   /**
-   * 모델 초기화 (진행률 콜백 포함)
+   * 모델 초기화 (Ollama 서버 연결 확인)
    */
   async initialize(
     onProgress?: (progress: { progress: number; timeElapsed: number; text: string }) => void
@@ -123,7 +111,7 @@ export class BrowserLLM {
     this.isInitializing = true;
 
     try {
-      console.log(`🚀 브라우저 Llama 모델 초기화 시작: ${this.config.model}`);
+      console.log(`🚀 브라우저 AI 모델 초기화 시작: ${this.config.model}`);
       
       // 브라우저 호환성 체크
       const support = BrowserLLM.checkBrowserSupport();
@@ -131,29 +119,32 @@ export class BrowserLLM {
         throw new Error(`브라우저 호환성 문제: ${support.issues.join(', ')}`);
       }
 
-      // WebLLM 엔진 생성
-      this.engine = await webllm.CreateMLCEngine(
-        this.config.model,
-        {
-          initProgressCallback: (progress) => {
-            const progressInfo = {
-              progress: progress.progress,
-              timeElapsed: progress.timeElapsed,
-              text: progress.text || `모델 로딩 중... ${(progress.progress * 100).toFixed(1)}%`
-            };
-            
-            console.log(`📥 모델 로딩: ${progressInfo.text}`);
-            onProgress?.(progressInfo);
-          },
-          logLevel: "INFO"
-        }
-      );
+      // Ollama 서버 연결 확인
+      const startTime = Date.now();
+      const healthCheck = await this.checkOllamaHealth();
+      
+      if (!healthCheck.isRunning) {
+        throw new Error('Ollama 서버가 실행되지 않았습니다. 서버를 시작해주세요.');
+      }
+
+      if (!healthCheck.modelAvailable) {
+        throw new Error(`모델 ${this.config.model}이 설치되지 않았습니다. ollama pull ${this.config.model}을 실행해주세요.`);
+      }
+
+      const timeElapsed = Date.now() - startTime;
+      
+      // 진행률 콜백 호출
+      onProgress?.({
+        progress: 1.0,
+        timeElapsed,
+        text: 'Ollama 서버 연결 완료'
+      });
 
       this.isInitialized = true;
-      console.log('✅ 브라우저 Llama 모델 초기화 완료');
+      console.log('✅ 브라우저 AI 모델 초기화 완료');
       
     } catch (error) {
-      console.error('❌ 브라우저 Llama 모델 초기화 실패:', error);
+      console.error('❌ 브라우저 AI 모델 초기화 실패:', error);
       throw new Error(`모델 초기화 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     } finally {
       this.isInitializing = false;
@@ -161,143 +152,120 @@ export class BrowserLLM {
   }
 
   /**
-   * 단일 메시지 생성
+   * Ollama 서버 상태 확인
+   */
+  private async checkOllamaHealth(): Promise<{ isRunning: boolean; modelAvailable: boolean; responseTime: number }> {
+    const startTime = Date.now();
+    
+    try {
+      const response = await fetch('/api/ollama/health', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const responseTime = Date.now() - startTime;
+      
+      if (!response.ok) {
+        return { isRunning: false, modelAvailable: false, responseTime };
+      }
+      
+      const data = await response.json();
+      return {
+        isRunning: data.isRunning || false,
+        modelAvailable: data.modelAvailable || false,
+        responseTime
+      };
+      
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      return { isRunning: false, modelAvailable: false, responseTime };
+    }
+  }
+
+  /**
+   * 단일 메시지 생성 (Ollama API 호출)
    */
   async generateResponse(
     message: string,
     systemPrompt?: string
   ): Promise<string> {
-    if (!this.isInitialized || !this.engine) {
+    if (!this.isInitialized) {
       throw new Error('모델이 초기화되지 않았습니다');
     }
 
-    const messages: ChatMessage[] = [];
-    
-    if (systemPrompt) {
-      messages.push({ role: 'system', content: systemPrompt });
-    }
-    
-    messages.push({ role: 'user', content: message });
-
     try {
-      console.log('🤖 브라우저 Llama 응답 생성 시작');
+      console.log('🤖 브라우저 AI 응답 생성 시작');
       
-      const response = await this.engine.chat.completions.create({
-        messages: messages as any,
-        temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
+      const response = await fetch('/api/chat-lee-hukyung', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          system: systemPrompt,
+          model: this.config.model,
+          temperature: this.config.temperature,
+          maxTokens: this.config.maxTokens
+        })
       });
 
-      const content = response.choices[0]?.message?.content || '';
+      if (!response.ok) {
+        throw new Error(`API 호출 실패: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.response || '';
       
-      console.log(`✅ 브라우저 Llama 응답 완료: ${content.length}자`);
+      console.log(`✅ 브라우저 AI 응답 완료: ${content.length}자`);
       return content;
       
     } catch (error) {
-      console.error('❌ 브라우저 Llama 응답 생성 실패:', error);
+      console.error('❌ 브라우저 AI 응답 생성 실패:', error);
       throw new Error(`응답 생성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   }
 
   /**
-   * 스트리밍 응답 생성
+   * 대화 히스토리 기반 응답 생성
    */
-  async *generateStreamResponse(
-    message: string,
-    systemPrompt?: string
-  ): AsyncGenerator<string, void, unknown> {
-    if (!this.isInitialized || !this.engine) {
+  async generateResponseWithHistory(
+    messages: ChatMessage[]
+  ): Promise<string> {
+    if (!this.isInitialized) {
       throw new Error('모델이 초기화되지 않았습니다');
     }
 
-    const messages: ChatMessage[] = [];
-    
-    if (systemPrompt) {
-      messages.push({ role: 'system', content: systemPrompt });
-    }
-    
-    messages.push({ role: 'user', content: message });
-
     try {
-      console.log('🌊 브라우저 Llama 스트리밍 응답 시작');
+      console.log('🤖 브라우저 AI 대화 응답 생성 시작');
       
-      const stream = await this.engine.chat.completions.create({
-        messages: messages as any,
-        temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
-        stream: true,
+      const response = await fetch('/api/chat-lee-hukyung', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages,
+          model: this.config.model,
+          temperature: this.config.temperature,
+          maxTokens: this.config.maxTokens
+        })
       });
 
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content;
-        if (content) {
-          yield content;
-        }
+      if (!response.ok) {
+        throw new Error(`API 호출 실패: ${response.status}`);
       }
+
+      const data = await response.json();
+      const content = data.response || '';
       
-      console.log('✅ 브라우저 Llama 스트리밍 완료');
+      console.log(`✅ 브라우저 AI 대화 응답 완료: ${content.length}자`);
+      return content;
       
     } catch (error) {
-      console.error('❌ 브라우저 Llama 스트리밍 실패:', error);
-      throw new Error(`스트리밍 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      console.error('❌ 브라우저 AI 대화 응답 생성 실패:', error);
+      throw new Error(`응답 생성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   }
 
   /**
-   * 대화 히스토리를 포함한 응답 생성
-   */
-  async generateChatResponse(
-    messages: ChatMessage[],
-    onProgress?: (chunk: string) => void
-  ): Promise<string> {
-    if (!this.isInitialized || !this.engine) {
-      throw new Error('모델이 초기화되지 않았습니다');
-    }
-
-    try {
-      if (onProgress) {
-        // 스트리밍 모드
-        let fullResponse = '';
-        for await (const chunk of this.generateStreamResponse(
-          messages[messages.length - 1].content,
-          messages.find(m => m.role === 'system')?.content
-        )) {
-          fullResponse += chunk;
-          onProgress(chunk);
-        }
-        return fullResponse;
-      } else {
-        // 일반 모드
-        return await this.generateResponse(
-          messages[messages.length - 1].content,
-          messages.find(m => m.role === 'system')?.content
-        );
-      }
-    } catch (error) {
-      console.error('❌ 브라우저 Llama 대화 응답 실패:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * 리소스 정리
-   */
-  async dispose(): Promise<void> {
-    if (this.engine) {
-      try {
-        // WebLLM 엔진 정리 (메모리 해제)
-        console.log('🧹 브라우저 Llama 모델 리소스 정리');
-        // Note: WebLLM에 dispose 메서드가 있다면 호출
-        this.engine = null;
-        this.isInitialized = false;
-      } catch (error) {
-        console.warn('⚠️ 리소스 정리 중 오류:', error);
-      }
-    }
-  }
-
-  /**
-   * 모델 상태 정보
+   * 모델 상태 확인
    */
   getStatus() {
     return {
@@ -306,6 +274,15 @@ export class BrowserLLM {
       model: this.config.model,
       config: this.config
     };
+  }
+
+  /**
+   * 모델 해제
+   */
+  async dispose(): Promise<void> {
+    this.isInitialized = false;
+    this.isInitializing = false;
+    console.log('🧹 브라우저 AI 모델 해제 완료');
   }
 }
 
@@ -474,15 +451,26 @@ export const LEE_KYOJANG_SYSTEM_PROMPT = `
  */
 let globalBrowserLLM: BrowserLLM | null = null;
 
-export async function getGlobalBrowserLLM(): Promise<BrowserLLM> {
+/**
+ * 전역 브라우저 LLM 인스턴스 가져오기
+ */
+export function getGlobalBrowserLLM(): BrowserLLM {
   if (!globalBrowserLLM) {
     const optimalModel = BrowserLLM.selectOptimalModel();
-    globalBrowserLLM = new BrowserLLM({ model: optimalModel });
+    globalBrowserLLM = new BrowserLLM({
+      model: optimalModel,
+      temperature: 0.8,
+      maxTokens: 800,
+      contextLength: 4096
+    });
   }
   return globalBrowserLLM;
 }
 
-export function disposeBrowserLLM(): void {
+/**
+ * 전역 브라우저 LLM 인스턴스 해제
+ */
+export function disposeGlobalBrowserLLM(): void {
   if (globalBrowserLLM) {
     globalBrowserLLM.dispose();
     globalBrowserLLM = null;

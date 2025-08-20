@@ -99,15 +99,16 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     const support = BrowserLLM.checkBrowserSupport();
     setBrowserSupport(support);
     
+    // Ollama 기반이므로 HTTPS 제한 완화
     const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-    const isCrossOriginIsolated = typeof self !== 'undefined' && (self as any)?.crossOriginIsolated === true;
+    const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
     
-    if (support.supported && isHttps && isCrossOriginIsolated) {
+    if (support.supported && (isHttps || isLocalhost)) {
       // 백그라운드에서 사전 로딩 시작 (사용자가 기다리지 않음)
       console.log('🚀 브라우저 AI 백그라운드 사전 로딩 시작');
       initializeBrowserLLM();
     } else {
-      console.log('🔄 서버 AI 모드로 전환:', { isHttps, isCrossOriginIsolated, supported: support.supported });
+      console.log('🔄 서버 AI 모드로 전환:', { isHttps, isLocalhost, supported: support.supported });
       setUseServerAI(true);
     }
   }, []); // 페이지 로드 시 한 번만 실행
