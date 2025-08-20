@@ -5,6 +5,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
 import GlobalBanner from '@/components/layout/GlobalBanner';
+import CurriculumBanner from '@/components/layout/CurriculumBanner';
 
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 import ServiceWorkerRegister from '@/components/service-worker-register';
@@ -380,10 +381,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <Providers>
+          <CurriculumBanner />
           <GlobalBanner />
           <div className="min-h-screen flex flex-col">
             <Header />
-            <main className="flex-1 pt-16">
+            <main className="flex-1 pt-20">
               {children}
             </main>
             <FloatingChatbot />

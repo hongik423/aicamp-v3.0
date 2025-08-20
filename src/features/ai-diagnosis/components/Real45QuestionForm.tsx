@@ -50,7 +50,7 @@ interface DiagnosisResult {
 
 const Real45QuestionForm: React.FC = () => {
   const { toast } = useToast();
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(true); // 강제로 Hydration 완료로 설정
   const [formState, setFormState] = useState<FormState>({
     companyInfo: {
       companyName: '',
@@ -173,7 +173,9 @@ const Real45QuestionForm: React.FC = () => {
 
   // Hydration 완료 처리
   useEffect(() => {
+    // 즉시 Hydration 완료로 설정
     setIsHydrated(true);
+    console.log('✅ Hydration 완료');
     
     // URL 파라미터로 초기화 요청 확인
     const urlParams = new URLSearchParams(window.location.search);
@@ -907,20 +909,6 @@ const Real45QuestionForm: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">AI 역량진단을 준비 중입니다...</p>
           <p className="text-xs text-gray-400 mt-2">Hydration: {isHydrated ? '완료' : '대기중'}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 디버깅 로그 제거 (무한 렌더링 방지)
-
-  // Hydration 완료 전에는 로딩 표시
-  if (!isHydrated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">진단 폼을 불러오는 중...</p>
         </div>
       </div>
     );

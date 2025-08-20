@@ -10,6 +10,8 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
 /* 사용자 편의성 개선 - 모든 네모박스에 라운드 적용 */
 * {
   /* 기본 박스 요소들에 부드러운 라운드 적용 */

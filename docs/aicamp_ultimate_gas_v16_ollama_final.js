@@ -79,6 +79,261 @@ function getEnvironmentConfig() {
 }
 
 /**
+ * V16.0 환경변수 자동 설정 함수
+ */
+function setupV16EnvironmentVariables() {
+  try {
+    console.log('🔧 V16.0 환경변수 설정 시작');
+    
+    const properties = PropertiesService.getScriptProperties();
+    
+    // 필수 환경변수 설정
+    const requiredVars = {
+      'SPREADSHEET_ID': '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ',
+      'OLLAMA_BASE_URL': 'http://localhost:11434',
+      'OLLAMA_MODEL': 'gpt-oss:20b',
+      'ADMIN_EMAIL': 'hongik423@gmail.com',
+      'AICAMP_WEBSITE': 'aicamp.club',
+      'DRIVE_FOLDER_ID': '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj'
+    };
+    
+    // 선택적 환경변수 설정
+    const optionalVars = {
+      'DEBUG_MODE': 'false',
+      'ENVIRONMENT': 'production',
+      'SYSTEM_VERSION': 'V16.0-OLLAMA-ULTIMATE',
+      'AI_MODEL': 'OLLAMA-GPT-OSS-20B'
+    };
+    
+    // 환경변수 설정
+    Object.entries(requiredVars).forEach(([key, value]) => {
+      properties.setProperty(key, value);
+      console.log(`✅ ${key}: ${value}`);
+    });
+    
+    Object.entries(optionalVars).forEach(([key, value]) => {
+      properties.setProperty(key, value);
+      console.log(`✅ ${key}: ${value}`);
+    });
+    
+    console.log('🎉 V16.0 환경변수 설정 완료!');
+    
+    // 설정 확인
+    const config = getEnvironmentConfig();
+    console.log('📋 설정 확인:', {
+      SPREADSHEET_ID: config.SPREADSHEET_ID,
+      OLLAMA_BASE_URL: config.OLLAMA_BASE_URL,
+      OLLAMA_MODEL: config.OLLAMA_MODEL,
+      ADMIN_EMAIL: config.ADMIN_EMAIL,
+      AICAMP_WEBSITE: config.AICAMP_WEBSITE,
+      DRIVE_FOLDER_ID: config.DRIVE_FOLDER_ID
+    });
+    
+    return {
+      success: true,
+      message: 'V16.0 환경변수 설정이 완료되었습니다.',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 환경변수 설정 오류:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * Google Drive 폴더 문제 자동 해결 함수
+ */
+function fixDriveFolderIssue() {
+  try {
+    console.log('🗂️ Google Drive 폴더 문제 자동 해결 시작');
+    
+    const env = getEnvironmentConfig();
+    let folderId = env.DRIVE_FOLDER_ID;
+    let folder = null;
+    
+    // 1. 설정된 폴더 ID로 접근 시도
+    if (folderId) {
+      try {
+        folder = DriveApp.getFolderById(folderId);
+        console.log('✅ 설정된 폴더 ID로 접근 성공:', folder.getName());
+      } catch (folderError) {
+        console.warn('⚠️ 설정된 폴더 ID로 접근 실패, AICAMP_REPORTS 폴더 검색 시도');
+        folderId = null;
+      }
+    }
+    
+    // 2. AICAMP_REPORTS 폴더 이름으로 검색
+    if (!folder) {
+      console.log('🔍 AICAMP_REPORTS 폴더 검색 중...');
+      const folders = DriveApp.getFoldersByName('AICAMP_REPORTS');
+      
+      if (folders.hasNext()) {
+        folder = folders.next();
+        folderId = folder.getId();
+        console.log('✅ AICAMP_REPORTS 폴더 발견:', folderId);
+        
+        // 환경변수 업데이트
+        const properties = PropertiesService.getScriptProperties();
+        properties.setProperty('DRIVE_FOLDER_ID', folderId);
+        console.log('✅ DRIVE_FOLDER_ID 환경변수 업데이트 완료');
+      }
+    }
+    
+    // 3. AICAMP_REPORTS 폴더가 없으면 새로 생성
+    if (!folder) {
+      console.log('📁 AICAMP_REPORTS 폴더가 없어 새로 생성합니다');
+      folder = DriveApp.createFolder('AICAMP_REPORTS');
+      folderId = folder.getId();
+      
+      // 폴더 공유 설정
+      folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      
+      // 환경변수 업데이트
+      const properties = PropertiesService.getScriptProperties();
+      properties.setProperty('DRIVE_FOLDER_ID', folderId);
+      
+      console.log('✅ AICAMP_REPORTS 폴더 생성 완료:', folderId);
+    }
+    
+    console.log('🎉 Google Drive 폴더 문제 해결 완료!');
+    
+    return {
+      success: true,
+      folderId: folderId,
+      folderName: folder.getName(),
+      folderUrl: folder.getUrl(),
+      message: 'Google Drive 폴더 문제가 해결되었습니다.',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ Google Drive 폴더 문제 해결 오류:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * Google Drive 폴더 상태 확인 함수
+ */
+function checkDriveFolderStatus() {
+  try {
+    console.log('🔍 Google Drive 폴더 상태 확인 시작');
+    
+    const env = getEnvironmentConfig();
+    const folderId = env.DRIVE_FOLDER_ID;
+    
+    if (!folderId) {
+      throw new Error('DRIVE_FOLDER_ID가 설정되지 않았습니다.');
+    }
+    
+    const folder = DriveApp.getFolderById(folderId);
+    const files = [];
+    const fileIterator = folder.getFiles();
+    
+    while (fileIterator.hasNext() && files.length < 10) {
+      const file = fileIterator.next();
+      files.push({
+        name: file.getName(),
+        id: file.getId(),
+        size: file.getSize(),
+        url: file.getUrl(),
+        created: file.getDateCreated()
+      });
+    }
+    
+    console.log('✅ Google Drive 폴더 상태 확인 완료');
+    
+    return {
+      success: true,
+      folderId: folderId,
+      folderName: folder.getName(),
+      folderUrl: folder.getUrl(),
+      fileCount: files.length,
+      files: files,
+      sharing: folder.getSharingAccess(),
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ Google Drive 폴더 상태 확인 오류:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * Google Drive 테스트 파일 업로드 함수
+ */
+function testFileUpload() {
+  try {
+    console.log('📄 Google Drive 테스트 파일 업로드 시작');
+    
+    const env = getEnvironmentConfig();
+    const folderId = env.DRIVE_FOLDER_ID;
+    
+    if (!folderId) {
+      throw new Error('DRIVE_FOLDER_ID가 설정되지 않았습니다.');
+    }
+    
+    const folder = DriveApp.getFolderById(folderId);
+    const testContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>테스트 파일 - 이교장의AI역량진단보고서</title>
+</head>
+<body>
+    <h1>🎓 이교장의AI역량진단보고서</h1>
+    <p>이 파일은 Google Drive 업로드 테스트용입니다.</p>
+    <p>생성 시간: ${new Date().toLocaleString('ko-KR')}</p>
+    <p>시스템 버전: V16.0-OLLAMA-ULTIMATE</p>
+</body>
+</html>
+    `;
+    
+    const fileName = `테스트_이교장의AI역량진단보고서_${new Date().getTime()}.html`;
+    const blob = Utilities.newBlob(testContent, 'text/html', fileName);
+    const file = folder.createFile(blob);
+    
+    // 파일 공유 설정
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    console.log('✅ Google Drive 테스트 파일 업로드 완료');
+    
+    return {
+      success: true,
+      fileId: file.getId(),
+      fileName: fileName,
+      fileUrl: file.getUrl(),
+      fileSize: file.getSize(),
+      folderName: folder.getName(),
+      message: '테스트 파일 업로드가 성공했습니다.',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ Google Drive 테스트 파일 업로드 오류:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
  * Google Sheets 설정 (V16.0 OLLAMA ULTIMATE)
  */
 function getSheetsConfig() {
@@ -2762,49 +3017,124 @@ async function saveAIDiagnosisData(normalizedData, aiReport, htmlReport, progres
 }
 
 /**
- * Google Drive에 HTML 보고서 업로드 (V16.0 OLLAMA ULTIMATE)
+ * Google Drive에 HTML 보고서 업로드 (V16.0 OLLAMA ULTIMATE - AICAMP_REPORTS 폴더 자동 처리)
  */
 async function uploadReportToDrive(diagnosisId, htmlReport, normalizedData) {
   try {
     console.log('🗂️ Google Drive HTML 보고서 업로드 시작');
     
     const env = getEnvironmentConfig();
-    const folderId = env.DRIVE_FOLDER_ID;
+    let folderId = env.DRIVE_FOLDER_ID;
     
-    if (!folderId) {
-      throw new Error('Google Drive 폴더 ID가 설정되지 않았습니다');
+    // 1. 폴더 ID로 접근 시도 (개선된 방식)
+    let folder = null;
+    if (folderId) {
+      try {
+        folder = DriveApp.getFolderById(folderId);
+        console.log('✅ 설정된 폴더 ID로 접근 성공:', folder.getName());
+        
+        // 폴더 접근 권한 확인
+        try {
+          folder.getFiles();
+          console.log('✅ 폴더 접근 권한 확인 완료');
+        } catch (permissionError) {
+          console.warn('⚠️ 폴더 접근 권한 없음, 새 폴더 생성 시도');
+          folder = null;
+          folderId = null;
+        }
+      } catch (folderError) {
+        console.warn('⚠️ 설정된 폴더 ID로 접근 실패:', folderError.message);
+        folderId = null;
+      }
     }
     
-    // 폴더 존재 확인
-    let folder;
-    try {
-      folder = DriveApp.getFolderById(folderId);
-    } catch (folderError) {
-      console.error('❌ Google Drive 폴더 접근 오류:', folderError);
-      throw new Error(`Google Drive 폴더에 접근할 수 없습니다: ${folderError.message}`);
+    // 2. AICAMP_REPORTS 폴더 이름으로 검색 (개선된 방식)
+    if (!folder) {
+      console.log('🔍 AICAMP_REPORTS 폴더 검색 중...');
+      try {
+        const folders = DriveApp.getFoldersByName('AICAMP_REPORTS');
+        
+        if (folders.hasNext()) {
+          folder = folders.next();
+          folderId = folder.getId();
+          console.log('✅ AICAMP_REPORTS 폴더 발견:', folderId);
+          
+          // 폴더 접근 권한 확인
+          try {
+            folder.getFiles();
+            console.log('✅ 기존 폴더 접근 권한 확인 완료');
+            
+            // 환경변수 업데이트
+            const properties = PropertiesService.getScriptProperties();
+            properties.setProperty('DRIVE_FOLDER_ID', folderId);
+            console.log('✅ DRIVE_FOLDER_ID 환경변수 업데이트 완료');
+          } catch (permissionError) {
+            console.warn('⚠️ 기존 폴더 접근 권한 없음, 새 폴더 생성');
+            folder = null;
+            folderId = null;
+          }
+        }
+      } catch (searchError) {
+        console.warn('⚠️ 폴더 검색 중 오류:', searchError.message);
+      }
     }
     
-    const fileName = `이교장의AI역량진단보고서_${normalizedData.companyName || 'Unknown'}_${diagnosisId}.html`;
+    // 3. AICAMP_REPORTS 폴더가 없으면 새로 생성 (개선된 방식)
+    if (!folder) {
+      console.log('📁 AICAMP_REPORTS 폴더를 새로 생성합니다');
+      try {
+        folder = DriveApp.createFolder('AICAMP_REPORTS');
+        folderId = folder.getId();
+        
+        // 폴더 공유 설정 (링크 공유 활성화)
+        folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        
+        // 환경변수 업데이트
+        const properties = PropertiesService.getScriptProperties();
+        properties.setProperty('DRIVE_FOLDER_ID', folderId);
+        
+        console.log('✅ AICAMP_REPORTS 폴더 생성 완료:', folderId);
+        console.log('🔗 폴더 공유 링크:', folder.getUrl());
+      } catch (createError) {
+        console.error('❌ 폴더 생성 실패:', createError.message);
+        throw new Error('Google Drive 폴더 생성에 실패했습니다: ' + createError.message);
+      }
+    }
     
-    // HTML 내용 검증
+    // 4. 파일명 생성
+    const companyName = normalizedData?.companyName || 'Unknown';
+    const safeCompanyName = companyName.replace(/[^a-zA-Z0-9가-힣]/g, '_');
+    const fileName = `이교장의AI역량진단보고서_${safeCompanyName}_${diagnosisId}.html`;
+    
+    // 5. HTML 내용 검증
     if (!htmlReport || typeof htmlReport !== 'string') {
       throw new Error('HTML 보고서 내용이 유효하지 않습니다');
     }
     
+    console.log('📄 파일 업로드 준비:', {
+      folderId: folderId,
+      folderName: folder.getName(),
+      fileName: fileName,
+      htmlLength: htmlReport.length
+    });
+    
+    // 6. 파일 생성 및 업로드
     const blob = Utilities.newBlob(htmlReport, 'text/html', fileName);
     const file = folder.createFile(blob);
     
-    // 파일 공유 설정
+    // 7. 파일 공유 설정
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     
     const shareLink = file.getUrl();
     
-    console.log('✅ Google Drive 업로드 완료:', shareLink);
+    console.log('✅ Google Drive 업로드 완료');
     console.log('📁 파일 정보:', {
       fileId: file.getId(),
       fileName: fileName,
       fileSize: file.getSize(),
-      shareLink: shareLink
+      shareLink: shareLink,
+      folderId: folderId,
+      folderName: folder.getName()
     });
     
     return {
@@ -2812,7 +3142,9 @@ async function uploadReportToDrive(diagnosisId, htmlReport, normalizedData) {
       fileId: file.getId(),
       shareLink: shareLink,
       fileName: fileName,
-      fileSize: file.getSize()
+      fileSize: file.getSize(),
+      folderId: folderId,
+      folderName: folder.getName()
     };
     
   } catch (error) {
@@ -3756,4 +4088,293 @@ function generateProgressId() {
   const timestamp = new Date().getTime();
   const random = Math.random().toString(36).substring(2, 10);
   return `PROG_${timestamp}_${random}`;
+}
+
+// ================================================================================
+// MODULE 10: Google Drive 폴더 문제 해결 유틸리티 (V16.0 OLLAMA ULTIMATE)
+// ================================================================================
+
+/**
+ * Google Drive 폴더 문제 해결 함수
+ * Google Apps Script 콘솔에서 직접 실행 가능
+ */
+function fixDriveFolderIssue() {
+  try {
+    console.log('🔧 Google Drive 폴더 문제 해결 시작');
+    
+    const env = getEnvironmentConfig();
+    let folderId = env.DRIVE_FOLDER_ID;
+    let folder = null;
+    
+    // 1. 현재 설정된 폴더 ID 확인
+    console.log('📋 현재 설정된 폴더 ID:', folderId);
+    
+    // 2. 폴더 접근 시도
+    if (folderId) {
+      try {
+        folder = DriveApp.getFolderById(folderId);
+        console.log('✅ 기존 폴더 접근 성공:', folder.getName());
+        
+        // 접근 권한 확인
+        try {
+          const fileCount = folder.getFiles().length;
+          console.log('✅ 폴더 접근 권한 확인 완료 (파일 수:', fileCount, ')');
+          return {
+            success: true,
+            message: '기존 폴더가 정상적으로 작동합니다',
+            folderId: folderId,
+            folderName: folder.getName(),
+            fileCount: fileCount
+          };
+        } catch (permissionError) {
+          console.warn('⚠️ 폴더 접근 권한 없음:', permissionError.message);
+        }
+      } catch (folderError) {
+        console.warn('⚠️ 폴더 ID 접근 실패:', folderError.message);
+      }
+    }
+    
+    // 3. AICAMP_REPORTS 폴더 검색
+    console.log('🔍 AICAMP_REPORTS 폴더 검색 중...');
+    try {
+      const folders = DriveApp.getFoldersByName('AICAMP_REPORTS');
+      
+      if (folders.hasNext()) {
+        folder = folders.next();
+        folderId = folder.getId();
+        console.log('✅ 기존 AICAMP_REPORTS 폴더 발견:', folderId);
+        
+        // 접근 권한 확인
+        try {
+          const fileCount = folder.getFiles().length;
+          console.log('✅ 기존 폴더 접근 권한 확인 완료 (파일 수:', fileCount, ')');
+          
+          // 환경변수 업데이트
+          const properties = PropertiesService.getScriptProperties();
+          properties.setProperty('DRIVE_FOLDER_ID', folderId);
+          console.log('✅ DRIVE_FOLDER_ID 환경변수 업데이트 완료');
+          
+          return {
+            success: true,
+            message: '기존 AICAMP_REPORTS 폴더를 찾아 설정했습니다',
+            folderId: folderId,
+            folderName: folder.getName(),
+            fileCount: fileCount
+          };
+        } catch (permissionError) {
+          console.warn('⚠️ 기존 폴더 접근 권한 없음:', permissionError.message);
+        }
+      }
+    } catch (searchError) {
+      console.warn('⚠️ 폴더 검색 중 오류:', searchError.message);
+    }
+    
+    // 4. 새 폴더 생성
+    console.log('📁 새로운 AICAMP_REPORTS 폴더 생성 중...');
+    try {
+      folder = DriveApp.createFolder('AICAMP_REPORTS');
+      folderId = folder.getId();
+      
+      // 폴더 공유 설정
+      folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      
+      // 환경변수 업데이트
+      const properties = PropertiesService.getScriptProperties();
+      properties.setProperty('DRIVE_FOLDER_ID', folderId);
+      
+      console.log('✅ 새 AICAMP_REPORTS 폴더 생성 완료');
+      console.log('🔗 폴더 링크:', folder.getUrl());
+      
+      return {
+        success: true,
+        message: '새로운 AICAMP_REPORTS 폴더를 생성했습니다',
+        folderId: folderId,
+        folderName: folder.getName(),
+        folderUrl: folder.getUrl(),
+        fileCount: 0
+      };
+      
+    } catch (createError) {
+      console.error('❌ 폴더 생성 실패:', createError.message);
+      return {
+        success: false,
+        message: '폴더 생성에 실패했습니다: ' + createError.message,
+        error: createError.message
+      };
+    }
+    
+  } catch (error) {
+    console.error('❌ Drive 폴더 문제 해결 실패:', error);
+    return {
+      success: false,
+      message: 'Drive 폴더 문제 해결 중 오류 발생: ' + error.message,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Google Drive 폴더 상태 확인 함수
+ * Google Apps Script 콘솔에서 직접 실행 가능
+ */
+function checkDriveFolderStatus() {
+  try {
+    console.log('🔍 Google Drive 폴더 상태 확인');
+    
+    const env = getEnvironmentConfig();
+    const folderId = env.DRIVE_FOLDER_ID;
+    
+    console.log('📋 환경변수 설정:');
+    console.log('- DRIVE_FOLDER_ID:', folderId);
+    console.log('- SPREADSHEET_ID:', env.SPREADSHEET_ID);
+    console.log('- ADMIN_EMAIL:', env.ADMIN_EMAIL);
+    
+    if (!folderId) {
+      console.log('⚠️ DRIVE_FOLDER_ID가 설정되지 않았습니다');
+      return {
+        success: false,
+        message: 'DRIVE_FOLDER_ID가 설정되지 않았습니다',
+        recommendation: 'fixDriveFolderIssue() 함수를 실행하세요'
+      };
+    }
+    
+    // 폴더 접근 시도
+    try {
+      const folder = DriveApp.getFolderById(folderId);
+      console.log('✅ 폴더 접근 성공:', folder.getName());
+      
+      // 파일 목록 확인
+      const files = folder.getFiles();
+      const fileList = [];
+      let fileCount = 0;
+      
+      while (files.hasNext()) {
+        const file = files.next();
+        fileCount++;
+        fileList.push({
+          name: file.getName(),
+          size: file.getSize(),
+          url: file.getUrl(),
+          lastUpdated: file.getLastUpdated()
+        });
+      }
+      
+      console.log('📊 폴더 정보:');
+      console.log('- 폴더명:', folder.getName());
+      console.log('- 파일 수:', fileCount);
+      console.log('- 폴더 URL:', folder.getUrl());
+      console.log('- 공유 설정:', folder.getSharingAccess());
+      
+      return {
+        success: true,
+        message: '폴더가 정상적으로 작동합니다',
+        folderInfo: {
+          id: folderId,
+          name: folder.getName(),
+          url: folder.getUrl(),
+          fileCount: fileCount,
+          sharingAccess: folder.getSharingAccess()
+        },
+        files: fileList
+      };
+      
+    } catch (folderError) {
+      console.error('❌ 폴더 접근 실패:', folderError.message);
+      return {
+        success: false,
+        message: '폴더 접근에 실패했습니다: ' + folderError.message,
+        recommendation: 'fixDriveFolderIssue() 함수를 실행하세요'
+      };
+    }
+    
+  } catch (error) {
+    console.error('❌ 폴더 상태 확인 실패:', error);
+    return {
+      success: false,
+      message: '폴더 상태 확인 중 오류 발생: ' + error.message,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * 테스트 파일 업로드 함수
+ * Google Apps Script 콘솔에서 직접 실행 가능
+ */
+function testFileUpload() {
+  try {
+    console.log('🧪 테스트 파일 업로드 시작');
+    
+    const env = getEnvironmentConfig();
+    const folderId = env.DRIVE_FOLDER_ID;
+    
+    if (!folderId) {
+      console.log('❌ DRIVE_FOLDER_ID가 설정되지 않았습니다');
+      return {
+        success: false,
+        message: 'DRIVE_FOLDER_ID가 설정되지 않았습니다. fixDriveFolderIssue() 함수를 먼저 실행하세요.'
+      };
+    }
+    
+    // 폴더 접근
+    const folder = DriveApp.getFolderById(folderId);
+    console.log('✅ 폴더 접근 성공:', folder.getName());
+    
+    // 테스트 HTML 파일 생성
+    const testHtml = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테스트 파일 - 이교장의AI역량진단보고서</title>
+</head>
+<body>
+    <h1>🧪 테스트 파일</h1>
+    <p>이 파일은 Google Drive 업로드 기능 테스트용입니다.</p>
+    <p>생성 시간: ${new Date().toLocaleString('ko-KR')}</p>
+    <p>폴더 ID: ${folderId}</p>
+    <p>✅ Google Drive 업로드 기능이 정상적으로 작동합니다!</p>
+</body>
+</html>`;
+    
+    // 파일명 생성
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fileName = `테스트파일_${timestamp}.html`;
+    
+    // 파일 생성 및 업로드
+    const blob = Utilities.newBlob(testHtml, 'text/html', fileName);
+    const file = folder.createFile(blob);
+    
+    // 파일 공유 설정
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    console.log('✅ 테스트 파일 업로드 완료');
+    console.log('📄 파일 정보:');
+    console.log('- 파일명:', fileName);
+    console.log('- 파일 ID:', file.getId());
+    console.log('- 파일 크기:', file.getSize(), 'bytes');
+    console.log('- 파일 URL:', file.getUrl());
+    console.log('- 공유 링크:', file.getUrl());
+    
+    return {
+      success: true,
+      message: '테스트 파일 업로드 성공',
+      fileInfo: {
+        name: fileName,
+        id: file.getId(),
+        size: file.getSize(),
+        url: file.getUrl(),
+        sharingUrl: file.getUrl()
+      }
+    };
+    
+  } catch (error) {
+    console.error('❌ 테스트 파일 업로드 실패:', error);
+    return {
+      success: false,
+      message: '테스트 파일 업로드 실패: ' + error.message,
+      error: error.message
+    };
+  }
 }

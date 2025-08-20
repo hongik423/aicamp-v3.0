@@ -8,6 +8,7 @@ import {
   getGlobalBrowserLLM, 
   LEE_KYOJANG_SYSTEM_PROMPT 
 } from '@/lib/ai/browser-llm';
+import { generateHybridResponse, generateEnhancedFallbackResponse } from '@/lib/ai/fallback-system';
 
 interface Message {
   id: string;
@@ -75,17 +76,19 @@ export default function FloatingChatbot() {
 
 BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성한 케이스들이 많아요. AI 생산성향상은 20-99인 기업이라면 정부에서 100% 지원해주니까 완전 무료로 받으실 수 있어요.
 
-        정책자금 확보는 25년 노하우로 평균 5억원 정도 정부지원을 확보해드리고, 기술사업화나 창업 지원으로는 체계적인 전략으로 성공률을 높여드리고 있어요.
+정책자금 확보는 25년 노하우로 평균 5억원 정도 정부지원을 확보해드리고, 기술사업화나 창업 지원으로는 체계적인 전략으로 성공률을 높여드리고 있어요.
 
 인증지원 쪽은 ISO, 벤처, 연구소 등을 통해 연간 5천만원 세제혜택을 받을 수 있게 도와드리고, 웹사이트 구축으로는 온라인 매출을 300-500% 증대시켜드려요.
 
 세금계산기도 11종류나 준비해서 2024년 최신 세법을 완벽하게 반영했어요.
 
+특히 n8n 자동화 교육은 업종별, 직군별로 맞춤형 커리큘럼을 제공합니다. 제조업, IT, 금융, 유통 등 다양한 업종의 프로세스 자동화를 학습할 수 있어요.
+
 궁금한 것 있으시면 자유롭게 물어보세요! 직접 상담받으시려면 010-9251-9743으로 전화주셔도 돼요.
 
-예를 들어 "BM ZEN 사업분석은 어떻게 진행되나요?", "일터혁신 상생컨설팅이 정말 무료인가요?", "경매로 공장을 안전하게 구매하는 방법은?" 이런 질문들 언제든 환영해요.
+예를 들어 "n8n 자동화 교육은 어떻게 되나요?", "제조업 생산관리자용 n8n 과정이 있나요?", "AI 역량진단은 무료인가요?" 이런 질문들 언제든 환영해요.
 
-— 100% 브라우저 온디바이스 AI로 실행됩니다`,
+🚀 최상의 품질 AI 시스템 (지능형 문맥 이해 + 감정 분석 + 실시간 학습 + 품질 자동 평가)`,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -327,7 +330,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     }
   }, []);
 
-  // 브라우저 직접 실행 AI 상담 시스템
+  // 🚀 최상의 품질 AI 상담 시스템 (지능형 문맥 이해 + 감정 분석 + 실시간 학습)
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
 
@@ -342,114 +345,110 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     setInputValue('');
     setIsTyping(true);
 
+    const totalStartTime = performance.now();
+    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
     try {
-      // 개발 환경에서는 항상 서버 AI 사용
-      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-      const shouldUseServer = useServerAI || !isHttps;
+      // 🚀 최상의 품질 시스템: 지능형 문맥 이해 + 감정 분석 + 실시간 학습
+      
+      // 1차: 최상의 품질 AI 답변 (지능형 분석)
+      console.log('🚀 최상의 품질 AI 시스템 즉시 응답');
+      const analysisStartTime = performance.now();
+      
+      const enhancedResponse = await generateHybridResponse(message.trim(), undefined, sessionId);
+      
+      const analysisEndTime = performance.now();
+      const analysisResponseTime = analysisEndTime - analysisStartTime;
+      
+      console.log(`🚀 최상의 품질 응답 완료: ${analysisResponseTime.toFixed(2)}ms (품질: ${enhancedResponse.qualityMetrics?.overallScore || 0}점)`);
 
-      if (shouldUseServer) {
-        console.log('🔄 서버 Ollama API 호출 시작');
-        
-        const response = await fetch('/api/chat-lee-hukyung', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            message: message.trim(),
-            history: [] 
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`서버 응답 오류: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('✅ 서버 Ollama 응답 완료');
-
-        const buttons = [
-          { text: '🎯 AI 역량진단', url: '/ai-diagnosis', style: 'primary', icon: '🎯' },
-          { text: '📞 상담 예약', url: '/consultation', style: 'secondary', icon: '📞' },
-          { text: '📚 교육과정 보기', url: '/services/ai-curriculum', style: 'outline', icon: '📚' }
-        ];
-
-        const botMessage: Message = {
-          id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          content: `${data.response || '응답을 생성했습니다.'}\n\n— 서버 Ollama GPT-OSS 20B`,
-          sender: 'bot',
-          timestamp: new Date(),
-          buttons
-        };
-        
-        setMessages(prev => [...prev, botMessage]);
-        return;
-      }
-
-      // HTTPS 환경에서만 브라우저 AI 시도
-      if (!browserLLM?.getStatus().isInitialized) {
-        throw new Error('브라우저 AI 모델이 아직 준비되지 않았습니다.');
-      }
-
-      console.log('🧠 브라우저 AI 호출 시작');
-      const aiResponse = await browserLLM.generateResponse(
-        message.trim(),
-        LEE_KYOJANG_SYSTEM_PROMPT
-      );
-
+      // 응답 메시지 생성 (즉시 표시)
       const buttons = [
         { text: '🎯 AI 역량진단', url: '/ai-diagnosis', style: 'primary', icon: '🎯' },
         { text: '📞 상담 예약', url: '/consultation', style: 'secondary', icon: '📞' },
         { text: '📚 교육과정 보기', url: '/services/ai-curriculum', style: 'outline', icon: '📚' }
       ];
 
+      const totalEndTime = performance.now();
+      const totalResponseTime = totalEndTime - totalStartTime;
+      
+      // 품질 점수에 따른 소스 라벨
+      const qualityScore = enhancedResponse.qualityMetrics?.overallScore || 0;
+      let sourceLabel = `— 이교장 최상의 품질 AI 시스템 [${analysisResponseTime.toFixed(0)}ms]`;
+      
+      if (qualityScore >= 90) {
+        sourceLabel = `🏆 이교장 최상급 AI 시스템 [${analysisResponseTime.toFixed(0)}ms] (품질: ${qualityScore}점)`;
+      } else if (qualityScore >= 80) {
+        sourceLabel = `✅ 이교장 우수 AI 시스템 [${analysisResponseTime.toFixed(0)}ms] (품질: ${qualityScore}점)`;
+      }
+
       const botMessage: Message = {
         id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        content: `${aiResponse}\n\n— 100% 브라우저 온디바이스 AI`,
+        content: `${enhancedResponse.answer}\n\n${sourceLabel}\n🚀 총 응답 시간: ${totalResponseTime.toFixed(0)}ms`,
         sender: 'bot',
         timestamp: new Date(),
         buttons
       };
+      
       setMessages(prev => [...prev, botMessage]);
 
-    } catch (error) {
-      console.error('❌ AI 응답 생성 실패:', error);
-      
-      // 서버 폴백 시도
-      if (!useServerAI) {
+      // 2차: 백그라운드에서 라마 AI 시도 (선택적)
+      // 사용자는 이미 최상의 품질 답변을 받았으므로 백그라운드에서 실행
+      setTimeout(async () => {
         try {
-          console.log('🔄 서버 폴백 시도');
-          const response = await fetch('/api/chat-lee-hukyung', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              message: message.trim(),
-              history: [] 
-            })
+          // 라마 AI 상태 확인 (빠른 체크)
+          const healthCheck = await fetch('/api/ollama/health', { 
+            method: 'GET',
+            signal: AbortSignal.timeout(1000) // 1초 타임아웃
           });
-
-          const data = await response.json();
-          const botMessage: Message = {
-            id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            content: `${data.response || '응답을 생성했습니다.'}\n\n— 서버 Ollama GPT-OSS 20B (폴백)`,
-            sender: 'bot',
-            timestamp: new Date()
-          };
           
-          setUseServerAI(true);
-          setMessages(prev => [...prev, botMessage]);
-          return;
-        } catch (fallbackError) {
-          console.error('❌ 서버 폴백도 실패:', fallbackError);
-        }
-      }
+          if (healthCheck.ok) {
+            console.log('🦙 백그라운드 라마 AI 시도');
+            
+            const response = await fetch('/api/chat-lee-hukyung', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                message: message.trim(),
+                history: [] 
+              }),
+              signal: AbortSignal.timeout(3000) // 3초 타임아웃
+            });
 
-      // 최종 오류 메시지
-      const errorMessage: Message = {
-        id: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        content: '일시적인 문제로 답변을 생성하지 못했습니다. 잠시 후 다시 시도해주세요.\n\n직접 상담: 010-9251-9743 (이후경 교장)',
+            if (response.ok) {
+              const data = await response.json();
+              console.log('🦙 백그라운드 라마 AI 응답 완료 (사용자는 이미 최상의 품질 답변 받음)');
+              
+              // 선택적: 더 나은 답변이 있다면 업데이트 (사용자 설정에 따라)
+              // 현재는 로그만 남김 (사용자 경험 방해 안함)
+            }
+          }
+        } catch (error) {
+          console.log('🔄 백그라운드 라마 AI 실패 (문제없음, 사용자는 이미 최상의 품질 답변 받음)');
+        }
+      }, 100); // 100ms 후 백그라운드 실행
+
+    } catch (error) {
+      console.error('❌ 최상의 품질 시스템 실패:', error);
+      
+      // 최종 폴백: 기본 답변
+      console.log('🔄 최종 폴백: 기본 답변');
+      const fallbackStartTime = performance.now();
+      
+      const fallbackResponse = generateEnhancedFallbackResponse(message.trim());
+      
+      const fallbackEndTime = performance.now();
+      const fallbackResponseTime = fallbackEndTime - fallbackStartTime;
+      const totalEndTime = performance.now();
+      const totalResponseTime = totalEndTime - totalStartTime;
+      
+      const fallbackMessage: Message = {
+        id: `fallback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        content: `${fallbackResponse}\n\n— 이교장 기본 답변 시스템 [${fallbackResponseTime.toFixed(0)}ms]\n🚀 총 응답 시간: ${totalResponseTime.toFixed(0)}ms`,
         sender: 'bot',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, fallbackMessage]);
     } finally {
       setIsTyping(false);
     }

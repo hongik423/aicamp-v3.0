@@ -1,4 +1,9 @@
-{
+#!/bin/bash
+
+echo "🧪 AI 진단 시스템 테스트 시작..."
+
+# 테스트 데이터
+TEST_DATA='{
   "type": "diagnosis",
   "action": "diagnosis",
   "processType": "standard",
@@ -32,4 +37,23 @@
   "version": "V16.0-ULTIMATE-45Q",
   "source": "test_system",
   "userAgent": "Test-Agent/1.0"
-}
+}'
+
+echo "📊 테스트 데이터 준비 완료"
+echo "🚀 AI 진단 요청 전송 중..."
+
+# Google Apps Script URL (실제 URL로 변경 필요)
+GAS_URL="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"
+
+# curl 요청 실행
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d "$TEST_DATA" \
+  "$GAS_URL" \
+  -w "\nHTTP Status: %{http_code}\nTotal Time: %{time_total}s\n" \
+  -o response.json
+
+echo "📋 응답 결과:"
+cat response.json | jq '.' 2>/dev/null || cat response.json
+
+echo "✅ 테스트 완료!"
