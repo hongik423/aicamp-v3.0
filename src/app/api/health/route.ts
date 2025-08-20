@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
 
     // 환경변수 기본 확인 (보안상 값은 노출하지 않음)
     const envCheck = {
-      GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
+      OLLAMA_API_URL: process.env.OLLAMA_API_URL || 'http://localhost:11434',
+      OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'gpt-oss:20b',
       NEXT_PUBLIC_GAS_URL: !!process.env.NEXT_PUBLIC_GAS_URL,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,

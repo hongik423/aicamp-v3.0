@@ -4,11 +4,11 @@
  */
 
 import { McKinsey45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
-import { GeminiReportResponse } from '@/lib/ai/gemini-mckinsey-report-generator';
+// Ollama 전용 모드: 외부 Gemini 의존성 제거
 
 export interface McKinseyHTMLReportRequest {
   analysisResult: McKinsey45QuestionsResult;
-  geminiReport: GeminiReportResponse;
+  geminiReport?: { content: Record<string, string> };
   branding?: {
     companyName?: string;
     colors?: {
@@ -357,7 +357,7 @@ body {
 /**
  * 1. 표지 페이지 생성
  */
-function generateCoverPage(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
+function generateCoverPage(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   const { companyInfo, scoreAnalysis, diagnosisId } = analysisResult;
   
   return `
@@ -394,7 +394,7 @@ function generateCoverPage(analysisResult: McKinsey45QuestionsResult, geminiRepo
             <div style="margin-top: 10px;">AICAMP AI 역량진단 시스템 V15.0</div>
         </div>
         
-        ${geminiReport.content.coverPage}
+        ${(geminiReport?.content?.coverPage || '')}
     </div>
 </div>`;
 }
@@ -439,7 +439,7 @@ function generateTableOfContents(): string {
 /**
  * 나머지 섹션들 생성
  */
-function generateExecutiveSummary(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
+function generateExecutiveSummary(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   const { scoreAnalysis } = analysisResult;
   
   return `
@@ -472,18 +472,18 @@ function generateExecutiveSummary(analysisResult: McKinsey45QuestionsResult, gem
         </div>
     </div>
     
-    ${geminiReport.content.executiveSummary}
+    ${(geminiReport?.content?.executiveSummary || '')}
 </div>`;
 }
 
-function generateCompanyInformation(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
+function generateCompanyInformation(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `
 <div class="section" id="section-02">
     <div class="section-header">
         <div class="section-number">02</div>
         <h1 class="section-title">기업 정보</h1>
     </div>
-    ${geminiReport.content.companyInformation}
+    ${(geminiReport?.content?.companyInformation || '')}
 </div>`;
 }
 
@@ -568,35 +568,35 @@ function generateDiagnosisVisualization(analysisResult: McKinsey45QuestionsResul
 }
 
 // 나머지 섹션들은 간단하게 구현
-function generateBehavioralAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
-  return `<div class="section" id="section-04"><div class="section-header"><div class="section-number">04</div><h1 class="section-title">행동지표 기반 분석</h1></div>${geminiReport.content.behavioralAnalysis}</div>`;
+function generateBehavioralAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+  return `<div class="section" id="section-04"><div class="section-header"><div class="section-number">04</div><h1 class="section-title">행동지표 기반 분석</h1></div>${(geminiReport?.content?.behavioralAnalysis || '')}</div>`;
 }
 
-function generateBenchmarkAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
-  return `<div class="section" id="section-05"><div class="section-header"><div class="section-number">05</div><h1 class="section-title">벤치마크 분석</h1></div>${geminiReport.content.benchmarkAnalysis}</div>`;
+function generateBenchmarkAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+  return `<div class="section" id="section-05"><div class="section-header"><div class="section-number">05</div><h1 class="section-title">벤치마크 분석</h1></div>${(geminiReport?.content?.benchmarkAnalysis || '')}</div>`;
 }
 
-function generateSWOTAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
-  return `<div class="section" id="section-06"><div class="section-header"><div class="section-number">06</div><h1 class="section-title">SWOT 분석</h1></div>${geminiReport.content.swotAnalysis}</div>`;
+function generateSWOTAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+  return `<div class="section" id="section-06"><div class="section-header"><div class="section-number">06</div><h1 class="section-title">SWOT 분석</h1></div>${(geminiReport?.content?.swotAnalysis || '')}</div>`;
 }
 
-function generatePriorityMatrix(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
-  return `<div class="section" id="section-07"><div class="section-header"><div class="section-number">07</div><h1 class="section-title">우선순위 매트릭스</h1></div>${geminiReport.content.priorityMatrix}</div>`;
+function generatePriorityMatrix(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+  return `<div class="section" id="section-07"><div class="section-header"><div class="section-number">07</div><h1 class="section-title">우선순위 매트릭스</h1></div>${(geminiReport?.content?.priorityMatrix || '')}</div>`;
 }
 
-function generateN8nMethodology(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
-  return `<div class="section" id="section-08"><div class="section-header"><div class="section-number">08</div><h1 class="section-title">n8n 기반 실행방법론</h1></div>${geminiReport.content.n8nMethodology}</div>`;
+function generateN8nMethodology(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+  return `<div class="section" id="section-08"><div class="section-header"><div class="section-number">08</div><h1 class="section-title">n8n 기반 실행방법론</h1></div>${(geminiReport?.content?.n8nMethodology || '')}</div>`;
 }
 
-function generateAICampCurriculum(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
-  return `<div class="section" id="section-09"><div class="section-header"><div class="section-number">09</div><h1 class="section-title">AICAMP 커리큘럼 추천</h1></div>${geminiReport.content.aicampCurriculum}</div>`;
+function generateAICampCurriculum(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+  return `<div class="section" id="section-09"><div class="section-header"><div class="section-number">09</div><h1 class="section-title">AICAMP 커리큘럼 추천</h1></div>${(geminiReport?.content?.aicampCurriculum || '')}</div>`;
 }
 
-function generateImplementationRoadmap(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
-  return `<div class="section" id="section-10"><div class="section-header"><div class="section-number">10</div><h1 class="section-title">3단계 실행 로드맵</h1></div>${geminiReport.content.implementationRoadmap}</div>`;
+function generateImplementationRoadmap(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+  return `<div class="section" id="section-10"><div class="section-header"><div class="section-number">10</div><h1 class="section-title">3단계 실행 로드맵</h1></div>${(geminiReport?.content?.implementationRoadmap || '')}</div>`;
 }
 
-function generateConclusionNextSteps(analysisResult: McKinsey45QuestionsResult, geminiReport: GeminiReportResponse): string {
+function generateConclusionNextSteps(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `
 <div class="section" id="section-11">
     <div class="section-header">
@@ -604,7 +604,7 @@ function generateConclusionNextSteps(analysisResult: McKinsey45QuestionsResult, 
         <h1 class="section-title">결론 및 다음 단계</h1>
     </div>
     
-    ${geminiReport.content.conclusionNextSteps}
+    ${(geminiReport?.content?.conclusionNextSteps || '')}
     
     <div class="cta-section">
         <h2 style="margin-bottom: 20px; font-size: 32px;">🚀 지금 바로 시작하세요!</h2>

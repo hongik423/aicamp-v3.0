@@ -135,7 +135,7 @@ export default function ChatbotPage() {
 
 **더 구체적인 상담을 원하시면:**
 📞 **즉시 상담: 010-9251-9743 (이후경 경영지도사)**
-        🔗 **AI 무료진단: /diagnosis** (GEMINI 2.5 Flash)
+        🔗 **AI 무료진단: /diagnosis** (Ollama GPT-OSS 20B)
 
 💡 **25년 경험의 전문 컨설팅**으로 확실한 성과를 보장합니다!`;
   };
@@ -202,7 +202,7 @@ export default function ChatbotPage() {
             
             <div className="badge-primary mb-6 animate-scale-in">
               <Sparkles className="w-5 h-5 mr-2" />
-              <span className="font-semibold">GEMINI AI 기반 스마트 상담</span>
+              <span className="font-semibold">Ollama GPT-OSS 20B 기반 스마트 상담</span>
             </div>
             
             <h1 className="text-hero text-gray-900 mb-6 animate-slide-in">
@@ -212,14 +212,14 @@ export default function ChatbotPage() {
             
             <p className="text-body-lg text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in mb-8"
                style={{ animationDelay: '0.2s' }}>
-              <strong className="text-blue-600">GEMINI AI</strong> 기반의 전문 상담사가 24시간 대기 중입니다.<br />
+              <strong className="text-blue-600">Ollama GPT-OSS 20B</strong> 기반의 전문 상담사가 24시간 대기 중입니다.<br />
               기업 성장에 관한 모든 궁금증을 바로 해결해보세요!
             </p>
             
             <div className="flex flex-wrap justify-center gap-4 mb-12 animate-slide-in"
                  style={{ animationDelay: '0.4s' }}>
               {[
-                { icon: Cpu, text: 'GEMINI AI', color: 'bg-blue-100 text-blue-600' },
+                { icon: Cpu, text: 'Ollama GPT-OSS 20B', color: 'bg-blue-100 text-blue-600' },
                 { icon: Shield, text: '24시간 상담', color: 'bg-green-100 text-green-600' },
                 { icon: Users, text: '전문가 지원', color: 'bg-purple-100 text-purple-600' },
                 { icon: Zap, text: '즉시 응답', color: 'bg-orange-100 text-orange-600' }

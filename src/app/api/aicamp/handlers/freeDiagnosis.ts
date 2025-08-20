@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { saveToGoogleSheets, updateSheetRow } from '../services/googleSheets';
-import { callGeminiAPI } from '../services/geminiApi';
+import { callAI } from '@/lib/ai/ai-provider';
 import { sendEmail } from '../services/emailService';
 import { calculateAICapabilityScores, calculatePracticalCapabilityScores } from '../utils/scoreCalculations';
 
@@ -180,9 +180,15 @@ async function performAIAnalysis(diagnosisId: string, data: any) {
     const practicalScores = calculatePracticalCapabilityScores(data);
     const overallScore = (aiScores.total + practicalScores.total) / 2;
 
-    // GEMINI AI 분석
+    // Ollama GPT-OSS 20B AI 분석
     const prompt = generateAnalysisPrompt(data, aiScores, practicalScores);
-    const aiAnalysis = await callGeminiAPI(prompt);
+    const responseText = await callAI({ prompt, system: '당신은 "이교장의AI상담" 시스템의 Ollama GPT-OSS 20B 전용 분석가입니다. JSON만 반환하세요.' });
+    let aiAnalysis: any = {};
+    try {
+      aiAnalysis = JSON.parse(responseText);
+    } catch {
+      aiAnalysis = { executiveSummary: responseText };
+    }
 
     // 분석 결과 저장
     const analysisResult = {

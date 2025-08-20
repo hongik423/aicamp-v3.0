@@ -162,7 +162,7 @@ export const HIGH_ENGAGEMENT_AI_PROGRAM: HighEngagementProgram = {
       ],
       targetAudience: ['실무진', '팀장', 'AI 챔피언'],
       prerequisites: ['AI 기초 과정 수료'],
-      tools: ['GPT-4', 'Claude-3', 'Gemini Pro', 'Custom GPTs', 'API 도구'],
+      tools: ['GPT-4', 'Claude-3', 'Custom GPTs', 'API 도구'],
       roi: {
         productivity: '60% 향상',
         engagement: '40% 증가',

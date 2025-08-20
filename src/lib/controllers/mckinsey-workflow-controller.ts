@@ -9,11 +9,7 @@ import {
   executeMcKinsey45QuestionsWorkflow 
 } from '@/lib/workflow/mckinsey-45-questions-workflow';
 
-import { 
-  GeminiReportRequest,
-  GeminiReportResponse,
-  generateGeminiMcKinseyReport 
-} from '@/lib/ai/gemini-mckinsey-report-generator';
+// GEMINI 보고서 생성 로직 제거 (Ollama 전용 모드)
 
 import { 
   McKinseyHTMLReportRequest,
@@ -62,8 +58,8 @@ export interface WorkflowExecutionResult {
   // 분석 결과
   analysisResult?: McKinsey45QuestionsResult;
   
-  // AI 보고서
-  geminiReport?: GeminiReportResponse;
+  // AI 보고서 (Ollama 전용: 텍스트 기반)
+  ollamaReportText?: string;
   
   // HTML 보고서
   htmlReport?: string;
@@ -71,7 +67,7 @@ export interface WorkflowExecutionResult {
   // 처리 상태
   processingStatus: {
     dataAnalysis: 'completed' | 'failed' | 'skipped';
-    geminiGeneration: 'completed' | 'failed' | 'skipped';
+    ollamaGeneration: 'completed' | 'failed' | 'skipped';
     htmlGeneration: 'completed' | 'failed' | 'skipped';
     emailSending: 'completed' | 'failed' | 'skipped' | 'pending';
     sheetsSaving: 'completed' | 'failed' | 'skipped' | 'pending';
@@ -122,7 +118,7 @@ export async function executeMcKinseyWorkflow(
     timestamp: new Date().toISOString(),
     processingStatus: {
       dataAnalysis: 'skipped',
-      geminiGeneration: 'skipped',
+      ollamaGeneration: 'skipped',
       htmlGeneration: 'skipped',
       emailSending: 'skipped',
       sheetsSaving: 'skipped'
@@ -185,66 +181,27 @@ export async function executeMcKinseyWorkflow(
       throw error;
     }
     
-    // Step 2: GEMINI AI 보고서 생성 (옵션)
-    if (request.options?.includeGeminiAnalysis !== false) {
-      console.log('🤖 Step 2: GEMINI AI 보고서 생성 시작');
-      
-      try {
-        const geminiRequest: GeminiReportRequest = {
-          analysisResult: result.analysisResult!,
-          reportType: request.options?.reportType || 'detailed',
-          language: 'ko',
-          customization: {
-            industryContext: `${request.industry} 업종 특성을 고려한 맞춤형 분석`,
-            timeframe: '12개월',
-            focusAreas: ['AI 도입', '디지털 전환', '조직 혁신']
-          }
-        };
-        
-        result.geminiReport = await generateGeminiMcKinseyReport(geminiRequest);
-        result.processingStatus.geminiGeneration = 'completed';
-        result.metadata.completedSteps++;
-        
-        console.log('✅ Step 2 완료: GEMINI AI 보고서 생성 성공', {
-          reportId: result.geminiReport.reportId,
-          wordCount: result.geminiReport.metadata.wordCount
-        });
-        
-      } catch (error: any) {
-        console.error('❌ Step 2 실패: GEMINI AI 보고서 생성 오류', error);
-        result.processingStatus.geminiGeneration = 'failed';
-        result.errors?.push({
-          stage: 'geminiGeneration',
-          error: error.message,
-          timestamp: new Date().toISOString()
-        });
-        
-        // GEMINI 실패 시 기본 보고서로 대체
-        result.geminiReport = {
-          success: false,
-          reportId: `FALLBACK_${Date.now()}`,
-          content: {
-            executiveSummary: '고품질 AI 분석 보고서 생성을 위해 처리 중입니다.',
-            situationAnalysis: '상세한 현황 분석이 진행 중입니다.',
-            strategicRecommendations: '전략적 권고사항을 수립 중입니다.',
-            implementationPlan: '실행 계획을 작성 중입니다.',
-            riskAssessment: '리스크 평가를 진행 중입니다.',
-            financialProjection: '재무 분석을 완료하는 중입니다.',
-            conclusion: '종합 결론을 도출 중입니다.'
-          },
-          metadata: {
-            generatedAt: new Date().toISOString(),
-            wordCount: 0,
-            analysisDepth: 0,
-            confidence: 0,
-            version: 'FALLBACK'
-          },
-          error: error.message
-        };
-      }
-    } else {
-      result.processingStatus.geminiGeneration = 'skipped';
-      console.log('⏭️ Step 2 건너뜀: GEMINI AI 보고서 생성 비활성화');
+    // Step 2: Ollama AI 보고서 생성 (요약 텍스트) - 항상 실행
+    console.log('🤖 Step 2: Ollama AI 보고서 생성 시작');
+    try {
+      const { callAI } = await import('@/lib/ai/ai-provider');
+      const aiPrompt = `이하 분석 결과를 바탕으로 300자 이내 경영진 요약을 작성:
+총점: ${result.analysisResult!.scoreAnalysis.totalScore}
+성숙도: ${result.analysisResult!.scoreAnalysis.maturityLevel}
+우선과제: ${Object.keys(result.analysisResult!.scoreAnalysis.categoryScores).slice(0,3).join(', ')}`;
+      const text = await callAI({ prompt: aiPrompt, maxTokens: 800, temperature: 0.3 });
+      result.ollamaReportText = text;
+      result.processingStatus.ollamaGeneration = 'completed';
+      result.metadata.completedSteps++;
+      console.log('✅ Step 2 완료: Ollama AI 보고서 생성 성공');
+    } catch (error: any) {
+      console.error('❌ Step 2 실패: Ollama AI 보고서 생성 오류', error);
+      result.processingStatus.ollamaGeneration = 'failed';
+      result.errors?.push({
+        stage: 'ollamaGeneration',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
     }
     
     // Step 3: HTML 보고서 생성 (옵션)
@@ -254,7 +211,6 @@ export async function executeMcKinseyWorkflow(
       try {
         const htmlRequest: McKinseyHTMLReportRequest = {
           analysisResult: result.analysisResult!,
-          geminiReport: result.geminiReport!,
           branding: {
             companyName: 'AICAMP',
             colors: {
@@ -327,7 +283,7 @@ export async function executeMcKinseyWorkflow(
       overallQuality: result.analysisResult?.qualityMetrics.overallQuality || 0,
       processingTime,
       dataCompleteness: result.analysisResult?.qualityMetrics.dataCompleteness || 0,
-      aiAnalysisDepth: result.geminiReport?.metadata.analysisDepth || 0
+      aiAnalysisDepth: result.ollamaReportText?.metadata.analysisDepth || 0
     };
     
     result.metadata.processingTime = processingTime;
@@ -439,7 +395,7 @@ export function getWorkflowProgress(result: WorkflowExecutionResult): {
     currentStep = 'AI 보고서 생성 중';
   }
   
-  if (processingStatus.geminiGeneration === 'completed') {
+  if (processingStatus.ollamaGeneration === 'completed') {
     completedSteps++;
     currentStep = 'HTML 보고서 생성 중';
   }

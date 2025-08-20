@@ -282,7 +282,7 @@ export default function DiagnosisReportPage() {
             </div>
             
             <div style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); padding: 40px; border-radius: 20px; margin: 40px 0; border: 1px solid #ffc107;">
-                <h2 style="color: #e65100; font-size: 2rem; margin-bottom: 25px;">💡 GEMINI 2.5 Flash AI 분석 결과</h2>
+                <h2 style="color: #e65100; font-size: 2rem; margin-bottom: 25px;">💡 Ollama GPT-OSS 20B AI 분석 결과</h2>
                 <div style="font-size: 1.1rem; line-height: 1.8; color: #5d4037;">
                     귀하의 기업은 AI 도입을 위한 기본적인 인프라와 조직 준비도를 갖추고 있습니다. 
                     특히 조직 준비도(85점)가 높아 AI 도입에 대한 내부 수용성이 우수합니다.
@@ -325,7 +325,7 @@ export default function DiagnosisReportPage() {
             <p style="margin-top: 30px; opacity: 0.8;">
                 진단 ID: ${diagnosisId}<br>
                 생성일: ${currentDate}<br>
-                Powered by GEMINI 2.5 Flash AI
+                Powered by Ollama GPT-OSS 20B (On-Device)
             </p>
         </div>
     </div>

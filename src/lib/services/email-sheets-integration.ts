@@ -4,7 +4,7 @@
  */
 
 import { McKinsey45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
-import { GeminiReportResponse } from '@/lib/ai/gemini-mckinsey-report-generator';
+// Ollama 전용 모드: 외부 Gemini 의존성 제거
 
 export interface EmailSheetsRequest {
   // 기본 정보
@@ -15,7 +15,7 @@ export interface EmailSheetsRequest {
   
   // 분석 결과
   analysisResult: McKinsey45QuestionsResult;
-  geminiReport?: GeminiReportResponse;
+  geminiReport?: { content?: Record<string, string>; metadata?: any; success?: boolean };
   htmlReport?: string;
   
   // 옵션
@@ -470,8 +470,8 @@ export function prepareSheetsData(request: EmailSheetsRequest): SheetsData {
     qualityMetrics: analysisResult.qualityMetrics,
     processingInfo: {
       geminiSuccess: geminiReport?.success || false,
-      geminiWordCount: geminiReport?.metadata.wordCount || 0,
-      geminiConfidence: geminiReport?.metadata.confidence || 0,
+      geminiWordCount: geminiReport?.metadata?.wordCount || 0,
+      geminiConfidence: geminiReport?.metadata?.confidence || 0,
       version: 'V15.0-ULTIMATE-45Q'
     }
   };

@@ -907,7 +907,7 @@ export class McKinseyReportGenerator {
       dataSource: [
         '45문항 자가진단 설문',
         '업종별 벤치마크 데이터',
-        'GEMINI 2.5 Flash AI 분석'
+        'Ollama GPT-OSS 20B 온디바이스 분석'
       ],
       assumptions: [
         '응답의 정확성과 일관성',

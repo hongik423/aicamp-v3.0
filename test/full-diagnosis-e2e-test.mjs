@@ -266,7 +266,7 @@ function printDetailedTestReport(analysis, progressResult, testData) {
       index === 0 || 
       index === progressResult.progressLog.length - 1 || 
       log.status === 'error' ||
-      log.message.includes('GEMINI') ||
+      log.message.includes('Ollama') ||
       log.message.includes('보고서') ||
       log.message.includes('이메일')
     );
@@ -308,8 +308,8 @@ async function runFullDiagnosisE2ETest() {
     console.log(`   예상 등급: ${testData.expectedGrade}`);
     
     // 2단계: AI 역량진단 신청 및 처리 시작
-    console.log('\n🤖 2단계: AI 역량진단 신청 및 GEMINI 분석 시작');
-    console.log('   GEMINI 2.5 Flash 모델이 45개 행동지표를 분석합니다...');
+    console.log('\n🤖 2단계: AI 역량진단 신청 및 Ollama 분석 시작');
+    console.log('   Ollama GPT-OSS 20B 모델이 45개 행동지표를 분석합니다...');
     
     const diagnosisResult = await makeRequest(`${BASE_URL}/api/ai-diagnosis`, {
       method: 'POST',

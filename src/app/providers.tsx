@@ -126,7 +126,7 @@ export default function Providers({ children }: ProvidersProps) {
       const envStatus = checkEnvStatus();
       
       // AI 기능은 서버에서 확인됩니다 (보안상 클라이언트에서 API 키 체크 불가)
-      console.log('AI 기능: 서버에서 GEMINI_API_KEY 확인됨');
+      console.log('AI 기능: Ollama 온디바이스 모드 활성화');
       console.log('🤖 별-AI상담사: 활성화 상태');
       
       if (!envStatus.hasGoogleSheetsId || !envStatus.hasGoogleScriptUrl) {

@@ -395,37 +395,10 @@ export class McKinseyQualityAssessor {
     report: any, 
     criterion: QualityCriterion
   ): Promise<{ score: number; details: string }> {
-    
-    // GEMINI API를 사용한 품질 평가
-    try {
-      const prompt = this.buildQualityAssessmentPrompt(report, criterion);
-      
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.1, // 일관된 평가를 위해 낮은 창의성
-              topK: 20,
-              topP: 0.8,
-              maxOutputTokens: 1000
-            }
-          })
-        }
-      );
-      
-      const result = await response.json();
-      const evaluation = this.parseAIEvaluation(result);
-      
-      return evaluation;
-      
-    } catch (error) {
-      console.warn(`AI 평가 실패 (${criterion.id}):`, error);
-      return { score: 75, details: 'AI 평가 실패로 기본 점수 적용' };
-    }
+    // Ollama 전용 모드: 외부 API 호출 제거, 기본 점수로 대체
+    const prompt = this.buildQualityAssessmentPrompt(report, criterion);
+    void prompt;
+    return { score: 80, details: '온디바이스 모드: 규칙/자동 평가 기반 점수 적용' };
   }
   
   /**

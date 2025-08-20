@@ -95,7 +95,7 @@ const curriculumModules: CurriculumModule[] = [
     difficulty: 2,
     prerequisites: ['ai-fundamentals'],
     outcomes: ['효과적 프롬프트 작성', 'ChatGPT 고급 활용', '업무 자동화 기초'],
-    tools: ['ChatGPT', 'Claude', 'Gemini'],
+    tools: ['ChatGPT', 'Claude'],
     industry: ['전업종'],
     priority: 9,
     estimatedROI: 200

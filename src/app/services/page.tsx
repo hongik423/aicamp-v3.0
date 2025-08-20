@@ -62,12 +62,12 @@ export default async function ServicesPage() {
   const services: ServiceProps[] = [
     {
       title: 'AI 역량진단',
-      description: 'GEMINI 2.5 Flash Model로 기업 AI 활용도를 정밀 진단하세요',
+      description: 'Ollama GPT-OSS 20B 온디바이스 모델로 기업 AI 활용도를 정밀 진단하세요',
       icon: <Brain className="h-6 w-6 text-blue-600" />,
       href: '/ai-diagnosis',
-      badge: 'GEMINI 2.5',
+      badge: 'Ollama 20B',
       features: [
-        'GEMINI 2.5 Flash AI 분석',
+        'Ollama GPT-OSS 20B AI 분석',
         'AI 활용도 정밀 진단',
         '실시간 맞춤형 보고서',
         '이메일 자동 발송'
@@ -179,17 +179,17 @@ export default async function ServicesPage() {
         {/* CTA Section */}
         <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-4">
-            🤖 GEMINI 2.5 Flash AI 역량진단으로 시작하세요!
+            🤖 Ollama GPT-OSS 20B AI 역량진단으로 시작하세요!
           </h2>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            최신 GEMINI 2.5 Flash Model로 기업의 AI 활용도를 정밀 분석하고, 
+            100% 온디바이스 Ollama GPT-OSS 20B로 기업의 AI 활용도를 정밀 분석하고, 
             맞춤형 AI 도입 전략을 제공받으세요.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/ai-diagnosis">
               <Button size="lg" variant="secondary" className="text-blue-600 hover:text-blue-700">
                 <Brain className="mr-2 h-5 w-5" />
-                GEMINI AI 진단 시작
+                Ollama AI 진단 시작
               </Button>
             </Link>
             <Link href="/consultation">

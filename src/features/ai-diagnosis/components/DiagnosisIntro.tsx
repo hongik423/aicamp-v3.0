@@ -117,7 +117,7 @@ const DiagnosisIntro: React.FC<DiagnosisIntroProps> = ({ onStart }) => {
           >
             <Badge className="mb-4" variant="secondary">
               <Sparkles className="w-4 h-4 mr-1" />
-              GEMINI 2.5 FLASH 기반 AI 분석
+              Ollama GPT-OSS 20B 기반 AI 분석
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               AI 역량진단 시스템

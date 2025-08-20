@@ -15,7 +15,7 @@ const keyFeatures = [
   {
     icon: <Brain className="w-8 h-8" />,
     title: 'AI 기반 정밀 분석',
-    description: 'Gemini 2.5 Flash 엔진으로 200+ 업종 데이터베이스 기반 맞춤 분석',
+    description: 'Ollama GPT-OSS 20B 온디바이스 엔진으로 200+ 업종 데이터베이스 기반 맞춤 분석',
     highlight: '전문가 수준'
   },
   {

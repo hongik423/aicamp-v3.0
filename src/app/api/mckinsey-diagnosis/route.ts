@@ -1,14 +1,14 @@
 /**
- * 맥킨지 역량진단 시스템 V15.0 ULTIMATE API 라우트
- * GEMINI 2.5 Flash (최대 50,000 토큰) + Google Drive + n8n 통합
+ * 맥킨지 역량진단 시스템 V16.0 OLLAMA ULTIMATE API 라우트
+ * Ollama GPT-OSS 20B 전용 - 이교장의AI상담 시스템
+ * 100% 온디바이스 AI, 외부 API 의존성 완전 제거
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 
-// 통합 AI 호출 사용 (Llama 우선)
+// Ollama GPT-OSS 20B 전용 AI 호출
 import { callAI } from '@/lib/ai/ai-provider';
-// 환경 변수 (레거시 호환)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+// 환경 변수 (Ollama 전용)
 const GAS_DEPLOYMENT_URL = process.env.GAS_DEPLOYMENT_URL || '';
 const DRIVE_FOLDER_ID = '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj';
 
@@ -106,10 +106,10 @@ export async function POST(request: NextRequest) {
     // 2단계: 45문항 점수 계산
     const scoreAnalysis = await calculate45QuestionScores(normalizedData);
     
-    // 3단계: GEMINI 2.5 Flash 정량적 분석
+    // 3단계: Ollama GPT-OSS 20B 정량적 분석
     const quantitativeAnalysis = await performQuantitativeAnalysis(scoreAnalysis);
     
-    // 4단계: GEMINI 2.5 Flash 정성적 분석
+    // 4단계: Ollama GPT-OSS 20B 정성적 분석
     const qualitativeAnalysis = await performQualitativeAnalysis(normalizedData, scoreAnalysis);
     
     // 5단계: 통합 인사이트 생성
@@ -306,7 +306,7 @@ function calculatePercentile(score: number, industry: string): number {
 }
 
 /**
- * GEMINI 정량적 분석
+ * Ollama 정량적 분석
  */
 async function performQuantitativeAnalysis(scoreAnalysis: any) {
   const prompt = `
@@ -327,7 +327,7 @@ async function performQuantitativeAnalysis(scoreAnalysis: any) {
 }
 
 /**
- * GEMINI 정성적 분석
+ * Ollama GPT-OSS 20B 정성적 분석 (GEMINI 대체)
  */
 async function performQualitativeAnalysis(data: any, scoreAnalysis: any) {
   const prompt = `
@@ -350,9 +350,9 @@ async function performQualitativeAnalysis(data: any, scoreAnalysis: any) {
 }
 
 /**
- * GEMINI API 호출
+ * Ollama GPT-OSS 20B API 호출 (GEMINI 완전 대체)
  */
-// callGeminiAPI는 더 이상 직접 사용하지 않음. callAI를 사용하도록 교체됨.
+// 모든 AI 호출은 callAI를 통해 Ollama GPT-OSS 20B로 처리됨
 
 /**
  * 통합 인사이트 생성

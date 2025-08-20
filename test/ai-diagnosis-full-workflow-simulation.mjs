@@ -3,7 +3,7 @@
  * 🎓 AI 역량진단 전체 워크플로우 시뮬레이션 테스트
  * ================================================================================
  * 
- * GEMINI 2.5 Flash 모델을 활용한 완전한 워크플로우 테스트:
+ * Ollama GPT-OSS 20B 온디바이스 모델을 활용한 완전한 워크플로우 테스트:
  * 1. 45문항 실제 점수 계산
  * 2. SWOT 분석 생성
  * 3. 우선순위 매트릭스 및 로드맵
@@ -255,7 +255,7 @@ async function runFullWorkflowSimulation() {
     
     // 2단계: AI 역량진단 API 호출
     console.log('\n🤖 2단계: AI 역량진단 API 호출');
-    console.log('   GEMINI 2.5 Flash 모델 분석 시작...');
+    console.log('   Ollama GPT-OSS 20B 모델 분석 시작...');
     
     const diagnosisResult = await makeRequest(`${BASE_URL}/api/ai-diagnosis`, {
       method: 'POST',
@@ -355,7 +355,7 @@ async function runFullWorkflowSimulation() {
 
 // 시뮬레이션 실행
 console.log('🎓 이교장의AI역량진단보고서 - 전체 워크플로우 시뮬레이션');
-console.log('GEMINI 2.5 Flash 모델 기반 완전한 테스트');
+console.log('Ollama GPT-OSS 20B 모델 기반 완전한 테스트');
 console.log('');
 
 runFullWorkflowSimulation()

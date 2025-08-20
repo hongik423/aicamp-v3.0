@@ -124,7 +124,7 @@ const contentData: ContentItem[] = [
   {
     id: 'diagnosis',
     title: 'AI 역량진단',
-    subtitle: 'GEMINI 2.5 Flash, 즉시 결과',
+    subtitle: 'Ollama GPT-OSS 20B, 즉시 결과',
     description: 'AI 활용도 정밀분석으로 맞춤형 전략 제공',
     icon: Target,
     color: 'text-blue-600',

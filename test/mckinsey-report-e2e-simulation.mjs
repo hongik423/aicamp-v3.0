@@ -7,7 +7,7 @@
  * 
  * 테스트 시나리오:
  * 1. 정상 케이스 (모든 단계 성공)
- * 2. 타임아웃 케이스 (Gemini API 지연)
+ * 2. 타임아웃 케이스 (GAS 지연)
  * 3. GAS 502 케이스 (Google Apps Script 오류)
  * 
  * 실행: npm run test:e2e:mckinsey

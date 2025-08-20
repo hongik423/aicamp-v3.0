@@ -2,7 +2,7 @@ export type DiagnosisStepStatus = 'pending' | 'in-progress' | 'completed' | 'err
 
 export interface DiagnosisProgressEvent {
   diagnosisId: string;
-  stepId?: string; // e.g., 'data-validation' | 'gemini-analysis' | 'swot-analysis' | 'report-generation' | 'email-sending'
+  stepId?: string; // e.g., 'data-validation' | 'ollama-analysis' | 'swot-analysis' | 'report-generation' | 'email-sending'
   stepName?: string;
   status?: DiagnosisStepStatus;
   progressPercent?: number; // 0-100
@@ -67,7 +67,7 @@ export function getProgressSnapshot(diagnosisId: string) {
         latestByStep: {},
         steps: {
           'data-validation': { status: 'in-progress', progress: 20 },
-          'gemini-analysis': { status: 'pending', progress: 0 },
+          'ollama-analysis': { status: 'pending', progress: 0 },
           'swot-analysis': { status: 'pending', progress: 0 },
           'report-generation': { status: 'pending', progress: 0 },
           'email-sending': { status: 'pending', progress: 0 }
@@ -75,7 +75,7 @@ export function getProgressSnapshot(diagnosisId: string) {
       };
     }
     // 최신 이벤트 기반으로 단계 구성
-    const stepKeys = ['data-validation','gemini-analysis','swot-analysis','report-generation','email-sending'] as const;
+    const stepKeys = ['data-validation','ollama-analysis','swot-analysis','report-generation','email-sending'] as const;
     const composedSteps: Record<string, { status: string; progress: number }> = {};
     stepKeys.forEach((key) => {
       const ev = state.latestByStep[key as string];
@@ -93,7 +93,7 @@ export function getProgressSnapshot(diagnosisId: string) {
       latestByStep: state.latestByStep,
       steps: Object.keys(composedSteps).length > 0 ? composedSteps : {
         'data-validation': { status: 'in-progress', progress: 20 },
-        'gemini-analysis': { status: 'pending', progress: 0 },
+        'ollama-analysis': { status: 'pending', progress: 0 },
         'swot-analysis': { status: 'pending', progress: 0 },
         'report-generation': { status: 'pending', progress: 0 },
         'email-sending': { status: 'pending', progress: 0 }
@@ -108,7 +108,7 @@ export function getProgressSnapshot(diagnosisId: string) {
       latestByStep: {},
       steps: {
         'data-validation': { status: 'in-progress', progress: 20 },
-        'gemini-analysis': { status: 'pending', progress: 0 },
+        'ollama-analysis': { status: 'pending', progress: 0 },
         'swot-analysis': { status: 'pending', progress: 0 },
         'report-generation': { status: 'pending', progress: 0 },
         'email-sending': { status: 'pending', progress: 0 }

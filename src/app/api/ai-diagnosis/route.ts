@@ -1,7 +1,8 @@
 /**
  * AI 역량진단 API 엔드포인트
  * 45개 행동지표 기반 이교장 수준 컨설팅 보고서 생성 시스템
- * 이교장의AI역량진단보고서 V15.0 ULTIMATE
+ * 이교장의AI역량진단보고서 V16.0 OLLAMA ULTIMATE
+ * Ollama GPT-OSS 20B 전용 - 100% 온디바이스 AI
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -68,11 +69,11 @@ export async function POST(request: NextRequest) {
     
     console.log('📋 진단 요청 검증 완료:', requestData.companyName);
     
-    // 로컬 워크플로우 실행 (빠른 분석)
+    // Ollama GPT-OSS 20B + NPU AI 워크플로우 실행
     try {
-      console.log('🚀 로컬 LeeKyoJang 45개 질문 워크플로우 실행 시작');
+      console.log('🚀 Ollama GPT-OSS 20B + NPU AI 워크플로우 실행 시작');
       
-      const workflowResult = executeLeeKyoJang45QuestionsWorkflow(workflowRequest);
+      const workflowResult = await executeLeeKyoJang45QuestionsWorkflow(workflowRequest);
       
       if (workflowResult) {
         console.log('✅ 로컬 워크플로우 완료 - Google Apps Script로 전송');
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
         });
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
-          stepId: 'gemini-analysis',
+          stepId: 'ollama-analysis',
           stepName: 'AI 분석',
           status: 'completed',
           progressPercent: 100,
@@ -231,7 +232,7 @@ export async function POST(request: NextRequest) {
             version: 'V15.0-ULTIMATE-45Q',
             features: [
               '45개 행동지표 정밀 분석 완료',
-              'GEMINI 2.5 Flash AI 보고서 생성',
+              'Ollama GPT-OSS 20B AI 보고서 생성',
               '이교장 스타일 HTML 보고서',
               '애플 스타일 이메일 발송 예정'
             ]
@@ -243,7 +244,7 @@ export async function POST(request: NextRequest) {
             estimatedEmailTime: '2-3분',
             steps: [
               { step: 1, name: '45개 질문 분석', status: 'completed' },
-              { step: 2, name: 'GEMINI AI 보고서', status: 'completed' },
+              { step: 2, name: 'Ollama AI 보고서', status: 'completed' },
               { step: 3, name: 'HTML 보고서 생성', status: 'completed' },
               { step: 4, name: '이메일 발송', status: 'in_progress' },
               { step: 5, name: 'Google Sheets 저장', status: 'in_progress' }
@@ -291,7 +292,7 @@ export async function GET(request: NextRequest) {
     features: [
       '애플 스타일 미니멀 이메일 디자인',
       '최신 이교장 스타일 보고서',
-      'GEMINI 2.5 Flash AI 통합 분석',
+      'Ollama GPT-OSS 20B AI 통합 분석',
       'Google Drive 자동 업로드',
       '실시간 진행상황 모니터링'
     ],

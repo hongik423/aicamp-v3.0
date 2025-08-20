@@ -41,8 +41,8 @@ const DIAGNOSIS_STEPS: ProgressStep[] = [
     status: 'pending'
   },
   {
-    id: 'gemini-analysis',
-    name: 'GEMINI 2.5 Flash AI 분석',
+    id: 'ollama-analysis',
+    name: 'Ollama GPT-OSS 20B AI 분석',
     description: 'AI 역량 6분야 종합 평가 및 업종별 벤치마크 비교',
     icon: Brain,
     estimatedTime: '2-3분',
@@ -207,7 +207,7 @@ export default function RealtimeProgressBanner({
             <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
               {progressState.steps.map((step, index) => {
                 const Icon = step.id === 'data-validation' ? CheckCircle2 :
-                           step.id === 'gemini-analysis' ? Brain :
+                           step.id === 'ollama-analysis' ? Brain :
                            step.id === 'swot-analysis' ? Target :
                            step.id === 'report-generation' ? FileText : Mail;
                 

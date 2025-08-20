@@ -1,6 +1,6 @@
 /**
  * 🧠 AI 기반 전략 분석 엔진
- * GEMINI 2.5 Flash + GPT-4 하이브리드 분석 시스템
+ * Ollama GPT-OSS 20B 온디바이스 분석 시스템
  */
 
 import { AdvancedScoreResult } from './advanced-scoring-engine';
@@ -254,26 +254,22 @@ export interface CompetitorProfile {
  * AI 기반 전략 분석 엔진
  */
 export class AIStrategicAnalyzer {
-  private geminiApiKey: string;
-  
-  constructor(geminiApiKey: string) {
-    this.geminiApiKey = geminiApiKey;
-  }
+  constructor() {}
   
   /**
    * 메인 전략 분석 함수
    */
   async analyzeStrategy(request: StrategicAnalysisRequest): Promise<StrategicAnalysisResult> {
-    console.log('🧠 GEMINI 2.5 Flash 통합 AI 전략 분석 시작...');
+    console.log('🧠 Ollama GPT-OSS 20B 온디바이스 전략 분석 시작...');
     
-    // 1. GEMINI로 정량적 분석
+    // 1. 정량적 분석 (규칙/모델 혼합)
     const quantitativeAnalysis = await this.performQuantitativeAnalysis(request);
     
-    // 2. GEMINI로 정성적 분석 (통합 시스템)
-    const qualitativeAnalysis = await this.performQualitativeAnalysisWithGemini(request);
+    // 2. 정성적 분석 (Ollama)
+    const qualitativeAnalysis = await this.performQualitativeAnalysisWithOllama(request);
     
-    // 3. GEMINI 기반 통합 분석
-    const hybridAnalysis = this.combineGeminiAnalyses(quantitativeAnalysis, qualitativeAnalysis);
+    // 3. 통합 분석
+    const hybridAnalysis = this.combineAnalyses(quantitativeAnalysis, qualitativeAnalysis);
     
     // 4. 전략적 권고안 생성
     const strategicRecommendations = await this.generateStrategicRecommendations(
@@ -340,64 +336,28 @@ export class AIStrategicAnalyzer {
    * GEMINI 기반 정량적 분석
    */
   private async performQuantitativeAnalysis(request: StrategicAnalysisRequest): Promise<any> {
-    const prompt = this.buildQuantitativeAnalysisPrompt(request);
-    
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.3, // 정량적 분석이므로 낮은 창의성
-              topK: 40,
-              topP: 0.8,
-              maxOutputTokens: 4000
-            }
-          })
-        }
-      );
-      
-      const result = await response.json();
-      return this.parseGeminiResponse(result);
-      
-    } catch (error) {
-      console.error('GEMINI 분석 실패:', error);
-      return this.generateFallbackQuantitativeAnalysis(request);
-    }
+    // 규칙 기반 간단 정량 분석 (온디바이스)
+    const { scoreResult } = request;
+    const top = [...scoreResult.categoryScores].sort((a, b) => b.normalizedScore - a.normalizedScore).slice(0, 3);
+    const low = [...scoreResult.categoryScores].sort((a, b) => a.normalizedScore - b.normalizedScore).slice(0, 3);
+    return {
+      currentMaturity: scoreResult.percentageScore >= 80 ? 'Advanced' : scoreResult.percentageScore >= 60 ? 'Developing' : 'Early',
+      priorityAreas: low.map(c => c.category.name),
+      strengths: top.map(c => c.category.name),
+      quickWins: ['업무 자동화', '기초 AI 교육']
+    };
   }
   
   /**
    * GEMINI 기반 정성적 분석 (통합 시스템)
    */
-  private async performQualitativeAnalysisWithGemini(request: StrategicAnalysisRequest): Promise<any> {
+  private async performQualitativeAnalysisWithOllama(request: StrategicAnalysisRequest): Promise<any> {
     const prompt = this.buildQualitativeAnalysisPrompt(request);
-    
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7, // 정성적 분석이므로 적당한 창의성
-              topK: 40,
-              topP: 0.9,
-              maxOutputTokens: 4000
-            }
-          })
-        }
-      );
-      
-      const result = await response.json();
-      return this.parseGeminiResponse(result);
-      
+      const { callAI } = await import('@/lib/ai/ai-provider');
+      const text = await callAI({ prompt, maxTokens: 2048, temperature: 0.5 });
+      try { return JSON.parse(text); } catch { return { narrative: text }; }
     } catch (error) {
-      console.error('GEMINI 정성적 분석 실패:', error);
       return this.generateFallbackQualitativeAnalysis(request);
     }
   }
@@ -519,12 +479,12 @@ McKinsey 스타일의 전략적 관점에서 다음을 분석해주세요:
   /**
    * GEMINI 기반 통합 분석 결합
    */
-  private combineGeminiAnalyses(quantitative: any, qualitative: any): any {
+  private combineAnalyses(quantitative: any, qualitative: any): any {
     return {
       quantitativeInsights: quantitative,
       qualitativeInsights: qualitative,
-      combinedRecommendations: this.synthesizeGeminiRecommendations(quantitative, qualitative),
-      analysisModel: 'GEMINI-2.5-FLASH-INTEGRATED',
+      combinedRecommendations: this.synthesizeRecommendations(quantitative, qualitative),
+      analysisModel: 'Ollama-GPT-OSS-20B',
       analysisTimestamp: new Date().toISOString()
     };
   }
@@ -776,15 +736,7 @@ McKinsey 스타일의 전략적 관점에서 다음을 분석해주세요:
   }
   
   // 헬퍼 메서드들
-  private parseGeminiResponse(response: any): any {
-    try {
-      const content = response.candidates[0]?.content?.parts[0]?.text;
-      return JSON.parse(content);
-    } catch (error) {
-      console.warn('GEMINI 응답 파싱 실패:', error);
-      return {};
-    }
-  }
+  // 제거됨: Gemini 응답 파서
   
   private parseGPTResponse(response: any): any {
     try {
@@ -812,16 +764,14 @@ McKinsey 스타일의 전략적 관점에서 다음을 분석해주세요:
     };
   }
   
-  private synthesizeGeminiRecommendations(quantitative: any, qualitative: any): any {
+  private synthesizeRecommendations(quantitative: any, qualitative: any): any {
     return {
-      immediate: ['n8n 자동화 도입', 'GEMINI 기반 업무 혁신'],
-      shortTerm: ['AI 거버넌스 구축', 'GEMINI 활용 역량 강화'],
-      longTerm: ['AI-First 조직 전환', 'GEMINI 생태계 완전 통합'],
-      analysisEngine: 'GEMINI-2.5-FLASH'
+      immediate: ['n8n 자동화 도입', '기초 AI 교육 시행'],
+      shortTerm: ['AI 거버넌스 구축', '데이터 관리 체계 확립'],
+      longTerm: ['AI-First 조직 전환', '전사 디지털 전환 가속'],
+      analysisEngine: 'Ollama-GPT-OSS-20B'
     };
   }
 }
 
-export const aiStrategicAnalyzer = new AIStrategicAnalyzer(
-  process.env.GEMINI_API_KEY || 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM'
-);
+export const aiStrategicAnalyzer = new AIStrategicAnalyzer();

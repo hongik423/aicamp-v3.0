@@ -79,7 +79,7 @@ const Real45QuestionForm: React.FC = () => {
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [progressSteps, setProgressSteps] = useState({
     'data-validation': { status: 'pending', progress: 0, label: '데이터 검증' },
-    'gemini-analysis': { status: 'pending', progress: 0, label: 'AI 분석' },
+    'ollama-analysis': { status: 'pending', progress: 0, label: 'AI 분석' },
     'swot-analysis': { status: 'pending', progress: 0, label: 'SWOT 분석' },
     'report-generation': { status: 'pending', progress: 0, label: '보고서 생성' },
     'email-sending': { status: 'pending', progress: 0, label: '이메일 발송' }
@@ -276,19 +276,19 @@ const Real45QuestionForm: React.FC = () => {
         
         if (elapsedMinutes < 2) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('gemini-analysis', 'in-progress', Math.min(80, 20 + elapsedMinutes * 30));
+          updateProgressSteps('ollama-analysis', 'in-progress', Math.min(80, 20 + elapsedMinutes * 30));
         } else if (elapsedMinutes < 5) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('gemini-analysis', 'completed', 100);
+          updateProgressSteps('ollama-analysis', 'completed', 100);
           updateProgressSteps('swot-analysis', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 25));
         } else if (elapsedMinutes < 8) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('gemini-analysis', 'completed', 100);
+          updateProgressSteps('ollama-analysis', 'completed', 100);
           updateProgressSteps('swot-analysis', 'completed', 100);
           updateProgressSteps('report-generation', 'in-progress', Math.min(80, (elapsedMinutes - 5) * 25));
         } else {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('gemini-analysis', 'completed', 100);
+          updateProgressSteps('ollama-analysis', 'completed', 100);
           updateProgressSteps('swot-analysis', 'completed', 100);
           updateProgressSteps('report-generation', 'in-progress', 90);
           updateProgressSteps('email-sending', 'in-progress', Math.min(80, (elapsedMinutes - 8) * 20));
@@ -303,7 +303,7 @@ const Real45QuestionForm: React.FC = () => {
       
       // 모든 단계 완료
       updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('gemini-analysis', 'completed', 100);
+      updateProgressSteps('ollama-analysis', 'completed', 100);
       updateProgressSteps('swot-analysis', 'completed', 100);
       updateProgressSteps('report-generation', 'completed', 100);
       updateProgressSteps('email-sending', 'completed', 100);
@@ -324,7 +324,7 @@ const Real45QuestionForm: React.FC = () => {
       
       // 타임아웃 시에도 완료 처리 (백그라운드에서 계속 진행)
       updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('gemini-analysis', 'completed', 100);
+      updateProgressSteps('ollama-analysis', 'completed', 100);
       updateProgressSteps('swot-analysis', 'completed', 100);
       updateProgressSteps('report-generation', 'completed', 100);
       updateProgressSteps('email-sending', 'completed', 100);
@@ -879,7 +879,7 @@ const Real45QuestionForm: React.FC = () => {
               <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
                 <p className="text-blue-900 font-medium text-sm">📊 고품질 AI 분석 진행 중</p>
                 <p className="text-blue-800/80 text-xs mt-1">
-                  GEMINI 2.5 Flash가 45개 항목을 종합 분석하여 이교장 스타일 보고서를 생성합니다.
+                  Ollama GPT-OSS 20B가 45개 항목을 종합 분석하여 이교장 스타일 보고서를 생성합니다.
                 </p>
                 <p className="text-blue-700 text-xs mt-2 font-medium">
                   예상 완료 시간: 5~15분 | 완료 시 자동으로 이메일 발송됩니다

@@ -112,7 +112,8 @@ export async function GET(request: NextRequest) {
       // 필수 환경변수 확인
       envStatus.NEXT_PUBLIC_GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ? 'set' : 'missing';
       envStatus.NEXT_PUBLIC_GOOGLE_SHEETS_ID = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID ? 'set' : 'missing';
-      envStatus.GEMINI_API_KEY = process.env.GEMINI_API_KEY ? 'set' : 'missing';
+      envStatus.OLLAMA_API_URL = process.env.OLLAMA_API_URL || 'http://localhost:11434';
+      envStatus.OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
       envStatus.NODE_ENV = process.env.NODE_ENV || 'unknown';
       
       const missingEnvs = Object.entries(envStatus).filter(([key, value]) => value === 'missing');

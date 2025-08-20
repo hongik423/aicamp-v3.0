@@ -8,13 +8,23 @@ $envContent = @"
 # 이교장의AI역량진단보고서 시스템 V16.0 OLLAMA ULTIMATE 환경변수
 # ================================================================================
 
-# OLLAMA 0.11.5 API 설정 (필수)
+# OLLAMA 0.11.5 GPU 최적화 설정 (NVIDIA GPU + NPU 최대 활용)
 OLLAMA_API_URL=http://localhost:11434
 OLLAMA_MODEL=gpt-oss:20b
 OLLAMA_API_KEY=ollama_api_key_placeholder
 
-# GEMINI AI API 설정 (폴백용)
-GEMINI_API_KEY=AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM
+# GPU 최적화 환경변수 (고성능 NVIDIA GPU 활용)
+OLLAMA_NUM_GPU=-1
+OLLAMA_GPU_LAYERS=-1
+OLLAMA_FLASH_ATTENTION=1
+OLLAMA_NUM_THREAD=16
+OLLAMA_NUM_BATCH=2048
+OLLAMA_CONTEXT_SIZE=131072
+OLLAMA_USE_MLOCK=1
+OLLAMA_USE_MMAP=1
+OLLAMA_NUMA=1
+
+# Ollama 전용 시스템 (외부 클라우드 API 미사용)
 
 # Google Apps Script 설정 (필수)
 # 레거시 키(호환): 일부 스크립트에서 참조할 수 있음
@@ -42,7 +52,7 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 # AI 모델 설정
 AI_PROVIDER=ollama
 AI_MODEL_PRIMARY=gpt-oss:20b
-AI_MODEL_FALLBACK=gemini-2.5-flash
+AI_MODEL_FALLBACK=none
 
 # N8N 워크플로우 자동화 설정
 N8N_BASE_URL=http://localhost:5678
@@ -66,7 +76,7 @@ VERSION=V16.0-OLLAMA-ULTIMATE
 
 # 타임아웃 설정 (Ollama 최적화)
 TIMEOUT_OLLAMA=900000
-TIMEOUT_GEMINI=600000
+# GEMINI 제거됨
 TIMEOUT_EMAIL=180000
 TIMEOUT_SHEET=30000
 TIMEOUT_TOTAL=1200000
@@ -99,7 +109,6 @@ Write-Host "`nValidating environment variables..." -ForegroundColor Yellow
 $requiredVars = @(
     "OLLAMA_API_URL",
     "OLLAMA_MODEL", 
-    "GEMINI_API_KEY",
     "NEXT_PUBLIC_GOOGLE_SCRIPT_URL",
     "NEXT_PUBLIC_GAS_URL",
     "NEXT_PUBLIC_GOOGLE_SHEETS_ID",

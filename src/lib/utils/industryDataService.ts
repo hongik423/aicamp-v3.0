@@ -618,8 +618,8 @@ export class IndustryDataService {
 }
 
 /**
- * 🎯 이교장 스타일 보고서 전용 - V14.2 ULTIMATE INTEGRATED 시스템
- * 모든 보고서 생성은 Google Apps Script GEMINI 2.5 Flash API에서 처리
+ * 🎯 이교장 스타일 보고서 전용 - V16.0 OLLAMA ULTIMATE 시스템
+ * 모든 보고서 생성은 로컬 Ollama GPT-OSS 20B 또는 GAS 연동으로 처리
  */
 export function generateLeeKyoJangStyleReport(
   industry: string, 
@@ -643,8 +643,8 @@ ${companyData.companyName || '귀사'}의 이교장의 AI역량진단보고서�
 🏭 업종: ${industry}
 📧 이메일 발송: 진행 중
 
-상세한 이교장 스타일 보고서는 Google Apps Script V14.2 ULTIMATE 시스템에서 
-GEMINI 2.5 Flash AI를 통해 생성되어 이메일로 발송됩니다.
+상세한 이교장 스타일 보고서는 V16.0 OLLAMA ULTIMATE 시스템에서 
+Ollama GPT-OSS 20B 온디바이스 AI를 통해 생성되어 이메일로 발송됩니다.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { saveToGoogleSheets } from '../services/googleSheets';
-import { callGeminiAPI } from '../services/geminiApi';
+import { callAI } from '@/lib/ai/ai-provider';
 import { sendEmail } from '../services/emailService';
 import { 
   calculateAICapabilityScores, 
@@ -58,9 +58,9 @@ export async function processDiagnosisForm(data: any) {
       enhancementDirection
     });
 
-    // 6. GEMINI 2.5 Flash AI 보고서 생성 - 필수 실행
+    // 6. Ollama GPT-OSS 20B AI 보고서 생성 - 필수 실행
     let aiReport = null;
-    console.log('🚀 GEMINI 2.5 Flash 보고서 생성 시작');
+    console.log('🚀 Ollama GPT-OSS 20B 보고서 생성 시작');
     
     try {
       const aiPrompt = generateAIReportPrompt(data, {
@@ -73,23 +73,20 @@ export async function processDiagnosisForm(data: any) {
         executionRoadmap
       });
 
-      // GEMINI API 호출 (재시도 3회)
-      const geminiResponse = await callGeminiAPI(aiPrompt, 3);
-      
-      // 응답 처리
-      if (geminiResponse.rawText) {
+      const responseText = await callAI({ prompt: aiPrompt, system: '당신은 "이교장의AI상담" 시스템의 Ollama GPT-OSS 20B 전용 분석가입니다. JSON만 반환하세요.' });
+      try {
+        const parsed = JSON.parse(responseText);
+        aiReport = parsed;
+      } catch {
         aiReport = {
-          executiveSummary: geminiResponse.executiveSummary || geminiResponse.rawText.substring(0, 500),
-          fullReport: geminiResponse.rawText,
+          executiveSummary: responseText.substring(0, 500),
+          fullReport: responseText,
           success: true
         };
-      } else {
-        aiReport = geminiResponse;
       }
-      
-      console.log('✅ GEMINI 2.5 Flash 보고서 생성 성공');
+      console.log('✅ Ollama 보고서 생성 성공');
     } catch (aiError) {
-      console.error('❌ GEMINI API 보고서 생성 실패:', aiError);
+      console.error('❌ Ollama 보고서 생성 실패:', aiError);
       // 실패 시에도 기본 보고서는 생성
       aiReport = {
         executiveSummary: `${data.companyName}의 AI 역량진단 결과, 종합점수 ${totalScore.toFixed(1)}점을 획득하셨습니다. 자세한 분석 보고서는 추가 처리 중입니다.`,

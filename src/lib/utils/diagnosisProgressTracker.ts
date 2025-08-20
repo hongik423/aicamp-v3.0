@@ -54,8 +54,8 @@ export class DiagnosisProgressTracker {
         progress: 0
       },
       {
-        id: 'gemini-analysis',
-        name: 'GEMINI 2.5 Flash AI 분석',
+        id: 'ollama-analysis',
+        name: 'Ollama GPT-OSS 20B AI 분석',
         description: 'AI 역량 6분야 종합 평가 및 업종별 벤치마크 비교',
         status: 'pending',
         estimatedTime: '2-3분'

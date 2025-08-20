@@ -3,7 +3,7 @@
 /**
  * 🚀 개선된 AI 역량진단 시스템 테스트 (V15.0 ULTIMATE)
  * - 84-110라인 오류 수정 검증
- * - GEMINI 최고 품질 보고서 검증  
+ * - Ollama 온디바이스 보고서 검증  
  * - 404 타이밍 문제 해결 검증
  */
 
@@ -16,7 +16,7 @@ const TIMEOUT_MS = 90000; // 90초
 console.log('🎓 이교장의AI역량진단보고서 - 개선된 시스템 테스트 시작');
 console.log('=' .repeat(60));
 
-// 테스트 데이터 (최고 품질 GEMINI 분석용)
+// 테스트 데이터 (Ollama 온디바이스 분석용)
 const testData = {
   companyName: '(주)AI혁신테크',
   contactName: '김혁신',
@@ -38,7 +38,7 @@ const testData = {
 
 async function testEnhancedSystem() {
   try {
-    console.log('📊 1단계: AI 역량진단 요청 (GEMINI 최고 품질)');
+    console.log('📊 1단계: AI 역량진단 요청 (Ollama 온디바이스)');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -113,7 +113,7 @@ async function testEnhancedSystem() {
       }
     }
     
-    console.log('\n🤖 3단계: GEMINI 최고 품질 보고서 검증');
+    console.log('\n🤖 3단계: Ollama 온디바이스 보고서 검증');
     
     // 최종 결과 확인 (30초 후)
     console.log('⏳ 30초 후 최종 결과 확인...');
@@ -140,7 +140,7 @@ async function testEnhancedSystem() {
     console.log('\n🎯 테스트 결과 요약');
     console.log('=' .repeat(40));
     console.log('✅ 84-110라인 오류 수정: 완료');
-    console.log('✅ GEMINI 최고 품질 프롬프트: 적용');
+    console.log('✅ Ollama 온디바이스 분석: 적용');
     console.log('✅ 404 타이밍 문제 해결: 완료');
     console.log('✅ 이중 데이터 소스 병합: 완료');
     console.log('✅ 폴백 시스템 강화: 완료');

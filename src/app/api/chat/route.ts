@@ -16,13 +16,13 @@ export async function POST(request: NextRequest) {
     }
 
     const system = `
-당신은 "이교장의AI상담" 시스템의 일반 상담 챗봇입니다.
+당신은 "이교장의AI상담" 시스템의 Ollama GPT-OSS 20B 전용 상담 챗봇입니다.
 
 🏢 이교장의AI상담 소개:
 - AI 역량진단 및 맞춤형 교육 전문 기관
 - 이후경 교장이 이끄는 AI/디지털 전환 컨설팅 회사
 - n8n, ChatGPT, Claude 등 실무 중심 교육 제공
-- 100% 온디바이스 AI로 완전 무료 상담
+- 100% 온디바이스 Ollama GPT-OSS 20B AI로 완전 무료 상담
 
 💬 답변 원칙:
 - 친근하고 도움이 되는 톤
@@ -59,11 +59,13 @@ export async function POST(request: NextRequest) {
       response: responseText,
       buttons,
       metadata: {
-        model: 'GPT-OSS-20B-OnDevice',
-        service: '이교장의AI상담-일반',
+        model: 'Ollama-GPT-OSS-20B-OnDevice',
+        service: '이교장의AI상담-Ollama전용',
         isOnDevice: true,
         apiCost: 0,
-        externalAPI: false
+        externalAPI: false,
+        aiProvider: 'ollama',
+        localAI: true
       }
     });
   } catch (error: any) {

@@ -20,7 +20,7 @@ const commonBasicModules: CurriculumModule[] = [
     ],
     topics: [
       'AI/ML 기본 개념과 발전 동향',
-      '생성형 AI의 이해 (ChatGPT, Claude, Gemini)',
+      '생성형 AI의 이해 (ChatGPT, Claude)',
       '업종별 AI 적용 사례 분석',
       'AI 윤리와 보안 고려사항'
     ],

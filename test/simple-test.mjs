@@ -10,7 +10,7 @@ console.log('📋 1. 기본 구성 요소 확인');
 
 const components = [
   { name: 'AI 진단 API', path: '/api/ai-diagnosis', status: '구현됨' },
-  { name: 'GEMINI 2.5 Flash 생성기', path: 'gemini-mckinsey-report-generator', status: '구현됨' },
+  { name: 'Ollama 20B 생성기', path: 'ai-provider', status: '구현됨' },
   { name: 'McKinsey HTML 생성기', path: 'mckinsey-html-generator', status: '구현됨' },
   { name: '워크플로우 컨트롤러', path: 'mckinsey-workflow-controller', status: '구현됨' },
   { name: '45개 질문 워크플로우', path: 'mckinsey-45-questions-workflow', status: '구현됨' },
@@ -26,7 +26,7 @@ console.log('\n📊 2. 핵심 기능 확인');
 
 const features = [
   '45개 행동지표 기반 정밀 분석',
-  'GEMINI 2.5 Flash AI 실제 API 연동',
+  'Ollama GPT-OSS 20B 온디바이스 연동',
   '11개 섹션 맥킨지 보고서 구조',
   'Chart.js 기반 동적 시각화',
   '이교장 톤앤매너 + McKinsey 방법론',
@@ -50,7 +50,7 @@ console.log(`
   워크플로우 컨트롤러 (mckinsey-workflow-controller)
         ↓
   ┌─────────────────────┬─────────────────────┐
-  │  45개 질문 분석      │  GEMINI 2.5 Flash   │
+  │  45개 질문 분석      │  Ollama 20B        │
   │  (로컬 처리)        │  AI 보고서 생성      │
   └─────────────────────┴─────────────────────┘
         ↓
@@ -68,7 +68,7 @@ console.log(`
 console.log('\n🔑 4. API 키 및 설정');
 
 const configs = [
-  { name: 'GEMINI API 키', value: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM', status: '설정됨' },
+  { name: 'OLLAMA API URL', value: 'http://localhost:11434', status: '설정됨' },
   { name: 'Vercel 타임아웃', value: '800초', status: '설정됨' },
   { name: 'GAS 타임아웃', value: '13.33분', status: '설정됨' },
   { name: '시스템 버전', value: 'V15.0-ULTIMATE-45Q', status: '최신' }
@@ -84,7 +84,7 @@ console.log('\n🎯 5. 품질 보장 요소');
 const qualityFeatures = [
   '거짓말 금지 - 실제 데이터 기반 분석만',
   '폴백 답변 금지 - 고품질 맞춤형 콘텐츠만',
-  '실제 GEMINI API 키 사용',
+  '온디바이스 Ollama 사용',
   '11개 섹션 병렬 처리로 성능 최적화',
   '폴백 시스템으로 안정성 보장',
   '사용자 친화적 오류 처리'
@@ -103,7 +103,7 @@ console.log('🚀 세계 최고 수준의 맥킨지 보고서 생성 시스템 �
 console.log('\n📞 다음 단계:');
 console.log('  1. Next.js 개발 서버 실행 (npm run dev)');
 console.log('  2. 실제 45개 질문 데이터로 테스트');
-console.log('  3. GEMINI API 응답 확인');
+console.log('  3. Ollama 응답 확인');
 console.log('  4. HTML 보고서 생성 확인');
 console.log('  5. 이메일 발송 테스트');
 

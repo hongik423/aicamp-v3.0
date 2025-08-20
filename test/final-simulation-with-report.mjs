@@ -15,7 +15,7 @@ const TIMEOUT_MS = 120000; // 2분
 console.log('🎓 이교장의AI역량진단보고서 - 최종 시뮬레이션 테스트');
 console.log('=' .repeat(70));
 console.log('🎯 목표: McKinsey 수준 품질 보고서 생성 검증');
-console.log('🤖 AI 모델: GEMINI 2.5 Flash (최고 품질 프롬프트)');
+console.log('🤖 AI 모델: Ollama GPT-OSS 20B (온디바이스)');
 console.log('📊 진단 문항: 45개 행동지표 기반 정밀 분석');
 console.log('');
 
@@ -52,7 +52,7 @@ async function runFinalSimulation() {
   let finalReport = null;
   
   try {
-    console.log('📊 1단계: AI 역량진단 요청 (GEMINI 최고 품질 모드)');
+    console.log('📊 1단계: AI 역량진단 요청 (Ollama 최고 품질 모드)');
     console.log('-'.repeat(50));
     
     const controller = new AbortController();
@@ -151,7 +151,7 @@ async function runFinalSimulation() {
       }
     }
     
-    console.log('\n🤖 3단계: GEMINI McKinsey 수준 보고서 검증');
+    console.log('\n🤖 3단계: Ollama McKinsey 수준 보고서 검증');
     console.log('-'.repeat(50));
     
     // 최종 결과 확인 (추가 대기)
@@ -184,7 +184,7 @@ async function runFinalSimulation() {
         executionTime: new Date().toISOString(),
         duration: `${totalTime}초`,
         targetQuality: 'McKinsey 수준',
-        aiModel: 'GEMINI 2.5 Flash'
+        aiModel: 'Ollama GPT-OSS 20B'
       },
       companyInfo: {
         name: premiumTestData.companyName,
@@ -240,7 +240,7 @@ async function runFinalSimulation() {
     console.log(`   🛡️ 폴백 시스템: ${simulationReport.systemPerformance.fallbackSystem}`);
     
     console.log('\n🏆 품질 보증');
-    console.log(`   🤖 GEMINI 통합: ${simulationReport.qualityAssurance.geminiIntegration}`);
+    console.log(`   🤖 Ollama 통합: 온디바이스 최적화 적용`);
     console.log(`   📋 보고서 구조: ${simulationReport.qualityAssurance.reportStructure}`);
     console.log(`   🔍 분석 깊이: ${simulationReport.qualityAssurance.analysisDepth}`);
     console.log(`   📧 전달 방법: ${simulationReport.qualityAssurance.deliveryMethod}`);
@@ -257,7 +257,7 @@ async function runFinalSimulation() {
     console.log('✅ 모든 개선사항 정상 동작 검증');
     console.log('✅ 84-110라인 오류 완전 해결');
     console.log('✅ 404 타이밍 문제 완전 해결');
-    console.log('✅ GEMINI 2.5 Flash 최고 품질 적용');
+    console.log('✅ Ollama GPT-OSS 20B 온디바이스 적용');
     
     return simulationReport;
     

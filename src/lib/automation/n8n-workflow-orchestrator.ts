@@ -215,7 +215,7 @@ export class N8nWorkflowOrchestrator {
         {
           id: 'ai_analysis',
           name: 'AI 분석',
-          description: 'GEMINI + GPT-4 하이브리드 분석',
+          description: 'Ollama GPT-OSS 20B 온디바이스 분석',
           status: 'pending',
           progress: 0,
           dependencies: ['data_processing'],
@@ -379,9 +379,8 @@ export class N8nWorkflowOrchestrator {
       inputData: {
         processedData,
         analysisConfig: {
-          useGemini: true,
-          geminiApiKey: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM',
-          analysisModel: 'GEMINI-2.5-FLASH-INTEGRATED',
+          provider: 'ollama',
+          model: 'gpt-oss:20b',
           analysisDepth: 'comprehensive',
           includeQuantitativeAnalysis: true,
           includeQualitativeAnalysis: true,

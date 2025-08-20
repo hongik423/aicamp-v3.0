@@ -1,6 +1,7 @@
 /**
  * 환경변수 검증 및 보안 관리 시스템
- * Google Apps Script 기반 통합 시스템 (EmailJS 제거됨)
+ * Ollama GPT-OSS 20B 전용 - 이교장의AI상담 시스템
+ * 100% 온디바이스 AI, 외부 API 의존성 완전 제거
  */
 
 import { z } from 'zod';
@@ -9,10 +10,11 @@ import { z } from 'zod';
 const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec'; // 새 URL로 교체 필요
 const GOOGLE_SHEETS_ID = '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ';
 
-// 환경변수 스키마 정의 (EmailJS 제거됨)
+// 환경변수 스키마 정의 (GEMINI 제거됨 - Ollama 전용)
 const envSchema = z.object({
-  // 고급 분석 API (서버 사이드 전용)
-  GEMINI_API_KEY: z.string().min(1, '고급 분석 API Key는 필수입니다').optional(),
+  // Ollama API 설정 (로컬 AI 서버)
+  OLLAMA_API_URL: z.string().url('유효한 Ollama API URL이 필요합니다').optional(),
+  OLLAMA_MODEL: z.string().optional(),
   
   // Google Sheets & Apps Script (클라이언트 사이드 허용)
   NEXT_PUBLIC_GOOGLE_SHEETS_ID: z.string().min(1, 'Google Sheets ID는 필수입니다').optional(),
@@ -34,7 +36,8 @@ export type EnvConfig = z.infer<typeof envSchema>;
 export function getServerEnv(): EnvConfig {
   try {
     const env = envSchema.parse({
-      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+      OLLAMA_API_URL: process.env.OLLAMA_API_URL,
+      OLLAMA_MODEL: process.env.OLLAMA_MODEL,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
       NEXT_PUBLIC_GAS_URL: process.env.NEXT_PUBLIC_GAS_URL,
@@ -48,7 +51,8 @@ export function getServerEnv(): EnvConfig {
     console.error('환경변수 검증 실패:', error);
     // 개발 환경에서는 기본값으로 계속 진행
     return {
-      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+      OLLAMA_API_URL: process.env.OLLAMA_API_URL || 'http://localhost:11434',
+      OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'gpt-oss:20b',
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
       NEXT_PUBLIC_GAS_URL: process.env.NEXT_PUBLIC_GAS_URL || DEFAULT_GOOGLE_SCRIPT_URL,
@@ -96,43 +100,23 @@ export const appConfig = {
 };
 
 /**
- * 고급 분석 API Key (서버 전용) - 보안 강화
+ * Ollama API URL 가져오기 (로컬 AI 서버)
  */
-export function getGeminiKey(): string {
-  const key = process.env.GEMINI_API_KEY;
+export function getOllamaUrl(): string {
+  const url = process.env.OLLAMA_API_URL || 'http://localhost:11434';
   
-  if (!key) {
-    console.warn('⚠️ 고급 분석 API Key가 설정되지 않았습니다.');
-    console.info('💡 .env.local 파일에 GEMINI_API_KEY=AIzaSy... 를 추가하세요.');
-    console.info('🔗 고급 분석 API 키 발급: https://makersuite.google.com/app/apikey');
-    console.info('📝 설정 후 개발 서버를 재시작하세요: npm run dev');
-    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
-  }
+  console.log('🤖 Ollama API URL:', url);
+  return url;
+}
+
+/**
+ * Ollama 모델명 가져오기
+ */
+export function getOllamaModel(): string {
+  const model = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
   
-  // 개발용 임시 키 체크
-  if (key.includes('temp') || key.includes('development') || key.includes('replace') || key.includes('your-')) {
-    console.warn('⚠️ 개발용 임시 고급 분석 API Key가 설정되어 있습니다.');
-    console.info('💡 실제 Google AI Studio에서 발급받은 API 키로 교체하세요.');
-    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
-  }
-  
-  // API 키 형식 검증 (AIza로 시작)
-  if (!key.startsWith('AIza')) {
-    console.error('❌ 유효하지 않은 고급 분석 API Key 형식입니다.');
-    console.error('💡 올바른 형식: AIzaSy... 로 시작하는 키');
-    console.error('💡 Google AI Studio (https://makersuite.google.com/app/apikey)에서 발급받으세요.');
-    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
-  }
-  
-  // 키 길이 검증 (일반적으로 39자)
-  if (key.length < 30 || key.length > 50) {
-    console.error('❌ 고급 분석 API Key 길이가 비정상적입니다.');
-    console.error('💡 올바른 키인지 확인하세요.');
-    return ''; // 빈 문자열 반환으로 폴백 모드 활성화
-  }
-  
-  console.log('✅ 고급 분석 API Key 검증 완료:', maskApiKey(key));
-  return key;
+  console.log('🧠 Ollama 모델:', model);
+  return model;
 }
 
 /**
@@ -247,11 +231,12 @@ export function logEnvStatus(): void {
   if (isDevelopment()) {
     console.log('🔧 환경변수 상태 (Google Apps Script 통합):', {
       nodeEnv: process.env.NODE_ENV,
-      hasAnalysisKey: !!process.env.GEMINI_API_KEY,
+      aiProvider: 'ollama',
+      ollamaUrl: process.env.OLLAMA_API_URL,
+      ollamaModel: process.env.OLLAMA_MODEL,
       hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       hasGoogleScriptUrl: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,
-      analysisKeyMasked: process.env.GEMINI_API_KEY ? maskApiKey(process.env.GEMINI_API_KEY) : 'None',
       googleScriptUrlMasked: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ? 
         `${process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL.slice(0, 50)}...` : 'Default',
     });

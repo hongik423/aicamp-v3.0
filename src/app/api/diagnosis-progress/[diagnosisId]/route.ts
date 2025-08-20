@@ -68,11 +68,11 @@ export async function GET(
         overallProgress: hasGasData ? progressData.overallProgress : 
                         hasLocalData ? calculateOverallProgress(storeSnapshot.steps) : 15,
         currentStep: hasGasData ? progressData.currentStep : 
-                    hasLocalData ? getCurrentStep(storeSnapshot.steps) : 'gemini-analysis',
+                    hasLocalData ? getCurrentStep(storeSnapshot.steps) : 'ollama-analysis',
         steps: hasGasData ? progressData.steps :
                hasLocalData ? storeSnapshot.steps : {
                  'data-validation': { status: 'completed', progress: 100 },
-                 'gemini-analysis': { status: 'in-progress', progress: 30 },
+                 'ollama-analysis': { status: 'in-progress', progress: 30 },
                  'swot-analysis': { status: 'pending', progress: 0 },
                  'report-generation': { status: 'pending', progress: 0 },
                  'email-sending': { status: 'pending', progress: 0 }
@@ -135,10 +135,10 @@ function getCurrentStep(steps) {
       diagnosisId: safeDiagnosisId,
       progress: {
         overallProgress: 25,
-        currentStep: 'gemini-analysis',
+        currentStep: 'ollama-analysis',
         steps: {
           'data-validation': { status: 'completed', progress: 100 },
-          'gemini-analysis': { status: 'in-progress', progress: 30 },
+          'ollama-analysis': { status: 'in-progress', progress: 30 },
           'swot-analysis': { status: 'pending', progress: 0 },
           'report-generation': { status: 'pending', progress: 0 },
           'email-sending': { status: 'pending', progress: 0 }

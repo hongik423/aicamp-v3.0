@@ -292,7 +292,7 @@ export default function IndustrySpecificCurriculumDisplay({
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-3">AI 도구</h4>
                     <div className="flex flex-wrap gap-2">
-                      {['ChatGPT', 'Claude', 'Gemini', 'GitHub Copilot'].map((tool) => (
+                      {['ChatGPT', 'Claude', 'GitHub Copilot'].map((tool) => (
                         <Badge key={tool} className="bg-blue-100 text-blue-800">
                           {tool}
                         </Badge>

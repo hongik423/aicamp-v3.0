@@ -71,7 +71,7 @@ const EnhancedDiagnosisIntro: React.FC<EnhancedDiagnosisIntroProps> = ({ onStart
     {
       icon: <Award className="w-6 h-6" />,
       title: "전문가 수준 분석",
-      description: "GEMINI 2.5 Flash AI 기반 심층 분석",
+      description: "Ollama GPT-OSS 20B 온디바이스 심층 분석",
       color: "bg-red-500"
     },
     {
