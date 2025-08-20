@@ -1979,6 +1979,82 @@ function saveIntegratedResultToSheets(data) {
 }
 
 /**
+ * ================================================================================
+ * V15 호환 래퍼: 레거시 matrix 제거 및 통합 저장 경로 우회
+ * - 일부 배포 환경에서 남아있는 레거시 호출(saveScoreAnalysis/saveToGoogleSheets)을 흡수
+ * - matrix 변수를 전혀 사용하지 않고 actionItems 구조로 정규화
+ * ================================================================================
+ */
+
+// actionItems 정규화 유틸 (matrix 완전 제거)
+function normalizeActionItems(input) {
+  var ai = null;
+
+  // V15 표준 필드 우선
+  if (input && input.actionItems) {
+    ai = input.actionItems;
+  }
+
+  // 레거시/대체 경로: recommendations 기반 재구성
+  if (!ai && input && input.recommendations) {
+    ai = {
+      immediate: input.recommendations.immediate || [],
+      shortTerm: input.recommendations.shortTerm || [],
+      longTerm: input.recommendations.longTerm || []
+    };
+  }
+
+  // 기본값
+  if (!ai) {
+    ai = { immediate: [], shortTerm: [], longTerm: [] };
+  }
+
+  return ai;
+}
+
+// 레거시 함수 대체: 점수 분석 저장 (matrix 미사용)
+function saveScoreAnalysis(data) {
+  var score = data && (data.scoreAnalysis || data.scores) || {};
+  var actionItems = normalizeActionItems(data || {});
+
+  return {
+    totalScore: Number(score.totalScore || 0),
+    averageScore: Number(
+      (score.averageScore != null)
+        ? score.averageScore
+        : (score.totalScore ? (score.totalScore / 45) : 0)
+    ),
+    grade: score.grade || 'F',
+    maturityLevel: score.maturityLevel || '초급',
+    percentile: Number(score.percentile || 0),
+    actionItems: actionItems
+  };
+}
+
+// 레거시 함수 대체: Google Sheets 저장을 V15 통합 저장으로 우회
+function saveToGoogleSheets(requestData) {
+  var analysisData = {
+    diagnosisId: (requestData && requestData.diagnosisId) || ('DIAG_' + Date.now()),
+    companyInfo: {
+      name: (requestData && requestData.companyName) || '정보없음',
+      contact: {
+        name: (requestData && requestData.contactName) || '정보없음',
+        email: (requestData && requestData.contactEmail) || '정보없음',
+        phone: (requestData && requestData.contactPhone) || '정보없음'
+      },
+      industry: (requestData && requestData.industry) || '정보없음',
+      size: (requestData && requestData.employeeCount) || '정보없음'
+    },
+    scoreAnalysis: (requestData && (requestData.scoreAnalysis || requestData.scores)) || {},
+    swot: (requestData && (requestData.swot || requestData.swotAnalysis)) || {},
+    actionItems: normalizeActionItems(requestData || {}),
+    roadmap: (requestData && requestData.roadmap) || {}
+  };
+
+  return saveIntegratedResultToSheets(analysisData);
+}
+
+/**
  * 진단 결과 이메일 발송 (V15.0 ULTIMATE FINAL)
  */
 function sendDiagnosisResultEmail(params) {

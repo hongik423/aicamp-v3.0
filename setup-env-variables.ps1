@@ -1,14 +1,19 @@
-# AI Competency Diagnosis Report System V14.0 ULTIMATE Environment Variables Setup
+# AI Competency Diagnosis Report System V16.0 OLLAMA ULTIMATE Environment Variables Setup
 # ================================================================================
 
-Write-Host "Setting up environment variables for AI Diagnosis System..." -ForegroundColor Green
+Write-Host "Setting up environment variables for Ollama 0.11.5 AI Diagnosis System..." -ForegroundColor Green
 
 # .env.local 파일 생성
 $envContent = @"
-# 이교장의AI역량진단보고서 시스템 V15.0 ULTIMATE 환경변수
+# 이교장의AI역량진단보고서 시스템 V16.0 OLLAMA ULTIMATE 환경변수
 # ================================================================================
 
-# GEMINI AI API 설정 (필수)
+# OLLAMA 0.11.5 API 설정 (필수)
+OLLAMA_API_URL=http://localhost:11434
+OLLAMA_MODEL=gpt-oss:20b
+OLLAMA_API_KEY=ollama_api_key_placeholder
+
+# GEMINI AI API 설정 (폴백용)
 GEMINI_API_KEY=AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM
 
 # Google Apps Script 설정 (필수)
@@ -34,16 +39,37 @@ ADMIN_EMAIL=hongik423@gmail.com
 AICAMP_WEBSITE=aicamp.club
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
+# AI 모델 설정
+AI_PROVIDER=ollama
+AI_MODEL_PRIMARY=gpt-oss:20b
+AI_MODEL_FALLBACK=gemini-2.5-flash
+
+# N8N 워크플로우 자동화 설정
+N8N_BASE_URL=http://localhost:5678
+N8N_API_KEY=n8n_api_key_placeholder
+N8N_WEBHOOK_URL=http://localhost:5678/webhook/aicamp-diagnosis
+N8N_WORKFLOW_DATA_PROCESSING=workflow_data_processing
+N8N_WORKFLOW_AI_ANALYSIS=workflow_ai_analysis
+N8N_WORKFLOW_REPORT_GENERATION=workflow_report_generation
+N8N_WORKFLOW_QUALITY_ASSURANCE=workflow_quality_assurance
+N8N_WORKFLOW_EMAIL_DELIVERY=workflow_email_delivery
+
+# AI CAMP 교육 커리큘럼 설정
+AICAMP_CURRICULUM_API=http://localhost:3000/api/curriculum
+AICAMP_PROGRAM_MATCHER_ENABLED=true
+AICAMP_CUSTOM_RECOMMENDATIONS=true
+
 # 시스템 설정
 DEBUG_MODE=false
 ENVIRONMENT=production
-VERSION=V15.0-ULTIMATE
+VERSION=V16.0-OLLAMA-ULTIMATE
 
-# 타임아웃 설정 (Vercel Fluid Compute 890초 권장)
+# 타임아웃 설정 (Ollama 최적화)
+TIMEOUT_OLLAMA=900000
 TIMEOUT_GEMINI=600000
 TIMEOUT_EMAIL=180000
 TIMEOUT_SHEET=30000
-TIMEOUT_TOTAL=720000
+TIMEOUT_TOTAL=1200000
 
 # 재시도 설정
 MAX_RETRY_ATTEMPTS=3
@@ -71,11 +97,15 @@ try {
 Write-Host "`nValidating environment variables..." -ForegroundColor Yellow
 
 $requiredVars = @(
+    "OLLAMA_API_URL",
+    "OLLAMA_MODEL", 
     "GEMINI_API_KEY",
     "NEXT_PUBLIC_GOOGLE_SCRIPT_URL",
     "NEXT_PUBLIC_GAS_URL",
     "NEXT_PUBLIC_GOOGLE_SHEETS_ID",
-    "ADMIN_EMAIL"
+    "ADMIN_EMAIL",
+    "N8N_BASE_URL",
+    "AI_PROVIDER"
 )
 
 $envVars = Get-Content ".env.local" | Where-Object { $_ -match "^[^#].*=" } | ForEach-Object {

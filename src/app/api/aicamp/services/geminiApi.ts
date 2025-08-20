@@ -1,5 +1,6 @@
-// GEMINI API 서비스
-// GEMINI 2.5 Flash 모델 설정 - 환경변수 우선 사용 (하드코딩 금지)
+// 통합 AI 서비스 (Llama 우선). 기존 함수명 유지하여 호환성 보장
+import { callAI, extractJsonFromText } from '@/lib/ai/ai-provider';
+// GEMINI 2.5 Flash 모델 설정 - 환경변수 우선 사용 (호환 목적)
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-exp:generateContent';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-exp';
@@ -36,120 +37,18 @@ function isValidApiKey(): boolean {
 
 // GEMINI 2.5 Flash API 호출 (최적화된 버전)
 export async function callGeminiAPI(prompt: string, retryCount: number = 3): Promise<any> {
-  console.log('🚀 GEMINI 2.5 Flash API 호출 시작');
-  console.log('🔧 모델:', GEMINI_MODEL);
-  
-  // 재시도 로직
+  // 실제 호출은 통합 callAI로 위임 (AI_PROVIDER에 따라 Llama 등으로 라우팅)
   for (let attempt = 1; attempt <= retryCount; attempt++) {
     try {
-      // API 키 검증
-      if (!isValidApiKey()) {
-        console.error('❌ GEMINI API 키가 유효하지 않음');
-        throw new Error('GEMINI API 키가 설정되지 않았거나 유효하지 않습니다.');
-      }
-
-      console.log(`📡 시도 ${attempt}/${retryCount}`);
-      
-      // 🔍 토큰 사용량 추정 (GEMINI 2.5 Flash 최적화)
-      const estimatedInputTokens = Math.ceil(prompt.length / 3.5);
-      console.log(`📊 예상 입력 토큰: ${estimatedInputTokens.toLocaleString()}`);
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5분 타임아웃
-      
-      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 50,
-          topP: 0.95,
-          maxOutputTokens: 32768,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_NONE"
-          }
-        ]
-        })
-      });
-      
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error(`❌ GEMINI API 오류 (${response.status}):`, errorData);
-        throw new Error(errorData.error?.message || `API 호출 실패: ${response.status}`);
-      }
-
-    const data: GeminiResponse = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
-
-    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!textContent) {
-      throw new Error('응답에서 텍스트를 찾을 수 없습니다');
-    }
-
-      // 🔍 출력 토큰 사용량 분석
-      const estimatedOutputTokens = Math.ceil(textContent.length / 3.5);
-      console.log('✅ GEMINI 2.5 Flash 응답 수신');
-      console.log(`📊 출력 토큰 분석: ${estimatedOutputTokens.toLocaleString()} 토큰`);
-      console.log(`📏 생성된 텍스트 길이: ${textContent.length.toLocaleString()} 글자`);
-
-      // JSON 응답 파싱 시도
-      try {
-        // JSON 블록 추출 (```json ... ``` 형식 처리)
-        const jsonMatch = textContent.match(/```json\s*([\s\S]*?)\s*```/);
-        const jsonStr = jsonMatch ? jsonMatch[1] : textContent;
-        
-        const parsedResponse = JSON.parse(jsonStr);
-        console.log('✅ GEMINI API 응답 파싱 성공');
-        return parsedResponse;
-      } catch (parseError) {
-        console.log('📝 텍스트 형식 응답 반환');
-        return { 
-          executiveSummary: textContent,
-          rawText: textContent,
-          success: true 
-        };
-      }
-
+      const text = await callAI({ prompt, maxTokens: 32768, temperature: 0.7 });
+      const parsed = extractJsonFromText(text);
+      if (parsed) return parsed;
+      return { executiveSummary: text, rawText: text, success: true };
     } catch (error) {
-      console.error(`❌ 시도 ${attempt} 실패:`, error);
-      
-      if (attempt < retryCount) {
-        console.log(`⏳ ${2000 * attempt}ms 후 재시도...`);
-        await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
-      } else {
-        console.error('❌ 모든 재시도 실패, 고품질 폴백 사용');
+      if (attempt >= retryCount) {
         return generateEnhancedFallbackResponse(prompt);
       }
+      await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
     }
   }
 }

@@ -163,49 +163,50 @@ export async function POST(request: NextRequest) {
         
         console.log('🔗 Google Apps Script 호출 URL:', `${dynamicBase}/api/google-script-proxy`);
         
-        // Google Apps Script 비동기 호출 (이메일 발송 및 저장)
-        fetch(`${dynamicBase}/api/google-script-proxy`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'User-Agent': 'AICAMP-V15.0-INTEGRATED'
-          },
-          body: JSON.stringify(gasPayload),
-          signal: AbortSignal.timeout(60000) // 60초로 단축 (백그라운드 처리)
-        }).then(async (gasResponse) => {
-          console.log('📧 Google Apps Script 후속 처리 시작:', gasResponse.status);
-          // 보고서 생성 단계 완료 표기 (GAS 호출이 정상 응답을 반환한 경우)
-          if (gasResponse.ok) {
+        // 클라이언트에서 직접 프록시를 호출하도록 지연 처리 플래그 사용
+        const deferGAS = requestData?.deferGAS === true;
+        if (!deferGAS) {
+          // 서버에서 직접 호출(호환용). 장시간 처리를 유발하므로 기본적으로 사용 비권장
+          fetch(`${dynamicBase}/api/google-script-proxy`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'User-Agent': 'AICAMP-V15.0-INTEGRATED'
+            },
+            body: JSON.stringify(gasPayload),
+            signal: AbortSignal.timeout(60000)
+          }).then(async (gasResponse) => {
+            console.log('📧 Google Apps Script 후속 처리 시작:', gasResponse.status);
+            if (gasResponse.ok) {
+              addProgressEvent({
+                diagnosisId: workflowResult.diagnosisId,
+                stepId: 'report-generation',
+                stepName: '보고서 생성',
+                status: 'completed',
+                progressPercent: 100,
+                message: 'GAS에 보고서 생성 요청 성공, 결과 대기 중'
+              });
+            }
             addProgressEvent({
               diagnosisId: workflowResult.diagnosisId,
-              stepId: 'report-generation',
-              stepName: '보고서 생성',
-              status: 'completed',
-              progressPercent: 100,
-              message: 'GAS에 보고서 생성 요청 성공, 결과 대기 중'
+              stepId: 'email-sending',
+              stepName: '이메일 발송',
+              status: 'in-progress',
+              progressPercent: 50,
+              message: '이메일 발송 대기/진행'
             });
-          }
-          // 이메일 발송 단계 진행 갱신 (성공/타임아웃 불문, GAS가 백그라운드 처리)
-          addProgressEvent({
-            diagnosisId: workflowResult.diagnosisId,
-            stepId: 'email-sending',
-            stepName: '이메일 발송',
-            status: 'in-progress',
-            progressPercent: 50,
-            message: '이메일 발송 대기/진행'
+          }).catch(gasError => {
+            console.error('⚠️ Google Apps Script 후속 처리 오류 (비차단):', gasError.message);
+            addProgressEvent({
+              diagnosisId: workflowResult.diagnosisId,
+              stepId: 'email-sending',
+              stepName: '이메일 발송',
+              status: 'pending',
+              progressPercent: 0,
+              message: 'GAS 연결 실패, 재시도 중...'
+            });
           });
-        }).catch(gasError => {
-          console.error('⚠️ Google Apps Script 후속 처리 오류 (비차단):', gasError.message);
-          // 오류 발생 시에도 진행 상태 업데이트
-          addProgressEvent({
-            diagnosisId: workflowResult.diagnosisId,
-            stepId: 'email-sending',
-            stepName: '이메일 발송',
-            status: 'pending',
-            progressPercent: 0,
-            message: 'GAS 연결 실패, 재시도 중...'
-          });
-        });
+        }
         
         // 즉시 응답 반환 (사용자 대기 시간 단축)
         const finalDiagnosisId = workflowResult.diagnosisId || `AICAMP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

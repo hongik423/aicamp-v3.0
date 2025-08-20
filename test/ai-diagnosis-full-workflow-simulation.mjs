@@ -116,17 +116,14 @@ async function monitorProgress(diagnosisId, maxAttempts = 30) {
       const result = await makeRequest(`${BASE_URL}/api/diagnosis-progress/${diagnosisId}`);
       
       if (result.success && result.progress) {
-        const { status, message, updateTime } = result.progress;
-        console.log(`[${attempt}/${maxAttempts}] ${status}: ${message} (${new Date(updateTime).toLocaleTimeString()})`);
+        const overall = result.progress.overallProgress ?? 0;
+        const step = result.progress.currentStep ?? 'unknown';
+        const completed = result.completed === true;
+        console.log(`[${attempt}/${maxAttempts}] ${overall}%: ${step}`);
         
-        if (status === 'completed') {
+        if (completed) {
           console.log('✅ 워크플로우 완료!');
           return { success: true, progress: result.progress };
-        }
-        
-        if (status === 'error') {
-          console.log('❌ 워크플로우 오류 발생');
-          return { success: false, error: message };
         }
       }
       
@@ -149,43 +146,51 @@ function analyzeResults(result) {
   console.log('\n🔍 결과 분석 및 검증');
   console.log('=' .repeat(60));
   
-  const analysis = {
-    success: result.success,
-    processingTime: result.processingTime,
-    scores: {},
-    quality: {},
-    completeness: {}
+  const success = result?.success === true;
+  const data = result?.data || {};
+  const scoreAnalysis = data?.scoreAnalysis || result?.scoreAnalysis || {};
+  const totalScore = data?.totalScore ?? scoreAnalysis?.totalScore;
+  const grade = data?.grade ?? scoreAnalysis?.grade;
+  const maturityLevel = data?.maturityLevel ?? scoreAnalysis?.maturityLevel;
+  const processingInfo = result?.processingInfo || {};
+  const steps = Array.isArray(processingInfo.steps) ? processingInfo.steps : [];
+
+  const findStep = (name) => steps.find(s => s.name?.includes(name));
+  const htmlStep = findStep('HTML 보고서');
+  const emailStep = findStep('이메일 발송');
+  const sheetStep = findStep('Google Sheets');
+
+  const isScoreOk = typeof totalScore === 'number' && totalScore >= 45 && totalScore <= 225;
+  const isReportOk = htmlStep?.status === 'completed';
+  const isEmailOk = emailStep?.status === 'completed';
+  const isSheetOk = sheetStep?.status === 'completed';
+
+  const quality = {
+    scoreCalculation: isScoreOk,
+    reportGeneration: !!isReportOk,
+    emailDelivery: !!isEmailOk,
+    dataStorage: !!isSheetOk
   };
-  
-  if (result.results) {
-    const { totalScore, maturityLevel, grade, reportGenerated, emailsSent, dataSaved } = result.results;
-    
-    // 점수 분석
-    analysis.scores = {
-      totalScore: totalScore || 0,
+
+  const completedSteps = Object.values(quality).filter(Boolean).length;
+  const completionRate = Math.round((completedSteps / 4) * 100);
+
+  return {
+    success,
+    processingTime: result?.processingTime,
+    scores: {
+      totalScore: totalScore ?? 0,
       maturityLevel: maturityLevel || 'unknown',
-      grade: grade || 'F',
-      isRealistic: totalScore >= 45 && totalScore <= 225 // 45문항 × 1-5점
-    };
-    
-    // 품질 검증
-    analysis.quality = {
-      scoreCalculation: analysis.scores.isRealistic,
-      reportGeneration: reportGenerated === true,
-      emailDelivery: emailsSent === true,
-      dataStorage: dataSaved === true
-    };
-    
-    // 완성도 검증
-    const completedSteps = Object.values(analysis.quality).filter(Boolean).length;
-    analysis.completeness = {
+      grade: grade || 'N/A',
+      isRealistic: isScoreOk
+    },
+    quality,
+    completeness: {
       totalSteps: 4,
-      completedSteps: completedSteps,
-      completionRate: Math.round((completedSteps / 4) * 100)
-    };
-  }
-  
-  return analysis;
+      completedSteps,
+      completionRate
+    }
+  };
 }
 
 /**
@@ -305,8 +310,9 @@ async function runFullWorkflowSimulation() {
         method: 'POST',
         body: JSON.stringify({
           to: 'test-simulation@aicamp.club',
-          type: 'diagnosis_complete',
+          type: 'diagnosis_confirmation',
           companyName: testData.companyName,
+          contactName: testData.contactName,
           diagnosisId: diagnosisId
         })
       });

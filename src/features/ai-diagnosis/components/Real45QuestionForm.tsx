@@ -573,6 +573,8 @@ const Real45QuestionForm: React.FC = () => {
           questionCount: REAL_45_QUESTIONS.length,
           businessContent: '', // 기본값
           challenges: '', // 기본값
+          // 서버 장시간 대기 방지: 보고서 생성 GAS 호출은 클라이언트에서 수행
+          deferGAS: true
         }),
       });
 
@@ -601,6 +603,47 @@ const Real45QuestionForm: React.FC = () => {
         
         // 실제 진행상황 추적 시작
         startProgressTracking(diagnosisId);
+        
+        // 보고서 생성 요청을 클라이언트에서 즉시 트리거 (장시간 처리 안전)
+        try {
+          const gasPayload = {
+            type: 'diagnosis',
+            action: 'diagnosis',
+            companyName: formState.companyInfo.companyName,
+            contactName: formState.companyInfo.contactName,
+            contactEmail: formState.companyInfo.contactEmail,
+            contactPhone: formState.companyInfo.contactPhone,
+            industry: formState.companyInfo.industry === '직접입력' ? formState.companyInfo.industryCustom : formState.companyInfo.industry,
+            employeeCount: formState.companyInfo.employeeCount,
+            annualRevenue: formState.companyInfo.annualRevenue,
+            location: formState.companyInfo.location,
+            privacyConsent: formState.companyInfo.privacyConsent === true,
+            assessmentResponses: formState.answers,
+            diagnosisId,
+            // 서버 워크플로우와 GAS가 요구하는 최소 필드만 전송
+            reportGeneration: {
+              requestHtmlReport: true,
+              requestEmailSending: true,
+              emailRecipient: formState.companyInfo.contactEmail,
+              companyName: formState.companyInfo.companyName
+            },
+            timestamp: new Date().toISOString(),
+            version: 'V15.0-ULTIMATE-45Q',
+            source: 'client_deferred'
+          } as const;
+
+          fetch('/api/google-script-proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(gasPayload)
+          }).then(() => {
+            // 진행상태를 확정적으로 한 단계 올려 사용자 체감 개선
+            updateProgressSteps('report-generation', 'in-progress', 80);
+            updateProgressSteps('email-sending', 'in-progress', 40);
+          }).catch(() => {
+            // 실패해도 서버가 재시도하거나 사용자는 결과 페이지에서 다시 확인 가능
+          });
+        } catch {}
         
         toast({
           title: "진단 제출 완료!",

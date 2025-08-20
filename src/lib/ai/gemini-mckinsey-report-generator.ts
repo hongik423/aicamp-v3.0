@@ -4,9 +4,9 @@
  */
 
 import { McKinsey45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
+import { callAI } from '@/lib/ai/ai-provider';
 
-// GEMINI API 설정 (실제 API 키 사용)
-const GEMINI_API_KEY = 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
+// 통합 AI 호출 사용
 
 export interface GeminiReportRequest {
   analysisResult: McKinsey45QuestionsResult;
@@ -61,7 +61,7 @@ export async function generateGeminiMcKinseyReport(
     
     const { analysisResult, customization } = request;
     
-    // GEMINI API 호출을 위한 fetch 기반 구현
+    // 통합 AI 호출 기반 섹션 병렬 생성
     const sections = await Promise.allSettled([
       generateSection('coverPage', analysisResult),
       generateSection('executiveSummary', analysisResult, customization),
@@ -166,37 +166,8 @@ async function generateSection(
   const prompt = getSectionPrompt(sectionType, analysisResult, customization);
   
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 50000,
-        }
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`GEMINI API 오류: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      return data.candidates[0].content.parts[0].text;
-    } else {
-      throw new Error('GEMINI API 응답 형식 오류');
-    }
+    const text = await callAI({ prompt, maxTokens: 50000, temperature: 0.7 });
+    return text;
     
   } catch (error) {
     console.error(`❌ ${sectionType} 섹션 생성 실패:`, error);

@@ -5,8 +5,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-// 환경 변수
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM';
+// 통합 AI 호출 사용 (Llama 우선)
+import { callAI } from '@/lib/ai/ai-provider';
+// 환경 변수 (레거시 호환)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GAS_DEPLOYMENT_URL = process.env.GAS_DEPLOYMENT_URL || '';
 const DRIVE_FOLDER_ID = '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj';
 
@@ -321,7 +323,7 @@ async function performQuantitativeAnalysis(scoreAnalysis: any) {
     5. 개선 잠재력 수치
   `;
   
-  return await callGeminiAPI(prompt);
+  return await callAI({ prompt, maxTokens: 4096, temperature: 0.7, timeoutMs: 600000 });
 }
 
 /**
@@ -344,43 +346,13 @@ async function performQualitativeAnalysis(data: any, scoreAnalysis: any) {
     5. 장기적 비전 제시
   `;
   
-  return await callGeminiAPI(prompt);
+  return await callAI({ prompt, maxTokens: 4096, temperature: 0.7, timeoutMs: 600000 });
 }
 
 /**
  * GEMINI API 호출
  */
-async function callGeminiAPI(prompt: string) {
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 50000
-          }
-        })
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`GEMINI API 오류: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    return result.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
-  } catch (error) {
-    console.error('❌ GEMINI API 호출 실패:', error);
-    throw error;
-  }
-}
+// callGeminiAPI는 더 이상 직접 사용하지 않음. callAI를 사용하도록 교체됨.
 
 /**
  * 통합 인사이트 생성
