@@ -38,6 +38,27 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
+          { key: 'Origin-Agent-Cluster', value: '?1' },
+        ],
+      },
+      {
+        source: '/manifest.webmanifest',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: '*' },
+        ],
+      },
+    ];
+  },
+  
   // 웹팩 설정 최적화 - 캐시 버스팅 강화
   webpack: (config, { dev, isServer }) => {
     // 프로덕션 환경에서 캐시 버스팅 강화

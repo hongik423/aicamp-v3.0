@@ -12,16 +12,16 @@ export async function GET(request: NextRequest) {
     orientation: "portrait-primary",
     icons: [
       {
-        src: "/images/aicamp_leader.png",
+        src: "/images/aicamp_logo_del_250726.png",
         sizes: "192x192",
         type: "image/png",
-        purpose: "maskable any"
+        purpose: "any"
       },
       {
-        src: "/images/aicamp_leader.png",
+        src: "/images/aicamp_logo_del_250726.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "maskable any"
+        purpose: "any"
       }
     ],
     categories: ["business", "productivity", "education"],

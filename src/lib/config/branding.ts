@@ -130,9 +130,9 @@ export const CHATBOT_CONFIG = {
   }
 } as const;
 
-// 🔧 환경 변수 (레거시 호환) - M-CENTER 완전 삭제 후 AI CAMP 통일
+// 🔧 환경 변수 (레거시 호환) - AICAMP 통일
 export const LEGACY_MAPPING = {
-  // 기존 모든 브랜드명 -> AI CAMP 통일
+  // 기존 모든 브랜드명 -> AICAMP 통일
   'AICAMP': COMPANY_INFO.name,
   'AI캠프': COMPANY_INFO.name,
   'AI교육센터': COMPANY_INFO.name,
@@ -140,11 +140,10 @@ export const LEGACY_MAPPING = {
   // 기존 담당자 -> 새 담당자
   '이후경 책임컨설턴트': CONSULTANT_INFO.name,
   '이후경 경영지도사': CONSULTANT_INFO.name,
-      'AICAMP교장': CONSULTANT_INFO.title,
+  'AICAMP교장': CONSULTANT_INFO.title,
   
   // 기존 이메일 -> 새 이메일
-  'mcenter@example.com': CONTACT_INFO.email,
-  'lhk@injc.kr': CONTACT_INFO.email
+  'legacy@example.com': CONTACT_INFO.email
 } as const;
 
 // 🚀 내보내기 (편의 함수)

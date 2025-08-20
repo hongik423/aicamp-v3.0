@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, ExternalLink, Sparkles, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -68,13 +68,43 @@ const useIsMobile = () => {
   return isMobile;
 };
 
+// 사용자 OS의 Reduced Motion 선호를 감지하는 커스텀 훅
+const usePrefersReducedMotion = () => {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('matchMedia' in window)) return;
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    // 초기값 설정
+    updatePreference();
+
+    // 최신 브라우저 이벤트 우선 사용, Safari 등 구버전 폴백 처리
+    try {
+      mediaQuery.addEventListener('change', updatePreference);
+      return () => mediaQuery.removeEventListener('change', updatePreference);
+    } catch {
+      // @ts-ignore - Safari 폴백
+      mediaQuery.addListener(updatePreference);
+      return () => {
+        // @ts-ignore - Safari 폴백 해제
+        mediaQuery.removeListener(updatePreference);
+      };
+    }
+  }, []);
+
+  return prefersReducedMotion;
+};
+
 const BookPromotionBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
   
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
 
   // 모션 감소 설정 감지 및 경고 처리 (오류 방지)
@@ -219,7 +249,6 @@ const BookPromotionBanner: React.FC = () => {
             damping: shouldReduceMotion ? 25 : 20,
             duration: shouldReduceMotion ? 0.3 : 0.8
           }}
-          className="relative z-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl mx-auto"
           className={cn(
             "relative z-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl mx-auto",
             shouldReduceMotion ? "" : "perspective-1000"
@@ -230,11 +259,6 @@ const BookPromotionBanner: React.FC = () => {
           <button
             onClick={() => setIsVisible(false)}
             title="배너 닫기"
-            className={`absolute -top-2 -right-2 sm:-top-4 sm:-right-4 z-20 ${
-              isMobile ? 'w-12 h-12' : 'w-10 h-10'
-            } bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95 ${
-              isMobile ? 'touch-manipulation' : ''
-            }`}
             className={cn(
               "absolute -top-2 -right-2 sm:-top-4 sm:-right-4 z-20 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95",
               isMobile ? "w-12 h-12 touch-manipulation" : "w-10 h-10",
@@ -253,7 +277,6 @@ const BookPromotionBanner: React.FC = () => {
               rotateX: -2,
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-blue-200"
             className={cn(
               "bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-blue-200",
               shouldReduceMotion ? "" : "transform-style-preserve-3d"
@@ -270,14 +293,13 @@ const BookPromotionBanner: React.FC = () => {
                   }}
                   whileTap={isMobile ? { scale: 0.95 } : {}}
                   transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                  className="relative group"
                   className={cn(
                     "relative group",
                     shouldReduceMotion ? "" : "transform-style-preserve-3d"
                   )}
                 >
                   {/* 스파클 효과 - 이미지 로드 후에만 표시, 모바일에서는 성능상 제한 */}
-                  {isLoaded && !isMobile && <SparkleEffect reduceMotion={shouldReduceMotion || false} />}
+                  {isLoaded && !isMobile && <SparkleEffect reduceMotion={shouldReduceMotion} />}
                   
                   {/* 글로우 효과 - 모바일에서는 성능상 제한 */}
                   {!isMobile && (

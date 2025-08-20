@@ -55,7 +55,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
-  return NextResponse.next();
+  // 기본 응답 + COOP/COEP 헤더 주입 (브라우저 온디바이스 AI용 cross-origin isolation)
+  const response = NextResponse.next();
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+  response.headers.set('Origin-Agent-Cluster', '?1');
+  return response;
 }
 
 export const config = {
@@ -64,5 +70,6 @@ export const config = {
     '/sw.js',
     '/manifest.webmanifest',
     '/diagnosis',
+    '/:path*'
   ],
 };

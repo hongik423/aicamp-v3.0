@@ -1,6 +1,6 @@
 'use client';
 
-export interface MCenterService {
+export interface AICampService {
   id: string;
   name: string;
   description: string;
@@ -18,7 +18,7 @@ export interface MCenterService {
 }
 
 export interface ServiceRecommendation {
-  service: MCenterService;
+  service: AICampService;
   reason: string;
   urgency: 'high' | 'medium' | 'low';
   expectedImpact: string;
@@ -27,7 +27,7 @@ export interface ServiceRecommendation {
 /**
  * AI CAMP 교육 커리큘럼 기반 서비스 데이터베이스
  */
-const MCENTER_SERVICES: MCenterService[] = [
+const AICAMP_SERVICES: AICampService[] = [
   // 기획/전략 트랙
   {
     id: 'ai-planning-basic',
@@ -433,7 +433,7 @@ export class ServiceRecommendationEngine {
     const priorityTracks = industryTrackMapping[industry] || ['ai-planning-', 'ai-sales-'];
     
     // 서비스 필터링 및 추천
-    MCENTER_SERVICES.forEach(service => {
+    AICAMP_SERVICES.forEach(service => {
       // 점수 범위 확인
       if (totalScore >= service.targetScore.min && totalScore <= service.targetScore.max) {
         // 사업 단계 확인
@@ -542,8 +542,8 @@ export class ServiceRecommendationEngine {
   }
 }
 
-// MCENTER_SERVICES export 추가
-export { MCENTER_SERVICES };
+// AICAMP_SERVICES export 추가
+export { AICAMP_SERVICES };
 
 // GovernmentSupportReportGenerator 클래스 추가
 export class GovernmentSupportReportGenerator {

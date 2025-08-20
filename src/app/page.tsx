@@ -30,7 +30,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import MCenterChatInterface from '@/components/chatbot/MCenterChatInterface';
+import AICampChatInterface from '@/components/chatbot/AICampChatInterface';
 import AICampContentGuide from '@/components/layout/AICampContentGuide';
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
 import BookPromotionBanner from '@/components/layout/BookPromotionBanner';
@@ -1467,7 +1467,7 @@ AI CAMP 교장에게 바로 문의하기
       </section>
 
               {/* AI-CAMP 교장 챗봇 인터페이스 */}
-      <MCenterChatInterface
+      <AICampChatInterface
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
         onMinimize={() => setIsChatOpen(false)}

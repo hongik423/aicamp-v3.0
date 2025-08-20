@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, MessageCircle, X, Bot, User } from 'lucide-react';
+import { Send, MessageCircle, X, Bot, User, Cpu, Download, AlertTriangle, Brain } from 'lucide-react';
 import { getImagePath, getSessionLeaderImage, getChatbotLeaderImage } from '@/lib/utils';
+import { 
+  BrowserLLM, 
+  getGlobalBrowserLLM, 
+  LEE_KYOJANG_SYSTEM_PROMPT 
+} from '@/lib/ai/browser-llm';
 
 interface Message {
   id: string;
@@ -23,6 +28,14 @@ export default function FloatingChatbot() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // 브라우저 LLM 상태 관리
+  const [browserLLM, setBrowserLLM] = useState<BrowserLLM | null>(null);
+  const [isModelLoading, setIsModelLoading] = useState(false);
+  const [modelLoadProgress, setModelLoadProgress] = useState(0);
+  const [modelLoadStatus, setModelLoadStatus] = useState('');
+  const [browserSupport, setBrowserSupport] = useState<{ supported: boolean; issues: string[] } | null>(null);
+  const [useServerAI, setUseServerAI] = useState(false);
   
   // 🔥 단순화된 드래그 시스템
   const [position, setPosition] = useState({ x: 20, y: 120 });
@@ -70,13 +83,62 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
 
 궁금한 것 있으시면 자유롭게 물어보세요! 직접 상담받으시려면 010-9251-9743으로 전화주셔도 돼요.
 
-예를 들어 "BM ZEN 사업분석은 어떻게 진행되나요?", "일터혁신 상생컨설팅이 정말 무료인가요?", "경매로 공장을 안전하게 구매하는 방법은?" 이런 질문들 언제든 환영해요.`,
+예를 들어 "BM ZEN 사업분석은 어떻게 진행되나요?", "일터혁신 상생컨설팅이 정말 무료인가요?", "경매로 공장을 안전하게 구매하는 방법은?" 이런 질문들 언제든 환영해요.
+
+— 100% 브라우저 온디바이스 AI로 실행됩니다`,
         sender: 'bot',
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
     }
   }, [isClient, isOpen, messages.length]);
+
+  // 브라우저 호환성 체크 및 모델 초기화
+  useEffect(() => {
+    if (isOpen && !browserSupport) {
+      const support = BrowserLLM.checkBrowserSupport();
+      setBrowserSupport(support);
+      
+      // 개발 환경(HTTP)에서는 항상 서버 AI 사용
+      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      const isCrossOriginIsolated = typeof self !== 'undefined' && (self as any)?.crossOriginIsolated === true;
+      
+      if (support.supported && isHttps && isCrossOriginIsolated) {
+        initializeBrowserLLM();
+      } else {
+        console.log('🔄 서버 AI 모드로 전환:', { isHttps, isCrossOriginIsolated, supported: support.supported });
+        setUseServerAI(true);
+      }
+    }
+  }, [isOpen]);
+
+  // 브라우저 LLM 초기화
+  const initializeBrowserLLM = async () => {
+    if (browserLLM?.getStatus().isInitialized) return;
+    
+    try {
+      setIsModelLoading(true);
+      setModelLoadStatus('브라우저 AI 모델 준비 중...');
+      
+      const llm = await getGlobalBrowserLLM();
+      
+      await llm.initialize((progress) => {
+        setModelLoadProgress(progress.progress);
+        setModelLoadStatus(progress.text);
+      });
+      
+      setBrowserLLM(llm);
+      setModelLoadStatus('모델 로딩 완료!');
+      
+      console.log('✅ 플로팅 챗봇 브라우저 LLM 초기화 완료');
+      
+    } catch (error) {
+      console.error('❌ 플로팅 챗봇 브라우저 LLM 초기화 실패:', error);
+      setModelLoadStatus(`초기화 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    } finally {
+      setIsModelLoading(false);
+    }
+  };
 
   // 메시지 스크롤
   useEffect(() => {
@@ -264,7 +326,7 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     }
   }, []);
 
-  // 🌟 세계최고 이후경경영지도사 AI 상담 시스템
+  // 브라우저 직접 실행 AI 상담 시스템
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
 
@@ -280,46 +342,109 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     setIsTyping(true);
 
     try {
-      console.log('🧠 세계최고 이후경경영지도사 AI 호출 시작:', { 
-        message: message.trim(),
-        messageLength: message.length 
-      });
-      
-      // 🎯 새로운 고도화된 이후경경영지도사 AI API 호출
-      const response = await fetch('/api/chat-lee-hukyung', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: message.trim() }),
-      });
+      // 개발 환경에서는 항상 서버 AI 사용
+      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      const shouldUseServer = useServerAI || !isHttps;
 
-      console.log('📡 이후경경영지도사 AI 응답 상태:', { status: response.status, ok: response.ok });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ 이후경경영지도사 AI 응답 성공:', { 
-          complexity: data.complexity,
-          responseLength: data.responseLength || data.response?.length || 0,
-          hasButtons: !!data.buttons,
-          buttonsCount: data.buttons?.length || 0
-        });
+      if (shouldUseServer) {
+        console.log('🔄 서버 Ollama API 호출 시작');
         
+        const response = await fetch('/api/chat-lee-hukyung', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message: message.trim(),
+            history: [] 
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`서버 응답 오류: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ 서버 Ollama 응답 완료');
+
+        const buttons = [
+          { text: '🎯 AI 역량진단', url: '/ai-diagnosis', style: 'primary', icon: '🎯' },
+          { text: '📞 상담 예약', url: '/consultation', style: 'secondary', icon: '📞' },
+          { text: '📚 교육과정 보기', url: '/services/ai-curriculum', style: 'outline', icon: '📚' }
+        ];
+
         const botMessage: Message = {
           id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          content: data.response || '죄송합니다. 응답을 생성하는데 문제가 발생했습니다.',
+          content: `${data.response || '응답을 생성했습니다.'}\n\n— 서버 Ollama GPT-OSS 20B`,
           sender: 'bot',
           timestamp: new Date(),
-          buttons: data.buttons || undefined
+          buttons
         };
+        
         setMessages(prev => [...prev, botMessage]);
-      } else {
-        throw new Error(`이후경경영지도사 AI 응답 실패: ${response.status}`);
+        return;
       }
+
+      // HTTPS 환경에서만 브라우저 AI 시도
+      if (!browserLLM?.getStatus().isInitialized) {
+        throw new Error('브라우저 AI 모델이 아직 준비되지 않았습니다.');
+      }
+
+      console.log('🧠 브라우저 AI 호출 시작');
+      const aiResponse = await browserLLM.generateResponse(
+        message.trim(),
+        LEE_KYOJANG_SYSTEM_PROMPT
+      );
+
+      const buttons = [
+        { text: '🎯 AI 역량진단', url: '/ai-diagnosis', style: 'primary', icon: '🎯' },
+        { text: '📞 상담 예약', url: '/consultation', style: 'secondary', icon: '📞' },
+        { text: '📚 교육과정 보기', url: '/services/ai-curriculum', style: 'outline', icon: '📚' }
+      ];
+
+      const botMessage: Message = {
+        id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        content: `${aiResponse}\n\n— 100% 브라우저 온디바이스 AI`,
+        sender: 'bot',
+        timestamp: new Date(),
+        buttons
+      };
+      setMessages(prev => [...prev, botMessage]);
+
     } catch (error) {
-      console.error('❌ 이후경경영지도사 AI 오류:', error);
-      // 폴백 답변 제거 - 명확한 오류 메시지 표시
+      console.error('❌ AI 응답 생성 실패:', error);
+      
+      // 서버 폴백 시도
+      if (!useServerAI) {
+        try {
+          console.log('🔄 서버 폴백 시도');
+          const response = await fetch('/api/chat-lee-hukyung', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              message: message.trim(),
+              history: [] 
+            })
+          });
+
+          const data = await response.json();
+          const botMessage: Message = {
+            id: `bot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            content: `${data.response || '응답을 생성했습니다.'}\n\n— 서버 Ollama GPT-OSS 20B (폴백)`,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          
+          setUseServerAI(true);
+          setMessages(prev => [...prev, botMessage]);
+          return;
+        } catch (fallbackError) {
+          console.error('❌ 서버 폴백도 실패:', fallbackError);
+        }
+      }
+
+      // 최종 오류 메시지
       const errorMessage: Message = {
         id: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        content: 'AI 분석 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.\n\n직접 상담을 원하시면 010-9251-9743으로 연락주세요.',
+        content: '일시적인 문제로 답변을 생성하지 못했습니다. 잠시 후 다시 시도해주세요.\n\n직접 상담: 010-9251-9743 (이후경 교장)',
         sender: 'bot',
         timestamp: new Date()
       };

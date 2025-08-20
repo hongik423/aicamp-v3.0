@@ -1,4 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+/**
+ * 시스템 헬스 체크 (Ollama 포함)
+ * - 서버 사이드에서 Ollama API를 직접 확인하여 웹에서 신뢰성 있게 노출
+ * - aicamp.club에서 실시간 확인 가능
+ */
+export async function GET(request: NextRequest) {
+  const startedAt = Date.now();
+  const ollamaUrl = process.env.OLLAMA_API_URL || 'http://localhost:11434';
+  const targetModel = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
+
+  let reachable = false;
+  let hasModel = false;
+  let models: string[] = [];
+  let statusText = 'unknown';
+
+  try {
+    const res = await fetch(`${ollamaUrl}/api/tags`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(8000)
+    });
+
+    statusText = `${res.status} ${res.statusText}`;
+    if (res.ok) {
+      const json = await res.json();
+      models = Array.isArray(json?.models) ? json.models.map((m: any) => String(m?.name || '')) : [];
+      reachable = true;
+      hasModel = models.includes(targetModel);
+    }
+  } catch (error: any) {
+    statusText = error?.message || 'fetch_error';
+  }
+
+  const payload = {
+    success: true,
+    timestamp: new Date().toISOString(),
+    processingMs: Date.now() - startedAt,
+    environment: {
+      nodeEnv: process.env.NODE_ENV || 'development',
+      aiProvider: 'ollama'
+    },
+    ollama: {
+      url: ollamaUrl,
+      model: targetModel,
+      reachable,
+      hasModel,
+      installedModels: models,
+      statusText
+    }
+  } as const;
+
+  return NextResponse.json(payload, { status: 200 });
+}
+
+import { NextRequest, NextResponse } from 'next/server';
 import { getGasUrl } from '@/lib/config/env';
 
 /**

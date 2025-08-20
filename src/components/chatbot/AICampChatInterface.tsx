@@ -73,6 +73,7 @@ const AICampChatInterface: React.FC<AICampChatInterfaceProps> = ({
   const [modelLoadProgress, setModelLoadProgress] = useState(0);
   const [modelLoadStatus, setModelLoadStatus] = useState('');
   const [browserSupport, setBrowserSupport] = useState<{ supported: boolean; issues: string[] } | null>(null);
+  const [useServerAI, setUseServerAI] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -94,8 +95,15 @@ const AICampChatInterface: React.FC<AICampChatInterfaceProps> = ({
       const support = BrowserLLM.checkBrowserSupport();
       setBrowserSupport(support);
       
-      if (support.supported) {
+      // 개발 환경(HTTP)에서는 항상 서버 AI 사용
+      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      const isCrossOriginIsolated = typeof self !== 'undefined' && (self as any)?.crossOriginIsolated === true;
+      
+      if (support.supported && isHttps && isCrossOriginIsolated) {
         initializeBrowserLLM();
+      } else {
+        console.log('🔄 서버 AI 모드로 전환:', { isHttps, isCrossOriginIsolated, supported: support.supported });
+        setUseServerAI(true);
       }
     }
   }, [isOpen]);
@@ -169,6 +177,37 @@ const AICampChatInterface: React.FC<AICampChatInterfaceProps> = ({
     }
   };
 
+  // 서버 사이드 Ollama 폴백 호출
+  const callAICampServerAI = async (userQuery: string): Promise<{ response: string; buttons?: Array<{ text: string; url: string; style: string; icon: string }>; badge?: string }> => {
+    const response = await fetch('/api/chat-lee-hukyung', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: userQuery,
+        history: messages.map(msg => ({
+          id: msg.id,
+          content: msg.content,
+          sender: msg.sender === 'user' ? 'user' : 'bot',
+          timestamp: msg.timestamp
+        }))
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`서버 AI 오류: ${response.status}`);
+    }
+    const data = await response.json();
+    const buttons = [
+      { text: '🎯 AI 역량진단', url: '/ai-diagnosis', style: 'primary', icon: '🎯' },
+      { text: '📞 상담 예약', url: '/consultation', style: 'secondary', icon: '📞' },
+      { text: '📚 교육과정 보기', url: '/services/ai-curriculum', style: 'outline', icon: '📚' }
+    ];
+    return {
+      response: `${data.response || ''}\n\n— 서버 Ollama GPT-OSS 20B`,
+      buttons,
+      badge: 'Server Ollama'
+    };
+  };
+
   // 폴백 답변 완전 제거 - AI 분석 실패 시 오류 메시지만 표시
 
   const handleSendMessage = async () => {
@@ -192,8 +231,13 @@ const AICampChatInterface: React.FC<AICampChatInterfaceProps> = ({
         throw new Error(`브라우저 호환성 문제: ${browserSupport?.issues.join(', ')}`);
       }
 
-      // AICAMP 브라우저 직접 실행 AI 호출
-      const aiResponseData = await callAICampBrowserLLM(currentInput);
+      // 개발 환경(HTTP)에서는 항상 서버 AI 사용
+      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      const shouldUseServer = useServerAI || !isHttps || !browserSupport?.supported || (self as any)?.crossOriginIsolated !== true;
+      
+      const aiResponseData = shouldUseServer
+        ? await callAICampServerAI(currentInput)
+        : await callAICampBrowserLLM(currentInput);
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -207,18 +251,28 @@ const AICampChatInterface: React.FC<AICampChatInterfaceProps> = ({
     } catch (error) {
       console.error('브라우저 AI 응답 오류:', error);
       
-      // 브라우저 미지원 시 폴백 메시지
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: `브라우저 AI 실행 중 문제가 발생했습니다.\n\n${error instanceof Error ? error.message : '알 수 없는 오류'}\n\n해결 방법:\n• Chrome, Edge, Firefox 최신 버전 사용\n• HTTPS 환경에서 접속\n• 충분한 메모리 확보 (8GB 이상 권장)\n\n직접 상담: 010-9251-9743 (이후경 교장)`,
-        sender: 'ai',
-        timestamp: new Date(),
-        buttons: [
-          { text: '📞 직접 상담', url: '/consultation', style: 'primary', icon: '📞' },
-          { text: '🔧 브라우저 업데이트', url: 'https://www.google.com/chrome/', style: 'secondary', icon: '🔧' }
-        ]
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      // 에러 발생 시 자동 서버 폴백 재시도
+      try {
+        const fallbackData = await callAICampServerAI(currentInput);
+        const aiMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          content: fallbackData.response,
+          sender: 'ai',
+          timestamp: new Date(),
+          buttons: fallbackData.buttons || []
+        };
+        setMessages(prev => [...prev, aiMessage]);
+        setUseServerAI(true);
+      } catch (fallbackError) {
+        const errorMessage: Message = {
+          id: (Date.now() + 3).toString(),
+          content: '일시적인 문제로 답변을 생성하지 못했습니다. 잠시 후 다시 시도해주세요. 직접 상담은 010-9251-9743으로 연락주세요.',
+          sender: 'ai',
+          timestamp: new Date(),
+          buttons: []
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
     } finally {
       setIsLoading(false);
     }
