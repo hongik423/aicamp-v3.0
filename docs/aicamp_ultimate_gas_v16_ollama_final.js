@@ -98,19 +98,393 @@ function getSheetsConfig() {
       AI_DIAGNOSIS_N8N_METHODOLOGY: 'AI역량진단_N8N방법론',
       
       // 상담신청
-      CONSULTATION_REQUESTS: '상담신청_데이터',
-      CONSULTATION_LOG: '상담신청_처리로그',
+      CONSULTATION_REQUESTS: '상담신청',
       
       // 오류신고
-      ERROR_REPORTS: '오류신고_데이터',
-      ERROR_LOG: '오류신고_처리로그',
+      ERROR_REPORTS: '오류신고',
       
-      // 통합 관리
-      EMAIL_LOG: '이메일_발송로그',
-      ADMIN_DASHBOARD: '관리자_대시보드',
-      MEMBER_MANAGEMENT: '회원_관리',
-      PROGRESS_MONITORING: '진행상황_모니터링'
+      // 시스템 로그
+      SYSTEM_LOGS: '시스템로그'
     }
+  };
+}
+
+// ================================================================================
+// MODULE 2: Ollama GPT-OSS 20B AI 분석 엔진
+// ================================================================================
+
+/**
+ * Ollama GPT-OSS 20B AI 분석 엔진 (GEMINI 완전 대체)
+ */
+function generateAIAnalysisReport(diagnosisData) {
+  const env = getEnvironmentConfig();
+  const startTime = new Date();
+  
+  try {
+    console.log('🤖 Ollama GPT-OSS 20B AI 분석 시작...');
+    
+    // 1. 진단 데이터 정규화
+    const normalizedData = normalizeDiagnosisData(diagnosisData);
+    
+    // 2. Ollama GPT-OSS 20B 프롬프트 생성
+    const prompt = generateOllamaPrompt(normalizedData);
+    
+    // 3. Ollama GPT-OSS 20B API 호출
+    const aiResponse = callOllamaAPI(prompt, env);
+    
+    // 4. AI 응답 파싱 및 검증
+    const parsedAnalysis = parseOllamaResponse(aiResponse);
+    
+    // 5. 결과 검증 및 보완
+    const validatedAnalysis = validateAndEnhanceAnalysis(parsedAnalysis, normalizedData);
+    
+    const endTime = new Date();
+    const processingTime = endTime.getTime() - startTime.getTime();
+    
+    console.log(`✅ Ollama GPT-OSS 20B AI 분석 완료 (${processingTime}ms)`);
+    
+    return {
+      success: true,
+      analysis: validatedAnalysis,
+      processingTime,
+      model: 'Ollama GPT-OSS 20B',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ Ollama GPT-OSS 20B AI 분석 실패:', error);
+    
+    // 폴백 분석 생성
+    const fallbackAnalysis = generateFallbackAnalysis(diagnosisData);
+    
+    return {
+      success: false,
+      error: `Ollama GPT-OSS 20B 분석 실패: ${error.message}`,
+      fallbackAnalysis,
+      processingTime: new Date().getTime() - startTime.getTime(),
+      model: 'Ollama GPT-OSS 20B (폴백)',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * Ollama GPT-OSS 20B API 호출
+ */
+function callOllamaAPI(prompt, env) {
+  const url = `${env.OLLAMA_BASE_URL}/api/generate`;
+  
+  const requestBody = {
+    model: env.OLLAMA_MODEL,
+    prompt: prompt,
+    stream: false,
+    options: {
+      temperature: 0.7,
+      top_p: 0.9,
+      top_k: 40,
+      repeat_penalty: 1.1,
+      num_predict: 4096,
+      stop: ["<|im_end|>", "<|endoftext|>", "Human:", "Assistant:"]
+    }
+  };
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    payload: JSON.stringify(requestBody),
+    muteHttpExceptions: true
+  };
+  
+  try {
+    console.log(`🚀 Ollama GPT-OSS 20B API 호출: ${url}`);
+    
+    const response = UrlFetchApp.fetch(url, options);
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    
+    if (responseCode !== 200) {
+      throw new Error(`Ollama API 오류 (${responseCode}): ${responseText}`);
+    }
+    
+    const responseData = JSON.parse(responseText);
+    
+    if (!responseData.response) {
+      throw new Error('Ollama API 응답에 response 필드가 없습니다.');
+    }
+    
+    console.log(`✅ Ollama GPT-OSS 20B 응답 수신 (${responseData.response.length} 문자)`);
+    return responseData.response;
+    
+  } catch (error) {
+    console.error('❌ Ollama GPT-OSS 20B API 호출 실패:', error);
+    throw new Error(`Ollama API 호출 실패: ${error.message}`);
+  }
+}
+
+/**
+ * Ollama GPT-OSS 20B 프롬프트 생성
+ */
+function generateOllamaPrompt(diagnosisData) {
+  const { companyInfo, responses, scores } = diagnosisData;
+  
+  return `당신은 이교장(이후경 경영지도사)입니다. AI 역량진단 전문가로서 다음 기업의 AI 역량을 분석하고 맞춤형 보고서를 작성해주세요.
+
+## 기업 정보
+- 회사명: ${companyInfo.name}
+- 업종: ${companyInfo.industry}
+- 직원수: ${companyInfo.size}
+- 담당자: ${companyInfo.contact.name} (${companyInfo.contact.email})
+
+## 진단 점수
+총점: ${scores.totalScore}/225점 (${Math.round(scores.percentage)}%)
+성숙도 레벨: ${scores.maturityLevel}
+
+## 카테고리별 점수
+- 비즈니스 기반: ${scores.categoryScores.businessFoundation}/40점
+- 현재 AI 활용도: ${scores.categoryScores.currentAI}/40점
+- 조직 준비도: ${scores.categoryScores.organizationReadiness}/40점
+- 기술 인프라: ${scores.categoryScores.techInfrastructure}/40점
+- 목표 명확성: ${scores.categoryScores.goalClarity}/40점
+- 실행 역량: ${scores.categoryScores.executionCapability}/25점
+
+## 45개 질문 응답
+${Object.entries(responses).map(([question, answer]) => `Q${question}: ${answer}/5점`).join('\n')}
+
+## 요청사항
+다음 JSON 형식으로 분석 결과를 제공해주세요:
+
+{
+  "swotAnalysis": {
+    "strengths": ["강점1", "강점2", "강점3"],
+    "weaknesses": ["약점1", "약점2", "약점3"],
+    "opportunities": ["기회1", "기회2", "기회3"],
+    "threats": ["위협1", "위협2", "위협3"]
+  },
+  "recommendations": {
+    "immediate": [
+      {
+        "priority": 1,
+        "title": "즉시 실행 항목",
+        "description": "상세 설명",
+        "expectedImpact": "기대 효과"
+      }
+    ],
+    "shortTerm": [
+      {
+        "priority": 1,
+        "title": "단기 실행 항목",
+        "description": "상세 설명",
+        "expectedImpact": "기대 효과"
+      }
+    ],
+    "longTerm": [
+      {
+        "priority": 1,
+        "title": "장기 실행 항목",
+        "description": "상세 설명",
+        "expectedImpact": "기대 효과"
+      }
+    ]
+  },
+  "roadmap": {
+    "phase1": {
+      "duration": "1-3개월",
+      "goals": ["목표1", "목표2"],
+      "keyActions": ["액션1", "액션2"],
+      "successMetrics": ["지표1", "지표2"]
+    },
+    "phase2": {
+      "duration": "3-6개월",
+      "goals": ["목표1", "목표2"],
+      "keyActions": ["액션1", "액션2"],
+      "successMetrics": ["지표1", "지표2"]
+    },
+    "phase3": {
+      "duration": "6-12개월",
+      "goals": ["목표1", "목표2"],
+      "keyActions": ["액션1", "액션2"],
+      "successMetrics": ["지표1", "지표2"]
+    }
+  },
+  "aicampPrograms": [
+    {
+      "name": "프로그램명",
+      "description": "프로그램 설명",
+      "fitScore": 95,
+      "duration": "기간",
+      "investment": "투자금액"
+    }
+  ]
+}
+
+이교장의 전문성과 경험을 바탕으로 실용적이고 구체적인 분석을 제공해주세요.`;
+}
+
+/**
+ * Ollama 응답 파싱
+ */
+function parseOllamaResponse(response) {
+  try {
+    // JSON 추출 시도
+    const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
+    const jsonText = jsonMatch ? jsonMatch[1] : response;
+    
+    const parsed = JSON.parse(jsonText);
+    
+    // 필수 필드 검증
+    if (!parsed.swotAnalysis || !parsed.recommendations || !parsed.roadmap) {
+      throw new Error('필수 분석 필드가 누락되었습니다.');
+    }
+    
+    return parsed;
+    
+  } catch (error) {
+    console.error('❌ Ollama 응답 파싱 실패:', error);
+    
+    // 기본 구조 반환
+    return {
+      swotAnalysis: {
+        strengths: ['AI 분석 중 오류가 발생했습니다.'],
+        weaknesses: ['응답 파싱에 실패했습니다.'],
+        opportunities: ['기본 분석을 제공합니다.'],
+        threats: ['추가 분석이 필요합니다.']
+      },
+      recommendations: {
+        immediate: [],
+        shortTerm: [],
+        longTerm: []
+      },
+      roadmap: {
+        phase1: { duration: '1-3개월', goals: [], keyActions: [], successMetrics: [] },
+        phase2: { duration: '3-6개월', goals: [], keyActions: [], successMetrics: [] },
+        phase3: { duration: '6-12개월', goals: [], keyActions: [], successMetrics: [] }
+      },
+      aicampPrograms: []
+    };
+  }
+}
+
+/**
+ * 분석 결과 검증 및 보완
+ */
+function validateAndEnhanceAnalysis(analysis, diagnosisData) {
+  // 기본 검증
+  if (!analysis.swotAnalysis) {
+    analysis.swotAnalysis = {
+      strengths: ['기본 강점 분석'],
+      weaknesses: ['기본 약점 분석'],
+      opportunities: ['기본 기회 분석'],
+      threats: ['기본 위협 분석']
+    };
+  }
+  
+  if (!analysis.recommendations) {
+    analysis.recommendations = {
+      immediate: [],
+      shortTerm: [],
+      longTerm: []
+    };
+  }
+  
+  if (!analysis.roadmap) {
+    analysis.roadmap = {
+      phase1: { duration: '1-3개월', goals: [], keyActions: [], successMetrics: [] },
+      phase2: { duration: '3-6개월', goals: [], keyActions: [], successMetrics: [] },
+      phase3: { duration: '6-12개월', goals: [], keyActions: [], successMetrics: [] }
+    };
+  }
+  
+  // AICAMP 프로그램 추천 추가
+  if (!analysis.aicampPrograms || analysis.aicampPrograms.length === 0) {
+    analysis.aicampPrograms = generateDefaultAICAMPPrograms(diagnosisData.scores);
+  }
+  
+  return analysis;
+}
+
+/**
+ * 기본 AICAMP 프로그램 추천 생성
+ */
+function generateDefaultAICAMPPrograms(scores) {
+  const programs = [];
+  
+  if (scores.percentage < 40) {
+    programs.push({
+      name: 'AI 기초 역량 강화 프로그램',
+      description: 'AI 기본 개념과 활용 방안을 체계적으로 학습',
+      fitScore: 95,
+      duration: '2개월',
+      investment: '150만원'
+    });
+  } else if (scores.percentage < 70) {
+    programs.push({
+      name: 'AI 실무 적용 프로그램',
+      description: '실무에서 바로 활용할 수 있는 AI 도구와 방법론 학습',
+      fitScore: 90,
+      duration: '3개월',
+      investment: '250만원'
+    });
+  } else {
+    programs.push({
+      name: 'AI 고도화 전략 프로그램',
+      description: 'AI를 통한 비즈니스 혁신과 경쟁우위 확보 전략',
+      fitScore: 85,
+      duration: '4개월',
+      investment: '350만원'
+    });
+  }
+  
+  return programs;
+}
+
+/**
+ * 폴백 분석 생성
+ */
+function generateFallbackAnalysis(diagnosisData) {
+  const { scores } = diagnosisData;
+  
+  return {
+    swotAnalysis: {
+      strengths: ['기본 강점 분석이 제공됩니다.'],
+      weaknesses: ['기본 약점 분석이 제공됩니다.'],
+      opportunities: ['기본 기회 분석이 제공됩니다.'],
+      threats: ['기본 위협 분석이 제공됩니다.']
+    },
+    recommendations: {
+      immediate: [
+        {
+          priority: 1,
+          title: 'AI 역량 진단 상담 신청',
+          description: '이교장과의 1:1 상담을 통해 맞춤형 전략 수립',
+          expectedImpact: 'AI 도입 성공률 80% 향상'
+        }
+      ],
+      shortTerm: [],
+      longTerm: []
+    },
+    roadmap: {
+      phase1: {
+        duration: '1-3개월',
+        goals: ['AI 역량 진단 및 전략 수립'],
+        keyActions: ['상담 신청', '현재 상태 분석'],
+        successMetrics: ['진단 완료', '전략 수립']
+      },
+      phase2: {
+        duration: '3-6개월',
+        goals: ['AI 도구 도입 및 교육'],
+        keyActions: ['도구 선정', '팀 교육'],
+        successMetrics: ['도구 도입', '교육 완료']
+      },
+      phase3: {
+        duration: '6-12개월',
+        goals: ['AI 활용 확산 및 최적화'],
+        keyActions: ['활용 확산', '성과 측정'],
+        successMetrics: ['활용률 50%', '생산성 30% 향상']
+      }
+    },
+    aicampPrograms: generateDefaultAICAMPPrograms(scores)
   };
 }
 
@@ -1260,49 +1634,45 @@ ${keyActionItems.actionItems.longTerm.map((item, i) => `${i+1}. ${item}`).join('
 각 섹션은 데이터 기반의 객관적 분석과 실행 가능한 구체적 제안을 포함해야 합니다.
 `;
 
-    // Ollama API 호출 (온보드 시스템 안정성 강화된 재시도 로직)
+    // Ollama GPT-OSS 20B API 호출 (GEMINI 완전 대체)
     let response = null;
     let attempts = 0;
-    const maxAttempts = 5; // 온보드 시스템 안정성을 위해 재시도 횟수 증가
+    const maxAttempts = 3;
     
     while (attempts < maxAttempts && !response) {
       attempts++;
-      console.log(`🔄 온보드 Ollama GPT-OSS 20B API 호출 시도 ${attempts}/${maxAttempts}`);
+      console.log(`🔄 Ollama GPT-OSS 20B API 호출 시도 ${attempts}/${maxAttempts}`);
       
       try {
-        response = callOllamaAPI(prompt);
+        response = callOllamaAPI(prompt, env);
         
-        // 응답 검증 강화 (온보드 시스템 무오류 보장)
-        if (response && response.response && typeof response.response === 'string' && response.response.trim().length > 0) {
-          console.log('✅ 온보드 Ollama API 호출 성공');
-          console.log('📊 응답 품질 검증 통과:', response.response.length, '문자');
+        if (response && typeof response === 'string' && response.trim().length > 0) {
+          console.log('✅ Ollama GPT-OSS 20B API 호출 성공');
+          console.log('📊 응답 품질 검증 통과:', response.length, '문자');
           break;
         } else {
-          console.warn(`⚠️ 온보드 Ollama API 응답 품질 미달 (시도 ${attempts}):`, {
+          console.warn(`⚠️ Ollama API 응답 품질 미달 (시도 ${attempts}):`, {
             hasResponse: !!response,
-            hasResponseField: !!(response && response.response),
-            responseType: response && response.response ? typeof response.response : 'undefined',
-            responseLength: response && response.response ? response.response.length : 0
+            responseType: response ? typeof response : 'undefined',
+            responseLength: response ? response.length : 0
           });
           response = null;
         }
       } catch (apiError) {
-        console.error(`❌ 온보드 Ollama API 호출 실패 (시도 ${attempts}):`, apiError.message);
+        console.error(`❌ Ollama GPT-OSS 20B API 호출 실패 (시도 ${attempts}):`, apiError.message);
         
-        // 마지막 시도에서 실패하면 상세한 오류 정보 제공
         if (attempts === maxAttempts) {
-          throw new Error(`온보드 Ollama GPT-OSS 20B API 호출 ${maxAttempts}회 연속 실패: ${apiError.message}. 온보드 시스템에서 Ollama 서버 상태를 확인해주세요.`);
+          throw new Error(`Ollama GPT-OSS 20B API 호출 ${maxAttempts}회 연속 실패: ${apiError.message}. Ollama 서버 상태를 확인해주세요.`);
         }
         
-        // 재시도 전 대기 시간 증가 (온보드 시스템 안정성)
-        const waitTime = Math.min(2000 * attempts, 10000); // 최대 10초
+        const waitTime = Math.min(2000 * attempts, 8000);
         console.log(`⏳ ${waitTime}ms 대기 후 재시도...`);
         Utilities.sleep(waitTime);
       }
     }
     
-    if (response && response.response) {
-      const aiContent = response.response;
+    if (response) {
+      const aiContent = response;
       
       return {
         executiveSummary: aiContent.substring(0, 800) + '...',
@@ -2542,7 +2912,7 @@ function handleDriveCheckRequest(requestData, progressId) {
 /**
  * 진단 결과 이메일 발송 (V16.0 OLLAMA ULTIMATE)
  */
-async function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
+function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
   try {
     console.log('📧 진단 결과 이메일 발송 시작');
     
@@ -3329,4 +3699,61 @@ function generatePrincipalInsight(scoreAnalysis) {
     console.error('❌ 이교장의 한마디 생성 오류:', error);
     return '"로컬 AI는 도구가 아니라 새로운 사고방식입니다. 단계별로 차근차근 접근하시면 반드시 성공할 수 있습니다!"';
   }
+}
+
+// ================================================================================
+// MODULE 9: 유틸리티 함수 (V16.0 OLLAMA ULTIMATE)
+// ================================================================================
+
+/**
+ * 이교장의 한마디 생성
+ */
+function generatePrincipalInsight(scoreAnalysis) {
+  const { totalScore, percentage, grade, maturityLevel } = scoreAnalysis;
+  
+  if (percentage >= 80) {
+    return `"${maturityLevel} 수준의 AI 역량을 보유하고 계시는군요! 이미 상당한 수준의 AI 활용도를 보여주고 있습니다. 이제 AI를 통한 비즈니스 혁신과 경쟁우위 확보에 집중해보시기 바랍니다. AICAMP의 고도화 프로그램을 통해 더욱 발전시켜 나가시죠!"`;
+  } else if (percentage >= 60) {
+    return `"${maturityLevel} 수준으로 AI 역량이 양호한 편입니다. 체계적인 AI 도입과 활용을 통해 더욱 큰 성과를 창출할 수 있을 것입니다. AICAMP의 실무 적용 프로그램으로 실질적인 AI 활용 역량을 키워보세요."`;
+  } else if (percentage >= 40) {
+    return `"AI 역량 개발의 좋은 시작점에 계십니다. ${maturityLevel} 수준에서 체계적인 AI 교육과 도구 도입을 통해 단계적으로 발전시켜 나가시기 바랍니다. AICAMP의 기초 역량 강화 프로그램으로 시작해보세요."`;
+  } else {
+    return `"AI 역량 개발의 첫걸음을 내딛으셨네요! ${maturityLevel} 수준에서 차근차근 AI 기본 개념부터 학습하시면 됩니다. AICAMP의 체계적인 교육 프로그램을 통해 AI 역량을 키워나가시죠!"`;
+  }
+}
+
+/**
+ * 진단 ID 생성
+ */
+function generateDiagnosisId() {
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substring(2, 10);
+  return `DIAG_45Q_AI_${timestamp}_${random}`;
+}
+
+/**
+ * 상담 ID 생성
+ */
+function generateConsultationId() {
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substring(2, 10);
+  return `CONS_${timestamp}_${random}`;
+}
+
+/**
+ * 오류 ID 생성
+ */
+function generateErrorId() {
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substring(2, 10);
+  return `ERROR_${timestamp}_${random}`;
+}
+
+/**
+ * 진행상황 ID 생성
+ */
+function generateProgressId() {
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substring(2, 10);
+  return `PROG_${timestamp}_${random}`;
 }
