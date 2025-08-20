@@ -831,14 +831,15 @@ function calculateAdvancedScores(normalizedData) {
     maturityLevel = '매우미흡';
   }
   
-  // 섹션별 점수 (45문항을 5개 영역으로 분할)
-  const questionsPerSection = Math.floor(responseValues.length / 5);
+  // 섹션별 점수 (45문항을 6개 영역으로 분할 - V16.0 정확한 구조)
+  const questionsPerSection = Math.floor(responseValues.length / 6); // 45/6 = 7.5 → 각 영역 7-8문항
   const sectionScores = {
-    strategy: calculateSectionScore(responseValues.slice(0, 9)),
-    technology: calculateSectionScore(responseValues.slice(9, 18)),
-    data: calculateSectionScore(responseValues.slice(18, 27)),
-    process: calculateSectionScore(responseValues.slice(27, 36)),
-    culture: calculateSectionScore(responseValues.slice(36, 45))
+    strategy: calculateSectionScore(responseValues.slice(0, 8)),      // 1-8: AI 전략 및 비전 (8문항)
+    organization: calculateSectionScore(responseValues.slice(8, 15)), // 9-15: 조직 및 인력 (7문항)
+    technology: calculateSectionScore(responseValues.slice(15, 23)),  // 16-23: 기술 및 인프라 (8문항)
+    data: calculateSectionScore(responseValues.slice(23, 30)),        // 24-30: 데이터 관리 (7문항)
+    process: calculateSectionScore(responseValues.slice(30, 38)),     // 31-38: 프로세스 혁신 (8문항)
+    culture: calculateSectionScore(responseValues.slice(38, 45))      // 39-45: 문화 및 변화관리 (7문항)
   };
   
   return {
@@ -854,13 +855,34 @@ function calculateAdvancedScores(normalizedData) {
 }
 
 /**
- * 섹션별 점수 계산 헬퍼 함수
+ * 섹션별 점수 계산 및 의미 분석 (V16.0 최적화)
  */
 function calculateSectionScore(sectionResponses) {
   if (!sectionResponses || sectionResponses.length === 0) return 0;
+  
   const sectionTotal = sectionResponses.reduce((sum, score) => sum + score, 0);
   const sectionMax = sectionResponses.length * 5;
-  return Math.round((sectionTotal / sectionMax) * 100);
+  const percentage = Math.round((sectionTotal / sectionMax) * 100);
+  const average = Math.round((sectionTotal / sectionResponses.length) * 100) / 100;
+  
+  // 영역별 성숙도 레벨 분석
+  let maturityLevel = '';
+  if (percentage >= 90) maturityLevel = '최고수준';
+  else if (percentage >= 80) maturityLevel = '우수';
+  else if (percentage >= 70) maturityLevel = '양호';
+  else if (percentage >= 60) maturityLevel = '보통';
+  else if (percentage >= 50) maturityLevel = '미흡';
+  else maturityLevel = '매우미흡';
+  
+  return {
+    score: percentage,
+    average: average,
+    total: sectionTotal,
+    maxScore: sectionMax,
+    questionCount: sectionResponses.length,
+    maturityLevel: maturityLevel,
+    responses: sectionResponses
+  };
 }
 
 /**
@@ -1035,13 +1057,46 @@ function generateOllamaAIReport(normalizedData, scoreAnalysis, swotAnalysis, key
     
     if (!env.OLLAMA_BASE_URL || !env.OLLAMA_MODEL) {
       console.error('❌ Ollama 설정이 완료되지 않음. 필수 설정 필요!');
-      throw new Error('Ollama 설정이 완료되지 않았습니다. 고품질 보고서 생성을 위해 Ollama 설정이 필요합니다.');
+      throw new Error('Ollama GPT-OSS 20B 설정이 완료되지 않았습니다. 온보드 시스템에서 개별화된 고품질 보고서 생성을 위해 Ollama 연결이 필수입니다.');
     }
     
-    // 🚀 Ollama GPT-OSS 20B 최고 품질 프롬프트 (V16.0 ULTIMATE)
-    const prompt = `
-당신은 "이교장의AI역량진단보고서" 시스템의 최고 AI 전문가입니다. 
+    // 온보드 시스템 연결 상태 사전 검증
+    console.log('🔗 온보드 Ollama 시스템 연결 확인:', env.OLLAMA_BASE_URL);
+    console.log('🤖 사용 모델:', env.OLLAMA_MODEL);
+    
+    // Ollama 서버 상태 사전 검증 (온보드 시스템 무오류 보장)
+    try {
+      const healthCheckUrl = `${env.OLLAMA_BASE_URL}/api/tags`;
+      const healthResponse = UrlFetchApp.fetch(healthCheckUrl, {
+        method: 'GET',
+        muteHttpExceptions: true,
+        timeout: 5000
+      });
+      
+      if (healthResponse.getResponseCode() !== 200) {
+        throw new Error(`Ollama 서버가 응답하지 않습니다 (${healthResponse.getResponseCode()})`);
+      }
+      
+      const healthData = JSON.parse(healthResponse.getContentText());
+      const modelExists = healthData.models && healthData.models.some(m => m.name === env.OLLAMA_MODEL);
+      
+      if (!modelExists) {
+        throw new Error(`모델 '${env.OLLAMA_MODEL}'이 Ollama 서버에 설치되지 않았습니다. 온보드 시스템에서 모델을 확인해주세요.`);
+      }
+      
+      console.log('✅ 온보드 Ollama 서버 상태 확인 완료');
+      console.log('🎯 모델 상태: 정상 작동');
+      
+    } catch (healthError) {
+      console.error('❌ Ollama 서버 상태 검증 실패:', healthError.message);
+      throw new Error(`온보드 Ollama 시스템 연결 실패: ${healthError.message}. 개별화된 보고서 생성을 위해 Ollama 서버가 필수입니다.`);
+    }
+    
+    // 🚀 Ollama GPT-OSS 20B 최고 품질 프롬프트 (V16.0 ULTIMATE - 온보드 최적화)
+    const prompt = `당신은 "이교장의AI역량진단보고서" 시스템의 최고 AI 전문가입니다. 
 McKinsey, BCG 수준의 전략 컨설팅 품질로 포괄적인 AI 역량진단 보고서를 작성해주세요.
+
+**중요: 반드시 한국어로 최소 1000자 이상의 상세한 분석을 제공해주세요.**
 
 ## 🏢 기업 정보
 - 회사명: ${normalizedData.companyName}
@@ -1058,6 +1113,31 @@ McKinsey, BCG 수준의 전략 컨설팅 품질로 포괄적인 AI 역량진단 
 - 등급: ${scoreAnalysis.grade} (A+~F 등급)
 - AI 성숙도: ${scoreAnalysis.maturityLevel}
 - 업종 내 위치: 상위 ${scoreAnalysis.percentile}%
+
+## 🎯 6개 영역별 상세 분석 (각 영역별 의미 분석 포함)
+### 1. AI 전략 및 비전 (1-8번 문항, ${scoreAnalysis.sectionScores.strategy.questionCount}문항)
+- 점수: ${scoreAnalysis.sectionScores.strategy.score}점 (성숙도: ${scoreAnalysis.sectionScores.strategy.maturityLevel})
+- 평균: ${scoreAnalysis.sectionScores.strategy.average}점/5점
+
+### 2. 조직 및 인력 (9-15번 문항, ${scoreAnalysis.sectionScores.organization.questionCount}문항)  
+- 점수: ${scoreAnalysis.sectionScores.organization.score}점 (성숙도: ${scoreAnalysis.sectionScores.organization.maturityLevel})
+- 평균: ${scoreAnalysis.sectionScores.organization.average}점/5점
+
+### 3. 기술 및 인프라 (16-23번 문항, ${scoreAnalysis.sectionScores.technology.questionCount}문항)
+- 점수: ${scoreAnalysis.sectionScores.technology.score}점 (성숙도: ${scoreAnalysis.sectionScores.technology.maturityLevel})
+- 평균: ${scoreAnalysis.sectionScores.technology.average}점/5점
+
+### 4. 데이터 관리 (24-30번 문항, ${scoreAnalysis.sectionScores.data.questionCount}문항)
+- 점수: ${scoreAnalysis.sectionScores.data.score}점 (성숙도: ${scoreAnalysis.sectionScores.data.maturityLevel})
+- 평균: ${scoreAnalysis.sectionScores.data.average}점/5점
+
+### 5. 프로세스 혁신 (31-38번 문항, ${scoreAnalysis.sectionScores.process.questionCount}문항)
+- 점수: ${scoreAnalysis.sectionScores.process.score}점 (성숙도: ${scoreAnalysis.sectionScores.process.maturityLevel})
+- 평균: ${scoreAnalysis.sectionScores.process.average}점/5점
+
+### 6. 문화 및 변화관리 (39-45번 문항, ${scoreAnalysis.sectionScores.culture.questionCount}문항)
+- 점수: ${scoreAnalysis.sectionScores.culture.score}점 (성숙도: ${scoreAnalysis.sectionScores.culture.maturityLevel})
+- 평균: ${scoreAnalysis.sectionScores.culture.average}점/5점
 
 ## ⚡ SWOT 분석 결과
 ### 💪 강점 (Strengths)
@@ -1118,31 +1198,44 @@ ${keyActionItems.actionItems.longTerm.map((item, i) => `${i+1}. ${item}`).join('
 각 섹션은 데이터 기반의 객관적 분석과 실행 가능한 구체적 제안을 포함해야 합니다.
 `;
 
-    // Ollama API 호출 (재시도 로직 포함)
+    // Ollama API 호출 (온보드 시스템 안정성 강화된 재시도 로직)
     let response = null;
     let attempts = 0;
-    const maxAttempts = 3;
+    const maxAttempts = 5; // 온보드 시스템 안정성을 위해 재시도 횟수 증가
     
     while (attempts < maxAttempts && !response) {
       attempts++;
-      console.log(`🔄 Ollama API 호출 시도 ${attempts}/${maxAttempts}`);
+      console.log(`🔄 온보드 Ollama GPT-OSS 20B API 호출 시도 ${attempts}/${maxAttempts}`);
       
       try {
         response = callOllamaAPI(prompt);
-        if (response && response.response) {
-          console.log('✅ Ollama API 호출 성공');
+        
+        // 응답 검증 강화 (온보드 시스템 무오류 보장)
+        if (response && response.response && typeof response.response === 'string' && response.response.trim().length > 0) {
+          console.log('✅ 온보드 Ollama API 호출 성공');
+          console.log('📊 응답 품질 검증 통과:', response.response.length, '문자');
           break;
         } else {
-          console.warn(`⚠️ Ollama API 응답 불완전 (시도 ${attempts})`);
+          console.warn(`⚠️ 온보드 Ollama API 응답 품질 미달 (시도 ${attempts}):`, {
+            hasResponse: !!response,
+            hasResponseField: !!(response && response.response),
+            responseType: response && response.response ? typeof response.response : 'undefined',
+            responseLength: response && response.response ? response.response.length : 0
+          });
           response = null;
         }
       } catch (apiError) {
-        console.error(`❌ Ollama API 호출 실패 (시도 ${attempts}):`, apiError.message);
+        console.error(`❌ 온보드 Ollama API 호출 실패 (시도 ${attempts}):`, apiError.message);
+        
+        // 마지막 시도에서 실패하면 상세한 오류 정보 제공
         if (attempts === maxAttempts) {
-          throw new Error(`Ollama API 호출 ${maxAttempts}회 실패: ${apiError.message}`);
+          throw new Error(`온보드 Ollama GPT-OSS 20B API 호출 ${maxAttempts}회 연속 실패: ${apiError.message}. 온보드 시스템에서 Ollama 서버 상태를 확인해주세요.`);
         }
-        // 재시도 전 잠시 대기
-        Utilities.sleep(1000 * attempts);
+        
+        // 재시도 전 대기 시간 증가 (온보드 시스템 안정성)
+        const waitTime = Math.min(2000 * attempts, 10000); // 최대 10초
+        console.log(`⏳ ${waitTime}ms 대기 후 재시도...`);
+        Utilities.sleep(waitTime);
       }
     }
     
@@ -1173,7 +1266,8 @@ ${keyActionItems.actionItems.longTerm.map((item, i) => `${i+1}. ${item}`).join('
     
   } catch (error) {
     console.error('❌ Ollama AI 보고서 생성 오류:', error);
-    return generateDefaultReport(normalizedData, scoreAnalysis, swotAnalysis);
+    // V16.0 OLLAMA ULTIMATE: 폴백 시스템 완전 제거 - 100% Ollama GPT-OSS 20B 사용 보장
+    throw new Error(`Ollama GPT-OSS 20B 보고서 생성 실패: ${error.message}. 개별화된 고품질 보고서 생성을 위해 Ollama AI 연결이 필수입니다.`);
   }
 }
 
@@ -1187,69 +1281,83 @@ function callOllamaAPI(prompt) {
     const model = env.OLLAMA_MODEL;
     
     if (!baseUrl || !model) {
-      throw new Error('Ollama 설정이 완료되지 않았습니다');
+      throw new Error('Ollama GPT-OSS 20B 설정이 완료되지 않았습니다');
     }
     
     const url = `${baseUrl}/api/generate`;
     
+    // 온보드 시스템 최적화 설정 (무오류 보장)
     const payload = {
       model: model,
       prompt: prompt,
       stream: false,
+      // format: "json", // JSON 형식은 텍스트 응답에 문제를 일으킬 수 있으므로 제거
       options: {
-        temperature: 0.7,
-        top_k: 40,
-        top_p: 0.95,
-        num_predict: 4096
+        temperature: 0.7,        // 안정성과 창의성 균형 (온보드 최적화)
+        top_k: 40,              // 안정적인 토큰 선택
+        top_p: 0.9,             // 적절한 다양성
+        num_predict: 4000,      // 안정적인 토큰 수 (온보드 메모리 고려)
+        repeat_penalty: 1.2,    // 반복 방지 강화
+        num_ctx: 4096,          // 안정적인 컨텍스트 크기
+        num_thread: 4,          // 온보드 시스템 안정성 우선
+        stop: ["<|end|>", "###", "---"] // 명확한 종료 토큰
       }
     };
     
     const options = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
-      payload: JSON.stringify(payload)
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
     };
     
-    console.log('🔄 Ollama API 호출 중...');
+    console.log('🔄 온보드 Ollama GPT-OSS 20B API 호출 중...');
+    console.log('🤖 모델:', model);
+    console.log('⚙️ 최적화 설정 적용됨');
     
     const response = UrlFetchApp.fetch(url, options);
+    const responseCode = response.getResponseCode();
     const responseText = response.getContentText();
     
-    console.log('✅ Ollama API 응답 수신');
+    console.log('📡 Ollama API 응답 코드:', responseCode);
+    console.log('📊 응답 크기:', responseText.length, 'bytes');
     
-    return JSON.parse(responseText);
+    if (responseCode !== 200) {
+      throw new Error(`온보드 Ollama GPT-OSS 20B API 오류 (${responseCode}): ${responseText}`);
+    }
+    
+    const result = JSON.parse(responseText);
+    
+    // 응답 품질 검증 (온보드 시스템 무오류 보장)
+    if (!result || !result.response) {
+      throw new Error('Ollama GPT-OSS 20B 응답이 없습니다. 온보드 시스템 연결을 확인해주세요.');
+    }
+    
+    if (typeof result.response !== 'string' || result.response.trim().length === 0) {
+      throw new Error('Ollama GPT-OSS 20B 응답이 비어있습니다. 모델 상태를 확인해주세요.');
+    }
+    
+    if (result.response.length < 100) {
+      throw new Error(`Ollama GPT-OSS 20B 응답이 너무 짧습니다 (${result.response.length}자). 고품질 개별화 보고서 생성을 위해 최소 100자 이상이 필요합니다.`);
+    }
+    
+    console.log('✅ 온보드 Ollama GPT-OSS 20B API 응답 성공');
+    console.log('📝 생성된 콘텐츠 길이:', result.response.length, '문자');
+    
+    return result;
     
   } catch (error) {
-    console.error('❌ Ollama API 호출 오류:', error);
+    console.error('❌ 온보드 Ollama API 호출 오류:', error);
     throw error;
   }
 }
 
-/**
- * 기본 보고서 생성 (Ollama API 실패 시 폴백)
- */
-function generateDefaultReport(normalizedData, scoreAnalysis, swotAnalysis) {
-  return {
-    executiveSummary: `${normalizedData.companyName}의 AI 역량진단 결과, 현재 ${scoreAnalysis.maturityLevel} 수준으로 평가되며, ${normalizedData.industry} 업종 내에서 ${scoreAnalysis.percentile}% 수준입니다.`,
-    currentStateAnalysis: `총 ${scoreAnalysis.totalScore}점으로 ${scoreAnalysis.grade} 등급을 받았으며, 45개 행동지표 기반 정밀 분석을 통해 도출된 결과입니다.`,
-    industryBenchmark: `${normalizedData.industry} 업종 내에서의 위치를 분석한 결과, 평균 대비 ${scoreAnalysis.averageScore >= 3.5 ? '우수한' : '개선이 필요한'} 수준으로 나타났습니다.`,
-    gapAnalysis: `주요 개선 영역: ${swotAnalysis.weaknesses.slice(0, 3).join(', ')} 등이 우선 개선이 필요한 영역으로 식별되었습니다.`,
-    strategicRecommendations: `${normalizedData.companyName}의 ${normalizedData.industry} 업종 특성을 고려한 AI 도입 전략을 제시하며, 단계별 접근을 통한 체계적 도입을 권장합니다.`,
-    implementationGuidance: '3단계 실행 로드맵을 통해 기반 구축 → 역량 확장 → 혁신 실현 순으로 체계적인 AI 도입을 지원합니다.',
-    riskAssessment: `주요 위험 요소인 ${swotAnalysis.threats.slice(0, 2).join(', ')} 등에 대한 선제적 대응 방안을 수립했습니다.`,
-    successMetrics: 'AI 도입률, 업무 효율성 개선도, 비용 절감률, 직원 만족도 등을 핵심 성과 지표로 설정하여 정기적 모니터링을 권장합니다.',
-    timeline: '1-3개월 기반 구축, 4-6개월 역량 확장, 7-12개월 혁신 실현의 단계별 실행 계획을 수립했습니다.',
-    resourceRequirements: `${normalizedData.employeeCount} 규모 조직에 적합한 인적 자원(AI 전담팀 구성), 기술 인프라(클라우드 기반), 교육 투자 등이 필요합니다.`,
-    nextSteps: 'AI 기초 교육 실시, 데이터 관리 체계 구축, 시범 프로젝트 선정 등을 우선 과제로 추진하시기 바랍니다.',
-    totalScore: scoreAnalysis.totalScore,
-    grade: scoreAnalysis.grade,
-    maturityLevel: scoreAnalysis.maturityLevel,
-    generatedAt: new Date().toISOString(),
-    version: 'V16.0-OLLAMA-ULTIMATE-FALLBACK'
-  };
-}
+// V16.0 OLLAMA ULTIMATE: 폴백 시스템 완전 제거
+// 모든 보고서는 Ollama GPT-OSS 20B 100% 사용으로 개별화된 보고서 작성
+// generateDefaultReport 함수 제거됨 - 고품질 개별화 보고서 보장을 위함
 
 // ================================================================================
 // MODULE 6: HTML 보고서 생성 (V16.0 OLLAMA ULTIMATE)
