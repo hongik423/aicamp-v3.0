@@ -93,24 +93,24 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
     }
   }, [isClient, isOpen, messages.length]);
 
-  // 브라우저 호환성 체크 및 모델 초기화
+  // 브라우저 호환성 체크 및 모델 사전 로딩
   useEffect(() => {
-    if (isOpen && !browserSupport) {
-      const support = BrowserLLM.checkBrowserSupport();
-      setBrowserSupport(support);
-      
-      // 개발 환경(HTTP)에서는 항상 서버 AI 사용
-      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-      const isCrossOriginIsolated = typeof self !== 'undefined' && (self as any)?.crossOriginIsolated === true;
-      
-      if (support.supported && isHttps && isCrossOriginIsolated) {
-        initializeBrowserLLM();
-      } else {
-        console.log('🔄 서버 AI 모드로 전환:', { isHttps, isCrossOriginIsolated, supported: support.supported });
-        setUseServerAI(true);
-      }
+    // 페이지 로드 시 즉시 호환성 체크 (챗봇 열기 전에)
+    const support = BrowserLLM.checkBrowserSupport();
+    setBrowserSupport(support);
+    
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    const isCrossOriginIsolated = typeof self !== 'undefined' && (self as any)?.crossOriginIsolated === true;
+    
+    if (support.supported && isHttps && isCrossOriginIsolated) {
+      // 백그라운드에서 사전 로딩 시작 (사용자가 기다리지 않음)
+      console.log('🚀 브라우저 AI 백그라운드 사전 로딩 시작');
+      initializeBrowserLLM();
+    } else {
+      console.log('🔄 서버 AI 모드로 전환:', { isHttps, isCrossOriginIsolated, supported: support.supported });
+      setUseServerAI(true);
     }
-  }, [isOpen]);
+  }, []); // 페이지 로드 시 한 번만 실행
 
   // 브라우저 LLM 초기화
   const initializeBrowserLLM = async () => {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callAI } from '@/lib/ai/ai-provider';
+import { findCachedResponse, CacheMetrics } from '@/lib/cache/faq-cache';
+import { AICAMP_CURRICULUM_DATABASE, CurriculumRecommendationEngine } from '@/lib/data/aicamp-curriculum-database';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,6 +61,101 @@ const SYSTEM_PROMPT = `
 - 숫자나 항목 나열 시 "첫째", "둘째" 또는 "1) 2)" 사용
 - 친근한 이모지 적절히 활용 (😊, 👍, 🚀 등)
 
+📚 AICAMP 주요 교육 과정 (상세 정보 제공 필수):
+
+1️⃣ ChatGPT & Claude 업무 활용 마스터 (기초)
+- 기간: 8시간 (2일), 비용: 50만원 (정부지원 시 무료)
+- 대상: 사무직, AI 초보자, 중소기업 경영진
+- 효과: 생산성 300% 향상, 일일 2-3시간 절약
+- 내용: 프롬프트 엔지니어링, 문서 자동화, 실무 템플릿 100개
+
+2️⃣ n8n & Make 업무 자동화 전문가 (심화)
+- 기간: 16시간 (4일), 비용: 120만원 (정부지원 시 20만원)
+- 대상: 효율화 담당자, IT 관리자, 반복업무 직군
+- 효과: 자동화율 90%, 월 100시간 절약
+- 내용: 500개 서비스 연동, 워크플로우 설계, 실전 프로젝트
+
+3️⃣ AI 리더십 & 디지털 전환 전략 (경영진)
+- 기간: 12시간 (3일), 비용: 200만원 (1:1 컨설팅 포함)
+- 대상: CEO, 임원진, 부서장급
+- 효과: ROI 800%, 전사 AI 도입 전략 완성
+- 내용: 경영 전략, 조직 변화 관리, 맞춤 로드맵
+
+4️⃣ 제조업 특화 AI 스마트팩토리 (업종별)
+- 기간: 20시간 (5일), 비용: 150만원 (정부지원 가능)
+- 대상: 생산관리자, 품질관리, 공장장
+- 효과: 생산성 40% 향상, 불량률 80% 감소
+- 내용: 예측 정비, 품질 자동화, IoT 연동
+
+✨ 특별 혜택:
+- 무료 체험 교육 제공
+- 수료 후 3-12개월 사후 지원
+- 정부지원 최대 100% (조건 충족 시)
+- 개별 맞춤 컨설팅 포함
+
+커리큘럼 관련 문의 시 반드시:
+- 구체적인 과정 정보 제공 (기간, 비용, 대상, 효과)
+- 상세 커리큘럼 내용 설명
+- 제공 자료 및 사후 지원 안내
+- 정부지원 가능성 언급
+- 맞춤형 추천 제공
+
+🏢 AICAMP 전체 서비스 영역 (상세 정보 제공 필수):
+
+1️⃣ AI 역량진단 (무료)
+- Ollama GPT-OSS 20B 온디바이스 모델 기반 정밀 진단
+- 45개 행동지표, SWOT 분석, 3단계 로드맵 자동 생성
+- 즉시 결과 제공, 맞춤형 보고서 이메일 발송
+
+2️⃣ AI 교육 과정 (28년 경험)
+- ChatGPT 기초: 50만원 (정부지원 시 무료)
+- n8n 자동화: 120만원 (정부지원 시 20만원)
+- AI 리더십: 200만원 (1:1 컨설팅 포함)
+- 제조업 특화: 150만원 (정부지원 가능)
+
+3️⃣ BM ZEN 사업분석 (28년 노하우)
+- 기본 진단: 300만원, 전략 수립: 500만원, 통합: 800만원
+- 매출 20-50% 증대, 운영비 15-30% 절감
+- 정부지원 시 20-50% 할인
+
+4️⃣ 정책자금 컨설팅 (25년 전문)
+- 평균 5억원 지원금 확보, 성공률 85% 이상
+- 기본: 200만원, 사업계획서 포함: 400만원, 전 과정: 600만원
+- R&D, 창업, 설비투자, 수출지원 등 전 영역
+
+5️⃣ 인증 컨설팅 (연간 5천만원 세제혜택)
+- ISO 9001: 800만원, ISO 14001: 1,000만원
+- 벤처기업 인증: 500만원, 통합 인증: 1,500만원
+- 세제혜택으로 1-2년 내 투자비 회수
+
+6️⃣ AI 생산성 향상
+- 기본 분석: 300만원, 도구 도입: 600만원, 통합: 1,000만원
+- 업무 효율성 40-70% 향상, 반복 업무 80% 자동화
+- ROI 300-500% (6개월 내)
+
+7️⃣ 기술창업 지원
+- 기본: 500만원, 사업화: 800만원, 투자 유치 포함: 1,200만원
+- 창업 성공률 70% 이상, 평균 투자 유치 5억원
+
+8️⃣ 웹사이트 제작
+- 기본형: 300만원, 표준형: 600만원, 프리미엄: 1,000만원
+- 온라인 매출 300-500% 증대, SEO 최적화
+
+9️⃣ 공장/부동산 경매
+- 기본 분석: 200만원, 전 과정: 500만원, 포트폴리오: 800만원
+- 투자비 35-50% 절약, 시세 대비 20-40% 할인 매입
+
+🔟 투자분석 서비스
+- 기본: 400만원, 정밀: 700만원, 통합: 1,200만원
+- AI 기반 투자 분석, 리스크 관리, 포트폴리오 최적화
+
+서비스 문의 시 반드시:
+- 구체적 서비스 내용 및 프로세스 설명
+- 투자 비용 및 기대 효과 명시
+- 성공 사례 및 ROI 제시
+- 정부지원 가능성 안내
+- 관련 서비스 연계 추천
+
 답변 마무리는 항상:
 - 격려 메시지와 함께
 - 추가 궁금한 점 문의 유도
@@ -81,22 +178,50 @@ export async function POST(request: NextRequest) {
 
     let responseText: string;
     let isFromFallback = false;
+    let isFromCache = false;
+
+    // 1단계: 캐시된 응답 확인 (즉시 응답)
+    const cachedResponse = findCachedResponse(message);
+    if (cachedResponse) {
+      console.log('⚡ 캐시 히트 - 즉시 응답:', message.substring(0, 20));
+      CacheMetrics.recordHit();
+      
+      return NextResponse.json({ 
+        success: true, 
+        response: cachedResponse.content, 
+        buttons: cachedResponse.buttons, 
+        responseLength: cachedResponse.content.length, 
+        complexity: 'cached',
+        metadata: {
+          model: 'FAQ-Cache-Instant',
+          processingTime: Date.now() - startTime,
+          service: '이교장의AI상담',
+          expertise: 'lee-hukyung-ai-consulting',
+          isOnDevice: true,
+          apiCost: 0,
+          isCached: true,
+          cacheStats: CacheMetrics.getStats()
+        }
+      });
+    }
+
+    CacheMetrics.recordMiss();
 
     try {
-      // GPT-OSS 20B 모델 최적화: 빠른 응답을 위한 설정
+      // 2단계: AI 응답 생성 (최적화된 설정)
       responseText = await callAI({ 
         prompt: message, 
         history, 
         system: SYSTEM_PROMPT, 
-        temperature: 0.7, // 자연스러운 대화
-        maxTokens: 1024,  // 응답 속도 우선 최적화
-        timeoutMs: 45000  // 45초 타임아웃으로 단축
+        temperature: 0.8, // 더 자연스러운 대화
+        maxTokens: 800,   // 더 빠른 응답
+        timeoutMs: 35000  // 35초 타임아웃으로 단축
       });
     } catch (aiError) {
       console.log('🔄 AI 응답 실패, 폴백 응답 생성:', aiError);
       isFromFallback = true;
       
-      // 즉시 폴백 응답 생성 (문의 유형별)
+      // 3단계: 즉시 폴백 응답 생성 (문의 유형별)
       responseText = generateFallbackResponse(message);
     }
 
