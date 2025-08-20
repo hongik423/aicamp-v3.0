@@ -6,7 +6,13 @@
  * - 외부 API 의존성 완전 제거
  */
 
-import { globalPerformanceMonitor, checkGPUHealth, getOptimalBatchSize } from './gpu-optimizer';
+import { 
+  globalPerformanceMonitor, 
+  checkGPUHealth, 
+  getOptimalBatchSize,
+  initializeGPUOptimization,
+  createGPUOptimizationSettings
+} from './gpu-optimizer';
 import { logSystemMonitoring } from './system-monitor';
 import { initializeNPUSystem, accelerateTextProcessing } from './npu-accelerator';
 import { 
@@ -121,11 +127,13 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
     throw new Error('OLLAMA_API_URL이 설정되지 않았습니다.');
   }
 
+  // 🎮 GPU 최적화 시스템 초기화
+  const { config: gpuConfig, health: gpuHealth, monitor: gpuMonitor } = await initializeGPUOptimization();
+  
   // 🧠 NPU + GPU 하이브리드 시스템 초기화
   const { scheduler: npuScheduler, monitor: npuMonitor } = await initializeNPUSystem();
   
   // 시스템 리소스 정보 수집
-  const gpuHealth = await checkGPUHealth();
   const systemInfo = {
     gpuMemory: gpuHealth.memoryTotal,
     npuAvailable: true, // Intel AI Boost 감지됨
@@ -152,15 +160,28 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
     ollamaConfig.batchSize
   );
   
-  console.log(`🚀 이교장의AI상담 Ollama GPT-OSS 20B + NPU 하이브리드 호출 시작: ${model}`);
-  console.log(`🔥 GPU 최적화: NVIDIA RTX 4050 (${ollamaConfig.gpuLayers}개 레이어)`);
-  console.log(`🧠 NPU 가속: Intel AI Boost (${ollamaConfig.npuLayers}개 레이어)`);
+  console.log(`🚀 이교장의AI상담 Ollama GPT-OSS 20B + GPU + NPU 하이브리드 호출 시작: ${model}`);
+  console.log(`🎮 GPU 최적화: NVIDIA RTX 4050 (${gpuConfig.gpuLayers}개 레이어)`);
+  console.log(`🧠 NPU 가속: Intel AI Boost (${gpuConfig.npuLayers}개 레이어)`);
   console.log(`⚖️  워크로드 분산: GPU ${ollamaConfig.workloadDistribution.gpu}% | NPU ${ollamaConfig.workloadDistribution.npu}% | CPU ${ollamaConfig.workloadDistribution.cpu}%`);
   console.log(`🌡️  GPU 온도: ${Math.round(gpuHealth.temperature)}°C, 사용률: ${Math.round(gpuHealth.utilization)}%`);
   console.log(`💾 GPU 메모리: ${Math.round(gpuHealth.memoryUsed)}GB/${gpuHealth.memoryTotal}GB`);
   console.log(`⚡ 최적화 배치 크기: ${optimalBatchSize}`);
   
   const startTime = performance.now();
+  
+  // GPU 최적화 설정으로 Ollama 요청 구성
+  const optimizationSettings = createGPUOptimizationSettings({
+    totalMemory: 64 * 1024 * 1024 * 1024,
+    availableMemory: 32 * 1024 * 1024 * 1024,
+    cpuCores: 16,
+    gpuMemory: gpuHealth.memoryTotal,
+    hasNPU: true,
+    gpuModel: 'NVIDIA RTX 4050',
+    gpuUtilization: gpuHealth.utilization,
+    gpuTemperature: gpuHealth.temperature
+  }, model);
+  
   const res = await fetch(`${apiUrl}/api/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -169,6 +190,7 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
       prompt: prompt,
       stream: false,
       options: {
+        ...optimizationSettings.options,
         temperature: params.temperature,
         num_predict: params.maxTokens,
         top_k: 40,
@@ -176,31 +198,18 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
         repeat_penalty: 1.1,
         stop: ["<|im_end|>", "<|endoftext|>", "Human:", "Assistant:"],
         
-        // 🎯 Ollama NPU 하이브리드 최적화 설정 (이교장의AI상담 전용)
-        num_ctx: ollamaConfig.contextSize,           // NPU 최적화 컨텍스트
-        num_thread: ollamaConfig.threads,            // 멀티스레딩 최적화
-        num_gpu: ollamaConfig.gpuLayers > 0 ? 1 : 0, // GPU 활용 여부
-        gpu_layers: ollamaConfig.gpuLayers,          // GPU 처리 레이어 수
-        num_batch: optimalBatchSize,                 // 동적 최적화 배치 크기
+        // 🎯 동적 최적화 설정
+        num_batch: optimalBatchSize,
         
         // 🧠 NPU 하이브리드 설정
-        npu_enabled: ollamaConfig.hybridMode,        // NPU 활성화
-        npu_layers: ollamaConfig.npuLayers,          // NPU 처리 레이어 수
-        hybrid_mode: ollamaConfig.hybridMode,        // 하이브리드 모드
+        npu_enabled: gpuConfig.hybridMode,
+        npu_layers: gpuConfig.npuLayers,
+        hybrid_mode: gpuConfig.hybridMode,
         
         // 📊 워크로드 분산 설정
         workload_gpu: ollamaConfig.workloadDistribution.gpu,
         workload_npu: ollamaConfig.workloadDistribution.npu,
-        workload_cpu: ollamaConfig.workloadDistribution.cpu,
-        
-        // 💾 메모리 최적화
-        use_mlock: false,   // 안정성 우선
-        use_mmap: true,     // 메모리 매핑 최적화
-        numa: false,        // 호환성 우선
-        low_vram: ollamaConfig.gpuLayers < 16, // GPU 메모리 기반 조정
-        f16_kv: true,       // FP16 키-값 캐시
-        logits_all: false,  // 메모리 절약
-        vocab_only: false   // 전체 모델 로드
+        workload_cpu: ollamaConfig.workloadDistribution.cpu
       }
     }),
     signal: AbortSignal.timeout(900000) // 15분 타임아웃

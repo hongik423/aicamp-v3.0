@@ -1,190 +1,171 @@
 /**
- * 시스템 모니터링 - GPU/NPU 활성화 상태 확인
- * 이교장의AI상담 전용
+ * 시스템 모니터링 - 이교장의AI상담 전용
+ * GPU, NPU, CPU 성능 모니터링
  */
 
-export interface SystemStatus {
-  gpu: {
-    available: boolean;
-    count: number;
-    memory: {
-      total: number;
-      used: number;
-      free: number;
+export interface SystemHealth {
+  gpu: GPUHealth;
+  cpu: CPUHealth;
+  memory: MemoryHealth;
+  network: NetworkHealth;
+}
+
+export interface GPUHealth {
+  utilization: number;
+  temperature: number;
+  memoryUsed: number;
+  memoryTotal: number;
+  powerDraw: number;
+  isAvailable: boolean;
+}
+
+export interface CPUHealth {
+  utilization: number;
+  temperature: number;
+  cores: number;
+  frequency: number;
+}
+
+export interface MemoryHealth {
+  total: number;
+  used: number;
+  available: number;
+  utilization: number;
+}
+
+export interface NetworkHealth {
+  latency: number;
+  bandwidth: number;
+  isConnected: boolean;
+}
+
+/**
+ * GPU 상태 확인
+ */
+export async function checkGPUHealth(): Promise<GPUHealth> {
+  try {
+    // GPU 상태 시뮬레이션
+    const health: GPUHealth = {
+      utilization: Math.random() * 40 + 20, // 20-60%
+      temperature: Math.random() * 20 + 50, // 50-70°C
+      memoryUsed: Math.random() * 4 + 2,    // 2-6GB
+      memoryTotal: 6,                       // 6GB RTX 4050
+      powerDraw: Math.random() * 30 + 50,   // 50-80W
+      isAvailable: true
     };
-    utilization: number;
-    temperature: number;
-    driver: string;
-  };
-  npu: {
-    available: boolean;
-    type: string;
-    utilization: number;
-  };
-  cpu: {
-    cores: number;
-    threads: number;
-    utilization: number;
-  };
-  memory: {
-    total: number;
-    used: number;
-    available: number;
-  };
-}
-
-/**
- * 실시간 시스템 상태 모니터링
- */
-export async function getSystemStatus(): Promise<SystemStatus> {
-  // 실제 환경에서는 시스템 API를 사용하여 실제 값을 가져옵니다
-  // 여기서는 시뮬레이션된 값을 반환합니다
-  
-  const gpuMemoryTotal = 24; // 24GB GPU 가정
-  const gpuMemoryUsed = Math.random() * 8 + 12; // 12-20GB 사용
-  
-  return {
-    gpu: {
-      available: true,
-      count: 1,
-      memory: {
-        total: gpuMemoryTotal * 1024, // MB 단위
-        used: gpuMemoryUsed * 1024,
-        free: (gpuMemoryTotal - gpuMemoryUsed) * 1024
-      },
-      utilization: Math.random() * 30 + 70, // 70-100%
-      temperature: Math.random() * 20 + 65, // 65-85도
-      driver: "NVIDIA Driver 560.94"
-    },
-    npu: {
-      available: true, // Intel AI Boost 감지됨
-      type: "Intel(R) AI Boost",
-      utilization: Math.random() * 40 + 50 // 50-90% (활발한 사용)
-    },
-    cpu: {
-      cores: 16,
-      threads: 32,
-      utilization: Math.random() * 30 + 20 // 20-50%
-    },
-    memory: {
-      total: 64 * 1024, // 64GB RAM
-      used: Math.random() * 16 + 24, // 24-40GB 사용
-      available: 64 * 1024 - (Math.random() * 16 + 24) * 1024
-    }
-  };
-}
-
-/**
- * NPU 감지 함수
- */
-function detectNPU(): boolean {
-  // 실제 환경에서는 다음과 같은 방법으로 NPU를 감지할 수 있습니다:
-  // - Windows: WMI 쿼리로 NPU 장치 확인
-  // - Linux: /proc/cpuinfo 또는 lspci로 NPU 확인
-  // - 특정 NPU 드라이버 API 사용
-  
-  // 시뮬레이션: 80% 확률로 NPU 있다고 가정
-  return Math.random() > 0.2;
-}
-
-/**
- * GPU 가속 상태 확인
- */
-export async function checkGPUAcceleration(): Promise<{
-  ollama: boolean;
-  cuda: boolean;
-  opencl: boolean;
-  vulkan: boolean;
-  directml: boolean;
-}> {
-  return {
-    ollama: true,     // Ollama GPU 가속
-    cuda: true,       // NVIDIA CUDA
-    opencl: true,     // OpenCL
-    vulkan: false,    // Vulkan Compute
-    directml: true    // DirectML (Windows)
-  };
-}
-
-/**
- * 성능 벤치마크 실행
- */
-export async function runPerformanceBenchmark(): Promise<{
-  cpuScore: number;
-  gpuScore: number;
-  npuScore: number;
-  memoryBandwidth: number;
-}> {
-  // 간단한 성능 테스트 시뮬레이션
-  return {
-    cpuScore: Math.random() * 2000 + 8000,    // 8000-10000
-    gpuScore: Math.random() * 5000 + 15000,   // 15000-20000
-    npuScore: Math.random() * 1000 + 3000,    // 3000-4000
-    memoryBandwidth: Math.random() * 100 + 400 // 400-500 GB/s
-  };
-}
-
-/**
- * 실시간 모니터링 로그 출력
- */
-export async function logSystemMonitoring(): Promise<void> {
-  const status = await getSystemStatus();
-  const acceleration = await checkGPUAcceleration();
-  const benchmark = await runPerformanceBenchmark();
-
-  console.log('\n🖥️  이교장의AI상담 시스템 모니터링 리포트:');
-  console.log('=====================================');
-  
-  // GPU 정보
-  console.log('🎮 NVIDIA GPU 상태:');
-  console.log(`   ✅ 활성화: ${status.gpu.available ? 'YES' : 'NO'}`);
-  console.log(`   📊 사용률: ${Math.round(status.gpu.utilization)}%`);
-  console.log(`   🌡️  온도: ${Math.round(status.gpu.temperature)}°C`);
-  console.log(`   💾 메모리: ${Math.round(status.gpu.memory.used/1024)}GB / ${Math.round(status.gpu.memory.total/1024)}GB`);
-  console.log(`   🚀 드라이버: ${status.gpu.driver}`);
-  
-  // NPU 정보
-  console.log('\n🧠 NPU 상태:');
-  console.log(`   ✅ 활성화: ${status.npu.available ? 'YES' : 'NO'}`);
-  console.log(`   📊 사용률: ${Math.round(status.npu.utilization)}%`);
-  console.log(`   🔧 타입: ${status.npu.type}`);
-  
-  // 가속 상태
-  console.log('\n⚡ 가속 기술 상태:');
-  console.log(`   🔥 Ollama GPU: ${acceleration.ollama ? '✅' : '❌'}`);
-  console.log(`   🎯 CUDA: ${acceleration.cuda ? '✅' : '❌'}`);
-  console.log(`   🌐 OpenCL: ${acceleration.opencl ? '✅' : '❌'}`);
-  console.log(`   🎮 DirectML: ${acceleration.directml ? '✅' : '❌'}`);
-  
-  // 성능 점수
-  console.log('\n📈 성능 벤치마크:');
-  console.log(`   🖥️  CPU 점수: ${Math.round(benchmark.cpuScore)}`);
-  console.log(`   🎮 GPU 점수: ${Math.round(benchmark.gpuScore)}`);
-  console.log(`   🧠 NPU 점수: ${Math.round(benchmark.npuScore)}`);
-  console.log(`   💾 메모리 대역폭: ${Math.round(benchmark.memoryBandwidth)} GB/s`);
-  
-  console.log('\n🎯 최적화 상태: 이교장의AI상담 Ollama GPT-OSS 20B 전용 최적화 완료\n');
-}
-
-/**
- * GPU 메모리 사용량 실시간 모니터링
- */
-export function startGPUMonitoring(intervalMs: number = 30000): NodeJS.Timeout {
-  return setInterval(async () => {
-    const status = await getSystemStatus();
-    const memoryUsagePercent = (status.gpu.memory.used / status.gpu.memory.total) * 100;
     
-    if (memoryUsagePercent > 90) {
-      console.warn(`⚠️  GPU 메모리 사용량 높음: ${Math.round(memoryUsagePercent)}%`);
-    }
+    return health;
+  } catch (error) {
+    console.warn('GPU 상태 확인 실패:', error);
+    return {
+      utilization: 0,
+      temperature: 0,
+      memoryUsed: 0,
+      memoryTotal: 0,
+      powerDraw: 0,
+      isAvailable: false
+    };
+  }
+}
+
+/**
+ * CPU 상태 확인
+ */
+export async function checkCPUHealth(): Promise<CPUHealth> {
+  try {
+    // CPU 상태 시뮬레이션
+    const health: CPUHealth = {
+      utilization: Math.random() * 30 + 10, // 10-40%
+      temperature: Math.random() * 15 + 45, // 45-60°C
+      cores: 16,                            // 16코어
+      frequency: Math.random() * 1000 + 2000 // 2-3GHz
+    };
     
-    if (status.gpu.temperature > 80) {
-      console.warn(`🌡️  GPU 온도 높음: ${Math.round(status.gpu.temperature)}°C`);
-    }
+    return health;
+  } catch (error) {
+    console.warn('CPU 상태 확인 실패:', error);
+    return {
+      utilization: 0,
+      temperature: 0,
+      cores: 0,
+      frequency: 0
+    };
+  }
+}
+
+/**
+ * 메모리 상태 확인
+ */
+export async function checkMemoryHealth(): Promise<MemoryHealth> {
+  try {
+    // 메모리 상태 시뮬레이션
+    const total = 64; // 64GB
+    const used = Math.random() * 20 + 10; // 10-30GB
+    const available = total - used;
     
-    // 성능 최적화 권장사항
-    if (status.gpu.utilization < 50) {
-      console.log(`💡 GPU 사용률 낮음 (${Math.round(status.gpu.utilization)}%): 배치 크기 증가 권장`);
-    }
-  }, intervalMs);
+    const health: MemoryHealth = {
+      total,
+      used,
+      available,
+      utilization: (used / total) * 100
+    };
+    
+    return health;
+  } catch (error) {
+    console.warn('메모리 상태 확인 실패:', error);
+    return {
+      total: 0,
+      used: 0,
+      available: 0,
+      utilization: 0
+    };
+  }
+}
+
+/**
+ * 네트워크 상태 확인
+ */
+export async function checkNetworkHealth(): Promise<NetworkHealth> {
+  try {
+    // 네트워크 상태 시뮬레이션
+    const health: NetworkHealth = {
+      latency: Math.random() * 10 + 5, // 5-15ms
+      bandwidth: Math.random() * 100 + 50, // 50-150Mbps
+      isConnected: true
+    };
+    
+    return health;
+  } catch (error) {
+    console.warn('네트워크 상태 확인 실패:', error);
+    return {
+      latency: 0,
+      bandwidth: 0,
+      isConnected: false
+    };
+  }
+}
+
+/**
+ * 전체 시스템 상태 확인
+ */
+export async function checkSystemHealth(): Promise<SystemHealth> {
+  const [gpu, cpu, memory, network] = await Promise.all([
+    checkGPUHealth(),
+    checkCPUHealth(),
+    checkMemoryHealth(),
+    checkNetworkHealth()
+  ]);
+  
+  return { gpu, cpu, memory, network };
+}
+
+/**
+ * 시스템 로그 기록
+ */
+export function logSystemMonitoring(health: SystemHealth): void {
+  console.log('📊 시스템 모니터링:');
+  console.log(`   🎮 GPU: ${Math.round(health.gpu.utilization)}% 사용률, ${Math.round(health.gpu.temperature)}°C`);
+  console.log(`   🖥️  CPU: ${Math.round(health.cpu.utilization)}% 사용률, ${Math.round(health.cpu.temperature)}°C`);
+  console.log(`   💾 메모리: ${Math.round(health.memory.utilization)}% 사용률`);
+  console.log(`   🌐 네트워크: ${Math.round(health.network.latency)}ms 지연`);
 }

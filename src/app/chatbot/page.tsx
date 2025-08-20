@@ -81,7 +81,7 @@ export default function ChatbotPage() {
     try {
       console.log('🚀 AI API 호출 시작:', { message: message.trim() });
       
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat-lee-hukyung', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
