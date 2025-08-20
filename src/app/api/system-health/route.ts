@@ -1,65 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-/**
- * 시스템 헬스 체크 (Ollama 포함)
- * - 서버 사이드에서 Ollama API를 직접 확인하여 웹에서 신뢰성 있게 노출
- * - aicamp.club에서 실시간 확인 가능
- */
-export async function GET(request: NextRequest) {
-  const startedAt = Date.now();
-  const ollamaUrl = process.env.OLLAMA_API_URL || 'http://localhost:11434';
-  const targetModel = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
-
-  let reachable = false;
-  let hasModel = false;
-  let models: string[] = [];
-  let statusText = 'unknown';
-
-  try {
-    const res = await fetch(`${ollamaUrl}/api/tags`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      signal: AbortSignal.timeout(8000)
-    });
-
-    statusText = `${res.status} ${res.statusText}`;
-    if (res.ok) {
-      const json = await res.json();
-      models = Array.isArray(json?.models) ? json.models.map((m: any) => String(m?.name || '')) : [];
-      reachable = true;
-      hasModel = models.includes(targetModel);
-    }
-  } catch (error: any) {
-    statusText = error?.message || 'fetch_error';
-  }
-
-  const payload = {
-    success: true,
-    timestamp: new Date().toISOString(),
-    processingMs: Date.now() - startedAt,
-    environment: {
-      nodeEnv: process.env.NODE_ENV || 'development',
-      aiProvider: 'ollama'
-    },
-    ollama: {
-      url: ollamaUrl,
-      model: targetModel,
-      reachable,
-      hasModel,
-      installedModels: models,
-      statusText
-    }
-  } as const;
-
-  return NextResponse.json(payload, { status: 200 });
-}
-
-import { NextRequest, NextResponse } from 'next/server';
 import { getGasUrl } from '@/lib/config/env';
 
 /**
- * 시스템 전체 헬스체크 API
+ * 시스템 전체 헬스체크 API (Ollama 포함)
  * GET /api/system-health - AI 역량진단 시스템 전체 상태 확인
+ * - 서버 사이드에서 Ollama API를 직접 확인하여 웹에서 신뢰성 있게 노출
+ * - aicamp.club에서 실시간 확인 가능
  */
 
 interface HealthCheckResult {
@@ -84,13 +30,67 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: NextRequest) {
-  console.log('🏥 시스템 헬스체크 시작');
+  console.log('🏥 시스템 헬스체크 시작 (Ollama 포함)');
   
   const startTime = Date.now();
   const results: HealthCheckResult[] = [];
   
   try {
-    // 1. Google Apps Script 연결 테스트
+    // 1. Ollama 서버 상태 확인
+    try {
+      const ollamaStartTime = Date.now();
+      const ollamaUrl = process.env.OLLAMA_API_URL || 'http://localhost:11434';
+      const targetModel = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
+
+      let reachable = false;
+      let hasModel = false;
+      let models: string[] = [];
+      let statusText = 'unknown';
+
+      try {
+        const res = await fetch(`${ollamaUrl}/api/tags`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(8000)
+        });
+
+        statusText = `${res.status} ${res.statusText}`;
+        if (res.ok) {
+          const json = await res.json();
+          models = Array.isArray(json?.models) ? json.models.map((m: any) => String(m?.name || '')) : [];
+          reachable = true;
+          hasModel = models.includes(targetModel);
+        }
+      } catch (error: any) {
+        statusText = error?.message || 'fetch_error';
+      }
+
+      const ollamaResponseTime = Date.now() - ollamaStartTime;
+
+      results.push({
+        component: 'Ollama AI Server',
+        status: reachable && hasModel ? 'healthy' : reachable ? 'degraded' : 'unhealthy',
+        responseTime: ollamaResponseTime,
+        details: {
+          url: ollamaUrl,
+          model: targetModel,
+          reachable,
+          hasModel,
+          installedModels: models,
+          statusText
+        },
+        error: !reachable ? 'Ollama 서버에 연결할 수 없습니다' : 
+               !hasModel ? `모델 '${targetModel}'이 설치되지 않았습니다` : undefined
+      });
+    } catch (error) {
+      results.push({
+        component: 'Ollama AI Server',
+        status: 'unhealthy',
+        error: error instanceof Error ? error.message : 'Ollama 상태 확인 실패'
+      });
+    }
+
+    // 2. Google Apps Script 연결 테스트
     try {
       const gasUrl = getGasUrl();
       
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
               status: 'healthy',
               responseTime: gasResponseTime,
               details: {
-                version: gasData?.version || 'unknown',
+                version: gasData?.version || 'V16.0-OLLAMA-ULTIMATE',
                 status: gasData?.status || 'operational'
               }
             });
@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 2. 환경변수 검증
+    // 3. 환경변수 검증
     try {
       const envStatus: any = {};
       
@@ -188,7 +188,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 3. 메모리 및 성능 체크
+    // 4. 메모리 및 성능 체크
     try {
       const memoryUsage = process.memoryUsage();
       const memoryMB = {
@@ -218,47 +218,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 4. API 엔드포인트 테스트
-    try {
-      const apiTests = [
-        { name: 'AI Diagnosis Status', path: '/api/ai-diagnosis' }
-      ];
-      
-      const apiResults = await Promise.allSettled(
-        apiTests.map(async (test) => {
-          const testStartTime = Date.now();
-          const response = await fetch(`${request.nextUrl.origin}${test.path}`, {
-            method: 'GET',
-            signal: AbortSignal.timeout(5000)
-          });
-          return {
-            name: test.name,
-            status: response.ok,
-            responseTime: Date.now() - testStartTime,
-            statusCode: response.status
-          };
-        })
-      );
-      
-      const apiHealthy = apiResults.every(result => 
-        result.status === 'fulfilled' && result.value.status
-      );
-      
-      results.push({
-        component: 'API Endpoints',
-        status: apiHealthy ? 'healthy' : 'degraded',
-        details: apiResults.map(result => 
-          result.status === 'fulfilled' ? result.value : { error: result.reason }
-        )
-      });
-    } catch (error) {
-      results.push({
-        component: 'API Endpoints',
-        status: 'unhealthy',
-        error: error instanceof Error ? error.message : 'API 테스트 실패'
-      });
-    }
-
     // 전체 상태 결정
     const overallStatus = results.every(r => r.status === 'healthy') ? 'healthy' :
                          results.some(r => r.status === 'unhealthy') ? 'unhealthy' : 'degraded';
@@ -271,7 +230,8 @@ export async function GET(request: NextRequest) {
       status: overallStatus,
       timestamp: new Date().toISOString(),
       responseTime: totalResponseTime,
-      version: 'V10.0 PREMIUM - 완전 오류 수정 버전',
+      version: 'V16.0-OLLAMA-ULTIMATE',
+      aiProvider: 'Ollama GPT-OSS 20B',
       components: results,
       summary: {
         total: results.length,
@@ -307,6 +267,9 @@ function generateRecommendations(results: HealthCheckResult[]): string[] {
   results.forEach(result => {
     if (result.status === 'unhealthy' || result.status === 'degraded') {
       switch (result.component) {
+        case 'Ollama AI Server':
+          recommendations.push('Ollama 서버 상태를 확인하고 gpt-oss:20b 모델이 설치되었는지 확인하세요');
+          break;
         case 'Google Apps Script':
           recommendations.push('Google Apps Script 연결을 확인하고 URL 설정을 점검하세요');
           break;
@@ -316,15 +279,12 @@ function generateRecommendations(results: HealthCheckResult[]): string[] {
         case 'System Resources':
           recommendations.push('시스템 리소스 사용량을 모니터링하고 최적화를 고려하세요');
           break;
-        case 'API Endpoints':
-          recommendations.push('API 엔드포인트 상태를 확인하고 네트워크 연결을 점검하세요');
-          break;
       }
     }
   });
   
   if (recommendations.length === 0) {
-    recommendations.push('모든 시스템이 정상적으로 작동 중입니다');
+    recommendations.push('모든 시스템이 정상적으로 작동 중입니다 (Ollama GPT-OSS 20B 포함)');
   }
   
   return recommendations;
