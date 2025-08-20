@@ -108,7 +108,7 @@ async function makeRequest(url, options = {}) {
 /**
  * 진행상황 모니터링
  */
-async function monitorProgress(diagnosisId, maxAttempts = 30) {
+async function monitorProgress(diagnosisId, maxAttempts = 60) {
   console.log(`📊 진행상황 모니터링 시작: ${diagnosisId}`);
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -132,7 +132,7 @@ async function monitorProgress(diagnosisId, maxAttempts = 30) {
       
     } catch (error) {
       console.log(`⚠️ 진행상황 조회 실패 (${attempt}/${maxAttempts}):`, error.message);
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
   

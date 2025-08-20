@@ -67,10 +67,10 @@ function getEnvironmentConfig() {
     SYSTEM_VERSION: 'V16.0-OLLAMA-ULTIMATE',
     AI_MODEL: 'OLLAMA-GPT-OSS-20B',
     
-    // 타임아웃 설정
-    TIMEOUT_OLLAMA: 720000, // 12분
-    TIMEOUT_EMAIL: 180000,  // 3분
-    TIMEOUT_SHEET: 30000,   // 30초
+    // 타임아웃 설정 (속도 최적화)
+    TIMEOUT_OLLAMA: 300000, // 5분 (병렬 처리로 단축)
+    TIMEOUT_EMAIL: 60000,   // 1분 (병렬 처리로 단축)
+    TIMEOUT_SHEET: 15000,   // 15초 (빠른 응답)
     
     // 재시도 설정
     MAX_RETRY_ATTEMPTS: 3,
@@ -183,7 +183,7 @@ function doGet(e) {
 /**
  * 메인 POST 핸들러 (V16.0 OLLAMA ULTIMATE - 진행상황 모니터링 통합)
  */
-function doPost(e) {
+async function doPost(e) {
   const startTime = new Date().getTime();
   console.log('🚀 V16.0 OLLAMA ULTIMATE 요청 수신');
   
@@ -216,20 +216,20 @@ function doPost(e) {
       case 'diagnosis':
       case 'ai_diagnosis':
         updateProgressStatus(progressId, 'processing', '이교장의AI역량진단보고서 생성을 시작합니다');
-        result = handleAIDiagnosisRequest(requestData, progressId);
+        result = await handleAIDiagnosisRequest(requestData, progressId);
         break;
         
       case 'ai_diagnosis_complete':
       case 'processCompletedAnalysis':
         // V16.0 신규: 통합 워크플로우 완료 결과 처리
         updateProgressStatus(progressId, 'processing', '통합 워크플로우 결과를 처리하고 있습니다');
-        result = handleIntegratedWorkflowResult(requestData, progressId);
+        result = await handleIntegratedWorkflowResult(requestData, progressId);
         break;
         
       case 'consultation':
       case 'consultation_request':
         updateProgressStatus(progressId, 'processing', '상담신청을 처리하고 있습니다');
-        result = handleConsultationRequest(requestData, progressId);
+        result = await handleConsultationRequest(requestData, progressId);
         break;
         
       case 'error_report':
@@ -266,7 +266,7 @@ function doPost(e) {
       default:
         console.warn('⚠️ 알 수 없는 요청 타입, 기본 진단으로 처리:', action);
         updateProgressStatus(progressId, 'processing', '기본 AI역량진단으로 처리합니다');
-        result = handleAIDiagnosisRequest(requestData, progressId);
+        result = await handleAIDiagnosisRequest(requestData, progressId);
         break;
     }
     
@@ -476,7 +476,7 @@ function getOrCreateSheet(spreadsheet, sheetName) {
 /**
  * AI 역량진단 요청 처리 (V16.0 OLLAMA ULTIMATE - 완전한 12단계 워크플로우)
  */
-function handleAIDiagnosisRequest(requestData, progressId) {
+async function handleAIDiagnosisRequest(requestData, progressId) {
   console.log('🎓 AI 역량진단 처리 시작 - V16.0 OLLAMA ULTIMATE');
   
   const config = getEnvironmentConfig();
@@ -492,32 +492,68 @@ function handleAIDiagnosisRequest(requestData, progressId) {
     console.log('📋 1단계: 데이터 검증 및 정규화');
     const normalizedData = normalizeAIDiagnosisData(requestData, diagnosisId);
     
-    // 2단계: 신청자/관리자 접수확인 메일 발송
-    updateProgressStatus(progressId, 'processing', '2단계: 접수확인 메일을 발송하고 있습니다');
-    console.log('📧 2단계: 접수확인 메일 발송');
-    const confirmationResult = sendApplicationConfirmationEmails(normalizedData, diagnosisId);
+    // 2-3단계: 병렬 처리 (접수확인 메일 + 점수 계산)
+    updateProgressStatus(progressId, 'processing', '2-3단계: 접수확인 메일 발송과 점수 계산을 병렬로 처리하고 있습니다');
+    console.log('⚡ 2-3단계: 병렬 처리 시작 (접수확인 + 점수계산)');
     
-    // 3단계: 45문항 점수 계산 및 분석
-    updateProgressStatus(progressId, 'processing', '3단계: Ollama AI가 45개 문항을 분석하고 있습니다');
-    console.log('📊 3단계: 45문항 점수 계산');
-    const scoreAnalysis = calculateAdvancedScores(normalizedData);
+    const [confirmationResult, scoreAnalysis] = await Promise.all([
+      // 2단계: 접수확인 메일 발송 (병렬)
+      (async () => {
+        try {
+          console.log('📧 2단계: 접수확인 메일 발송 (병렬)');
+          return await sendApplicationConfirmationEmails(normalizedData, diagnosisId);
+        } catch (error) {
+          console.error('❌ 접수확인 메일 오류:', error);
+          return { success: false, error: error.message };
+        }
+      })(),
+      
+      // 3단계: 45문항 점수 계산 (병렬)
+      (async () => {
+        try {
+          console.log('📊 3단계: 45문항 점수 계산 (병렬)');
+          return await calculateAdvancedScores(normalizedData);
+        } catch (error) {
+          console.error('❌ 점수 계산 오류:', error);
+          return { totalScore: 0, grade: 'F', maturityLevel: '미흡' };
+        }
+      })()
+    ]);
     
     // 4단계: 업종별/규모별 벤치마크 분석
     updateProgressStatus(progressId, 'processing', '4단계: 업종별 벤치마크 분석을 진행하고 있습니다');
     console.log('🎯 4단계: 벤치마크 갭 분석');
     const benchmarkAnalysis = performBenchmarkAnalysis(scoreAnalysis, normalizedData);
     
-    // 5단계: 고도화된 SWOT 분석
-    updateProgressStatus(progressId, 'processing', '5단계: 강점, 약점, 기회, 위협 요소를 종합 분석하고 있습니다');
-    console.log('⚡ 5단계: SWOT 분석');
-    const swotAnalysis = generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis);
+    // 5-7단계: 병렬 처리 (SWOT 분석, 실행 과제, 로드맵)
+    updateProgressStatus(progressId, 'processing', '5-7단계: SWOT 분석, 실행 과제, 로드맵을 병렬로 생성하고 있습니다');
+    console.log('⚡ 5-7단계: 분석 단계 병렬 처리 시작');
     
-    // 6단계: 핵심 실행 과제 생성
-    updateProgressStatus(progressId, 'processing', '6단계: 핵심 실행 과제를 생성하고 있습니다');
-    console.log('🎯 6단계: 핵심 실행 과제');
-    const keyActionItems = generateKeyActionItems(swotAnalysis, scoreAnalysis, normalizedData);
+    const [swotAnalysis, keyActionItems] = await Promise.all([
+      // 5단계: SWOT 분석 (병렬)
+      (async () => {
+        try {
+          console.log('⚡ 5단계: SWOT 분석 (병렬)');
+          return await generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis);
+        } catch (error) {
+          console.error('❌ SWOT 분석 오류:', error);
+          return { strengths: [], weaknesses: [], opportunities: [], threats: [] };
+        }
+      })(),
+      
+      // 6단계: 핵심 실행 과제 (병렬)
+      (async () => {
+        try {
+          console.log('🎯 6단계: 핵심 실행 과제 (병렬)');
+          return await generateKeyActionItems(null, scoreAnalysis, normalizedData); // swot은 나중에 업데이트
+        } catch (error) {
+          console.error('❌ 실행 과제 생성 오류:', error);
+          return { actionItems: { immediate: [], shortTerm: [], longTerm: [] } };
+        }
+      })()
+    ]);
     
-    // 7단계: 3단계 실행 로드맵 생성
+    // 7단계: 로드맵 생성 (SWOT과 실행과제 결과 필요)
     updateProgressStatus(progressId, 'processing', '7단계: 3단계 실행 로드맵을 수립하고 있습니다');
     console.log('🗺️ 7단계: 실행 로드맵');
     const executionRoadmap = generate3PhaseRoadmap(keyActionItems, swotAnalysis, normalizedData);
@@ -537,20 +573,46 @@ function handleAIDiagnosisRequest(requestData, progressId) {
       roadmap: executionRoadmap
     });
     
-    // 10단계: Google Sheets 저장
-    updateProgressStatus(progressId, 'processing', '10단계: 데이터를 저장하고 있습니다');
-    console.log('💾 10단계: 데이터 저장');
-    const saveResult = saveAIDiagnosisData(normalizedData, aiReport, htmlReport, progressId);
+    // 10-12단계: 병렬 처리로 속도 향상 (데이터 저장, Drive 업로드, 이메일 발송)
+    updateProgressStatus(progressId, 'processing', '10-12단계: 데이터 저장, Drive 업로드, 이메일 발송을 병렬로 처리하고 있습니다');
+    console.log('⚡ 10-12단계: 병렬 처리 시작 (속도 최적화)');
     
-    // 11단계: Google Drive에 HTML 보고서 업로드
-    updateProgressStatus(progressId, 'processing', '11단계: Google Drive에 보고서를 업로드하고 있습니다');
-    console.log('🗂️ 11단계: Google Drive HTML 보고서 업로드');
-    const driveUploadResult = uploadReportToDrive(diagnosisId, htmlReport, normalizedData);
+    // 병렬 실행을 위한 Promise 배열
+    const parallelTasks = [];
     
-    // 12단계: 이교장의AI역량진단보고서 이메일 발송 (HTML 첨부 + Drive 링크)
+    // 10단계: Google Sheets 저장 (병렬)
+    parallelTasks.push(
+      (async () => {
+        try {
+          console.log('💾 10단계: 데이터 저장 (병렬)');
+          return await saveAIDiagnosisData(normalizedData, aiReport, htmlReport, progressId);
+        } catch (error) {
+          console.error('❌ 데이터 저장 오류:', error);
+          return { success: false, error: error.message };
+        }
+      })()
+    );
+    
+    // 11단계: Google Drive 업로드 (병렬)
+    parallelTasks.push(
+      (async () => {
+        try {
+          console.log('🗂️ 11단계: Google Drive 업로드 (병렬)');
+          return await uploadReportToDrive(diagnosisId, htmlReport, normalizedData);
+        } catch (error) {
+          console.error('❌ Drive 업로드 오류:', error);
+          return { success: false, error: error.message, shareLink: null };
+        }
+      })()
+    );
+    
+    // 병렬 실행 및 결과 수집
+    const [saveResult, driveUploadResult] = await Promise.all(parallelTasks);
+    
+    // 12단계: 이메일 발송 (Drive 링크 필요하므로 순차 실행)
     updateProgressStatus(progressId, 'processing', '12단계: 완성된 보고서를 이메일로 발송하고 있습니다');
     console.log('📧 12단계: 이교장의AI역량진단보고서 이메일 발송');
-    const emailResult = sendDiagnosisEmail(normalizedData, aiReport, driveUploadResult.shareLink, diagnosisId);
+    const emailResult = sendDiagnosisEmail(normalizedData, aiReport, driveUploadResult?.shareLink || '#', diagnosisId);
     
     const processingTime = new Date().getTime() - startTime;
     console.log('🎉 이교장의AI역량진단보고서 완료 - 총 소요시간:', processingTime + 'ms');
@@ -773,7 +835,7 @@ function normalizeAIDiagnosisData(rawData, diagnosisId) {
 /**
  * 45문항 점수 계산 (V16.0 정확한 계산 시스템)
  */
-function calculateAdvancedScores(normalizedData) {
+async function calculateAdvancedScores(normalizedData) {
   const responses = normalizedData.responses || [];
   const responseValues = Array.isArray(responses) ? 
     responses.map(v => parseInt(v) || 0) : 
@@ -888,7 +950,7 @@ function calculateSectionScore(sectionResponses) {
 /**
  * 업종별 벤치마크 분석 (V16.0 OLLAMA ULTIMATE)
  */
-function performBenchmarkAnalysis(scoreAnalysis, normalizedData) {
+async function performBenchmarkAnalysis(scoreAnalysis, normalizedData) {
   // 업종별 벤치마크 (백분율 기준)
   const industryBenchmarks = {
     'IT/소프트웨어': { average: 76, top10: 90 },
@@ -919,7 +981,7 @@ function performBenchmarkAnalysis(scoreAnalysis, normalizedData) {
 /**
  * 고도화된 SWOT 분석 (V16.0 OLLAMA ULTIMATE)
  */
-function generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis) {
+async function generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis) {
   const isAboveAverage = scoreAnalysis.percentage > benchmarkAnalysis.industryAverage;
   
   return {
@@ -963,7 +1025,7 @@ function generateAdvancedSWOT(normalizedData, scoreAnalysis, benchmarkAnalysis) 
 /**
  * 핵심 실행 과제 생성 (V16.0 Matrix 대체 - 오류 없는 안정적 구조)
  */
-function generateKeyActionItems(swotAnalysis, scoreAnalysis, normalizedData) {
+async function generateKeyActionItems(swotAnalysis, scoreAnalysis, normalizedData) {
   console.log('🎯 핵심 실행 과제 생성 (V16.0 MATRIX-FREE)');
   
   // 점수 기반 맞춤형 과제 생성
@@ -1018,7 +1080,7 @@ function generateKeyActionItems(swotAnalysis, scoreAnalysis, normalizedData) {
 /**
  * 3단계 실행 로드맵 (V16.0 간소화)
  */
-function generate3PhaseRoadmap(keyActionItems, swotAnalysis, normalizedData) {
+async function generate3PhaseRoadmap(keyActionItems, swotAnalysis, normalizedData) {
   return {
     phase1: {
       title: '1단계: 기반 구축',
@@ -1286,21 +1348,20 @@ function callOllamaAPI(prompt) {
     
     const url = `${baseUrl}/api/generate`;
     
-    // 온보드 시스템 최적화 설정 (무오류 보장)
+    // 온보드 시스템 고속 최적화 설정 (속도 + 안정성)
     const payload = {
       model: model,
       prompt: prompt,
       stream: false,
-      // format: "json", // JSON 형식은 텍스트 응답에 문제를 일으킬 수 있으므로 제거
       options: {
-        temperature: 0.7,        // 안정성과 창의성 균형 (온보드 최적화)
-        top_k: 40,              // 안정적인 토큰 선택
-        top_p: 0.9,             // 적절한 다양성
-        num_predict: 4000,      // 안정적인 토큰 수 (온보드 메모리 고려)
-        repeat_penalty: 1.2,    // 반복 방지 강화
-        num_ctx: 4096,          // 안정적인 컨텍스트 크기
-        num_thread: 4,          // 온보드 시스템 안정성 우선
-        stop: ["<|end|>", "###", "---"] // 명확한 종료 토큰
+        temperature: 0.6,        // 속도 우선 (창의성 약간 감소)
+        top_k: 30,              // 더 빠른 토큰 선택
+        top_p: 0.85,            // 적절한 다양성 유지
+        num_predict: 2000,      // 토큰 수 감소로 속도 향상
+        repeat_penalty: 1.1,    // 반복 방지 최소화
+        num_ctx: 2048,          // 컨텍스트 크기 감소로 속도 향상
+        num_thread: 8,          // 멀티스레드 활용 증가
+        stop: ["<|end|>", "###", "---", "\n\n\n"] // 빠른 종료
       }
     };
     
@@ -1694,7 +1755,7 @@ function generateLeeKyoJangStyleReport(normalizedData, aiReport, analysisData) {
 /**
  * 신청자/관리자 접수확인 메일 발송 (V16.0 OLLAMA ULTIMATE)
  */
-function sendApplicationConfirmationEmails(normalizedData, diagnosisId) {
+async function sendApplicationConfirmationEmails(normalizedData, diagnosisId) {
   console.log('📧 접수확인 메일 발송 시작');
   
   const config = getEnvironmentConfig();
@@ -1936,7 +1997,7 @@ function sendEmailWithRetry(emailOptions, maxRetries = 3) {
 /**
  * 통합 워크플로우 결과 처리 (V16.0 OLLAMA ULTIMATE)
  */
-function handleIntegratedWorkflowResult(requestData, progressId) {
+async function handleIntegratedWorkflowResult(requestData, progressId) {
   try {
     console.log('🎯 통합 워크플로우 결과 처리 시작 - V16.0');
     console.log('📊 받은 데이터 타입:', requestData.type);
@@ -2281,7 +2342,7 @@ function saveErrorLog(type, id, error, requestData) {
 /**
  * Google Sheets에 데이터 저장 (V16.0 OLLAMA ULTIMATE)
  */
-function saveAIDiagnosisData(normalizedData, aiReport, htmlReport, progressId) {
+async function saveAIDiagnosisData(normalizedData, aiReport, htmlReport, progressId) {
   try {
     console.log('💾 Google Sheets 데이터 저장 시작');
     
@@ -2333,7 +2394,7 @@ function saveAIDiagnosisData(normalizedData, aiReport, htmlReport, progressId) {
 /**
  * Google Drive에 HTML 보고서 업로드 (V16.0 OLLAMA ULTIMATE)
  */
-function uploadReportToDrive(diagnosisId, htmlReport, normalizedData) {
+async function uploadReportToDrive(diagnosisId, htmlReport, normalizedData) {
   try {
     console.log('🗂️ Google Drive HTML 보고서 업로드 시작');
     
@@ -2481,7 +2542,7 @@ function handleDriveCheckRequest(requestData, progressId) {
 /**
  * 진단 결과 이메일 발송 (V16.0 OLLAMA ULTIMATE)
  */
-function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
+async function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
   try {
     console.log('📧 진단 결과 이메일 발송 시작');
     
@@ -2608,7 +2669,7 @@ function sendDiagnosisEmail(normalizedData, aiReport, driveLink, diagnosisId) {
 /**
  * 상담신청 처리 (V16.0 OLLAMA ULTIMATE)
  */
-function handleConsultationRequest(requestData, progressId) {
+async function handleConsultationRequest(requestData, progressId) {
   console.log('💬 상담신청 처리 시작 - 통합 시스템');
   
   const config = getEnvironmentConfig();
