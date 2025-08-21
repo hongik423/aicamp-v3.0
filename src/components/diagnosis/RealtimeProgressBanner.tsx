@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Brain, Target, FileText, Mail, Loader2, AlertCircle, X } from 'lucide-react';
+import { CheckCircle2, Brain, Target, FileText, Mail, Loader2, AlertCircle, X, Database, UserCheck } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -41,35 +41,35 @@ const DIAGNOSIS_STEPS: ProgressStep[] = [
     status: 'pending'
   },
   {
-    id: 'ollama-analysis',
-    name: 'Ollama GPT-OSS 20B AI 분석',
-    description: 'AI 역량 6분야 종합 평가 및 업종별 벤치마크 비교',
-    icon: Brain,
-    estimatedTime: '2-3분',
+    id: 'data-storage',
+    name: '데이터 저장',
+    description: 'Google Sheets에 3개 시트로 분리 저장',
+    icon: Database,
+    estimatedTime: '1분',
     status: 'pending'
   },
   {
-    id: 'swot-analysis',
-    name: 'SWOT 전략 분석',
-    description: '강점/약점/기회/위협 요인 분석 및 전략 도출',
-    icon: Target,
-    estimatedTime: '1-2분',
-    status: 'pending'
-  },
-  {
-    id: 'report-generation',
-    name: '맞춤형 보고서 생성',
-    description: '실행 로드맵 및 개선방안 포함 종합 보고서 작성',
-    icon: FileText,
-    estimatedTime: '2-3분',
-    status: 'pending'
-  },
-  {
-    id: 'email-sending',
-    name: '완성된 보고서 이메일 전송',
-    description: 'PDF 형태의 최종 진단보고서 이메일 발송',
+    id: 'email-notification',
+    name: '이메일 발송',
+    description: '신청자/관리자 확인 이메일 발송',
     icon: Mail,
-    estimatedTime: '30-60초',
+    estimatedTime: '1분',
+    status: 'pending'
+  },
+  {
+    id: 'offline-processing',
+    name: '오프라인 처리',
+    description: '이교장 수동 분석 및 보고서 작성',
+    icon: UserCheck,
+    estimatedTime: '24시간',
+    status: 'pending'
+  },
+  {
+    id: 'report-dispatch',
+    name: '보고서 발송',
+    description: '24시간 내 이메일로 보고서 발송',
+    icon: FileText,
+    estimatedTime: '즉시',
     status: 'pending'
   }
 ];
