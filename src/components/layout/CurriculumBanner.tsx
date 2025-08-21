@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Download, BookOpen, Sparkles, X } from 'lucide-react';
+import { Download, BookOpen, Sparkles, X, GraduationCap } from 'lucide-react';
 
 export default function CurriculumBanner() {
   const [isVisible, setIsVisible] = useState(true);
@@ -22,6 +22,11 @@ export default function CurriculumBanner() {
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleAICAMPEducation = () => {
+    // AICAMP 교육 페이지로 이동
+    window.open('/services/ai-curriculum', '_blank');
   };
 
   const handleClose = () => {
@@ -78,26 +83,39 @@ export default function CurriculumBanner() {
             </div>
           </div>
           
-          {/* 다운로드 버튼 */}
-          <button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="relative z-10 flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 hover:border-white/50 text-white font-semibold px-4 py-2.5 sm:px-5 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-apple hover:shadow-apple-hover disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-          >
-            {isDownloading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span className="hidden sm:inline">열는 중...</span>
-                <span className="sm:hidden">열는 중...</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">PDF 보기</span>
-                <span className="sm:hidden">보기</span>
-              </>
-            )}
-          </button>
+          {/* 버튼 그룹 */}
+          <div className="relative z-10 flex items-center gap-3">
+            {/* AICAMP 교육 버튼 */}
+            <button
+              onClick={handleAICAMPEducation}
+              className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 hover:border-white/50 text-white font-semibold px-4 py-2.5 sm:px-5 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-apple hover:shadow-apple-hover text-sm sm:text-base"
+            >
+              <GraduationCap className="w-4 h-4" />
+              <span className="hidden sm:inline">AICAMP교육</span>
+              <span className="sm:hidden">교육</span>
+            </button>
+            
+            {/* PDF 보기 버튼 */}
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 hover:border-white/50 text-white font-semibold px-4 py-2.5 sm:px-5 rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-apple hover:shadow-apple-hover disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+            >
+              {isDownloading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span className="hidden sm:inline">열는 중...</span>
+                  <span className="sm:hidden">열는 중...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">PDF 보기</span>
+                  <span className="sm:hidden">보기</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
