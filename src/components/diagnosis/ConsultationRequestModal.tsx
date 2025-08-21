@@ -463,18 +463,7 @@ export default function ConsultationRequestModal({
               />
             </div>
 
-            {/* 개인정보 동의 완료 안내 */}
-            <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-xl shadow-sm">
-              <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-              <div className="flex-1">
-                <div className="text-base font-bold text-green-800 mb-1">
-                  ✅ 개인정보 동의 완료
-                </div>
-                <p className="text-sm text-green-700 leading-relaxed">
-                  AI 역량진단 시 개인정보 수집 및 이용에 이미 동의하셨습니다. 별도 동의 없이 상담 신청이 가능합니다.
-                </p>
-              </div>
-            </div>
+
 
             {/* 에러 메시지 */}
             {submitError && (

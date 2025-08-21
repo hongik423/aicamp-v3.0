@@ -34,41 +34,41 @@ interface RealtimeProgressBannerProps {
 const DIAGNOSIS_STEPS: ProgressStep[] = [
   {
     id: 'data-validation',
-    name: '데이터 검증 및 전처리',
-    description: '제출된 정보의 완성도와 유효성을 검증합니다',
+    name: '1단계: 데이터 검증',
+    description: '제출된 45문항 응답의 완성도와 유효성을 실시간 검증합니다',
     icon: CheckCircle2,
     estimatedTime: '30초',
     status: 'pending'
   },
   {
+    id: 'ai-analysis',
+    name: '2단계: AI 분석 처리',
+    description: 'Ollama AI 모델을 통한 역량진단 분석 및 점수 산출',
+    icon: Brain,
+    estimatedTime: '3-5분',
+    status: 'pending'
+  },
+  {
+    id: 'report-generation',
+    name: '3단계: 보고서 생성',
+    description: '이교장 스타일 맞춤형 진단보고서 자동 생성',
+    icon: FileText,
+    estimatedTime: '2-3분',
+    status: 'pending'
+  },
+  {
     id: 'data-storage',
-    name: '데이터 저장',
-    description: 'Google Sheets에 3개 시트로 분리 저장',
+    name: '4단계: 데이터 저장',
+    description: 'Google Sheets 데이터베이스에 안전하게 저장',
     icon: Database,
     estimatedTime: '1분',
     status: 'pending'
   },
   {
-    id: 'email-notification',
-    name: '이메일 발송',
-    description: '신청자/관리자 확인 이메일 발송',
+    id: 'email-dispatch',
+    name: '5단계: 보고서 발송',
+    description: '완성된 진단보고서를 이메일로 즉시 발송',
     icon: Mail,
-    estimatedTime: '1분',
-    status: 'pending'
-  },
-  {
-    id: 'offline-processing',
-    name: '오프라인 처리',
-    description: '이교장 수동 분석 및 보고서 작성',
-    icon: UserCheck,
-    estimatedTime: '24시간',
-    status: 'pending'
-  },
-  {
-    id: 'report-dispatch',
-    name: '보고서 발송',
-    description: '24시간 내 이메일로 보고서 발송',
-    icon: FileText,
     estimatedTime: '즉시',
     status: 'pending'
   }

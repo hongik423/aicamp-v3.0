@@ -138,7 +138,16 @@ BM ZEN 사업분석으로는 생산성을 42% 향상시키고 ROI를 290% 달성
       
     } catch (error) {
       console.error('❌ 플로팅 챗봇 브라우저 LLM 초기화 실패:', error);
-      setModelLoadStatus(`초기화 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      setModelLoadStatus(`브라우저 AI 초기화 실패 - 서버 AI로 전환`);
+      
+      // 브라우저 AI 실패 시 서버 AI로 자동 전환
+      console.log('🔄 서버 AI 모드로 자동 전환');
+      setUseServerAI(true);
+      
+      // 사용자에게 친화적인 메시지 표시
+      setTimeout(() => {
+        setModelLoadStatus('서버 AI 모드로 전환 완료 - 상담 가능');
+      }, 1000);
     } finally {
       setIsModelLoading(false);
     }

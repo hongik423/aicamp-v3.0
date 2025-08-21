@@ -1445,7 +1445,7 @@ export class QualityAssessmentEngine {
   assessQuality(
     question: string, 
     response: string, 
-    context: ContextualUnderstanding, 
+    context: ContextualUnderstanding | undefined, 
     responseTime: number
   ): QualityMetrics {
     // 관련성 평가 (0-100)
@@ -1496,7 +1496,7 @@ export class QualityAssessmentEngine {
     };
   }
 
-  private calculateRelevance(question: string, response: string, context: ContextualUnderstanding): number {
+  private calculateRelevance(question: string, response: string, context: ContextualUnderstanding | undefined): number {
     let score = 70; // 기본 점수
     
     // 질문 키워드와 응답 매칭도
@@ -1508,16 +1508,16 @@ export class QualityAssessmentEngine {
     
     score += keywordMatchRate * 30;
     
-    // 문맥 적합성
-    if (context.userIntent === 'greeting' && response.includes('안녕')) score += 10;
-    if (context.userIntent === 'inquiry' && response.includes('도움')) score += 10;
-    if (context.complexity === 'simple' && response.length < 200) score += 5;
-    if (context.complexity === 'expert' && response.length > 300) score += 5;
+    // 문맥 적합성 - null/undefined 체크 추가
+    if (context?.userIntent === 'greeting' && response.includes('안녕')) score += 10;
+    if (context?.userIntent === 'inquiry' && response.includes('도움')) score += 10;
+    if (context?.complexity === 'simple' && response.length < 200) score += 5;
+    if (context?.complexity === 'expert' && response.length > 300) score += 5;
     
     return Math.min(100, score);
   }
 
-  private calculateAccuracy(response: string, context: ContextualUnderstanding): number {
+  private calculateAccuracy(response: string, context: ContextualUnderstanding | undefined): number {
     let score = 85; // 기본 점수
     
     // 사실적 정보 포함 여부
@@ -1525,24 +1525,24 @@ export class QualityAssessmentEngine {
     if (response.includes('010-9251-9743')) score += 5;
     if (response.includes('n8n') || response.includes('자동화')) score += 5;
     
-    // 문맥 적합성
-    if (context.industry !== 'general' && response.includes(context.industry)) score += 5;
-    if (context.userType !== 'individual' && response.includes(context.userType)) score += 5;
+    // 문맥 적합성 - null/undefined 체크 추가
+    if (context?.industry !== 'general' && response.includes(context?.industry || '')) score += 5;
+    if (context?.userType !== 'individual' && response.includes(context?.userType || '')) score += 5;
     
     return Math.min(100, score);
   }
 
-  private calculateCompleteness(question: string, response: string, context: ContextualUnderstanding): number {
+  private calculateCompleteness(question: string, response: string, context: ContextualUnderstanding | undefined): number {
     let score = 70; // 기본 점수
     
-    // 질문 유형별 완성도
-    if (context.userIntent === 'inquiry' && response.includes('다음 단계')) score += 15;
-    if (context.userIntent === 'comparison' && response.includes('차이점')) score += 15;
-    if (context.userIntent === 'request' && response.includes('연락처')) score += 15;
+    // 질문 유형별 완성도 - null/undefined 체크 추가
+    if (context?.userIntent === 'inquiry' && response.includes('다음 단계')) score += 15;
+    if (context?.userIntent === 'comparison' && response.includes('차이점')) score += 15;
+    if (context?.userIntent === 'request' && response.includes('연락처')) score += 15;
     
-    // 응답 길이 적절성
-    const expectedLength = context.preferredCommunication === 'detailed' ? 400 : 
-                          context.preferredCommunication === 'concise' ? 150 : 250;
+    // 응답 길이 적절성 - null/undefined 체크 추가
+    const expectedLength = context?.preferredCommunication === 'detailed' ? 400 : 
+                          context?.preferredCommunication === 'concise' ? 150 : 250;
     const lengthDiff = Math.abs(response.length - expectedLength);
     score += Math.max(0, 15 - (lengthDiff / 10));
     

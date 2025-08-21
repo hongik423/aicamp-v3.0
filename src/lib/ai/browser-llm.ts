@@ -145,6 +145,35 @@ export class BrowserLLM {
       
     } catch (error) {
       console.error('❌ 브라우저 AI 모델 초기화 실패:', error);
+      
+      // 자동 복구 시도
+      try {
+        console.log('🔄 Ollama 서버 자동 시작 시도 중...');
+        const healthResponse = await fetch('/api/ollama/health', { 
+          method: 'GET',
+          signal: AbortSignal.timeout(15000) // 15초 타임아웃
+        });
+        
+        if (healthResponse.ok) {
+          const healthData = await healthResponse.json();
+          if (healthData.success && healthData.status === 'started') {
+            console.log('✅ Ollama 서버 자동 시작 성공');
+            // 서버 시작 후 잠시 대기
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // 다시 한 번 초기화 시도
+            const retryHealthCheck = await this.checkOllamaHealth();
+            if (retryHealthCheck.isRunning && retryHealthCheck.modelAvailable) {
+              this.isInitialized = true;
+              console.log('✅ 브라우저 AI 모델 자동 복구 성공');
+              return;
+            }
+          }
+        }
+      } catch (recoveryError) {
+        console.warn('❌ Ollama 서버 자동 복구 실패:', recoveryError);
+      }
+      
       throw new Error(`모델 초기화 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     } finally {
       this.isInitializing = false;

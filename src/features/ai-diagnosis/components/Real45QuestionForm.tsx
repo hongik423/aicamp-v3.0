@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle, X, Download, FileText } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,6 +17,8 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
 import ScoreGuideModal from '@/components/diagnosis/ScoreGuideModal';
 import ConsultationRequestModal from '@/components/diagnosis/ConsultationRequestModal';
+import { generateDiagnosisFormPDF, downloadPDF, generateAndUploadDiagnosisFormPDF } from '@/lib/pdf/diagnosis-form-generator';
+import { generateScoreReportPDF, generateAndUploadScoreReportPDF } from '@/lib/pdf/score-report-generator';
 // import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete'; // 삭제된 컴포넌트
 
 interface CompanyInfo {
@@ -78,16 +80,177 @@ const Real45QuestionForm: React.FC = () => {
   const [progressData, setProgressData] = useState<any>(null);
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [progressSteps, setProgressSteps] = useState({
-    'data-validation': { status: 'pending', progress: 0, label: '데이터 검증' },
-    'data-storage': { status: 'pending', progress: 0, label: '데이터 저장' },
-    'email-notification': { status: 'pending', progress: 0, label: '이메일 발송' },
-    'offline-processing': { status: 'pending', progress: 0, label: '오프라인 처리' },
-    'report-dispatch': { status: 'pending', progress: 0, label: '보고서 발송' }
+    'data-validation': { status: 'pending', progress: 0, label: '1단계: 데이터 검증' },
+    'ai-analysis': { status: 'pending', progress: 0, label: '2단계: AI 분석 처리' },
+    'report-generation': { status: 'pending', progress: 0, label: '3단계: 보고서 생성' },
+    'data-storage': { status: 'pending', progress: 0, label: '4단계: 데이터 저장' },
+    'email-dispatch': { status: 'pending', progress: 0, label: '5단계: 보고서 발송' }
   });
   
   // 점수체계 안내 모달 상태 (비활성화)
   const [showScoreGuide, setShowScoreGuide] = useState(false);
   const [hasShownGuide, setHasShownGuide] = useState(true); // 항상 표시된 것으로 처리
+  
+  // PDF 다운로드 상태
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isGeneratingScorePDF, setIsGeneratingScorePDF] = useState(false);
+
+  // PDF 다운로드 및 Google Drive 업로드 함수들
+  const handleDownloadDiagnosisForm = async () => {
+    if (!formState.companyInfo.companyName || Object.keys(formState.answers).length === 0) {
+      toast({
+        title: "❌ 다운로드 불가",
+        description: "기업 정보와 진단 응답을 모두 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingPDF(true);
+    try {
+      const diagnosisData = {
+        companyInfo: formState.companyInfo,
+        responses: formState.answers,
+        diagnosisId: diagnosisResult?.diagnosisId || `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        submitDate: new Date().toISOString()
+      };
+
+      // Google Drive 폴더 ID (환경변수 또는 기본값)
+      const folderId = process.env.NEXT_PUBLIC_DRIVE_FOLDER_ID || "1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj";
+      
+      // PDF 생성 및 Google Drive 업로드
+      const result = await generateAndUploadDiagnosisFormPDF(diagnosisData, folderId);
+      
+      if (result.success) {
+        // 로컬 다운로드도 함께 수행
+        if (result.blob) {
+          const filename = `AI역량진단신청서_${formState.companyInfo.companyName}_${new Date().toISOString().slice(0, 10)}.pdf`;
+          downloadPDF(result.blob, filename);
+        }
+        
+        toast({
+          title: "✅ PDF 생성 및 저장 완료",
+          description: "진단 신청서가 다운로드되고 Google Drive에 저장되었습니다.",
+        });
+        
+        console.log('✅ Google Drive 저장 완료:', {
+          fileId: result.fileId,
+          webViewLink: result.webViewLink
+        });
+      } else {
+        // Google Drive 업로드 실패 시 로컬 다운로드만 수행
+        const pdfBlob = await generateDiagnosisFormPDF(diagnosisData);
+        const filename = `AI역량진단신청서_${formState.companyInfo.companyName}_${new Date().toISOString().slice(0, 10)}.pdf`;
+        downloadPDF(pdfBlob, filename);
+        
+        toast({
+          title: "✅ PDF 다운로드 완료 (Google Drive 저장 실패)",
+          description: "진단 신청서가 다운로드되었습니다. Google Drive 저장에 실패했습니다.",
+          variant: "destructive"
+        });
+        
+        console.error('❌ Google Drive 저장 실패:', result.error);
+      }
+    } catch (error) {
+      console.error('PDF 생성 오류:', error);
+      toast({
+        title: "❌ PDF 생성 실패",
+        description: "PDF 생성 중 오류가 발생했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  const handleDownloadScoreReport = async () => {
+    if (!diagnosisResult) {
+      toast({
+        title: "❌ 다운로드 불가",
+        description: "진단 결과가 없습니다. 먼저 진단을 완료해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingScorePDF(true);
+    try {
+      const scoreData = {
+        diagnosisId: diagnosisResult.diagnosisId || `DIAG_${Date.now()}`,
+        companyName: formState.companyInfo.companyName,
+        contactName: formState.companyInfo.contactName,
+        submitDate: new Date().toISOString(),
+        scores: {
+          totalScore: diagnosisResult.totalScore || 0,
+          averageScore: diagnosisResult.totalScore || 0,
+          grade: diagnosisResult.grade || 'C',
+          maturityLevel: diagnosisResult.maturityLevel || '중급',
+          percentile: diagnosisResult.percentile || 50,
+          categoryScores: {
+            businessFoundation: diagnosisResult.categoryScores?.businessFoundation || 0,
+            currentAIUsage: diagnosisResult.categoryScores?.currentAIUsage || 0,
+            organizationalReadiness: diagnosisResult.categoryScores?.organizationalReadiness || 0,
+            technicalInfrastructure: diagnosisResult.categoryScores?.technicalInfrastructure || 0,
+            goalClarity: diagnosisResult.categoryScores?.goalClarity || 0,
+            executionCapability: diagnosisResult.categoryScores?.executionCapability || 0
+          }
+        },
+        analysis: {
+          strengths: diagnosisResult.strengths || ['조직 준비도가 우수합니다'],
+          weaknesses: diagnosisResult.weaknesses || ['기술 인프라 개선이 필요합니다'],
+          opportunities: diagnosisResult.opportunities || ['AI 도입을 통한 경쟁력 강화'],
+          threats: diagnosisResult.threats || ['기술 변화 속도 대응 필요'],
+          recommendations: diagnosisResult.recommendations || ['단계적 AI 도입 계획 수립']
+        }
+      };
+
+      // Google Drive 폴더 ID (환경변수 또는 기본값)
+      const folderId = process.env.NEXT_PUBLIC_DRIVE_FOLDER_ID || "1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj";
+      
+      // PDF 생성 및 Google Drive 업로드
+      const result = await generateAndUploadScoreReportPDF(scoreData, folderId);
+      
+      if (result.success) {
+        // 로컬 다운로드도 함께 수행
+        if (result.blob) {
+          const filename = `AI역량진단점수체크_${formState.companyInfo.companyName}_${new Date().toISOString().slice(0, 10)}.pdf`;
+          downloadPDF(result.blob, filename);
+        }
+        
+        toast({
+          title: "✅ 점수 보고서 생성 및 저장 완료",
+          description: "점수체크 보고서가 다운로드되고 Google Drive에 저장되었습니다.",
+        });
+        
+        console.log('✅ Google Drive 저장 완료:', {
+          fileId: result.fileId,
+          webViewLink: result.webViewLink
+        });
+      } else {
+        // Google Drive 업로드 실패 시 로컬 다운로드만 수행
+        const pdfBlob = await generateScoreReportPDF(scoreData);
+        const filename = `AI역량진단점수체크_${formState.companyInfo.companyName}_${new Date().toISOString().slice(0, 10)}.pdf`;
+        downloadPDF(pdfBlob, filename);
+        
+        toast({
+          title: "✅ 점수 보고서 다운로드 완료 (Google Drive 저장 실패)",
+          description: "점수체크 보고서가 다운로드되었습니다. Google Drive 저장에 실패했습니다.",
+          variant: "destructive"
+        });
+        
+        console.error('❌ Google Drive 저장 실패:', result.error);
+      }
+    } catch (error) {
+      console.error('점수체크 PDF 생성 오류:', error);
+      toast({
+        title: "❌ 점수체크 PDF 생성 실패",
+        description: "점수체크 PDF 생성 중 오류가 발생했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingScorePDF(false);
+    }
+  };
 
   // 간단한 입력 핸들러들
   const handleAddressChange = (address: string) => {
@@ -305,10 +468,10 @@ const Real45QuestionForm: React.FC = () => {
       
       // 모든 단계 완료
       updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('ollama-analysis', 'completed', 100);
-      updateProgressSteps('swot-analysis', 'completed', 100);
+      updateProgressSteps('ai-analysis', 'completed', 100);
       updateProgressSteps('report-generation', 'completed', 100);
-      updateProgressSteps('email-sending', 'completed', 100);
+      updateProgressSteps('data-storage', 'completed', 100);
+      updateProgressSteps('email-dispatch', 'completed', 100);
       
       // 완료 후에도 배너를 지속적으로 표시 (사용자가 수동으로 닫을 때까지)
       toast({
@@ -326,10 +489,10 @@ const Real45QuestionForm: React.FC = () => {
       
       // 타임아웃 시에도 완료 처리 (백그라운드에서 계속 진행)
       updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('ollama-analysis', 'completed', 100);
-      updateProgressSteps('swot-analysis', 'completed', 100);
+      updateProgressSteps('ai-analysis', 'completed', 100);
       updateProgressSteps('report-generation', 'completed', 100);
-      updateProgressSteps('email-sending', 'completed', 100);
+      updateProgressSteps('data-storage', 'completed', 100);
+      updateProgressSteps('email-dispatch', 'completed', 100);
       
       // 타임아웃 시에도 배너를 지속적으로 표시
       toast({
@@ -718,6 +881,37 @@ const Real45QuestionForm: React.FC = () => {
           <p className="text-sm text-gray-500 mb-6">진단 ID: {diagnosisResult.diagnosisId}</p>
           
           <div className="space-y-3">
+            {/* PDF 다운로드 버튼들 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+              <Button
+                onClick={handleDownloadDiagnosisForm}
+                disabled={isGeneratingPDF}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                size="lg"
+              >
+                {isGeneratingPDF ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <FileText className="w-4 h-4 mr-2" />
+                )}
+                {isGeneratingPDF ? 'PDF 생성 중...' : '신청서 PDF'}
+              </Button>
+              
+              <Button
+                onClick={handleDownloadScoreReport}
+                disabled={isGeneratingScorePDF || !diagnosisResult}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                size="lg"
+              >
+                {isGeneratingScorePDF ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                {isGeneratingScorePDF ? 'PDF 생성 중...' : '점수체크 PDF'}
+              </Button>
+            </div>
+            
             <Button 
               onClick={() => window.open(`/diagnosis/report/${diagnosisResult.diagnosisId}`, '_blank')}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
