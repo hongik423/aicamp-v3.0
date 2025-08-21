@@ -97,7 +97,7 @@ function setupV17EnvironmentVariables() {
     const optionalVars = {
       'DEBUG_MODE': 'false',
       'ENVIRONMENT': 'production',
-      'SYSTEM_VERSION': 'V17.0-SIMPLIFIED'
+      'SYSTEM_VERSION': 'V17.0-SIMPLIFIED-FIXED'
     };
     
     // 환경변수 설정
@@ -339,7 +339,8 @@ function doPost(e) {
         processingTime: processingTime,
         version: 'V17.0-SIMPLIFIED-FIXED',
         timestamp: new Date().toISOString(),
-        supportedActions: ['diagnosis', 'consultation', 'error_report', 'getResult', 'checkProgress']
+        supportedActions: ['diagnosis', 'consultation', 'error_report', 'getResult', 'checkProgress'],
+        note: 'V17.0 간소화 시스템: AI 분석 완전 제거, 오프라인 수동 처리 방식'
       }))
       .setMimeType(ContentService.MimeType.JSON);
   }
@@ -610,7 +611,7 @@ function validateSpreadsheetAccess(spreadsheetId) {
  * AI 역량진단 요청 처리 (V17.0 간소화 - 5단계 워크플로우)
  */
 function handleAIDiagnosisRequest(requestData, progressId) {
-  console.log('🎓 AI 역량진단 접수 처리 시작 - V17.0 간소화');
+  console.log('🎓 AI 역량진단 접수 처리 시작 - V17.0 간소화 (오프라인 처리)');
   
   const config = getEnvironmentConfig();
   const diagnosisId = requestData && (requestData.diagnosisId || (requestData.data && requestData.data.diagnosisId))
@@ -639,7 +640,7 @@ function handleAIDiagnosisRequest(requestData, progressId) {
     console.log('📧 4단계: 관리자 알림 메일 발송');
     const adminEmailResult = sendAdminNotificationEmail(normalizedData, diagnosisId);
     
-    // 5단계: 24시간 내 발송 안내 메일 예약 (실제로는 즉시 발송)
+    // 5단계: 24시간 내 발송 안내 메일 발송
     updateProgressStatus(progressId, 'processing', '5단계: 24시간 내 발송 안내 메일을 발송하고 있습니다');
     console.log('📧 5단계: 24시간 내 발송 안내 메일 발송');
     const scheduleEmailResult = send24HourNotificationEmail(normalizedData, diagnosisId);
@@ -647,7 +648,7 @@ function handleAIDiagnosisRequest(requestData, progressId) {
     const processingTime = new Date().getTime() - startTime;
     console.log('🎉 AI역량진단 접수 완료 - 총 소요시간:', processingTime + 'ms');
     
-    updateProgressStatus(progressId, 'completed', 'AI역량진단 신청이 성공적으로 접수되었습니다');
+    updateProgressStatus(progressId, 'completed', 'AI역량진단 신청이 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석을 진행합니다.');
     
     return ContentService
       .createTextOutput(JSON.stringify({
@@ -661,11 +662,13 @@ function handleAIDiagnosisRequest(requestData, progressId) {
           applicantEmailSent: applicantEmailResult.success,
           adminEmailSent: adminEmailResult.success,
           scheduleEmailSent: scheduleEmailResult.success,
-          offlineProcessing: true
+          offlineProcessing: true,
+          aiAnalysisRemoved: true // AI 분석 완전 제거 확인
         },
         processingTime: processingTime,
-        version: 'V17.0-SIMPLIFIED',
-        timestamp: new Date().toISOString()
+        version: 'V17.0-SIMPLIFIED-FIXED',
+        timestamp: new Date().toISOString(),
+        processingMode: 'offline_manual_analysis' // 오프라인 수동 분석 모드
       }))
       .setMimeType(ContentService.MimeType.JSON);
       
@@ -683,7 +686,8 @@ function handleAIDiagnosisRequest(requestData, progressId) {
         error: `AI역량진단 접수 처리 실패: ${error.message}`,
         diagnosisId: diagnosisId,
         version: 'V17.0-SIMPLIFIED-FIXED',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        note: 'AI 분석이 완전히 제거된 오프라인 처리 시스템입니다.'
       }))
       .setMimeType(ContentService.MimeType.JSON);
   }
