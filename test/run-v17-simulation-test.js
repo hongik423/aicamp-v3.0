@@ -15,7 +15,7 @@
 const { runV17WorkflowSimulationTests } = require('./v17-workflow-simulation-test');
 
 // Google Apps Script ID 설정 (실제 ID로 변경 필요)
-const SCRIPT_ID = 'YOUR_ACTUAL_SCRIPT_ID_HERE';
+const SCRIPT_ID = 'TEST_MODE_NO_DEPLOYMENT';
 
 // 테스트 설정 업데이트
 const TEST_CONFIG = {
@@ -41,13 +41,23 @@ function checkEnvironment() {
   }
   
   // 스크립트 ID 확인
-  if (SCRIPT_ID === 'YOUR_ACTUAL_SCRIPT_ID_HERE') {
-    console.error('❌ Google Apps Script ID를 설정해주세요.');
-    console.log('📝 docs/250821_aicamp_simplified_v17.js 파일을 Google Apps Script에 업로드하고 ID를 복사하세요.');
-    process.exit(1);
+  if (SCRIPT_ID === 'TEST_MODE_NO_DEPLOYMENT') {
+    console.log('⚠️ 테스트 모드: Google Apps Script가 배포되지 않았습니다.');
+    console.log('📝 다음 단계를 따라 Google Apps Script를 배포하세요:');
+    console.log('   1. https://script.google.com/ 접속');
+    console.log('   2. 새 프로젝트 생성');
+    console.log('   3. docs/250821_aicamp_simplified_v17.js 파일 내용 복사');
+    console.log('   4. Code.gs 파일에 붙여넣기');
+    console.log('   5. 배포 > 새 배포 > 웹 앱');
+    console.log('   6. 배포 후 URL에서 스크립트 ID 추출');
+    console.log('   7. 이 파일의 SCRIPT_ID를 실제 ID로 변경');
+    console.log('');
+    console.log('🔄 테스트를 건너뛰고 모의 테스트를 실행합니다...');
+    return false;
   }
   
   console.log('✅ 테스트 환경 준비 완료');
+  return true;
 }
 
 /**
@@ -62,7 +72,14 @@ async function runTests() {
   
   try {
     // 환경 확인
-    checkEnvironment();
+    const isEnvironmentReady = checkEnvironment();
+    if (!isEnvironmentReady) {
+      console.log('모의 테스트를 실행합니다...');
+      // 모의 테스트 실행
+      const { runMockV17Tests } = require('./mock-v17-test');
+      const mockResults = await runMockV17Tests();
+      return mockResults;
+    }
     
     // 테스트 실행
     const results = await runV17WorkflowSimulationTests();
