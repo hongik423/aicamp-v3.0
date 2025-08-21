@@ -179,6 +179,11 @@ function doGet(e) {
       return getDiagnosisResult(diagnosisId);
     }
     
+    // 진행상황 조회 요청인 경우
+    if (diagnosisId && action === 'checkProgress') {
+      return getProgressStatus(diagnosisId);
+    }
+    
     // 헬스체크 응답 (V17.0 간소화)
     return ContentService
       .createTextOutput(JSON.stringify({
@@ -201,7 +206,8 @@ function doGet(e) {
           health: 'GET /',
           consultation: 'POST /?action=consultation',
           errorReport: 'POST /?action=error-report',
-          getResult: 'GET /?diagnosisId=ID&action=getResult'
+          getResult: 'GET /?diagnosisId=ID&action=getResult',
+          checkProgress: 'GET /?diagnosisId=ID&action=checkProgress'
         }
       }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -331,7 +337,7 @@ function doPost(e) {
         success: false,
         error: error.message,
         processingTime: processingTime,
-        version: 'V17.0-SIMPLIFIED',
+        version: 'V17.0-SIMPLIFIED-FIXED',
         timestamp: new Date().toISOString(),
         supportedActions: ['diagnosis', 'consultation', 'error_report', 'getResult', 'checkProgress']
       }))
@@ -379,6 +385,7 @@ function startProgressMonitoring(requestType, requestData) {
     
   } catch (error) {
     console.error('❌ 진행상황 모니터링 시작 실패:', error);
+    // 오류가 발생해도 progressId는 반환하여 시스템이 계속 작동하도록 함
   }
   
   return progressId;
@@ -389,11 +396,19 @@ function startProgressMonitoring(requestType, requestData) {
  */
 function updateProgressStatus(progressId, status, message) {
   try {
+    if (!progressId) {
+      console.warn('⚠️ progressId가 없어 진행상황 업데이트를 건너뜁니다');
+      return;
+    }
+    
     const sheetsConfig = getSheetsConfig();
     const spreadsheet = SpreadsheetApp.openById(sheetsConfig.SPREADSHEET_ID);
     const progressSheet = spreadsheet.getSheetByName(sheetsConfig.SHEETS.PROGRESS_MONITORING);
     
-    if (!progressSheet) return;
+    if (!progressSheet) {
+      console.warn('⚠️ 진행상황 모니터링 시트를 찾을 수 없습니다');
+      return;
+    }
     
     // 해당 진행ID 찾기
     const data = progressSheet.getDataRange().getValues();
@@ -415,6 +430,7 @@ function updateProgressStatus(progressId, status, message) {
     
   } catch (error) {
     console.error('❌ 진행상황 업데이트 실패:', error);
+    // 오류가 발생해도 시스템이 계속 작동하도록 함
   }
 }
 
@@ -469,7 +485,7 @@ function getProgressStatus(diagnosisId) {
           success: true,
           diagnosisId: diagnosisId,
           progress: latestProgress,
-          version: 'V17.0-SIMPLIFIED',
+          version: 'V17.0-SIMPLIFIED-FIXED',
           timestamp: new Date().toISOString()
         }))
         .setMimeType(ContentService.MimeType.JSON);
@@ -481,7 +497,7 @@ function getProgressStatus(diagnosisId) {
           success: false,
           diagnosisId: diagnosisId,
           message: '진행상황 데이터를 찾을 수 없습니다',
-          version: 'V17.0-SIMPLIFIED',
+          version: 'V17.0-SIMPLIFIED-FIXED',
           timestamp: new Date().toISOString()
         }))
         .setMimeType(ContentService.MimeType.JSON);
@@ -495,7 +511,7 @@ function getProgressStatus(diagnosisId) {
         success: false,
         diagnosisId: diagnosisId,
         error: error.message,
-        version: 'V17.0-SIMPLIFIED',
+        version: 'V17.0-SIMPLIFIED-FIXED',
         timestamp: new Date().toISOString()
       }))
       .setMimeType(ContentService.MimeType.JSON);
