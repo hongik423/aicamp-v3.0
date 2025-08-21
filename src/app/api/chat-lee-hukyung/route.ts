@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callAI } from '@/lib/ai/ai-provider';
-import { findCachedResponse, CacheMetrics } from '@/lib/cache/faq-cache';
-import { AICAMP_CURRICULUM_DATABASE, CurriculumRecommendationEngine } from '@/lib/data/aicamp-curriculum-database';
+import { generateEnhancedResponse } from '@/lib/ai/enhanced-fallback-system';
 
 export const dynamic = 'force-dynamic';
 
@@ -161,6 +159,94 @@ const SYSTEM_PROMPT = `
 - 직접 상담 연락처 안내 (010-9251-9743)
 - 무료 AI 역량진단 추천`;
 
+// 캐시 시스템
+class ResponseCache {
+  private cache = new Map<string, { content: string; buttons: any[]; timestamp: number }>();
+  private maxSize = 1000;
+  private ttl = 30 * 60 * 1000; // 30분
+
+  set(key: string, value: { content: string; buttons: any[] }): void {
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, { ...value, timestamp: Date.now() });
+  }
+
+  get(key: string): { content: string; buttons: any[] } | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    
+    if (Date.now() - item.timestamp > this.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return item;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+}
+
+const responseCache = new ResponseCache();
+
+// 캐시 메트릭
+class ChatCacheMetrics {
+  private hits = 0;
+  private misses = 0;
+
+  recordHit(): void {
+    this.hits++;
+  }
+
+  recordMiss(): void {
+    this.misses++;
+  }
+
+  getStats(): { hits: number; misses: number; hitRate: number } {
+    const total = this.hits + this.misses;
+    return {
+      hits: this.hits,
+      misses: this.misses,
+      hitRate: total > 0 ? this.hits / total : 0
+    };
+  }
+}
+
+const chatCacheMetrics = new ChatCacheMetrics();
+
+// 캐시된 응답 찾기
+function findCachedResponse(question: string): { content: string; buttons: any[] } | null {
+  const normalizedQuestion = question.toLowerCase().trim();
+  const key = normalizedQuestion.substring(0, 50); // 첫 50자만 키로 사용
+  return responseCache.get(key);
+}
+
+// 빠른 폴백 응답 생성
+function generateQuickFallback(question: string): string {
+  const normalizedQuestion = question.toLowerCase();
+  
+  if (normalizedQuestion.includes('안녕') || normalizedQuestion.includes('반갑')) {
+    return '안녕하세요! 이교장의 AI 상담에 오신 것을 환영합니다! 😊\n\n저는 이후경 교장의 28년간 현장 경험을 바탕으로 AI 역량진단, 교육, 컨설팅에 대해 도움을 드리는 AI 상담사입니다.\n\n궁금한 점이 있으시면 언제든 편하게 물어보세요!';
+  }
+  
+  if (normalizedQuestion.includes('진단') || normalizedQuestion.includes('역량')) {
+    return 'AI 역량진단에 대해 궁금하시군요! 🎯\n\n45개 행동지표를 기반으로 정밀한 진단을 제공합니다. 무료로 받아보실 수 있어요!\n\n바로 시작해보시겠어요?';
+  }
+  
+  if (normalizedQuestion.includes('n8n') || normalizedQuestion.includes('자동화')) {
+    return 'n8n 자동화에 대해 궁금하시군요! 🚀\n\nNo-Code로 업무를 90% 자동화할 수 있는 강력한 도구입니다. 16시간 과정으로 전문가가 될 수 있어요.\n\n더 자세한 정보가 필요하시면 언제든 연락주세요!';
+  }
+  
+  if (normalizedQuestion.includes('상담') || normalizedQuestion.includes('문의')) {
+    return '상담 문의 감사합니다! 📞\n\n이교장이 직접 도와드리겠습니다. 연락처: 010-9251-9743\n\n무료 AI 역량진단도 함께 받아보시는 것을 추천드려요!';
+  }
+  
+  return '안녕하세요! 이교장의 AI 상담입니다. 😊\n\n궁금한 점이 있으시면 언제든 편하게 물어보세요. AI 역량진단, 교육, 컨설팅 등 모든 분야에서 도움을 드리겠습니다!\n\n연락처: 010-9251-9743';
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
@@ -170,6 +256,7 @@ export async function POST(request: NextRequest) {
     const history = Array.isArray(body.history)
       ? body.history.map((h: any) => ({ role: h.sender === 'user' ? 'user' : 'assistant', content: String(h.content || '') }))
       : [];
+    const sessionId = body.sessionId || `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ success: false, error: '메시지는 필수입니다.' }, { status: 400 });
@@ -178,12 +265,13 @@ export async function POST(request: NextRequest) {
     let responseText: string;
     let isFromFallback = false;
     let isFromCache = false;
+    let enhancedResponse = null;
 
     // 1단계: 캐시된 응답 확인 (즉시 응답)
     const cachedResponse = findCachedResponse(message);
     if (cachedResponse) {
       console.log('⚡ 캐시 히트 - 즉시 응답:', message.substring(0, 20));
-      CacheMetrics.recordHit();
+      chatCacheMetrics.recordHit();
       
       return NextResponse.json({ 
         success: true, 
@@ -199,225 +287,103 @@ export async function POST(request: NextRequest) {
           isOnDevice: true,
           apiCost: 0,
           isCached: true,
-          cacheStats: CacheMetrics.getStats()
+          cacheStats: chatCacheMetrics.getStats()
         }
       });
     }
 
-    CacheMetrics.recordMiss();
+    chatCacheMetrics.recordMiss();
 
     try {
-      // 2단계: AI 응답 생성 (최적화된 설정)
-      responseText = await callAI({ 
-        prompt: message, 
-        history, 
-        system: SYSTEM_PROMPT, 
-        temperature: 0.8, // 더 자연스러운 대화
-        maxTokens: 800,   // 더 빠른 응답
-        timeoutMs: 35000  // 35초 타임아웃으로 단축
-      });
-    } catch (aiError) {
-      console.log('🔄 AI 응답 실패, 폴백 응답 생성:', aiError);
-      isFromFallback = true;
+      // 2단계: 🚀 완벽한 챗봇 답변 시스템 사용
+      console.log('🚀 완벽한 챗봇 답변 시스템 시작');
+      const enhancedStartTime = performance.now();
       
-      // 3단계: 즉시 폴백 응답 생성 (문의 유형별)
-      responseText = generateFallbackResponse(message);
+      enhancedResponse = await generateEnhancedResponse(message, sessionId);
+      
+      const enhancedEndTime = performance.now();
+      const enhancedProcessingTime = enhancedEndTime - enhancedStartTime;
+      
+      console.log(`🚀 완벽한 챗봇 답변 완료: ${enhancedProcessingTime.toFixed(2)}ms (품질: ${enhancedResponse.qualityMetrics.overallScore.toFixed(1)}점)`);
+      
+      responseText = enhancedResponse.answer;
+      
+      // 품질 점수에 따른 응답 개선
+      if (enhancedResponse.qualityMetrics.overallScore < 80) {
+        console.log(`🔄 품질 개선 적용: ${enhancedResponse.qualityMetrics.overallScore.toFixed(1)}점`);
+        responseText = enhancedResponse.answer + '\n\n💡 더 자세한 정보가 필요하시면 언제든 연락주세요: 010-9251-9743';
+      }
+      
+    } catch (enhancedError) {
+      console.log('🔄 고도화된 시스템 실패, 기본 폴백 사용:', enhancedError);
+      isFromFallback = true;
+      responseText = generateQuickFallback(message);
     }
 
-    // 상황별 맞춤 버튼 생성
-    const buttons = generateContextualButtons(message, responseText);
-    const processingTime = Date.now() - startTime;
+    // 기본 액션 버튼
+    const buttons = [
+      { text: '🎯 AI 역량진단', url: '/ai-diagnosis', style: 'primary', icon: 'Target' },
+      { text: '📞 상담 예약', url: '/consultation', style: 'secondary', icon: 'Phone' },
+      { text: '📚 교육과정 보기', url: '/services/ai-curriculum', style: 'outline', icon: 'BookOpen' }
+    ];
+
+    // 응답 캐싱
+    responseCache.set(message.toLowerCase().substring(0, 50), {
+      content: responseText,
+      buttons
+    });
+
+    const totalProcessingTime = Date.now() - startTime;
+    
+    // 품질 점수에 따른 소스 라벨
+    const qualityScore = enhancedResponse?.qualityMetrics.overallScore || 0;
+    let sourceLabel = `— 이교장 완벽한 챗봇 시스템 [${totalProcessingTime}ms]`;
+    
+    if (qualityScore >= 90) {
+      sourceLabel = `🏆 이교장 최상급 AI 시스템 [${totalProcessingTime}ms] (품질: ${qualityScore.toFixed(1)}점)`;
+    } else if (qualityScore >= 80) {
+      sourceLabel = `✅ 이교장 우수 AI 시스템 [${totalProcessingTime}ms] (품질: ${qualityScore.toFixed(1)}점)`;
+    } else if (isFromFallback) {
+      sourceLabel = `🔄 이교장 폴백 시스템 [${totalProcessingTime}ms]`;
+    }
 
     return NextResponse.json({ 
       success: true, 
-      response: responseText, 
-      buttons, 
-      responseLength: responseText.length, 
-      complexity: isFromFallback ? 'fallback' : 'advanced',
+      response: responseText,
+      buttons,
+      responseLength: responseText.length,
+      complexity: enhancedResponse ? 'enhanced' : 'fallback',
       metadata: {
-        model: isFromFallback ? 'Fallback-Response' : 'GPT-OSS-20B-OnDevice',
-        processingTime,
+        model: enhancedResponse ? 'Enhanced-Fallback-System' : 'Quick-Fallback',
+        processingTime: totalProcessingTime,
         service: '이교장의AI상담',
         expertise: 'lee-hukyung-ai-consulting',
-        isOnDevice: !isFromFallback,
+        isOnDevice: true,
         apiCost: 0,
-        isFallback: isFromFallback
+        isCached: false,
+        qualityScore: qualityScore,
+        fallbackLevel: enhancedResponse?.metadata.fallbackLevel || 0,
+        emotionalAnalysis: enhancedResponse?.emotionalAnalysis,
+        contextAnalysis: enhancedResponse?.context,
+        cacheStats: chatCacheMetrics.getStats(),
+        sourceLabel
       }
     });
-  } catch (error: any) {
-    console.error('❌ 전체 API 오류:', error);
-    
-    // 최종 폴백: 기본 응답
-    const fallbackResponse = "안녕하세요! 일시적으로 시스템 응답이 지연되고 있습니다. 😊\n\n직접 상담을 원하시면 010-9251-9743으로 연락주세요. 28년 경험의 이교장이 직접 도움드리겠습니다!\n\n무료 AI 역량진단도 언제든 받아보실 수 있어요.";
+
+  } catch (error) {
+    console.error('❌ 챗봇 API 오류:', error);
     
     return NextResponse.json({ 
-      success: true, 
-      response: fallbackResponse,
-      buttons: [
-        { text: '📞 직접 상담', url: '/consultation', style: 'primary', icon: 'Phone' },
-        { text: '🎯 무료 진단', url: '/ai-diagnosis', style: 'secondary', icon: 'Target' }
-      ],
+      success: false, 
+      error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
       metadata: {
-        model: 'Emergency-Fallback',
+        model: 'Error-Fallback',
+        processingTime: Date.now() - startTime,
         service: '이교장의AI상담',
-        isFallback: true,
-        processingTime: Date.now() - startTime
+        error: error instanceof Error ? error.message : 'Unknown error'
       }
-    });
+    }, { status: 500 });
   }
-}
-
-/**
- * 즉시 폴백 응답 생성 (문의 유형별 맞춤 응답)
- */
-function generateFallbackResponse(message: string): string {
-  const msg = message.toLowerCase();
-  
-  // 1. 간단한 인사말
-  if (msg.includes('안녕') || msg.includes('처음') || msg.includes('반갑') || msg.length < 10) {
-    return `안녕하세요! 반갑습니다! 😊
-
-저는 AICAMP 이교장입니다. 28년간 현장에서 쌓은 경험으로 기업들의 AI 도입과 디지털 전환을 도와드리고 있어요.
-
-주요 서비스는 이런 것들이 있어요:
-1) AI 역량진단 - 45개 지표로 정밀 분석
-2) 맞춤형 AI 교육 - 업종별 실무 중심
-3) n8n 업무 자동화 - 코딩 없이도 가능
-4) AI 도입 전략 컨설팅
-
-궁금한 것 있으시면 편하게 물어보세요! 직접 상담은 010-9251-9743으로 연락주시면 됩니다.`;
-  }
-  
-  // 2. 상담 신청 관련
-  if (msg.includes('상담') || msg.includes('문의') || msg.includes('도움') || msg.includes('신청')) {
-    return `네, 물론이죠! 기꺼이 도와드리겠습니다! 👍
-
-상담 프로세스는 이렇게 진행돼요:
-1) 무료 AI 역량진단으로 현재 상태 파악
-2) 맞춤형 솔루션 설계
-3) 단계별 실행 계획 수립
-4) 지속적인 성과 모니터링
-
-직접 상담: 010-9251-9743 (이후경 교장)
-온라인 진단: 무료로 바로 시작 가능해요
-
-28년 경험으로 정말 실무에 도움되는 조언 드릴게요. 걱정 마시고 바로 시작해보세요!`;
-  }
-  
-  // 3. 교육/커리큘럼 관련
-  if (msg.includes('교육') || msg.includes('과정') || msg.includes('커리큘럼') || msg.includes('배우')) {
-    return `아, 교육 과정에 관심 있으시는군요! 정말 좋은 선택이에요! 🎓
-
-AICAMP 교육의 특별한 점:
-1) 실무 중심 - 바로 써먹을 수 있는 내용
-2) 업종별 맞춤 - 제조, 서비스, 금융 등
-3) 단계별 설계 - 기초부터 전문가까지
-4) 성과 보장 - 평균 생산성 40% 향상
-
-인기 과정:
-• ChatGPT 업무 활용 마스터
-• n8n 업무 자동화 전문가  
-• AI 리더십 & 전략 과정
-
-무료 체험 교육도 있으니까 부담 없이 시작해보세요! 010-9251-9743으로 연락주시면 맞춤 과정 추천해드릴게요.`;
-  }
-  
-  // 4. 기술/전략 관련
-  if (msg.includes('ai') || msg.includes('자동화') || msg.includes('전략') || msg.includes('도입')) {
-    return `정말 좋은 질문이에요! AI 도입은 이제 선택이 아니라 필수죠. 😊
-
-제가 28년간 현장에서 봐온 바로는, 성공하는 기업들의 공통점이 있어요:
-1) 단계적 접근 - 한 번에 다 하려 하지 않음
-2) 실무진 교육 - 사용자가 편해야 성공
-3) 작은 성공 경험 - 자신감이 확산 효과
-4) 지속적 개선 - 한 번 하고 끝이 아님
-
-구체적인 로드맵:
-즉시 실행: ChatGPT 업무 활용 (1주일)
-단기 계획: n8n 자동화 구축 (1개월)  
-장기 전략: AI 조직 문화 정착 (3개월)
-
-걱정 없어요, 충분히 가능해요! 직접 상담받으시면 더 구체적인 방안 알려드릴게요. 010-9251-9743`;
-  }
-  
-  // 5. 기본 응답
-  return `안녕하세요! 좋은 질문 주셔서 감사해요! 😊
-
-현재 시스템이 잠시 바쁜 상태라 간단히 답변드릴게요. 더 자세한 상담은 직접 받으시는 게 좋을 것 같아요.
-
-28년 경험의 이교장이 직접 상담해드립니다:
-📞 010-9251-9743
-
-무료 AI 역량진단도 언제든 받아보실 수 있어요. 45개 지표로 정밀하게 분석해서 맞춤형 솔루션 제안해드려요.
-
-바로 시작해보세요! 걱정 마시고 편하게 연락주세요.`;
-}
-
-/**
- * 상황별 맞춤 버튼 생성 (이교장 AI 전문성 기반)
- */
-function generateContextualButtons(userMessage: string, aiResponse: string) {
-  const message = userMessage.toLowerCase();
-  const response = aiResponse.toLowerCase();
-  
-  // 기본 버튼 (이교장의AI상담 브랜딩)
-  const baseButtons = [
-    { text: '🎯 AI 역량진단 신청', url: '/ai-diagnosis', style: 'primary', icon: 'Target' },
-    { text: '📞 이교장 전문가 상담', url: '/consultation', style: 'secondary', icon: 'Phone' }
-  ];
-  
-  // 상황별 추가 버튼
-  const contextualButtons = [];
-  
-  // AI 교육/학습 관련
-  if (message.includes('교육') || message.includes('학습') || message.includes('배우') || 
-      response.includes('교육') || response.includes('커리큘럼')) {
-    contextualButtons.push(
-      { text: '📚 AICAMP 교육과정', url: '/services/ai-curriculum', style: 'accent', icon: 'BookOpen' },
-      { text: '🎓 맞춤형 교육 설계', url: '/consultation?type=education', style: 'outline', icon: 'GraduationCap' }
-    );
-  }
-  
-  // 자동화/n8n 관련
-  if (message.includes('자동화') || message.includes('n8n') || message.includes('워크플로우') ||
-      response.includes('자동화') || response.includes('n8n')) {
-    contextualButtons.push(
-      { text: '🔄 n8n 자동화 컨설팅', url: '/consultation?type=automation', style: 'accent', icon: 'Zap' },
-      { text: '⚙️ 업무 프로세스 분석', url: '/free-diagnosis?focus=automation', style: 'outline', icon: 'Settings' }
-    );
-  }
-  
-  // 진단/분석 관련
-  if (message.includes('진단') || message.includes('분석') || message.includes('평가') ||
-      response.includes('진단') || response.includes('분석')) {
-    contextualButtons.push(
-      { text: '📊 무료 간이진단', url: '/free-diagnosis', style: 'accent', icon: 'BarChart3' },
-      { text: '🔍 정밀 역량분석', url: '/ai-diagnosis', style: 'outline', icon: 'Search' }
-    );
-  }
-  
-  // 전략/컨설팅 관련
-  if (message.includes('전략') || message.includes('계획') || message.includes('로드맵') ||
-      response.includes('전략') || response.includes('로드맵')) {
-    contextualButtons.push(
-      { text: '🎯 AI 전략 수립', url: '/consultation?type=strategy', style: 'accent', icon: 'Target' },
-      { text: '📈 ROI 분석 리포트', url: '/consultation?type=roi', style: 'outline', icon: 'TrendingUp' }
-    );
-  }
-  
-  // 도구/기술 관련
-  if (message.includes('chatgpt') || message.includes('claude') || message.includes('도구') ||
-      response.includes('chatgpt') || response.includes('프롬프트')) {
-    contextualButtons.push(
-      { text: '💬 프롬프트 엔지니어링', url: '/services/prompt-engineering', style: 'accent', icon: 'MessageSquare' },
-      { text: '🛠️ AI 도구 활용법', url: '/consultation?type=tools', style: 'outline', icon: 'Wrench' }
-    );
-  }
-  
-  // 최대 4개 버튼으로 제한 (UI 최적화)
-  const allButtons = [...baseButtons, ...contextualButtons.slice(0, 2)];
-  
-  return allButtons;
 }
 
 
