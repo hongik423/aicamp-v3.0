@@ -9,12 +9,9 @@ export default function CurriculumBanner() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // 로컬 스토리지에서 배너 닫기 상태 확인
+  // 배너 항상 표시 (로컬 스토리지 무시)
   useEffect(() => {
-    const bannerClosed = localStorage.getItem('curriculum-banner-closed');
-    if (bannerClosed) {
-      setIsVisible(false);
-    }
+    setIsVisible(true);
   }, []);
 
   const handleDownload = async () => {
@@ -49,7 +46,7 @@ export default function CurriculumBanner() {
 
   return (
     <div className="fixed top-0 inset-x-0 z-[2147483648] pointer-events-none isolate" aria-live="polite">
-      <div className="mx-auto max-w-screen-2xl m-1 sm:m-2 pointer-events-auto shadow-xl border-2 border-blue-500 rounded-xl overflow-hidden animate-in slide-in-from-top-2 duration-500">
+      <div className="mx-auto max-w-screen-2xl m-1 sm:m-2 pointer-events-auto shadow-xl border-2 border-blue-500 rounded-xl overflow-hidden animate-in slide-in-from-top-2 duration-200">
         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-3 sm:p-4 lg:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 relative overflow-hidden">
           {/* 배경 장식 효과 */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-indigo-400/20 animate-pulse"></div>
