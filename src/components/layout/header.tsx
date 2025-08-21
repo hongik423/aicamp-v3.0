@@ -11,6 +11,7 @@ import {
   Download,
   BookOpen
 } from 'lucide-react';
+import CurriculumSidePanel from './CurriculumSidePanel';
 
 
 // Service Worker 등록 비활성화 (layout.tsx에서 통합 관리)
@@ -34,6 +35,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [visibleItems, setVisibleItems] = useState<number>(9);
+  const [isCurriculumPanelOpen, setIsCurriculumPanelOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의
@@ -127,17 +129,9 @@ export default function Header() {
             
             {/* n8n 커리큘럼 다운로드 버튼 - 데스크톱 */}
             <button
-              onClick={() => {
-                const link = document.createElement('a');
-                link.href = '/images/n8n_Curriculum.pdf';
-                link.download = 'AICAMP_n8n_커리큘럼.pdf';
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              }}
+              onClick={() => setIsCurriculumPanelOpen(true)}
               className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
-              title="n8n 커리큘럼 다운로드"
+              title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
               <span className="hidden xl:inline">n8n 커리큘럼</span>
@@ -201,17 +195,9 @@ export default function Header() {
             
             {/* n8n 커리큘럼 다운로드 버튼 */}
             <button
-              onClick={() => {
-                const link = document.createElement('a');
-                link.href = '/images/n8n_Curriculum.pdf';
-                link.download = 'AICAMP_n8n_커리큘럼.pdf';
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              }}
+              onClick={() => setIsCurriculumPanelOpen(true)}
               className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
-              title="n8n 커리큘럼 다운로드"
+              title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">n8n 커리큘럼</span>
@@ -315,13 +301,7 @@ export default function Header() {
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
-                  const link = document.createElement('a');
-                  link.href = '/images/n8n_Curriculum.pdf';
-                  link.download = 'AICAMP_n8n_커리큘럼.pdf';
-                  link.target = '_blank';
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
+                  setIsCurriculumPanelOpen(true);
                 }}
                 className="w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-4"
               >
@@ -380,6 +360,12 @@ export default function Header() {
           </div>
         )}
       </div>
+      
+      {/* n8n 커리큘럼 사이드 패널 */}
+      <CurriculumSidePanel
+        isOpen={isCurriculumPanelOpen}
+        onClose={() => setIsCurriculumPanelOpen(false)}
+      />
     </header>
   );
 }
