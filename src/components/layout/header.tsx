@@ -7,7 +7,9 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { 
   Menu, 
-  X
+  X,
+  Download,
+  BookOpen
 } from 'lucide-react';
 
 
@@ -112,7 +114,7 @@ export default function Header() {
           </div>
 
           {/* AI역량진단 버튼 - 데스크톱 (최신 경로로 통일) */}
-          <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0">
+          <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
               className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
@@ -122,6 +124,28 @@ export default function Header() {
                 무료
               </Badge>
             </Link>
+            
+            {/* n8n 커리큘럼 다운로드 버튼 - 데스크톱 */}
+            <button
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = '/images/n8n_Curriculum.pdf';
+                link.download = 'AICAMP_n8n_커리큘럼.pdf';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              title="n8n 커리큘럼 다운로드"
+            >
+              <BookOpen className="w-4 h-4 mr-1" />
+              <span className="hidden xl:inline">n8n 커리큘럼</span>
+              <span className="xl:hidden">n8n</span>
+              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
+                무료
+              </Badge>
+            </button>
           </div>
 
           {/* 데스크톱 네비게이션 - 가변 영역 */}
@@ -163,7 +187,7 @@ export default function Header() {
           </div>
 
           {/* AI역량진단 버튼 - 태블릿용 (최신 경로로 통일) */}
-          <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0">
+          <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
               className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
@@ -174,6 +198,28 @@ export default function Header() {
                 무료
               </Badge>
             </Link>
+            
+            {/* n8n 커리큘럼 다운로드 버튼 */}
+            <button
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = '/images/n8n_Curriculum.pdf';
+                link.download = 'AICAMP_n8n_커리큘럼.pdf';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              title="n8n 커리큘럼 다운로드"
+            >
+              <BookOpen className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">n8n 커리큘럼</span>
+              <span className="sm:hidden">n8n</span>
+              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
+                무료
+              </Badge>
+            </button>
           </div>
 
           {/* 태블릿용 스마트 네비게이션 - 자동 조절 */}
@@ -257,13 +303,36 @@ export default function Header() {
               <Link
                 href="/ai-diagnosis"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-4"
+                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2"
               >
                 <span className="text-base font-medium">AI역량진단</span>
                 <Badge variant="secondary" className="text-xs ml-2 bg-white/20 text-white border-0">
                   무료
                 </Badge>
               </Link>
+
+              {/* n8n 커리큘럼 다운로드 버튼 - 모바일 */}
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  const link = document.createElement('a');
+                  link.href = '/images/n8n_Curriculum.pdf';
+                  link.download = 'AICAMP_n8n_커리큘럼.pdf';
+                  link.target = '_blank';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-4"
+              >
+                <span className="text-base font-medium flex items-center">
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  n8n 커리큘럼
+                </span>
+                <Badge variant="secondary" className="text-xs ml-2 bg-white/20 text-white border-0">
+                  무료
+                </Badge>
+              </button>
 
               <div className="space-y-1">
                 {/* 핵심 서비스 그룹 */}
