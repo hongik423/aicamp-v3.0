@@ -493,21 +493,21 @@ export default function CenterLeaderPage() {
               {
                 icon: <Factory className="w-8 h-8" />,
                 title: "공장/부동산 경매",
-                description: "경매활용 구매전략으로 30-50% 비용절감",
+                description: "경매활용 구매전략으로 비용절감",
                 color: "orange",
                 link: "/services/factory-auction"
               },
               {
                 icon: <Target className="w-8 h-8" />,
                 title: "기술창업 지원",
-                description: "사업화 및 정부지원으로 평균 5억원 확보",
+                description: "사업화 및 정부지원으로 지원금 확보",
                 color: "green",
                 link: "/services/tech-startup"
               },
               {
                 icon: <Award className="w-8 h-8" />,
                 title: "인증지원 전문",
-                description: "ISO/벤처/연구소 인증으로 연간 5천만원 세제혜택",
+                description: "ISO/벤처/연구소 인증으로 세제혜택",
                 color: "red",
                 link: "/services/certification"
               },

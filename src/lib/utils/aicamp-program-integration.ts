@@ -554,18 +554,18 @@ export function calculateProgramROI(
   roi: number;
   paybackPeriod: string;
 } {
-  // 프로그램별 비용 계산 (만원 단위)
+  // 프로그램별 비용 계산 (기본 단위)
   const programCosts = {
-    'ai-basic-001': 50,
-    'ai-automation-001': 120,
-    'ai-executive-001': 200,
-    'ai-data-001': 150,
-    'ai-marketing-001': 80,
-    'ai-customer-001': 70,
-    'ai-manufacturing-001': 180,
-    'ai-finance-001': 200,
-    'ai-retail-001': 100,
-    'ai-healthcare-001': 250
+    'ai-basic-001': 1,
+    'ai-automation-001': 2,
+    'ai-executive-001': 3,
+    'ai-data-001': 2,
+    'ai-marketing-001': 1,
+    'ai-customer-001': 1,
+    'ai-manufacturing-001': 3,
+    'ai-finance-001': 3,
+    'ai-retail-001': 2,
+    'ai-healthcare-001': 3
   };
 
   let totalInvestment = 0;

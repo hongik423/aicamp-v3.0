@@ -651,13 +651,13 @@ function estimateBudget(employeeCount: string, annualRevenue: string): string {
   const revenue = parseInt(annualRevenue?.replace(/[^0-9]/g, '')) || 100;
   
   if (revenue >= 1000 || employees >= 300) {
-    return '10억원 이상';
+    return '대규모 투자';
   } else if (revenue >= 500 || employees >= 100) {
-    return '5-10억원';
+    return '중간 규모 투자';
   } else if (revenue >= 100 || employees >= 50) {
-    return '2-5억원';
+    return '소규모 투자';
   } else {
-    return '1-2억원';
+    return '기본 투자';
   }
 }
 

@@ -322,7 +322,7 @@ ${data.expectedBenefits}
     {
       "phase": "1단계: AI 기초 역량 구축",
       "duration": "1-2개월",
-      "budget": "50-100만원",
+      "budget": "기본 투자",
       "actions": [
         "AICAMP 'ChatGPT & Claude 업무 활용 마스터' 교육 (8시간)",
         "프롬프트 엔지니어링 실무 적용",
@@ -334,7 +334,7 @@ ${data.expectedBenefits}
     {
       "phase": "2단계: 업무 자동화 고도화",
       "duration": "3-4개월",
-      "budget": "120-200만원",
+      "budget": "중간 투자",
       "actions": [
         "AICAMP 'n8n & Make 업무 자동화 전문가' 교육 (16시간)",
         "${data.industry} 맞춤형 워크플로우 구축",
@@ -346,7 +346,7 @@ ${data.expectedBenefits}
     {
       "phase": "3단계: AI 전문 조직 완성",
       "duration": "5-6개월",
-      "budget": "200-300만원",
+      "budget": "고급 투자",
       "actions": [
         "AICAMP 'AI 리더십 & 디지털 전환 전략' 교육 (12시간)",
         "전사 AI 플랫폼 구축",
@@ -361,7 +361,7 @@ ${data.expectedBenefits}
       "course": "ChatGPT & Claude 업무 활용 마스터",
       "target": "전 직원 (${data.employeeCount}명)",
       "duration": "8시간 (2일)",
-      "price": "50만원/인",
+      "price": "정부지원 시 무료",
       "description": "생성형 AI 프롬프트 엔지니어링으로 업무 생산성 300% 향상",
       "expectedOutcome": "문서작성 자동화, 데이터 분석 역량 확보"
     },
@@ -369,7 +369,7 @@ ${data.expectedBenefits}
       "course": "n8n & Make 업무 자동화 전문가",
       "target": "핵심 인력 (3-5명)",
       "duration": "16시간 (4일)",
-      "price": "120만원/인",
+      "price": "정부지원 시 할인",
       "description": "No-Code 도구로 ${data.industry} 업무 프로세스 90% 자동화",
       "expectedOutcome": "워크플로우 설계, API 연동, 실시간 모니터링"
     },
@@ -377,7 +377,7 @@ ${data.expectedBenefits}
       "course": "AI 리더십 & 디지털 전환 전략",
       "target": "경영진 및 팀장급",
       "duration": "12시간 (3일)",
-      "price": "200만원/인",
+      "price": "1:1 컨설팅 포함",
       "description": "AI 기반 조직 혁신과 전략적 의사결정 체계 구축",
       "expectedOutcome": "AI 전략 수립, 변화 관리, ROI 극대화"
     }
@@ -388,8 +388,8 @@ ${data.expectedBenefits}
     "${data.industry} 맞춤 자동화 시나리오 3"
   ],
   "totalInvestment": {
-    "year1": "300-500만원",
-    "expectedSaving": "연간 2000-5000만원",
+    "year1": "단계별 투자",
+    "expectedSaving": "연간 비용 절감",
     "paybackPeriod": "2-3개월",
     "roi3year": "1000-2000%"
   }

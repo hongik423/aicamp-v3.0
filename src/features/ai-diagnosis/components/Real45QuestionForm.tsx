@@ -79,10 +79,10 @@ const Real45QuestionForm: React.FC = () => {
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [progressSteps, setProgressSteps] = useState({
     'data-validation': { status: 'pending', progress: 0, label: '데이터 검증' },
-    'ollama-analysis': { status: 'pending', progress: 0, label: 'AI 분석' },
-    'swot-analysis': { status: 'pending', progress: 0, label: 'SWOT 분석' },
-    'report-generation': { status: 'pending', progress: 0, label: '보고서 생성' },
-    'email-sending': { status: 'pending', progress: 0, label: '이메일 발송' }
+    'data-storage': { status: 'pending', progress: 0, label: '데이터 저장' },
+    'email-notification': { status: 'pending', progress: 0, label: '이메일 발송' },
+    'offline-processing': { status: 'pending', progress: 0, label: '오프라인 처리' },
+    'report-dispatch': { status: 'pending', progress: 0, label: '보고서 발송' }
   });
   
   // 점수체계 안내 모달 상태 (비활성화)
@@ -276,24 +276,24 @@ const Real45QuestionForm: React.FC = () => {
         const elapsedMs = data.elapsedMs || 0;
         const elapsedMinutes = Math.floor(elapsedMs / 60000);
         
-        if (elapsedMinutes < 2) {
+        if (elapsedMinutes < 1) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('ollama-analysis', 'in-progress', Math.min(80, 20 + elapsedMinutes * 30));
-        } else if (elapsedMinutes < 5) {
+          updateProgressSteps('data-storage', 'in-progress', Math.min(80, 20 + elapsedMinutes * 60));
+        } else if (elapsedMinutes < 2) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('ollama-analysis', 'completed', 100);
-          updateProgressSteps('swot-analysis', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 25));
-        } else if (elapsedMinutes < 8) {
+          updateProgressSteps('data-storage', 'completed', 100);
+          updateProgressSteps('email-notification', 'in-progress', Math.min(80, (elapsedMinutes - 1) * 80));
+        } else if (elapsedMinutes < 3) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('ollama-analysis', 'completed', 100);
-          updateProgressSteps('swot-analysis', 'completed', 100);
-          updateProgressSteps('report-generation', 'in-progress', Math.min(80, (elapsedMinutes - 5) * 25));
+          updateProgressSteps('data-storage', 'completed', 100);
+          updateProgressSteps('email-notification', 'completed', 100);
+          updateProgressSteps('offline-processing', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 40));
         } else {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('ollama-analysis', 'completed', 100);
-          updateProgressSteps('swot-analysis', 'completed', 100);
-          updateProgressSteps('report-generation', 'in-progress', 90);
-          updateProgressSteps('email-sending', 'in-progress', Math.min(80, (elapsedMinutes - 8) * 20));
+          updateProgressSteps('data-storage', 'completed', 100);
+          updateProgressSteps('email-notification', 'completed', 100);
+          updateProgressSteps('offline-processing', 'in-progress', 90);
+          updateProgressSteps('report-dispatch', 'in-progress', Math.min(80, (elapsedMinutes - 3) * 20));
         }
       }
     });
@@ -1501,7 +1501,8 @@ const Real45QuestionForm: React.FC = () => {
                 <ul className="text-blue-800/80 space-y-1 text-xs">
                   <li>• 각 질문을 신중히 읽고 현재 상황에 맞는 점수를 선택하세요</li>
                   <li>• 진행 상황은 자동으로 저장됩니다</li>
-                  <li>• 모든 문항 완료 후 이교장 스타일 보고서가 생성됩니다</li>
+                  <li>• 모든 문항 완료 후 이교장이 오프라인으로 분석하여 보고서를 작성합니다</li>
+                  <li>• 24시간 내 이메일로 상세한 진단보고서가 발송됩니다</li>
                 </ul>
               </div>
               <div className="text-center">

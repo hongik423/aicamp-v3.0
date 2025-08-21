@@ -672,7 +672,7 @@ function generateDefaultAICAMPPrograms(scores) {
       description: 'AI 기본 개념과 활용 방안을 체계적으로 학습',
       fitScore: 95,
       duration: '2개월',
-      investment: '150만원'
+      investment: '기본 투자'
     });
   } else if (scores.percentage < 70) {
     programs.push({
@@ -680,7 +680,7 @@ function generateDefaultAICAMPPrograms(scores) {
       description: '실무에서 바로 활용할 수 있는 AI 도구와 방법론 학습',
       fitScore: 90,
       duration: '3개월',
-      investment: '250만원'
+      investment: '중간 투자'
     });
   } else {
     programs.push({
@@ -688,7 +688,7 @@ function generateDefaultAICAMPPrograms(scores) {
       description: 'AI를 통한 비즈니스 혁신과 경쟁우위 확보 전략',
       fitScore: 85,
       duration: '4개월',
-      investment: '350만원'
+      investment: '고급 투자'
     });
   }
   

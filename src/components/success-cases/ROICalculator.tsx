@@ -213,7 +213,7 @@ export default function ROICalculator({ onConsultationRequest }: ROICalculatorPr
                 placeholder="30000"
               />
               <p className="text-sm text-gray-500">
-                평균 시급: 일반직 25,000원, 관리직 40,000원, 전문직 60,000원
+                평균 시급: 일반직, 관리직, 전문직별 차등 적용
               </p>
             </div>
 
@@ -228,7 +228,7 @@ export default function ROICalculator({ onConsultationRequest }: ROICalculatorPr
                 placeholder="50000000"
               />
               <p className="text-sm text-gray-500">
-                일반적 범위: 기본형 3천만원, 고급형 1억원, 전사 확산 3억원
+                일반적 범위: 기본형, 고급형, 전사 확산별 차등 적용
               </p>
             </div>
 

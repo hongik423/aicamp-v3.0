@@ -622,7 +622,7 @@ function calculatePhaseInvestment(actions: PriorityActionItem[], programs: AICam
  */
 function calculateTotalInvestment(phases: RoadmapPhase[]): string {
   // 각 단계별 비용을 합산 (간단한 추정)
-  return "3억원-8억원";
+  return "단계별 투자 계획";
 }
 
 /**
