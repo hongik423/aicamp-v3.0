@@ -12,7 +12,7 @@
  * ================================================================================
  */
 
-const { runV17WorkflowSimulationTests } = require('./v17-workflow-simulation-test');
+const { runV17WorkflowSimulationTests } = require('./test/v17-workflow-simulation-test');
 
 // Google Apps Script ID 설정 (실제 ID로 변경 필요)
 const SCRIPT_ID = 'TEST_MODE_NO_DEPLOYMENT';

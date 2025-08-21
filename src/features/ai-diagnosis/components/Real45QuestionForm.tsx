@@ -81,10 +81,9 @@ const Real45QuestionForm: React.FC = () => {
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [progressSteps, setProgressSteps] = useState({
     'data-validation': { status: 'pending', progress: 0, label: '1단계: 데이터 검증' },
-    'ai-analysis': { status: 'pending', progress: 0, label: '2단계: AI 분석 처리' },
-    'report-generation': { status: 'pending', progress: 0, label: '3단계: 보고서 생성' },
-    'data-storage': { status: 'pending', progress: 0, label: '4단계: 데이터 저장' },
-    'email-dispatch': { status: 'pending', progress: 0, label: '5단계: 보고서 발송' }
+    'report-generation': { status: 'pending', progress: 0, label: '2단계: 보고서 생성' },
+    'data-storage': { status: 'pending', progress: 0, label: '3단계: 데이터 저장' },
+    'email-dispatch': { status: 'pending', progress: 0, label: '4단계: 보고서 발송' }
   });
   
   // 점수체계 안내 모달 상태 (비활성화)
@@ -401,33 +400,33 @@ const Real45QuestionForm: React.FC = () => {
     }
   }, [showCompanyForm, formState.currentQuestion]);
 
-  // 실제 진행상황 기반 실시간 추적
+  // 신청서 접수 진행상황 추적
   const startProgressTracking = (diagnosisId: string) => {
     if (!diagnosisId) return;
 
-    console.log('🎯 실제 진행상황 추적 시작:', diagnosisId);
+    console.log('🎯 신청서 접수 진행상황 추적 시작:', diagnosisId);
     
-    // SSE 연결로 실시간 진행상황 추적
+    // SSE 연결로 실시간 신청서 접수 진행상황 추적
     const eventSource = new EventSource(`/api/diagnosis-progress?diagnosisId=${encodeURIComponent(diagnosisId)}`);
     
     eventSource.onopen = () => {
-      console.log('✅ SSE 연결 성공 - 실시간 모니터링 시작:', diagnosisId);
+      console.log('✅ SSE 연결 성공 - 신청서 접수 모니터링 시작:', diagnosisId);
       updateProgressSteps('data-validation', 'in-progress', 20);
     };
 
     eventSource.addEventListener('started', (event) => {
       const data = JSON.parse(event.data);
-      console.log('📊 진행상황 추적 시작됨:', data);
+      console.log('📊 신청서 접수 시작됨:', data);
       setProgressData(data);
       updateProgressSteps('data-validation', 'in-progress', 30);
     });
 
     eventSource.addEventListener('progress', (event) => {
       const data = JSON.parse(event.data);
-      console.log('📈 실제 진행상황 업데이트:', data);
+      console.log('📈 신청서 처리 진행상황 업데이트:', data);
       setProgressData(data);
       
-      // 실제 Google Sheets 데이터 기반 진행상황 반영
+      // 실제 Google Sheets 데이터 기반 신청서 접수 진행상황 반영
       if (data.snapshot && data.snapshot.steps) {
         const steps = data.snapshot.steps;
         Object.keys(steps).forEach(stepKey => {
@@ -435,48 +434,46 @@ const Real45QuestionForm: React.FC = () => {
           updateProgressSteps(stepKey, step.status, step.progress);
         });
       } else {
-        // 폴백: 경과 시간 기반 추정
+        // 폴백: 경과 시간 기반 추정 (V17 간소화 - 신청서 접수)
         const elapsedMs = data.elapsedMs || 0;
         const elapsedMinutes = Math.floor(elapsedMs / 60000);
         
         if (elapsedMinutes < 1) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('data-storage', 'in-progress', Math.min(80, 20 + elapsedMinutes * 60));
+          updateProgressSteps('report-generation', 'in-progress', Math.min(80, 20 + elapsedMinutes * 60));
         } else if (elapsedMinutes < 2) {
           updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('data-storage', 'completed', 100);
-          updateProgressSteps('email-notification', 'in-progress', Math.min(80, (elapsedMinutes - 1) * 80));
+          updateProgressSteps('report-generation', 'completed', 100);
+          updateProgressSteps('data-storage', 'in-progress', Math.min(80, (elapsedMinutes - 1) * 80));
         } else if (elapsedMinutes < 3) {
           updateProgressSteps('data-validation', 'completed', 100);
+          updateProgressSteps('report-generation', 'completed', 100);
           updateProgressSteps('data-storage', 'completed', 100);
-          updateProgressSteps('email-notification', 'completed', 100);
-          updateProgressSteps('offline-processing', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 40));
+          updateProgressSteps('email-dispatch', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 40));
         } else {
           updateProgressSteps('data-validation', 'completed', 100);
+          updateProgressSteps('report-generation', 'completed', 100);
           updateProgressSteps('data-storage', 'completed', 100);
-          updateProgressSteps('email-notification', 'completed', 100);
-          updateProgressSteps('offline-processing', 'in-progress', 90);
-          updateProgressSteps('report-dispatch', 'in-progress', Math.min(80, (elapsedMinutes - 3) * 20));
+          updateProgressSteps('email-dispatch', 'in-progress', 90);
         }
       }
     });
 
     eventSource.addEventListener('done', (event) => {
       const data = JSON.parse(event.data);
-      console.log('🎉 실제 진행상황 완료:', data);
+      console.log('🎉 신청서 접수 완료:', data);
       setProgressData(data);
       
       // 모든 단계 완료
       updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('ai-analysis', 'completed', 100);
       updateProgressSteps('report-generation', 'completed', 100);
       updateProgressSteps('data-storage', 'completed', 100);
       updateProgressSteps('email-dispatch', 'completed', 100);
       
       // 완료 후에도 배너를 지속적으로 표시 (사용자가 수동으로 닫을 때까지)
       toast({
-        title: "🎉 진단 완료!",
-        description: "이교장 스타일 보고서가 이메일로 발송되었습니다.",
+        title: "🎉 신청서 접수 완료!",
+        description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
         variant: "default"
       });
       
@@ -485,19 +482,18 @@ const Real45QuestionForm: React.FC = () => {
 
     eventSource.addEventListener('timeout', (event) => {
       const data = JSON.parse(event.data);
-      console.log('⏰ 진행상황 추적 타임아웃:', data);
+      console.log('⏰ 신청서 접수 타임아웃:', data);
       
-      // 타임아웃 시에도 완료 처리 (백그라운드에서 계속 진행)
+      // 타임아웃 시에도 완료 처리 (신청서 접수 완료)
       updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('ai-analysis', 'completed', 100);
       updateProgressSteps('report-generation', 'completed', 100);
       updateProgressSteps('data-storage', 'completed', 100);
       updateProgressSteps('email-dispatch', 'completed', 100);
       
       // 타임아웃 시에도 배너를 지속적으로 표시
       toast({
-        title: "⏰ 처리 시간 초과",
-        description: "고품질 분석으로 인해 시간이 소요되고 있습니다. 이메일로 결과를 확인해주세요.",
+        title: "⏰ 접수 완료",
+        description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
         variant: "default"
       });
       
@@ -505,25 +501,25 @@ const Real45QuestionForm: React.FC = () => {
     });
 
     eventSource.onerror = (error) => {
-      console.error('❌ SSE 연결 오류:', error);
+      console.error('❌ 신청서 접수 연결 오류:', error);
       
-      // 연결 오류 시에도 배너를 지속적으로 표시
+      // 연결 오류 시에도 배너를 지속적으로 표시 (신청서 접수 완료)
       toast({
-        title: "📡 연결 오류",
-        description: "진행상황 추적 중 연결 문제가 발생했습니다. 보고서는 백그라운드에서 계속 생성되어 이메일로 발송됩니다.",
+        title: "📡 접수 완료",
+        description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
         variant: "default"
       });
       
       eventSource.close();
     };
 
-    // 컴포넌트 언마운트 시 정리
+    // 컴포넌트 언마운트 시 SSE 연결 정리
     return () => {
       eventSource.close();
     };
   };
 
-  // 진행 단계 업데이트 함수
+  // 신청서 접수 진행 단계 업데이트 함수
   const updateProgressSteps = (stepKey: string, status: string, progress: number) => {
     setProgressSteps(prev => ({
       ...prev,
@@ -769,7 +765,7 @@ const Real45QuestionForm: React.FC = () => {
         // 실제 진행상황 추적 시작
         startProgressTracking(diagnosisId);
         
-        // 보고서 생성 요청을 클라이언트에서 즉시 트리거 (장시간 처리 안전)
+        // 신청서 접수 요청을 클라이언트에서 즉시 트리거 (장시간 처리 안전)
         try {
           const gasPayload = {
             type: 'diagnosis',
@@ -793,7 +789,7 @@ const Real45QuestionForm: React.FC = () => {
               companyName: formState.companyInfo.companyName
             },
             timestamp: new Date().toISOString(),
-            version: 'V15.0-ULTIMATE-45Q',
+            version: 'V17.0-SIMPLIFIED-FIXED',
             source: 'client_deferred'
           } as const;
 
@@ -802,21 +798,21 @@ const Real45QuestionForm: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(gasPayload)
           }).then(() => {
-            // 진행상태를 확정적으로 한 단계 올려 사용자 체감 개선
-            updateProgressSteps('report-generation', 'in-progress', 80);
-            updateProgressSteps('email-sending', 'in-progress', 40);
+                      // 진행상태를 확정적으로 한 단계 올려 사용자 체감 개선
+          updateProgressSteps('report-generation', 'in-progress', 80);
+          updateProgressSteps('email-dispatch', 'in-progress', 40);
           }).catch(() => {
-            // 실패해도 서버가 재시도하거나 사용자는 결과 페이지에서 다시 확인 가능
+            // 실패해도 서버가 재시도하거나 사용자는 결과 페이지에서 다시 확인 가능 (신청서 접수)
           });
         } catch {}
         
         toast({
-          title: "진단 제출 완료!",
-          description: "AI 분석을 시작합니다. 실시간 진행상황을 확인하세요.",
+          title: "✅ 진단 신청서 제출 완료!",
+          description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
           variant: "default"
         });
 
-        // 로컬 스토리지 정리
+        // 신청서 제출 완료 후 로컬 스토리지 정리
         localStorage.removeItem('real45QuestionForm');
         
         setFormState(prev => ({ ...prev, isCompleted: true }));
@@ -825,18 +821,18 @@ const Real45QuestionForm: React.FC = () => {
       }
       
     } catch (error: any) {
-      console.error('진단 제출 오류:', error);
+      console.error('신청서 제출 오류:', error);
       
       // 오류 유형에 따른 상세 메시지 제공
-      let errorMessage = "진단 제출 중 오류가 발생했습니다.";
+      let errorMessage = "신청서 제출 중 오류가 발생했습니다.";
       let errorDescription = "잠시 후 다시 시도해주세요.";
       
       if (error.message?.includes('500')) {
         errorMessage = "서버 처리 오류";
-        errorDescription = "AI 분석 중 일시적 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+        errorDescription = "신청서 접수 중 일시적 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
       } else if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
         errorMessage = "처리 시간 초과";
-        errorDescription = "고품질 AI 분석으로 인해 시간이 소요되고 있습니다. 잠시 후 다시 시도해주세요.";
+        errorDescription = "신청서 접수 중 시간이 소요되고 있습니다. 잠시 후 다시 시도해주세요.";
       } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
         errorMessage = "네트워크 연결 오류";
         errorDescription = "인터넷 연결을 확인하고 다시 시도해주세요.";
@@ -855,13 +851,13 @@ const Real45QuestionForm: React.FC = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              type: 'diagnosis-submission-error',
+              type: 'application-submission-error',
               error: error.message,
               timestamp: new Date().toISOString(),
               userAgent: navigator.userAgent,
               url: window.location.href
             })
-          }).catch(() => {}); // 오류 보고 실패는 무시
+          }).catch(() => {}); // 신청서 제출 오류 보고 실패는 무시
         } catch {}
       }
     } finally {
@@ -869,19 +865,19 @@ const Real45QuestionForm: React.FC = () => {
     }
   };
 
-  // 진단 완료 화면
+  // 신청서 제출 완료 화면
   if (diagnosisResult) {
     return (
       <>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-lg">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">🎉 진단 완료!</h2>
-          <p className="text-gray-600 mb-4">이교장 스타일 보고서가 생성되었습니다.</p>
-          <p className="text-sm text-gray-500 mb-6">진단 ID: {diagnosisResult.diagnosisId}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">✅ 신청서 제출 완료!</h2>
+          <p className="text-gray-600 mb-4">AI 역량진단 신청서가 성공적으로 접수되었습니다.</p>
+          <p className="text-sm text-gray-500 mb-6">신청 ID: {diagnosisResult.diagnosisId}</p>
           
           <div className="space-y-3">
-            {/* PDF 다운로드 버튼들 */}
+            {/* 신청서 PDF 다운로드 버튼들 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
               <Button
                 onClick={handleDownloadDiagnosisForm}
@@ -894,7 +890,7 @@ const Real45QuestionForm: React.FC = () => {
                 ) : (
                   <FileText className="w-4 h-4 mr-2" />
                 )}
-                {isGeneratingPDF ? 'PDF 생성 중...' : '신청서 PDF'}
+                {isGeneratingPDF ? 'PDF 생성 중...' : '진단 신청서 PDF'}
               </Button>
               
               <Button
@@ -908,7 +904,7 @@ const Real45QuestionForm: React.FC = () => {
                 ) : (
                   <Download className="w-4 h-4 mr-2" />
                 )}
-                {isGeneratingScorePDF ? 'PDF 생성 중...' : '점수체크 PDF'}
+                {isGeneratingScorePDF ? 'PDF 생성 중...' : '진단 점수체크 PDF'}
               </Button>
             </div>
             
@@ -917,7 +913,7 @@ const Real45QuestionForm: React.FC = () => {
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               size="lg"
             >
-              📄 HTML 보고서 보기
+              📄 진단 신청서 보기
             </Button>
             
             <Button 
@@ -925,7 +921,7 @@ const Real45QuestionForm: React.FC = () => {
               className="w-full bg-green-600 hover:bg-green-700 text-white"
               size="lg"
             >
-              💬 전문가 상담 신청
+              💬 이교장 직접 상담 신청
             </Button>
             
             <Button 
@@ -939,11 +935,11 @@ const Real45QuestionForm: React.FC = () => {
           </div>
           
           <p className="text-xs text-gray-400 mt-4">
-            * 이메일 발송은 백그라운드에서 진행됩니다 (2-3분 소요)
+            * 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다
           </p>
         </div>
 
-        {/* 상담 신청 모달 */}
+        {/* 이교장 직접 상담 신청 모달 */}
         <ConsultationRequestModal
           isOpen={showConsultationModal}
           onClose={() => setShowConsultationModal(false)}
@@ -956,7 +952,7 @@ const Real45QuestionForm: React.FC = () => {
             industry: formState.companyInfo.industry,
             inquiryType: 'diagnosis',
             consultationArea: 'diagnosis',
-            inquiryContent: `AI 역량진단 결과에 대한 전문가 상담을 요청합니다.`
+            inquiryContent: `AI 역량진단 신청서 제출 후 이교장 직접 상담을 요청합니다.`
           }}
         />
       </div>
@@ -967,7 +963,7 @@ const Real45QuestionForm: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="font-semibold">이교장의 AI역량진단보고서 생성 중</span>
+                  <span className="font-semibold">이교장의 AI역량진단 신청서 접수 중</span>
                 </div>
                 <Button
                   variant="ghost"
@@ -978,7 +974,7 @@ const Real45QuestionForm: React.FC = () => {
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              <p className="text-white/80 text-sm mt-1">실시간 진행상황을 확인하세요</p>
+              <p className="text-white/80 text-sm mt-1">신청서 접수 진행상황을 확인하세요</p>
             </div>
             
             <div className="p-4 space-y-4">
@@ -987,20 +983,20 @@ const Real45QuestionForm: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-700">전체 진행률</span>
                   <span className="text-sm text-gray-500">
-                    {Math.round(Object.values(progressSteps).reduce((acc, step) => acc + step.progress, 0) / 5)}%
+                    {Math.round(Object.values(progressSteps).reduce((acc, step) => acc + step.progress, 0) / 4)}%
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500"
                     style={{
-                      width: `${Math.round(Object.values(progressSteps).reduce((acc, step) => acc + step.progress, 0) / 5)}%`
+                      width: `${Math.round(Object.values(progressSteps).reduce((acc, step) => acc + step.progress, 0) / 4)}%`
                     }}
                   />
                 </div>
               </div>
 
-              {/* 개인정보 수집·이용 동의 (필수) + 마케팅 선택동의 */}
+              {/* 신청서 접수 완료 - 개인정보 동의 확인 */}
               <div className="mt-2 space-y-3 p-4 bg-white rounded-xl border border-gray-200">
                 <label className="flex items-start gap-3">
                   <Checkbox
@@ -1011,7 +1007,7 @@ const Real45QuestionForm: React.FC = () => {
                     }))}
                   />
                   <span className="text-sm text-gray-700">
-                    [필수] 개인정보 수집·이용 동의: 수집 항목(회사명, 담당자 성명, 연락처(이메일·전화), 소재지, 45문항 응답), 수집·이용 목적(AI 역량진단 수행, 결과보고서 발송, 고객 응대), 보유·이용 기간(목적 달성 후 즉시 파기·다만 관련 법령에 따른 의무 보관 기간은 그 기간 동안 보관), 제3자 제공/국외이전(없음), 처리 위탁(이메일 발송 및 클라우드 인프라 운영 등 서비스 제공에 필수적인 범위), 동의 거부 권리 및 불이익(동의를 거부할 수 있으나 서비스 제공이 불가). 문의: hongik423@gmail.com
+                    ✅ [완료] 개인정보 수집·이용 동의: 신청서 제출 시 이미 동의하셨습니다. 수집 항목(회사명, 담당자 성명, 연락처(이메일·전화), 소재지, 45문항 응답), 수집·이용 목적(AI 역량진단 수행, 결과보고서 발송, 고객 응대), 보유·이용 기간(목적 달성 후 즉시 파기·다만 관련 법령에 따른 의무 보관 기간은 그 기간 동안 보관), 제3자 제공/국외이전(없음), 처리 위탁(이메일 발송 및 클라우드 인프라 운영 등 서비스 제공에 필수적인 범위), 동의 거부 권리 및 불이익(동의를 거부할 수 있으나 서비스 제공이 불가). 문의: hongik423@gmail.com
                   </span>
                 </label>
                 <label className="flex items-start gap-3">
@@ -1023,15 +1019,20 @@ const Real45QuestionForm: React.FC = () => {
                     }))}
                   />
                   <span className="text-sm text-gray-500">
-                    [선택] 마케팅 정보 수신 동의: 수집 항목(이메일, 연락처, 회사명), 목적(AICAMP 교육·세미나·서비스 소식 및 프로모션 안내), 보유 기간(동의 철회 시까지), 철회 방법(이메일 하단 수신거부 또는 hongik423@gmail.com 요청). 선택 동의 미체크 시에도 서비스 이용에는 영향이 없습니다.
+                    [선택] 마케팅 정보 수신 동의: 신청서 제출 시 선택하신 동의 상태입니다. 수집 항목(이메일, 연락처, 회사명), 목적(AICAMP 교육·세미나·서비스 소식 및 프로모션 안내), 보유 기간(동의 철회 시까지), 철회 방법(이메일 하단 수신거부 또는 hongik423@gmail.com 요청). 선택 동의 미체크 시에도 서비스 이용에는 영향이 없습니다.
                   </span>
                 </label>
-                <p className="text-xs text-gray-400">동의하지 않아도 서비스 이용은 가능하지만, 필수 동의 미체크 시 제출할 수 없습니다.</p>
+                <p className="text-xs text-gray-400">✅ 신청서 제출 시 이미 개인정보 동의를 완료하셨습니다. 이제 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.</p>
               </div>
 
 
 
               {/* 단계별 진행상황 */}
+              <div className="mb-3">
+                <h4 className="text-sm font-semibold text-gray-800 mb-2">
+                  📊 진단 진행 단계별 현황
+                </h4>
+              </div>
               <div className="space-y-3">
                 {Object.entries(progressSteps).map(([key, step]) => (
                   <div key={key} className="flex items-center gap-3">
@@ -1073,18 +1074,18 @@ const Real45QuestionForm: React.FC = () => {
 
               {/* 예상 시간 및 안내 */}
               <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
-                <p className="text-blue-900 font-medium text-sm">📊 고품질 AI 분석 진행 중</p>
+                <p className="text-blue-900 font-medium text-sm">📊 이교장 오프라인 분석 진행 중</p>
                 <p className="text-blue-800/80 text-xs mt-1">
-                  Ollama GPT-OSS 20B가 45개 항목을 종합 분석하여 이교장 스타일 보고서를 생성합니다.
+                  제출된 45개 항목을 이교장이 직접 분석하여 맞춤형 진단보고서를 작성합니다.
                 </p>
                 <p className="text-blue-700 text-xs mt-2 font-medium">
-                  예상 완료 시간: 5~15분 | 완료 시 자동으로 이메일 발송됩니다
+                  예상 완료 시간: 24시간 이내 | 완료 시 이메일로 자동 발송됩니다
                 </p>
               </div>
               
               {progressData && (
                 <div className="text-xs text-gray-500 text-center">
-                  진단 ID: {progressData.diagnosisId || diagnosisResult?.diagnosisId}
+                  신청 ID: {progressData.diagnosisId || diagnosisResult?.diagnosisId}
                 </div>
               )}
             </div>
@@ -1101,7 +1102,7 @@ const Real45QuestionForm: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">AI 역량진단을 준비 중입니다...</p>
+          <p className="text-gray-600">AI 역량진단 신청서를 준비 중입니다...</p>
           <p className="text-xs text-gray-400 mt-2">Hydration: {isHydrated ? '완료' : '대기중'}</p>
         </div>
       </div>
@@ -1127,7 +1128,7 @@ const Real45QuestionForm: React.FC = () => {
                   <CardTitle className="text-3xl font-bold text-blue-900 mb-2">
                     AI 역량진단 신청서
                   </CardTitle>
-                  <p className="text-lg font-semibold text-blue-600">45개 행동지표 기반 맞춤형 분석</p>
+                  <p className="text-lg font-semibold text-blue-600">45개 행동지표 기반 신청서 작성</p>
                 </div>
               </div>
               <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6">
@@ -1142,8 +1143,8 @@ const Real45QuestionForm: React.FC = () => {
                       📋 신청서 작성 안내
                     </p>
                     <p className="text-sm text-blue-600 mt-1">
-                      정확한 진단을 위해 모든 필수 항목을 빠짐없이 작성해 주세요. 
-                      작성하신 정보는 맞춤형 AI 역량 분석에만 사용됩니다.
+                      정확한 신청서 작성을 위해 모든 필수 항목을 빠짐없이 작성해 주세요. 
+                      작성하신 정보는 이교장의 맞춤형 AI 역량 분석에만 사용됩니다.
                     </p>
                   </div>
                 </div>
@@ -1436,7 +1437,7 @@ const Real45QuestionForm: React.FC = () => {
                       : 'opacity-60 cursor-not-allowed'
                   }`}
                 >
-                  진단 시작하기 <ArrowRight className="ml-2 h-5 w-5" />
+                  신청서 작성 시작 <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
             </CardContent>
@@ -1463,7 +1464,7 @@ const Real45QuestionForm: React.FC = () => {
                 height={48}
                 className="w-12 h-12 rounded-full mr-3 shadow-md"
               />
-              <h1 className="text-2xl font-bold text-blue-900">이교장의AI역량진단</h1>
+              <h1 className="text-2xl font-bold text-blue-900">이교장의AI역량진단 신청서</h1>
             </div>
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-lg px-3 py-1">
@@ -1472,7 +1473,7 @@ const Real45QuestionForm: React.FC = () => {
               {answeredCount > 0 && (
                 <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
                   <span className="mr-1">🎯</span>
-                  <span className="font-bold">현재 점수: {Object.values(formState.answers).reduce((sum, score) => sum + score, 0)}점</span>
+                  <span className="font-bold">현재 응답 점수: {Object.values(formState.answers).reduce((sum, score) => sum + score, 0)}점</span>
                 </div>
               )}
             </div>
@@ -1492,7 +1493,7 @@ const Real45QuestionForm: React.FC = () => {
             </div>
             {answeredCount > 0 && (
               <p className="text-sm text-blue-600 font-medium">
-                평균 점수: {(Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / answeredCount).toFixed(1)}점
+                평균 응답 점수: {(Object.values(formState.answers).reduce((sum, score) => sum + score, 0) / answeredCount).toFixed(1)}점
               </p>
             )}
           </div>
@@ -1536,7 +1537,7 @@ const Real45QuestionForm: React.FC = () => {
                   <div className="flex items-center">
                     <span className="text-blue-600 font-semibold text-sm mr-2">💡</span>
                     <p className="text-blue-700 text-sm">
-                      각 문항의 행동지표를 읽고 현재 상황에 맞는 수준을 선택해주세요.
+                      각 문항의 행동지표를 읽고 현재 상황에 맞는 수준을 선택하여 신청서를 작성해주세요.
                     </p>
                   </div>
                 </div>
@@ -1544,7 +1545,7 @@ const Real45QuestionForm: React.FC = () => {
                 {/* 질문별 정확한 행동지표 기반 답변 옵션 */}
                 <div className="space-y-4">
                   <h4 className="font-semibold text-gray-800 mb-4">
-                    행동지표별 평가 (해당하는 수준을 선택해주세요)
+                    행동지표별 응답 (해당하는 수준을 선택해주세요)
                   </h4>
                   <div className="space-y-3">
                     {currentQuestion && getQuestionBehaviorIndicators(currentQuestion.id).map((indicator) => {
@@ -1630,7 +1631,7 @@ const Real45QuestionForm: React.FC = () => {
                         ? 'bg-gray-400 hover:bg-gray-500 cursor-not-allowed' 
                         : 'bg-green-600 hover:bg-green-700'
                     }`}>
-                      {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />제출 중...</>) : (<><Check className="mr-2 h-4 w-4" />진단 완료 {answeredCount < REAL_45_QUESTIONS.length && `(${REAL_45_QUESTIONS.length - answeredCount}개 남음)`}</>)}
+                      {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />제출 중...</>) : (<><Check className="mr-2 h-4 w-4" />신청서 제출 {answeredCount < REAL_45_QUESTIONS.length && `(${REAL_45_QUESTIONS.length - answeredCount}개 남음)`}</>)}
                     </Button>
                   ) : (
                     <div className="flex flex-col items-end">
@@ -1658,10 +1659,10 @@ const Real45QuestionForm: React.FC = () => {
         {/* 저장 및 미답변 문항 안내 */}
         <div className="mt-6 text-center space-y-3">
           <Button variant="ghost" size="sm" onClick={() => {
-            toast({ title: "자동 저장됨", description: "진행 상황이 자동으로 저장되었습니다." });
+            toast({ title: "자동 저장됨", description: "신청서 작성 진행 상황이 자동으로 저장되었습니다." });
           }}>
             <Save className="mr-2 h-4 w-4" />
-            진행상황 자동 저장됨
+            신청서 작성 진행상황 자동 저장됨
           </Button>
 
           {answeredCount < REAL_45_QUESTIONS.length && (
@@ -1685,22 +1686,22 @@ const Real45QuestionForm: React.FC = () => {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🎯</span>
-                <span className="font-semibold">AI 역량진단 시작!</span>
+                <span className="font-semibold">AI 역량진단 신청서 작성 시작!</span>
               </div>
-              <p className="text-white/90 text-sm mt-1">45개 문항으로 정밀 분석을 시작합니다</p>
+              <p className="text-white/90 text-sm mt-1">45개 문항으로 신청서 작성을 시작합니다</p>
             </div>
             <div className="p-4 space-y-3 text-sm text-gray-700">
               <div className="rounded-lg border bg-blue-50 border-blue-200 p-3">
-                <p className="text-blue-900 font-medium mb-2">📋 진행 방법 안내</p>
+                <p className="text-blue-900 font-medium mb-2">📋 신청서 작성 방법 안내</p>
                 <ul className="text-blue-800/80 space-y-1 text-xs">
                   <li>• 각 질문을 신중히 읽고 현재 상황에 맞는 점수를 선택하세요</li>
-                  <li>• 진행 상황은 자동으로 저장됩니다</li>
-                  <li>• 모든 문항 완료 후 이교장이 오프라인으로 분석하여 보고서를 작성합니다</li>
+                  <li>• 신청서 작성 진행 상황은 자동으로 저장됩니다</li>
+                  <li>• 모든 문항 완료 후 신청서가 접수되어 이교장이 오프라인으로 분석합니다</li>
                   <li>• 24시간 내 이메일로 상세한 진단보고서가 발송됩니다</li>
                 </ul>
               </div>
               <div className="text-center">
-                <button onClick={() => setShowProgressGuide(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">시작하기</button>
+                <button onClick={() => setShowProgressGuide(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">신청서 작성 시작</button>
               </div>
             </div>
           </div>
@@ -1725,11 +1726,11 @@ const Real45QuestionForm: React.FC = () => {
                 <div className="text-3xl font-bold text-red-600 mb-2">{REAL_45_QUESTIONS.length - answeredCount}개</div>
                 <p className="text-gray-700 mb-4">문항이 아직 답변되지 않았습니다</p>
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                  <p className="text-yellow-800 text-sm"><strong>정확한 진단</strong>을 위해 모든 문항에 답변이 필요합니다</p>
+                  <p className="text-yellow-800 text-sm"><strong>정확한 신청서 작성</strong>을 위해 모든 문항에 답변이 필요합니다</p>
                 </div>
               </div>
               <div className="flex gap-3">
-                <button onClick={() => setShowMissingAnswerAlert(false)} className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">계속 답변하기</button>
+                <button onClick={() => setShowMissingAnswerAlert(false)} className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">계속 신청서 작성하기</button>
                 <button onClick={() => { setShowMissingAnswerAlert(false); moveToNextUnanswered(); }} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">미답변 문항으로 자동 이동</button>
               </div>
             </div>
@@ -1737,22 +1738,22 @@ const Real45QuestionForm: React.FC = () => {
         </div>
       )}
 
-      {/* 상담 신청 모달 */}
-      <ConsultationRequestModal
-        isOpen={showConsultationModal}
-        onClose={() => setShowConsultationModal(false)}
-        diagnosisData={diagnosisResult}
-        companyName={formState.companyInfo.companyName}
-        contactEmail={formState.companyInfo.contactEmail}
-        contactName={formState.companyInfo.contactName}
-        contactPhone={formState.companyInfo.contactPhone}
-        initialData={{
-          industry: formState.companyInfo.industry,
-          inquiryType: 'diagnosis',
-          consultationArea: 'diagnosis',
-          inquiryContent: `AI 역량진단 결과에 대한 전문가 상담을 요청합니다.`
-        }}
-      />
+              {/* 이교장 직접 상담 신청 모달 */}
+        <ConsultationRequestModal
+          isOpen={showConsultationModal}
+          onClose={() => setShowConsultationModal(false)}
+          diagnosisData={diagnosisResult}
+          companyName={formState.companyInfo.companyName}
+          contactEmail={formState.companyInfo.contactEmail}
+          contactName={formState.companyInfo.contactName}
+          contactPhone={formState.companyInfo.contactPhone}
+          initialData={{
+            industry: formState.companyInfo.industry,
+            inquiryType: 'diagnosis',
+            consultationArea: 'diagnosis',
+            inquiryContent: `AI 역량진단 신청서 제출 후 이교장 직접 상담을 요청합니다.`
+          }}
+        />
     </div>
   );
 };

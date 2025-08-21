@@ -41,16 +41,8 @@ const DIAGNOSIS_STEPS: ProgressStep[] = [
     status: 'pending'
   },
   {
-    id: 'ai-analysis',
-    name: '2단계: AI 분석 처리',
-    description: 'Ollama AI 모델을 통한 역량진단 분석 및 점수 산출',
-    icon: Brain,
-    estimatedTime: '3-5분',
-    status: 'pending'
-  },
-  {
     id: 'report-generation',
-    name: '3단계: 보고서 생성',
+    name: '2단계: 보고서 생성',
     description: '이교장 스타일 맞춤형 진단보고서 자동 생성',
     icon: FileText,
     estimatedTime: '2-3분',
@@ -58,7 +50,7 @@ const DIAGNOSIS_STEPS: ProgressStep[] = [
   },
   {
     id: 'data-storage',
-    name: '4단계: 데이터 저장',
+    name: '3단계: 데이터 저장',
     description: 'Google Sheets 데이터베이스에 안전하게 저장',
     icon: Database,
     estimatedTime: '1분',
@@ -66,7 +58,7 @@ const DIAGNOSIS_STEPS: ProgressStep[] = [
   },
   {
     id: 'email-dispatch',
-    name: '5단계: 보고서 발송',
+    name: '4단계: 보고서 발송',
     description: '완성된 진단보고서를 이메일로 즉시 발송',
     icon: Mail,
     estimatedTime: '즉시',
@@ -204,7 +196,12 @@ export default function RealtimeProgressBanner({
             )}
 
             {/* 단계별 진행 상황 */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            <div className="mb-3">
+              <h4 className="text-sm font-semibold text-gray-800 mb-2">
+                📊 진단 진행 단계별 현황
+              </h4>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               {progressState.steps.map((step, index) => {
                 const Icon = step.id === 'data-validation' ? CheckCircle2 :
                            step.id === 'ollama-analysis' ? Brain :
