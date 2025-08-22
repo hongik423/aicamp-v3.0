@@ -1,6 +1,6 @@
 /**
  * ================================================================================
- * 🎓 이교장의AI역량진단시스템 V17.0 간소화 버전 (수정완료)
+ * 🎓 이교장의AI역량진단시스템 V17.0 간소화 버전 (AI 분석 완전 제거)
  *  - Google Apps Script
  * ================================================================================
  * 
@@ -17,7 +17,7 @@
  * 10. 성능 최적화 및 안정성 개선 (완료)
  * 
  * 🎯 핵심 특징 (수정완료):
- * - Ollama AI 완전 제거 (완료)
+ * - AI 분석 완전 제거 (Gemini API 사용 안함)
  * - 데이터 저장 및 메일 발송 중심 (완료)
  * - 이교장 오프라인 보고서 작성 지원 (완료)
  * - 45문항 응답 데이터 완전 저장 (완료)
@@ -35,10 +35,12 @@
  * 🎛️ 선택적 환경변수:
  * - DEBUG_MODE: false
  * - ENVIRONMENT: production
- * - SYSTEM_VERSION: V17.0-SIMPLIFIED-FIXED
+ * - SYSTEM_VERSION: V17.0-SIMPLIFIED-NO-AI
  * 
  * 🔧 핵심 수정사항 (2025.01.21 적용):
- * - 누락된 함수 호출 코드 추가 (완료)
+ * - AI 분석 관련 코드 완전 제거 (완료)
+ * - Gemini API 호출 코드 완전 제거 (완료)
+ * - 오프라인 처리 방식으로만 동작 (완료)
  * - 오류 처리 로직 강화 (완료)
  * - 이메일 발송 안정성 개선 (완료)
  * - 데이터 검증 로직 강화 (완료)
@@ -65,7 +67,7 @@ function getEnvironmentConfig() {
     // 시스템 설정
     DEBUG_MODE: properties.getProperty('DEBUG_MODE') === 'true',
     ENVIRONMENT: properties.getProperty('ENVIRONMENT') || 'production',
-    SYSTEM_VERSION: 'V17.0-SIMPLIFIED-FIXED',
+    SYSTEM_VERSION: 'V17.0-SIMPLIFIED-NO-AI',
     
     // 타임아웃 설정
     TIMEOUT_EMAIL: 60000,   // 1분
@@ -97,7 +99,7 @@ function setupV17EnvironmentVariables() {
     const optionalVars = {
       'DEBUG_MODE': 'false',
       'ENVIRONMENT': 'production',
-      'SYSTEM_VERSION': 'V17.0-SIMPLIFIED-FIXED'
+      'SYSTEM_VERSION': 'V17.0-SIMPLIFIED-NO-AI'
     };
     
     // 환경변수 설정
