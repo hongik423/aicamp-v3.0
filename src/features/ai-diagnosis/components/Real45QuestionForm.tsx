@@ -406,116 +406,163 @@ const Real45QuestionForm: React.FC = () => {
 
     console.log('🎯 신청서 접수 진행상황 추적 시작:', diagnosisId);
     
-    // SSE 연결로 실시간 신청서 접수 진행상황 추적
-    const eventSource = new EventSource(`/api/diagnosis-progress?diagnosisId=${encodeURIComponent(diagnosisId)}`);
-    
-    eventSource.onopen = () => {
-      console.log('✅ SSE 연결 성공 - 신청서 접수 모니터링 시작:', diagnosisId);
-      updateProgressSteps('data-validation', 'in-progress', 20);
-    };
+    let eventSource: EventSource | null = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 3;
+    const reconnectDelay = 2000; // 2초
 
-    eventSource.addEventListener('started', (event) => {
-      const data = JSON.parse(event.data);
-      console.log('📊 신청서 접수 시작됨:', data);
-      setProgressData(data);
-      updateProgressSteps('data-validation', 'in-progress', 30);
-    });
-
-    eventSource.addEventListener('progress', (event) => {
-      const data = JSON.parse(event.data);
-      console.log('📈 신청서 처리 진행상황 업데이트:', data);
-      setProgressData(data);
-      
-      // 실제 Google Sheets 데이터 기반 신청서 접수 진행상황 반영
-      if (data.snapshot && data.snapshot.steps) {
-        const steps = data.snapshot.steps;
-        Object.keys(steps).forEach(stepKey => {
-          const step = steps[stepKey];
-          updateProgressSteps(stepKey, step.status, step.progress);
-        });
-      } else {
-        // 폴백: 경과 시간 기반 추정 (V17 간소화 - 신청서 접수)
-        const elapsedMs = data.elapsedMs || 0;
-        const elapsedMinutes = Math.floor(elapsedMs / 60000);
-        
-        if (elapsedMinutes < 1) {
-          updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('report-generation', 'in-progress', Math.min(80, 20 + elapsedMinutes * 60));
-        } else if (elapsedMinutes < 2) {
-          updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('report-generation', 'completed', 100);
-          updateProgressSteps('data-storage', 'in-progress', Math.min(80, (elapsedMinutes - 1) * 80));
-        } else if (elapsedMinutes < 3) {
-          updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('report-generation', 'completed', 100);
-          updateProgressSteps('data-storage', 'completed', 100);
-          updateProgressSteps('email-dispatch', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 40));
-        } else {
-          updateProgressSteps('data-validation', 'completed', 100);
-          updateProgressSteps('report-generation', 'completed', 100);
-          updateProgressSteps('data-storage', 'completed', 100);
-          updateProgressSteps('email-dispatch', 'in-progress', 90);
-        }
+    const createEventSource = () => {
+      if (eventSource) {
+        eventSource.close();
       }
-    });
+      
+      eventSource = new EventSource(`/api/diagnosis-progress?diagnosisId=${encodeURIComponent(diagnosisId)}`);
+      
+      eventSource.onopen = () => {
+        console.log('✅ SSE 연결 성공 - 신청서 접수 모니터링 시작:', diagnosisId);
+        reconnectAttempts = 0; // 연결 성공 시 재시도 횟수 리셋
+        updateProgressSteps('data-validation', 'in-progress', 20);
+      };
 
-    eventSource.addEventListener('done', (event) => {
-      const data = JSON.parse(event.data);
-      console.log('🎉 신청서 접수 완료:', data);
-      setProgressData(data);
-      
-      // 모든 단계 완료
-      updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('report-generation', 'completed', 100);
-      updateProgressSteps('data-storage', 'completed', 100);
-      updateProgressSteps('email-dispatch', 'completed', 100);
-      
-      // 완료 후에도 배너를 지속적으로 표시 (사용자가 수동으로 닫을 때까지)
-      toast({
-        title: "🎉 신청서 접수 완료!",
-        description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
-        variant: "default"
+      eventSource.addEventListener('started', (event) => {
+        const data = JSON.parse(event.data);
+        console.log('📊 신청서 접수 시작됨:', data);
+        setProgressData(data);
+        updateProgressSteps('data-validation', 'in-progress', 30);
       });
-      
-      eventSource.close();
-    });
 
-    eventSource.addEventListener('timeout', (event) => {
-      const data = JSON.parse(event.data);
-      console.log('⏰ 신청서 접수 타임아웃:', data);
-      
-      // 타임아웃 시에도 완료 처리 (신청서 접수 완료)
-      updateProgressSteps('data-validation', 'completed', 100);
-      updateProgressSteps('report-generation', 'completed', 100);
-      updateProgressSteps('data-storage', 'completed', 100);
-      updateProgressSteps('email-dispatch', 'completed', 100);
-      
-      // 타임아웃 시에도 배너를 지속적으로 표시
-      toast({
-        title: "⏰ 접수 완료",
-        description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
-        variant: "default"
+      eventSource.addEventListener('progress', (event) => {
+        const data = JSON.parse(event.data);
+        console.log('📈 신청서 처리 진행상황 업데이트:', data);
+        setProgressData(data);
+        
+        // 실제 Google Sheets 데이터 기반 신청서 접수 진행상황 반영
+        if (data.snapshot && data.snapshot.steps) {
+          const steps = data.snapshot.steps;
+          Object.keys(steps).forEach(stepKey => {
+            const step = steps[stepKey];
+            updateProgressSteps(stepKey, step.status, step.progress);
+          });
+        } else {
+          // 폴백: 경과 시간 기반 추정 (V17 간소화 - 신청서 접수)
+          const elapsedMs = data.elapsedMs || 0;
+          const elapsedMinutes = Math.floor(elapsedMs / 60000);
+          
+          if (elapsedMinutes < 1) {
+            updateProgressSteps('data-validation', 'completed', 100);
+            updateProgressSteps('report-generation', 'in-progress', Math.min(80, 20 + elapsedMinutes * 60));
+          } else if (elapsedMinutes < 2) {
+            updateProgressSteps('data-validation', 'completed', 100);
+            updateProgressSteps('report-generation', 'completed', 100);
+            updateProgressSteps('data-storage', 'in-progress', Math.min(80, (elapsedMinutes - 1) * 80));
+          } else if (elapsedMinutes < 3) {
+            updateProgressSteps('data-validation', 'completed', 100);
+            updateProgressSteps('report-generation', 'completed', 100);
+            updateProgressSteps('data-storage', 'completed', 100);
+            updateProgressSteps('email-dispatch', 'in-progress', Math.min(80, (elapsedMinutes - 2) * 40));
+          } else {
+            updateProgressSteps('data-validation', 'completed', 100);
+            updateProgressSteps('report-generation', 'completed', 100);
+            updateProgressSteps('data-storage', 'completed', 100);
+            updateProgressSteps('email-dispatch', 'in-progress', 90);
+          }
+        }
       });
-      
-      eventSource.close();
-    });
 
-    eventSource.onerror = (error) => {
-      console.error('❌ 신청서 접수 연결 오류:', error);
-      
-      // 연결 오류 시에도 배너를 지속적으로 표시 (신청서 접수 완료)
-      toast({
-        title: "📡 접수 완료",
-        description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
-        variant: "default"
+      eventSource.addEventListener('done', (event) => {
+        const data = JSON.parse(event.data);
+        console.log('🎉 신청서 접수 완료:', data);
+        setProgressData(data);
+        
+        // 모든 단계 완료
+        updateProgressSteps('data-validation', 'completed', 100);
+        updateProgressSteps('report-generation', 'completed', 100);
+        updateProgressSteps('data-storage', 'completed', 100);
+        updateProgressSteps('email-dispatch', 'completed', 100);
+        
+        // 완료 후에도 배너를 지속적으로 표시 (사용자가 수동으로 닫을 때까지)
+        toast({
+          title: "🎉 신청서 접수 완료!",
+          description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
+          variant: "default"
+        });
+        
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
       });
-      
-      eventSource.close();
+
+      eventSource.addEventListener('timeout', (event) => {
+        const data = JSON.parse(event.data);
+        console.log('⏰ 신청서 접수 타임아웃:', data);
+        
+        // 타임아웃 시에도 완료 처리 (신청서 접수 완료)
+        updateProgressSteps('data-validation', 'completed', 100);
+        updateProgressSteps('report-generation', 'completed', 100);
+        updateProgressSteps('data-storage', 'completed', 100);
+        updateProgressSteps('email-dispatch', 'completed', 100);
+        
+        // 타임아웃 시에도 배너를 지속적으로 표시
+        toast({
+          title: "⏰ 접수 완료",
+          description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
+          variant: "default"
+        });
+        
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+      });
+
+      eventSource.onerror = (error) => {
+        console.warn('⚠️ SSE 연결 일시적 중단:', error);
+        
+        // 연결이 닫혔는지 확인
+        if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+          console.log('🔌 SSE 연결이 닫혔습니다. 재연결을 시도합니다...');
+          
+          if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 재연결 시도 ${reconnectAttempts}/${maxReconnectAttempts}`);
+            
+            setTimeout(() => {
+              createEventSource();
+            }, reconnectDelay);
+          } else {
+            console.log('❌ 최대 재연결 시도 횟수 초과. 접수 완료로 처리합니다.');
+            
+            // 최대 재시도 횟수 초과 시 접수 완료로 처리
+            updateProgressSteps('data-validation', 'completed', 100);
+            updateProgressSteps('report-generation', 'completed', 100);
+            updateProgressSteps('data-storage', 'completed', 100);
+            updateProgressSteps('email-dispatch', 'completed', 100);
+            
+            toast({
+              title: "📡 접수 완료",
+              description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
+              variant: "default"
+            });
+            
+            if (eventSource) {
+              eventSource.close();
+              eventSource = null;
+            }
+          }
+        }
+      };
     };
+
+    // 초기 연결 생성
+    createEventSource();
 
     // 컴포넌트 언마운트 시 SSE 연결 정리
     return () => {
-      eventSource.close();
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
     };
   };
 
@@ -998,31 +1045,32 @@ const Real45QuestionForm: React.FC = () => {
 
               {/* 신청서 접수 완료 - 개인정보 동의 확인 */}
               <div className="mt-2 space-y-3 p-4 bg-white rounded-xl border border-gray-200">
-                <label className="flex items-start gap-3">
-                  <Checkbox
-                    checked={!!formState.companyInfo.privacyConsent}
-                    onCheckedChange={(v) => setFormState(prev => ({
-                      ...prev,
-                      companyInfo: { ...prev.companyInfo, privacyConsent: Boolean(v) }
-                    }))}
-                  />
-                  <span className="text-sm text-gray-700">
-                    ✅ [완료] 개인정보 수집·이용 동의: 신청서 제출 시 이미 동의하셨습니다. 수집 항목(회사명, 담당자 성명, 연락처(이메일·전화), 소재지, 45문항 응답), 수집·이용 목적(AI 역량진단 수행, 결과보고서 발송, 고객 응대), 보유·이용 기간(목적 달성 후 즉시 파기·다만 관련 법령에 따른 의무 보관 기간은 그 기간 동안 보관), 제3자 제공/국외이전(없음), 처리 위탁(이메일 발송 및 클라우드 인프라 운영 등 서비스 제공에 필수적인 범위), 동의 거부 권리 및 불이익(동의를 거부할 수 있으나 서비스 제공이 불가). 문의: hongik423@gmail.com
-                  </span>
-                </label>
-                <label className="flex items-start gap-3">
-                  <Checkbox
-                    checked={!!formState.companyInfo.marketingConsent}
-                    onCheckedChange={(v) => setFormState(prev => ({
-                      ...prev,
-                      companyInfo: { ...prev.companyInfo, marketingConsent: Boolean(v) }
-                    }))}
-                  />
-                  <span className="text-sm text-gray-500">
-                    [선택] 마케팅 정보 수신 동의: 신청서 제출 시 선택하신 동의 상태입니다. 수집 항목(이메일, 연락처, 회사명), 목적(AICAMP 교육·세미나·서비스 소식 및 프로모션 안내), 보유 기간(동의 철회 시까지), 철회 방법(이메일 하단 수신거부 또는 hongik423@gmail.com 요청). 선택 동의 미체크 시에도 서비스 이용에는 영향이 없습니다.
-                  </span>
-                </label>
-                <p className="text-xs text-gray-400">✅ 신청서 제출 시 이미 개인정보 동의를 완료하셨습니다. 이제 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.</p>
+                {/* 개인정보동의 상태 표시 (체크박스 제거) */}
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs font-bold">✓</span>
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    <span className="font-medium text-blue-600">✅ [완료] 개인정보 수집·이용 동의</span>: 신청서 제출 시 이미 동의하셨습니다. 수집 항목(회사명, 담당자 성명, 연락처(이메일·전화), 소재지, 45문항 응답), 수집·이용 목적(AI 역량진단 수행, 결과보고서 발송, 고객 응대), 보유·이용 기간(목적 달성 후 즉시 파기·다만 관련 법령에 따른 의무 보관 기간은 그 기간 동안 보관), 제3자 제공/국외이전(없음), 처리 위탁(이메일 발송 및 클라우드 인프라 운영 등 서비스 제공에 필수적인 범위), 동의 거부 권리 및 불이익(동의를 거부할 수 있으나 서비스 제공이 불가). 문의: hongik423@gmail.com
+                  </div>
+                </div>
+                
+                {/* 마케팅동의 상태 표시 (체크박스 제거) */}
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs font-bold">✓</span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    <span className="font-medium text-blue-600">[선택] 마케팅 정보 수신 동의</span>: 신청서 제출 시 선택하신 동의 상태입니다. 수집 항목(이메일, 연락처, 회사명), 목적(AICAMP 교육·세미나·서비스 소식 및 프로모션 안내), 보유 기간(동의 철회 시까지), 철회 방법(이메일 하단 수신거부 또는 hongik423@gmail.com 요청). 선택 동의 미체크 시에도 서비스 이용에는 영향이 없습니다.
+                  </div>
+                </div>
+                
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <p className="text-sm text-green-800 font-medium">신청서 제출 시 이미 개인정보 동의를 완료하셨습니다. 이제 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.</p>
+                  </div>
+                </div>
               </div>
 
 

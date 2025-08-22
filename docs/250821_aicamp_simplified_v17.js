@@ -668,7 +668,7 @@ function handleAIDiagnosisRequest(requestData, progressId) {
           aiAnalysisRemoved: true // AI 분석 완전 제거 확인
         },
         processingTime: processingTime,
-        version: 'V17.0-SIMPLIFIED-FIXED',
+        version: 'V17.0-SIMPLIFIED-NO-AI',
         timestamp: new Date().toISOString(),
         processingMode: 'offline_manual_analysis' // 오프라인 수동 분석 모드
       }))
@@ -687,7 +687,7 @@ function handleAIDiagnosisRequest(requestData, progressId) {
         success: false,
         error: `AI역량진단 접수 처리 실패: ${error.message}`,
         diagnosisId: diagnosisId,
-        version: 'V17.0-SIMPLIFIED-FIXED',
+        version: 'V17.0-SIMPLIFIED-NO-AI',
         timestamp: new Date().toISOString(),
         note: 'AI 분석이 완전히 제거된 오프라인 처리 시스템입니다.'
       }))

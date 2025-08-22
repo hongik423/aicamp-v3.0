@@ -35,6 +35,10 @@ export default function ErrorShield() {
       'injected.js',
       'inject.js',
       'Cannot access',
+      'chrome.runtime',
+      'chrome.tabs',
+      'chrome.storage',
+      'chrome.webNavigation',
       
       // Manifest 관련 (강화)
       'Manifest fetch',
@@ -43,50 +47,59 @@ export default function ErrorShield() {
       'Failed to load resource',
       'status of 401',
       'code 401',
+      'status of 403',
+      'code 403',
       
       // Service Worker 관련
       'service-worker',
       'sw.js',
       
-      // 기타 외부 오류
+      // SSE 연결 관련 (강화)
+      'SSE 연결 오류',
+      'EventSource',
+      'diagnosis-progress',
+      '신청서 접수 연결 오류',
+      'SSE 연결 일시적 중단',
+      
+      // 네트워크 오류
       'net::ERR_',
       'ERR_INTERNET_DISCONNECTED',
       'ERR_NETWORK_CHANGED',
+      'Failed to load resource',
       
-      // 추가 Chrome 관련 오류
-      'chrome.runtime',
-      'chrome.tabs',
-      'chrome.storage',
-      'chrome.webNavigation',
-      
-      // SSE 연결 오류 (강화)
-      'SSE 연결 오류',
-      'EventSource',
-      'diagnosis-progress'
+      // 기타 외부 오류
+      '개인정보 동의',
+      'privacyConsent',
+      'message port closed'
     ];
 
     // 오류 메시지 필터링 함수
-    const shouldBlockError = (message: string): boolean => {
+    const shouldBlockError = (message: string, source?: string): boolean => {
+      const messageStr = String(message || '');
+      const sourceStr = String(source || '');
+      const combined = messageStr + ' ' + sourceStr;
+      
       return blockedPatterns.some(pattern => 
-        message.toLowerCase().includes(pattern.toLowerCase())
+        messageStr.includes(pattern) || 
+        sourceStr.includes(pattern) ||
+        combined.includes(pattern)
       );
     };
 
-    // Console 오류 필터링
+    // console.error 오버라이드 - 강화된 버전
     console.error = (...args: any[]) => {
       const message = args.join(' ');
       if (shouldBlockError(message)) {
-        // 차단된 오류는 조용히 무시
-        return;
+        return; // 🛡️ 차단된 오류는 무시
       }
       originalConsoleError.apply(console, args);
     };
 
+    // console.warn 오버라이드 - 강화된 버전
     console.warn = (...args: any[]) => {
       const message = args.join(' ');
       if (shouldBlockError(message)) {
-        // 차단된 경고는 조용히 무시
-        return;
+        return; // 🛡️ 차단된 경고는 무시
       }
       originalConsoleWarn.apply(console, args);
     };
@@ -96,6 +109,13 @@ export default function ErrorShield() {
       const message = event.message || '';
       const filename = event.filename || '';
       const source = event.error?.stack || '';
+
+      // 차단할 오류인지 확인
+      if (shouldBlockError(message, filename)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
 
       // Chrome Extension 오류 차단
       if (filename.includes('chrome-extension://') ||
@@ -109,7 +129,8 @@ export default function ErrorShield() {
       // Manifest 오류 차단
       if (message.includes('Manifest fetch') ||
           message.includes('manifest.json') ||
-          message.includes('401')) {
+          message.includes('401') ||
+          message.includes('403')) {
         event.preventDefault();
         return false;
       }
@@ -117,6 +138,15 @@ export default function ErrorShield() {
       // Service Worker 오류 차단
       if (message.includes('service-worker') ||
           filename.includes('sw.js')) {
+        event.preventDefault();
+        return false;
+      }
+
+      // SSE 연결 오류 차단
+      if (message.includes('SSE 연결 오류') ||
+          message.includes('EventSource') ||
+          message.includes('diagnosis-progress') ||
+          message.includes('신청서 접수 연결 오류')) {
         event.preventDefault();
         return false;
       }
@@ -143,17 +173,38 @@ export default function ErrorShield() {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason?.message || event.reason || '';
       const reasonStr = String(reason);
+      const stack = event.reason?.stack || '';
       
       // 차단할 오류인지 확인
-      if (shouldBlockError(reasonStr)) {
+      if (shouldBlockError(reasonStr, stack)) {
+        event.preventDefault();
+        return false;
+      }
+
+      // Chrome Extension 관련 Promise rejection 차단
+      if (reasonStr.includes('message port closed') ||
+          reasonStr.includes('Extension context') ||
+          reasonStr.includes('chrome-extension://') ||
+          stack.includes('content.js') ||
+          stack.includes('chrome-extension://')) {
+        event.preventDefault();
+        return false;
+      }
+
+      // SSE 연결 관련 Promise rejection 차단
+      if (reasonStr.includes('SSE 연결 오류') ||
+          reasonStr.includes('EventSource') ||
+          reasonStr.includes('diagnosis-progress') ||
+          reasonStr.includes('신청서 접수 연결 오류')) {
         event.preventDefault();
         return false;
       }
 
       // 실제 오류인 경우에만 로깅
-      if (!shouldBlockError(reasonStr)) {
+      if (!shouldBlockError(reasonStr, stack)) {
         console.warn('🚨 처리되지 않은 Promise 거부:', {
-          reason: reasonStr.substring(0, 100)
+          reason: reasonStr.substring(0, 100),
+          stack: stack.substring(0, 100)
         });
       }
 

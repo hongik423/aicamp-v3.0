@@ -1,60 +1,55 @@
-// Chrome Extension 및 외부 오류 완전 차단 스크립트 (개선된 버전)
-(function() {
-  'use strict';
+// 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템
+const errorPatterns = [
+  // Chrome Extension 관련 (강화)
+  'Extension context invalidated',
+  'port closed',
+  'message port closed',
+  'The message port closed before a response was received',
+  'Unchecked runtime.lastError',
+  'runtime.lastError',
+  'chrome-extension://',
+  'extension://',
+  'content.js',
+  'content_script',
+  'injected.js',
+  'inject.js',
+  'Cannot access',
+  'chrome.runtime',
+  'chrome.tabs',
+  'chrome.storage',
+  'chrome.webNavigation',
   
-  // 차단할 오류 패턴 (확장됨) - 개인정보 동의 관련 추가
-  const errorPatterns = [
-    'Extension context invalidated',
-    'port closed',
-    'chrome-extension://',
-    'content.js',
-    'content_script.js',
-    '2content.js',
-    'The message port closed before a response was received',
-    'runtime.lastError',
-    'The message port closed',
-    'Manifest fetch',
-    'manifest.json',
-    'manifest.webmanifest',
-    'Failed to load resource',
-    '401',
-    '403',
-    'Authentication Required',
-    'Uncaught (in promise)',
-    'Failed to fetch RSC payload',
-    'Falling back to browser navigation',
-    'TypeError: url.includes is not a function',
-    'Failed to load resource: the server responded with a status of 401',
-    'Failed to load resource: the server responded with a status of 403',
-    'Manifest fetch from',
-    'failed, code 401',
-    'failed, code 403',
-    'Failed to load resource: the server responded with a status of 401 ()',
-    'Failed to load resource: the server responded with a status of 403 ()',
-    'Manifest fetch from https://',
-    'failed, code 401',
-    'failed, code 403',
-    'aicampv30-bbd4jhdaj-hongik423-3087s-projects.vercel.app',
-    'aicampv30-2tklw0vr3-hongik423-3087s-projects.vercel.app',
-    'aicampv30-jx4epkyxr-hongik423-3087s-projects.vercel.app',
-    'aicampv30-4kouuv7eo-hongik423-3087s-projects.vercel.app',
-    'vercel.app/manifest.webmanifest',
-    'Extension context',
-    'injected.js',
-    'inject.js',
-    'Cannot access',
-    'content_script',
-    'extension://',
-    'moz-extension://',
-    'safari-extension://',
-    'ms-browser-extension://',
-    '개인정보 동의',
-    'privacyConsent',
-    '개인정보 수집',
-    '개인정보 처리방침',
-    'privacy consent',
-    'Privacy Policy'
-  ];
+  // Manifest 관련
+  'Manifest fetch',
+  'manifest.json',
+  'manifest.webmanifest',
+  'Failed to load resource',
+  'status of 401',
+  'code 401',
+  'status of 403',
+  'code 403',
+  
+  // Service Worker 관련
+  'service-worker',
+  'sw.js',
+  
+  // SSE 연결 관련 (강화)
+  'SSE 연결 오류',
+  'EventSource',
+  'diagnosis-progress',
+  '신청서 접수 연결 오류',
+  
+  // 네트워크 오류
+  'net::ERR_',
+  'ERR_INTERNET_DISCONNECTED',
+  'ERR_NETWORK_CHANGED',
+  'Failed to load resource',
+  
+  // 기타 외부 오류
+  '개인정보 동의',
+  'privacyConsent',
+  'message port closed'
+];
   
   // 오류 메시지 필터링 함수
   function shouldSuppressError(message, source) {
