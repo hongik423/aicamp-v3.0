@@ -21,6 +21,17 @@
       "has": [
         {
           "type": "host",
+          "value": "aicampv30-am851w5yq-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
           "value": "aicampv30-hongik423-3087s-projects.vercel.app"
         }
       ],
