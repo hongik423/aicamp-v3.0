@@ -9,13 +9,12 @@ import {
   MessageCircle, 
   Sparkles, 
   Home,
-  ArrowRight,
-  Clock,
+  Eye,
+  CheckCircle,
   Users,
+  Clock,
   Award,
-  Zap,
-  Play,
-  Eye
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -72,17 +71,17 @@ const N8nCurriculumBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [downloadCount, setDownloadCount] = useState(0);
+  const [downloadCount, setDownloadCount] = useState(2847);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
 
-  // 3순위 등장 (n8n 커리큘럼 배너 - 책소개 배너와 동시)
+  // 1순위 등장 (가장 먼저 나타남)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 1000); // 1초 후 등장 (책소개 배너와 동시)
+    }, 500); // 0.5초 후 등장 (가장 빠름)
 
     return () => clearTimeout(timer);
   }, []);
@@ -93,9 +92,9 @@ const N8nCurriculumBanner: React.FC = () => {
       const interval = setInterval(() => {
         setDownloadCount(prev => {
           const newCount = prev + Math.floor(Math.random() * 3) + 1;
-          return newCount > 2847 ? 2847 : newCount;
+          return newCount > 3000 ? 3000 : newCount;
         });
-      }, 2000);
+      }, 3000);
 
       return () => clearInterval(interval);
     }
@@ -111,8 +110,6 @@ const N8nCurriculumBanner: React.FC = () => {
     if (isVisible) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
       
       if (isMobile) {
         const viewport = document.querySelector('meta[name=viewport]');
@@ -127,8 +124,6 @@ const N8nCurriculumBanner: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
-      document.body.style.position = 'static';
-      document.body.style.width = 'auto';
       
       if (isMobile) {
         const viewport = document.querySelector('meta[name=viewport]');
@@ -167,7 +162,7 @@ const N8nCurriculumBanner: React.FC = () => {
   const handleDownload = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); // 배너 클릭 이벤트 방지
     const link = document.createElement('a');
-    link.href = '/images/n8n_Curriculum.pdf';
+    link.href = '/n8n_Curriculum.pdf';
     link.download = 'n8n_AI자동화_워크플로우_커리큘럼.pdf';
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
@@ -181,6 +176,12 @@ const N8nCurriculumBanner: React.FC = () => {
     setShowPDFViewer(false);
   }, []);
 
+  // 모두 확인하고 닫기 핸들러
+  const handleCloseAll = useCallback(() => {
+    setIsVisible(false);
+    localStorage.setItem('n8n-curriculum-viewed', 'true');
+  }, []);
+
   if (!isVisible) return null;
 
   return (
@@ -190,7 +191,7 @@ const N8nCurriculumBanner: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10001] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4"
           onClick={handleBackgroundClick}
           role="dialog"
           aria-modal="true"
@@ -203,7 +204,7 @@ const N8nCurriculumBanner: React.FC = () => {
         >
           {/* 배경 오버레이 */}
           <motion.div 
-            className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-blue-900/80 to-indigo-900/80 backdrop-blur-md"
+            className="absolute inset-0 bg-gradient-to-br from-purple-900/90 via-blue-900/90 to-indigo-900/90 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -239,7 +240,7 @@ const N8nCurriculumBanner: React.FC = () => {
               damping: 25,
               duration: 0.6
             }}
-            className="relative z-10 w-full max-w-4xl mx-auto"
+            className="relative z-10 w-full max-w-3xl mx-auto"
             onClick={handleContentClick}
           >
             {/* 닫기 버튼 */}
@@ -301,13 +302,13 @@ const N8nCurriculumBanner: React.FC = () => {
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       className="relative group"
                     >
-                      <div className="relative w-32 h-40 sm:w-36 sm:h-44 rounded-xl overflow-hidden shadow-xl">
+                      <div className="relative w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden shadow-xl">
                         {!imageError ? (
                           <Image
                             src="/images/book_1_cover.JPG?v=4"
                             alt="n8n AI 자동화 워크플로우 커리큘럼 북커버"
                             fill
-                            sizes="(max-width: 640px) 128px, 144px"
+                            sizes="(max-width: 640px) 112px, 128px"
                             style={{ objectFit: 'cover' }}
                             priority
                             onLoad={handleImageLoad}
@@ -316,14 +317,14 @@ const N8nCurriculumBanner: React.FC = () => {
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex flex-col items-center justify-center text-white p-4">
-                            <BookOpen size={32} className="mb-2" />
+                            <BookOpen size={28} className="mb-2" />
                             <p className="text-xs text-center font-bold">n8n 커리큘럼</p>
                           </div>
                         )}
                         
                         {/* 호버 오버레이 */}
                         <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-end pb-3">
-                          <Eye className="w-5 h-5 text-white mb-1" />
+                          <Eye className="w-4 h-4 text-white mb-1" />
                           <p className="text-xs text-white font-bold">클릭하여 보기</p>
                         </div>
                       </div>
@@ -376,7 +377,7 @@ const N8nCurriculumBanner: React.FC = () => {
 
                 {/* 하단 네비게이션 버튼들 */}
                 <div className="mt-6 pt-4 border-t border-gray-200">
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-4 gap-3">
                     <Button
                       asChild
                       variant="ghost"
@@ -415,6 +416,16 @@ const N8nCurriculumBanner: React.FC = () => {
                         <span className="text-xs">홈으로</span>
                       </Link>
                     </Button>
+
+                    <Button
+                      onClick={handleCloseAll}
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-600 hover:bg-gray-50"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      <span className="text-xs">모두 확인</span>
+                    </Button>
                   </div>
                 </div>
 
@@ -434,7 +445,7 @@ const N8nCurriculumBanner: React.FC = () => {
       <PDFViewer
         isOpen={showPDFViewer}
         onClose={handleClosePDFViewer}
-        pdfUrl="/images/n8n_Curriculum.pdf"
+        pdfUrl="/n8n_Curriculum.pdf"
         title="n8n을 활용한 업무혁신 AI 워크플로우 커리큘럼"
         description="실무에서 바로 활용할 수 있는 200+ 워크플로우 완벽 가이드"
       />

@@ -116,10 +116,10 @@ const BookPromotionBanner: React.FC = () => {
   }, [shouldReduceMotion]);
 
   useEffect(() => {
-    // 즉시 등장 (2순위 - n8n 책소개 배너)
+    // 10초 후 자동 등장 (n8n 커리큘럼 배너가 먼저 보이도록)
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 1000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, []);
