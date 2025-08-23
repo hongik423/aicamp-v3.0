@@ -1,6 +1,6 @@
 /**
  * ================================================================================
- * 🎯 이교장의AI역량진단시스템 V19.0 - 무오류 최종 안정화 버전
+ * 🎯 이교장의AI역량진단시스템 V19.1 - 통합 관리 시스템
  * ================================================================================
  * 
  * 📌 품질 기준: 무오류(Zero-Error) 달성
@@ -11,7 +11,11 @@
  * 3. 5점 척도 평가 (매우 우수 ~ 매우 부족)
  * 4. 등급 시스템 (A+ ~ F)
  * 5. 성숙도 판정 (AI 선도기업 ~ AI 미인식단계)
- * 6. Google Sheets 완전 데이터 저장
+ * 6. Google Sheets 완전 데이터 저장 (6개 시트)
+ * 7. 상담신청 접수 및 관리 시스템
+ * 8. 일반 오류신고 접수 및 관리
+ * 9. 세금계산기 오류신고 전용 처리
+ * 10. 통합 요청 라우팅 및 이메일 발송
  * 
  * ================================================================================
  */
@@ -29,11 +33,14 @@ const SYSTEM_CONFIG = {
   SHEETS: {
     MAIN_DATA: 'AI역량진단_메인데이터',
     QUESTIONS_DATA: 'AI역량진단_45문항상세',
-    CATEGORY_ANALYSIS: 'AI역량진단_카테고리분석'
+    CATEGORY_ANALYSIS: 'AI역량진단_카테고리분석',
+    CONSULTATION_DATA: '상담신청_데이터',
+    ERROR_REPORTS: '오류신고_데이터',
+    TAX_CALCULATOR_ERRORS: '세금계산기_오류신고'
   },
   
   // 시스템 정보
-  VERSION: 'V19.0-FINAL',
+  VERSION: 'V19.1-INTEGRATED',
   WEBSITE: 'aicamp.club',
   SYSTEM_NAME: '이교장의AI역량진단시스템'
 };
@@ -303,38 +310,73 @@ function doGet(e) {
 }
 
 /**
- * POST 요청 핸들러 - 평가 접수
+ * POST 요청 핸들러 - 통합 요청 처리 (V19.1 확장)
  */
 function doPost(e) {
   const startTime = Date.now();
-  let diagnosisId = null;
+  let requestId = null;
   
   try {
-    console.log('📋 평가 접수 시작');
-    
     // 1. 요청 데이터 파싱
     const requestData = parseAndValidateRequest(e);
     
-    // 2. 진단 ID 생성
+    // 2. 요청 타입별 라우팅
+    const requestType = requestData.type || requestData.action || 'diagnosis';
+    console.log('📋 요청 타입:', requestType);
+    
+    switch (requestType) {
+      case 'diagnosis':
+      case 'ai_diagnosis':
+        return handleDiagnosisRequest(requestData, startTime);
+        
+      case 'consultation':
+        return handleConsultationRequest(requestData, startTime);
+        
+      case 'error_report':
+        return handleErrorReportRequest(requestData, startTime);
+        
+      case 'tax_calculator_error':
+        return handleTaxCalculatorErrorRequest(requestData, startTime);
+        
+      default:
+        // 기본값: AI 역량진단으로 처리
+        return handleDiagnosisRequest(requestData, startTime);
+    }
+    
+  } catch (error) {
+    return handleError(error, 'POST_REQUEST', requestId);
+  }
+}
+
+/**
+ * AI 역량진단 요청 처리 (기존 로직)
+ */
+function handleDiagnosisRequest(requestData, startTime) {
+  let diagnosisId = null;
+  
+  try {
+    console.log('🎯 AI 역량진단 요청 처리 시작');
+    
+    // 진단 ID 생성
     diagnosisId = generateUniqueId();
     console.log('🆔 진단 ID 생성:', diagnosisId);
     
-    // 3. 데이터 검증 및 정규화
+    // 데이터 검증 및 정규화
     const validatedData = validateAndNormalizeData(requestData, diagnosisId);
     
-    // 4. BARS 점수 계산
+    // BARS 점수 계산
     const scoreResults = calculateBARSScores(validatedData);
     
-    // 5. Google Sheets 저장 (3개 시트)
+    // Google Sheets 저장 (3개 시트)
     const saveResults = saveToGoogleSheets(validatedData, scoreResults);
     
-    // 6. 이메일 발송
+    // 이메일 발송
     const emailResults = sendNotificationEmails(validatedData, scoreResults);
     
-    // 7. 처리 시간 계산
+    // 처리 시간 계산
     const processingTime = Date.now() - startTime;
     
-    console.log(`✅ 평가 접수 완료 (${processingTime}ms)`);
+    console.log(`✅ AI 역량진단 완료 (${processingTime}ms)`);
     
     // 성공 응답
     return ContentService
@@ -366,7 +408,148 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
-    return handleError(error, 'POST_REQUEST', diagnosisId);
+    return handleError(error, 'DIAGNOSIS_REQUEST', diagnosisId);
+  }
+}
+
+/**
+ * 상담신청 요청 처리
+ */
+function handleConsultationRequest(requestData, startTime) {
+  let consultationId = null;
+  
+  try {
+    console.log('📞 상담신청 요청 처리 시작');
+    
+    // 상담 ID 생성
+    consultationId = `CONSULT_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('🆔 상담 ID 생성:', consultationId);
+    
+    // 데이터 검증
+    const validatedData = validateConsultationData(requestData, consultationId);
+    
+    // Google Sheets 저장
+    const saveResult = saveConsultationData(validatedData);
+    
+    // 이메일 발송
+    const emailResult = sendConsultationEmails(validatedData);
+    
+    // 처리 시간 계산
+    const processingTime = Date.now() - startTime;
+    
+    console.log(`✅ 상담신청 완료 (${processingTime}ms)`);
+    
+    // 성공 응답
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: true,
+        consultationId: consultationId,
+        message: '상담신청이 성공적으로 접수되었습니다',
+        processing: {
+          time: processingTime,
+          saved: saveResult,
+          emailSent: emailResult
+        },
+        version: SYSTEM_CONFIG.VERSION
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return handleError(error, 'CONSULTATION_REQUEST', consultationId);
+  }
+}
+
+/**
+ * 오류신고 요청 처리
+ */
+function handleErrorReportRequest(requestData, startTime) {
+  let reportId = null;
+  
+  try {
+    console.log('🚨 오류신고 요청 처리 시작');
+    
+    // 신고 ID 생성
+    reportId = `ERROR_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('🆔 신고 ID 생성:', reportId);
+    
+    // 데이터 검증
+    const validatedData = validateErrorReportData(requestData, reportId);
+    
+    // Google Sheets 저장
+    const saveResult = saveErrorReportData(validatedData);
+    
+    // 이메일 발송
+    const emailResult = sendErrorReportEmails(validatedData);
+    
+    // 처리 시간 계산
+    const processingTime = Date.now() - startTime;
+    
+    console.log(`✅ 오류신고 완료 (${processingTime}ms)`);
+    
+    // 성공 응답
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: true,
+        reportId: reportId,
+        message: '오류신고가 성공적으로 접수되었습니다',
+        processing: {
+          time: processingTime,
+          saved: saveResult,
+          emailSent: emailResult
+        },
+        version: SYSTEM_CONFIG.VERSION
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return handleError(error, 'ERROR_REPORT_REQUEST', reportId);
+  }
+}
+
+/**
+ * 세금계산기 오류신고 요청 처리
+ */
+function handleTaxCalculatorErrorRequest(requestData, startTime) {
+  let reportId = null;
+  
+  try {
+    console.log('💰 세금계산기 오류신고 요청 처리 시작');
+    
+    // 신고 ID 생성
+    reportId = `TAX_ERROR_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('🆔 신고 ID 생성:', reportId);
+    
+    // 데이터 검증
+    const validatedData = validateTaxCalculatorErrorData(requestData, reportId);
+    
+    // Google Sheets 저장
+    const saveResult = saveTaxCalculatorErrorData(validatedData);
+    
+    // 이메일 발송
+    const emailResult = sendTaxCalculatorErrorEmails(validatedData);
+    
+    // 처리 시간 계산
+    const processingTime = Date.now() - startTime;
+    
+    console.log(`✅ 세금계산기 오류신고 완료 (${processingTime}ms)`);
+    
+    // 성공 응답
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: true,
+        reportId: reportId,
+        message: '세금계산기 오류신고가 성공적으로 접수되었습니다',
+        processing: {
+          time: processingTime,
+          saved: saveResult,
+          emailSent: emailResult
+        },
+        version: SYSTEM_CONFIG.VERSION
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return handleError(error, 'TAX_CALCULATOR_ERROR_REQUEST', reportId);
   }
 }
 
@@ -488,6 +671,128 @@ function normalizeResponses(responses) {
   }
   
   return normalized;
+}
+
+/**
+ * 상담신청 데이터 검증
+ */
+function validateConsultationData(data, consultationId) {
+  // 필수 필드 검증
+  const companyName = String(data.companyName || '').trim();
+  const contactName = String(data.contactName || '').trim();
+  const contactEmail = String(data.contactEmail || '').trim().toLowerCase();
+  
+  if (!companyName || companyName.length < 2) {
+    throw new Error('회사명은 2자 이상 입력해주세요');
+  }
+  
+  if (!contactName || contactName.length < 2) {
+    throw new Error('담당자명은 2자 이상 입력해주세요');
+  }
+  
+  if (!contactEmail || !isValidEmail(contactEmail)) {
+    throw new Error('올바른 이메일 주소를 입력해주세요');
+  }
+  
+  return {
+    consultationId: consultationId,
+    companyName: companyName,
+    contactName: contactName,
+    contactEmail: contactEmail,
+    contactPhone: String(data.contactPhone || ''),
+    contactPosition: String(data.contactPosition || ''),
+    industry: String(data.industry || '기타'),
+    employeeCount: String(data.employeeCount || '1-10명'),
+    consultationType: String(data.consultationType || '일반상담'),
+    consultationArea: String(data.consultationArea || '기타'),
+    inquiryType: String(data.inquiryType || '일반문의'),
+    inquiryContent: String(data.inquiryContent || ''),
+    urgencyLevel: String(data.urgencyLevel || 'normal'),
+    preferredContactTime: String(data.preferredContactTime || '언제든지'),
+    timestamp: new Date().toISOString(),
+    submittedAt: new Date()
+  };
+}
+
+/**
+ * 오류신고 데이터 검증
+ */
+function validateErrorReportData(data, reportId) {
+  // 필수 필드 검증
+  const reporterName = String(data.reporterName || '').trim();
+  const reporterEmail = String(data.reporterEmail || '').trim().toLowerCase();
+  const errorDescription = String(data.errorDescription || '').trim();
+  
+  if (!reporterName || reporterName.length < 2) {
+    throw new Error('신고자명은 2자 이상 입력해주세요');
+  }
+  
+  if (!reporterEmail || !isValidEmail(reporterEmail)) {
+    throw new Error('올바른 이메일 주소를 입력해주세요');
+  }
+  
+  if (!errorDescription || errorDescription.length < 10) {
+    throw new Error('오류 내용은 10자 이상 입력해주세요');
+  }
+  
+  return {
+    reportId: reportId,
+    reporterName: reporterName,
+    reporterEmail: reporterEmail,
+    reporterPhone: String(data.reporterPhone || ''),
+    errorType: String(data.errorType || '시스템 오류'),
+    errorDescription: errorDescription,
+    errorLocation: String(data.errorLocation || ''),
+    urgencyLevel: String(data.urgencyLevel || 'medium'),
+    browserInfo: String(data.browserInfo || ''),
+    deviceInfo: String(data.deviceInfo || ''),
+    timestamp: new Date().toISOString(),
+    submittedAt: new Date()
+  };
+}
+
+/**
+ * 세금계산기 오류신고 데이터 검증
+ */
+function validateTaxCalculatorErrorData(data, reportId) {
+  // 필수 필드 검증
+  const name = String(data.name || '').trim();
+  const email = String(data.email || '').trim().toLowerCase();
+  const calculatorType = String(data.calculatorType || '').trim();
+  const errorDescription = String(data.errorDescription || '').trim();
+  
+  if (!name || name.length < 2) {
+    throw new Error('이름은 2자 이상 입력해주세요');
+  }
+  
+  if (!email || !isValidEmail(email)) {
+    throw new Error('올바른 이메일 주소를 입력해주세요');
+  }
+  
+  if (!calculatorType) {
+    throw new Error('계산기 유형을 선택해주세요');
+  }
+  
+  if (!errorDescription || errorDescription.length < 10) {
+    throw new Error('오류 설명은 10자 이상 입력해주세요');
+  }
+  
+  return {
+    reportId: reportId,
+    name: name,
+    email: email,
+    phone: String(data.phone || ''),
+    calculatorType: calculatorType,
+    errorDescription: errorDescription,
+    expectedBehavior: String(data.expectedBehavior || ''),
+    actualBehavior: String(data.actualBehavior || ''),
+    stepsToReproduce: String(data.stepsToReproduce || ''),
+    browserInfo: String(data.browserInfo || ''),
+    deviceInfo: String(data.deviceInfo || ''),
+    additionalInfo: String(data.additionalInfo || ''),
+    timestamp: new Date().toISOString(),
+    submittedAt: new Date()
+  };
 }
 
 // ================================================================================
@@ -831,6 +1136,164 @@ function saveCategoryAnalysis(spreadsheet, data, scoreResults) {
   }
 }
 
+/**
+ * 상담신청 데이터 저장
+ */
+function saveConsultationData(data) {
+  try {
+    const spreadsheet = SpreadsheetApp.openById(SYSTEM_CONFIG.SPREADSHEET_ID);
+    let sheet = spreadsheet.getSheetByName(SYSTEM_CONFIG.SHEETS.CONSULTATION_DATA);
+    
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet(SYSTEM_CONFIG.SHEETS.CONSULTATION_DATA);
+      
+      // 헤더 설정
+      const headers = [
+        '상담ID', '접수일시', '회사명', '담당자명', '이메일', '전화번호', '직책',
+        '업종', '직원수', '상담유형', '상담분야', '문의유형', '문의내용',
+        '긴급도', '연락희망시간', '처리상태'
+      ];
+      
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length)
+        .setFontWeight('bold')
+        .setBackground('#4285f4')
+        .setFontColor('white');
+    }
+    
+    // 데이터 행 추가
+    const row = [
+      data.consultationId,
+      data.timestamp,
+      data.companyName,
+      data.contactName,
+      data.contactEmail,
+      data.contactPhone,
+      data.contactPosition,
+      data.industry,
+      data.employeeCount,
+      data.consultationType,
+      data.consultationArea,
+      data.inquiryType,
+      data.inquiryContent,
+      data.urgencyLevel,
+      data.preferredContactTime,
+      '접수완료'
+    ];
+    
+    sheet.appendRow(row);
+    console.log('✅ 상담신청 데이터 저장 완료');
+    return true;
+    
+  } catch (error) {
+    console.error('❌ 상담신청 데이터 저장 오류:', error);
+    return false;
+  }
+}
+
+/**
+ * 오류신고 데이터 저장
+ */
+function saveErrorReportData(data) {
+  try {
+    const spreadsheet = SpreadsheetApp.openById(SYSTEM_CONFIG.SPREADSHEET_ID);
+    let sheet = spreadsheet.getSheetByName(SYSTEM_CONFIG.SHEETS.ERROR_REPORTS);
+    
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet(SYSTEM_CONFIG.SHEETS.ERROR_REPORTS);
+      
+      // 헤더 설정
+      const headers = [
+        '신고ID', '접수일시', '신고자명', '이메일', '전화번호', '오류유형',
+        '오류설명', '오류위치', '긴급도', '브라우저정보', '기기정보', '처리상태'
+      ];
+      
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length)
+        .setFontWeight('bold')
+        .setBackground('#ea4335')
+        .setFontColor('white');
+    }
+    
+    // 데이터 행 추가
+    const row = [
+      data.reportId,
+      data.timestamp,
+      data.reporterName,
+      data.reporterEmail,
+      data.reporterPhone,
+      data.errorType,
+      data.errorDescription,
+      data.errorLocation,
+      data.urgencyLevel,
+      data.browserInfo,
+      data.deviceInfo,
+      '접수완료'
+    ];
+    
+    sheet.appendRow(row);
+    console.log('✅ 오류신고 데이터 저장 완료');
+    return true;
+    
+  } catch (error) {
+    console.error('❌ 오류신고 데이터 저장 오류:', error);
+    return false;
+  }
+}
+
+/**
+ * 세금계산기 오류신고 데이터 저장
+ */
+function saveTaxCalculatorErrorData(data) {
+  try {
+    const spreadsheet = SpreadsheetApp.openById(SYSTEM_CONFIG.SPREADSHEET_ID);
+    let sheet = spreadsheet.getSheetByName(SYSTEM_CONFIG.SHEETS.TAX_CALCULATOR_ERRORS);
+    
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet(SYSTEM_CONFIG.SHEETS.TAX_CALCULATOR_ERRORS);
+      
+      // 헤더 설정
+      const headers = [
+        '신고ID', '접수일시', '이름', '이메일', '전화번호', '계산기유형',
+        '오류설명', '예상동작', '실제동작', '재현단계', '브라우저정보',
+        '기기정보', '추가정보', '처리상태'
+      ];
+      
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length)
+        .setFontWeight('bold')
+        .setBackground('#fbbc04')
+        .setFontColor('black');
+    }
+    
+    // 데이터 행 추가
+    const row = [
+      data.reportId,
+      data.timestamp,
+      data.name,
+      data.email,
+      data.phone,
+      data.calculatorType,
+      data.errorDescription,
+      data.expectedBehavior,
+      data.actualBehavior,
+      data.stepsToReproduce,
+      data.browserInfo,
+      data.deviceInfo,
+      data.additionalInfo,
+      '접수완료'
+    ];
+    
+    sheet.appendRow(row);
+    console.log('✅ 세금계산기 오류신고 데이터 저장 완료');
+    return true;
+    
+  } catch (error) {
+    console.error('❌ 세금계산기 오류신고 데이터 저장 오류:', error);
+    return false;
+  }
+}
+
 // ================================================================================
 // 8. 이메일 발송
 // ================================================================================
@@ -878,9 +1341,10 @@ function sendNotificationEmails(data, scoreResults) {
  * 신청자 확인 이메일
  */
 function sendApplicantEmail(data, scoreResults) {
-  const subject = `[AICAMP] AI 역량진단 접수 완료 - ${data.companyName}`;
-  
-  const htmlBody = `
+  try {
+    const subject = `[AICAMP] AI 역량진단 접수 완료 - ${data.companyName}`;
+    
+    const htmlBody = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -959,24 +1423,30 @@ function sendApplicantEmail(data, scoreResults) {
 </html>
   `;
   
-  MailApp.sendEmail({
-    to: data.contactEmail,
-    subject: subject,
-    htmlBody: htmlBody,
-    name: SYSTEM_CONFIG.SYSTEM_NAME
-  });
-  
-  console.log('✅ 신청자 이메일 발송 완료');
-  return true;
+    MailApp.sendEmail({
+      to: data.contactEmail,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    console.log('✅ 신청자 이메일 발송 완료');
+    return true;
+    
+  } catch (error) {
+    console.error('❌ 신청자 이메일 발송 실패:', error);
+    return false;
+  }
 }
 
 /**
  * 관리자 알림 이메일
  */
 function sendAdminEmail(data, scoreResults) {
-  const subject = `[관리자 알림] 새로운 AI 역량진단 - ${data.companyName}`;
-  
-  const htmlBody = `
+  try {
+    const subject = `[관리자 알림] 새로운 AI 역량진단 - ${data.companyName}`;
+    
+    const htmlBody = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -1095,15 +1565,397 @@ function sendAdminEmail(data, scoreResults) {
 </html>
   `;
   
-  MailApp.sendEmail({
-    to: SYSTEM_CONFIG.ADMIN_EMAIL,
-    subject: subject,
-    htmlBody: htmlBody,
-    name: SYSTEM_CONFIG.SYSTEM_NAME
-  });
+    MailApp.sendEmail({
+      to: SYSTEM_CONFIG.ADMIN_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    console.log('✅ 관리자 이메일 발송 완료');
+    return true;
+    
+  } catch (error) {
+    console.error('❌ 관리자 이메일 발송 실패:', error);
+    return false;
+  }
+}
+
+/**
+ * 상담신청 이메일 발송
+ */
+function sendConsultationEmails(data) {
+  const results = {
+    applicant: false,
+    admin: false
+  };
   
-  console.log('✅ 관리자 이메일 발송 완료');
-  return true;
+  try {
+    // 신청자 이메일
+    const applicantSubject = `[AICAMP] 상담신청 접수 완료 - ${data.companyName}`;
+    const applicantHtmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Noto Sans KR', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #4285f4 0%, #1976d2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: white; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; }
+    .info-box { background: #e8f4fd; border: 1px solid #1976d2; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #6c757d; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📞 상담신청 접수 완료</h1>
+    <p style="margin: 0; opacity: 0.9;">이교장의AI역량진단시스템</p>
+  </div>
+  
+  <div class="content">
+    <p>안녕하세요, <strong>${data.contactName}</strong>님!</p>
+    <p><strong>${data.companyName}</strong>의 상담신청이 성공적으로 접수되었습니다.</p>
+    
+    <div class="info-box">
+      <h3 style="margin-top: 0;">📋 상담신청 정보</h3>
+      <p><strong>상담 ID:</strong> ${data.consultationId}</p>
+      <p><strong>접수 일시:</strong> ${new Date(data.timestamp).toLocaleString('ko-KR')}</p>
+      <p><strong>상담 유형:</strong> ${data.consultationType}</p>
+      <p><strong>상담 분야:</strong> ${data.consultationArea}</p>
+      <p><strong>긴급도:</strong> ${data.urgencyLevel}</p>
+    </div>
+    
+    <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0;">
+      <h4 style="margin-top: 0; color: #856404;">⏰ 다음 단계</h4>
+      <p style="margin: 5px 0;">이교장이 24시간 내에 연락드려 상담 일정을 조율하겠습니다.</p>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>© 2025 AICAMP | ${SYSTEM_CONFIG.WEBSITE}</p>
+    <p>${SYSTEM_CONFIG.SYSTEM_NAME} ${SYSTEM_CONFIG.VERSION}</p>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: data.contactEmail,
+      subject: applicantSubject,
+      htmlBody: applicantHtmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    results.applicant = true;
+    
+    // 관리자 이메일
+    const adminSubject = `[관리자 알림] 새로운 상담신청 - ${data.companyName}`;
+    const adminHtmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .header { background: #4285f4; color: white; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background: #f4f4f4; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📞 새로운 상담신청 접수</h1>
+  </div>
+  
+  <h2>📋 상담신청 정보</h2>
+  <table>
+    <tr><th>상담 ID</th><td>${data.consultationId}</td></tr>
+    <tr><th>회사명</th><td>${data.companyName}</td></tr>
+    <tr><th>담당자</th><td>${data.contactName}</td></tr>
+    <tr><th>이메일</th><td>${data.contactEmail}</td></tr>
+    <tr><th>전화번호</th><td>${data.contactPhone}</td></tr>
+    <tr><th>직책</th><td>${data.contactPosition}</td></tr>
+    <tr><th>업종</th><td>${data.industry}</td></tr>
+    <tr><th>직원수</th><td>${data.employeeCount}</td></tr>
+    <tr><th>상담유형</th><td>${data.consultationType}</td></tr>
+    <tr><th>상담분야</th><td>${data.consultationArea}</td></tr>
+    <tr><th>문의유형</th><td>${data.inquiryType}</td></tr>
+    <tr><th>문의내용</th><td>${data.inquiryContent}</td></tr>
+    <tr><th>긴급도</th><td>${data.urgencyLevel}</td></tr>
+    <tr><th>연락희망시간</th><td>${data.preferredContactTime}</td></tr>
+    <tr><th>접수일시</th><td>${new Date(data.timestamp).toLocaleString('ko-KR')}</td></tr>
+  </table>
+  
+  <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 8px;">
+    <h3>⚡ 처리 필요 사항</h3>
+    <p>24시간 내 고객 연락 및 상담 일정 조율이 필요합니다.</p>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: SYSTEM_CONFIG.ADMIN_EMAIL,
+      subject: adminSubject,
+      htmlBody: adminHtmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    results.admin = true;
+    
+  } catch (error) {
+    console.error('❌ 상담신청 이메일 발송 오류:', error);
+  }
+  
+  return results;
+}
+
+/**
+ * 오류신고 이메일 발송
+ */
+function sendErrorReportEmails(data) {
+  const results = {
+    applicant: false,
+    admin: false
+  };
+  
+  try {
+    // 신고자 이메일
+    const applicantSubject = `[AICAMP] 오류신고 접수 완료 - ${data.reportId}`;
+    const applicantHtmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Noto Sans KR', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #ea4335 0%, #d32f2f 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: white; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; }
+    .info-box { background: #ffebee; border: 1px solid #d32f2f; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #6c757d; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🚨 오류신고 접수 완료</h1>
+    <p style="margin: 0; opacity: 0.9;">이교장의AI역량진단시스템</p>
+  </div>
+  
+  <div class="content">
+    <p>안녕하세요, <strong>${data.reporterName}</strong>님!</p>
+    <p>오류신고가 성공적으로 접수되었습니다.</p>
+    
+    <div class="info-box">
+      <h3 style="margin-top: 0;">📋 신고 정보</h3>
+      <p><strong>신고 ID:</strong> ${data.reportId}</p>
+      <p><strong>접수 일시:</strong> ${new Date(data.timestamp).toLocaleString('ko-KR')}</p>
+      <p><strong>오류 유형:</strong> ${data.errorType}</p>
+      <p><strong>긴급도:</strong> ${data.urgencyLevel}</p>
+    </div>
+    
+    <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0;">
+      <h4 style="margin-top: 0; color: #856404;">⏰ 처리 일정</h4>
+      <p style="margin: 5px 0;">신고해주신 오류를 검토하여 빠른 시일 내에 수정하겠습니다.</p>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>© 2025 AICAMP | ${SYSTEM_CONFIG.WEBSITE}</p>
+    <p>${SYSTEM_CONFIG.SYSTEM_NAME} ${SYSTEM_CONFIG.VERSION}</p>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: data.reporterEmail,
+      subject: applicantSubject,
+      htmlBody: applicantHtmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    results.applicant = true;
+    
+    // 관리자 이메일
+    const adminSubject = `[긴급] 오류신고 접수 - ${data.errorType}`;
+    const adminHtmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .header { background: #ea4335; color: white; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background: #f4f4f4; font-weight: bold; }
+    .urgent { background: #ffebee; border: 2px solid #ea4335; padding: 20px; margin: 20px 0; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🚨 오류신고 접수</h1>
+  </div>
+  
+  <div class="urgent">
+    <h3>⚡ 긴급 처리 필요</h3>
+    <p><strong>긴급도:</strong> ${data.urgencyLevel}</p>
+    <p><strong>오류 유형:</strong> ${data.errorType}</p>
+  </div>
+  
+  <h2>📋 오류신고 상세 정보</h2>
+  <table>
+    <tr><th>신고 ID</th><td>${data.reportId}</td></tr>
+    <tr><th>신고자</th><td>${data.reporterName}</td></tr>
+    <tr><th>이메일</th><td>${data.reporterEmail}</td></tr>
+    <tr><th>전화번호</th><td>${data.reporterPhone}</td></tr>
+    <tr><th>오류 유형</th><td>${data.errorType}</td></tr>
+    <tr><th>오류 설명</th><td>${data.errorDescription}</td></tr>
+    <tr><th>오류 위치</th><td>${data.errorLocation}</td></tr>
+    <tr><th>브라우저 정보</th><td>${data.browserInfo}</td></tr>
+    <tr><th>기기 정보</th><td>${data.deviceInfo}</td></tr>
+    <tr><th>접수일시</th><td>${new Date(data.timestamp).toLocaleString('ko-KR')}</td></tr>
+  </table>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: SYSTEM_CONFIG.ADMIN_EMAIL,
+      subject: adminSubject,
+      htmlBody: adminHtmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    results.admin = true;
+    
+  } catch (error) {
+    console.error('❌ 오류신고 이메일 발송 오류:', error);
+  }
+  
+  return results;
+}
+
+/**
+ * 세금계산기 오류신고 이메일 발송
+ */
+function sendTaxCalculatorErrorEmails(data) {
+  const results = {
+    applicant: false,
+    admin: false
+  };
+  
+  try {
+    // 신고자 이메일
+    const applicantSubject = `[AICAMP] 세금계산기 오류신고 접수 완료 - ${data.reportId}`;
+    const applicantHtmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Noto Sans KR', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #fbbc04 0%, #f57f17 100%); color: black; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: white; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; }
+    .info-box { background: #fffbf0; border: 1px solid #f57f17; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #6c757d; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💰 세금계산기 오류신고 접수 완료</h1>
+    <p style="margin: 0; opacity: 0.9;">이교장의AI역량진단시스템</p>
+  </div>
+  
+  <div class="content">
+    <p>안녕하세요, <strong>${data.name}</strong>님!</p>
+    <p>세금계산기 오류신고가 성공적으로 접수되었습니다.</p>
+    
+    <div class="info-box">
+      <h3 style="margin-top: 0;">📋 신고 정보</h3>
+      <p><strong>신고 ID:</strong> ${data.reportId}</p>
+      <p><strong>접수 일시:</strong> ${new Date(data.timestamp).toLocaleString('ko-KR')}</p>
+      <p><strong>계산기 유형:</strong> ${data.calculatorType}</p>
+    </div>
+    
+    <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0;">
+      <h4 style="margin-top: 0; color: #856404;">⏰ 처리 일정</h4>
+      <p style="margin: 5px 0;">신고해주신 세금계산기 오류를 검토하여 빠른 시일 내에 수정하겠습니다.</p>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>© 2025 AICAMP | ${SYSTEM_CONFIG.WEBSITE}</p>
+    <p>${SYSTEM_CONFIG.SYSTEM_NAME} ${SYSTEM_CONFIG.VERSION}</p>
+  </div>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: data.email,
+      subject: applicantSubject,
+      htmlBody: applicantHtmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    results.applicant = true;
+    
+    // 관리자 이메일
+    const adminSubject = `[세금계산기] 오류신고 접수 - ${data.calculatorType}`;
+    const adminHtmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .header { background: #fbbc04; color: black; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background: #f4f4f4; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💰 세금계산기 오류신고 접수</h1>
+  </div>
+  
+  <h2>📋 오류신고 상세 정보</h2>
+  <table>
+    <tr><th>신고 ID</th><td>${data.reportId}</td></tr>
+    <tr><th>이름</th><td>${data.name}</td></tr>
+    <tr><th>이메일</th><td>${data.email}</td></tr>
+    <tr><th>전화번호</th><td>${data.phone}</td></tr>
+    <tr><th>계산기 유형</th><td>${data.calculatorType}</td></tr>
+    <tr><th>오류 설명</th><td>${data.errorDescription}</td></tr>
+    <tr><th>예상 동작</th><td>${data.expectedBehavior}</td></tr>
+    <tr><th>실제 동작</th><td>${data.actualBehavior}</td></tr>
+    <tr><th>재현 단계</th><td>${data.stepsToReproduce}</td></tr>
+    <tr><th>브라우저 정보</th><td>${data.browserInfo}</td></tr>
+    <tr><th>기기 정보</th><td>${data.deviceInfo}</td></tr>
+    <tr><th>추가 정보</th><td>${data.additionalInfo}</td></tr>
+    <tr><th>접수일시</th><td>${new Date(data.timestamp).toLocaleString('ko-KR')}</td></tr>
+  </table>
+</body>
+</html>
+    `;
+    
+    MailApp.sendEmail({
+      to: SYSTEM_CONFIG.ADMIN_EMAIL,
+      subject: adminSubject,
+      htmlBody: adminHtmlBody,
+      name: SYSTEM_CONFIG.SYSTEM_NAME
+    });
+    
+    results.admin = true;
+    
+  } catch (error) {
+    console.error('❌ 세금계산기 오류신고 이메일 발송 오류:', error);
+  }
+  
+  return results;
 }
 
 // ================================================================================
