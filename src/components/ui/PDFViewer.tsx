@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, ZoomIn, ZoomOut, RotateCw, ExternalLink, BookOpen, MessageCircle, Sparkles, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 }) => {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
@@ -48,15 +54,15 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     setRotation(prev => (prev + 90) % 360);
   }, []);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10004] bg-black/90 backdrop-blur-sm"
+        className="fixed inset-0 z-[2147483650] bg-black/90 backdrop-blur-sm"
         onClick={onClose}
       >
         <div className="flex flex-col h-full">
@@ -240,6 +246,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default PDFViewer;

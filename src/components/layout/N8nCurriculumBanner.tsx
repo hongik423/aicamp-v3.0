@@ -161,6 +161,8 @@ const N8nCurriculumBanner: React.FC = () => {
     }
     console.log('PDF 뷰어 열기 시도');
     setShowPDFViewer(true);
+    // PDF 뷰어가 열릴 때 배너를 임시로 숨김
+    setIsVisible(false);
   }, []);
 
   // PDF 다운로드 핸들러 (다운로드 버튼 클릭)
@@ -189,6 +191,8 @@ const N8nCurriculumBanner: React.FC = () => {
   // PDF 뷰어 닫기 핸들러
   const handleClosePDFViewer = useCallback(() => {
     setShowPDFViewer(false);
+    // PDF 뷰어가 닫힐 때 배너를 다시 보임
+    setIsVisible(true);
   }, []);
 
   // 모두 확인하고 닫기 핸들러

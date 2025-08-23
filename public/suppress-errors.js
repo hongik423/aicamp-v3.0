@@ -1,4 +1,5 @@
 // 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템
+(function() {
 const errorPatterns = [
   // Chrome Extension 관련 (강화)
   'Extension context invalidated',
@@ -7,6 +8,9 @@ const errorPatterns = [
   'The message port closed before a response was received',
   'Unchecked runtime.lastError',
   'runtime.lastError',
+  'message port closed',
+  'port closed before a response',
+  'chrome.runtime.lastError',
   'chrome-extension://',
   'extension://',
   'content.js',
