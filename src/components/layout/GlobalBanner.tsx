@@ -33,7 +33,7 @@ export default function GlobalBanner() {
   const subMessageTextClass = isInfo ? 'text-yellow-100' : 'opacity-90';
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[2147483647] pointer-events-none isolate" aria-live="polite">
+    <div className="fixed top-0 inset-x-0 z-[10003] pointer-events-none isolate" aria-live="polite">
       <div
         className={`mx-auto max-w-screen-2xl m-2 pointer-events-auto shadow-lg border rounded-xl overflow-hidden`}
       >

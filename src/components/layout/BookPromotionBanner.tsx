@@ -116,10 +116,10 @@ const BookPromotionBanner: React.FC = () => {
   }, [shouldReduceMotion]);
 
   useEffect(() => {
-    // 10초 후 자동 등장 (n8n 커리큘럼 배너가 먼저 보이도록)
+    // 즉시 등장 (2순위 - n8n 책소개 배너)
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 10000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -203,7 +203,7 @@ const BookPromotionBanner: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4"
+          className="fixed inset-0 z-[10002] flex items-center justify-center p-2 sm:p-4"
           onClick={handleBackgroundClick}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}

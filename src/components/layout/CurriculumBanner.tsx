@@ -37,7 +37,7 @@ export default function CurriculumBanner() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[2147483648] pointer-events-none isolate" aria-live="polite">
+    <div className="fixed top-0 inset-x-0 z-[9999] pointer-events-none isolate" aria-live="polite">
       <div className="mx-auto max-w-screen-2xl m-1 sm:m-2 pointer-events-auto shadow-apple-hover border border-gray-200 rounded-3xl overflow-hidden animate-in slide-in-from-top-2 duration-200 bg-white">
         <div className="bg-gradient-to-r from-aicamp-navy to-aicamp-purple text-white p-4 sm:p-5 lg:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 relative overflow-hidden">
           {/* 미니멀 배경 장식 효과 */}
