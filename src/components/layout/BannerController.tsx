@@ -96,6 +96,7 @@ const BannerController: React.FC = () => {
     if (!isSystemActive) return;
 
     const sortedBanners = [...banners].sort((a, b) => a.priority - b.priority);
+    const timers: NodeJS.Timeout[] = [];
     
     sortedBanners.forEach((banner, index) => {
       const timer = setTimeout(() => {
@@ -109,7 +110,7 @@ const BannerController: React.FC = () => {
         
         // 지속 시간이 설정된 배너는 자동으로 비활성화
         if (banner.duration) {
-          setTimeout(() => {
+          const durationTimer = setTimeout(() => {
             setBanners(prev => prev.map(b => 
               b.id === banner.id 
                 ? { ...b, isVisible: false }
@@ -117,11 +118,16 @@ const BannerController: React.FC = () => {
             ));
             console.log(`⏰ ${banner.id} 배너 자동 비활성화`);
           }, banner.duration);
+          timers.push(durationTimer);
         }
       }, banner.delay);
-
-      return () => clearTimeout(timer);
+      
+      timers.push(timer);
     });
+
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
   }, [isSystemActive, banners]);
 
   // 배너 수동 제어 함수들
