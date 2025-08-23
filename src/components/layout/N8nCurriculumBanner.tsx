@@ -77,11 +77,11 @@ const N8nCurriculumBanner: React.FC = () => {
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
 
-  // 1순위 등장 (가장 먼저 나타남)
+  // 3순위 등장 (2순위 다음에 나타남 - 최고 수준 UI/UX로 상담신청 100% 전환율 목표)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 500); // 0.5초 후 등장 (가장 빠름)
+    }, 2000); // 2초 후 등장 (2순위 다음)
 
     return () => clearTimeout(timer);
   }, []);
@@ -256,35 +256,71 @@ const N8nCurriculumBanner: React.FC = () => {
               <X size={isMobile ? 24 : 20} />
             </button>
 
-            {/* 메인 컴팩트 카드 */}
+            {/* 메인 컴팩트 카드 - 베스트 레벨 UI/UX */}
             <motion.div
               whileHover={shouldReduceMotion || isMobile ? {} : { 
-                scale: 1.02,
-                y: -5
+                scale: 1.03,
+                y: -8,
+                rotateY: 2,
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
               }}
-              transition={{ type: "spring", stiffness: 200, damping: 25 }}
-              className="bg-gradient-to-br from-white via-purple-50 to-blue-100 rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-200/50 backdrop-blur-sm cursor-pointer"
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="bg-gradient-to-br from-white via-purple-50 to-blue-100 rounded-3xl shadow-2xl overflow-hidden border-2 border-purple-300/60 backdrop-blur-sm cursor-pointer relative group"
               onClick={handleOpenPDFViewer}
             >
-              {/* 상단 헤더 */}
-              <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 p-4 text-white">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-white/20 rounded-full p-2">
-                      <BookOpen className="w-6 h-6" />
-                    </div>
+              {/* 글로우 효과 */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl opacity-0 group-hover:opacity-30 blur-xl transition-all duration-500"></div>
+              
+              {/* 펄스 애니메이션 링 */}
+              <div className="absolute -inset-2 rounded-3xl border-2 border-purple-400/50 animate-pulse"></div>
+              <div className="absolute -inset-4 rounded-3xl border border-blue-400/30 animate-ping"></div>
+              
+              {/* 상단 헤더 - 베스트 레벨 디자인 */}
+              <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 p-6 text-white relative overflow-hidden">
+                {/* 배경 애니메이션 */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 animate-pulse"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 animate-pulse"></div>
+                
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center space-x-4">
+                    <motion.div 
+                      className="bg-white/25 rounded-full p-3 backdrop-blur-sm"
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                    >
+                      <BookOpen className="w-7 h-7" />
+                    </motion.div>
                     <div>
-                      <h2 id="n8n-curriculum-title" className="text-xl font-bold">
+                      <motion.h2 
+                        id="n8n-curriculum-title" 
+                        className="text-2xl font-black bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent"
+                        animate={{ scale: [1, 1.02, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                      >
                         🔥 AI 자동화의 끝판왕!
-                      </h2>
-                      <p className="text-sm opacity-90">n8n을 활용한 업무혁신 AI 워크플로우</p>
+                      </motion.h2>
+                      <p className="text-sm opacity-95 font-semibold">n8n을 활용한 업무혁신 AI 워크플로우</p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-xs bg-yellow-400/20 text-yellow-200 px-2 py-1 rounded-full">🚀 즉시 적용</span>
+                        <span className="text-xs bg-green-400/20 text-green-200 px-2 py-1 rounded-full">✅ 검증완료</span>
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="bg-white/20 rounded-lg px-3 py-1">
-                      <p className="text-xs opacity-80">실시간 다운로드</p>
-                      <p className="text-lg font-bold">{downloadCount}+</p>
-                    </div>
+                    <motion.div 
+                      className="bg-white/25 rounded-xl px-4 py-2 backdrop-blur-sm border border-white/20"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400 }}
+                    >
+                      <p className="text-xs opacity-90 font-medium">🔥 실시간 다운로드</p>
+                      <motion.p 
+                        className="text-2xl font-black text-yellow-200"
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
+                      >
+                        {downloadCount}+
+                      </motion.p>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -353,79 +389,130 @@ const N8nCurriculumBanner: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* 액션 버튼들 */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        onClick={handleOpenPDFViewer}
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3"
+                    {/* 액션 버튼들 - 베스트 레벨 디자인 */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <motion.div
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
                       >
-                        <Eye className="w-4 h-4 mr-2" />
-                        커리큘럼 보기
-                      </Button>
+                        <Button
+                          onClick={handleOpenPDFViewer}
+                          className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-black py-4 rounded-xl shadow-lg border-2 border-purple-300/50 relative overflow-hidden group"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <Eye className="w-5 h-5 mr-2 animate-pulse" />
+                          <span className="relative z-10">📖 커리큘럼 보기</span>
+                        </Button>
+                      </motion.div>
                       
-                      <Button
-                        onClick={handleDownload}
-                        variant="outline"
-                        className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 font-bold py-3"
+                      <motion.div
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        PDF 다운로드
-                      </Button>
+                        <Button
+                          onClick={handleDownload}
+                          variant="outline"
+                          className="w-full border-3 border-purple-500 text-purple-700 hover:bg-purple-50 hover:border-purple-600 font-black py-4 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm relative overflow-hidden group"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <Download className="w-5 h-5 mr-2 animate-bounce" />
+                          <span className="relative z-10">💾 PDF 다운로드</span>
+                        </Button>
+                      </motion.div>
                     </div>
                   </div>
                 </div>
 
-                {/* 하단 네비게이션 버튼들 */}
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <div className="grid grid-cols-4 gap-3">
+                {/* 하단 네비게이션 버튼들 - 베스트 레벨 디자인 */}
+                <div className="mt-8 pt-6 border-t-2 border-gradient-to-r from-purple-200 via-blue-200 to-indigo-200">
+                  {/* 상담신청 메인 CTA - 100% 전환율 목표 */}
+                  <motion.div
+                    className="mb-4"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  >
                     <Button
                       asChild
-                      variant="ghost"
-                      size="sm"
-                      className="text-blue-600 hover:bg-blue-50"
+                      className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-600 hover:from-red-600 hover:via-pink-600 hover:to-purple-700 text-white font-black py-6 rounded-2xl shadow-2xl border-2 border-red-300/50 relative overflow-hidden group text-lg"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Link href="/consultation" className="flex items-center justify-center space-x-1">
-                        <MessageCircle className="w-4 h-4" />
-                        <span className="text-xs">상담신청</span>
+                      <Link href="/consultation" className="flex items-center justify-center space-x-3 relative z-10">
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                          <MessageCircle className="w-6 h-6" />
+                        </motion.div>
+                        <span className="font-black">🔥 지금 바로 상담신청하기 🔥</span>
+                        <motion.div
+                          animate={{ x: [0, 5, 0] }}
+                          transition={{ duration: 1, repeat: Infinity, repeatDelay: 1 }}
+                        >
+                          ➤
+                        </motion.div>
                       </Link>
                     </Button>
-                    
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="sm"
-                      className="text-purple-600 hover:bg-purple-50"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Link href="/ai-diagnosis" className="flex items-center justify-center space-x-1">
-                        <Sparkles className="w-4 h-4" />
-                        <span className="text-xs">AI역량진단</span>
-                      </Link>
-                    </Button>
-                    
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="sm"
-                      className="text-green-600 hover:bg-green-50"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Link href="/" className="flex items-center justify-center space-x-1">
-                        <Home className="w-4 h-4" />
-                        <span className="text-xs">홈으로</span>
-                      </Link>
-                    </Button>
+                  </motion.div>
 
-                    <Button
-                      onClick={handleCloseAll}
-                      variant="ghost"
-                      size="sm"
-                      className="text-gray-600 hover:bg-gray-50"
+                  {/* 서브 네비게이션 버튼들 */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <motion.div
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     >
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      <span className="text-xs">모두 확인</span>
-                    </Button>
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Link href="/ai-diagnosis" className="flex items-center justify-center space-x-2">
+                          <Sparkles className="w-4 h-4 animate-pulse" />
+                          <span className="text-sm">✨ AI역량진단</span>
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    
+                    <motion.div
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    >
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-2 border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Link href="/" className="flex items-center justify-center space-x-2">
+                          <Home className="w-4 h-4" />
+                          <span className="text-sm">🏠 홈으로</span>
+                        </Link>
+                      </Button>
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    >
+                      <Button
+                        onClick={handleCloseAll}
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        <span className="text-sm">✅ 모두 확인</span>
+                      </Button>
+                    </motion.div>
                   </div>
                 </div>
 
