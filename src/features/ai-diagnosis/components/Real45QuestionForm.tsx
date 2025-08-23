@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, RotateCcw, Save, Loader2, ArrowRight, CheckCircle, X, Download, FileText } from 'lucide-react';
 import Image from 'next/image';
@@ -68,7 +68,8 @@ interface DiagnosisResult {
 
 const Real45QuestionForm: React.FC = () => {
   const { toast } = useToast();
-  const [isHydrated, setIsHydrated] = useState(true); // 강제로 Hydration 완료로 설정
+  const [isHydrated, setIsHydrated] = useState(true);
+  const prevProgressStatus = useRef<string>(''); // 강제로 Hydration 완료로 설정
   const [formState, setFormState] = useState<FormState>({
     companyInfo: {
       companyName: '',
@@ -442,7 +443,21 @@ const Real45QuestionForm: React.FC = () => {
 
       eventSource.addEventListener('progress', (event) => {
         const data = JSON.parse(event.data);
-        console.log('📈 신청서 처리 진행상황 업데이트:', data);
+        
+        // 진행상황 로그 최적화: 중요한 상태 변화만 로그
+        const shouldLog = data.status !== prevProgressStatus.current || 
+                         (data.elapsedMs && data.elapsedMs % 60000 < 5000); // 1분마다만 로그
+        
+        if (shouldLog) {
+          console.log('📈 신청서 처리 진행상황 업데이트:', {
+            status: data.status,
+            progress: data.overallProgress || 0,
+            elapsedTime: Math.floor((data.elapsedMs || 0) / 1000) + 's',
+            etaHint: data.etaHint
+          });
+          prevProgressStatus.current = data.status;
+        }
+        
         setProgressData(data);
         
         // 실제 Google Sheets 데이터 기반 신청서 접수 진행상황 반영

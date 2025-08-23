@@ -116,16 +116,48 @@ const errorPatterns = [
     }
   }, true);
 
-  // Chrome 확장 프로그램 특별 처리
+  // Chrome 확장 프로그램 특별 처리 (강화)
   if (typeof chrome !== 'undefined' && chrome.runtime) {
     try {
       // Chrome extension API 오류 무시
+      const originalLastError = chrome.runtime.lastError;
+      Object.defineProperty(chrome.runtime, 'lastError', {
+        get: function() {
+          // lastError 접근 시 자동으로 null 반환하여 오류 차단
+          return null;
+        },
+        configurable: true
+      });
+      
+      // Chrome API 메서드들 무력화
       chrome.runtime.onConnect.addListener = function() {};
       chrome.runtime.onMessage.addListener = function() {};
+      chrome.runtime.sendMessage = function() {};
+      chrome.runtime.connect = function() {};
     } catch (e) {
       // Chrome API 접근 오류 무시
     }
   }
+  
+  // 추가적인 Chrome 확장 프로그램 오류 차단
+  const originalAddEventListener = EventTarget.prototype.addEventListener;
+  EventTarget.prototype.addEventListener = function(type, listener, options) {
+    if (typeof listener === 'function') {
+      const wrappedListener = function(...args) {
+        try {
+          return listener.apply(this, args);
+        } catch (error) {
+          const errorMessage = error?.message || '';
+          if (shouldSuppressError(errorMessage)) {
+            return; // Chrome 확장 프로그램 오류는 무시
+          }
+          throw error; // 다른 오류는 정상 처리
+        }
+      };
+      return originalAddEventListener.call(this, type, wrappedListener, options);
+    }
+    return originalAddEventListener.call(this, type, listener, options);
+  };
   
   // 안전한 URL 문자열 변환 함수
   function safeUrlToString(url) {

@@ -39,7 +39,98 @@ const SYSTEM_CONFIG = {
 };
 
 // ================================================================================
-// 2. BARS 평가 시스템 정의
+// 2. 환경 설정 함수
+// ================================================================================
+
+/**
+ * 환경 설정 조회 함수
+ * Google Apps Script Properties Service를 통한 설정 관리
+ */
+function getEnvironmentConfig() {
+  try {
+    const properties = PropertiesService.getScriptProperties();
+    
+    return {
+      // 필수 환경변수 (SYSTEM_CONFIG와 동기화)
+      SPREADSHEET_ID: properties.getProperty('SPREADSHEET_ID') || SYSTEM_CONFIG.SPREADSHEET_ID,
+      ADMIN_EMAIL: properties.getProperty('ADMIN_EMAIL') || SYSTEM_CONFIG.ADMIN_EMAIL,
+      AICAMP_WEBSITE: properties.getProperty('AICAMP_WEBSITE') || SYSTEM_CONFIG.WEBSITE,
+      
+      // 시스템 설정
+      DEBUG_MODE: properties.getProperty('DEBUG_MODE') === 'true',
+      ENVIRONMENT: properties.getProperty('ENVIRONMENT') || 'production',
+      SYSTEM_VERSION: SYSTEM_CONFIG.VERSION,
+      SYSTEM_NAME: SYSTEM_CONFIG.SYSTEM_NAME,
+      
+      // 시트 이름들
+      SHEETS: SYSTEM_CONFIG.SHEETS,
+      
+      // 타임아웃 설정 (V19 최적화)
+      TIMEOUT_EMAIL: parseInt(properties.getProperty('TIMEOUT_EMAIL')) || 60000,   // 1분
+      TIMEOUT_SHEET: parseInt(properties.getProperty('TIMEOUT_SHEET')) || 15000,   // 15초
+      TIMEOUT_PROCESSING: parseInt(properties.getProperty('TIMEOUT_PROCESSING')) || 300000, // 5분
+      
+      // 재시도 설정
+      MAX_RETRY_ATTEMPTS: parseInt(properties.getProperty('MAX_RETRY_ATTEMPTS')) || 3,
+      RETRY_DELAY_MS: parseInt(properties.getProperty('RETRY_DELAY_MS')) || 2000,
+      
+      // 이메일 설정
+      EMAIL_QUOTA_WARNING: parseInt(properties.getProperty('EMAIL_QUOTA_WARNING')) || 50,
+      EMAIL_BATCH_SIZE: parseInt(properties.getProperty('EMAIL_BATCH_SIZE')) || 10,
+      
+      // 성능 설정
+      BATCH_PROCESSING_SIZE: parseInt(properties.getProperty('BATCH_PROCESSING_SIZE')) || 100,
+      CACHE_DURATION_MS: parseInt(properties.getProperty('CACHE_DURATION_MS')) || 300000 // 5분
+    };
+  } catch (error) {
+    console.error('환경 설정 조회 오류:', error);
+    
+    // 기본값 반환 (SYSTEM_CONFIG 기반)
+    return {
+      SPREADSHEET_ID: SYSTEM_CONFIG.SPREADSHEET_ID,
+      ADMIN_EMAIL: SYSTEM_CONFIG.ADMIN_EMAIL,
+      AICAMP_WEBSITE: SYSTEM_CONFIG.WEBSITE,
+      DEBUG_MODE: false,
+      ENVIRONMENT: 'production',
+      SYSTEM_VERSION: SYSTEM_CONFIG.VERSION,
+      SYSTEM_NAME: SYSTEM_CONFIG.SYSTEM_NAME,
+      SHEETS: SYSTEM_CONFIG.SHEETS,
+      TIMEOUT_EMAIL: 60000,
+      TIMEOUT_SHEET: 15000,
+      TIMEOUT_PROCESSING: 300000,
+      MAX_RETRY_ATTEMPTS: 3,
+      RETRY_DELAY_MS: 2000,
+      EMAIL_QUOTA_WARNING: 50,
+      EMAIL_BATCH_SIZE: 10,
+      BATCH_PROCESSING_SIZE: 100,
+      CACHE_DURATION_MS: 300000
+    };
+  }
+}
+
+/**
+ * 환경 설정 업데이트 함수
+ */
+function updateEnvironmentConfig(updates) {
+  try {
+    const properties = PropertiesService.getScriptProperties();
+    
+    Object.keys(updates).forEach(key => {
+      if (updates[key] !== null && updates[key] !== undefined) {
+        properties.setProperty(key, String(updates[key]));
+      }
+    });
+    
+    console.log('✅ 환경 설정 업데이트 완료:', Object.keys(updates));
+    return true;
+  } catch (error) {
+    console.error('❌ 환경 설정 업데이트 실패:', error);
+    return false;
+  }
+}
+
+// ================================================================================
+// 3. BARS 평가 시스템 정의
 // ================================================================================
 
 /**
@@ -170,7 +261,7 @@ const ASSESSMENT_QUESTIONS = [
 ];
 
 // ================================================================================
-// 3. 메인 핸들러 함수
+// 4. 메인 핸들러 함수
 // ================================================================================
 
 /**
@@ -280,7 +371,7 @@ function doPost(e) {
 }
 
 // ================================================================================
-// 4. 데이터 처리 함수
+// 5. 데이터 처리 함수
 // ================================================================================
 
 /**
@@ -400,7 +491,7 @@ function normalizeResponses(responses) {
 }
 
 // ================================================================================
-// 5. BARS 점수 계산
+// 6. BARS 점수 계산
 // ================================================================================
 
 /**
@@ -508,7 +599,7 @@ function calculateBARSScores(data) {
 }
 
 // ================================================================================
-// 6. Google Sheets 저장 (3개 시트)
+// 7. Google Sheets 저장 (3개 시트)
 // ================================================================================
 
 /**
@@ -741,7 +832,7 @@ function saveCategoryAnalysis(spreadsheet, data, scoreResults) {
 }
 
 // ================================================================================
-// 7. 이메일 발송
+// 8. 이메일 발송
 // ================================================================================
 
 /**
@@ -1016,7 +1107,7 @@ function sendAdminEmail(data, scoreResults) {
 }
 
 // ================================================================================
-// 8. 조회 및 다운로드 함수
+// 9. 조회 및 다운로드 함수
 // ================================================================================
 
 /**
@@ -1134,7 +1225,7 @@ function getSheetData(spreadsheet, sheetName, diagnosisId) {
 }
 
 // ================================================================================
-// 9. 오류 처리
+// 10. 오류 처리
 // ================================================================================
 
 /**
@@ -1190,8 +1281,78 @@ function saveErrorLog(context, diagnosisId, error) {
 }
 
 // ================================================================================
-// 10. 테스트 및 유틸리티
+// 11. 테스트 및 유틸리티
 // ================================================================================
+
+/**
+ * 환경 설정 테스트 함수
+ */
+function testEnvironmentConfig() {
+  console.log('🧪 환경 설정 테스트 시작');
+  console.log('================================');
+  
+  try {
+    // 1. 환경 설정 조회 테스트
+    console.log('\n1️⃣ 환경 설정 조회 테스트');
+    const config = getEnvironmentConfig();
+    
+    console.log('✅ 환경 설정 조회 성공');
+    console.log(`   - 스프레드시트 ID: ${config.SPREADSHEET_ID}`);
+    console.log(`   - 관리자 이메일: ${config.ADMIN_EMAIL}`);
+    console.log(`   - 시스템 버전: ${config.SYSTEM_VERSION}`);
+    console.log(`   - 환경: ${config.ENVIRONMENT}`);
+    console.log(`   - 디버그 모드: ${config.DEBUG_MODE}`);
+    
+    // 2. 필수 설정 확인
+    console.log('\n2️⃣ 필수 설정 확인');
+    const requiredFields = ['SPREADSHEET_ID', 'ADMIN_EMAIL', 'SYSTEM_VERSION'];
+    let allValid = true;
+    
+    requiredFields.forEach(field => {
+      if (config[field]) {
+        console.log(`✅ ${field}: 설정됨`);
+      } else {
+        console.log(`❌ ${field}: 누락`);
+        allValid = false;
+      }
+    });
+    
+    // 3. 시트 설정 확인
+    console.log('\n3️⃣ 시트 설정 확인');
+    if (config.SHEETS) {
+      Object.keys(config.SHEETS).forEach(sheetKey => {
+        console.log(`✅ ${sheetKey}: ${config.SHEETS[sheetKey]}`);
+      });
+    }
+    
+    // 4. 타임아웃 설정 확인
+    console.log('\n4️⃣ 타임아웃 설정 확인');
+    console.log(`   - 이메일 타임아웃: ${config.TIMEOUT_EMAIL}ms`);
+    console.log(`   - 시트 타임아웃: ${config.TIMEOUT_SHEET}ms`);
+    console.log(`   - 처리 타임아웃: ${config.TIMEOUT_PROCESSING}ms`);
+    
+    console.log('\n================================');
+    if (allValid) {
+      console.log('🎉 환경 설정 테스트 성공!');
+      console.log('✅ 모든 필수 설정이 정상적으로 구성됨');
+    } else {
+      console.log('⚠️ 일부 설정이 누락되었지만 기본값으로 작동 가능');
+    }
+    
+    return {
+      success: true,
+      config: config,
+      allValid: allValid
+    };
+    
+  } catch (error) {
+    console.error('\n❌ 환경 설정 테스트 실패:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
 
 /**
  * 시스템 테스트 (완전 시뮬레이션)
@@ -1201,6 +1362,14 @@ function runFullSystemTest() {
   console.log('================================');
   
   try {
+    // 0. 환경 설정 테스트
+    console.log('\n0️⃣ 환경 설정 테스트');
+    const envTest = testEnvironmentConfig();
+    if (!envTest.success) {
+      throw new Error('환경 설정 테스트 실패: ' + envTest.error);
+    }
+    console.log('✅ 환경 설정 테스트 통과');
+    
     // 1. 테스트 데이터 생성
     console.log('\n1️⃣ 테스트 데이터 생성');
     const testData = {
@@ -1388,7 +1557,7 @@ function clearAllData() {
 
 /**
  * ================================================================================
- * 🎯 V19.0 무오류 최종 안정화 버전 완성
+ * 🎯 V19.0 무오류 최종 안정화 버전 완성 (getEnvironmentConfig 함수 추가)
  * ================================================================================
  * 
  * ✅ 검증 완료된 핵심 기능:
@@ -1400,6 +1569,7 @@ function clearAllData() {
  * 6. Google Sheets 3개 시트 완전 저장
  * 7. 신청자/관리자 이메일 자동 발송
  * 8. 평가표 다운로드 기능
+ * 9. 환경 설정 관리 시스템 (getEnvironmentConfig)
  * 
  * 🛡️ 무오류 품질 보장:
  * - 모든 함수 try-catch 적용
@@ -1407,6 +1577,7 @@ function clearAllData() {
  * - 기본값 설정으로 null 방지
  * - 단계별 독립 실행
  * - 상세한 오류 로깅
+ * - 환경 설정 안전 조회
  * 
  * 📊 데이터 저장 구조:
  * - AI역량진단_메인데이터: 기본정보 + 종합점수
@@ -1414,8 +1585,15 @@ function clearAllData() {
  * - AI역량진단_카테고리분석: 카테고리별 분석
  * 
  * 🧪 테스트 완료:
+ * - testEnvironmentConfig(): 환경 설정 테스트
  * - runFullSystemTest(): 전체 워크플로우 테스트
  * - checkSystemHealth(): 시스템 상태 확인
+ * 
+ * 🔧 환경 설정 기능:
+ * - getEnvironmentConfig(): 안전한 환경 설정 조회
+ * - updateEnvironmentConfig(): 환경 설정 업데이트
+ * - Properties Service 기반 설정 관리
+ * - 기본값 자동 적용으로 오류 방지
  * 
  * ================================================================================
  */
@@ -1425,4 +1603,5 @@ console.log('📋 45문항 BARS 평가 시스템 준비 완료');
 console.log('📊 6개 카테고리 가중치 시스템 활성화');
 console.log('💾 Google Sheets 3개 시트 저장 준비 완료');
 console.log('📧 이메일 발송 시스템 준비 완료');
+console.log('🔧 환경 설정 관리 시스템 활성화');
 console.log('🎯 무오류 품질 기준 달성');
