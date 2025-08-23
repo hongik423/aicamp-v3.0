@@ -265,19 +265,15 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // 홈 페이지 로드 시 배너 완전 비활성화
+  // 홈 페이지 로드 시 배너 활성화
   useEffect(() => {
-    // 모든 배너 완전 비활성화
-    hideAllBanners();
-    disableAllBanners();
-    
     // 페이지 스크롤 활성화
     document.body.style.overflow = 'auto';
     document.body.style.position = 'static';
     document.body.style.height = 'auto';
     document.body.style.pointerEvents = 'auto';
     
-    console.log('홈 페이지 로드 - 배너 완전 비활성화');
+    console.log('홈 페이지 로드 - 배너 활성화');
     
     // 컴포넌트 언마운트 시 정리
     return () => {
