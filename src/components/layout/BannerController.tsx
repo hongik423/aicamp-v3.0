@@ -48,7 +48,7 @@ const BannerController: React.FC = () => {
       component: AutoShowBanners,
       priority: 1,
       delay: 100, // 0.1초
-      isActive: false, // 상단 배너 비활성화
+      isActive: true, // 상단 배너 활성화
       isVisible: false
     },
     {
@@ -56,7 +56,7 @@ const BannerController: React.FC = () => {
       component: AICampContentGuide,
       priority: 2,
       delay: 800, // 0.8초
-      isActive: false,
+      isActive: true,
       isVisible: false
     },
     {
@@ -65,7 +65,7 @@ const BannerController: React.FC = () => {
       priority: 3,
       delay: 2000, // 2초
       duration: 8000, // 8초간 표시
-      isActive: false,
+      isActive: true,
       isVisible: false
     },
     {
@@ -73,7 +73,7 @@ const BannerController: React.FC = () => {
       component: N8nCurriculumBanner,
       priority: 4,
       delay: 3500, // 3.5초
-      isActive: false,
+      isActive: true,
       isVisible: false
     }
   ]);
