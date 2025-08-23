@@ -54,11 +54,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // 외부 도메인 요청 무시 (CORS 오류 방지)
+  try {
+    const requestUrl = new URL(event.request.url);
+    const currentUrl = new URL(self.location.href);
+    
+    if (requestUrl.origin !== currentUrl.origin && 
+        !requestUrl.hostname.includes('aicamp.club') &&
+        !requestUrl.hostname.includes('localhost')) {
+      return;
+    }
+  } catch (error) {
+    // URL 파싱 실패 시 요청 무시
+    return;
+  }
+  
   // HTML 페이지(네비게이션)는 항상 네트워크 우선으로 처리해 최신 배포를 즉시 반영
   const acceptHeader = event.request.headers.get('accept') || '';
   if (event.request.mode === 'navigate' || acceptHeader.includes('text/html')) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, {
+        mode: 'cors',
+        credentials: 'same-origin'
+      })
         .then((response) => {
           // 성공 시 캐시에 백그라운드 저장하여 다음 로드 속도 개선 (안전한 요청만)
           if (event.request.url.startsWith('http')) {
@@ -76,7 +94,10 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, {
+        mode: 'cors',
+        credentials: 'same-origin'
+      })
         .then((response) => {
           if (response.status === 200 && event.request.url.startsWith('http')) {
             const responseClone = response.clone();
@@ -144,11 +165,23 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request)
       .then((response) => {
         // 캐시에 있으면 반환, 없으면 네트워크에서 가져옴
-        return response || fetch(event.request);
+        return response || fetch(event.request, {
+          mode: 'cors',
+          credentials: 'same-origin',
+          headers: {
+            'Cross-Origin-Resource-Policy': 'cross-origin'
+          }
+        });
       })
       .catch((error) => {
         console.warn('Service Worker fetch 오류:', error);
-        return fetch(event.request);
+        // 폴백: 기본 fetch 시도
+        try {
+          return fetch(event.request);
+        } catch (fallbackError) {
+          console.warn('Service Worker 폴백 fetch 오류:', fallbackError);
+          return new Response('Service Worker 오류', { status: 503 });
+        }
       })
   );
 });
@@ -158,6 +191,17 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+// 전역 오류 처리
+self.addEventListener('error', (event) => {
+  console.warn('Service Worker 전역 오류:', event.error);
+  event.preventDefault();
+});
+
+self.addEventListener('unhandledrejection', (event) => {
+  console.warn('Service Worker 처리되지 않은 Promise 거부:', event.reason);
+  event.preventDefault();
 });
 
 console.log('🎓 이교장의AI역량진단보고서 Service Worker 로드 완료');

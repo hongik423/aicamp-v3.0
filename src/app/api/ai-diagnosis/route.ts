@@ -103,12 +103,21 @@ export async function POST(request: NextRequest) {
           progressPercent: 100,
           message: '구글시트 데이터 저장 준비 완료'
         });
+        // 보고서 생성 단계 진행 표기
+        addProgressEvent({
+          diagnosisId: workflowResult.diagnosisId,
+          stepId: 'report-generation',
+          stepName: '보고서 생성',
+          status: 'completed',
+          progressPercent: 100,
+          message: '45문항 분석 보고서 생성 완료'
+        });
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
           stepId: 'gas-processing',
           stepName: 'GAS 처리',
           status: 'in-progress',
-          progressPercent: 60,
+          progressPercent: 80,
           message: 'Google Apps Script로 데이터 저장 및 이메일 발송 요청'
         });
         

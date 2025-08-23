@@ -122,7 +122,7 @@ const BannerController: React.FC = () => {
 
       return () => clearTimeout(timer);
     });
-  }, [isSystemActive]);
+  }, [isSystemActive, banners]);
 
   // 배너 수동 제어 함수들
   const showBanner = (id: string) => {

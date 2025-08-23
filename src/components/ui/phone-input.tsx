@@ -59,6 +59,8 @@ export function PhoneInput({
         className={cn(
           'text-lg min-h-[48px] transition-all duration-200',
           'focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
+          'border-2 border-gray-300 bg-white',
+          'placeholder:text-gray-500 placeholder:opacity-100',
           error && 'border-red-500',
           className
         )}

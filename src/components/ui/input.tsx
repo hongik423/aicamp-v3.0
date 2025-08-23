@@ -40,7 +40,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           // 기본 스타일
           "flex w-full rounded-xl border ring-offset-background",
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
-          "placeholder:text-muted-foreground/0 placeholder:opacity-0 disabled:cursor-not-allowed disabled:opacity-50",
+          "placeholder:text-muted-foreground placeholder:opacity-60 disabled:cursor-not-allowed disabled:opacity-50",
           
           // 높이 및 패딩 - 모바일 최적화
           "h-12 sm:h-10",
@@ -86,7 +86,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className
         )}
         ref={ref}
-        autoComplete={props.autoComplete || "on"}
+        autoComplete={props.autoComplete || "off"}
         autoCapitalize={props.autoCapitalize || "off"}
         autoCorrect={props.autoCorrect || "off"}
         spellCheck={props.spellCheck || false}

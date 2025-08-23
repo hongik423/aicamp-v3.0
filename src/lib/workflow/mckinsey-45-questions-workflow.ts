@@ -765,8 +765,25 @@ export async function executeLeeKyoJang45QuestionsWorkflow(
   const grade = determineGrade(percentageForGrading);
   const percentile = calculatePercentile(percentageForGrading, request.industry);
   
-  // 2. Ollama GPT-OSS 20B + NPU AI 기반 심층 분석
-  const aiAnalysis = await performAIAnalysis(scoreAnalysis, request);
+  // 2. Ollama GPT-OSS 20B + NPU AI 기반 심층 분석 (타임아웃 및 폴백 처리)
+  let aiAnalysis;
+  try {
+    // 타임아웃을 30초로 제한하여 빠른 응답 보장
+    aiAnalysis = await Promise.race([
+      performAIAnalysis(scoreAnalysis, request),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('AI 분석 타임아웃')), 30000)
+      )
+    ]) as any;
+  } catch (error) {
+    console.warn('⚠️ AI 분석 실패, 기본 분석으로 대체:', error);
+    // 폴백: 기본 분석 제공
+    aiAnalysis = {
+      aiInsights: `AI 역량 점수 ${scoreAnalysis.totalScore}/225점 (${Math.round((scoreAnalysis.totalScore/225)*100)}%)을 기반으로 한 분석입니다. 현재 ${request.industry} 업종에서 ${scoreAnalysis.totalScore >= 180 ? '우수한' : scoreAnalysis.totalScore >= 135 ? '보통' : '개선이 필요한'} 수준입니다.`,
+      strategicRecommendations: `${request.companyName}의 AI 역량 향상을 위한 단계별 접근이 필요합니다. 우선순위는 ${scoreAnalysis.categoryScores.currentAI < 60 ? 'AI 도구 도입' : scoreAnalysis.categoryScores.organizationReadiness < 60 ? '조직 준비도 강화' : 'AI 전략 수립'}입니다.`,
+      industryComparison: `${request.industry} 업계에서 AI 도입이 가속화되고 있으며, 현재 귀사의 수준은 ${percentile}% 수준입니다.`
+    };
+  }
   
   // 3. 강점/약점 분석 (기존 로직 + AI 인사이트 결합)
   const { strengths, weaknesses } = analyzeStrengthsWeaknesses(scoreAnalysis.categoryScores, request.responses);
