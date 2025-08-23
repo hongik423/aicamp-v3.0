@@ -16,12 +16,16 @@ import {
   Bot,
   Rocket,
   CheckCircle,
-  Play
+  Play,
+  BookOpen,
+  MessageCircle,
+  Home
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import PDFViewer from '@/components/ui/PDFViewer';
 
 // 파티클 컴포넌트 - n8n 테마
 const N8nParticle: React.FC<{ delay: number; index: number; reduceMotion: boolean }> = ({ delay, index, reduceMotion }) => {
@@ -132,6 +136,7 @@ const N8nCurriculumBanner: React.FC = () => {
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [downloadCount, setDownloadCount] = useState(0);
+  const [showPDFViewer, setShowPDFViewer] = useState(false);
   
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
@@ -216,8 +221,14 @@ const N8nCurriculumBanner: React.FC = () => {
     setIsLoaded(true);
   }, []);
 
-  // PDF 다운로드 핸들러
-  const handleDownload = useCallback(() => {
+  // PDF 뷰어 열기 핸들러 (배너 전체 클릭)
+  const handleOpenPDFViewer = useCallback(() => {
+    setShowPDFViewer(true);
+  }, []);
+
+  // PDF 다운로드 핸들러 (다운로드 버튼 클릭)
+  const handleDownload = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation(); // 배너 클릭 이벤트 방지
     const link = document.createElement('a');
     link.href = '/images/n8n_Curriculum.pdf';
     link.download = 'n8n_AI자동화_워크플로우_커리큘럼.pdf';
@@ -226,11 +237,11 @@ const N8nCurriculumBanner: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
-    // 다운로드 후에도 배너 유지 (사용자가 직접 닫을 때까지)
-    // setTimeout(() => {
-    //   setIsVisible(false);
-    // }, 1500);
+  }, []);
+
+  // PDF 뷰어 닫기 핸들러
+  const handleClosePDFViewer = useCallback(() => {
+    setShowPDFViewer(false);
   }, []);
 
   if (!isVisible) return null;

@@ -20,7 +20,11 @@
     "dev:cmd": "cmd /c \"npm run dev\"",
     "build:cmd": "cmd /c \"npm run build\"",
     "lint": "next lint",
-    "health": "curl -X GET https://aicamp-ai-diagnosis.vercel.app/api/health/check"
+    "health": "curl -X GET https://aicamp-ai-diagnosis.vercel.app/api/health/check",
+    "test:comprehensive": "node comprehensive-workflow-test.js",
+    "test:fix": "node fix-environment-setup.js",
+    "test:workflow": "node test-ai-diagnosis-complete.js",
+    "dev:test": "npm run dev & timeout 30 && npm run test:comprehensive"
   },
   "keywords": [
     "ai",

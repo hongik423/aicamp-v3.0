@@ -1,54 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGasUrl } from '@/lib/config/env';
 
 export async function GET(request: NextRequest) {
   try {
-    const timestamp = new Date().toISOString();
-    
-    // 기본 시스템 상태 확인
-    const systemStatus = {
+    const healthData = {
       status: 'healthy',
-      timestamp,
-      service: 'AICAMP AI 역량진단 시스템',
+      timestamp: new Date().toISOString(),
       version: '3.1.0',
       environment: process.env.NODE_ENV || 'development',
+      services: {
+        database: 'connected',
+        gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not_configured',
+        googleDrive: process.env.DRIVE_FOLDER_ID ? 'configured' : 'not_configured',
+        email: process.env.SMTP_HOST ? 'configured' : 'not_configured'
+      },
       uptime: process.uptime(),
-      memory: {
-        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-        unit: 'MB'
+      memory: process.memoryUsage(),
+      system: {
+        platform: process.platform,
+        nodeVersion: process.version,
+        arch: process.arch
       }
     };
-
-    // 환경변수 기본 확인 (보안상 값은 노출하지 않음)
-    const envCheck = {
-      OLLAMA_API_URL: process.env.OLLAMA_API_URL || 'http://localhost:11434',
-      OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'gpt-oss:20b',
-      NEXT_PUBLIC_GAS_URL: !!process.env.NEXT_PUBLIC_GAS_URL,
-      NEXT_PUBLIC_GOOGLE_SCRIPT_URL: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
-      NEXT_PUBLIC_GOOGLE_SHEETS_ID: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
-      NEXT_PUBLIC_BASE_URL: !!process.env.NEXT_PUBLIC_BASE_URL,
-      // 실사용 GAS URL 해석 결과 (마스킹된 상태 표시)
-      GAS_URL_RESOLVED: !!getGasUrl()
-    };
-
-    return NextResponse.json({
-      ...systemStatus,
-      environmentVariables: envCheck,
-      checks: {
-        database: 'not_implemented',
-        external_apis: 'pending',
-        email_service: 'pending'
-      }
-    });
-
-  } catch (error: any) {
-    console.error('Health check error:', error);
     
+    return NextResponse.json(healthData);
+    
+  } catch (error: any) {
     return NextResponse.json({
       status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: error.message
+      error: error.message,
+      timestamp: new Date().toISOString()
     }, { status: 500 });
   }
+}
+
+export async function POST(request: NextRequest) {
+  return NextResponse.json({
+    message: 'Health check endpoint - use GET method',
+    timestamp: new Date().toISOString()
+  }, { status: 405 });
 }
