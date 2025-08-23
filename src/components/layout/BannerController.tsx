@@ -49,7 +49,7 @@ const BannerController: React.FC = () => {
       priority: 1,
       delay: 100, // 0.1초
       isActive: true, // 상단 배너 활성화
-      isVisible: false
+      isVisible: true // 즉시 표시
     },
     {
       id: 'content-guide',
@@ -86,7 +86,7 @@ const BannerController: React.FC = () => {
     const initTimer = setTimeout(() => {
       setIsSystemActive(true);
       console.log('🚀 배너 시스템 활성화');
-    }, 500);
+    }, 100); // 500ms에서 100ms로 단축
 
     return () => clearTimeout(initTimer);
   }, []);
