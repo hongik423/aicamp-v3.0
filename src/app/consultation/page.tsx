@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import PrivacyConsent from '@/components/ui/privacy-consent';
 import { useToast } from '@/hooks/use-toast';
-import { hideAllBanners } from '@/components/layout/BannerController';
+import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerController';
 import { 
   Phone, 
   Mail, 
@@ -53,9 +53,32 @@ export default function ConsultationPage() {
     privacyConsent: false
   });
 
-  // 상담신청 페이지에 접근할 때 모든 배너 숨기기
+  // 상담신청 페이지에 접근할 때 모든 배너 숨기기 및 스크롤 활성화
   useEffect(() => {
+    // 모든 배너 완전 비활성화
     hideAllBanners();
+    disableAllBanners();
+    
+    // 페이지 스크롤 활성화
+    document.body.style.overflow = 'auto';
+    document.body.style.position = 'static';
+    document.body.style.height = 'auto';
+    
+    // 포커스 가능하도록 설정
+    document.body.style.pointerEvents = 'auto';
+    
+    // 페이지 로드 시 상단으로 스크롤
+    window.scrollTo(0, 0);
+    
+    console.log('상담신청 페이지 로드 - 배너 완전 비활성화 및 스크롤 활성화');
+    
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.height = '';
+      document.body.style.pointerEvents = '';
+    };
   }, []);
 
   const isFormValid = useMemo(() => {
@@ -335,7 +358,7 @@ export default function ConsultationPage() {
   }, []);
 
   return (
-    <div className="relative z-[2147483649]">
+    <div className="relative z-[2147483649] overflow-auto">
       <Header />
       
       {/* 🎯 간단한 타이틀 섹션 - 모바일 최적화 */}
@@ -370,7 +393,7 @@ export default function ConsultationPage() {
       </section>
 
       {/* 🎯 메인 콘텐츠 - 폼 중심, 모바일 최적화 */}
-      <main className="py-6 sm:py-12">
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             

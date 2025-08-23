@@ -19,14 +19,25 @@ interface BannerState {
 
 // 배너 제어 함수들을 전역으로 export
 let globalHideAllBanners: (() => void) | null = null;
+let globalDisableAllBanners: (() => void) | null = null;
 
 export const setGlobalHideAllBanners = (fn: () => void) => {
   globalHideAllBanners = fn;
 };
 
+export const setGlobalDisableAllBanners = (fn: () => void) => {
+  globalDisableAllBanners = fn;
+};
+
 export const hideAllBanners = () => {
   if (globalHideAllBanners) {
     globalHideAllBanners();
+  }
+};
+
+export const disableAllBanners = () => {
+  if (globalDisableAllBanners) {
+    globalDisableAllBanners();
   }
 };
 
@@ -128,11 +139,18 @@ const BannerController: React.FC = () => {
 
   const hideAllBanners = () => {
     setBanners(prev => prev.map(b => ({ ...b, isVisible: false })));
+    console.log('🎯 모든 배너 숨김 처리 완료');
+  };
+
+  const disableAllBanners = () => {
+    setBanners(prev => prev.map(b => ({ ...b, isActive: false, isVisible: false })));
+    console.log('🚫 모든 배너 비활성화 완료');
   };
 
   // 전역 함수 설정
   useEffect(() => {
     setGlobalHideAllBanners(hideAllBanners);
+    setGlobalDisableAllBanners(disableAllBanners);
   }, []);
 
   // 키보드 단축키 (개발용)
