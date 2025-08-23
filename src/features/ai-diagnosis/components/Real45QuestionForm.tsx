@@ -48,6 +48,22 @@ interface DiagnosisResult {
   totalScore?: number;
   enhancedScores?: any;
   error?: string;
+  grade?: string;
+  maturityLevel?: string;
+  percentile?: number;
+  categoryScores?: {
+    businessFoundation?: number;
+    currentAIUsage?: number;
+    organizationalReadiness?: number;
+    technicalInfrastructure?: number;
+    goalClarity?: number;
+    executionCapability?: number;
+  };
+  strengths?: string[];
+  weaknesses?: string[];
+  opportunities?: string[];
+  threats?: string[];
+  recommendations?: string[];
 }
 
 const Real45QuestionForm: React.FC = () => {
@@ -128,8 +144,8 @@ const Real45QuestionForm: React.FC = () => {
         }
         
         toast({
-          title: "✅ PDF 생성 및 저장 완료",
-          description: "진단 신청서가 다운로드되고 Google Drive에 저장되었습니다.",
+          title: "✅ 신청서 HTML 생성 및 저장 완료",
+          description: "진단 신청서 HTML이 다운로드되고 Google Drive에 저장되었습니다.",
         });
         
         console.log('✅ Google Drive 저장 완료:', {
@@ -143,8 +159,8 @@ const Real45QuestionForm: React.FC = () => {
         downloadPDF(pdfBlob, filename);
         
         toast({
-          title: "✅ PDF 다운로드 완료 (Google Drive 저장 실패)",
-          description: "진단 신청서가 다운로드되었습니다. Google Drive 저장에 실패했습니다.",
+          title: "✅ 신청서 HTML 다운로드 완료 (Google Drive 저장 실패)",
+          description: "진단 신청서 HTML이 다운로드되었습니다. Google Drive 저장에 실패했습니다.",
           variant: "destructive"
         });
         
@@ -177,30 +193,23 @@ const Real45QuestionForm: React.FC = () => {
       const scoreData = {
         diagnosisId: diagnosisResult.diagnosisId || `DIAG_${Date.now()}`,
         companyName: formState.companyInfo.companyName,
-        contactName: formState.companyInfo.contactName,
         submitDate: new Date().toISOString(),
-        scores: {
-          totalScore: diagnosisResult.totalScore || 0,
-          averageScore: diagnosisResult.totalScore || 0,
-          grade: diagnosisResult.grade || 'C',
-          maturityLevel: diagnosisResult.maturityLevel || '중급',
-          percentile: diagnosisResult.percentile || 50,
-          categoryScores: {
-            businessFoundation: diagnosisResult.categoryScores?.businessFoundation || 0,
-            currentAIUsage: diagnosisResult.categoryScores?.currentAIUsage || 0,
-            organizationalReadiness: diagnosisResult.categoryScores?.organizationalReadiness || 0,
-            technicalInfrastructure: diagnosisResult.categoryScores?.technicalInfrastructure || 0,
-            goalClarity: diagnosisResult.categoryScores?.goalClarity || 0,
-            executionCapability: diagnosisResult.categoryScores?.executionCapability || 0
-          }
+        totalScore: diagnosisResult.totalScore || 0,
+        categoryScores: {
+          businessFoundation: diagnosisResult.categoryScores?.businessFoundation || 0,
+          currentAIUsage: diagnosisResult.categoryScores?.currentAIUsage || 0,
+          organizationalReadiness: diagnosisResult.categoryScores?.organizationalReadiness || 0,
+          technicalInfrastructure: diagnosisResult.categoryScores?.technicalInfrastructure || 0,
+          goalClarity: diagnosisResult.categoryScores?.goalClarity || 0,
+          executionCapability: diagnosisResult.categoryScores?.executionCapability || 0
         },
-        analysis: {
-          strengths: diagnosisResult.strengths || ['조직 준비도가 우수합니다'],
-          weaknesses: diagnosisResult.weaknesses || ['기술 인프라 개선이 필요합니다'],
-          opportunities: diagnosisResult.opportunities || ['AI 도입을 통한 경쟁력 강화'],
-          threats: diagnosisResult.threats || ['기술 변화 속도 대응 필요'],
-          recommendations: diagnosisResult.recommendations || ['단계적 AI 도입 계획 수립']
-        }
+        recommendations: diagnosisResult.recommendations || ['단계적 AI 도입 계획 수립'],
+        nextSteps: [
+          '1단계: 현재 상태 정밀 분석',
+          '2단계: AI 도입 전략 수립',
+          '3단계: 단계별 실행 계획 수립',
+          '4단계: 성과 측정 및 개선'
+        ]
       };
 
       // Google Drive 폴더 ID (환경변수 또는 기본값)
@@ -937,7 +946,7 @@ const Real45QuestionForm: React.FC = () => {
                 ) : (
                   <FileText className="w-4 h-4 mr-2" />
                 )}
-                {isGeneratingPDF ? 'PDF 생성 중...' : '진단 신청서 PDF'}
+                {isGeneratingPDF ? 'HTML 생성 중...' : '진단 신청서 HTML'}
               </Button>
               
               <Button
@@ -1365,7 +1374,7 @@ const Real45QuestionForm: React.FC = () => {
 
                   <div className="space-y-3">
                     <label className="flex items-center text-sm font-semibold text-gray-700">
-                      <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs font-bold mr-2">선택</span>
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
                       연매출
                     </label>
                     <select
@@ -1436,7 +1445,7 @@ const Real45QuestionForm: React.FC = () => {
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
                       개인정보 수집·이용 동의
                     </label>
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4">
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4">
                       <label className="flex items-start gap-3">
                         <Checkbox
                           checked={!!formState.companyInfo.privacyConsent}

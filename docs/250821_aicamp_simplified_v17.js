@@ -1047,7 +1047,9 @@ function saveAIDiagnosisData(normalizedData) {
         }
       });
       
-      const responseScore = parseInt(normalizedData.responses[i]) || 3;
+      // 응답 데이터는 객체 형태 {1: 4, 2: 5, ...}로 전송되므로 문항 번호로 접근
+      const questionNumber = i + 1;
+      const responseScore = parseInt(normalizedData.responses[questionNumber]) || 3;
       const barsLevel = getBARSLevel(responseScore);
       const weightedScore = responseScore * weight;
       
