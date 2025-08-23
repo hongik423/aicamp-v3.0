@@ -154,21 +154,36 @@ const N8nCurriculumBanner: React.FC = () => {
   }, []);
 
   // PDF 뷰어 열기 핸들러 (배너 전체 클릭)
-  const handleOpenPDFViewer = useCallback(() => {
+  const handleOpenPDFViewer = useCallback((e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    console.log('PDF 뷰어 열기 시도');
     setShowPDFViewer(true);
   }, []);
 
   // PDF 다운로드 핸들러 (다운로드 버튼 클릭)
   const handleDownload = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation(); // 배너 클릭 이벤트 방지
-    const link = document.createElement('a');
-    link.href = '/n8n_Curriculum.pdf';
-    link.download = 'n8n_AI자동화_워크플로우_커리큘럼.pdf';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    console.log('PDF 다운로드 시도');
+    
+    try {
+      const link = document.createElement('a');
+      link.href = '/n8n_Curriculum.pdf';
+      link.download = 'n8n_AI자동화_워크플로우_커리큘럼.pdf';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log('PDF 다운로드 링크 클릭 완료');
+    } catch (error) {
+      console.error('PDF 다운로드 오류:', error);
+      // 대체 방법으로 새 탭에서 열기
+      window.open('/n8n_Curriculum.pdf', '_blank');
+    }
   }, []);
 
   // PDF 뷰어 닫기 핸들러
@@ -178,6 +193,7 @@ const N8nCurriculumBanner: React.FC = () => {
 
   // 모두 확인하고 닫기 핸들러
   const handleCloseAll = useCallback(() => {
+    console.log('모두 확인 버튼 클릭');
     setIsVisible(false);
     localStorage.setItem('n8n-curriculum-viewed', 'true');
   }, []);
@@ -266,7 +282,13 @@ const N8nCurriculumBanner: React.FC = () => {
               }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="bg-gradient-to-br from-white via-purple-50 to-blue-100 rounded-3xl shadow-2xl overflow-hidden border-2 border-purple-300/60 backdrop-blur-sm cursor-pointer relative group"
-              onClick={handleOpenPDFViewer}
+              onClick={(e) => {
+                // 버튼이 아닌 카드 영역 클릭 시에만 PDF 뷰어 열기
+                const target = e.target as HTMLElement;
+                if (!target.closest('button') && !target.closest('a')) {
+                  handleOpenPDFViewer(e);
+                }
+              }}
             >
               {/* 글로우 효과 */}
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl opacity-0 group-hover:opacity-30 blur-xl transition-all duration-500"></div>
@@ -397,7 +419,11 @@ const N8nCurriculumBanner: React.FC = () => {
                         transition={{ type: "spring", stiffness: 400, damping: 20 }}
                       >
                         <Button
-                          onClick={handleOpenPDFViewer}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleOpenPDFViewer(e);
+                          }}
                           className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-black py-4 rounded-xl shadow-lg border-2 border-purple-300/50 relative overflow-hidden group"
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -412,7 +438,11 @@ const N8nCurriculumBanner: React.FC = () => {
                         transition={{ type: "spring", stiffness: 400, damping: 20 }}
                       >
                         <Button
-                          onClick={handleDownload}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDownload(e);
+                          }}
                           variant="outline"
                           className="w-full border-3 border-purple-500 text-purple-700 hover:bg-purple-50 hover:border-purple-600 font-black py-4 rounded-xl shadow-lg bg-white/80 backdrop-blur-sm relative overflow-hidden group"
                         >
@@ -437,7 +467,6 @@ const N8nCurriculumBanner: React.FC = () => {
                     <Button
                       asChild
                       className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-600 hover:from-red-600 hover:via-pink-600 hover:to-purple-700 text-white font-black py-6 rounded-2xl shadow-2xl border-2 border-red-300/50 relative overflow-hidden group text-lg"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       <Link href="/consultation" className="flex items-center justify-center space-x-3 relative z-10">
                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -470,7 +499,6 @@ const N8nCurriculumBanner: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="w-full border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
-                        onClick={(e) => e.stopPropagation()}
                       >
                         <Link href="/ai-diagnosis" className="flex items-center justify-center space-x-2">
                           <Sparkles className="w-4 h-4 animate-pulse" />
@@ -489,7 +517,6 @@ const N8nCurriculumBanner: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="w-full border-2 border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
-                        onClick={(e) => e.stopPropagation()}
                       >
                         <Link href="/" className="flex items-center justify-center space-x-2">
                           <Home className="w-4 h-4" />
@@ -504,7 +531,11 @@ const N8nCurriculumBanner: React.FC = () => {
                       transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     >
                       <Button
-                        onClick={handleCloseAll}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleCloseAll();
+                        }}
                         variant="outline"
                         size="sm"
                         className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
