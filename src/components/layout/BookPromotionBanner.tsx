@@ -116,12 +116,12 @@ const BookPromotionBanner: React.FC = () => {
   }, [shouldReduceMotion]);
 
   useEffect(() => {
-    // 2순위: n8n 출판소개 배너 - 1순위 다음 즉시 등장 (지속 노출)
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 1000); // 1초 후 등장
+    // 2순위: n8n 출판소개 배너 - 임시 비활성화 (N8nCurriculumBanner와 충돌 방지)
+    // const timer = setTimeout(() => {
+    //   setIsVisible(true);
+    // }, 1000); // 1초 후 등장
 
-    return () => clearTimeout(timer);
+    // return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {

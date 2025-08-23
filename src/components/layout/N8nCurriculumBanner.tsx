@@ -528,7 +528,7 @@ const N8nCurriculumBanner: React.FC = () => {
                         className="w-full border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
                       >
                         <Link 
-                          href="/ai-diagnosis" 
+                          href="/diagnosis" 
                           className="flex items-center justify-center space-x-2"
                           onClick={(e) => {
                             console.log('AI역량진단 링크 클릭됨');
