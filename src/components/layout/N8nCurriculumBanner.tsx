@@ -575,10 +575,10 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                         className="w-full border-2 border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
                       >
                         <Link 
-                          href="/" 
+                          href="https://aicamp.club/" 
                           className="flex items-center justify-center space-x-2"
                           onClick={(e) => {
-                            console.log('홈으로 링크 클릭됨');
+                            console.log('홈으로 링크 클릭됨 - https://aicamp.club/로 이동');
                             // 링크는 기본 동작을 유지
                           }}
                         >
