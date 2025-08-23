@@ -466,7 +466,7 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                       }}
                     >
                       <Link 
-                        href="/consultation" 
+                        href="https://aicamp.club/consultation" 
                         className="flex items-center justify-center min-h-[44px] min-w-[44px]"
                         aria-label="AI CAMP 전문가 상담신청"
                         style={{

@@ -823,7 +823,7 @@ export default function WebsitePage() {
               <Button 
                 size="lg"
                 className="bg-white text-purple-600 hover:bg-gray-50 px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-                onClick={() => router.push('/consultation')}
+                onClick={() => window.location.href = 'https://aicamp.club/consultation'}
               >
                 <Phone className="w-5 h-5 mr-2" />
                 무료 상담 신청

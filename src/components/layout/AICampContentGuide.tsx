@@ -141,7 +141,7 @@ const contentData: ContentItem[] = [
     icon: MessageSquare,
     color: 'text-green-600',
     bgColor: 'from-green-50 to-green-100',
-    href: '/consultation',
+    href: 'https://aicamp.club/consultation',
     category: '주요액션'
   },
   {
@@ -204,7 +204,11 @@ const contentData: ContentItem[] = [
   }
 ];
 
-const AICampContentGuide: React.FC = () => {
+interface AICampContentGuideProps {
+  forceVisible?: boolean;
+}
+
+const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = false }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [isMinimized, setIsMinimized] = useState(false);
@@ -215,13 +219,24 @@ const AICampContentGuide: React.FC = () => {
     ? contentData 
     : contentData.filter(item => item.category === selectedCategory);
 
-  // 페이지 로드 시 애니메이션 시작
+  // BannerController에서 제어됨 - forceVisible prop 사용
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (forceVisible) {
       setIsVisible(true);
-    }, 1000); // 1초 후 나타남
+    }
+  }, [forceVisible]);
 
-    return () => clearTimeout(timer);
+  // 개발 환경에서 수동 테스트용
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.altKey && e.key === '2') {
+          setIsVisible(prev => !prev);
+        }
+      };
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
   }, []);
 
   // 스크롤시 컴포넌트 최소화
@@ -249,9 +264,9 @@ const AICampContentGuide: React.FC = () => {
         exit={{ y: '100%', opacity: 0 }}
         transition={{ 
           type: 'spring', 
-          stiffness: 100, 
-          damping: 20,
-          duration: 0.8 
+          stiffness: 80, 
+          damping: 15,
+          duration: 1.2 
         }}
         className={`fixed z-40 left-0 right-0 transition-all duration-500 ${
           isMinimized ? 'bottom-28' : 'bottom-24'
@@ -300,8 +315,10 @@ const AICampContentGuide: React.FC = () => {
                       <Book className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900">AI CAMP 서비스 가이드</h2>
-                      <p className="text-gray-600">필요한 서비스를 쉽게 찾아보세요</p>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        <span className="animate-pulse">🚀</span> AI CAMP 서비스 가이드
+                      </h2>
+                      <p className="text-gray-600">필요한 서비스를 쉽게 찾아보세요 - 하단에서 떠오르는 애니메이션</p>
                     </div>
                   </motion.div>
                   
@@ -432,7 +449,7 @@ const AICampContentGuide: React.FC = () => {
                       <span>3분 AI 역량진단</span>
                     </button>
                   </Link>
-                  <Link href="/consultation" className="flex-1">
+                  <Link href="https://aicamp.club/consultation" className="flex-1">
                     <button className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
                       <MessageSquare className="w-5 h-5" />
                       <span>전문가 상담</span>

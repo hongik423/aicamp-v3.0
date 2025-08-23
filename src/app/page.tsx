@@ -31,9 +31,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import AICampChatInterface from '@/components/chatbot/AICampChatInterface';
-import AICampContentGuide from '@/components/layout/AICampContentGuide';
+// import AICampContentGuide from '@/components/layout/AICampContentGuide'; // BannerController에서 관리
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
-import BookPromotionBanner from '@/components/layout/BookPromotionBanner';
+// import BookPromotionBanner from '@/components/layout/BookPromotionBanner'; // BannerController에서 관리
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
@@ -959,13 +959,13 @@ export default function Home() {
                 
                 {/* 추가 액션 버튼들 */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                  <Link href="/consultation">
+                  <Link href="https://aicamp.club/consultation">
                     <button className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white text-lg font-medium rounded-full transition-all duration-200">
                       상담신청하기
                     </button>
                   </Link>
                   
-                  <Link href="/ai-diagnosis">
+                  <Link href="https://aicamp.club/ai-diagnosis">
                     <button 
                       className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                       // 🔥 모바일 터치 최적화 추가
@@ -982,7 +982,7 @@ export default function Home() {
                         e.stopPropagation();
                         // 터치 종료 시 명시적으로 링크 이동
                         setTimeout(() => {
-                          window.location.href = '/ai-diagnosis';
+                          window.location.href = 'https://aicamp.club/ai-diagnosis';
                         }, 50);
                       }}
                       style={{
@@ -1473,11 +1473,7 @@ AI CAMP 교장에게 바로 문의하기
         onMinimize={() => setIsChatOpen(false)}
       />
 
-      {/* AI CAMP 컨텐츠 가이드 - 하단에서 솟구치는 애니메이션 */}
-      <AICampContentGuide />
-
-      {/* n8n 책 홍보 배너 - 최상위 레이어로 위에서 떨어지는 애니메이션 */}
-      <BookPromotionBanner />
+      {/* 배너들은 BannerController에서 통합 관리됨 */}
       
       {/* n8n 책 홍보 모달 - 최상위 레이어 (비활성화) */}
       {/* <BookPromotionModal /> */}

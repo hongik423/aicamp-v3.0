@@ -509,10 +509,10 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                       className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-600 hover:from-red-600 hover:via-pink-600 hover:to-purple-700 text-white font-black py-6 rounded-2xl shadow-2xl border-2 border-red-300/50 relative overflow-hidden group text-lg"
                     >
                       <Link 
-                        href="/consultation" 
+                        href="https://aicamp.club/consultation" 
                         className="flex items-center justify-center space-x-3 relative z-10"
                         onClick={(e) => {
-                          console.log('전문가 상담신청 링크 클릭됨 - /consultation 페이지로 이동');
+                          console.log('전문가 상담신청 링크 클릭됨 - https://aicamp.club/consultation 페이지로 이동');
                           // 링크는 기본 동작을 유지
                         }}
                       >
@@ -549,10 +549,10 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                         className="w-full border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
                       >
                         <Link 
-                          href="/ai-diagnosis" 
+                          href="https://aicamp.club/ai-diagnosis" 
                           className="flex items-center justify-center space-x-2"
                           onClick={(e) => {
-                            console.log('AI역량진단 링크 클릭됨 - /ai-diagnosis로 이동');
+                            console.log('AI역량진단 링크 클릭됨 - https://aicamp.club/ai-diagnosis로 이동');
                             // 링크는 기본 동작을 유지
                           }}
                         >

@@ -357,7 +357,7 @@ export default function InvestmentAnalysisPage() {
             
             {/* 주요 CTA - 전문가 상담 */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-              <Link href="/consultation">
+              <Link href="https://aicamp.club/consultation">
                 <Button 
                   size="lg" 
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
