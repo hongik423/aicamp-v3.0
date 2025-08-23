@@ -52,7 +52,11 @@ const errorPatterns = [
   // 기타 외부 오류
   '개인정보 동의',
   'privacyConsent',
-  'message port closed'
+  'message port closed',
+  
+  // React DevTools 관련
+  'React DevTools detected duplicate welcome',
+  'duplicate welcome "message" events'
 ];
   
   // 오류 메시지 필터링 함수

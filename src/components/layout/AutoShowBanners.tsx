@@ -7,11 +7,11 @@ interface AutoShowBannersProps {
   forceVisible?: boolean;
 }
 
-export default function AutoShowBanners({ forceVisible = false }: AutoShowBannersProps) {
+export default function AutoShowBanners({ forceVisible = true }: AutoShowBannersProps) {
   const { show } = useBannerStore();
 
   useEffect(() => {
-    // 상단 배너 활성화
+    // 상단 배너 활성화 (기본적으로 표시)
     if (forceVisible) {
       show(
         '🎓 AI CAMP - 기업 맞춤형 AI 역량진단 시스템',

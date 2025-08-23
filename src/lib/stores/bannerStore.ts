@@ -9,7 +9,8 @@ export interface GlobalBannerState {
   variant?: 'info' | 'success' | 'warning' | 'error';
   progressPercent?: number; // 0-100, 진행률 표시용(선택)
   stepLabel?: string; // 현재 단계 라벨(선택)
-  show: (message: string, options?: { subMessage?: string; variant?: GlobalBannerState['variant'] }) => void;
+  persistent?: boolean; // 지속적으로 표시할지 여부
+  show: (message: string, options?: { subMessage?: string; variant?: GlobalBannerState['variant']; persistent?: boolean }) => void;
   update: (message: string, options?: { subMessage?: string; variant?: GlobalBannerState['variant'] }) => void;
   hide: () => void;
 }
@@ -21,12 +22,14 @@ export const useBannerStore = create<GlobalBannerState>((set) => ({
   variant: 'info',
   progressPercent: undefined,
   stepLabel: undefined,
+  persistent: false,
   show: (message, options) =>
     set({
       isVisible: true,
       message,
       subMessage: options?.subMessage,
       variant: options?.variant || 'info',
+      persistent: options?.persistent || false,
     }),
   update: (message, options) =>
     set((state) => ({
