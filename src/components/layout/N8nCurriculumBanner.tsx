@@ -283,10 +283,17 @@ const N8nCurriculumBanner: React.FC = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="bg-gradient-to-br from-white via-purple-50 to-blue-100 rounded-3xl shadow-2xl overflow-hidden border-2 border-purple-300/60 backdrop-blur-sm cursor-pointer relative group"
               onClick={(e) => {
-                // 버튼이 아닌 카드 영역 클릭 시에만 PDF 뷰어 열기
+                // 버튼이나 링크가 아닌 카드 영역 클릭 시에만 PDF 뷰어 열기
                 const target = e.target as HTMLElement;
-                if (!target.closest('button') && !target.closest('a')) {
+                const isButton = target.closest('button');
+                const isLink = target.closest('a');
+                const isMotionDiv = target.closest('.motion-div-button');
+                
+                if (!isButton && !isLink && !isMotionDiv) {
+                  console.log('카드 배경 클릭됨 - PDF 뷰어 열기');
                   handleOpenPDFViewer(e);
+                } else {
+                  console.log('버튼/링크 영역 클릭됨 - 이벤트 전파 방지');
                 }
               }}
             >
@@ -358,7 +365,13 @@ const N8nCurriculumBanner: React.FC = () => {
                         rotateY: 5
                       }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className="relative group"
+                      className="relative group cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('북커버 이미지 클릭됨');
+                        handleOpenPDFViewer(e);
+                      }}
                     >
                       <div className="relative w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden shadow-xl">
                         {!imageError ? (
@@ -414,6 +427,7 @@ const N8nCurriculumBanner: React.FC = () => {
                     {/* 액션 버튼들 - 베스트 레벨 디자인 */}
                     <div className="grid grid-cols-2 gap-4">
                       <motion.div
+                        className="motion-div-button"
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -433,6 +447,7 @@ const N8nCurriculumBanner: React.FC = () => {
                       </motion.div>
                       
                       <motion.div
+                        className="motion-div-button"
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -459,7 +474,7 @@ const N8nCurriculumBanner: React.FC = () => {
                 <div className="mt-8 pt-6 border-t-2 border-gradient-to-r from-purple-200 via-blue-200 to-indigo-200">
                   {/* 상담신청 메인 CTA - 100% 전환율 목표 */}
                   <motion.div
-                    className="mb-4"
+                    className="mb-4 motion-div-button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -468,7 +483,14 @@ const N8nCurriculumBanner: React.FC = () => {
                       asChild
                       className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-purple-600 hover:from-red-600 hover:via-pink-600 hover:to-purple-700 text-white font-black py-6 rounded-2xl shadow-2xl border-2 border-red-300/50 relative overflow-hidden group text-lg"
                     >
-                      <Link href="/consultation" className="flex items-center justify-center space-x-3 relative z-10">
+                      <Link 
+                        href="/consultation" 
+                        className="flex items-center justify-center space-x-3 relative z-10"
+                        onClick={(e) => {
+                          console.log('상담신청 링크 클릭됨');
+                          // 링크는 기본 동작을 유지
+                        }}
+                      >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <motion.div
                           animate={{ scale: [1, 1.2, 1] }}
@@ -490,6 +512,7 @@ const N8nCurriculumBanner: React.FC = () => {
                   {/* 서브 네비게이션 버튼들 */}
                   <div className="grid grid-cols-3 gap-3">
                     <motion.div
+                      className="motion-div-button"
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -500,7 +523,14 @@ const N8nCurriculumBanner: React.FC = () => {
                         size="sm"
                         className="w-full border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
                       >
-                        <Link href="/ai-diagnosis" className="flex items-center justify-center space-x-2">
+                        <Link 
+                          href="/ai-diagnosis" 
+                          className="flex items-center justify-center space-x-2"
+                          onClick={(e) => {
+                            console.log('AI역량진단 링크 클릭됨');
+                            // 링크는 기본 동작을 유지
+                          }}
+                        >
                           <Sparkles className="w-4 h-4 animate-pulse" />
                           <span className="text-sm">✨ AI역량진단</span>
                         </Link>
@@ -508,6 +538,7 @@ const N8nCurriculumBanner: React.FC = () => {
                     </motion.div>
                     
                     <motion.div
+                      className="motion-div-button"
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -518,7 +549,14 @@ const N8nCurriculumBanner: React.FC = () => {
                         size="sm"
                         className="w-full border-2 border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
                       >
-                        <Link href="/" className="flex items-center justify-center space-x-2">
+                        <Link 
+                          href="/" 
+                          className="flex items-center justify-center space-x-2"
+                          onClick={(e) => {
+                            console.log('홈으로 링크 클릭됨');
+                            // 링크는 기본 동작을 유지
+                          }}
+                        >
                           <Home className="w-4 h-4" />
                           <span className="text-sm">🏠 홈으로</span>
                         </Link>
@@ -526,6 +564,7 @@ const N8nCurriculumBanner: React.FC = () => {
                     </motion.div>
 
                     <motion.div
+                      className="motion-div-button"
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 20 }}
