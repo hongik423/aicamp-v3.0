@@ -5,7 +5,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
 import GlobalBanner from '@/components/layout/GlobalBanner';
-import CurriculumBanner from '@/components/layout/CurriculumBanner';
+
 import N8nCurriculumBanner from '@/components/layout/N8nCurriculumBanner';
 import AutoShowBanners from '@/components/layout/AutoShowBanners';
 
@@ -386,7 +386,6 @@ export default function RootLayout({
           <AutoShowBanners />
           <GlobalBanner />
           <N8nCurriculumBanner />
-          <CurriculumBanner />
           <div className="min-h-screen flex flex-col">
             <Header />
             <main className="flex-1 pt-20">
