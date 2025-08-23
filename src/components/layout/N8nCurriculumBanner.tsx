@@ -579,7 +579,10 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                           className="flex items-center justify-center space-x-2"
                           onClick={(e) => {
                             console.log('홈으로 링크 클릭됨 - https://aicamp.club/로 이동');
-                            // 링크는 기본 동작을 유지
+                            // 배너 닫기
+                            setIsVisible(false);
+                            // 홈 페이지에서 배너가 닫히도록 localStorage 설정
+                            localStorage.setItem('n8n-curriculum-viewed', 'true');
                           }}
                         >
                           <Home className="w-4 h-4" />

@@ -31,6 +31,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import AICampChatInterface from '@/components/chatbot/AICampChatInterface';
+import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerController';
 // import AICampContentGuide from '@/components/layout/AICampContentGuide'; // BannerController에서 관리
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
 // import BookPromotionBanner from '@/components/layout/BookPromotionBanner'; // BannerController에서 관리
@@ -263,6 +264,29 @@ export default function Home() {
   const router = useRouter();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+
+  // 홈 페이지 로드 시 배너 완전 비활성화
+  useEffect(() => {
+    // 모든 배너 완전 비활성화
+    hideAllBanners();
+    disableAllBanners();
+    
+    // 페이지 스크롤 활성화
+    document.body.style.overflow = 'auto';
+    document.body.style.position = 'static';
+    document.body.style.height = 'auto';
+    document.body.style.pointerEvents = 'auto';
+    
+    console.log('홈 페이지 로드 - 배너 완전 비활성화');
+    
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.height = '';
+      document.body.style.pointerEvents = '';
+    };
+  }, []);
 
   const handleChatbotConnect = () => {
     setIsConnecting(true);
