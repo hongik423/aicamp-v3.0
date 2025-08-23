@@ -67,7 +67,11 @@ const usePrefersReducedMotion = () => {
   return prefersReducedMotion;
 };
 
-const N8nCurriculumBanner: React.FC = () => {
+interface N8nCurriculumBannerProps {
+  forceVisible?: boolean;
+}
+
+const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible = false }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -77,13 +81,24 @@ const N8nCurriculumBanner: React.FC = () => {
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
 
-  // 3순위 등장 (2순위 다음에 나타남 - 최고 수준 UI/UX로 상담신청 100% 전환율 목표)
+  // BannerController에서 제어됨 - forceVisible prop 사용
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (forceVisible) {
       setIsVisible(true);
-    }, 2000); // 2초 후 등장 (2순위 다음)
+    }
+  }, [forceVisible]);
 
-    return () => clearTimeout(timer);
+  // 개발 환경에서 수동 테스트용
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.altKey && e.key === '4') {
+          setIsVisible(prev => !prev);
+        }
+      };
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
   }, []);
 
   // 다운로드 카운터 애니메이션
@@ -242,7 +257,7 @@ const N8nCurriculumBanner: React.FC = () => {
             initial={{ 
               scale: shouldReduceMotion ? 0.95 : 0.8, 
               opacity: 0, 
-              y: shouldReduceMotion ? 20 : 50
+              y: shouldReduceMotion ? 100 : 200
             }}
             animate={{ 
               scale: 1, 
@@ -294,8 +309,11 @@ const N8nCurriculumBanner: React.FC = () => {
                 const isMotionDiv = target.closest('.motion-div-button');
                 
                 if (!isButton && !isLink && !isMotionDiv) {
-                  console.log('카드 배경 클릭됨 - PDF 뷰어 열기');
-                  handleOpenPDFViewer(e);
+                  console.log('카드 배경 클릭됨 - n8n 커리큘럼 PDF 직접 열기');
+                  e.preventDefault();
+                  e.stopPropagation();
+                  // n8n_Curriculum.pdf를 직접 열기
+                  window.open('/n8n_Curriculum.pdf', '_blank', 'noopener,noreferrer');
                 } else {
                   console.log('버튼/링크 영역 클릭됨 - 이벤트 전파 방지');
                 }
@@ -330,7 +348,7 @@ const N8nCurriculumBanner: React.FC = () => {
                         animate={{ scale: [1, 1.02, 1] }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
                       >
-                        🔥 AI 자동화의 끝판왕!
+                        🔥 AI 자동화의 끝판왕! - 3순위
                       </motion.h2>
                       <p className="text-sm opacity-95 font-semibold">n8n을 활용한 업무혁신 AI 워크플로우</p>
                       <div className="flex items-center space-x-2 mt-1">
@@ -373,8 +391,9 @@ const N8nCurriculumBanner: React.FC = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('북커버 이미지 클릭됨');
-                        handleOpenPDFViewer(e);
+                        console.log('n8n 커리큘럼 북커버 클릭 - PDF 직접 열기');
+                        // n8n_Curriculum.pdf를 직접 열기
+                        window.open('/n8n_Curriculum.pdf', '_blank', 'noopener,noreferrer');
                       }}
                     >
                       <div className="relative w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden shadow-xl">
@@ -400,7 +419,7 @@ const N8nCurriculumBanner: React.FC = () => {
                         {/* 호버 오버레이 */}
                         <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-end pb-3">
                           <Eye className="w-4 h-4 text-white mb-1" />
-                          <p className="text-xs text-white font-bold">클릭하여 보기</p>
+                          <p className="text-xs text-white font-bold">n8n 커리큘럼 보기</p>
                         </div>
                       </div>
                     </motion.div>
@@ -440,7 +459,9 @@ const N8nCurriculumBanner: React.FC = () => {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            handleOpenPDFViewer(e);
+                            console.log('n8n 커리큘럼 보기 버튼 클릭 - PDF 직접 열기');
+                            // n8n_Curriculum.pdf를 직접 열기
+                            window.open('/n8n_Curriculum.pdf', '_blank', 'noopener,noreferrer');
                           }}
                           className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-black py-4 rounded-xl shadow-lg border-2 border-purple-300/50 relative overflow-hidden group"
                         >
@@ -491,7 +512,7 @@ const N8nCurriculumBanner: React.FC = () => {
                         href="/consultation" 
                         className="flex items-center justify-center space-x-3 relative z-10"
                         onClick={(e) => {
-                          console.log('상담신청 링크 클릭됨');
+                          console.log('전문가 상담신청 링크 클릭됨 - /consultation 페이지로 이동');
                           // 링크는 기본 동작을 유지
                         }}
                       >
@@ -502,7 +523,7 @@ const N8nCurriculumBanner: React.FC = () => {
                         >
                           <MessageCircle className="w-6 h-6" />
                         </motion.div>
-                        <span className="font-black">🔥 지금 바로 상담신청하기 🔥</span>
+                        <span className="font-black">🔥 전문가 상담신청하기 🔥</span>
                         <motion.div
                           animate={{ x: [0, 5, 0] }}
                           transition={{ duration: 1, repeat: Infinity, repeatDelay: 1 }}
@@ -528,10 +549,10 @@ const N8nCurriculumBanner: React.FC = () => {
                         className="w-full border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
                       >
                         <Link 
-                          href="/diagnosis" 
+                          href="/ai-diagnosis" 
                           className="flex items-center justify-center space-x-2"
                           onClick={(e) => {
-                            console.log('AI역량진단 링크 클릭됨');
+                            console.log('AI역량진단 링크 클릭됨 - /ai-diagnosis로 이동');
                             // 링크는 기본 동작을 유지
                           }}
                         >
