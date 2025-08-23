@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, ZoomIn, ZoomOut, RotateCw, ExternalLink, BookOpen, MessageCircle, Sparkles, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 interface PDFViewerProps {

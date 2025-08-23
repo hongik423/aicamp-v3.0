@@ -1,8 +1,8 @@
 /**
- * AI 역량진단 API 엔드포인트
- * 45개 행동지표 기반 이교장 수준 컨설팅 보고서 생성 시스템
- * 이교장의AI역량진단보고서 V16.0 OLLAMA ULTIMATE
- * Ollama GPT-OSS 20B 전용 - 100% 온디바이스 AI
+ * AI 역량진단 API 엔드포인트 (V17.0 간소화)
+ * 45문항 점수 집계 + 이메일 알림 + 구글시트 저장 시스템
+ * 실제 작동 기능: 점수계산, 데이터저장, 이메일발송
+ * AI 분석: 이교장 오프라인 수동 처리
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,7 +16,7 @@ import { addProgressEvent } from '../_progressStore';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🎓 45개 행동지표 AI 역량진단 API 요청 수신 - V15.0');
+    console.log('🎓 45문항 점수 집계 시스템 요청 수신 - V17.0 간소화');
     
     const requestData = await request.json();
     
@@ -69,14 +69,14 @@ export async function POST(request: NextRequest) {
     
     console.log('📋 진단 요청 검증 완료:', requestData.companyName);
     
-    // Ollama GPT-OSS 20B + NPU AI 워크플로우 실행
+    // 45문항 점수 계산 및 데이터 처리 워크플로우 실행
     try {
-      console.log('🚀 Ollama GPT-OSS 20B + NPU AI 워크플로우 실행 시작');
+      console.log('🚀 45문항 점수 계산 및 Google Apps Script 처리 시작');
       
       const workflowResult = await executeLeeKyoJang45QuestionsWorkflow(workflowRequest);
       
       if (workflowResult) {
-        console.log('✅ 로컬 워크플로우 완료 - Google Apps Script로 전송');
+        console.log('✅ 점수 계산 완료 - Google Apps Script로 데이터 전송');
         // 워크플로우 단계 진행 이벤트 기록 (사실 기반 진행 공유)
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
@@ -88,28 +88,28 @@ export async function POST(request: NextRequest) {
         });
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
-          stepId: 'ollama-analysis',
-          stepName: 'AI 분석',
+          stepId: 'score-calculation',
+          stepName: '점수 계산',
           status: 'completed',
           progressPercent: 100,
-          message: '로컬 분석 완료'
+          message: '45문항 점수 계산 완료'
         });
-        // SWOT 단계 명시적 진행 표기 (UI 상 멈춤 현상 방지)
+        // 데이터 저장 단계 진행 표기
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
-          stepId: 'swot-analysis',
-          stepName: 'SWOT 분석',
+          stepId: 'data-storage',
+          stepName: '데이터 저장',
           status: 'completed',
           progressPercent: 100,
-          message: '로컬 분석 결과 기반 SWOT 생성 완료'
+          message: '구글시트 데이터 저장 준비 완료'
         });
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
-          stepId: 'report-generation',
-          stepName: '보고서 생성',
+          stepId: 'gas-processing',
+          stepName: 'GAS 처리',
           status: 'in-progress',
           progressPercent: 60,
-          message: 'GAS로 보고서 생성/저장/발송 요청'
+          message: 'Google Apps Script로 데이터 저장 및 이메일 발송 요청'
         });
         
         // Google Apps Script로 완성된 데이터 전송
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
         
         return NextResponse.json({
           success: true,
-          message: '🎯 AI 역량진단이 완료되었습니다!',
+          message: '🎯 45문항 점수 집계가 완료되었습니다!',
           diagnosisId: finalDiagnosisId, // 최상위 레벨에 추가 (정합성 향상)
           data: {
             diagnosisId: finalDiagnosisId,
@@ -229,25 +229,25 @@ export async function POST(request: NextRequest) {
             qualityScore: workflowResult.qualityMetrics.overallQuality,
             
             // 처리 상태
-            version: 'V15.0-ULTIMATE-45Q',
+            version: 'V17.0-SIMPLIFIED',
             features: [
-              '45개 행동지표 정밀 분석 완료',
-              'Ollama GPT-OSS 20B AI 보고서 생성',
-              '이교장 스타일 HTML 보고서',
-              '애플 스타일 이메일 발송 예정'
+              '45문항 점수 계산 완료',
+              '구글시트 데이터 저장',
+              '이메일 알림 발송',
+              '이교장 오프라인 분석 대기'
             ]
           },
           processingInfo: {
             status: 'completed',
-            localAnalysis: 'completed',
+            scoreCalculation: 'completed',
             emailSending: 'in_progress',
             estimatedEmailTime: '2-3분',
             steps: [
-              { step: 1, name: '45개 질문 분석', status: 'completed' },
-              { step: 2, name: 'Ollama AI 보고서', status: 'completed' },
-              { step: 3, name: 'HTML 보고서 생성', status: 'completed' },
+              { step: 1, name: '45문항 점수 계산', status: 'completed' },
+              { step: 2, name: '데이터 검증', status: 'completed' },
+              { step: 3, name: '구글시트 저장', status: 'in_progress' },
               { step: 4, name: '이메일 발송', status: 'in_progress' },
-              { step: 5, name: 'Google Sheets 저장', status: 'in_progress' }
+              { step: 5, name: '이교장 오프라인 분석', status: 'pending' }
             ]
           }
         });
@@ -284,18 +284,26 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   return NextResponse.json({
-    service: '이교장의AI역량진단보고서',
-    version: 'V15.0-ULTIMATE-APPLE-STYLE',
+    service: '이교장의AI역량진단시스템',
+    version: 'V17.0-SIMPLIFIED',
     status: 'active',
     methods: ['POST'],
-    description: 'AI 기반 기업 역량진단 및 맞춤형 보고서 생성 서비스',
+    description: '45문항 점수 집계 + 이메일 알림 + 구글시트 저장 시스템',
     features: [
-      '애플 스타일 미니멀 이메일 디자인',
-      '최신 이교장 스타일 보고서',
-      'Ollama GPT-OSS 20B AI 통합 분석',
-      'Google Drive 자동 업로드',
+      '45문항 점수 계산 및 집계',
+      '구글시트 데이터베이스 저장',
+      '신청자/관리자 이메일 알림',
+      '이교장 오프라인 분석 지원',
       '실시간 진행상황 모니터링'
     ],
+    actualFeatures: {
+      scoreCalculation: true,
+      dataStorage: true,
+      emailNotification: true,
+      offlineAnalysis: true,
+      aiAnalysis: false,
+      autoReportGeneration: false
+    },
     timestamp: new Date().toISOString()
   });
 }
