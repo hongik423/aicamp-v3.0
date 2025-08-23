@@ -136,11 +136,11 @@ const N8nCurriculumBanner: React.FC = () => {
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
 
-  // 즉시 등장 (3순위 - n8n 커리큘럼 배너)
+  // 3순위 등장 (n8n 커리큘럼 배너 - 책소개 배너와 동시)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 500); // 0.5초 후 즉시 등장
+    }, 1000); // 1초 후 등장 (책소개 배너와 동시)
 
     return () => clearTimeout(timer);
   }, []);
@@ -329,10 +329,10 @@ const N8nCurriculumBanner: React.FC = () => {
               shouldReduceMotion ? "" : "transform-style-preserve-3d"
             )}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 p-6 lg:p-8">
+            <div className="p-6 lg:p-8">
               
-              {/* 좌측: 북커버 및 시각적 요소 (2/5) */}
-              <div className="lg:col-span-2 flex flex-col items-center justify-center relative order-1 lg:order-1">
+              {/* 중앙 정렬 콘텐츠 */}
+              <div className="flex flex-col items-center justify-center relative max-w-4xl mx-auto">
                 
                 {/* 상단 뱃지 */}
                 <motion.div
@@ -655,10 +655,10 @@ const N8nCurriculumBanner: React.FC = () => {
                       <Link 
                         href="/consultation"
                         className="flex items-center justify-center min-h-[44px] min-w-[44px]"
-                        aria-label="AI 자동화 전문가 상담신청"
+                        aria-label="n8n 자동화 전문가 상담신청서 작성하기"
                       >
                         <Play className="w-5 h-5 mr-2" />
-                        <span>전문가 상담</span>
+                        <span>상담신청서</span>
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Link>
                     </Button>
