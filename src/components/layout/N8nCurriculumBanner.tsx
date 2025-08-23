@@ -5,86 +5,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
   Download, 
-  Zap, 
+  BookOpen, 
+  MessageCircle, 
   Sparkles, 
-  Star, 
+  Home,
   ArrowRight,
   Clock,
   Users,
   Award,
-  Workflow,
-  Bot,
-  Rocket,
-  CheckCircle,
+  Zap,
   Play,
-  BookOpen,
-  MessageCircle,
-  Home
+  Eye
 } from 'lucide-react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import PDFViewer from '@/components/ui/PDFViewer';
-
-// 파티클 컴포넌트 - n8n 테마
-const N8nParticle: React.FC<{ delay: number; index: number; reduceMotion: boolean }> = ({ delay, index, reduceMotion }) => {
-  const xOffset = (index % 6 - 2.5) * 40;
-  const yOffset = (Math.floor(index / 6) % 3 - 1) * 50;
-  
-  if (reduceMotion) {
-    return (
-      <div className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full opacity-60" />
-    );
-  }
-  
-  return (
-    <motion.div
-      className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full"
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{
-        opacity: [0, 1, 0.7, 1, 0],
-        scale: [0, 1.2, 0.8, 1.5, 0],
-        x: [0, xOffset * 0.5, xOffset],
-        y: [0, yOffset * 0.3, yOffset],
-      }}
-      transition={{
-        duration: 3,
-        delay,
-        repeat: Infinity,
-        repeatDelay: 2,
-        ease: "easeInOut"
-      }}
-    />
-  );
-};
-
-// n8n 워크플로우 시뮬레이션 효과
-const WorkflowAnimation: React.FC<{ reduceMotion: boolean }> = ({ reduceMotion }) => (
-  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    {[...Array(12)].map((_, i) => (
-      <N8nParticle key={i} delay={i * 0.3} index={i} reduceMotion={reduceMotion} />
-    ))}
-    
-    {/* 연결선 애니메이션 */}
-    {!reduceMotion && (
-      <motion.div
-        className="absolute top-1/2 left-1/4 w-1/2 h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent"
-        initial={{ scaleX: 0, opacity: 0 }}
-        animate={{ 
-          scaleX: [0, 1, 0],
-          opacity: [0, 1, 0]
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          repeatDelay: 1,
-          ease: "easeInOut"
-        }}
-      />
-    )}
-  </div>
-);
+import Link from 'next/link';
 
 // 모바일 감지 훅
 const useIsMobile = () => {
@@ -103,7 +40,7 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-// Reduced Motion 감지 훅
+// 사용자 OS의 Reduced Motion 선호를 감지하는 커스텀 훅
 const usePrefersReducedMotion = () => {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
@@ -247,450 +184,261 @@ const N8nCurriculumBanner: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10001] flex items-center justify-center p-2 sm:p-4"
-        onClick={handleBackgroundClick}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="n8n-curriculum-title"
-        aria-describedby="n8n-curriculum-description"
-        style={{
-          minHeight: isMobile ? '100dvh' : '100vh',
-          height: isMobile ? '100dvh' : '100vh'
-        }}
-      >
-        {/* 배경 오버레이 - n8n 테마 */}
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-blue-900/80 to-indigo-900/80 backdrop-blur-md"
+    <>
+      <AnimatePresence>
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        />
-        
-        {/* 배경 패턴 */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-40 h-40 bg-purple-400 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-60 right-32 w-60 h-60 bg-blue-400 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute bottom-32 left-1/3 w-48 h-48 bg-indigo-400 rounded-full blur-3xl animate-pulse delay-2000"></div>
-        </div>
-
-        {/* 메인 플로팅 컨테이너 */}
-        <motion.div
-          initial={{ 
-            scale: shouldReduceMotion ? 0.9 : 0.2, 
-            opacity: 0, 
-            rotateY: shouldReduceMotion ? 0 : -60, 
-            rotateX: shouldReduceMotion ? 0 : 20,
-            y: shouldReduceMotion ? 30 : 100
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[10001] flex items-center justify-center p-4"
+          onClick={handleBackgroundClick}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="n8n-curriculum-title"
+          aria-describedby="n8n-curriculum-description"
+          style={{
+            minHeight: isMobile ? '100dvh' : '100vh',
+            height: isMobile ? '100dvh' : '100vh'
           }}
-          animate={{ 
-            scale: 1, 
-            opacity: 1, 
-            rotateY: 0, 
-            rotateX: 0,
-            y: 0
-          }}
-          exit={{ 
-            scale: shouldReduceMotion ? 0.9 : 0.2, 
-            opacity: 0, 
-            rotateY: shouldReduceMotion ? 0 : 60, 
-            rotateX: shouldReduceMotion ? 0 : -20,
-            y: shouldReduceMotion ? -30 : -100
-          }}
-          transition={{
-            type: "spring",
-            stiffness: shouldReduceMotion ? 300 : 150,
-            damping: shouldReduceMotion ? 20 : 15,
-            duration: shouldReduceMotion ? 0.4 : 1.2
-          }}
-          className={cn(
-            "relative z-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-6xl mx-auto",
-            shouldReduceMotion ? "" : "perspective-1000"
-          )}
-          onClick={handleContentClick}
         >
-          {/* 닫기 버튼 */}
-          <button
-            onClick={() => setIsVisible(false)}
-            title="배너 닫기"
-            className={cn(
-              "absolute -top-2 -right-2 sm:-top-4 sm:-right-4 z-20 bg-white/90 backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 active:scale-95",
-              isMobile ? "w-12 h-12 touch-manipulation" : "w-10 h-10",
-              "webkit-tap-highlight-transparent"
-            )}
-            aria-label="n8n 커리큘럼 배너 닫기"
-          >
-            <X size={isMobile ? 24 : 20} />
-          </button>
+          {/* 배경 오버레이 */}
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-blue-900/80 to-indigo-900/80 backdrop-blur-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          />
+          
+          {/* 배경 패턴 */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-20 left-20 w-40 h-40 bg-purple-400 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute top-60 right-32 w-60 h-60 bg-blue-400 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute bottom-32 left-1/3 w-48 h-48 bg-indigo-400 rounded-full blur-3xl animate-pulse delay-2000"></div>
+          </div>
 
-          {/* 메인 카드 */}
+          {/* 메인 컴팩트 컨테이너 */}
           <motion.div
-            whileHover={shouldReduceMotion || isMobile ? {} : { 
-              scale: 1.02,
-              rotateY: 3,
-              rotateX: -3,
+            initial={{ 
+              scale: shouldReduceMotion ? 0.95 : 0.8, 
+              opacity: 0, 
+              y: shouldReduceMotion ? 20 : 50
             }}
-            transition={{ type: "spring", stiffness: 200, damping: 25 }}
-            className={cn(
-              "bg-gradient-to-br from-white via-purple-50 to-blue-100 rounded-3xl shadow-2xl overflow-hidden border-2 border-purple-200/50 backdrop-blur-sm",
-              shouldReduceMotion ? "" : "transform-style-preserve-3d"
-            )}
+            animate={{ 
+              scale: 1, 
+              opacity: 1, 
+              y: 0
+            }}
+            exit={{ 
+              scale: shouldReduceMotion ? 0.95 : 0.8, 
+              opacity: 0, 
+              y: shouldReduceMotion ? -20 : -50
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 25,
+              duration: 0.6
+            }}
+            className="relative z-10 w-full max-w-4xl mx-auto"
+            onClick={handleContentClick}
           >
-            <div className="p-6 lg:p-8">
-              
-              {/* 중앙 정렬 콘텐츠 */}
-              <div className="flex flex-col items-center justify-center relative max-w-4xl mx-auto">
-                
-                {/* 상단 뱃지 */}
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="mb-6 flex flex-wrap gap-2 justify-center"
-                >
-                  <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center">
-                    <Star className="w-3 h-3 mr-1" />
-                    국내최초 한국어판
-                  </div>
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center">
-                    <Award className="w-3 h-3 mr-1" />
-                    실무 완벽 가이드
-                  </div>
-                </motion.div>
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => setIsVisible(false)}
+              title="배너 닫기"
+              className={cn(
+                "absolute -top-2 -right-2 z-20 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 active:scale-95",
+                isMobile ? "w-12 h-12 touch-manipulation" : "w-10 h-10"
+              )}
+              aria-label="n8n 커리큘럼 배너 닫기"
+            >
+              <X size={isMobile ? 24 : 20} />
+            </button>
 
-                {/* 북커버 섹션 */}
-                <motion.div
-                  whileHover={shouldReduceMotion || isMobile ? {} : { 
-                    scale: 1.1,
-                    rotateY: 10,
-                    rotateX: -8,
-                  }}
-                  whileTap={isMobile ? { scale: 0.95 } : {}}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className={cn(
-                    "relative group cursor-pointer",
-                    shouldReduceMotion ? "" : "transform-style-preserve-3d"
-                  )}
-                  onClick={handleDownload}
-                >
-                  {/* 워크플로우 애니메이션 효과 */}
-                  {isLoaded && !isMobile && <WorkflowAnimation reduceMotion={shouldReduceMotion} />}
-                  
-                  {/* 글로우 효과 */}
-                  {!isMobile && (
-                    <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 rounded-2xl opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-700" />
-                  )}
-                  
-                  {/* 북커버 */}
-                  <div className="relative w-56 h-72 sm:w-64 sm:h-80 lg:w-72 lg:h-90 rounded-2xl overflow-hidden shadow-2xl">
-                    {!imageError ? (
-                      <Image
-                        src="/images/book_1_cover.JPG?v=4"
-                        alt="n8n AI 자동화 워크플로우 커리큘럼 북커버"
-                        fill
-                        sizes="(max-width: 640px) 224px, (max-width: 768px) 256px, (max-width: 1024px) 288px, 288px"
-                        style={{ objectFit: 'cover' }}
-                        priority
-                        onLoad={handleImageLoad}
-                        onError={handleImageError}
-                        className={`transition-all duration-500 ${
-                          isMobile ? 'group-active:scale-110' : 'group-hover:scale-110'
-                        }`}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex flex-col items-center justify-center text-white p-6">
-                        <Workflow size={isMobile ? 48 : 56} className="mb-4" />
-                        <h3 className="text-xl font-bold text-center mb-2">n8n 자동화</h3>
-                        <p className="text-base text-center mb-2">워크플로우 가이드</p>
-                        <p className="text-sm text-center opacity-90">실무 활용 커리큘럼</p>
-                      </div>
-                    )}
-                    
-                    {/* 호버/터치 오버레이 */}
-                    <div className={`absolute inset-0 bg-gradient-to-t from-purple-900/90 via-transparent to-transparent opacity-0 ${
-                      isMobile ? 'group-active:opacity-100' : 'group-hover:opacity-100'
-                    } transition-all duration-300 flex flex-col items-center justify-end pb-8 pointer-events-none`}>
-                      <motion.div 
-                        className="text-white text-center"
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        <Download className="w-8 h-8 mx-auto mb-2" />
-                        <p className="text-sm font-bold">PDF 다운로드</p>
-                        <p className="text-xs opacity-80">클릭하여 즉시 받기</p>
-                      </motion.div>
+            {/* 메인 컴팩트 카드 */}
+            <motion.div
+              whileHover={shouldReduceMotion || isMobile ? {} : { 
+                scale: 1.02,
+                y: -5
+              }}
+              transition={{ type: "spring", stiffness: 200, damping: 25 }}
+              className="bg-gradient-to-br from-white via-purple-50 to-blue-100 rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-200/50 backdrop-blur-sm cursor-pointer"
+              onClick={handleOpenPDFViewer}
+            >
+              {/* 상단 헤더 */}
+              <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 p-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-white/20 rounded-full p-2">
+                      <BookOpen className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 id="n8n-curriculum-title" className="text-xl font-bold">
+                        🔥 AI 자동화의 끝판왕!
+                      </h2>
+                      <p className="text-sm opacity-90">n8n을 활용한 업무혁신 AI 워크플로우</p>
                     </div>
                   </div>
-                  
-                  {/* 부유하는 아이콘들 */}
-                  {isLoaded && !isMobile && !shouldReduceMotion && (
-                    <>
-                      <motion.div
-                        animate={{ 
-                          y: [-8, 8, -8],
-                          rotate: [0, 360],
-                          scale: [1, 1.2, 1]
-                        }}
-                        transition={{ 
-                          duration: 4, 
-                          repeat: Infinity, 
-                          ease: "easeInOut" 
-                        }}
-                        className="absolute -top-4 -right-4"
-                      >
-                        <Zap className="w-8 h-8 text-yellow-500 drop-shadow-lg" />
-                      </motion.div>
-                      
-                      <motion.div
-                        animate={{ 
-                          y: [8, -8, 8],
-                          rotate: [360, 0],
-                          scale: [1, 1.3, 1]
-                        }}
-                        transition={{ 
-                          duration: 6, 
-                          repeat: Infinity, 
-                          ease: "easeInOut" 
-                        }}
-                        className="absolute -bottom-4 -left-4"
-                      >
-                        <Bot className="w-8 h-8 text-purple-500 drop-shadow-lg" />
-                      </motion.div>
-
-                      <motion.div
-                        animate={{ 
-                          x: [-5, 5, -5],
-                          rotate: [0, 180, 360],
-                          scale: [1, 1.1, 1]
-                        }}
-                        transition={{ 
-                          duration: 5, 
-                          repeat: Infinity, 
-                          ease: "easeInOut" 
-                        }}
-                        className="absolute top-1/2 -left-6"
-                      >
-                        <Rocket className="w-6 h-6 text-blue-500 drop-shadow-lg" />
-                      </motion.div>
-                    </>
-                  )}
-                </motion.div>
-
-                {/* 다운로드 통계 */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 }}
-                  className="mt-6 bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-purple-200/50 shadow-lg"
-                >
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Users className="w-4 h-4 text-purple-600 mr-2" />
-                      <span className="text-sm font-bold text-gray-700">실시간 다운로드</span>
+                  <div className="text-right">
+                    <div className="bg-white/20 rounded-lg px-3 py-1">
+                      <p className="text-xs opacity-80">실시간 다운로드</p>
+                      <p className="text-lg font-bold">{downloadCount}+</p>
                     </div>
-                    <div className="text-2xl font-bold text-purple-600">
-                      {downloadCount.toLocaleString()}+
-                    </div>
-                    <div className="text-xs text-gray-500">명이 다운로드했습니다</div>
                   </div>
-                </motion.div>
+                </div>
               </div>
 
-              {/* 우측: 콘텐츠 섹션 (3/5) */}
-              <div className="lg:col-span-3 flex flex-col justify-center space-y-6 order-2 lg:order-2">
-                
-                {/* 메인 타이틀 */}
-                <div className="text-center lg:text-left">
-                  <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: shouldReduceMotion ? 0 : 0.4 }}
-                    className="mb-4"
-                  >
-                    <span className="inline-block text-lg font-bold text-purple-600 mb-2">
-                      🔥 AI 자동화의 끝판왕!
-                    </span>
-                  </motion.div>
-                  
-                  <motion.h1
-                    id="n8n-curriculum-title"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: shouldReduceMotion ? 0 : 0.5 }}
-                    className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight"
-                  >
-                    <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                      n8n을 활용한
-                    </span>
-                    <br />
-                    <span className="text-2xl sm:text-3xl lg:text-4xl text-gray-800">
-                      업무혁신 AI 워크플로우
-                    </span>
-                  </motion.h1>
+              {/* 메인 콘텐츠 영역 */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                  {/* 북커버 섹션 - 더 작게 */}
+                  <div className="lg:col-span-1 flex justify-center">
+                    <motion.div
+                      whileHover={shouldReduceMotion || isMobile ? {} : { 
+                        scale: 1.05,
+                        rotateY: 5
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="relative group"
+                    >
+                      <div className="relative w-32 h-40 sm:w-36 sm:h-44 rounded-xl overflow-hidden shadow-xl">
+                        {!imageError ? (
+                          <Image
+                            src="/images/book_1_cover.JPG?v=4"
+                            alt="n8n AI 자동화 워크플로우 커리큘럼 북커버"
+                            fill
+                            sizes="(max-width: 640px) 128px, 144px"
+                            style={{ objectFit: 'cover' }}
+                            priority
+                            onLoad={handleImageLoad}
+                            onError={handleImageError}
+                            className="transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex flex-col items-center justify-center text-white p-4">
+                            <BookOpen size={32} className="mb-2" />
+                            <p className="text-xs text-center font-bold">n8n 커리큘럼</p>
+                          </div>
+                        )}
+                        
+                        {/* 호버 오버레이 */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-end pb-3">
+                          <Eye className="w-5 h-5 text-white mb-1" />
+                          <p className="text-xs text-white font-bold">클릭하여 보기</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* 콘텐츠 섹션 */}
+                  <div className="lg:col-span-2 space-y-4">
+                    {/* 주요 특징 */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/60 rounded-lg p-3 text-center">
+                        <Clock className="w-5 h-5 text-blue-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold text-gray-700">실무 완벽 가이드</p>
+                      </div>
+                      <div className="bg-white/60 rounded-lg p-3 text-center">
+                        <Users className="w-5 h-5 text-green-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold text-gray-700">200+ 워크플로우</p>
+                      </div>
+                      <div className="bg-white/60 rounded-lg p-3 text-center">
+                        <Award className="w-5 h-5 text-purple-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold text-gray-700">단계별 구현</p>
+                      </div>
+                      <div className="bg-white/60 rounded-lg p-3 text-center">
+                        <Zap className="w-5 h-5 text-yellow-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold text-gray-700">10배 생산성 향상</p>
+                      </div>
+                    </div>
+
+                    {/* 액션 버튼들 */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        onClick={handleOpenPDFViewer}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        커리큘럼 보기
+                      </Button>
+                      
+                      <Button
+                        onClick={handleDownload}
+                        variant="outline"
+                        className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 font-bold py-3"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        PDF 다운로드
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* 핵심 혜택 강조 */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: shouldReduceMotion ? 0 : 0.6 }}
-                  className="bg-gradient-to-r from-purple-100 via-blue-100 to-indigo-100 rounded-2xl p-6 border-2 border-purple-200/50 shadow-lg"
-                >
-                  <div className="text-center lg:text-left">
-                    <h2 className="text-xl font-bold text-purple-700 mb-3 flex items-center justify-center lg:justify-start">
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      반드시 확인해야 할 핵심 솔루션 예시
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                        <span>이메일 자동 분류 & 응답</span>
-                      </div>
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                        <span>데이터 수집 & 분석 자동화</span>
-                      </div>
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                        <span>소셜미디어 콘텐츠 자동 발행</span>
-                      </div>
-                      <div className="flex items-center">
-                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                        <span>고객 관리 시스템 연동</span>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* 설명 텍스트 */}
-                <motion.p
-                  id="n8n-curriculum-description"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: shouldReduceMotion ? 0 : 0.7 }}
-                  className="text-base text-gray-600 text-center lg:text-left leading-relaxed"
-                >
-                  코딩 없이도 강력한 자동화 워크플로우를 구축할 수 있는 n8n의 모든 것을 담았습니다. 
-                  실무에서 바로 활용 가능한 200+ 워크플로우 템플릿과 단계별 구현 가이드로 
-                  업무 효율성을 10배 향상시켜보세요.
-                </motion.p>
-
-                {/* 특별 혜택 */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: shouldReduceMotion ? 0 : 0.8 }}
-                  className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl p-4 border border-yellow-300/50 shadow-md"
-                >
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-2">
-                      <Clock className="w-5 h-5 text-orange-600 mr-2" />
-                      <span className="text-lg font-bold text-orange-700">
-                        🎁 지금 다운로드 시 특별혜택
-                      </span>
-                    </div>
-                    <p className="text-sm text-orange-600 font-medium">
-                      AI CAMP 교육 프로그램 30% 할인 쿠폰 + 1:1 무료 컨설팅 (선착순 100명)
-                    </p>
-                  </div>
-                </motion.div>
-
-                {/* 액션 버튼들 */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: shouldReduceMotion ? 0 : 0.9 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                >
-                  {/* 즉시 다운로드 버튼 */}
-                  <motion.div 
-                    whileHover={isMobile ? {} : { scale: 1.05 }} 
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      onClick={handleDownload}
-                      size="lg"
-                      className={`w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-bold ${
-                        isMobile ? 'py-5 px-6 text-base' : 'py-5 text-base'
-                      } shadow-xl focus:ring-2 focus:ring-purple-500 active:scale-95 transition-all ${
-                        isMobile ? 'touch-manipulation select-none' : ''
-                      } relative overflow-hidden`}
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        touchAction: 'manipulation'
-                      }}
-                    >
-                      <div className="flex items-center justify-center relative z-10">
-                        <Download className="w-5 h-5 mr-2" />
-                        <span>즉시 다운로드</span>
-                      </div>
-                      {/* 버튼 내부 애니메이션 */}
-                      <motion.div
-                        className="absolute inset-0 bg-white/20"
-                        initial={{ x: '-100%' }}
-                        animate={{ x: '100%' }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          repeatDelay: 3,
-                          ease: "easeInOut"
-                        }}
-                      />
-                    </Button>
-                  </motion.div>
-
-                  {/* AI 상담 신청 버튼 */}
-                  <motion.div 
-                    whileHover={isMobile ? {} : { scale: 1.05 }} 
-                    whileTap={{ scale: 0.95 }}
-                  >
+                {/* 하단 네비게이션 버튼들 */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <div className="grid grid-cols-3 gap-3">
                     <Button
                       asChild
-                      size="lg"
-                      variant="outline"
-                      className={`w-full border-2 border-purple-500 text-purple-600 hover:bg-purple-50 font-bold ${
-                        isMobile ? 'py-5 px-6 text-base' : 'py-5 text-base'
-                      } shadow-lg focus:ring-2 focus:ring-purple-500 active:scale-95 transition-all ${
-                        isMobile ? 'touch-manipulation select-none' : ''
-                      }`}
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        touchAction: 'manipulation'
-                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 hover:bg-blue-50"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Link 
-                        href="/consultation"
-                        className="flex items-center justify-center min-h-[44px] min-w-[44px]"
-                        aria-label="n8n 자동화 전문가 상담신청서 작성하기"
-                      >
-                        <Play className="w-5 h-5 mr-2" />
-                        <span>상담신청서</span>
-                        <ArrowRight className="w-4 h-4 ml-2" />
+                      <Link href="/consultation" className="flex items-center justify-center space-x-1">
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-xs">상담신청</span>
                       </Link>
                     </Button>
-                  </motion.div>
-                </motion.div>
+                    
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="text-purple-600 hover:bg-purple-50"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Link href="/ai-diagnosis" className="flex items-center justify-center space-x-1">
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-xs">AI역량진단</span>
+                      </Link>
+                    </Button>
+                    
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="text-green-600 hover:bg-green-50"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Link href="/" className="flex items-center justify-center space-x-1">
+                        <Home className="w-4 h-4" />
+                        <span className="text-xs">홈으로</span>
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
 
-                {/* 추가 안내 */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: shouldReduceMotion ? 0 : 1.2 }}
-                  className="text-center text-xs text-gray-500 mt-4"
-                >
-                  <p>{isMobile ? '배경을 터치하여 닫기' : 'ESC 키 또는 배경을 클릭하여 닫을 수 있습니다'}</p>
-                </motion.div>
+                {/* 안내 텍스트 */}
+                <div className="mt-4 text-center">
+                  <p className="text-xs text-gray-500">
+                    {isMobile ? '배경을 터치하여 닫기' : 'ESC 키 또는 배경을 클릭하여 닫을 수 있습니다'}
+                  </p>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+
+      {/* PDF 뷰어 */}
+      <PDFViewer
+        isOpen={showPDFViewer}
+        onClose={handleClosePDFViewer}
+        pdfUrl="/images/n8n_Curriculum.pdf"
+        title="n8n을 활용한 업무혁신 AI 워크플로우 커리큘럼"
+        description="실무에서 바로 활용할 수 있는 200+ 워크플로우 완벽 가이드"
+      />
+    </>
   );
 };
 
