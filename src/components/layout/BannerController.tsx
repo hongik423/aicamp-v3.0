@@ -17,6 +17,19 @@ interface BannerState {
   isVisible: boolean;
 }
 
+// 배너 제어 함수들을 전역으로 export
+let globalHideAllBanners: (() => void) | null = null;
+
+export const setGlobalHideAllBanners = (fn: () => void) => {
+  globalHideAllBanners = fn;
+};
+
+export const hideAllBanners = () => {
+  if (globalHideAllBanners) {
+    globalHideAllBanners();
+  }
+};
+
 const BannerController: React.FC = () => {
   const [banners, setBanners] = useState<BannerState[]>([
     {
@@ -117,29 +130,29 @@ const BannerController: React.FC = () => {
     setBanners(prev => prev.map(b => ({ ...b, isVisible: false })));
   };
 
+  // 전역 함수 설정
+  useEffect(() => {
+    setGlobalHideAllBanners(hideAllBanners);
+  }, []);
+
   // 키보드 단축키 (개발용)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey) {
         switch (e.key) {
           case '1':
-            e.preventDefault();
             showBanner('auto-show');
             break;
           case '2':
-            e.preventDefault();
             showBanner('content-guide');
             break;
           case '3':
-            e.preventDefault();
             showBanner('book-promotion');
             break;
           case '4':
-            e.preventDefault();
             showBanner('n8n-curriculum');
             break;
           case '0':
-            e.preventDefault();
             hideAllBanners();
             break;
         }

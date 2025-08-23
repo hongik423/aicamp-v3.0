@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import PrivacyConsent from '@/components/ui/privacy-consent';
 import { useToast } from '@/hooks/use-toast';
+import { hideAllBanners } from '@/components/layout/BannerController';
 import { 
   Phone, 
   Mail, 
@@ -51,6 +52,11 @@ export default function ConsultationPage() {
     preferredTime: '',
     privacyConsent: false
   });
+
+  // 상담신청 페이지에 접근할 때 모든 배너 숨기기
+  useEffect(() => {
+    hideAllBanners();
+  }, []);
 
   const isFormValid = useMemo(() => {
     return Boolean(
@@ -329,7 +335,7 @@ export default function ConsultationPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <div className="relative z-[2147483649]">
       <Header />
       
       {/* 🎯 간단한 타이틀 섹션 - 모바일 최적화 */}
