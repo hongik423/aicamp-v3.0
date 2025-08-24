@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { hideAllBanners } from '@/components/layout/BannerController';
 import { 
   Brain, 
   BarChart3, 
@@ -187,13 +188,31 @@ export default async function ServicesPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/ai-diagnosis">
-              <Button size="lg" variant="secondary" className="text-blue-600 hover:text-blue-700">
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="text-blue-600 hover:text-blue-700"
+                onClick={() => {
+                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                  hideAllBanners();
+                  console.log('서비스 페이지 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
+                }}
+              >
                 <Brain className="mr-2 h-5 w-5" />
                 Ollama AI 진단 시작
               </Button>
             </Link>
             <Link href="/consultation">
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-blue-600">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-white border-white hover:bg-white hover:text-blue-600"
+                onClick={() => {
+                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                  hideAllBanners();
+                  console.log('서비스 페이지 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                }}
+              >
                 <BarChart3 className="mr-2 h-5 w-5" />
                 전문가 상담신청
               </Button>

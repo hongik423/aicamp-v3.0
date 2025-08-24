@@ -48,6 +48,9 @@ export async function GET(request: NextRequest) {
           }
         };
 
+        // 시작 시간 기록
+        const startTime = Date.now();
+        
         // 초기 이벤트
         sendEvent('started', {
           success: true,
@@ -70,7 +73,6 @@ export async function GET(request: NextRequest) {
 
         // 클라이언트 연결 종료 감지
         try {
-          // @ts-expect-error: request.signal is AbortSignal in Node runtime
           request.signal.addEventListener('abort', cleanup);
         } catch {}
 
@@ -87,31 +89,34 @@ export async function GET(request: NextRequest) {
             
             if (progressState) {
               const snapshot = getProgressSnapshot(diagnosisId);
-              const elapsedMs = Date.now() - progressState.startTime;
+              const elapsedMs = Date.now() - progressState.lastUpdateTs;
               
               // 진행상황 이벤트 전송
               sendEvent('progress', {
                 success: true,
                 diagnosisId,
-                status: progressState.status,
+                status: 'processing',
                 elapsedMs,
                 etaHint: elapsedMs > 300000 ? '약 10분 내외' : '잠시만 기다려주세요',
                 timestamp: new Date().toISOString(),
                 snapshot
               });
 
-              // 완료 상태 확인
-              if (progressState.status === 'completed' || progressState.status === 'failed') {
-                sendEvent('done', {
-                  success: true,
-                  diagnosisId,
-                  status: progressState.status,
-                  elapsedMs,
-                  timestamp: new Date().toISOString(),
-                  snapshot
-                });
-                cleanup();
-                return;
+              // 완료 상태 확인 (간단한 체크)
+              if (snapshot && snapshot.events && snapshot.events.length > 0) {
+                const lastEvent = snapshot.events[snapshot.events.length - 1];
+                if (lastEvent && (lastEvent.status === 'completed' || lastEvent.status === 'error')) {
+                  sendEvent('done', {
+                    success: true,
+                    diagnosisId,
+                    status: lastEvent.status,
+                    elapsedMs,
+                    timestamp: new Date().toISOString(),
+                    snapshot
+                  });
+                  cleanup();
+                  return;
+                }
               }
             } else {
               // 진행 상태가 없는 경우 기본 진행상황 전송
@@ -127,13 +132,14 @@ export async function GET(request: NextRequest) {
               });
             }
 
-            // 타임아웃 체크
-            if (elapsedMs > softTimeoutMs) {
+            // 타임아웃 체크 (전체 경과 시간 계산)
+            const totalElapsedMs = Date.now() - startTime;
+            if (totalElapsedMs > softTimeoutMs) {
               sendEvent('timeout', {
                 success: true,
                 diagnosisId,
                 status: 'timeout',
-                elapsedMs,
+                elapsedMs: totalElapsedMs,
                 message: '진단 처리 시간이 초과되었습니다. 신청서는 정상적으로 접수되었습니다.',
                 timestamp: new Date().toISOString()
               });

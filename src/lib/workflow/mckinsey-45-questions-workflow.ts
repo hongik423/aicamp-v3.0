@@ -6,7 +6,7 @@
 
 import { REAL_45_QUESTIONS, RealQuestion } from '@/features/ai-diagnosis/constants/real-45-questions';
 import { getQuestionBehaviorIndicators } from '@/features/ai-diagnosis/constants/question-specific-behavior-indicators';
-import { callAI } from '@/lib/ai/ai-provider';
+// AI 분석 기능 완전 제거 - 점수 계산만 수행
 
 export interface LeeKyoJang45QuestionsRequest {
   // 기본 정보
@@ -634,121 +634,7 @@ export function calculateQualityMetrics(
   };
 }
 
-/**
- * Ollama GPT-OSS 20B + NPU AI 기반 심층 분석
- */
-async function performAIAnalysis(
-  scoreAnalysis: any,
-  request: LeeKyoJang45QuestionsRequest
-): Promise<{
-  aiInsights: string;
-  strategicRecommendations: string;
-  industryComparison: string;
-}> {
-  console.log('🧠 Ollama GPT-OSS 20B + NPU 하이브리드 AI 분석 시작...');
-  
-  const analysisPrompt = `
-기업 AI 역량진단 심층 분석을 수행해주세요.
-
-**기업 정보:**
-- 회사명: ${request.companyName}
-- 업종: ${request.industry}
-- 규모: ${request.employeeCount}명
-- 주요 사업: ${request.businessContent || '미제공'}
-- 현재 과제: ${request.currentChallenges || '미제공'}
-
-**AI 역량 점수 분석:**
-- 총점: ${scoreAnalysis.totalScore}/225점 (${Math.round((scoreAnalysis.totalScore/225)*100)}%)
-- 카테고리별 점수: ${JSON.stringify(scoreAnalysis.categoryScores)}
-
-**분석 요청:**
-1. 현재 AI 역량 수준에 대한 종합적 평가
-2. 업종 특성을 고려한 강점/약점 분석
-3. 즉시 실행 가능한 개선 방안 3가지
-4. 6개월 내 달성 목표 및 로드맵
-5. 업계 대비 경쟁력 분석
-
-이교장 수준의 전문적이고 실용적인 컨설팅 관점으로 분석해주세요.
-`;
-
-  const strategicPrompt = `
-${request.companyName}의 AI 전략 수립을 위한 맥킨지 스타일 권고사항을 작성해주세요.
-
-**현재 상황:**
-- AI 역량 점수: ${scoreAnalysis.totalScore}/225점
-- 업종: ${request.industry}
-- 규모: ${request.employeeCount}명
-
-**전략 권고 요청:**
-1. 단기 실행 과제 (1-3개월): 구체적 액션 아이템 3개
-2. 중기 전략 과제 (3-6개월): 체계적 개선 방안 3개  
-3. 장기 혁신 과제 (6-12개월): 변혁적 목표 3개
-4. 각 과제별 예상 ROI 및 성공 지표
-5. 리스크 요소 및 완화 방안
-
-실무진이 바로 실행할 수 있는 구체적이고 측정 가능한 권고사항으로 작성해주세요.
-`;
-
-  const industryPrompt = `
-${request.industry} 업계의 AI 도입 현황과 ${request.companyName}의 위치를 분석해주세요.
-
-**분석 기준:**
-- 현재 AI 역량: ${Math.round((scoreAnalysis.totalScore/225)*100)}%
-- 업종: ${request.industry}
-- 기업 규모: ${request.employeeCount}명
-
-**업계 비교 분석:**
-1. ${request.industry} 업계 AI 도입 평균 수준
-2. 동일 규모 기업 대비 상대적 위치
-3. 업계 선도 기업과의 격차 분석
-4. 향후 3년간 업계 AI 트렌드 전망
-5. 경쟁 우위 확보를 위한 차별화 포인트
-
-데이터 기반의 객관적 분석과 함께 실무적 인사이트를 제공해주세요.
-`;
-
-  try {
-    // 병렬로 AI 분석 수행 (NPU + GPU 하이브리드 활용)
-    const [aiInsights, strategicRecommendations, industryComparison] = await Promise.all([
-      callAI({ 
-        prompt: analysisPrompt, 
-        maxTokens: 2048, 
-        temperature: 0.7,
-        timeoutMs: 300000 
-      }),
-      callAI({ 
-        prompt: strategicPrompt, 
-        maxTokens: 2048, 
-        temperature: 0.6,
-        timeoutMs: 300000 
-      }),
-      callAI({ 
-        prompt: industryPrompt, 
-        maxTokens: 1536, 
-        temperature: 0.5,
-        timeoutMs: 300000 
-      })
-    ]);
-
-    console.log('✅ Ollama GPT-OSS 20B + NPU AI 분석 완료');
-    
-    return {
-      aiInsights,
-      strategicRecommendations,
-      industryComparison
-    };
-    
-  } catch (error) {
-    console.error('❌ AI 분석 실패:', error);
-    
-    // 폴백: 기본 분석 제공
-    return {
-      aiInsights: `AI 역량 점수 ${scoreAnalysis.totalScore}/225점을 기반으로 한 기본 분석이 제공됩니다. 상세 AI 분석을 위해서는 Ollama 서버 연결을 확인해주세요.`,
-      strategicRecommendations: '기본 권고사항이 제공됩니다. AI 기반 맞춤형 전략을 위해서는 시스템 관리자에게 문의하세요.',
-      industryComparison: `${request.industry} 업계 기본 비교 분석이 제공됩니다.`
-    };
-  }
-}
+// AI 분석 기능 완전 제거됨
 
 /**
  * 메인 워크플로우 실행 함수 (AI 통합)
@@ -765,25 +651,12 @@ export async function executeLeeKyoJang45QuestionsWorkflow(
   const grade = determineGrade(percentageForGrading);
   const percentile = calculatePercentile(percentageForGrading, request.industry);
   
-  // 2. Ollama GPT-OSS 20B + NPU AI 기반 심층 분석 (타임아웃 및 폴백 처리)
-  let aiAnalysis;
-  try {
-    // 타임아웃을 30초로 제한하여 빠른 응답 보장
-    aiAnalysis = await Promise.race([
-      performAIAnalysis(scoreAnalysis, request),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('AI 분석 타임아웃')), 30000)
-      )
-    ]) as any;
-  } catch (error) {
-    console.warn('⚠️ AI 분석 실패, 기본 분석으로 대체:', error);
-    // 폴백: 기본 분석 제공
-    aiAnalysis = {
-      aiInsights: `AI 역량 점수 ${scoreAnalysis.totalScore}/225점 (${Math.round((scoreAnalysis.totalScore/225)*100)}%)을 기반으로 한 분석입니다. 현재 ${request.industry} 업종에서 ${scoreAnalysis.totalScore >= 180 ? '우수한' : scoreAnalysis.totalScore >= 135 ? '보통' : '개선이 필요한'} 수준입니다.`,
-      strategicRecommendations: `${request.companyName}의 AI 역량 향상을 위한 단계별 접근이 필요합니다. 우선순위는 ${scoreAnalysis.categoryScores.currentAI < 60 ? 'AI 도구 도입' : scoreAnalysis.categoryScores.organizationReadiness < 60 ? '조직 준비도 강화' : 'AI 전략 수립'}입니다.`,
-      industryComparison: `${request.industry} 업계에서 AI 도입이 가속화되고 있으며, 현재 귀사의 수준은 ${percentile}% 수준입니다.`
-    };
-  }
+  // 2. AI 분석 기능 완전 제거 - 기본 분석만 제공
+  const aiAnalysis = {
+    aiInsights: `AI 역량 점수 ${scoreAnalysis.totalScore}/225점 (${Math.round((scoreAnalysis.totalScore/225)*100)}%)을 기반으로 한 분석입니다. 현재 ${request.industry} 업종에서 ${scoreAnalysis.totalScore >= 180 ? '우수한' : scoreAnalysis.totalScore >= 135 ? '보통' : '개선이 필요한'} 수준입니다.`,
+    strategicRecommendations: `${request.companyName}의 AI 역량 향상을 위한 단계별 접근이 필요합니다. 우선순위는 ${scoreAnalysis.categoryScores.currentAI < 60 ? 'AI 도구 도입' : scoreAnalysis.categoryScores.organizationReadiness < 60 ? '조직 준비도 강화' : 'AI 전략 수립'}입니다.`,
+    industryComparison: `${request.industry} 업계에서 AI 도입이 가속화되고 있으며, 현재 귀사의 수준은 ${percentile}% 수준입니다.`
+  };
   
   // 3. 강점/약점 분석 (기존 로직 + AI 인사이트 결합)
   const { strengths, weaknesses } = analyzeStrengthsWeaknesses(scoreAnalysis.categoryScores, request.responses);

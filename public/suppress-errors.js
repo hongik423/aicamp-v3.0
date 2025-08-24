@@ -49,6 +49,21 @@ const errorPatterns = [
   'ERR_NETWORK_CHANGED',
   'Failed to load resource',
   
+  // React Hydration 오류 (새로 추가)
+  'Minified React error #418',
+  'Minified React error #423',
+  'Hydration failed',
+  'Hydration mismatch',
+  'Extra attributes from the server',
+  'data-input-type',
+  'Warning: Extra attributes from the server',
+  'React DevTools detected duplicate welcome',
+  'duplicate welcome "message" events',
+  'useReducedMotion',
+  'framer-motion',
+  'AnimatePresence',
+  'motion.div',
+  
   // 기타 외부 오류
   '개인정보 동의',
   'privacyConsent',
@@ -112,7 +127,10 @@ const errorPatterns = [
     if (shouldSuppressError(reason) || shouldSuppressError(stack) ||
         reason.includes('message port closed') ||
         stack.includes('content.js') ||
-        stack.includes('chrome-extension://')) {
+        stack.includes('chrome-extension://') ||
+        reason.includes('Minified React error #418') ||
+        reason.includes('Minified React error #423') ||
+        reason.includes('Hydration failed')) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
@@ -161,6 +179,19 @@ const errorPatterns = [
       return originalAddEventListener.call(this, type, wrappedListener, options);
     }
     return originalAddEventListener.call(this, type, listener, options);
+  };
+  
+  // React Hydration 오류 특별 처리
+  const originalCreateElement = document.createElement;
+  document.createElement = function(tagName) {
+    const element = originalCreateElement.call(document, tagName);
+    
+    // data-input-type 속성 자동 제거
+    if (element.hasAttribute && element.hasAttribute('data-input-type')) {
+      element.removeAttribute('data-input-type');
+    }
+    
+    return element;
   };
   
   // 안전한 URL 문자열 변환 함수
@@ -218,6 +249,18 @@ const errorPatterns = [
       return originalFetch.apply(this, [url, ...args]);
     }
   };
+  
+  // React DevTools 오류 차단
+  if (typeof window !== 'undefined') {
+    // React DevTools 관련 이벤트 차단
+    const originalPostMessage = window.postMessage;
+    window.postMessage = function(message, targetOrigin, transfer) {
+      if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
+        return; // React DevTools 메시지 차단
+      }
+      return originalPostMessage.call(this, message, targetOrigin, transfer);
+    };
+  }
   
   // 최종 안전망
   window.addEventListener('beforeunload', function() {

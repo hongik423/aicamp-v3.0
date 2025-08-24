@@ -54,14 +54,8 @@ export default function BenchmarkDetailPage() {
         <ConsultationRequestModal
           isOpen={showConsultationModal}
           onClose={handleCloseConsultationModal}
-          context="benchmark-detail"
-          prefillData={{
-            source: '벤치마크 상세',
-            interest: `${caseData.industry} - ${caseData.subIndustry}`,
-            company: caseData.companyName,
-            industry: caseData.industry,
-            subIndustry: caseData.subIndustry
-          }}
+
+
         />
       )}
     </div>

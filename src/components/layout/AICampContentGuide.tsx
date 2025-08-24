@@ -206,9 +206,10 @@ const contentData: ContentItem[] = [
 
 interface AICampContentGuideProps {
   forceVisible?: boolean;
+  onHide?: () => void;
 }
 
-const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = false }) => {
+const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = false, onHide }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [isMinimized, setIsMinimized] = useState(false);
@@ -388,7 +389,15 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                         whileTap={{ scale: 0.98 }}
                       >
                         <Link href={item.href}>
-                          <div className={`relative p-4 bg-gradient-to-br ${item.bgColor} rounded-2xl border border-gray-200/50 hover:shadow-lg transition-all duration-200 cursor-pointer group overflow-hidden`}>
+                          <div 
+                            className={`relative p-4 bg-gradient-to-br ${item.bgColor} rounded-2xl border border-gray-200/50 hover:shadow-lg transition-all duration-200 cursor-pointer group overflow-hidden`}
+                            onClick={() => {
+                              // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 닫기
+                              setIsVisible(false);
+                              console.log(`${item.title} 링크 클릭 - 배너 닫기 처리 완료`);
+                              if (onHide) onHide();
+                            }}
+                          >
                             
                             {/* 배경 이펙트 */}
                             <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -444,13 +453,29 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                   className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-gray-200"
                 >
                   <Link href="/ai-diagnosis" className="flex-1">
-                    <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2">
+                    <button 
+                      className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2"
+                      onClick={() => {
+                        // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 닫기
+                        setIsVisible(false);
+                        console.log('AI역량진단 링크 클릭 - 배너 닫기 처리 완료');
+                        if (onHide) onHide();
+                      }}
+                    >
                       <Target className="w-5 h-5" />
                       <span>3분 AI 역량진단</span>
                     </button>
                   </Link>
                   <Link href="https://aicamp.club/consultation" className="flex-1">
-                    <button className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
+                    <button 
+                      className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-xl transition-all duration-200 flex items-center justify-center space-x-2"
+                      onClick={() => {
+                        // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 닫기
+                        setIsVisible(false);
+                        console.log('상담신청 링크 클릭 - 배너 닫기 처리 완료');
+                        if (onHide) onHide();
+                      }}
+                    >
                       <MessageSquare className="w-5 h-5" />
                       <span>전문가 상담</span>
                     </button>

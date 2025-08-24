@@ -98,7 +98,12 @@ const usePrefersReducedMotion = () => {
   return prefersReducedMotion;
 };
 
-const BookPromotionBanner: React.FC = () => {
+interface BookPromotionBannerProps {
+  forceVisible?: boolean;
+  onHide?: () => void;
+}
+
+const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible = false, onHide }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -109,19 +114,28 @@ const BookPromotionBanner: React.FC = () => {
 
   // 모션 감소 설정 감지 및 경고 처리 (오류 방지)
   useEffect(() => {
-    if (shouldReduceMotion) {
-      // 콘솔 로그 제거하여 framer-motion 오류 방지
-      // console.info('ℹ️ Reduced Motion이 활성화되어 애니메이션이 제한됩니다.');
-    }
+    // hydration 오류 방지를 위해 콘솔 로그 완전 제거
+    // shouldReduceMotion 상태만 감지하고 로그는 출력하지 않음
   }, [shouldReduceMotion]);
 
+  // BannerController에서 제어됨 - forceVisible prop 사용
   useEffect(() => {
-    // 2순위: n8n 출판소개 배너 - 임시 비활성화 (N8nCurriculumBanner와 충돌 방지)
-    // const timer = setTimeout(() => {
-    //   setIsVisible(true);
-    // }, 1000); // 1초 후 등장
+    if (forceVisible) {
+      setIsVisible(true);
+    }
+  }, [forceVisible]);
 
-    // return () => clearTimeout(timer);
+  // 개발 환경에서 수동 테스트용
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.altKey && e.key === '3') {
+          setIsVisible(prev => !prev);
+        }
+      };
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
   }, []);
 
   useEffect(() => {
@@ -472,6 +486,12 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                         style={{
                           WebkitTapHighlightColor: 'transparent'
                         }}
+                        onClick={(e) => {
+                          // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 닫기
+                          setIsVisible(false);
+                          console.log('상담신청 링크 클릭 - 배너 닫기 처리 완료');
+                          if (onHide) onHide();
+                        }}
                       >
                         <BookOpen className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
                         <span className="text-sm sm:text-base">상담신청</span>
@@ -517,6 +537,10 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                         onTouchEnd={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 닫기
+                          setIsVisible(false);
+                          console.log('AI역량진단 링크 클릭 - 배너 닫기 처리 완료');
+                          if (onHide) onHide();
                           // 터치 종료 시 명시적으로 링크 이동
                           setTimeout(() => {
                             window.location.href = '/ai-diagnosis';

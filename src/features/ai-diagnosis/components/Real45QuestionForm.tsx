@@ -940,7 +940,7 @@ const Real45QuestionForm: React.FC = () => {
   if (diagnosisResult) {
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center pt-24">
         <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-lg">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">✅ 신청서 제출 완료!</h2>
@@ -1171,7 +1171,7 @@ const Real45QuestionForm: React.FC = () => {
   // Hydration이 완료되지 않았으면 로딩 표시
   if (!isHydrated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center pt-24">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">AI 역량진단 신청서를 준비 중입니다...</p>
@@ -1184,7 +1184,7 @@ const Real45QuestionForm: React.FC = () => {
   // 기업 정보 입력 폼
   if (showCompanyForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 pt-24 form-container">
         <div className="max-w-4xl mx-auto px-4">
           <Card className="shadow-xl">
             <CardHeader className="text-center">
@@ -1523,7 +1523,7 @@ const Real45QuestionForm: React.FC = () => {
   const currentQuestion = REAL_45_QUESTIONS[formState.currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 pt-24 form-container">
       <div className="max-w-4xl mx-auto px-4">
         {/* 진행률 표시 */}
         <div className="mb-8">

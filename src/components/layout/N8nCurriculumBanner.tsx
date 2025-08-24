@@ -69,9 +69,10 @@ const usePrefersReducedMotion = () => {
 
 interface N8nCurriculumBannerProps {
   forceVisible?: boolean;
+  onHide?: () => void;
 }
 
-const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible = false }) => {
+const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible = false, onHide }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -217,6 +218,12 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
     localStorage.setItem('n8n-curriculum-viewed', 'true');
   }, []);
 
+  // 모션 감소 설정 감지 및 경고 처리 (오류 방지)
+  useEffect(() => {
+    // hydration 오류 방지를 위해 콘솔 로그 완전 제거
+    // shouldReduceMotion 상태만 감지하고 로그는 출력하지 않음
+  }, [shouldReduceMotion]);
+
   if (!isVisible) return null;
 
   return (
@@ -252,7 +259,7 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
             <div className="absolute bottom-32 left-1/3 w-48 h-48 bg-indigo-400 rounded-full blur-3xl animate-pulse delay-2000"></div>
           </div>
 
-          {/* 메인 컴팩트 컨테이너 */}
+          {/* 메인 컴팩트 컨테이너 - 스크롤 개선 */}
           <motion.div
             initial={{ 
               scale: shouldReduceMotion ? 0.95 : 0.8, 
@@ -275,21 +282,28 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
               damping: 25,
               duration: 0.6
             }}
-            className="relative z-10 w-full max-w-3xl mx-auto"
+            className="relative z-10 w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto custom-scrollbar"
             onClick={handleContentClick}
           >
-            {/* 닫기 버튼 */}
-            <button
-              onClick={() => setIsVisible(false)}
+            {/* 개선된 닫기 버튼 */}
+            <motion.button
+              onClick={() => {
+                console.log('상단 닫기 버튼 클릭됨');
+                setIsVisible(false);
+                localStorage.setItem('n8n-curriculum-viewed', 'true');
+              }}
               title="배너 닫기"
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className={cn(
-                "absolute -top-2 -right-2 z-20 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 active:scale-95",
-                isMobile ? "w-12 h-12 touch-manipulation" : "w-10 h-10"
+                "absolute -top-3 -right-3 z-20 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all focus:outline-none focus:ring-4 focus:ring-red-300 border-2 border-white",
+                isMobile ? "w-14 h-14 touch-manipulation" : "w-12 h-12"
               )}
               aria-label="n8n 커리큘럼 배너 닫기"
             >
-              <X size={isMobile ? 24 : 20} />
-            </button>
+              <X size={isMobile ? 28 : 24} className="font-bold" />
+            </motion.button>
 
             {/* 메인 컴팩트 카드 - 베스트 레벨 UI/UX */}
             <motion.div
@@ -513,7 +527,10 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                         className="flex items-center justify-center space-x-3 relative z-10"
                         onClick={(e) => {
                           console.log('전문가 상담신청 링크 클릭됨 - https://aicamp.club/consultation 페이지로 이동');
-                          // 링크는 기본 동작을 유지
+                          // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 닫기
+                          setIsVisible(false);
+                          localStorage.setItem('n8n-curriculum-viewed', 'true');
+                          if (onHide) onHide();
                         }}
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -534,34 +551,48 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                     </Button>
                   </motion.div>
 
-                  {/* 서브 네비게이션 버튼들 */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <motion.div
-                      className="motion-div-button"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  {/* 역량진단 우선 배치 - 메인 CTA 스타일 */}
+                  <motion.div
+                    className="mb-4 motion-div-button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  >
+                    <Button
+                      asChild
+                      className="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-700 text-white font-black py-5 rounded-2xl shadow-2xl border-2 border-emerald-300/50 relative overflow-hidden group text-base"
                     >
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="w-full border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
+                      <Link 
+                        href="https://aicamp.club/ai-diagnosis" 
+                        className="flex items-center justify-center space-x-3 relative z-10"
+                        onClick={(e) => {
+                          console.log('AI역량진단 메인 CTA 클릭됨 - https://aicamp.club/ai-diagnosis로 이동');
+                          // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 닫기
+                          setIsVisible(false);
+                          localStorage.setItem('n8n-curriculum-viewed', 'true');
+                          if (onHide) onHide();
+                        }}
                       >
-                        <Link 
-                          href="https://aicamp.club/ai-diagnosis" 
-                          className="flex items-center justify-center space-x-2"
-                          onClick={(e) => {
-                            console.log('AI역량진단 링크 클릭됨 - https://aicamp.club/ai-diagnosis로 이동');
-                            // 링크는 기본 동작을 유지
-                          }}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <motion.div
+                          animate={{ rotate: [0, 360] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                         >
-                          <Sparkles className="w-4 h-4 animate-pulse" />
-                          <span className="text-sm">✨ AI역량진단</span>
-                        </Link>
-                      </Button>
-                    </motion.div>
-                    
+                          <Sparkles className="w-6 h-6" />
+                        </motion.div>
+                        <span className="font-black">🎯 무료 AI 역량진단 받기 🎯</span>
+                        <motion.div
+                          animate={{ x: [0, 5, 0] }}
+                          transition={{ duration: 1, repeat: Infinity, repeatDelay: 1 }}
+                        >
+                          ➤
+                        </motion.div>
+                      </Link>
+                    </Button>
+                  </motion.div>
+
+                  {/* 서브 네비게이션 버튼들 */}
+                  <div className="grid grid-cols-2 gap-3">
                     <motion.div
                       className="motion-div-button"
                       whileHover={{ scale: 1.05, y: -2 }}
@@ -605,19 +636,27 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                         }}
                         variant="outline"
                         size="sm"
-                        className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
+                        className="w-full border-2 border-red-300 text-red-700 hover:bg-red-50 hover:border-red-400 font-bold py-3 rounded-xl bg-white/80 backdrop-blur-sm"
                       >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        <span className="text-sm">✅ 모두 확인</span>
+                        <X className="w-4 h-4 mr-1" />
+                        <span className="text-sm">❌ 배너 닫기</span>
                       </Button>
                     </motion.div>
                   </div>
                 </div>
 
-                {/* 안내 텍스트 */}
-                <div className="mt-4 text-center">
+                {/* 개선된 안내 텍스트 */}
+                <div className="mt-6 text-center space-y-2">
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 border border-blue-200">
+                    <p className="text-sm font-semibold text-blue-800 mb-1">
+                      🎯 AI 역량진단으로 맞춤형 n8n 활용 전략을 받아보세요!
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      무료 진단 후 개인별 자동화 워크플로우 추천 제공
+                    </p>
+                  </div>
                   <p className="text-xs text-gray-500">
-                    {isMobile ? '배경을 터치하여 닫기' : 'ESC 키 또는 배경을 클릭하여 닫을 수 있습니다'}
+                    {isMobile ? '배경 터치 또는 ❌ 버튼으로 닫기' : 'ESC 키, 배경 클릭 또는 ❌ 버튼으로 닫기'}
                   </p>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import { Badge } from '@/components/ui/badge';
+import { hideAllBanners } from '@/components/layout/BannerController';
 import { 
   Menu, 
   X,
@@ -92,7 +93,7 @@ export default function Header() {
   const visibleNavigation = navigation;
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 gpu-accelerate ${
+    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 gpu-accelerate ${
       isScrolled ? 'bg-white/95 backdrop-blur-optimized shadow-lg' : 'bg-white'
     }`}>
       <div className="w-full max-w-none px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
@@ -120,6 +121,11 @@ export default function Header() {
             <Link
               href="/ai-diagnosis"
               className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              onClick={() => {
+                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                hideAllBanners();
+                console.log('헤더 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
+              }}
             >
               <span>AI역량진단</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
@@ -185,6 +191,11 @@ export default function Header() {
             <Link
               href="/ai-diagnosis"
               className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              onClick={() => {
+                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                hideAllBanners();
+                console.log('헤더 태블릿 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
+              }}
             >
               <span className="hidden sm:inline">AI역량진단</span>
               <span className="sm:hidden">AI역량진단</span>
@@ -226,6 +237,11 @@ export default function Header() {
               <Link
                 href="/consultation"
                 className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
+                onClick={() => {
+                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                  hideAllBanners();
+                  console.log('헤더 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                }}
               >
                 상담신청
               </Link>
@@ -288,7 +304,12 @@ export default function Header() {
               {/* AI역량진단 특별 버튼 - 최신 버전으로 통일 */}
               <Link
                 href="/ai-diagnosis"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                  hideAllBanners();
+                  console.log('헤더 모바일 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
+                }}
                 className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2"
               >
                 <span className="text-base font-medium">AI역량진단</span>
@@ -323,7 +344,14 @@ export default function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      // 🎯 상담신청 버튼 클릭 시 배너 숨기기
+                      if (item.href === '/consultation') {
+                        hideAllBanners();
+                        console.log('헤더 모바일 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                      }
+                    }}
                     className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation active:scale-95"
                   >
                     <span className="text-base font-medium">{item.label}</span>
@@ -343,7 +371,14 @@ export default function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      // 🎯 상담신청 버튼 클릭 시 배너 숨기기
+                      if (item.href === '/consultation') {
+                        hideAllBanners();
+                        console.log('헤더 모바일 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                      }
+                    }}
                     className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation active:scale-95"
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >

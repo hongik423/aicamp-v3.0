@@ -265,15 +265,13 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // 홈 페이지 로드 시 배너 활성화
+  // 홈 페이지 로드 시 초기화
   useEffect(() => {
     // 페이지 스크롤 활성화
     document.body.style.overflow = 'auto';
     document.body.style.position = 'static';
     document.body.style.height = 'auto';
     document.body.style.pointerEvents = 'auto';
-    
-    console.log('홈 페이지 로드 - 배너 활성화');
     
     // 컴포넌트 언마운트 시 정리
     return () => {
@@ -335,13 +333,27 @@ export default function Home() {
               </Link>
               
               <Link href="/ai-diagnosis">
-                <button className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                <button 
+                  className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                  onClick={() => {
+                    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                    hideAllBanners();
+                    console.log('홈페이지 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
+                  }}
+                >
                   AI역량진단
                 </button>
               </Link>
               
               <Link href="/consultation">
-                <button className="px-8 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                <button 
+                  className="px-8 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                  onClick={() => {
+                    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                    hideAllBanners();
+                    console.log('홈페이지 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                  }}
+                >
                   전문가 상담 신청
                 </button>
               </Link>
@@ -1493,7 +1505,7 @@ AI CAMP 교장에게 바로 문의하기
         onMinimize={() => setIsChatOpen(false)}
       />
 
-      {/* 배너들은 BannerController에서 통합 관리됨 */}
+      {/* 배너 시스템 비활성화됨 */}
       
       {/* n8n 책 홍보 모달 - 최상위 레이어 (비활성화) */}
       {/* <BookPromotionModal /> */}

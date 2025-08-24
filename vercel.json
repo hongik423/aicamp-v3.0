@@ -257,6 +257,28 @@
       ],
       "destination": "https://aicamp.club/$1",
       "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-lyr4e4e43-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aicampv30-omyv4t0ub-hongik423-3087s-projects.vercel.app"
+        }
+      ],
+      "destination": "https://aicamp.club/$1",
+      "permanent": true
     }
   ],
   "headers": [

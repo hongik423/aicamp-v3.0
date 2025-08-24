@@ -1,155 +1,118 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 환경변수 설정 (맥킨지 보고서 시스템)
-  env: {
-    NEXT_PUBLIC_GAS_URL: 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec',
-    NEXT_PUBLIC_GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec',
-    NEXT_PUBLIC_GOOGLE_SHEETS_ID: '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ',
-    NEXT_PUBLIC_BASE_URL: 'https://aicamp.club',
-    GEMINI_API_KEY: 'AIzaSyAP-Qa4TVNmsc-KAPTuQFjLalDNcvMHoiM'
-  },
+  // React Strict Mode 비활성화로 hydration 오류 감소
+  reactStrictMode: false,
   
-  // 개발 모드 최적화
-  experimental: {
-    turbo: undefined, // Turbopack 비활성화로 안정성 확보
-  },
-  
-  // 개발 서버 설정
-  devIndicators: {
-    buildActivity: true,
-    buildActivityPosition: 'bottom-right',
-  },
-  
-  // ESLint 빌드 시 무시 (배포용)
+  // ESLint 플러그인 완전 비활성화
   eslint: {
     ignoreDuringBuilds: true,
   },
   
-  // TypeScript 빌드 시 에러 무시 (배포용)
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  
-  // 기본 설정
-  trailingSlash: false,
-  
-  // 이미지 최적화
+  // 이미지 최적화 설정
   images: {
-    domains: ['picsum.photos'],
+    domains: ['picsum.photos', 'images.unsplash.com'],
     formats: ['image/webp', 'image/avif'],
   },
   
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-          { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
-          { key: 'Origin-Agent-Cluster', value: '?1' },
-        ],
-      },
-      {
-        source: '/manifest.webmanifest',
-        headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: '*' },
-        ],
-      },
-    ];
+  // 컴파일러 최적화
+  compiler: {
+    // 불필요한 console.log 제거 (개발 환경에서는 유지)
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
   },
   
-  // 웹팩 설정 최적화 - 캐시 버스팅 강화
+  // 실험적 기능
+  experimental: {
+    // 서버 컴포넌트 최적화
+    serverComponentsExternalPackages: ['@prisma/client'],
+  },
+  
+  // 웹팩 설정 최적화
   webpack: (config, { dev, isServer }) => {
-    // 프로덕션 환경에서 캐시 버스팅 강화
-    if (!dev && !isServer) {
-      config.output = {
-        ...config.output,
-        filename: 'static/chunks/[name].[contenthash].js',
-        chunkFilename: 'static/chunks/[name].[contenthash].js',
-        assetModuleFilename: 'static/media/[name].[contenthash][ext]',
-        chunkLoadTimeout: 120000, // 120초로 증가
-      };
-    }
-    
-    // 개발 모드에서만 기본적인 최적화
+    // 개발 환경에서 소스맵 최적화
     if (dev) {
-      config.watchOptions = {
-        poll: 1000,
-        aggregateTimeout: 300,
-      };
-      
-      // ChunkLoadError 방지를 위한 설정 추가
-      config.optimization = {
-        ...config.optimization,
-        runtimeChunk: 'single',
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: {
-              minChunks: 2,
-              priority: -20,
-              reuseExistingChunk: true,
-            },
-          },
-        },
-      };
-      
-      // 청크 로딩 타임아웃 증가
-      config.output = {
-        ...config.output,
-        chunkLoadTimeout: 120000, // 120초로 증가
-      };
+      config.devtool = 'eval-source-map';
     }
     
-    // 모든 환경에서 적용
+    // ES 모듈 호환성 문제 해결
     config.resolve = {
       ...config.resolve,
-      alias: {
-        ...config.resolve?.alias,
-        '@': require('path').resolve(__dirname, 'src'),
-      },
       fallback: {
         ...config.resolve?.fallback,
         fs: false,
         net: false,
         tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
       },
     };
+    
+    // 번들 크기 최적화 (안정화)
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+              priority: 10,
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              priority: 5,
+            },
+          },
+        },
+      };
+    }
     
     return config;
   },
   
-  // 성능 설정
-  poweredByHeader: false,
-  compress: true,
-  
-  // 에러 방지 설정
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
+  // 헤더 설정
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
   },
   
-  // 개발 서버 안정성 향상
-  reactStrictMode: false, // 개발 중 이중 렌더링 방지
-  
-  // 누락된 아이콘 경로를 기존 이미지로 리라이팅하여 404 방지
-  async rewrites() {
+  // 리다이렉트 설정
+  async redirects() {
     return [
-      // manifest 파일을 API 라우트로 리라이팅
-      { source: '/manifest.webmanifest', destination: '/api/manifest' },
-      { source: '/manifest.json', destination: '/api/manifest' },
-
-      // 루트 경로 요청 대응
-      { source: '/favicon.ico', destination: '/images/aicamp_logo_del_250726.png' },
-      { source: '/apple-touch-icon.png', destination: '/images/aicamp_logo.png' },
-      { source: '/icon.svg', destination: '/images/aicamp_logo_del_250726.png' },
-
-      // 경로별 상대 요청까지 커버 (예: /seminar/favicon.ico)
-      { source: '/:path*/favicon.ico', destination: '/images/aicamp_logo_del_250726.png' },
-      { source: '/:path*/apple-touch-icon.png', destination: '/images/aicamp_logo.png' },
-      { source: '/:path*/icon.svg', destination: '/images/aicamp_logo_del_250726.png' },
-
+      {
+        source: '/old-diagnosis',
+        destination: '/ai-diagnosis',
+        permanent: true,
+      },
     ];
   },
 };

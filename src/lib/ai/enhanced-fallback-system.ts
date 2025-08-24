@@ -16,6 +16,7 @@
  */
 
 import { match } from 'ts-pattern';
+import { generateNavigationResponse, NAVIGATION_KNOWLEDGE, FAQ_RESPONSES } from '@/lib/chatbot/navigation-knowledge-base';
 
 // ================================================================================
 // 타입 정의
@@ -847,6 +848,74 @@ export async function generateEnhancedResponse(
   question: string, 
   sessionId?: string
 ): Promise<EnhancedResponse> {
+  // 먼저 네비게이션 지식 베이스에서 답변 찾기
+  const navigationResponse = generateNavigationResponse(question);
+  
+  // 네비게이션 응답이 있으면 즉시 반환
+  if (navigationResponse && navigationResponse.answer) {
+    return {
+      answer: navigationResponse.answer,
+      confidence: 0.95,
+      category: 'navigation',
+      tone: 'friendly',
+      nextSteps: navigationResponse.suggestions || [],
+      contactInfo: '010-9251-9743',
+      context: {
+        intent: 'navigation',
+        urgency: 'low' as const,
+        complexity: 'simple' as const,
+        domain: 'navigation',
+        keywords: question.split(' ').filter(w => w.length > 2),
+        entities: [],
+        sentiment: 'neutral' as const,
+        userType: 'new' as const,
+        sessionContext: {
+          sessionId: sessionId || 'default',
+          messageCount: 1,
+          topics: ['navigation'],
+          mood: 'curious',
+          engagement: 0.8
+        }
+      },
+      emotionalAnalysis: {
+        primaryEmotion: 'curiosity',
+        secondaryEmotion: 'interest',
+        intensity: 0.5,
+        suggestedTone: 'friendly',
+        empathyLevel: 0.7,
+        urgencyLevel: 0.3
+      },
+      qualityMetrics: {
+        relevance: 0.95,
+        completeness: 0.9,
+        clarity: 0.95,
+        helpfulness: 0.9,
+        overallScore: 92.5,
+        improvementSuggestions: []
+      },
+      personalization: {
+        userPreferences: [],
+        interactionHistory: [],
+        learningProgress: {
+          topics: [],
+          proficiency: {},
+          interests: [],
+          goals: []
+        },
+        customizationLevel: 0.5
+      },
+      metadata: {
+        processingTime: 50,
+        model: 'Navigation-Knowledge-Base',
+        version: '1.0',
+        timestamp: new Date(),
+        cacheHit: true,
+        fallbackLevel: 0
+      }
+    };
+  }
+  
+  // 네비게이션에서 못 찾으면 기존 폴백 시스템 사용
   const fallbackSystem = MultiLayerFallbackSystem.getInstance();
   return await fallbackSystem.generateResponse(question, sessionId);
 }

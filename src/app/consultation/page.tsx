@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import Header from '@/components/layout/header';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import PrivacyConsent from '@/components/ui/privacy-consent';
 import { useToast } from '@/hooks/use-toast';
 import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerController';
 import { 
@@ -40,6 +39,34 @@ export default function ConsultationPage() {
   const { toast } = useToast();
   const [persistentNoticeOpen, setPersistentNoticeOpen] = useState(false);
 
+  // 페이지 로드 시 배너 숨김 처리
+  useEffect(() => {
+    // 페이지 스크롤 활성화
+    document.body.style.overflow = 'auto';
+    document.body.style.position = 'static';
+    document.body.style.height = 'auto';
+    
+    // 포커스 가능하도록 설정
+    document.body.style.pointerEvents = 'auto';
+    
+    // 페이지 로드 시 상단으로 스크롤
+    window.scrollTo(0, 0);
+    
+    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 모든 배너 숨기기
+    hideAllBanners();
+    console.log('상담신청 페이지 로드 - 배너 숨김 처리 완료');
+    
+    console.log('상담신청 페이지 로드 - 스크롤 활성화');
+    
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.height = '';
+      document.body.style.pointerEvents = '';
+    };
+  }, []);
+
   const [formData, setFormData] = useState({
     consultationType: '',
     name: '',
@@ -50,7 +77,8 @@ export default function ConsultationPage() {
     consultationArea: '',
     inquiryContent: '',
     preferredTime: '',
-    privacyConsent: false
+    privacyConsent: false,
+    marketingConsent: false
   });
 
   // 상담신청 페이지에 접근할 때 스크롤 활성화
@@ -65,6 +93,10 @@ export default function ConsultationPage() {
     
     // 페이지 로드 시 상단으로 스크롤
     window.scrollTo(0, 0);
+    
+    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 모든 배너 숨기기
+    hideAllBanners();
+    console.log('상담신청 페이지 로드 - 배너 숨김 처리 완료');
     
     console.log('상담신청 페이지 로드 - 스크롤 활성화');
     
@@ -105,7 +137,8 @@ export default function ConsultationPage() {
       consultationArea: '',
       inquiryContent: '',
       preferredTime: '',
-      privacyConsent: false
+      privacyConsent: false,
+      marketingConsent: false
     });
   }, []);
 
@@ -185,6 +218,7 @@ export default function ConsultationPage() {
         문의내용: consultationData.inquiryContent || '',
         희망상담시간: consultationData.preferredTime || '',
         개인정보동의: consultationData.privacyConsent === true ? '동의' : '미동의',
+        마케팅동의: consultationData.marketingConsent === true ? '동의' : '미동의',
         action: 'consultation',
         dataSource: '웹사이트_상담신청',
         timestamp: Date.now()
@@ -354,11 +388,11 @@ export default function ConsultationPage() {
   }, []);
 
   return (
-    <div className="relative z-[2147483649] overflow-auto">
-      <Header />
+    <div className="relative z-10 overflow-auto form-container">
+      {/* Header는 layout.tsx에서 렌더링되므로 제거 */}
       
       {/* 🎯 간단한 타이틀 섹션 - 모바일 최적화 */}
-      <section className="bg-white border-b border-gray-100">
+      <section className="bg-white border-b border-gray-100 form-section">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-6 sm:pb-8">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
@@ -602,14 +636,41 @@ export default function ConsultationPage() {
                       </Select>
                     </div>
 
-                    {/* 개인정보 동의 - 모바일 최적화 */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4 sm:p-6">
-                      <PrivacyConsent
-                        checked={formData.privacyConsent}
-                        onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
-                        required={true}
-                      />
-                    </div>
+                                          {/* 개인정보 동의 - 역량진단신청서와 동일한 형태 */}
+                      <div className="space-y-3">
+                        <label className="flex items-center text-sm font-semibold text-gray-700">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
+                          개인정보 수집·이용 동의
+                        </label>
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4">
+                          <label className="flex items-start gap-3">
+                            <Checkbox
+                              checked={formData.privacyConsent}
+                              onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
+                            />
+                            <span className="text-sm text-gray-700">
+                              [필수] 개인정보 수집·이용에 동의합니다. 수집 항목: 회사/담당자/연락처/소재지/상담내용. 이용 목적: 상담 서비스 제공 및 문의사항 응답. 보유 기간: 목적 달성 후 즉시 파기(법령상 보관 의무 제외).
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* 마케팅 정보 수신 동의 (선택) */}
+                      <div className="space-y-3">
+                        <label className="flex items-center text-sm font-semibold text-gray-700">
+                          <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs font-bold mr-2">선택</span>
+                          마케팅 정보 수신 동의
+                        </label>
+                        <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
+                          <label className="flex items-start gap-3">
+                            <Checkbox
+                              checked={formData.marketingConsent}
+                              onCheckedChange={(checked) => handleInputChange('marketingConsent', checked)}
+                            />
+                            <span className="text-sm text-gray-600">[선택] AICAMP 교육/세미나/서비스 소식 안내 수신에 동의합니다. 동의하지 않아도 서비스 이용에는 영향이 없습니다.</span>
+                          </label>
+                        </div>
+                      </div>
 
                     {/* 제출 버튼 - 모바일 최적화 */}
                     <div className="pt-2 sm:pt-4">

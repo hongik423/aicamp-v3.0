@@ -141,6 +141,12 @@ const N8nCurriculumBanner: React.FC = () => {
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
 
+  // 모션 감소 설정 감지 및 경고 처리 (오류 방지)
+  useEffect(() => {
+    // hydration 오류 방지를 위해 콘솔 로그 완전 제거
+    // shouldReduceMotion 상태만 감지하고 로그는 출력하지 않음
+  }, [shouldReduceMotion]);
+
   // 3순위 등장 (n8n 커리큘럼 배너 - 책소개 배너와 동시)
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 이메일 타입별 기본 데이터 설정
-    let emailData = {
+    let emailData: any = {
       to: requestData.to,
       type: requestData.type,
       timestamp: new Date().toISOString()

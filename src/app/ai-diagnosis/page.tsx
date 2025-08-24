@@ -16,6 +16,10 @@ export default function AIDiagnosisPage() {
     // 페이지 로드 시 상단으로 스크롤
     window.scrollTo(0, 0);
     
+    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 모든 배너 숨기기
+    hideAllBanners();
+    console.log('AI역량진단 페이지 로드 - 배너 숨김 처리 완료');
+    
     console.log('AI역량진단 페이지 로드 - 스크롤 활성화');
     
     // 컴포넌트 언마운트 시 정리
@@ -28,7 +32,7 @@ export default function AIDiagnosisPage() {
   }, []);
 
   return (
-    <main className="min-h-screen relative z-[2147483649] overflow-auto">
+    <main className="min-h-screen relative z-10 overflow-auto">
       <Real45QuestionForm />
     </main>
   );

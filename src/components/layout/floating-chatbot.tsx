@@ -57,12 +57,16 @@ export default function FloatingChatbot({ className = "" }: FloatingChatbotProps
   // 메시지 ID 생성
   const generateMessageId = () => `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-  // 빠른 응답 버튼들
+  // 빠른 응답 버튼들 - 네비게이션 기능 포함
   const quickResponses = [
     { text: 'AI 역량진단이 궁금해요', icon: '🎯' },
     { text: 'n8n 자동화에 대해 알고 싶어요', icon: '🚀' },
     { text: '상담을 받고 싶어요', icon: '📞' },
-    { text: '교육과정을 알아보고 싶어요', icon: '📚' }
+    { text: '교육과정을 알아보고 싶어요', icon: '📚' },
+    { text: 'AICAMP 서비스 전체보기', icon: '💼' },
+    { text: 'AI 벤치마크 확인하기', icon: '📊' },
+    { text: '세금계산기 사용하기', icon: '💰' },
+    { text: '사업타당성 분석하기', icon: '📈' }
   ];
 
   const handleSendMessage = async (message: string) => {
@@ -214,8 +218,9 @@ export default function FloatingChatbot({ className = "" }: FloatingChatbotProps
       {/* 챗봇 토글 버튼 */}
       <button
         onClick={toggleChat}
+        data-floating-chatbot
         className={cn(
-          "w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center",
+          "w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center chatbot-button",
           isOpen && "scale-90"
         )}
         aria-label="챗봇 열기"
@@ -223,9 +228,9 @@ export default function FloatingChatbot({ className = "" }: FloatingChatbotProps
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
 
-      {/* 챗봇 패널 */}
+      {/* 챗봇 패널 - 고도화된 디자인 */}
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-96 h-[500px] bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col">
+        <div className="absolute bottom-16 right-0 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col animate-slideUp chatbot-panel">
           {/* 헤더 */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
             <div className="flex items-center space-x-2">
@@ -260,8 +265,18 @@ export default function FloatingChatbot({ className = "" }: FloatingChatbotProps
             {messages.length === 0 && (
               <div className="text-center text-gray-500 py-8">
                 <MessageCircle size={48} className="mx-auto mb-4 opacity-50" />
-                <p className="text-sm">안녕하세요! 이교장의 AI 상담입니다.</p>
-                <p className="text-xs mt-2">궁금한 점이 있으시면 언제든 물어보세요!</p>
+                <p className="text-sm font-semibold">안녕하세요! 이교장의 AI 상담입니다.</p>
+                <p className="text-xs mt-2">28년 경험을 바탕으로 AICAMP의 모든 서비스를 상세히 안내해드립니다!</p>
+                <div className="mt-4 text-left bg-blue-50 rounded-lg p-3">
+                  <p className="text-xs font-semibold text-blue-900 mb-2">💡 이런 것들을 물어보세요:</p>
+                  <ul className="text-xs text-blue-700 space-y-1">
+                    <li>• AI 역량진단은 어떻게 받나요?</li>
+                    <li>• ChatGPT 교육 커리큘럼이 궁금해요</li>
+                    <li>• n8n으로 뭘 자동화할 수 있나요?</li>
+                    <li>• 정부지원은 얼마나 받을 수 있나요?</li>
+                    <li>• 세금계산기는 어디에 있나요?</li>
+                  </ul>
+                </div>
               </div>
             )}
 
@@ -275,25 +290,33 @@ export default function FloatingChatbot({ className = "" }: FloatingChatbotProps
               >
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                    "message-bubble text-sm",
                     message.sender === 'user'
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-blue-600 text-white user"
+                      : "bg-gray-100 text-gray-800 bot"
                   )}
                 >
                   <div className="whitespace-pre-wrap">{message.content}</div>
+                  
+                  {/* 액션 버튼 표시 */}
+                  {message.metadata?.services && message.metadata.services.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {message.metadata.services.map((service: any, idx: number) => (
+                        <button
+                          key={idx}
+                          onClick={() => window.location.href = service.url}
+                          className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        >
+                          {service.text}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   
                   {/* 메타데이터 표시 */}
                   {message.metadata?.sourceLabel && (
                     <div className="text-xs opacity-70 mt-1">
                       {message.metadata.sourceLabel}
-                    </div>
-                  )}
-                  
-                  {/* 품질 점수 표시 */}
-                  {message.metadata?.confidence && message.sender === 'bot' && (
-                    <div className="text-xs opacity-70 mt-1">
-                      품질: {message.metadata.confidence.toFixed(1)}점
                     </div>
                   )}
                 </div>
@@ -304,10 +327,10 @@ export default function FloatingChatbot({ className = "" }: FloatingChatbotProps
             {isTyping && (
               <div className="flex justify-start">
                 <div className="bg-gray-100 rounded-lg px-3 py-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="typing-indicator">
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
                   </div>
                 </div>
               </div>
@@ -316,19 +339,19 @@ export default function FloatingChatbot({ className = "" }: FloatingChatbotProps
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 빠른 응답 버튼들 */}
+          {/* 빠른 응답 버튼들 - 개선된 디자인 */}
           {showQuickResponses && messages.length === 0 && (
-            <div className="p-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 mb-2">빠른 질문:</p>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="p-4 border-t border-gray-200 bg-gradient-to-t from-gray-50 to-white">
+              <p className="text-xs font-semibold text-gray-700 mb-3">🚀 빠른 메뉴 (클릭하세요)</p>
+              <div className="quick-response-grid">
                 {quickResponses.map((response, index) => (
                   <button
                     key={index}
                     onClick={() => handleQuickResponse(response.text)}
-                    className="text-xs bg-gray-100 hover:bg-gray-200 rounded px-2 py-1 transition-colors text-left"
+                    className="text-xs bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 border border-gray-200 hover:border-blue-300 rounded-lg px-3 py-2 transition-all duration-200 text-left shadow-sm hover:shadow-md transform hover:scale-105"
                   >
-                    <span className="mr-1">{response.icon}</span>
-                    {response.text}
+                    <span className="text-base mr-1">{response.icon}</span>
+                    <span className="font-medium">{response.text.replace('이 궁금해요', '').replace('에 대해 알고 싶어요', '').replace('을 받고 싶어요', '').replace('을 알아보고 싶어요', '').replace('하기', '')}</span>
                   </button>
                 ))}
               </div>

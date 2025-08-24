@@ -138,9 +138,9 @@ export async function POST(request: NextRequest) {
       diagnosisId,
       driveLink: driveUploadResult.shareLink,
       reportData: mckinseyReport,
-      email: normalizedData.contactEmail || normalizedData.email,
+      email: normalizedData.contactEmail,
       companyName: normalizedData.companyName,
-      contactName: normalizedData.contactName || normalizedData.contactManager
+      contactName: normalizedData.contactName
     });
     
     // 10단계: Google Apps Script 데이터 저장 (병렬 처리)
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
         reportGenerated: true,
         driveUploaded: driveUploadResult.success,
         driveLink: driveUploadResult.shareLink,
-        emailSent: emailResult.success,
+        emailSent: emailResult.status === 'fulfilled' ? emailResult.value.success : false,
         processingTime: `${processingTime}ms`
       },
       message: '맥킨지 역량진단이 성공적으로 완료되었습니다.',

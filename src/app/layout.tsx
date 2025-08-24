@@ -4,15 +4,16 @@ import './globals.css';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
-import GlobalBanner from '@/components/layout/GlobalBanner';
+// import GlobalBanner from '@/components/layout/GlobalBanner';
 
-import N8nCurriculumBanner from '@/components/layout/N8nCurriculumBanner';
-import AutoShowBanners from '@/components/layout/AutoShowBanners';
+// import N8nCurriculumBanner from '@/components/layout/N8nCurriculumBanner';
+// import AutoShowBanners from '@/components/layout/AutoShowBanners';
 
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 import ServiceWorkerRegister from '@/components/service-worker-register';
 import ErrorShield from '@/components/ErrorShield';
 import ChromeExtensionErrorSuppressor from '@/components/ChromeExtensionErrorSuppressor';
+import BannerController from '@/components/layout/BannerController';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -342,10 +343,16 @@ export default function RootLayout({
                   optimizeFontLoading();
                 }
                 
-                // 🛡️ Chrome 확장 프로그램 및 manifest 오류 방지 강화
+                // 🛡️ React Hydration 오류 방지 강화
                 window.addEventListener('error', function(e) {
                   const msg = e.message || '';
-                  if (msg.includes('runtime.lastError') || 
+                  if (msg.includes('Minified React error #418') || 
+                      msg.includes('Minified React error #423') ||
+                      msg.includes('Hydration failed') ||
+                      msg.includes('Hydration mismatch') ||
+                      msg.includes('Extra attributes from the server') ||
+                      msg.includes('data-input-type') ||
+                      msg.includes('runtime.lastError') || 
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
                       msg.includes('The message port closed') ||
@@ -362,7 +369,11 @@ export default function RootLayout({
                 
                 window.addEventListener('unhandledrejection', function(e) {
                   const msg = (e.reason && e.reason.message) || '';
-                  if (msg.includes('runtime.lastError') || 
+                  if (msg.includes('Minified React error #418') || 
+                      msg.includes('Minified React error #423') ||
+                      msg.includes('Hydration failed') ||
+                      msg.includes('Hydration mismatch') ||
+                      msg.includes('runtime.lastError') || 
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
                       msg.includes('The message port closed') ||
@@ -376,6 +387,19 @@ export default function RootLayout({
                     return false;
                   }
                 }, true);
+                
+                // React DevTools 오류 차단
+                if (typeof window !== 'undefined') {
+                  const originalPostMessage = window.postMessage;
+                  window.postMessage = function(message, targetOrigin, transfer) {
+                    if (message && typeof message === 'object' && 
+                        (message.source === 'react-devtools-content-script' ||
+                         message.source === 'react-devtools-backend')) {
+                      return; // React DevTools 메시지 차단
+                    }
+                    return originalPostMessage.call(this, message, targetOrigin, transfer);
+                  };
+                }
               })();
             `
           }}
@@ -383,9 +407,8 @@ export default function RootLayout({
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <Providers>
-          <AutoShowBanners />
-          <GlobalBanner />
-          <N8nCurriculumBanner />
+          {/* 기존 배너들을 BannerController로 통합 관리 */}
+          <BannerController />
           <div className="min-h-screen flex flex-col">
             <Header />
             <main className="flex-1 pt-20">

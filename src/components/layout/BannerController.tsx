@@ -5,21 +5,23 @@ import { AnimatePresence } from 'framer-motion';
 import AICampContentGuide from './AICampContentGuide';
 import BookPromotionBanner from './BookPromotionBanner';
 import N8nCurriculumBanner from './N8nCurriculumBanner';
-import AutoShowBanners from './AutoShowBanners';
 
 interface BannerState {
   id: string;
-  component: React.ComponentType;
+  component: React.ComponentType<any>;
   priority: number;
   delay: number;
   duration?: number;
   isActive: boolean;
   isVisible: boolean;
+  autoHide?: boolean; // 자동 숨김 여부
+  showOnce?: boolean; // 한 번만 표시 여부
 }
 
 // 배너 제어 함수들을 전역으로 export
 let globalHideAllBanners: (() => void) | null = null;
 let globalDisableAllBanners: (() => void) | null = null;
+let globalHideBanner: ((id: string) => void) | null = null;
 
 export const setGlobalHideAllBanners = (fn: () => void) => {
   globalHideAllBanners = fn;
@@ -27,6 +29,10 @@ export const setGlobalHideAllBanners = (fn: () => void) => {
 
 export const setGlobalDisableAllBanners = (fn: () => void) => {
   globalDisableAllBanners = fn;
+};
+
+export const setGlobalHideBanner = (fn: (id: string) => void) => {
+  globalHideBanner = fn;
 };
 
 export const hideAllBanners = () => {
@@ -41,40 +47,44 @@ export const disableAllBanners = () => {
   }
 };
 
+export const hideBanner = (id: string) => {
+  if (globalHideBanner) {
+    globalHideBanner(id);
+  }
+};
+
 const BannerController: React.FC = () => {
   const [banners, setBanners] = useState<BannerState[]>([
     {
-      id: 'auto-show',
-      component: AutoShowBanners,
-      priority: 1,
-      delay: 100, // 0.1초
-      isActive: true, // 상단 배너 활성화
-      isVisible: true // 즉시 표시
-    },
-    {
       id: 'content-guide',
       component: AICampContentGuide,
-      priority: 2,
-      delay: 800, // 0.8초
+      priority: 1,
+      delay: 800, // 0.8초 - 서비스 소개 배너
       isActive: true,
-      isVisible: false
+      isVisible: false,
+      autoHide: true, // 자동 숨김 활성화
+      showOnce: true // 한 번만 표시
     },
     {
       id: 'book-promotion',
       component: BookPromotionBanner,
-      priority: 3,
-      delay: 2000, // 2초
+      priority: 2,
+      delay: 2000, // 2초 - n8n 책자 소개 배너
       duration: 8000, // 8초간 표시
       isActive: true,
-      isVisible: false
+      isVisible: false,
+      autoHide: true, // 자동 숨김 활성화
+      showOnce: false // 반복 표시 가능
     },
     {
       id: 'n8n-curriculum',
       component: N8nCurriculumBanner,
-      priority: 4,
-      delay: 3500, // 3.5초
+      priority: 3,
+      delay: 3500, // 3.5초 - n8n 커리큘럼 배너
       isActive: true,
-      isVisible: false
+      isVisible: false,
+      autoHide: true, // 자동 숨김 활성화
+      showOnce: true // 한 번만 표시
     }
   ]);
 
@@ -91,11 +101,65 @@ const BannerController: React.FC = () => {
     return () => clearTimeout(initTimer);
   }, []);
 
-  // 순차적 배너 활성화
+  // 순차적 배너 활성화 (초기화 시 한 번만 실행)
   useEffect(() => {
     if (!isSystemActive) return;
 
-    const sortedBanners = [...banners].sort((a, b) => a.priority - b.priority);
+    // localStorage에서 이미 표시된 배너 확인
+    const getShownBanners = () => {
+      try {
+        const shown = localStorage.getItem('shown-banners');
+        return shown ? JSON.parse(shown) : [];
+      } catch {
+        return [];
+      }
+    };
+
+    const shownBanners = getShownBanners();
+
+    // 초기 배너 설정을 기반으로 정렬
+    const initialBanners = [
+      {
+        id: 'content-guide',
+        component: AICampContentGuide,
+        priority: 1,
+        delay: 800,
+        isActive: true,
+        isVisible: false,
+        autoHide: true,
+        showOnce: true
+      },
+      {
+        id: 'book-promotion',
+        component: BookPromotionBanner,
+        priority: 2,
+        delay: 2000,
+        duration: 8000,
+        isActive: true,
+        isVisible: false,
+        autoHide: true,
+        showOnce: false
+      },
+      {
+        id: 'n8n-curriculum',
+        component: N8nCurriculumBanner,
+        priority: 3,
+        delay: 3500,
+        isActive: true,
+        isVisible: false,
+        autoHide: true,
+        showOnce: true
+      }
+    ].filter(banner => {
+      // showOnce가 true인 배너는 이미 표시되었으면 제외
+      if (banner.showOnce && shownBanners.includes(banner.id)) {
+        console.log(`🚫 ${banner.id} 배너는 이미 표시되어 제외됨`);
+        return false;
+      }
+      return true;
+    });
+
+    const sortedBanners = [...initialBanners].sort((a, b) => a.priority - b.priority);
     const timers: NodeJS.Timeout[] = [];
     
     sortedBanners.forEach((banner, index) => {
@@ -107,6 +171,16 @@ const BannerController: React.FC = () => {
         ));
         
         console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority})`);
+        
+        // showOnce 배너는 localStorage에 기록
+        if (banner.showOnce) {
+          const shownBanners = getShownBanners();
+          if (!shownBanners.includes(banner.id)) {
+            shownBanners.push(banner.id);
+            localStorage.setItem('shown-banners', JSON.stringify(shownBanners));
+            console.log(`💾 ${banner.id} 배너 표시 기록 저장`);
+          }
+        }
         
         // 지속 시간이 설정된 배너는 자동으로 비활성화
         if (banner.duration) {
@@ -128,7 +202,7 @@ const BannerController: React.FC = () => {
     return () => {
       timers.forEach(timer => clearTimeout(timer));
     };
-  }, [isSystemActive, banners]);
+  }, [isSystemActive]); // banners 의존성 제거
 
   // 배너 수동 제어 함수들
   const showBanner = (id: string) => {
@@ -157,7 +231,16 @@ const BannerController: React.FC = () => {
   useEffect(() => {
     setGlobalHideAllBanners(hideAllBanners);
     setGlobalDisableAllBanners(disableAllBanners);
+    setGlobalHideBanner(hideBanner);
   }, []);
+
+  // 배너 표시 기록 초기화 함수
+  const resetBannerHistory = () => {
+    localStorage.removeItem('shown-banners');
+    console.log('🔄 배너 표시 기록 초기화 완료');
+    // 페이지 새로고침으로 배너 시스템 재시작
+    window.location.reload();
+  };
 
   // 키보드 단축키 (개발용)
   useEffect(() => {
@@ -165,19 +248,20 @@ const BannerController: React.FC = () => {
       if (e.ctrlKey && e.shiftKey) {
         switch (e.key) {
           case '1':
-            showBanner('auto-show');
-            break;
-          case '2':
             showBanner('content-guide');
             break;
-          case '3':
+          case '2':
             showBanner('book-promotion');
             break;
-          case '4':
+          case '3':
             showBanner('n8n-curriculum');
             break;
           case '0':
             hideAllBanners();
+            break;
+          case 'r':
+          case 'R':
+            resetBannerHistory();
             break;
         }
       }
@@ -198,7 +282,10 @@ const BannerController: React.FC = () => {
           const Component = banner.component;
           return banner.isActive ? (
             <div key={banner.id} className={`banner-${banner.id}`}>
-              <Component forceVisible={banner.isVisible} />
+              <Component 
+                forceVisible={banner.isVisible} 
+                onHide={() => hideBanner(banner.id)}
+              />
             </div>
           ) : null;
         })}
@@ -214,7 +301,8 @@ const BannerController: React.FC = () => {
             </div>
           ))}
           <div className="text-xs mt-1 opacity-60">
-            Ctrl+Shift+1~4: 배너 표시, Ctrl+Shift+0: 모두 숨김
+            Ctrl+Shift+1~3: 배너 표시, Ctrl+Shift+0: 모두 숨김<br/>
+            Ctrl+Shift+R: 배너 기록 초기화
           </div>
         </div>
       )}
