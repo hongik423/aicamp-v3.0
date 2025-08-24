@@ -54,39 +54,42 @@ export const hideBanner = (id: string) => {
 };
 
 const BannerController: React.FC = () => {
-  const [banners, setBanners] = useState<BannerState[]>([
+  // 배너 설정을 상수로 분리하여 중복 제거
+  const BANNER_CONFIG = [
     {
       id: 'content-guide',
       component: AICampContentGuide,
       priority: 1,
-      delay: 1000, // 1초 후 표시
+      delay: 1000,
       isActive: true,
       isVisible: false,
-      autoHide: true, // 자동 숨김 활성화
-      showOnce: true // 한 번만 표시
+      autoHide: true,
+      showOnce: true
     },
     {
       id: 'book-promotion',
       component: BookPromotionBanner,
       priority: 2,
-      delay: 1000, // 1초 후 표시
-      duration: 1000, // 1초간 표시
+      delay: 1000,
+      duration: 5000, // 5초간 표시로 증가
       isActive: true,
       isVisible: false,
-      autoHide: true, // 자동 숨김 활성화
-      showOnce: true // 한 번만 표시로 변경
+      autoHide: true,
+      showOnce: true
     },
     {
       id: 'n8n-curriculum',
       component: N8nCurriculumBanner,
       priority: 3,
-      delay: 1000, // 1초 후 표시
+      delay: 1000,
       isActive: true,
       isVisible: false,
-      autoHide: true, // 자동 숨김 활성화
-      showOnce: true // 한 번만 표시
+      autoHide: true,
+      showOnce: true
     }
-  ]);
+  ];
+
+  const [banners, setBanners] = useState<BannerState[]>(BANNER_CONFIG);
 
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [isSystemActive, setIsSystemActive] = useState(false);
@@ -105,52 +108,22 @@ const BannerController: React.FC = () => {
   useEffect(() => {
     if (!isSystemActive) return;
 
-    // localStorage에서 이미 표시된 배너 확인
+    // localStorage에서 이미 표시된 배너 확인 (안전한 처리)
     const getShownBanners = () => {
       try {
+        if (typeof window === 'undefined') return [];
         const shown = localStorage.getItem('shown-banners');
         return shown ? JSON.parse(shown) : [];
-      } catch {
+      } catch (error) {
+        console.warn('localStorage 접근 오류:', error);
         return [];
       }
     };
 
     const shownBanners = getShownBanners();
 
-    // 초기 배너 설정을 기반으로 정렬
-    const initialBanners = [
-      {
-        id: 'content-guide',
-        component: AICampContentGuide,
-        priority: 1,
-        delay: 1000, // 1초 후 표시
-        isActive: true,
-        isVisible: false,
-        autoHide: true,
-        showOnce: true
-      },
-      {
-        id: 'book-promotion',
-        component: BookPromotionBanner,
-        priority: 2,
-        delay: 1000, // 1초 후 표시
-        duration: 1000, // 1초간 표시
-        isActive: true,
-        isVisible: false,
-        autoHide: true,
-        showOnce: true // 한 번만 표시로 변경
-      },
-      {
-        id: 'n8n-curriculum',
-        component: N8nCurriculumBanner,
-        priority: 3,
-        delay: 1000, // 1초 후 표시
-        isActive: true,
-        isVisible: false,
-        autoHide: true,
-        showOnce: true
-      }
-    ].filter(banner => {
+    // BANNER_CONFIG를 기반으로 필터링
+    const activeBanners = BANNER_CONFIG.filter(banner => {
       // showOnce가 true인 배너는 이미 표시되었으면 제외
       if (banner.showOnce && shownBanners.includes(banner.id)) {
         console.log(`🚫 ${banner.id} 배너는 이미 표시되어 제외됨`);
@@ -159,12 +132,12 @@ const BannerController: React.FC = () => {
       return true;
     });
 
-    const sortedBanners = [...initialBanners].sort((a, b) => a.priority - b.priority);
+    const sortedBanners = [...activeBanners].sort((a, b) => a.priority - b.priority);
     const timers: NodeJS.Timeout[] = [];
     
     // 순차적 배너 표시 (우선순위 기반)
     sortedBanners.forEach((banner, index) => {
-      const sequentialDelay = banner.delay + (index * 100); // 각 배너마다 100ms씩 지연
+      const sequentialDelay = banner.delay + (index * 200); // 각 배너마다 200ms씩 지연 (더 여유롭게)
       
       const timer = setTimeout(() => {
         setBanners(prev => prev.map(b => 
@@ -175,13 +148,19 @@ const BannerController: React.FC = () => {
         
         console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1})`);
         
-        // showOnce 배너는 localStorage에 기록
+        // showOnce 배너는 localStorage에 기록 (안전한 처리)
         if (banner.showOnce) {
-          const shownBanners = getShownBanners();
-          if (!shownBanners.includes(banner.id)) {
-            shownBanners.push(banner.id);
-            localStorage.setItem('shown-banners', JSON.stringify(shownBanners));
-            console.log(`💾 ${banner.id} 배너 표시 기록 저장`);
+          try {
+            if (typeof window !== 'undefined') {
+              const shownBanners = getShownBanners();
+              if (!shownBanners.includes(banner.id)) {
+                shownBanners.push(banner.id);
+                localStorage.setItem('shown-banners', JSON.stringify(shownBanners));
+                console.log(`💾 ${banner.id} 배너 표시 기록 저장`);
+              }
+            }
+          } catch (error) {
+            console.warn(`${banner.id} 배너 기록 저장 실패:`, error);
           }
         }
         
@@ -237,12 +216,18 @@ const BannerController: React.FC = () => {
     setGlobalHideBanner(hideBannerLocal);
   }, []);
 
-  // 배너 표시 기록 초기화 함수
+  // 배너 표시 기록 초기화 함수 (안전한 처리)
   const resetBannerHistory = () => {
-    localStorage.removeItem('shown-banners');
-    console.log('🔄 배너 표시 기록 초기화 완료');
-    // 페이지 새로고침으로 배너 시스템 재시작
-    window.location.reload();
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('shown-banners');
+        console.log('🔄 배너 표시 기록 초기화 완료');
+        // 페이지 새로고침으로 배너 시스템 재시작
+        window.location.reload();
+      }
+    } catch (error) {
+      console.warn('배너 기록 초기화 실패:', error);
+    }
   };
 
   // 키보드 단축키 (개발용)

@@ -2122,6 +2122,12 @@ function doPost(e) {
           result = processConsultation(requestData);
           break;
           
+        case 'system_test':
+        case 'system-test':
+        case 'test':
+          result = runSystemTest();
+          break;
+          
         default:
           console.log(`⚠️ 알 수 없는 요청 타입 '${requestType}', AI 역량진단으로 처리`);
           result = processDiagnosis(requestData);

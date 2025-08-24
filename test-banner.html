@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배너 테스트</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #357abd;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 배너 시스템 테스트</h1>
+        
+        <div class="test-section">
+            <h2>배너 제어</h2>
+            <button onclick="testBanner('content-guide')">AICamp 가이드 배너</button>
+            <button onclick="testBanner('book-promotion')">도서 홍보 배너</button>
+            <button onclick="testBanner('n8n-curriculum')">N8N 커리큘럼 배너</button>
+            <button onclick="hideAllBanners()">모든 배너 숨기기</button>
+            <button onclick="resetBannerHistory()">배너 기록 초기화</button>
+        </div>
+
+        <div class="test-section">
+            <h2>키보드 단축키</h2>
+            <p>Ctrl + Shift + 1: AICamp 가이드 배너</p>
+            <p>Ctrl + Shift + 2: 도서 홍보 배너</p>
+            <p>Ctrl + Shift + 3: N8N 커리큘럼 배너</p>
+            <p>Ctrl + Shift + 0: 모든 배너 숨기기</p>
+            <p>Ctrl + Shift + R: 배너 기록 초기화</p>
+        </div>
+
+        <div class="test-section">
+            <h2>상태 확인</h2>
+            <div id="status" class="status">
+                배너 시스템 상태를 확인하세요...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 배너 테스트 함수
+        function testBanner(bannerId) {
+            console.log(`테스트 배너: ${bannerId}`);
+            // 실제 배너 제어는 BannerController에서 처리됨
+            updateStatus(`배너 테스트 요청: ${bannerId}`);
+        }
+
+        function hideAllBanners() {
+            console.log('모든 배너 숨기기');
+            updateStatus('모든 배너 숨기기 요청');
+        }
+
+        function resetBannerHistory() {
+            console.log('배너 기록 초기화');
+            try {
+                localStorage.removeItem('shown-banners');
+                updateStatus('배너 기록 초기화 완료');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } catch (error) {
+                updateStatus('배너 기록 초기화 실패: ' + error.message);
+            }
+        }
+
+        function updateStatus(message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+        }
+
+        // 페이지 로드 시 상태 확인
+        window.addEventListener('load', () => {
+            try {
+                const shownBanners = localStorage.getItem('shown-banners');
+                const banners = shownBanners ? JSON.parse(shownBanners) : [];
+                updateStatus(`현재 표시된 배너: ${banners.join(', ') || '없음'}`);
+            } catch (error) {
+                updateStatus('상태 확인 실패: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

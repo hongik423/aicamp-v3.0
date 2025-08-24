@@ -108,9 +108,15 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
+
+  // Hydration 오류 방지
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // 모션 감소 설정 감지 및 경고 처리 (오류 방지)
   useEffect(() => {
@@ -160,8 +166,8 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
           viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
         }
         // 터치 이벤트 최적화
-        document.body.style.webkitTouchCallout = 'none';
-        document.body.style.webkitUserSelect = 'none';
+        (document.body.style as any).webkitTouchCallout = 'none';
+        (document.body.style as any).webkitUserSelect = 'none';
       }
     }
 
@@ -177,8 +183,8 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
         if (viewport) {
           viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
         }
-        document.body.style.webkitTouchCallout = 'auto';
-        document.body.style.webkitUserSelect = 'auto';
+        (document.body.style as any).webkitTouchCallout = 'auto';
+        (document.body.style as any).webkitUserSelect = 'auto';
       }
     };
   }, [isVisible, isMobile]);
@@ -209,7 +215,7 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
     setTimeout(() => setIsTouched(false), 150);
   }, []);
 
-  if (!isVisible) return null;
+  if (!isVisible || !isMounted) return null;
 
   return (
     <AnimatePresence>

@@ -213,8 +213,14 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
   const [isVisible, setIsVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const categories = ['전체', '핵심서비스', '주요액션', '기타서비스'];
+
+  // Hydration 오류 방지
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const filteredContent = selectedCategory === '전체' 
     ? contentData 
@@ -255,7 +261,7 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!isVisible) return null;
+  if (!isVisible || !isMounted) return null;
 
   return (
     <AnimatePresence>

@@ -78,9 +78,15 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
   const [isLoaded, setIsLoaded] = useState(false);
   const [downloadCount, setDownloadCount] = useState(2847);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
+
+  // Hydration 오류 방지
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // BannerController에서 제어됨 - forceVisible prop 사용
   useEffect(() => {
@@ -132,8 +138,8 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
         if (viewport) {
           viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
         }
-        document.body.style.webkitTouchCallout = 'none';
-        document.body.style.webkitUserSelect = 'none';
+        (document.body.style as any).webkitTouchCallout = 'none';
+        (document.body.style as any).webkitUserSelect = 'none';
       }
     }
 
@@ -146,8 +152,8 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
         if (viewport) {
           viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
         }
-        document.body.style.webkitTouchCallout = 'auto';
-        document.body.style.webkitUserSelect = 'auto';
+        (document.body.style as any).webkitTouchCallout = 'auto';
+        (document.body.style as any).webkitUserSelect = 'auto';
       }
     };
   }, [isVisible, isMobile]);
@@ -224,7 +230,7 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
     // shouldReduceMotion 상태만 감지하고 로그는 출력하지 않음
   }, [shouldReduceMotion]);
 
-  if (!isVisible) return null;
+  if (!isVisible || !isMounted) return null;
 
   return (
     <>
