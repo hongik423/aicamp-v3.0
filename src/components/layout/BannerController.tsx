@@ -114,9 +114,6 @@ const BannerController: React.FC = () => {
 
     const sortedBanners = [...activeBanners].sort((a, b) => a.priority - b.priority);
     const timers: NodeJS.Timeout[] = [];
-
-    const sortedBanners = [...activeBanners].sort((a, b) => a.priority - b.priority);
-    const timers: NodeJS.Timeout[] = [];
     
     // 순차적 배너 표시 (우선순위 기반)
     sortedBanners.forEach((banner, index) => {
