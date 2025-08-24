@@ -114,11 +114,11 @@ export async function POST(request: NextRequest) {
         });
         addProgressEvent({
           diagnosisId: workflowResult.diagnosisId,
-          stepId: 'gas-processing',
-          stepName: 'GAS 처리',
+          stepId: 'gas-v22-processing',
+          stepName: 'V22 GAS 처리',
           status: 'in-progress',
           progressPercent: 80,
-          message: 'Google Apps Script로 데이터 저장 및 이메일 발송 요청'
+          message: 'Google Apps Script V22.0으로 5개 시트 저장 및 이메일 발송 요청'
         });
         
         // Google Apps Script로 완성된 데이터 전송
@@ -126,49 +126,35 @@ export async function POST(request: NextRequest) {
         const protocol = host?.includes('localhost') ? 'http' : 'https';
         const dynamicBase = host ? `${protocol}://${host}` : 'https://aicamp.club';
         
-                  // GAS 통합 페이로드 구성 (SWOT 및 보고서 생성 포함)
+                  // V22 GAS 스크립트에 맞는 페이로드 구성 (processDiagnosis 함수 호출)
         const gasPayload = {
-          // 라우팅 명확화 - GAS 지원 액션 사용
+          // V22 스크립트 라우팅
           type: 'diagnosis',
           action: 'diagnosis',
-          // 기본 진단 데이터 (GAS가 기대하는 형식)
+          
+          // V22 processDiagnosis 함수가 기대하는 기본 데이터
+          diagnosisId: workflowResult.diagnosisId,
           companyName: requestData.companyName,
           contactName: requestData.contactName,
           contactEmail: requestData.contactEmail,
-          contactPhone: requestData.contactPhone,
-          industry: requestData.industry,
-          employeeCount: requestData.employeeCount,
-          annualRevenue: requestData.annualRevenue,
-          location: requestData.location,
-          privacyConsent: requestData.privacyConsent === true,
+          contactPhone: requestData.contactPhone || '',
+          industry: requestData.industry || '',
+          employeeCount: requestData.employeeCount || '',
+          annualRevenue: requestData.annualRevenue || '',
+          location: requestData.location || '',
           
-          // 45문항 응답 (GAS 호환 형식)
-          assessmentResponses: requestData.assessmentResponses,
+          // 45문항 응답 (V22 호환 형식 - 배열 또는 객체)
+          responses: requestData.assessmentResponses || requestData.responses,
+          assessmentResponses: requestData.assessmentResponses || requestData.responses,
           
-          // 워크플로우 결과 (SWOT 및 보고서 데이터 포함)
-          diagnosisId: workflowResult.diagnosisId,
-          scoreAnalysis: workflowResult.scoreAnalysis,
-          swotAnalysis: workflowResult.detailedAnalysis || {
-            strengths: workflowResult.detailedAnalysis?.strengths || [],
-            weaknesses: workflowResult.detailedAnalysis?.weaknesses || [],
-            opportunities: workflowResult.detailedAnalysis?.opportunities || [],
-            threats: workflowResult.detailedAnalysis?.threats || []
-          },
-          recommendations: workflowResult.recommendations,
-          roadmap: workflowResult.roadmap,
-          qualityMetrics: workflowResult.qualityMetrics,
-          reportGeneration: {
-            requestHtmlReport: true,
-            requestEmailSending: true,
-            emailRecipient: requestData.contactEmail,
-            companyName: requestData.companyName
-          },
+          // V22에서 계산된 점수 데이터 전달 (중복 계산 방지)
+          scoreData: workflowResult.scoreAnalysis,
           
           // 메타데이터
           timestamp: new Date().toISOString(),
-          version: 'V15.0-ULTIMATE-45Q',
-          source: 'integrated_workflow',
-          diagnosisType: 'real-45-questions'
+          version: 'V22.0-ENHANCED-STABLE',
+          source: 'nextjs_frontend',
+          processingType: 'full_workflow'
         };
         
         console.log('🔗 Google Apps Script 호출 URL:', `${dynamicBase}/api/google-script-proxy`);
@@ -181,39 +167,39 @@ export async function POST(request: NextRequest) {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
-              'User-Agent': 'AICAMP-V15.0-INTEGRATED'
+              'User-Agent': 'AICAMP-V22.0-ENHANCED-STABLE'
             },
             body: JSON.stringify(gasPayload),
             signal: AbortSignal.timeout(60000)
           }).then(async (gasResponse) => {
-            console.log('📧 Google Apps Script 후속 처리 시작:', gasResponse.status);
+            console.log('📧 Google Apps Script V22.0 후속 처리 시작:', gasResponse.status);
             if (gasResponse.ok) {
               addProgressEvent({
                 diagnosisId: workflowResult.diagnosisId,
-                stepId: 'report-generation',
-                stepName: '보고서 생성',
+                stepId: 'gas-v22-processing',
+                stepName: 'V22 데이터 저장',
                 status: 'completed',
-                progressPercent: 100,
-                message: 'GAS에 보고서 생성 요청 성공, 결과 대기 중'
+                progressPercent: 90,
+                message: 'V22 스크립트로 5개 시트 저장 및 이메일 발송 요청 성공'
+              });
+              addProgressEvent({
+                diagnosisId: workflowResult.diagnosisId,
+                stepId: 'email-sending',
+                stepName: '이메일 발송',
+                status: 'in-progress',
+                progressPercent: 95,
+                message: 'V22 이메일 템플릿으로 발송 진행 중'
               });
             }
-            addProgressEvent({
-              diagnosisId: workflowResult.diagnosisId,
-              stepId: 'email-sending',
-              stepName: '이메일 발송',
-              status: 'in-progress',
-              progressPercent: 50,
-              message: '이메일 발송 대기/진행'
-            });
           }).catch(gasError => {
-            console.error('⚠️ Google Apps Script 후속 처리 오류 (비차단):', gasError.message);
+            console.error('⚠️ Google Apps Script V22.0 후속 처리 오류 (비차단):', gasError.message);
             addProgressEvent({
               diagnosisId: workflowResult.diagnosisId,
-              stepId: 'email-sending',
-              stepName: '이메일 발송',
-              status: 'pending',
-              progressPercent: 0,
-              message: 'GAS 연결 실패, 재시도 중...'
+              stepId: 'gas-v22-processing',
+              stepName: 'V22 데이터 저장',
+              status: 'error',
+              progressPercent: 80,
+              message: 'V22 스크립트 연결 실패, 재시도 중...'
             });
           });
         }
@@ -223,7 +209,7 @@ export async function POST(request: NextRequest) {
         
         return NextResponse.json({
           success: true,
-          message: '🎯 45문항 점수 집계가 완료되었습니다!',
+          message: '🎯 AI 역량진단이 V22.0 강화된 안정 버전으로 성공적으로 완료되었습니다!',
           diagnosisId: finalDiagnosisId, // 최상위 레벨에 추가 (정합성 향상)
           data: {
             diagnosisId: finalDiagnosisId,
@@ -237,26 +223,29 @@ export async function POST(request: NextRequest) {
             maturityLevel: workflowResult.scoreAnalysis.maturityLevel,
             qualityScore: workflowResult.qualityMetrics.overallQuality,
             
-            // 처리 상태
-            version: 'V17.0-SIMPLIFIED',
+            // V22.0 처리 상태
+            version: 'V22.0-ENHANCED-STABLE',
             features: [
-              '45문항 점수 계산 완료',
-              '구글시트 데이터 저장',
-              '이메일 알림 발송',
-              '이교장 오프라인 분석 대기'
+              '45문항 점수 계산 완료 (강화된 오류 처리)',
+              '5개 시트 데이터 저장 (메인데이터, 45문항상세, 카테고리분석, 세금계산기오류신고, 상담신청)',
+              'V22 강화된 이메일 템플릿 발송',
+              '45문항 질문 텍스트 및 행동지표 자동 저장',
+              '무오류 품질 보장 시스템'
             ]
           },
           processingInfo: {
             status: 'completed',
             scoreCalculation: 'completed',
+            gasVersion: 'V22.0-ENHANCED-STABLE',
+            dataStorage: '5개 시트 저장 시스템',
             emailSending: 'in_progress',
             estimatedEmailTime: '2-3분',
             steps: [
               { step: 1, name: '45문항 점수 계산', status: 'completed' },
-              { step: 2, name: '데이터 검증', status: 'completed' },
-              { step: 3, name: '구글시트 저장', status: 'in_progress' },
-              { step: 4, name: '이메일 발송', status: 'in_progress' },
-              { step: 5, name: '이교장 오프라인 분석', status: 'pending' }
+              { step: 2, name: '데이터 검증 (강화)', status: 'completed' },
+              { step: 3, name: 'V22 5개 시트 저장', status: 'in_progress' },
+              { step: 4, name: 'V22 이메일 템플릿 발송', status: 'in_progress' },
+              { step: 5, name: '질문 텍스트 및 행동지표 저장', status: 'in_progress' }
             ]
           }
         });

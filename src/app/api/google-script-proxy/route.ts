@@ -18,17 +18,20 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    console.log('🔄 Google Apps Script 프록시 요청:', {
+    console.log('🔄 Google Apps Script V22.0 프록시 요청:', {
       url: gasUrl.substring(0, 50) + '...',
       method: 'POST',
-      action: requestData.action || 'unknown'
+      action: requestData.action || 'unknown',
+      type: requestData.type || 'unknown',
+      diagnosisId: requestData.diagnosisId || 'N/A',
+      version: requestData.version || 'N/A'
     });
 
     // Google Apps Script 타임아웃을 890초로 설정 (Vercel Pro Fluid Compute)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 890000); // 890초 타임아웃
 
-    console.log('🚀 Google Apps Script V15.0 ULTIMATE MCKINSEY 요청 전송 중... (최대 14.83분 대기)');
+    console.log('🚀 Google Apps Script V22.0 강화된 안정 버전 요청 전송 중... (최대 14.83분 대기)');
     
     let response;
     
@@ -42,24 +45,19 @@ export async function POST(request: NextRequest) {
           'User-Agent': 'AICAMP-Frontend/1.0'
         },
         body: JSON.stringify({
-          // GAS 라우팅 개선 - 지원되는 액션만 사용
-          type: requestData.type === 'ai_diagnosis_complete' ? 'diagnosis' : (requestData.type || 'diagnosis'),
-          action: requestData.action === 'process_diagnosis_with_report' ? 'diagnosis' : (requestData.action || 'diagnosis'),
-          processType: requestData.type === 'ai_diagnosis_complete' ? 'full_workflow' : 'standard',
+          // V22 GAS 스크립트 라우팅 - processDiagnosis 함수 호출
+          type: requestData.type || 'diagnosis',
+          action: requestData.action || 'diagnosis',
+          
+          // V22 processDiagnosis 함수 전용 데이터
           ...requestData,
+          
+          // 추가 메타데이터
           timestamp: new Date().toISOString(),
-          userAgent: request.headers.get('user-agent') || 'Unknown',
-          referer: request.headers.get('referer') || 'Direct',
-          // 통합 워크플로우 결과 처리 (SWOT 및 보고서 포함)
-          ...(requestData.type === 'ai_diagnosis_complete' ? {
-            integratedWorkflow: true,
-            workflowResult: requestData.workflowResult,
-            swotAnalysis: requestData.swotAnalysis,
-            reportGeneration: requestData.reportGeneration,
-            scoreAnalysis: requestData.scoreAnalysis,
-            recommendations: requestData.recommendations,
-            roadmap: requestData.roadmap
-          } : {})
+          userAgent: request.headers.get('user-agent') || 'AICAMP-Frontend',
+          referer: request.headers.get('referer') || 'https://aicamp.club',
+          gasVersion: 'V22.0-ENHANCED-STABLE',
+          clientVersion: 'NextJS-Frontend-V3.0'
         }),
         signal: controller.signal,
       });

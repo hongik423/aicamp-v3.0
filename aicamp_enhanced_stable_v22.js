@@ -228,14 +228,14 @@ function calculate45QuestionScores(responses) {
     
     if (Array.isArray(responses)) {
       for (let i = 0; i < Math.min(responses.length, 45); i++) {
-        const score = parseInt(responses[i]);
+        const score = parseInt(responses[i], 10);
         if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i] = score;
         }
       }
     } else {
       for (let i = 1; i <= 45; i++) {
-        const score = parseInt(responses[i] || responses[String(i)] || 0);
+        const score = parseInt(responses[i] || responses[String(i)] || 0, 10);
         if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i-1] = score;
         }
@@ -579,15 +579,15 @@ function saveToDetailSheet(data, responses) {
     
     if (Array.isArray(responses)) {
       for (let i = 0; i < Math.min(responses.length, 45); i++) {
-        const score = parseInt(responses[i]);
-        if (!isNaN(score) && score >= 0 && score <= 5) {
+        const score = parseInt(responses[i], 10);
+        if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i] = score;
         }
       }
     } else if (typeof responses === 'object') {
       for (let i = 1; i <= 45; i++) {
-        const score = parseInt(responses[i] || responses[String(i)] || 0);
-        if (!isNaN(score) && score >= 0 && score <= 5) {
+        const score = parseInt(responses[i] || responses[String(i)] || 0, 10);
+        if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i-1] = score;
         }
       }
@@ -654,7 +654,14 @@ function saveToCategorySheet(data, scoreData) {
     console.log('💾 카테고리 분석 시트 저장 시작');
     
     const config = getEnvironmentConfig();
-    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (sheetError) {
+      throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
+    }
+    
     let sheet = spreadsheet.getSheetByName(config.CATEGORY_SHEET_NAME);
     
     // 시트가 없으면 생성
@@ -718,7 +725,14 @@ function saveTaxErrorReport(data) {
     console.log('💾 세금계산기 오류신고 저장 시작');
     
     const config = getEnvironmentConfig();
-    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (sheetError) {
+      throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
+    }
+    
     let sheet = spreadsheet.getSheetByName(config.TAX_ERROR_SHEET_NAME);
     
     // 시트가 없으면 생성
@@ -901,7 +915,14 @@ function saveConsultationRequest(data) {
     console.log('💾 상담신청 데이터 저장 시작');
     
     const config = getEnvironmentConfig();
-    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (sheetError) {
+      throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
+    }
+    
     let sheet = spreadsheet.getSheetByName(config.CONSULTATION_SHEET_NAME);
     
     // 시트가 없으면 생성
@@ -1106,7 +1127,7 @@ function sendEmail(to, subject, htmlBody) {
     // 이메일 형식 검증 강화
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(to.trim())) {
-      throw new Error(`유횤하지 않은 이메일 형식: ${to}`);
+      throw new Error(`유효하지 않은 이메일 형식: ${to}`);
     }
     
     if (!subject) {
@@ -1156,7 +1177,7 @@ function sendEmail(to, subject, htmlBody) {
       console.log(`✅ 이메일 발송 성공: ${to}`);
       return { 
         success: true, 
-        message: '이메일 발솨 성공',
+        message: '이메일 발송 성공',
         recipient: to.trim(),
         timestamp: new Date().toISOString()
       };

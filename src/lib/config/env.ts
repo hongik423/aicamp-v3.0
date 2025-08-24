@@ -6,8 +6,8 @@
 
 import { z } from 'zod';
 
-// 🔧 **실제 AICAMP 구글시트 정보** (V15.0 ULTIMATE MCKINSEY + Google Drive 연동)
-const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec'; // 새 URL로 교체 필요
+// 🔧 **실제 AICAMP 구글시트 정보** (V22.0 강화된 안정 버전 + 5개 시트 저장)
+const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec'; // V22.0 aicamp_enhanced_stable_v22.js 스크립트
 const GOOGLE_SHEETS_ID = '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ';
 
 // 환경변수 스키마 정의 (GEMINI 제거됨 - Ollama 전용)

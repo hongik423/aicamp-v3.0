@@ -16,7 +16,7 @@
  */
 
 import { match } from 'ts-pattern';
-import { generateNavigationResponse, NAVIGATION_KNOWLEDGE, FAQ_RESPONSES } from '@/lib/chatbot/navigation-knowledge-base';
+// import { generateNavigationResponse, NAVIGATION_KNOWLEDGE, FAQ_RESPONSES } from '@/lib/chatbot/navigation-knowledge-base';
 
 // ================================================================================
 // 타입 정의
@@ -849,7 +849,8 @@ export async function generateEnhancedResponse(
   sessionId?: string
 ): Promise<EnhancedResponse> {
   // 먼저 네비게이션 지식 베이스에서 답변 찾기
-  const navigationResponse = generateNavigationResponse(question);
+  // const navigationResponse = generateNavigationResponse(question);
+  const navigationResponse = null;
   
   // 네비게이션 응답이 있으면 즉시 반환
   if (navigationResponse && navigationResponse.answer) {
