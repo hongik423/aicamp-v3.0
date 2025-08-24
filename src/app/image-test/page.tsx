@@ -69,7 +69,10 @@ export default function ImageTestPage() {
                     onError={(e) => {
                       console.error(`이미지 로드 실패: ${image.name}`, image.url);
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling!.style.display = 'flex';
+                      const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (nextElement) {
+                        nextElement.style.display = 'flex';
+                      }
                     }}
                   />
                   <div 
