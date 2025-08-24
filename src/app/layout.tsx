@@ -84,7 +84,6 @@ export const metadata: Metadata = {
         alt: 'AICAMP 로고',
       },
     ],
-    locale: 'ko_KR',
     type: 'website',
   },
   twitter: {
