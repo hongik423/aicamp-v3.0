@@ -35,10 +35,9 @@ export default function BenchmarkPage() {
         <ConsultationRequestModal
           isOpen={showConsultationModal}
           onClose={handleCloseConsultationModal}
-          context="benchmark"
-          prefillData={{
-            source: '벤치마크 성공사례',
-            interest: selectedCase ? `${selectedCase.industry} - ${selectedCase.subIndustry}` : '업종별 벤치마크'
+          initialData={{
+            inquiryType: '벤치마크 성공사례',
+            consultationArea: selectedCase ? `${selectedCase.industry} - ${selectedCase.subIndustry}` : '업종별 벤치마크'
           }}
         />
       )}
