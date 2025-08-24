@@ -52,7 +52,7 @@ export default function BrowserAICheckPage() {
 
   const getModelInfo = (modelName: string) => {
     const models = BrowserLLM.AVAILABLE_MODELS;
-    return Object.values(models).find(m => m.model === modelName) || models.small;
+    return Object.values(models).find(m => m.model === modelName) || models.fallback;
   };
 
   return (
