@@ -54,7 +54,7 @@ export const hideBanner = (id: string) => {
 };
 
 const BannerController: React.FC = () => {
-  // 배너 설정을 상수로 분리하여 중복 제거
+  // 배너 설정을 상수로 분리하여 중복 제거 (매번 표시 모드)
   const BANNER_CONFIG = [
     {
       id: 'content-guide',
@@ -63,8 +63,8 @@ const BannerController: React.FC = () => {
       delay: 1000,
       isActive: true,
       isVisible: false,
-      autoHide: true,
-      showOnce: true
+      autoHide: true
+      // showOnce 제거 - 매번 표시
     },
     {
       id: 'book-promotion',
@@ -74,8 +74,8 @@ const BannerController: React.FC = () => {
       duration: 5000, // 5초간 표시로 증가
       isActive: true,
       isVisible: false,
-      autoHide: true,
-      showOnce: true
+      autoHide: true
+      // showOnce 제거 - 매번 표시
     },
     {
       id: 'n8n-curriculum',
@@ -84,8 +84,8 @@ const BannerController: React.FC = () => {
       delay: 1000,
       isActive: true,
       isVisible: false,
-      autoHide: true,
-      showOnce: true
+      autoHide: true
+      // showOnce 제거 - 매번 표시
     }
   ];
 
@@ -104,33 +104,16 @@ const BannerController: React.FC = () => {
     return () => clearTimeout(initTimer);
   }, []);
 
-  // 순차적 배너 활성화 (초기화 시 한 번만 실행)
+  // 순차적 배너 활성화 (매번 표시 - 홍보와 후킹이 중요하므로)
   useEffect(() => {
     if (!isSystemActive) return;
 
-    // localStorage에서 이미 표시된 배너 확인 (안전한 처리)
-    const getShownBanners = () => {
-      try {
-        if (typeof window === 'undefined') return [];
-        const shown = localStorage.getItem('shown-banners');
-        return shown ? JSON.parse(shown) : [];
-      } catch (error) {
-        console.warn('localStorage 접근 오류:', error);
-        return [];
-      }
-    };
+    // 모든 활성 배너를 표시 (showOnce 로직 제거 - 매번 표시)
+    const activeBanners = BANNER_CONFIG.filter(banner => banner.isActive);
+    console.log(`🎯 홍보 배너 ${activeBanners.length}개 활성화 - 매번 표시 모드`);
 
-    const shownBanners = getShownBanners();
-
-    // BANNER_CONFIG를 기반으로 필터링
-    const activeBanners = BANNER_CONFIG.filter(banner => {
-      // showOnce가 true인 배너는 이미 표시되었으면 제외
-      if (banner.showOnce && shownBanners.includes(banner.id)) {
-        console.log(`🚫 ${banner.id} 배너는 이미 표시되어 제외됨`);
-        return false;
-      }
-      return true;
-    });
+    const sortedBanners = [...activeBanners].sort((a, b) => a.priority - b.priority);
+    const timers: NodeJS.Timeout[] = [];
 
     const sortedBanners = [...activeBanners].sort((a, b) => a.priority - b.priority);
     const timers: NodeJS.Timeout[] = [];
@@ -146,23 +129,7 @@ const BannerController: React.FC = () => {
             : b
         ));
         
-        console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1})`);
-        
-        // showOnce 배너는 localStorage에 기록 (안전한 처리)
-        if (banner.showOnce) {
-          try {
-            if (typeof window !== 'undefined') {
-              const shownBanners = getShownBanners();
-              if (!shownBanners.includes(banner.id)) {
-                shownBanners.push(banner.id);
-                localStorage.setItem('shown-banners', JSON.stringify(shownBanners));
-                console.log(`💾 ${banner.id} 배너 표시 기록 저장`);
-              }
-            }
-          } catch (error) {
-            console.warn(`${banner.id} 배너 기록 저장 실패:`, error);
-          }
-        }
+        console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1}) - 매번 표시 모드`);
         
         // 지속 시간이 설정된 배너는 자동으로 비활성화
         if (banner.duration) {
@@ -221,7 +188,7 @@ const BannerController: React.FC = () => {
     try {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('shown-banners');
-        console.log('🔄 배너 표시 기록 초기화 완료');
+        console.log('🔄 배너 표시 기록 초기화 완료 - 매번 표시 모드');
         // 페이지 새로고침으로 배너 시스템 재시작
         window.location.reload();
       }
