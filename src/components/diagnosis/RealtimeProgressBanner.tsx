@@ -41,26 +41,18 @@ const DIAGNOSIS_STEPS: ProgressStep[] = [
     status: 'pending'
   },
   {
-    id: 'report-generation',
-    name: '2단계: 보고서 생성',
-    description: '이교장 스타일 맞춤형 진단보고서 자동 생성',
-    icon: FileText,
-    estimatedTime: '2-3분',
-    status: 'pending'
-  },
-  {
     id: 'data-storage',
     name: '3단계: 데이터 저장',
-    description: 'Google Sheets 데이터베이스에 안전하게 저장',
+    description: 'Google Sheets에 신청서가 자동으로 저장됩니다',
     icon: Database,
-    estimatedTime: '1분',
+    estimatedTime: '즉시',
     status: 'pending'
   },
   {
     id: 'email-dispatch',
-    name: '4단계: 보고서 발송',
-    description: '완성된 진단보고서를 이메일로 즉시 발송',
-    icon: Mail,
+    name: '4단계: 신청자 확인 이메일',
+    description: '신청자에게 접수 확인 이메일이 발송됩니다',
+    icon: UserCheck,
     estimatedTime: '즉시',
     status: 'pending'
   }
@@ -195,6 +187,29 @@ export default function RealtimeProgressBanner({
               </motion.div>
             )}
 
+            {/* 24시간 대기 안내 - 강화된 가시성 */}
+            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Brain className="w-4 h-4 text-blue-600" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-bold text-blue-900 mb-1">
+                    ⏰ 이교장 오프라인 분석 진행 중
+                  </h4>
+                  <p className="text-sm text-blue-800 mb-2">
+                    제출된 45개 항목을 이교장이 직접 분석하여 맞춤형 진단보고서를 작성합니다.
+                  </p>
+                  <div className="text-xs text-blue-700 font-medium">
+                    📅 예상 완료 시간: <span className="text-red-600 font-bold">24시간 이내</span> | 
+                    📧 완료 시 이메일로 자동 발송됩니다
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* 단계별 진행 상황 */}
             <div className="mb-3">
               <h4 className="text-sm font-semibold text-gray-800 mb-2">
@@ -260,22 +275,31 @@ export default function RealtimeProgressBanner({
               })}
             </div>
 
-            {/* 완료 메시지 */}
+            {/* 완료 메시지 - 24시간 대기 강조 */}
             {progressState.isCompleted && !hasError && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg"
+                className="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg"
               >
-                <div className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-green-700 font-medium">
-                    진단이 완료되어 이메일로 전송되었습니다!
-                  </span>
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-sm font-bold text-green-800">
+                        ✅ 신청서 접수 완료!
+                      </span>
+                    </div>
+                    <p className="text-sm text-green-700 mb-2">
+                      신청서 제출 시 이미 개인정보 동의를 완료하셨습니다. 이제 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.
+                    </p>
+                    <div className="text-xs text-green-600 bg-green-100 p-2 rounded">
+                      <strong>📧 다음 단계:</strong> 24시간 내에 상세한 AI 역량진단보고서가 이메일로 발송됩니다.
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-green-600 mt-1">
-                  이 창은 잠시 후 자동으로 닫힙니다. 이용해 주셔서 감사합니다.
-                </p>
               </motion.div>
             )}
           </CardContent>

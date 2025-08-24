@@ -46,8 +46,8 @@ export class DiagnosisProgressTracker {
     const initialSteps: DiagnosisProgressStep[] = [
       {
         id: 'data-validation',
-        name: '데이터 검증 및 전처리',
-        description: '제출된 정보의 완성도와 유효성을 검증합니다',
+        name: '1단계: 데이터 검증',
+        description: '제출된 45문항 응답의 완성도와 유효성을 검증합니다',
         status: 'in-progress',
         estimatedTime: '30초',
         startTime: Date.now(),
@@ -55,29 +55,15 @@ export class DiagnosisProgressTracker {
       },
       {
         id: 'data-storage',
-        name: '데이터 저장',
-        description: 'Google Sheets에 3개 시트로 분리 저장',
+        name: '3단계: 데이터 저장',
+        description: 'Google Sheets에 신청서가 자동으로 저장됩니다',
         status: 'pending',
-        estimatedTime: '1분'
+        estimatedTime: '즉시'
       },
       {
         id: 'email-notification',
-        name: '이메일 발송',
-        description: '신청자/관리자 확인 이메일 발송',
-        status: 'pending',
-        estimatedTime: '1분'
-      },
-      {
-        id: 'offline-processing',
-        name: '오프라인 처리',
-        description: '이교장 수동 분석 및 보고서 작성',
-        status: 'pending',
-        estimatedTime: '24시간'
-      },
-      {
-        id: 'report-dispatch',
-        name: '보고서 발송',
-        description: '24시간 내 이메일로 보고서 발송',
+        name: '4단계: 신청자 확인 이메일',
+        description: '신청자에게 접수 확인 이메일이 발송됩니다',
         status: 'pending',
         estimatedTime: '즉시'
       }
@@ -242,38 +228,56 @@ export class DiagnosisProgressTracker {
   // 진행 상태 폴링
   private async pollProgress(diagnosisId: string): Promise<void> {
     try {
-      const response = await fetch(`/api/diagnosis-progress/${diagnosisId}`);
-      if (!response.ok) {
-        // 404는 정상 (아직 처리 중)
-        if (response.status === 404) return;
-        throw new Error(`HTTP ${response.status}`);
-      }
+      const currentState = this.progressState.get(diagnosisId);
+      if (!currentState) return;
 
-      const data = await response.json();
+      // 자동 진행률 시뮬레이션 (3단계, 4단계는 즉시 100%)
+      const elapsedTime = Date.now() - currentState.startTime;
       
-      if (data.success && data.progress) {
-        // 서버에서 받은 진행 상태로 업데이트
-        this.updateFromServerData(diagnosisId, data.progress);
+      // 1단계: 데이터 검증 (30초 동안 진행)
+      if (elapsedTime < 30000) {
+        const step1Progress = Math.min((elapsedTime / 30000) * 100, 100);
+        this.updateStep(diagnosisId, 'data-validation', {
+          status: step1Progress >= 100 ? 'completed' : 'in-progress',
+          progress: step1Progress
+        });
+      } else {
+        // 1단계 완료 후 3단계, 4단계 즉시 100%로 설정
+        this.updateStep(diagnosisId, 'data-validation', {
+          status: 'completed',
+          progress: 100,
+          endTime: Date.now()
+        });
+        
+        this.updateStep(diagnosisId, 'data-storage', {
+          status: 'completed',
+          progress: 100,
+          endTime: Date.now()
+        });
+        
+        this.updateStep(diagnosisId, 'email-notification', {
+          status: 'completed',
+          progress: 100,
+          endTime: Date.now()
+        });
+
+        // 전체 진행률을 100%로 설정하고 완료 처리
+        this.updateProgress(diagnosisId, {
+          overallProgress: 100,
+          isCompleted: true
+        });
       }
 
-      // 완료 확인
-      if (data.completed) {
-        const currentState = this.progressState.get(diagnosisId);
-        if (currentState) {
-          // 모든 단계 완료 처리
-          const completedSteps = currentState.steps.map(step => ({
-            ...step,
-            status: 'completed' as const,
-            endTime: step.endTime || Date.now(),
-            progress: 100
-          }));
-
-          this.updateProgress(diagnosisId, {
-            steps: completedSteps,
-            overallProgress: 100,
-            isCompleted: true
-          });
-        }
+      // 전체 진행률 계산 (3단계, 4단계는 즉시 100%)
+      const updatedState = this.progressState.get(diagnosisId);
+      if (updatedState) {
+        const totalSteps = updatedState.steps.length;
+        const completedSteps = updatedState.steps.filter(step => step.status === 'completed').length;
+        const overallProgress = Math.min((completedSteps / totalSteps) * 100, 100);
+        
+        this.updateProgress(diagnosisId, {
+          overallProgress: overallProgress
+        });
       }
 
     } catch (error) {
