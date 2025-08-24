@@ -92,17 +92,18 @@ export async function GET(
     };
 
 // 헬퍼 함수들
-function calculateOverallProgress(steps) {
+function calculateOverallProgress(steps: any) {
   if (!steps) return 0;
   const stepValues = Object.values(steps);
-  const totalProgress = stepValues.reduce((sum, step) => sum + (step.progress || 0), 0);
-  return Math.round(totalProgress / stepValues.length);
+  if (stepValues.length === 0) return 0;
+  const totalProgress = stepValues.reduce((sum, step: any) => sum + (step.progress || 0), 0);
+  return Math.round((totalProgress as number) / stepValues.length);
 }
 
-function getCurrentStep(steps) {
+function getCurrentStep(steps: any) {
   if (!steps) return 'data-validation';
   for (const [stepName, stepData] of Object.entries(steps)) {
-    if (stepData.status === 'in-progress') return stepName;
+    if ((stepData as any).status === 'in-progress') return stepName;
   }
   return 'data-validation';
 }
