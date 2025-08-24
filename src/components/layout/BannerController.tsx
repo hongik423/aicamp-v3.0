@@ -59,7 +59,7 @@ const BannerController: React.FC = () => {
       id: 'content-guide',
       component: AICampContentGuide,
       priority: 1,
-      delay: 800, // 0.8초 - 서비스 소개 배너
+      delay: 1000, // 1초 후 표시
       isActive: true,
       isVisible: false,
       autoHide: true, // 자동 숨김 활성화
@@ -69,18 +69,18 @@ const BannerController: React.FC = () => {
       id: 'book-promotion',
       component: BookPromotionBanner,
       priority: 2,
-      delay: 2000, // 2초 - n8n 책자 소개 배너
-      duration: 8000, // 8초간 표시
+      delay: 1000, // 1초 후 표시
+      duration: 1000, // 1초간 표시
       isActive: true,
       isVisible: false,
       autoHide: true, // 자동 숨김 활성화
-      showOnce: false // 반복 표시 가능
+      showOnce: true // 한 번만 표시로 변경
     },
     {
       id: 'n8n-curriculum',
       component: N8nCurriculumBanner,
       priority: 3,
-      delay: 3500, // 3.5초 - n8n 커리큘럼 배너
+      delay: 1000, // 1초 후 표시
       isActive: true,
       isVisible: false,
       autoHide: true, // 자동 숨김 활성화
@@ -95,8 +95,8 @@ const BannerController: React.FC = () => {
   useEffect(() => {
     const initTimer = setTimeout(() => {
       setIsSystemActive(true);
-      console.log('🚀 배너 시스템 활성화');
-    }, 100); // 500ms에서 100ms로 단축
+      console.log('🚀 배너 시스템 활성화 - 스마트 제어 시스템 준비 완료');
+    }, 100); // 빠른 초기화
 
     return () => clearTimeout(initTimer);
   }, []);
@@ -123,7 +123,7 @@ const BannerController: React.FC = () => {
         id: 'content-guide',
         component: AICampContentGuide,
         priority: 1,
-        delay: 800,
+        delay: 1000, // 1초 후 표시
         isActive: true,
         isVisible: false,
         autoHide: true,
@@ -133,18 +133,18 @@ const BannerController: React.FC = () => {
         id: 'book-promotion',
         component: BookPromotionBanner,
         priority: 2,
-        delay: 2000,
-        duration: 8000,
+        delay: 1000, // 1초 후 표시
+        duration: 1000, // 1초간 표시
         isActive: true,
         isVisible: false,
         autoHide: true,
-        showOnce: false
+        showOnce: true // 한 번만 표시로 변경
       },
       {
         id: 'n8n-curriculum',
         component: N8nCurriculumBanner,
         priority: 3,
-        delay: 3500,
+        delay: 1000, // 1초 후 표시
         isActive: true,
         isVisible: false,
         autoHide: true,
@@ -162,7 +162,10 @@ const BannerController: React.FC = () => {
     const sortedBanners = [...initialBanners].sort((a, b) => a.priority - b.priority);
     const timers: NodeJS.Timeout[] = [];
     
+    // 순차적 배너 표시 (우선순위 기반)
     sortedBanners.forEach((banner, index) => {
+      const sequentialDelay = banner.delay + (index * 100); // 각 배너마다 100ms씩 지연
+      
       const timer = setTimeout(() => {
         setBanners(prev => prev.map(b => 
           b.id === banner.id 
@@ -170,7 +173,7 @@ const BannerController: React.FC = () => {
             : b
         ));
         
-        console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority})`);
+        console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1})`);
         
         // showOnce 배너는 localStorage에 기록
         if (banner.showOnce) {
@@ -190,11 +193,11 @@ const BannerController: React.FC = () => {
                 ? { ...b, isVisible: false }
                 : b
             ));
-            console.log(`⏰ ${banner.id} 배너 자동 비활성화`);
+            console.log(`⏰ ${banner.id} 배너 자동 비활성화 (${banner.duration}ms 후)`);
           }, banner.duration);
           timers.push(durationTimer);
         }
-      }, banner.delay);
+      }, sequentialDelay);
       
       timers.push(timer);
     });
@@ -211,7 +214,7 @@ const BannerController: React.FC = () => {
     ));
   };
 
-  const hideBanner = (id: string) => {
+  const hideBannerLocal = (id: string) => {
     setBanners(prev => prev.map(b => 
       b.id === id ? { ...b, isVisible: false } : b
     ));
@@ -231,7 +234,7 @@ const BannerController: React.FC = () => {
   useEffect(() => {
     setGlobalHideAllBanners(hideAllBanners);
     setGlobalDisableAllBanners(disableAllBanners);
-    setGlobalHideBanner(hideBanner);
+    setGlobalHideBanner(hideBannerLocal);
   }, []);
 
   // 배너 표시 기록 초기화 함수
@@ -284,7 +287,7 @@ const BannerController: React.FC = () => {
             <div key={banner.id} className={`banner-${banner.id}`}>
               <Component 
                 forceVisible={banner.isVisible} 
-                onHide={() => hideBanner(banner.id)}
+                onHide={() => hideBannerLocal(banner.id)}
               />
             </div>
           ) : null;
@@ -293,16 +296,25 @@ const BannerController: React.FC = () => {
       
       {/* 개발용 배너 상태 표시 (프로덕션에서는 숨김) */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 right-4 bg-black/80 text-white p-2 rounded text-xs z-[99999]">
-          <div>배너 시스템: {isSystemActive ? '활성' : '비활성'}</div>
-          {banners.map(banner => (
-            <div key={banner.id} className={banner.isVisible ? 'text-green-400' : 'text-gray-400'}>
-              {banner.priority}. {banner.id}: {banner.isVisible ? '표시' : '숨김'}
-            </div>
-          ))}
-          <div className="text-xs mt-1 opacity-60">
-            Ctrl+Shift+1~3: 배너 표시, Ctrl+Shift+0: 모두 숨김<br/>
-            Ctrl+Shift+R: 배너 기록 초기화
+        <div className="fixed bottom-4 right-4 bg-black/90 text-white p-3 rounded-lg text-xs z-[99999] shadow-xl border border-gray-600">
+          <div className="font-bold mb-2 text-blue-400">🎯 스마트 배너 제어 시스템</div>
+          <div className="mb-2">시스템: <span className={isSystemActive ? 'text-green-400' : 'text-red-400'}>{isSystemActive ? '활성' : '비활성'}</span></div>
+          <div className="space-y-1">
+            {banners.map(banner => (
+              <div key={banner.id} className={`flex justify-between ${banner.isVisible ? 'text-green-400' : 'text-gray-400'}`}>
+                <span>{banner.priority}. {banner.id}</span>
+                <span className="ml-2">
+                  {banner.isVisible ? '🟢 표시' : '⚫ 숨김'}
+                  {banner.showOnce ? ' 🔒' : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="text-xs mt-2 pt-2 border-t border-gray-600 opacity-70">
+            <div>⌨️ 단축키:</div>
+            <div>Ctrl+Shift+1~3: 개별 표시</div>
+            <div>Ctrl+Shift+0: 모두 숨김</div>
+            <div>Ctrl+Shift+R: 기록 초기화</div>
           </div>
         </div>
       )}
