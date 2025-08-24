@@ -1,17 +1,17 @@
 /**
  * ================================================================================
- * 🎯 V22.0 AICAMP 통합 시스템 - 강화된 안정 버전
+ * 🎯 V22.0 AICAMP 통합 시스템 - 이교장님 보고서용 최적화 버전
  * ================================================================================
  * 
  * ✅ 핵심 기능 (V21 + 추가 기능):
  * 1. 45문항 점수 계산 (사실 기반)
  * 2. 등급 및 성숙도 판정
- * 3. Google Sheets 데이터 저장 (강화된 3개 시트)
+ * 3. Google Sheets 데이터 저장 (이교장님 보고서용 최적화)
  * 4. 신청자/관리자 이메일 발송
  * 5. 빠른 처리 속도 보장
  * 
  * 🆕 V22 추가 기능:
- * 1. 45문항 평가 질문 텍스트 및 행동지표 자동 저장
+ * 1. 45문항 평가문제 전문 + 행동지표 자동 저장 (이교장님 보고서용)
  * 2. 세금계산기 오류신고 데이터 저장 및 이메일 발송
  * 3. 상담신청 데이터 저장 및 이메일 발송
  * 
@@ -22,17 +22,17 @@
  * - 빠른 실행 속도
  * - 사실 기반 정보만 처리
  * 
- * 📊 데이터 저장 구조:
- * - AI역량진단_메인데이터: 기본정보 + 점수
- * - AI역량진단_45문항상세: 문항별 응답 + 질문텍스트 + 행동지표
- * - AI역량진단_카테고리분석: 카테고리별 점수
+ * 📊 데이터 저장 구조 (이교장님 보고서용):
+ * - AI역량진단_메인데이터: 기본정보 + 점수 (직책 포함)
+ * - AI역량진단_45문항상세: 진단일시, 회사명, 담당자명, 이메일, 연락처, 직책, 업종, 직원수, 소재지 + 45문항 점수 + 평가문제 전문 + 행동지표
+ * - AI역량진단_카테고리분석: 카테고리별 점수 (담당자명 포함)
  * - 세금계산기_오류신고: 오류신고 데이터
  * - 상담신청_데이터: 상담신청 정보
  * 
  * ================================================================================
  */
 
-console.log('🚀 V22.0 AICAMP 통합 시스템 - 강화된 안정 버전 로드 시작');
+console.log('🚀 V22.0 AICAMP 통합 시스템 - 이교장님 보고서용 최적화 버전 로드 시작');
 
 // ================================================================================
 // 🔧 환경 설정 관리 시스템 (확장)
@@ -227,26 +227,70 @@ function calculate45QuestionScores(responses) {
     let responseArray = new Array(45).fill(0); // 기본값으로 초기화
     
     if (Array.isArray(responses)) {
+      // 배열이 비어있는 경우 처리
+      if (responses.length === 0) {
+        console.warn('⚠️ 응답 배열이 비어있습니다');
+      }
       for (let i = 0; i < Math.min(responses.length, 45); i++) {
         const score = parseInt(responses[i], 10);
         if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i] = score;
         }
       }
-    } else {
+    } else if (typeof responses === 'object' && responses !== null) {
+      // 객체가 비어있는 경우 처리
+      if (Object.keys(responses).length === 0) {
+        console.warn('⚠️ 응답 객체가 비어있습니다');
+      }
       for (let i = 1; i <= 45; i++) {
         const score = parseInt(responses[i] || responses[String(i)] || 0, 10);
         if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i-1] = score;
         }
       }
+    } else {
+      console.warn('⚠️ 응답 데이터가 배열 또는 객체가 아닙니다');
     }
     
-    // 유효한 응답 개수 확인
+    // 유효한 응답 개수 확인 (전체 문항 필수)
     const validResponseCount = responseArray.filter(score => score >= 1 && score <= 5).length;
-    if (validResponseCount < 20) { // 최소 20개 문항은 응답해야 함
-      console.warn(`⚠️ 유효한 응답이 ${validResponseCount}개뿐입니다. 최소 20개 이상 권장`);
+    
+    if (validResponseCount === 0) {
+      throw new Error('유효한 응답이 없습니다. 45개 문항 모두 응답해야 합니다.');
     }
+    
+    if (validResponseCount < 45) {
+      throw new Error(`응답이 부족합니다. ${validResponseCount}/45개 응답됨. 정확한 AI 역량진단을 위해 45개 문항 모두 응답해야 합니다.`);
+    }
+    
+    console.log(`✅ 유효한 응답: ${validResponseCount}/45개 (완전 진단)`);
+    
+    // 추가 검증: 모든 카테고리에 최소 응답이 있는지 확인
+    const categoryResponseCounts = {};
+    Object.keys(CATEGORY_MAPPING).forEach(category => {
+      const questionIndices = CATEGORY_MAPPING[category] || [];
+      let categoryValidCount = 0;
+      
+      questionIndices.forEach(questionNum => {
+        if (questionNum >= 1 && questionNum <= 45) {
+          const score = responseArray[questionNum - 1] || 0;
+          if (score >= 1 && score <= 5) {
+            categoryValidCount++;
+          }
+        }
+      });
+      
+      categoryResponseCounts[category] = {
+        valid: categoryValidCount,
+        total: questionIndices.length
+      };
+      
+      if (categoryValidCount < questionIndices.length) {
+        throw new Error(`${category} 카테고리에서 ${categoryValidCount}/${questionIndices.length}개만 응답됨. 모든 문항에 응답해야 합니다.`);
+      }
+    });
+    
+    console.log('✅ 모든 카테고리 응답 완료 확인됨');
     
     // 카테고리별 점수 계산 (안전한 처리)
     const categoryScores = {};
@@ -408,12 +452,12 @@ function saveToMainSheet(data, scoreData) {
     
     let sheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
     
-    // 시트가 없으면 생성
+    // 시트가 없으면 생성 (이교장님 보고서용)
     if (!sheet) {
       try {
         sheet = spreadsheet.insertSheet(config.MAIN_SHEET_NAME);
         const headers = [
-          '진단ID', '제출일시', '회사명', '담당자명', '이메일', '연락처',
+          '진단ID', '제출일시', '회사명', '담당자명', '이메일', '연락처', '직책',
           '업종', '직원수', '연매출', '소재지',
           '총점', '백분율', '등급', '성숙도레벨',
           '비즈니스기반점수', '현재AI활용점수', '조직준비도점수', 
@@ -423,7 +467,7 @@ function saveToMainSheet(data, scoreData) {
         
         if (sheet && headers.length > 0) {
           sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-          sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+          sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#e3f2fd').setFontColor('#1565c0');
         }
       } catch (createError) {
         throw new Error(`시트 생성 실패: ${createError.message}`);
@@ -434,7 +478,7 @@ function saveToMainSheet(data, scoreData) {
       throw new Error('시트를 생성하거나 찾을 수 없습니다');
     }
     
-    // 데이터 행 추가 (안전한 처리)
+    // 데이터 행 추가 (이교장님 보고서용)
     const currentTime = new Date();
     const rowData = [
       String(data.diagnosisId || `DIAG_${Date.now()}`),
@@ -443,6 +487,7 @@ function saveToMainSheet(data, scoreData) {
       String(data.contactName || ''),
       String(data.contactEmail || ''),
       String(data.contactPhone || ''),
+      String(data.position || ''), // 직책 추가
       String(data.industry || ''),
       String(data.employeeCount || ''),
       String(data.annualRevenue || ''),
@@ -491,6 +536,11 @@ function saveToDetailSheet(data, responses) {
       throw new Error('응답 데이터가 없습니다');
     }
     
+    // EVALUATION_QUESTIONS 배열 안전성 검증
+    if (!EVALUATION_QUESTIONS || !Array.isArray(EVALUATION_QUESTIONS)) {
+      console.warn('⚠️ EVALUATION_QUESTIONS 배열이 없습니다. 기본 구조로 진행합니다.');
+    }
+    
     const config = getEnvironmentConfig();
     if (!config || !config.SPREADSHEET_ID) {
       throw new Error('스프레드시트 설정이 없습니다');
@@ -505,64 +555,101 @@ function saveToDetailSheet(data, responses) {
     
     let sheet = spreadsheet.getSheetByName(config.DETAIL_SHEET_NAME);
     
-    // 시트가 없으면 생성 (안전한 처리)
+    // 시트가 없으면 생성 (이교장님 결과보고서 작성용 최적화)
     if (!sheet) {
       try {
         sheet = spreadsheet.insertSheet(config.DETAIL_SHEET_NAME);
         
-        // EVALUATION_QUESTIONS 배열 검증
-        if (!EVALUATION_QUESTIONS || !Array.isArray(EVALUATION_QUESTIONS) || EVALUATION_QUESTIONS.length !== 45) {
-          throw new Error('평가 질문 데이터가 올바르지 않습니다');
-        }
-        
-        // 첫 번째 행: 기본 정보 + 문항별 점수
-        const headers1 = ['진단ID', '회사명', '제출일시'];
+        // 첫 번째 행: 기본 정보 + 문항별 점수 (이교장님 보고서용)
+        const headers1 = ['진단일시', '회사명', '담당자명', '이메일', '연락처', '직책', '업종', '직원수', '소재지'];
         for (let i = 1; i <= 45; i++) {
           headers1.push(`문항${i}_점수`);
         }
         headers1.push('생성일시');
         
-        // 두 번째 행: 질문 텍스트 (고정)
-        const headers2 = ['', '', ''];
-        EVALUATION_QUESTIONS.forEach(q => {
-          headers2.push(q && q.question ? String(q.question) : '');
-        });
+        // 두 번째 행: 평가문제 전문 + 행동지표 (이교장님 보고서용)
+        const headers2 = ['', '', '', '', '', '', '', '', ''];
+        if (EVALUATION_QUESTIONS && Array.isArray(EVALUATION_QUESTIONS) && EVALUATION_QUESTIONS.length === 45) {
+          EVALUATION_QUESTIONS.forEach((q, index) => {
+            const questionText = q && q.question ? String(q.question) : `문항${index + 1}`;
+            const behaviorIndicators = BEHAVIOR_INDICATORS ? 
+              Object.entries(BEHAVIOR_INDICATORS).map(([score, indicator]) => 
+                `${score}점: ${indicator.label} - ${indicator.description}`
+              ).join(' | ') : '';
+            
+            const fullQuestionText = `${questionText}\n\n[행동지표]\n${behaviorIndicators}`;
+            headers2.push(fullQuestionText);
+          });
+        } else {
+          // EVALUATION_QUESTIONS가 없는 경우 기본 헤더 생성
+          for (let i = 1; i <= 45; i++) {
+            const defaultQuestion = `문항${i} - AI 역량진단 평가문제`;
+            const defaultBehaviorIndicators = '5점: 매우 우수 | 4점: 우수 | 3점: 보통 | 2점: 미흡 | 1점: 매우 미흡';
+            headers2.push(`${defaultQuestion}\n\n[행동지표]\n${defaultBehaviorIndicators}`);
+          }
+        }
         headers2.push('');
         
-        // 세 번째 행: 카테고리 정보 (고정)
-        const headers3 = ['', '', ''];
-        EVALUATION_QUESTIONS.forEach(q => {
-          headers3.push(q && q.category ? String(q.category) : '');
-        });
+        // 세 번째 행: 카테고리 정보 (안전한 처리)
+        const headers3 = ['', '', '', '', '', '', '', '', ''];
+        if (EVALUATION_QUESTIONS && Array.isArray(EVALUATION_QUESTIONS) && EVALUATION_QUESTIONS.length === 45) {
+          EVALUATION_QUESTIONS.forEach(q => {
+            headers3.push(q && q.category ? String(q.category) : '기본카테고리');
+          });
+        } else {
+          // 기본 카테고리 구조
+          const defaultCategories = [
+            '사업기반', '사업기반', '사업기반', '사업기반', '사업기반', '사업기반', '사업기반', '사업기반',
+            '현재AI활용', '현재AI활용', '현재AI활용', '현재AI활용', '현재AI활용', '현재AI활용', '현재AI활용', '현재AI활용',
+            '조직준비도', '조직준비도', '조직준비도', '조직준비도', '조직준비도', '조직준비도', '조직준비도', '조직준비도',
+            '기술인프라', '기술인프라', '기술인프라', '기술인프라', '기술인프라', '기술인프라', '기술인프라', '기술인프라',
+            '목표명확성', '목표명확성', '목표명확성', '목표명확성', '목표명확성', '목표명확성', '목표명확성', '목표명확성',
+            '실행역량', '실행역량', '실행역량', '실행역량', '실행역량'
+          ];
+          defaultCategories.forEach(category => headers3.push(category));
+        }
         headers3.push('');
         
-        // 네 번째 행: 가중치 정보 (고정)
-        const headers4 = ['', '', ''];
-        EVALUATION_QUESTIONS.forEach(q => {
-          headers4.push(q && q.weight ? Number(q.weight) : 1.0);
-        });
+        // 네 번째 행: 가중치 정보 (안전한 처리)
+        const headers4 = ['', '', '', '', '', '', '', '', ''];
+        if (EVALUATION_QUESTIONS && Array.isArray(EVALUATION_QUESTIONS) && EVALUATION_QUESTIONS.length === 45) {
+          EVALUATION_QUESTIONS.forEach(q => {
+            headers4.push(q && q.weight ? Number(q.weight) : 1.0);
+          });
+        } else {
+          // 기본 가중치 구조
+          const defaultWeights = [
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // 사업기반
+            1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2,  // 현재AI활용
+            1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3,  // 조직준비도
+            1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3,  // 기술인프라
+            1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4,  // 목표명확성
+            1.5, 1.5, 1.5, 1.5, 1.5                   // 실행역량
+          ];
+          defaultWeights.forEach(weight => headers4.push(weight));
+        }
         headers4.push('');
         
-        // 헤더 설정 (안전한 처리)
+        // 헤더 설정 (이교장님 보고서용 최적화)
         if (headers1.length > 0) {
           sheet.getRange(1, 1, 1, headers1.length).setValues([headers1]);
-          sheet.getRange(1, 1, 1, headers1.length).setFontWeight('bold').setBackground('#f0f0f0');
+          sheet.getRange(1, 1, 1, headers1.length).setFontWeight('bold').setBackground('#e3f2fd').setFontColor('#1565c0');
         }
         
         if (headers2.length > 0) {
           sheet.getRange(2, 1, 1, headers2.length).setValues([headers2]);
-          sheet.getRange(2, 1, 1, headers2.length).setFontSize(9).setWrap(true).setBackground('#f8f8f8');
-          sheet.setRowHeight(2, 60); // 질문 텍스트 행
+          sheet.getRange(2, 1, 1, headers2.length).setFontSize(8).setWrap(true).setBackground('#f3e5f5').setFontColor('#4a148c');
+          sheet.setRowHeight(2, 120); // 평가문제 + 행동지표 행 (높이 증가)
         }
         
         if (headers3.length > 0) {
           sheet.getRange(3, 1, 1, headers3.length).setValues([headers3]);
-          sheet.getRange(3, 1, 1, headers3.length).setFontWeight('bold').setBackground('#e8e8e8');
+          sheet.getRange(3, 1, 1, headers3.length).setFontWeight('bold').setBackground('#e8f5e8').setFontColor('#2e7d32');
         }
         
         if (headers4.length > 0) {
           sheet.getRange(4, 1, 1, headers4.length).setValues([headers4]);
-          sheet.getRange(4, 1, 1, headers4.length).setBackground('#e0e0e0');
+          sheet.getRange(4, 1, 1, headers4.length).setBackground('#fff3e0').setFontColor('#ef6c00');
         }
         
       } catch (createError) {
@@ -593,12 +680,18 @@ function saveToDetailSheet(data, responses) {
       }
     }
     
-    // 데이터 행 추가 (5번째 행부터 시작)
+    // 데이터 행 추가 (5번째 행부터 시작) - 이교장님 보고서용
     const currentTime = new Date();
     const rowData = [
-      String(data.diagnosisId || `DIAG_${Date.now()}`),
-      String(data.companyName || ''),
-      currentTime
+      currentTime, // 진단일시
+      String(data.companyName || ''), // 회사명
+      String(data.contactName || ''), // 담당자명
+      String(data.contactEmail || ''), // 이메일
+      String(data.contactPhone || ''), // 연락처
+      String(data.position || ''), // 직책
+      String(data.industry || ''), // 업종
+      String(data.employeeCount || ''), // 직원수
+      String(data.location || '') // 소재지
     ];
     
     // 45개 문항 응답 추가
@@ -615,11 +708,11 @@ function saveToDetailSheet(data, responses) {
       
       sheet.getRange(targetRow, 1, 1, rowData.length).setValues([rowData]);
       
-      // 점수에 따른 색상 코딩 (안전한 처리)
+      // 점수에 따른 색상 코딩 (이교장님 보고서용 - 9개 기본정보 컬럼 이후)
       for (let i = 0; i < 45; i++) {
         try {
           const score = responseArray[i] || 0;
-          const cell = sheet.getRange(targetRow, 4 + i);
+          const cell = sheet.getRange(targetRow, 10 + i); // 9개 기본정보 + 1개 생성일시 이후
           
           if (score >= 4) {
             cell.setBackground('#d4edda'); // 녹색 (우수)
@@ -664,11 +757,11 @@ function saveToCategorySheet(data, scoreData) {
     
     let sheet = spreadsheet.getSheetByName(config.CATEGORY_SHEET_NAME);
     
-    // 시트가 없으면 생성
+    // 시트가 없으면 생성 (이교장님 보고서용)
     if (!sheet) {
       sheet = spreadsheet.insertSheet(config.CATEGORY_SHEET_NAME);
       const headers = [
-        '진단ID', '회사명', '제출일시',
+        '진단ID', '회사명', '담당자명', '제출일시',
         '비즈니스기반_총점', '비즈니스기반_평균',
         '현재AI활용_총점', '현재AI활용_평균',
         '조직준비도_총점', '조직준비도_평균',
@@ -678,15 +771,16 @@ function saveToCategorySheet(data, scoreData) {
         '생성일시'
       ];
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#e8f5e8').setFontColor('#2e7d32');
     }
     
     const categoryScores = scoreData.categoryScores || {};
     
-    // 데이터 행 추가
+    // 데이터 행 추가 (이교장님 보고서용)
     const rowData = [
       data.diagnosisId || `DIAG_${Date.now()}`,
       data.companyName || '',
+      data.contactName || '', // 담당자명 추가
       new Date(),
       categoryScores.businessFoundation?.totalScore || 0,
       categoryScores.businessFoundation?.averageScore || 0,
@@ -735,7 +829,7 @@ function saveTaxErrorReport(data) {
     
     let sheet = spreadsheet.getSheetByName(config.TAX_ERROR_SHEET_NAME);
     
-    // 시트가 없으면 생성
+    // 시트가 없으면 생성 (이교장님 보고서용)
     if (!sheet) {
       sheet = spreadsheet.insertSheet(config.TAX_ERROR_SHEET_NAME);
       const headers = [
@@ -744,7 +838,7 @@ function saveTaxErrorReport(data) {
         '브라우저정보', '디바이스정보', '추가정보', '처리상태', '처리일시', '처리내용'
       ];
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#ffe6e6');
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#ffe6e6').setFontColor('#c62828');
     }
     
     // 신고 ID 생성
@@ -925,7 +1019,7 @@ function saveConsultationRequest(data) {
     
     let sheet = spreadsheet.getSheetByName(config.CONSULTATION_SHEET_NAME);
     
-    // 시트가 없으면 생성
+    // 시트가 없으면 생성 (이교장님 보고서용)
     if (!sheet) {
       sheet = spreadsheet.insertSheet(config.CONSULTATION_SHEET_NAME);
       const headers = [
@@ -934,7 +1028,7 @@ function saveConsultationRequest(data) {
         '처리상태', '처리일시', '상담결과', '담당자메모'
       ];
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#e6f3ff');
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#e6f3ff').setFontColor('#1565c0');
     }
     
     // 상담 ID 생성
@@ -1198,7 +1292,7 @@ function sendEmail(to, subject, htmlBody) {
 }
 
 /**
- * 신청자 이메일 템플릿 (AI 역량진단용)
+ * 신청자 이메일 템플릿 (AI 역량진단용 - 이교장님 스타일 업그레이드)
  */
 function createApplicantEmailTemplate(data, scoreData) {
   const config = getEnvironmentConfig();
@@ -1209,63 +1303,299 @@ function createApplicantEmailTemplate(data, scoreData) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 역량진단 결과</title>
+    <title>AI 역량진단 평가표 접수 완료 안내</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-        .content { padding: 30px; }
-        .score-box { background: #f8f9ff; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
-        .category-item { background: #fff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px; margin: 10px 0; }
-        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 12px; }
-        .btn { display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 5px; }
+        body { 
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
+            line-height: 1.8; 
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f8f9fa; 
+        }
+        .container { 
+            max-width: 650px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); 
+            color: white; 
+            padding: 35px 30px; 
+            text-align: center; 
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .logo-text {
+            font-size: 28px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .content { 
+            padding: 40px 35px; 
+            background: #ffffff;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        .principal-intro {
+            background: #f8f9ff;
+            border-left: 4px solid #4a90e2;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 16px;
+        }
+        .score-section {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f1f8ff 100%);
+            border: 2px solid #4a90e2;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 12px;
+        }
+        .score-title {
+            color: #2c5282;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .main-score {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .category-item { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            padding: 18px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .category-name {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        .category-score {
+            color: #4a90e2;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .report-section {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 12px;
+        }
+        .report-title {
+            color: #e65100;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .report-features {
+            margin: 20px 0;
+        }
+        .report-features li {
+            margin: 8px 0;
+            color: #5d4037;
+        }
+        .cta-section {
+            text-align: center;
+            margin: 35px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .btn { 
+            display: inline-block; 
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); 
+            color: white; 
+            padding: 14px 28px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            margin: 8px; 
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.3);
+        }
+        .contact-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        .footer { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 25px; 
+            text-align: center; 
+            font-size: 14px; 
+        }
+        .signature {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            text-align: right;
+            color: #2c3e50;
+        }
+        @media (max-width: 600px) {
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 AI 역량진단 결과</h1>
-            <p>${config.SYSTEM_NAME} ${config.VERSION}</p>
+            <div class="logo-section">
+                <div style="width: 40px; height: 40px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <span style="color: #4a90e2; font-weight: bold; font-size: 20px;">AI</span>
+                </div>
+                <div class="logo-text">AICAMP</div>
+            </div>
+            <h1 style="margin: 0; font-size: 24px;">AI 역량진단 평가표 접수 완료 안내</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.companyName || '귀하의 회사'}</p>
         </div>
         
         <div class="content">
-            <h2>안녕하세요, ${data.contactName || '고객'}님!</h2>
-            <p><strong>${data.companyName || '귀하의 회사'}</strong>의 AI 역량진단이 완료되었습니다.</p>
-            
-            <div class="score-box">
-                <h3>📊 진단 결과</h3>
-                <p><strong>총점:</strong> ${scoreData.totalScore || 0}점 / 225점 (${scoreData.percentage || 0}%)</p>
-                <p><strong>등급:</strong> ${scoreData.grade || 'N/A'}</p>
-                <p><strong>성숙도:</strong> ${scoreData.maturityLevel || 'N/A'}</p>
+            <div class="greeting">
+                안녕하세요, <strong>${data.contactName || '고객'}</strong>님
             </div>
             
-            <h3>📈 카테고리별 점수</h3>
-            <div class="category-item">
-                <strong>비즈니스 기반:</strong> ${scoreData.categoryScores?.businessFoundation?.averageScore || 0}점 / 5점
-            </div>
-            <div class="category-item">
-                <strong>현재 AI 활용도:</strong> ${scoreData.categoryScores?.currentAI?.averageScore || 0}점 / 5점
-            </div>
-            <div class="category-item">
-                <strong>조직 준비도:</strong> ${scoreData.categoryScores?.organizationReadiness?.averageScore || 0}점 / 5점
-            </div>
-            <div class="category-item">
-                <strong>기술 인프라:</strong> ${scoreData.categoryScores?.techInfrastructure?.averageScore || 0}점 / 5점
-            </div>
-            <div class="category-item">
-                <strong>목표 명확성:</strong> ${scoreData.categoryScores?.goalClarity?.averageScore || 0}점 / 5점
-            </div>
-            <div class="category-item">
-                <strong>실행 역량:</strong> ${scoreData.categoryScores?.executionCapability?.averageScore || 0}점 / 5점
+            <div class="principal-intro">
+                <strong>AICAMP 이후경 교장</strong>입니다.<br><br>
+                먼저 귀중한 시간을 내어 AI 역량진단 평가표를 제출해 주신 점에 대해 진심으로 감사드립니다.
             </div>
             
-            <div style="text-align: center; margin: 30px 0;">
+            <div class="score-section">
+                <div class="score-title">📋 접수 확인 및 초기 진단 결과</div>
+                
+                <p style="text-align: center; margin-bottom: 20px; color: #4a5568;">
+                    제출해 주신 평가표를 검토한 결과, 다음과 같이 AI역량진단을 확인할 수 있었습니다.
+                </p>
+                
+                <div class="main-score">
+                    <h3 style="color: #2c5282; margin-bottom: 15px;">🎯 종합 평가 결과</h3>
+                    <div style="font-size: 24px; color: #4a90e2; margin: 10px 0;">
+                        <strong>${scoreData.totalScore || 0}점 / 225점 (${scoreData.percentage || 0}%)</strong>
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <span style="background: #4a90e2; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold;">
+                            등급: ${scoreData.grade || 'N/A'}
+                        </span>
+                        <span style="background: #28a745; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; margin-left: 10px;">
+                            ${scoreData.maturityLevel || 'N/A'}
+                        </span>
+                    </div>
+                </div>
+                
+                <h4 style="color: #2c5282; margin: 25px 0 15px 0;">📈 카테고리별 세부 점수</h4>
+                <div class="category-grid">
+                    <div class="category-item">
+                        <div class="category-name">비즈니스 기반</div>
+                        <div class="category-score">${(scoreData.categoryScores?.businessFoundation?.averageScore || 0).toFixed(1)}점 / 5점</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-name">현재 AI 활용도</div>
+                        <div class="category-score">${(scoreData.categoryScores?.currentAI?.averageScore || 0).toFixed(1)}점 / 5점</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-name">조직 준비도</div>
+                        <div class="category-score">${(scoreData.categoryScores?.organizationReadiness?.averageScore || 0).toFixed(1)}점 / 5점</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-name">기술 인프라</div>
+                        <div class="category-score">${(scoreData.categoryScores?.techInfrastructure?.averageScore || 0).toFixed(1)}점 / 5점</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-name">목표 명확성</div>
+                        <div class="category-score">${(scoreData.categoryScores?.goalClarity?.averageScore || 0).toFixed(1)}점 / 5점</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-name">실행 역량</div>
+                        <div class="category-score">${(scoreData.categoryScores?.executionCapability?.averageScore || 0).toFixed(1)}점 / 5점</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="report-section">
+                <div class="report-title">🔍 상세 진단보고서 안내</div>
+                <p>
+                    <strong>${data.companyName || '귀하의 회사'}</strong>의 AI 역량이 ${scoreData.maturityLevel === 'AI 선도기업' ? '매우 높은' : scoreData.maturityLevel === 'AI 활용기업' ? '우수한' : '발전 가능한'} 수준임을 확인할 수 있었습니다. 
+                    제출해 주신 평가표를 바탕으로 더욱 세밀한 분석을 통해 
+                    <strong>"${data.companyName || '귀하의 회사'} AI역량진단보고서"</strong>를 작성하여 
+                    <strong style="color: #e65100;">24시간 이내</strong>에 제공해 드릴 예정입니다.
+                </p>
+                
+                <div class="report-features">
+                    <strong>상세 보고서에는 다음 내용이 포함됩니다:</strong>
+                    <ul>
+                        <li>현재 AI 역량의 강점 분석</li>
+                        <li>향후 발전 방향 제안</li>
+                        <li>업계 벤치마킹 결과</li>
+                        <li>맞춤형 AI 전략 로드맵</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="cta-section">
+                <p style="margin-bottom: 20px; color: #4a5568;">
+                    <strong>더 자세한 상담이나 맞춤형 컨설팅이 필요하시면 언제든 연락 주세요!</strong>
+                </p>
                 <a href="https://aicamp.club/consultation" class="btn">전문가 상담 신청</a>
                 <a href="https://aicamp.club" class="btn">AICAMP 더 알아보기</a>
             </div>
             
-            <p><strong>문의사항이 있으시면 언제든 연락주세요!</strong></p>
-            <p>이메일: ${config.ADMIN_EMAIL}<br>웹사이트: https://aicamp.club</p>
+            <div class="contact-info">
+                <p><strong>추가 문의사항이 있으시면 언제든 연락 주시기 바랍니다.</strong></p>
+                <p>
+                    📧 이메일: ${config.ADMIN_EMAIL}<br>
+                    📱 전화: 010-9251-9743<br>
+                    🌐 웹사이트: https://aicamp.club
+                </p>
+            </div>
+            
+            <p style="text-align: center; color: #4a5568; margin: 30px 0;">
+                다시 한번 AI 역량진단에 참여해 주셔서 감사합니다.
+            </p>
+            
+            <div class="signature">
+                <strong>AICAMP 이후경 교장</strong><br>
+                <small style="color: #718096;">AI 전문가 · 디지털 혁신 컨설턴트</small>
+            </div>
         </div>
         
         <div class="footer">
@@ -1372,7 +1702,7 @@ function sendNotificationEmails(data, scoreData) {
     if (data.contactEmail && typeof data.contactEmail === 'string' && data.contactEmail.trim().length > 0) {
       try {
         results.applicant.attempted = true;
-        const applicantSubject = `[${config.SYSTEM_NAME || 'AICAMP'}] AI 역량진단 결과 - ${data.companyName || '귀하의 회사'}`;
+        const applicantSubject = `[AICAMP] AI 역량진단 평가표 접수 완료 안내 - ${data.companyName || '귀하의 회사'}`;
         const applicantBody = createApplicantEmailTemplate(data, scoreData);
         
         if (!applicantBody || typeof applicantBody !== 'string') {
@@ -1464,7 +1794,7 @@ function processDiagnosis(requestData) {
       throw new Error(`유효하지 않은 이메일 형식: ${requestData.contactEmail}`);
     }
     
-    // 응답 데이터 검증
+    // 응답 데이터 검증 (강화된 검증)
     const responses = requestData.responses || requestData.assessmentResponses;
     if (!responses) {
       throw new Error('45문항 응답 데이터가 없습니다');
@@ -1473,6 +1803,55 @@ function processDiagnosis(requestData) {
     if (typeof responses !== 'object') {
       throw new Error('45문항 응답 데이터 형식이 올바르지 않습니다');
     }
+    
+    // 응답 데이터 추가 검증
+    if (Array.isArray(responses) && responses.length === 0) {
+      throw new Error('응답 배열이 비어있습니다');
+    }
+    
+    if (!Array.isArray(responses) && Object.keys(responses).length === 0) {
+      throw new Error('응답 객체가 비어있습니다');
+    }
+    
+    // 응답 값 형식 사전 검증 (전체 문항 필수)
+    let invalidResponses = [];
+    let validResponseCount = 0;
+    
+    if (Array.isArray(responses)) {
+      responses.forEach((value, index) => {
+        if (value !== null && value !== undefined) {
+          const score = parseInt(value, 10);
+          if (isNaN(score) || score < 1 || score > 5) {
+            invalidResponses.push(`인덱스 ${index}: ${value}`);
+          } else {
+            validResponseCount++;
+          }
+        }
+      });
+    } else {
+      Object.entries(responses).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          const score = parseInt(value, 10);
+          if (isNaN(score) || score < 1 || score > 5) {
+            invalidResponses.push(`문항 ${key}: ${value}`);
+          } else {
+            validResponseCount++;
+          }
+        }
+      });
+    }
+    
+    // 유효하지 않은 응답이 있으면 오류 발생
+    if (invalidResponses.length > 0) {
+      throw new Error(`유효하지 않은 응답이 있습니다: ${invalidResponses.slice(0, 3).join(', ')}${invalidResponses.length > 3 ? ` 외 ${invalidResponses.length - 3}개` : ''}. 모든 문항은 1-5점으로 응답해야 합니다.`);
+    }
+    
+    // 전체 45문항 응답 필수 검증
+    if (validResponseCount < 45) {
+      throw new Error(`응답이 부족합니다. ${validResponseCount}/45개 응답됨. AI 역량진단을 위해 45개 문항 모두 응답해야 합니다.`);
+    }
+    
+    console.log(`✅ 45개 문항 모두 유효하게 응답됨`);
     
     // 진단 ID 생성 (안전한 처리)
     try {
@@ -1839,11 +2218,11 @@ function doGet(e) {
 // ================================================================================
 
 /**
- * 시스템 통합 테스트
+ * 시스템 통합 테스트 (45문항 완전 응답 필수)
  */
 function runSystemTest() {
   try {
-    console.log('🧪 시스템 통합 테스트 시작');
+    console.log('🧪 시스템 통합 테스트 시작 (이교장님 보고서용 - 45문항 완전 응답 검증)');
     
     const results = {
       diagnosis: null,
@@ -1851,7 +2230,7 @@ function runSystemTest() {
       consultation: null
     };
     
-    // 1. AI 역량진단 테스트
+    // 1. AI 역량진단 테스트 (45문항 완전 응답)
     const diagnosisTestData = {
       type: 'diagnosis',
       diagnosisId: `TEST_DIAG_${Date.now()}`,
@@ -1859,16 +2238,21 @@ function runSystemTest() {
       contactName: '테스트담당자',
       contactEmail: 'test@example.com',
       contactPhone: '010-1234-5678',
+      position: '대표이사', // 직책 추가
       industry: '제조업',
       employeeCount: '50-99명',
+      annualRevenue: '10억원 미만', // 연매출 추가
+      location: '서울특별시', // 소재지 추가
       responses: {}
     };
     
-    // 테스트용 45문항 응답 생성 (안전한 초기화)
+    // 테스트용 45문항 응답 생성 (전체 문항 필수)
     diagnosisTestData.responses = {};
     for (let i = 1; i <= 45; i++) {
       diagnosisTestData.responses[i] = Math.floor(Math.random() * 5) + 1;
     }
+    
+    console.log(`✅ 45문항 완전 응답 생성 완료: ${Object.keys(diagnosisTestData.responses).length}/45개`);
     
     results.diagnosis = processDiagnosis(diagnosisTestData);
     
@@ -1926,14 +2310,15 @@ function runSystemTest() {
 // 🎯 시스템 초기화 완료
 // ================================================================================
 
-console.log('✅ V22.0 AICAMP 통합 시스템 - 무오류 품질 강화 버전 로드 완료');
+console.log('✅ V22.0 AICAMP 통합 시스템 - 이교장님 보고서용 최적화 버전 로드 완료');
 console.log('📋 45문항 점수 계산 시스템 준비 완료 (강화된 오류 처리)');
-console.log('💾 Google Sheets 5개 시트 저장 준비 완료 (안전한 데이터 처리)');
+console.log('💾 Google Sheets 5개 시트 저장 준비 완료 (이교장님 보고서용 최적화)');
 console.log('📧 통합 이메일 발송 시스템 준비 완료 (검증 강화)');
-console.log('🆕 45문항 질문/행동지표 자동 저장 기능 추가');
+console.log('🆕 45문항 평가문제 전문 + 행동지표 자동 저장 기능 추가');
 console.log('🆕 세금계산기 오류신고 처리 기능 추가');
 console.log('🆕 상담신청 처리 기능 추가');
 console.log('🛡️ 모든 함수에 강화된 try-catch 오류 처리 적용');
 console.log('🔍 입력 데이터 검증 및 타입 체크 강화');
 console.log('⚡ 빠른 처리 속도 및 무오류 품질 보장');
-console.log('🚀 AICAMP 통합 시스템 V22.0 무오류 품질 준비 완료!');
+console.log('📊 이교장님 결과보고서 작성용 시트 구조 최적화 완료');
+console.log('🚀 AICAMP 통합 시스템 V22.0 이교장님 보고서용 준비 완료!');
