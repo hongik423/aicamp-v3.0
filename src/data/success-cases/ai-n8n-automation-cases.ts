@@ -209,50 +209,46 @@ export const successCaseDetails: { [key: string]: SuccessCaseDetail } = {
     },
     n8nWorkflows: [
       {
-        workflowName: '생산계획 자동화',
+        name: '생산계획 자동화',
         description: 'ERP 데이터 기반 최적 생산계획 자동 생성',
-        triggerType: '스케줄 기반',
-        integrations: ['ERP', 'MES', 'Slack'],
-        executionCount: 1200
+        nodes: 12,
+        triggers: ['스케줄 기반', 'ERP 데이터 변경'],
+        actions: ['데이터 분석', '계획 생성', 'Slack 알림']
       },
       {
-        workflowName: '품질검사 알림',
+        name: '품질검사 알림',
         description: 'AI 품질검사 결과 실시간 알림',
-        triggerType: '이벤트 기반',
-        integrations: ['카메라', 'AI모델', '이메일'],
-        executionCount: 8500
+        nodes: 8,
+        triggers: ['이벤트 기반', 'AI 모델 결과'],
+        actions: ['데이터 처리', '알림 전송', '리포트 생성']
       }
     ],
     aiImplementations: [
       {
-        aiTool: 'Computer Vision',
-        useCase: '제품 품질 검사',
+        type: 'Computer Vision',
+        purpose: '제품 품질 검사',
         accuracy: '95%',
-        trainingData: '50만장 이미지'
+        processingTime: '0.3초'
       },
       {
-        aiTool: '예측 분석 모델',
-        useCase: '생산량 예측',
+        type: '예측 분석 모델',
+        purpose: '생산량 예측',
         accuracy: '92%',
-        trainingData: '3년간 생산 데이터'
+        processingTime: '1.2초'
       }
     ],
     departmentAutomations: [
       {
         department: '생산관리팀',
-        processes: ['생산계획', '진도관리', '품질검사'],
         automationLevel: '90%',
-        manualHours: '32시간/주',
-        automatedHours: '4시간/주',
-        efficiency: '87.5% 개선'
+        timeSaved: '28시간/주',
+        costReduction: '87.5% 개선'
       },
       {
         department: '자재관리팀',
-        processes: ['재고관리', '발주관리', '입출고'],
         automationLevel: '85%',
-        manualHours: '28시간/주',
-        automatedHours: '6시간/주',
-        efficiency: '78.6% 개선'
+        timeSaved: '22시간/주',
+        costReduction: '78.6% 개선'
       }
     ],
     roiData: {
@@ -424,29 +420,27 @@ export const successCaseDetails: { [key: string]: SuccessCaseDetail } = {
     },
     n8nWorkflows: [
       {
-        workflowName: '고객 문의 자동 분류',
+        name: '고객 문의 자동 분류',
         description: '문의 유형별 자동 라우팅',
-        triggerType: '이메일 수신',
-        integrations: ['Gmail', 'CRM', 'Slack'],
-        executionCount: 2400
+        nodes: 6,
+        triggers: ['이메일 수신', 'CRM 이벤트'],
+        actions: ['텍스트 분석', '분류 처리', 'Slack 알림']
       }
     ],
     aiImplementations: [
       {
-        aiTool: 'NLP 챗봇',
-        useCase: '고객 상담',
+        type: 'NLP 챗봇',
+        purpose: '고객 상담',
         accuracy: '89%',
-        trainingData: '10만건 상담 기록'
+        processingTime: '0.8초'
       }
     ],
     departmentAutomations: [
       {
         department: '고객서비스팀',
-        processes: ['문의접수', '상담', '피드백'],
         automationLevel: '80%',
-        manualHours: '40시간/주',
-        automatedHours: '8시간/주',
-        efficiency: '80% 개선'
+        timeSaved: '32시간/주',
+        costReduction: '80% 개선'
       }
     ],
     roiData: {

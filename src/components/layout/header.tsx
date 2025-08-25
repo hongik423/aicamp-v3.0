@@ -158,9 +158,9 @@ export default function Header() {
                     className="inline-flex items-center px-1 py-1 lg:px-1.5 lg:py-1.5 xl:px-2 xl:py-1.5 rounded-lg text-xs lg:text-xs xl:text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
                     <span className="truncate max-w-[60px] lg:max-w-[75px] xl:max-w-[90px]">{item.label}</span>
-                    {item.badge && (
+                    {(item as any).badge && (
                       <Badge variant="secondary" className="ml-1 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
-                        {item.badge}
+                        {(item as any).badge}
                       </Badge>
                     )}
                   </Link>
@@ -271,20 +271,30 @@ export default function Header() {
             </button>
           </div>
 
-          {/* 모바일 메뉴 버튼 */}
+          {/* 모바일 메뉴 버튼 - 개선된 애니메이션 및 접근성 */}
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-all duration-200 touch-manipulation"
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+              // 햅틱 피드백
+              if (navigator.vibrate && typeof navigator.vibrate === 'function') {
+                navigator.vibrate(50);
+              }
+            }}
+            className="md:hidden p-3 rounded-lg text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-all duration-300 touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-[48px] min-h-[48px]"
             aria-label={isMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+            aria-expanded={isMenuOpen ? 'true' : 'false'}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : 'rotate-0'}`}>
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </div>
           </button>
         </div>
 
-        {/* 모바일 메뉴 - 향상된 UX */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white shadow-xl">
-            <nav className="py-4 px-3 space-y-2 max-h-[75vh] overflow-y-auto">
+        {/* 모바일 메뉴 - 향상된 UX 및 애니메이션 */}
+        <div className={`md:hidden border-t border-gray-200 bg-white shadow-xl transition-all duration-300 overflow-hidden ${
+          isMenuOpen ? 'max-h-[75vh] opacity-100' : 'max-h-0 opacity-0'
+        }`}>
+          <nav className="py-4 px-3 space-y-2 max-h-[75vh] overflow-y-auto">
               {/* 상단 고정 AI 상담 버튼 (모바일 전용) - 개선된 디자인 */}
               <button
                 onClick={() => {
@@ -355,9 +365,9 @@ export default function Header() {
                     className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation active:scale-95"
                   >
                     <span className="text-base font-medium">{item.label}</span>
-                    {item.badge && (
+                    {(item as any).badge && (
                       <Badge variant="secondary" className="text-xs ml-2 bg-blue-100 text-blue-600">
-                        {item.badge}
+                        {(item as any).badge}
                       </Badge>
                     )}
                   </Link>
@@ -383,17 +393,16 @@ export default function Header() {
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     <span className="text-base">{item.label}</span>
-                    {item.badge && (
+                    {(item as any).badge && (
                       <Badge variant="secondary" className="text-xs ml-2 bg-blue-100 text-blue-600">
-                        {item.badge}
+                        {(item as any).badge}
                       </Badge>
                     )}
                   </Link>
                 ))}
               </div>
             </nav>
-          </div>
-        )}
+        </div>
       </div>
       
       {/* n8n 커리큘럼 사이드 패널 */}

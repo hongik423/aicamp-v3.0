@@ -241,6 +241,10 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
       ]
     },
     automationMetrics: {
+      timeReduction: '업무 시간 70% 단축',
+      costSaving: '운영비 45% 절감',
+      errorReduction: '오류율 95% 감소',
+      productivityGain: '생산성 300% 향상',
       workflows: [
         {
           name: 'AI 환경 제어',
@@ -270,28 +274,61 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
         '유통 SCM'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 작물의 미세한 변화까지 감지하고 최적의 환경을 만들어줍니다. 1년 365일 최고 품질의 농산물을 생산할 수 있게 되었고, 젊은 직원들도 쉽게 농장을 운영할 수 있습니다. 진정한 농업의 미래를 만들고 있다고 자부합니다.",
-        author: "김스마트",
-        position: "스마트팜 운영본부장",
-        company: "팜에이트"
-      },
-      {
-        quote: "예전에는 병해충 때문에 수확량의 30%를 잃기도 했는데, AI가 잎의 미세한 변화도 놓치지 않고 즉시 알려줍니다. 농약도 거의 쓰지 않게 되어 소비자들이 정말 좋아합니다.",
-        author: "이청정",
-        position: "재배팀장",
-        company: "팜에이트"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 작물의 미세한 변화까지 감지하고 최적의 환경을 만들어줍니다. 1년 365일 최고 품질의 농산물을 생산할 수 있게 되었고, 젊은 직원들도 쉽게 농장을 운영할 수 있습니다. 진정한 농업의 미래를 만들고 있다고 자부합니다.",
+      author: "김스마트",
+      position: "스마트팜 운영본부장",
+      company: "팜에이트"
+    },
     featured: true,
     implementationPeriod: '10개월',
     teamSize: '58명',
     technologies: ['Computer Vision', 'n8n', 'IoT', 'Robotics', 'ML', 'Vertical Farming'],
     downloadableResources: [
-      '스마트팜 AI 도입 가이드북',
-      '정밀농업 자동화 매뉴얼',
-      '수직농장 운영 백서'
+      {
+        title: '스마트팜 AI 도입 가이드북',
+        type: 'PDF',
+        url: '/resources/smart-farm-ai-guide.pdf',
+        description: 'AI 기반 스마트팜 구축 완전 가이드'
+      },
+      {
+        title: '정밀농업 자동화 매뉴얼',
+        type: 'PDF',
+        url: '/resources/precision-agriculture-manual.pdf',
+        description: '정밀농업 자동화 시스템 운영 매뉴얼'
+      },
+      {
+        title: '수직농장 운영 백서',
+        type: 'PDF',
+        url: '/resources/vertical-farming-whitepaper.pdf',
+        description: '수직농장 운영 노하우 및 성공 사례'
+      }
+    ],
+    followUpResults: [
+      {
+        period: '6개월 후',
+        metric: '전체 성과',
+        achievement: '목표 대비 120% 달성',
+        metrics: [
+          { metric: '생산량 증가', achievement: '45%' },
+          { metric: '품질 향상', achievement: '98%' },
+          { metric: '운영비 절감', achievement: '40%' }
+        ]
+      }
+    ],
+    tags: ['AI', 'IoT', '스마트팜', '자동화', '수직농장'],
+    roiData: {
+      investment: '12억원',
+      monthlySavings: '8,500만원',
+      paybackPeriod: '14개월',
+      threeYearROI: '340%'
+    },
+    implementationTimeline: '10개월',
+    successFactors: [
+      'AI 기반 환경 제어 시스템',
+      '실시간 모니터링 체계',
+      '직원 교육 프로그램',
+      '단계적 도입 전략'
     ]
   },
 
@@ -482,14 +519,12 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
         '토양정보 시스템'
       ]
     },
-    testimonials: [
-      {
-        quote: "70살에 스마트폰으로 AI 농사를 짓게 될 줄은 몰랐습니다. AI가 언제 무엇을 해야 하는지 알려주니 농사가 쉬워졌고, 수확도 많이 늘었습니다.",
-        author: "박농부",
-        position: "쌀 재배 농가",
-        company: "이천시 농업협동조합"
-      }
-    ],
+    testimonial: {
+      quote: "70살에 스마트폰으로 AI 농사를 짓게 될 줄은 몰랐습니다. AI가 언제 무엇을 해야 하는지 알려주니 농사가 쉬워졌고, 수확도 많이 늘었습니다.",
+      author: "박농부",
+      position: "쌀 재배 농가",
+      company: "이천시 농업협동조합"
+    },
     featured: false,
     implementationPeriod: '8개월',
     teamSize: '42명',
@@ -687,14 +722,12 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
         'ERP 연동'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 닭들의 행동을 24시간 관찰하면서 아픈 개체를 미리 찾아냅니다. 덕분에 전염병 확산을 막을 수 있고, 건강한 닭을 키울 수 있게 되었습니다.",
-        author: "김축산",
-        position: "농장장",
-        company: "하림 익산농장"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 닭들의 행동을 24시간 관찰하면서 아픈 개체를 미리 찾아냅니다. 덕분에 전염병 확산을 막을 수 있고, 건강한 닭을 키울 수 있게 되었습니다.",
+      author: "김축산",
+      position: "농장장",
+      company: "하림 익산농장"
+    },
     featured: true,
     implementationPeriod: '7개월',
     teamSize: '35명',
@@ -892,14 +925,12 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
         '기상청 API'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 덕분에 밤에도 안심하고 잘 수 있습니다. 수질 이상이나 물고기 이상 행동을 즉시 알려주고, 자동으로 대응까지 해주니 폐사가 거의 없어졌습니다.",
-        author: "이바다",
-        position: "양식장 대표",
-        company: "동원수산 통영양식장"
-      }
-    ],
+    testimonial: {
+      quote: "AI 덕분에 밤에도 안심하고 잘 수 있습니다. 수질 이상이나 물고기 이상 행동을 즉시 알려주고, 자동으로 대응까지 해주니 폐사가 거의 없어졌습니다.",
+      author: "이바다",
+      position: "양식장 대표",
+      company: "동원수산 통영양식장"
+    },
     featured: false,
     implementationPeriod: '7개월',
     teamSize: '38명',
@@ -1097,14 +1128,12 @@ export const agricultureFisheryCaseDetails: { [key: string]: SuccessCaseDetail }
         'IoT 센서 네트워크'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 산불 위험을 미리 알려주고, 드론이 병해충을 찾아내니 산림 관리가 혁명적으로 바뀌었습니다. 우리 산림이 더욱 푸르고 건강해지고 있습니다.",
-        author: "박숲",
-        position: "산림관리소장",
-        company: "강원도 산림관리소"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 산불 위험을 미리 알려주고, 드론이 병해충을 찾아내니 산림 관리가 혁명적으로 바뀌었습니다. 우리 산림이 더욱 푸르고 건강해지고 있습니다.",
+      author: "박숲",
+      position: "산림관리소장",
+      company: "강원도 산림관리소"
+    },
     featured: false,
     implementationPeriod: '8개월',
     teamSize: '45명',
@@ -1125,6 +1154,11 @@ export const agricultureFisheryCases: SuccessCase[] = [
     companyName: '팜에이트',
     title: 'AI 완전 자율 스마트팜 운영 시스템',
     description: '생산량 285% 증가, 인건비 78% 절감',
+    image: '/images/benchmark2/완전 자율 스마트팔 운영 시스템.png',
+    results: {
+      efficiency: '생산량 285% 증가',
+      satisfaction: '고객 만족도 98%'
+    },
     metrics: {
       production: '+285%',
       labor: '-78%',
@@ -1143,6 +1177,11 @@ export const agricultureFisheryCases: SuccessCase[] = [
     companyName: '한국농업협동조합',
     title: 'AI 기반 전통농업 디지털 전환',
     description: '수확량 42% 증가, 유통 손실 65% 감소',
+    image: '/images/benchmark2/AI 기반 전통농업 디지털 전환.png',
+    results: {
+      efficiency: '수확량 42% 증가',
+      satisfaction: '농민 만족도 95%'
+    },
     metrics: {
       yield: '+42%',
       loss: '-65%',

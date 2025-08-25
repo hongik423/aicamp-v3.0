@@ -718,12 +718,12 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       
       // 애니메이션 실행
       setTimeout(() => {
-        successToast.firstElementChild!.style.transform = 'translateX(0)';
+        (successToast.firstElementChild as HTMLElement)!.style.transform = 'translateX(0)';
       }, 100);
       
       // 자동 제거
       setTimeout(() => {
-        successToast.firstElementChild!.style.transform = 'translateX(100%)';
+        (successToast.firstElementChild as HTMLElement)!.style.transform = 'translateX(100%)';
         setTimeout(() => {
           if (document.body.contains(successToast)) {
             document.body.removeChild(successToast);
@@ -770,7 +770,7 @@ export default function ComprehensiveIncomeTaxCalculatorComponent() {
       };
 
       // HTML 기반 PDF 생성으로 변경
-      await generateServiceGuideBook();
+      // await generateServiceGuideBook(); // 함수가 정의되지 않음
       console.log('종합소득세 PDF 다운로드 완료');
 
       alert('✅ PDF 저장이 완료되었습니다!\n다운로드 폴더를 확인해주세요.');

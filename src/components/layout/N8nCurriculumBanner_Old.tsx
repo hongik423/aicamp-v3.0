@@ -188,8 +188,8 @@ const N8nCurriculumBanner: React.FC = () => {
         if (viewport) {
           viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
         }
-        document.body.style.webkitTouchCallout = 'none';
-        document.body.style.webkitUserSelect = 'none';
+        (document.body.style as any).webkitTouchCallout = 'none';
+        (document.body.style as any).webkitUserSelect = 'none';
       }
     }
 
@@ -204,8 +204,8 @@ const N8nCurriculumBanner: React.FC = () => {
         if (viewport) {
           viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
         }
-        document.body.style.webkitTouchCallout = 'auto';
-        document.body.style.webkitUserSelect = 'auto';
+        (document.body.style as any).webkitTouchCallout = 'auto';
+        (document.body.style as any).webkitUserSelect = 'auto';
       }
     };
   }, [isVisible, isMobile]);

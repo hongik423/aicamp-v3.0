@@ -1079,7 +1079,7 @@ export default function TrackDetailPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">CEO 전략적 가치</h2>
           <p className="text-xl mb-4 max-w-4xl mx-auto">
-            {track.strategicValue || `${track.title}을 통한 경영 효율성 극대화 및 비용 절감`}
+            {(track as any).strategicValue || `${track.title}을 통한 경영 효율성 극대화 및 비용 절감`}
           </p>
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 rounded-full">
             <Target className="w-5 h-5" />
@@ -1132,7 +1132,7 @@ export default function TrackDetailPage() {
                     </Badge>
                   </div>
                   <CardDescription className="text-lg font-medium text-green-600">
-                    {track.curriculum.beginner.level}
+                    {(track.curriculum.beginner as any).level || 'CEO 관심도: ★★★☆☆ | ROI 기대: 단기 효율성 향상'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -1187,7 +1187,7 @@ export default function TrackDetailPage() {
                     </Badge>
                   </div>
                   <CardDescription className="text-lg font-medium text-blue-600">
-                    {track.curriculum.intermediate.level}
+                    {(track.curriculum.intermediate as any).level || 'CEO 관심도: ★★★★☆ | ROI 기대: 중기 성과 창출'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -1242,7 +1242,7 @@ export default function TrackDetailPage() {
                     </Badge>
                   </div>
                   <CardDescription className="text-lg font-medium text-purple-600">
-                    {track.curriculum.advanced.level}
+                    {(track.curriculum.advanced as any).level || 'CEO 관심도: ★★★★★ | ROI 기대: 장기 경쟁우위 확보'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">

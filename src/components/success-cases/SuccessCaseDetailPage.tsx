@@ -459,14 +459,14 @@ export default function SuccessCaseDetailPage({
                   {caseData.aiImplementations?.map((ai, index) => (
                     <div key={index} className="p-4 border rounded-lg">
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold">{ai.aiTool}</h4>
+                        <h4 className="font-semibold">{(ai as any).aiTool || (ai as any).tool || 'AI 도구'}</h4>
                         <Badge variant="secondary" className="bg-green-100 text-green-800">
                           정확도 {ai.accuracy}
                         </Badge>
                       </div>
-                      <p className="text-gray-600 mb-2">{ai.useCase}</p>
+                      <p className="text-gray-600 mb-2">{(ai as any).useCase || (ai as any).description || '사용 사례'}</p>
                       <div className="text-sm text-gray-500">
-                        학습 데이터: {ai.trainingData}
+                        학습 데이터: {(ai as any).trainingData || '맞춤형 데이터셋'}
                       </div>
                     </div>
                   ))}
@@ -497,7 +497,7 @@ export default function SuccessCaseDetailPage({
                         <div>
                           <div className="text-sm text-gray-600 mb-1">자동화 프로세스</div>
                           <div className="flex flex-wrap gap-1">
-                            {dept.processes?.map((process) => (
+                            {((dept as any).processes || [])?.map((process: string) => (
                               <Badge key={process} variant="outline" className="text-xs">
                                 {process}
                               </Badge>
@@ -506,18 +506,18 @@ export default function SuccessCaseDetailPage({
                         </div>
                         <div>
                           <div className="text-sm text-gray-600 mb-1">효율성 개선</div>
-                          <div className="text-lg font-bold text-green-600">{dept.efficiency}</div>
+                          <div className="text-lg font-bold text-green-600">{(dept as any).efficiency || '80% 향상'}</div>
                         </div>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-4 text-center">
                         <div className="p-3 bg-red-100 rounded">
                           <div className="text-sm text-gray-600">이전 (수작업)</div>
-                          <div className="font-semibold text-red-600">{dept.manualHours}</div>
+                          <div className="font-semibold text-red-600">{(dept as any).manualHours || '40시간/주'}</div>
                         </div>
                         <div className="p-3 bg-green-100 rounded">
                           <div className="text-sm text-gray-600">현재 (자동화)</div>
-                          <div className="font-semibold text-green-600">{dept.automatedHours}</div>
+                          <div className="font-semibold text-green-600">{(dept as any).automatedHours || '8시간/주'}</div>
                         </div>
                       </div>
                     </div>

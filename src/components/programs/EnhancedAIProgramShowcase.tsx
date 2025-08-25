@@ -174,7 +174,7 @@ export default function EnhancedAIProgramShowcase({
                             {module.title}
                           </h4>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge size="sm" className={getDifficultyColor(module.difficulty)}>
+                            <Badge className={`text-xs ${getDifficultyColor(module.difficulty)}`}>
                               {module.difficulty}
                             </Badge>
                             <span className="text-xs text-gray-500">{module.duration}</span>

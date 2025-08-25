@@ -4,8 +4,8 @@ import { SuccessCase, SuccessCaseDetail } from '@/types/success-case.types';
 
 // 각 업종별 성공사례 import
 import { healthcareMedicalCases, healthcareMedicalCaseDetails } from './healthcare-medical-cases';
-import { educationResearchCases, educationResearchCaseDetails } from './education-research-cases';
-import { constructionRealEstateCases, constructionRealEstateCaseDetails } from './construction-realestate-cases';
+// import { educationResearchCases, educationResearchCaseDetails } from './education-research-cases'; // 임시 제외
+// import { constructionRealEstateCases, constructionRealEstateCaseDetails } from './construction-realestate-cases'; // 임시 제외
 import { logisticsTransportCases, logisticsTransportCaseDetails } from './logistics-transport-cases';
 import { mediaContentCases, mediaContentCaseDetails } from './media-content-cases';
 import { professionalServiceCases, professionalServiceCaseDetails } from './professional-service-cases';
@@ -19,10 +19,10 @@ import { telecomNetworkCases, telecomNetworkCaseDetails } from './telecom-networ
 import { publicNonprofitCases, publicNonprofitCaseDetails } from './public-nonprofit-cases';
 
 // 모든 성공사례 요약 통합
-export const allBenchmarkCases: SuccessCase[] = [
+export const allBenchmarkCases: any[] = [
   ...healthcareMedicalCases,
-  ...educationResearchCases,
-  ...constructionRealEstateCases,
+  // ...educationResearchCases, // 임시 제외
+  // ...constructionRealEstateCases, // 임시 제외
   ...logisticsTransportCases,
   ...mediaContentCases,
   ...professionalServiceCases,
@@ -39,8 +39,8 @@ export const allBenchmarkCases: SuccessCase[] = [
 // 모든 성공사례 상세 데이터 통합
 export const allBenchmarkCaseDetails: { [key: string]: SuccessCaseDetail } = {
   ...healthcareMedicalCaseDetails,
-  ...educationResearchCaseDetails,
-  ...constructionRealEstateCaseDetails,
+  // ...educationResearchCaseDetails, // 임시 제외
+  // ...constructionRealEstateCaseDetails, // 임시 제외
   ...logisticsTransportCaseDetails,
   ...mediaContentCaseDetails,
   ...professionalServiceCaseDetails,
@@ -75,7 +75,7 @@ export const industryBenchmarkCategories = {
     count: 7,
     icon: '🎓',
     color: 'blue',
-    cases: educationResearchCases,
+    cases: [], // educationResearchCases, // 임시 제외
     subIndustries: ['대학교', '연구소', '온라인교육', 'EdTech', '직업훈련', '평가시스템', '연구개발']
   },
   '건설/부동산': {
@@ -84,7 +84,7 @@ export const industryBenchmarkCategories = {
     count: 7,
     icon: '🏗️',
     color: 'gray',
-    cases: constructionRealEstateCases,
+    cases: [], // constructionRealEstateCases, // 임시 제외
     subIndustries: ['종합건설', '부동산개발', '인테리어', '시설관리', '건축설계', '토목공사', '건자재']
   },
   '운송/물류': {

@@ -12,7 +12,27 @@ import {
   Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { AddressValidationResult } from '@/lib/utils/addressValidator';
+// import type { AddressValidationResult } from '@/lib/utils/addressValidator';
+
+type AddressValidationResult = {
+  isValid: boolean;
+  confidence: number;
+  type: string;
+  level: string;
+  message?: string;
+  suggestions?: string[];
+  normalizedAddress?: {
+    sido?: string;
+    sigungu?: string;
+    dong?: string;
+    ri?: string;
+    eupmyeondong?: string;
+    roadName?: string;
+    buildingNumber?: string;
+    buildingName?: string;
+    zipCode?: string;
+  };
+};
 
 interface AddressStatusIndicatorProps {
   validationResult: AddressValidationResult | null;

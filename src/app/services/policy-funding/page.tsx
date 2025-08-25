@@ -305,8 +305,8 @@ export default function PolicyFundingPage() {
                                   <p>한도: {program.amount}</p>
                                   <p>금리: {program.rate}</p>
                                   <p>기간: {program.period}</p>
-                                  {program.note && (
-                                    <Badge variant="secondary" className="mt-2">{program.note}</Badge>
+                                  {(program as any).note && (
+                                    <Badge variant="secondary" className="mt-2">{(program as any).note}</Badge>
                                   )}
                                 </div>
                               </div>
@@ -378,8 +378,8 @@ export default function PolicyFundingPage() {
                                   <p>한도: {program.amount}</p>
                                   <p>금리: {program.rate}</p>
                                   <p>기간: {program.period}</p>
-                                  {program.note && (
-                                    <Badge variant="secondary" className="mt-2">{program.note}</Badge>
+                                  {(program as any).note && (
+                                    <Badge variant="secondary" className="mt-2">{(program as any).note}</Badge>
                                   )}
                                 </div>
                               </div>
@@ -451,8 +451,8 @@ export default function PolicyFundingPage() {
                                   <p>한도: {program.amount}</p>
                                   <p>금리: {program.rate}</p>
                                   <p>기간: {program.period}</p>
-                                  {program.note && (
-                                    <Badge variant="secondary" className="mt-2">{program.note}</Badge>
+                                  {(program as any).note && (
+                                    <Badge variant="secondary" className="mt-2">{(program as any).note}</Badge>
                                   )}
                                 </div>
                               </div>

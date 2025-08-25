@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import '../styles/mobile-optimization.css';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
@@ -14,6 +15,8 @@ import ServiceWorkerRegister from '@/components/service-worker-register';
 import ErrorShield from '@/components/ErrorShield';
 import ChromeExtensionErrorSuppressor from '@/components/ChromeExtensionErrorSuppressor';
 import BannerController from '@/components/layout/BannerController';
+import { AccessibilityControls } from '@/components/ui/accessibility-controls';
+import { NetworkStatus } from '@/components/ui/mobile-loading';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -268,8 +271,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
-        <link rel="apple-touch-icon" href="/images/aicamp_logo_del_250726.png" sizes="180x180" />
+
         
         {/* 강력한 캐시 무효화 - 일관된 최신 버전 보장 */}
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -405,11 +407,18 @@ export default function RootLayout({
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <Providers>
+          {/* 네트워크 상태 표시 */}
+          <NetworkStatus />
+          
+          {/* 접근성 컨트롤 */}
+          <AccessibilityControls />
+          
           {/* 기존 배너들을 BannerController로 통합 관리 */}
           <BannerController />
+          
           <div className="min-h-screen flex flex-col">
             <Header />
-            <main className="flex-1 pt-20">
+            <main id="main-content" className="flex-1 pt-20">
               {children}
             </main>
             <FloatingChatbot />

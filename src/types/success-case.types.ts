@@ -59,16 +59,27 @@ export interface Testimonial {
 }
 
 export interface FollowUpResult {
+  period?: string;
   metric: string;
   achievement: string;
+  metrics?: Array<{
+    metric: string;
+    achievement: string;
+  }>;
 }
 
 // AI & n8n 자동화 관련 인터페이스
 export interface AutomationMetrics {
-  timeReduction: string;
-  costSaving: string;
-  errorReduction: string;
-  productivityGain: string;
+  timeReduction?: string;
+  costSaving?: string;
+  errorReduction?: string;
+  productivityGain?: string;
+  workflows?: Array<{
+    name: string;
+    description: string;
+    efficiency: string;
+  }>;
+  integrations?: string[];
 }
 
 export interface N8nWorkflow {
@@ -112,25 +123,34 @@ export interface SuccessCaseDetail {
   curriculum: Curriculum;
   process?: ProcessPhase[];
   results: Results;
-  testimonial: Testimonial;
-  followUpResults: FollowUpResult[];
-  tags: string[];
+  testimonial?: Testimonial;
+  followUpResults?: FollowUpResult[];
+  tags?: string[];
   // AI & n8n 자동화 특화 필드
-  automationMetrics: AutomationMetrics;
+  automationMetrics?: AutomationMetrics;
   n8nWorkflows?: N8nWorkflow[];
   aiImplementations?: AIImplementation[];
   departmentAutomations?: DepartmentAutomation[];
-  roiData: {
+  roiData?: {
     investment: string;
     monthlySavings: string;
     paybackPeriod: string;
     threeYearROI: string;
   };
-  implementationTimeline: string;
-  successFactors: string[];
+  implementationTimeline?: string;
+  successFactors?: string[];
   videoUrl?: string;
   pdfUrl?: string;
   featured: boolean;
+  implementationPeriod?: string;
+  teamSize?: string;
+  technologies?: string[];
+  downloadableResources?: string[] | Array<{
+    title: string;
+    type: string;
+    url: string;
+    description: string;
+  }>;
 }
 
 // 성공사례 목록용 간소화 인터페이스
@@ -141,10 +161,10 @@ export interface SuccessCase {
   companyName: string;
   title: string;
   description: string;
-  image: string;
+  image?: string;
   icon: LucideIcon;
   color: string;
-  results: {
+  results?: {
     efficiency: string;
     satisfaction: string;
   };
@@ -152,6 +172,10 @@ export interface SuccessCase {
   aiTools?: string[];
   appliedModules?: string;
   automationMetrics?: AutomationMetrics;
+  metrics?: {
+    [key: string]: string;
+  };
+  featured?: boolean;
 }
 
 // 성공사례 상세 데이터 컬렉션 타입

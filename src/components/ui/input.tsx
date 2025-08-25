@@ -111,16 +111,32 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         onFocus={(e) => {
           setIsFocused(true);
           
-          // 모바일에서 스크롤 위치 조정
+          // 모바일에서 정밀한 스크롤 위치 조정
           if (window.innerWidth <= 768) {
+            // Visual Viewport API를 사용한 정밀한 키보드 대응
+            const adjustScrollPosition = () => {
+              const viewportHeight = window.visualViewport?.height || window.innerHeight;
+              const elementRect = e.target.getBoundingClientRect();
+              const elementCenter = elementRect.top + elementRect.height / 2;
+              const viewportCenter = viewportHeight / 2;
+              
+              if (elementCenter > viewportCenter) {
+                const scrollOffset = elementCenter - viewportCenter + 50; // 50px 여유
+                window.scrollBy({
+                  top: scrollOffset,
+                  behavior: 'smooth'
+                });
+              }
+            };
+
             // 키보드가 열리기를 기다림
-            setTimeout(() => {
-              e.target.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center',
-                inline: 'nearest'
-              });
-            }, 300);
+            setTimeout(adjustScrollPosition, 300);
+            
+            // Visual Viewport 변화 감지
+            if (window.visualViewport) {
+              const handleViewportChange = () => adjustScrollPosition();
+              window.visualViewport.addEventListener('resize', handleViewportChange, { once: true });
+            }
           }
           
           props.onFocus?.(e);

@@ -363,12 +363,12 @@ export function EnhancedSmartInput({
       return `최대값은 ${max.toLocaleString()}입니다.`;
     }
     
-    if (validationRules?.pattern && !validationRules.pattern.test(val.toString())) {
+    if ((validationRules as any)?.pattern && !(validationRules as any).pattern.test(val.toString())) {
       return '형식이 올바르지 않습니다.';
     }
     
-    if (validationRules?.customValidator) {
-      return validationRules.customValidator(val);
+    if ((validationRules as any)?.customValidator) {
+      return (validationRules as any).customValidator(val);
     }
     
     return null;

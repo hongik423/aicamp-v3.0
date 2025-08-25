@@ -851,7 +851,7 @@ export default function StockTransferTaxCalculator() {
             { label: '취득가액', amount: input.acquisitionPrice },
             { label: '양도비용', amount: input.transferExpenses || 0 },
             { label: '양도차익', amount: capitalGain },
-            { label: '기본공제', amount: -basicDeduction },
+            { label: '기본공제', amount: -2500000 },
             { label: '과세표준', amount: taxableAmount },
             { label: '적용세율', amount: taxRate * 100 },
             { label: '양도소득세', amount: totalTax }
@@ -864,13 +864,13 @@ export default function StockTransferTaxCalculator() {
             { label: '양도가액', amount: input.transferPrice || 0 },
             { label: '취득가액', amount: input.acquisitionPrice },
             { label: '양도차익', amount: capitalGain },
-            { label: '기본공제', amount: effectiveTransferType === 'sale' ? -basicDeduction : 0 },
+            { label: '기본공제', amount: effectiveTransferType === 'sale' ? -2500000 : 0 },
             { label: '과세표준', amount: taxableAmount },
             { label: '세액', amount: totalTax }
           ],
           summary: {
             totalIncome: input.transferPrice || 0,
-            totalDeductions: input.acquisitionPrice + (input.transferExpenses || 0) + (effectiveTransferType === 'sale' ? basicDeduction : 0),
+            totalDeductions: input.acquisitionPrice + (input.transferExpenses || 0) + (effectiveTransferType === 'sale' ? 2500000 : 0),
             taxableIncome: taxableAmount,
             taxBeforeCredits: calculatedTax,
             taxCredits: 0,
@@ -878,7 +878,7 @@ export default function StockTransferTaxCalculator() {
           }
         },
         appliedRates: [{ range: `${(taxRate * 100).toFixed(1)}%`, rate: taxRate, amount: calculatedTax }],
-        deductions: effectiveTransferType === 'sale' ? [{ type: 'basic', label: '기본공제', amount: basicDeduction }] : []
+        deductions: effectiveTransferType === 'sale' ? [{ type: 'basic', label: '기본공제', amount: 2500000 }] : []
       };
     } catch (error) {
       console.error('주식양도소득세 계산 오류:', error);

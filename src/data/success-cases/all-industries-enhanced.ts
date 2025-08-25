@@ -1,8 +1,8 @@
 'use client';
 
 import { SuccessCaseDetail } from '@/types/success-case.types';
-import { 
-  Cpu, Settings, Flask, Pill, ShoppingBag, Shirt, Droplet, Anchor, Plane, Cog,
+import {
+  Cpu, Settings, Beaker, Pill, ShoppingBag, Shirt, Droplet, Anchor, Plane, Cog,
   DollarSign, CreditCard, TrendingUp, ShieldCheck, Landmark, Wallet, LineChart,
   ShoppingCart, Store, Package, Palette, Coffee, Hotel, MapPin, Truck,
   Heart, Stethoscope, Activity, Brain, Microscope, Dna, Hospital,

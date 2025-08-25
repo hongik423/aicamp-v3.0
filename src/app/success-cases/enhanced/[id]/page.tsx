@@ -33,7 +33,7 @@ export default function EnhancedSuccessCasePage() {
       
       <main>
         <EnhancedSuccessCaseDetailComponent 
-          caseData={caseData}
+          caseData={caseData as any}
           onConsultationRequest={handleConsultationRequest}
         />
       </main>

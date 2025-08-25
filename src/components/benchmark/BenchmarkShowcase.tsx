@@ -31,7 +31,6 @@ import {
   benchmarkCases, 
   industryBenchmarkCategories,
   getBenchmarkStatistics,
-  getRecommendedBenchmarkCases,
   benchmarkCaseDetails,
 } from '@/data/success-cases/benchmark-cases-index';
 import { SuccessCaseDetail } from '@/types/success-case.types';
@@ -218,7 +217,7 @@ export default function BenchmarkShowcase({
                 </Card>
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white relative z-50">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-white">{stats.industries}</div>
+                    <div className="text-2xl font-bold text-white">{stats.totalIndustries}</div>
                     <div className="text-sm text-white/80">업종 분야</div>
                   </CardContent>
                 </Card>
@@ -230,7 +229,7 @@ export default function BenchmarkShowcase({
                 </Card>
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white relative z-50">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-white">{stats.averageTimeReduction}%</div>
+                    <div className="text-2xl font-bold text-white">{stats.averageTimeSaved}</div>
                     <div className="text-sm text-white/80">평균 시간 단축</div>
                   </CardContent>
                 </Card>
@@ -355,7 +354,7 @@ export default function BenchmarkShowcase({
                     whileHover={{ y: -5 }}
                   >
                     <Card className="h-full hover:shadow-lg transition-all cursor-pointer group"
-                          onClick={() => onCaseSelect?.(caseData)}>
+                          onClick={() => onCaseSelect?.(caseData as any)}>
                       <div className="relative">
                         {/* 로딩 스피너 */}
                         <div className="absolute inset-0 w-full h-48 flex items-center justify-center bg-gray-100 rounded-t-lg">
@@ -402,7 +401,7 @@ export default function BenchmarkShowcase({
                           {(caseData as any).subIndustry || caseData.industry}
                         </Badge>
                         </div>
-                        {caseData.featured && (
+                        {(caseData as any).featured && (
                           <div className="absolute top-4 right-4">
                             <Badge className="bg-yellow-500 text-white">
                               <Star className="w-3 h-3 mr-1" />
@@ -416,7 +415,7 @@ export default function BenchmarkShowcase({
                         <CardTitle className="text-lg leading-tight group-hover:text-blue-600 transition-colors">
                           {caseData.title}
                         </CardTitle>
-                        <p className="text-sm text-gray-600">{caseData.subtitle}</p>
+                        <p className="text-sm text-gray-600">{(caseData as any).subtitle || caseData.description}</p>
                       </CardHeader>
                       
                       <CardContent className="pt-0">
@@ -460,7 +459,7 @@ export default function BenchmarkShowcase({
                           className="w-full group-hover:bg-blue-50 group-hover:border-blue-200"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onCaseSelect?.(caseData);
+                            onCaseSelect?.(caseData as any);
                           }}
                         >
                           상세 보기

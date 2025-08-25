@@ -180,17 +180,17 @@ export default function InvestmentAnalysisTool() {
           breakEvenPoint: analysisResult.breakEvenPoint
         },
         riskAnalysis: {
-          marketRisk: analysisResult.riskAnalysis.marketRisk,
-          financialRisk: analysisResult.riskAnalysis.financialRisk,
-          operationalRisk: analysisResult.riskAnalysis.operationalRisk,
-          overallRisk: analysisResult.riskAnalysis.overallRisk
+          marketRisk: (analysisResult as any).riskAnalysis?.marketRisk || '중간',
+          financialRisk: (analysisResult as any).riskAnalysis?.financialRisk || '중간',
+          operationalRisk: (analysisResult as any).riskAnalysis?.operationalRisk || '중간',
+          overallRisk: (analysisResult as any).riskAnalysis?.overallRisk || '중간'
         },
         aiEvaluation: {
-          summary: aiEvaluation?.summary || '',
-          strengths: aiEvaluation?.strengths || [],
-          weaknesses: aiEvaluation?.weaknesses || [],
-          opportunities: aiEvaluation?.opportunities || [],
-          threats: aiEvaluation?.threats || []
+          summary: (aiEvaluation as any)?.summary || '',
+          strengths: (aiEvaluation as any)?.strengths || [],
+          weaknesses: (aiEvaluation as any)?.weaknesses || [],
+          opportunities: (aiEvaluation as any)?.opportunities || [],
+          threats: (aiEvaluation as any)?.threats || []
         }
       };
       
@@ -199,14 +199,14 @@ export default function InvestmentAnalysisTool() {
         input: investmentInput,
         analysis: result,
         timestamp: new Date().toISOString(),
-        projectName: investmentInput.projectName || 'investment-analysis'
+        projectName: (investmentInput as any).projectName || 'investment-analysis'
       };
       
       const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const fileName = `${investmentInput.projectName || 'investment-analysis'}-${new Date().toISOString().split('T')[0]}.json`;
+      const fileName = `${(investmentInput as any).projectName || 'investment-analysis'}-${new Date().toISOString().split('T')[0]}.json`;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
