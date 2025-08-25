@@ -1079,7 +1079,7 @@ export default function TrackDetailPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">CEO 전략적 가치</h2>
           <p className="text-xl mb-4 max-w-4xl mx-auto">
-            {track.strategicValue}
+            {track.strategicValue || `${track.title}을 통한 경영 효율성 극대화 및 비용 절감`}
           </p>
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 rounded-full">
             <Target className="w-5 h-5" />
