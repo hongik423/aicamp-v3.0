@@ -194,18 +194,18 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     },
     n8nWorkflows: [
       {
-        workflowName: '고객 프로파일링 자동화',
+        name: '고객 프로파일링 자동화',
         description: '고객 행동 데이터 기반 개인화 프로파일 생성',
-        triggerType: '실시간 데이터',
-        integrations: ['CRM', '데이터웨어하우스', 'AI모델'],
-        executionCount: 50000
+        nodes: 12,
+        triggers: ['실시간 데이터', 'CRM 이벤트'],
+        actions: ['데이터 수집', '프로파일 생성', '알림 발송']
       },
       {
-        workflowName: '상품 추천 엔진',
+        name: '상품 추천 엔진',
         description: 'AI 기반 개인화 상품 추천 시스템',
-        triggerType: '고객 행동',
-        integrations: ['고객데이터', '상품DB', '추천알고리즘'],
-        executionCount: 100000
+        nodes: 8,
+        triggers: ['고객 행동', '상품 업데이트'],
+        actions: ['추천 생성', '개인화', '결과 전송']
       }
     ],
     aiImplementations: [
@@ -432,18 +432,18 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     },
     n8nWorkflows: [
       {
-        workflowName: '청구 서류 자동 검토',
+        name: '청구 서류 자동 검토',
         description: 'AI 기반 서류 검토 및 승인 자동화',
-        triggerType: '서류 접수',
-        integrations: ['OCR', 'AI모델', '결제시스템'],
-        executionCount: 25000
+        nodes: 15,
+        triggers: ['서류 접수', '청구 이벤트'],
+        actions: ['OCR 처리', 'AI 검토', '승인 처리']
       },
       {
-        workflowName: '사기 탐지 시스템',
+        name: '사기 탐지 시스템',
         description: '실시간 사기 위험 분석 및 알림',
-        triggerType: '청구 접수',
-        integrations: ['데이터베이스', 'AI모델', '보안시스템'],
-        executionCount: 15000
+        nodes: 10,
+        triggers: ['청구 접수', '이상 패턴'],
+        actions: ['위험 분석', '사기 탐지', '알림 발송']
       }
     ],
     aiImplementations: [
@@ -537,8 +537,8 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     tags: ['리서치', '리스크', '리포팅', '퀀트'],
     automationMetrics: { timeReduction: '40%', costSaving: '연 140억원', errorReduction: '70%', productivityGain: '150%' },
     n8nWorkflows: [
-      { workflowName: '리서치 ETL', description: '시장·재무·뉴스 수집/정제', triggerType: '스케줄', integrations: ['API', 'DB', 'S3'], executionCount: 120000 },
-      { workflowName: '경보/요약/차트', description: '이벤트 감지→요약/그래프', triggerType: '이벤트', integrations: ['LLM', 'Chart', 'Slack'], executionCount: 80000 }
+      { name: '리서치 ETL', description: '시장·재무·뉴스 수집/정제', nodes: 8, triggers: ['스케줄', 'API 호출'], actions: ['데이터 수집', '정제', '저장'] },
+      { name: '경보/요약/차트', description: '이벤트 감지→요약/그래프', nodes: 6, triggers: ['이벤트', '임계값'], actions: ['감지', '요약', '차트 생성'] }
     ],
     aiImplementations: [
       { aiTool: 'LLM 요약', useCase: '뉴스/리포트 요약', accuracy: 'N/A', trainingData: '수백만 문서' },
@@ -575,7 +575,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     followUpResults: [ { metric: '차지백 성공률', achievement: '+18%p' } ],
     tags: ['사기탐지', '스트리밍', '분쟁자동화'],
     automationMetrics: { timeReduction: '65%', costSaving: '연 260억원', errorReduction: '60%', productivityGain: '120%' },
-    n8nWorkflows: [ { workflowName: '스트리밍 탐지', description: '거래→피처→모델→액션', triggerType: '실시간', integrations: ['Kafka', 'Model', 'SIEM'], executionCount: 300000 } ],
+    n8nWorkflows: [ { name: '스트리밍 탐지', description: '거래→피처→모델→액션', nodes: 12, triggers: ['실시간', '거래 이벤트'], actions: ['피처 추출', '모델 예측', '액션 실행'] } ],
     aiImplementations: [ { aiTool: '이상탐지', useCase: '사기탐지', accuracy: '92%', trainingData: '거래 로그' } ],
     departmentAutomations: [ { department: '리스크', processes: ['탐지', '조사'], automationLevel: '70%', manualHours: '30시간/주', automatedHours: '9시간/주', efficiency: '70% 개선' } ],
     roiData: { investment: '12억원', monthlySavings: '9억원', paybackPeriod: '1.3개월', threeYearROI: '2,700%' },
@@ -605,7 +605,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     followUpResults: [ { metric: '고객 전환율', achievement: '+24%p' } ],
     tags: ['KYC', '신용평가', '온보딩'],
     automationMetrics: { timeReduction: '80%', costSaving: '연 180억원', errorReduction: '60%', productivityGain: '110%' },
-    n8nWorkflows: [ { workflowName: '온보딩/KYC', description: '문서/얼굴/KBA→승인', triggerType: '가입', integrations: ['OCR', 'Liveness', 'DB'], executionCount: 90000 } ],
+    n8nWorkflows: [ { name: '온보딩/KYC', description: '문서/얼굴/KBA→승인', nodes: 10, triggers: ['가입', '신원조회'], actions: ['OCR 처리', '얼굴 인식', '승인 처리'] } ],
     aiImplementations: [ { aiTool: '신용/사기 모델', useCase: '평가/탐지', accuracy: 'N/A', trainingData: '금융 데이터' } ],
     departmentAutomations: [ { department: '리스크', processes: ['평가', '승인'], automationLevel: '75%', manualHours: '28시간/주', automatedHours: '7시간/주', efficiency: '75% 개선' } ],
     roiData: { investment: '10억원', monthlySavings: '7.5억원', paybackPeriod: '1.3개월', threeYearROI: '2,700%' },
@@ -635,7 +635,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     followUpResults: [ { metric: '이탈률', achievement: '-18%' } ],
     tags: ['로보어드바이저', '리밸런싱', '리포팅'],
     automationMetrics: { timeReduction: '35%', costSaving: '연 95억원', errorReduction: '40%', productivityGain: '90%' },
-    n8nWorkflows: [ { workflowName: '리밸런싱 주문', description: '신호→주문→체결', triggerType: '스케줄', integrations: ['백오피스', '브로커', '리포트'], executionCount: 60000 } ],
+    n8nWorkflows: [ { name: '리밸런싱 주문', description: '신호→주문→체결', nodes: 8, triggers: ['스케줄', '시장 신호'], actions: ['신호 분석', '주문 생성', '체결 확인'] } ],
     aiImplementations: [ { aiTool: '추천/리스크 모델', useCase: '전략추천/위험관리', accuracy: 'N/A', trainingData: '시계열' } ],
     departmentAutomations: [ { department: '자문', processes: ['추천', '리밸런싱'], automationLevel: '70%', manualHours: '28시간/주', automatedHours: '8시간/주', efficiency: '71.4% 개선' } ],
     roiData: { investment: '9억원', monthlySavings: '6억원', paybackPeriod: '1.5개월', threeYearROI: '2,400%' },
@@ -665,7 +665,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     followUpResults: [ { metric: '머천트 이탈', achievement: '-15%' } ],
     tags: ['정산', '정합', '온보딩', '차지백'],
     automationMetrics: { timeReduction: '70%', costSaving: '연 75억원', errorReduction: '88%', productivityGain: '120%' },
-    n8nWorkflows: [ { workflowName: '정산/정합', description: '파일 수집→정합→리포트', triggerType: '스케줄', integrations: ['SFTP', 'DB', 'BI'], executionCount: 120000 } ],
+    n8nWorkflows: [ { name: '정산/정합', description: '파일 수집→정합→리포트', nodes: 9, triggers: ['스케줄', '파일 도착'], actions: ['파일 수집', '데이터 정합', '리포트 생성'] } ],
     aiImplementations: [ { aiTool: '이상탐지', useCase: '오류/사기행위 탐지', accuracy: '90%', trainingData: '정산 데이터' } ],
     departmentAutomations: [ { department: '정산', processes: ['정합', '리포트'], automationLevel: '80%', manualHours: '32시간/주', automatedHours: '6시간/주', efficiency: '81.3% 개선' } ],
     roiData: { investment: '8억원', monthlySavings: '5.5억원', paybackPeriod: '1.5개월', threeYearROI: '2,475%' },

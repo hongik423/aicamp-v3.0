@@ -270,20 +270,12 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
         'ERP/MES 통합'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 플랫폼 도입 후 발전소 운영이 완전히 달라졌습니다. 예전에는 날씨 때문에 발전량 예측이 어려웠는데, 이제는 AI가 정확하게 예측해주고 ESS도 자동으로 최적화됩니다. 덕분에 수익이 크게 늘었고, 무엇보다 탄소중립에 실질적으로 기여하고 있다는 자부심이 생겼습니다.",
-        author: "김태양",
-        position: "발전소장",
-        company: "한화에너지 새만금 태양광발전소"
-      },
-      {
-        quote: "120개 발전소를 한 화면에서 실시간으로 모니터링하고 제어할 수 있게 되었습니다. AI가 이상 징후를 미리 감지해주니 큰 고장이 발생하기 전에 조치할 수 있고, 원격으로 대부분 해결되니 현장 출동이 80% 줄었습니다.",
-        author: "박풍력",
-        position: "통합관제센터장",
-        company: "한화에너지"
-      }
-    ],
+    testimonial: {
+      quote: "AI 플랫폼 도입 후 발전소 운영이 완전히 달라졌습니다. 예전에는 날씨 때문에 발전량 예측이 어려웠는데, 이제는 AI가 정확하게 예측해주고 ESS도 자동으로 최적화됩니다. 덕분에 수익이 크게 늘었고, 무엇보다 탄소중립에 실질적으로 기여하고 있다는 자부심이 생겼습니다.",
+      author: "김태양",
+      position: "발전소장",
+      company: "한화에너지 새만금 태양광발전소"
+    },
     featured: true,
     implementationPeriod: '9개월',
     teamSize: '68명',
@@ -482,14 +474,12 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
         'ERP 시스템'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 보일러 연소를 최적화하니 같은 연료로 더 많은 전기를 생산할 수 있게 되었고, 미세먼지도 크게 줄었습니다. 30년 된 발전소가 최신 발전소 못지않은 효율을 내고 있습니다.",
-        author: "이화력",
-        position: "발전팀장",
-        company: "한국남부발전"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 보일러 연소를 최적화하니 같은 연료로 더 많은 전기를 생산할 수 있게 되었고, 미세먼지도 크게 줄었습니다. 30년 된 발전소가 최신 발전소 못지않은 효율을 내고 있습니다.",
+      author: "이화력",
+      position: "발전팀장",
+      company: "한국남부발전"
+    },
     featured: false,
     implementationPeriod: '8개월',
     teamSize: '45명',
@@ -687,14 +677,12 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
         '차량 관제 시스템'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 도입 후 폐기물이 자원으로 바뀌었습니다. 재활용률이 2배 이상 늘었고, 매립장으로 가는 쓰레기가 확 줄었습니다. 진정한 순환경제를 실현하고 있습니다.",
-        author: "김순환",
-        position: "처리장 소장",
-        company: "에코그린환경"
-      }
-    ],
+    testimonial: {
+      quote: "AI 도입 후 폐기물이 자원으로 바뀌었습니다. 재활용률이 2배 이상 늘었고, 매립장으로 가는 쓰레기가 확 줄었습니다. 진정한 순환경제를 실현하고 있습니다.",
+      author: "김순환",
+      position: "처리장 소장",
+      company: "에코그린환경"
+    },
     featured: true,
     implementationPeriod: '6개월',
     teamSize: '38명',
@@ -892,14 +880,12 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
         'AMI(원격검침)'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 관로의 미세한 소리를 듣고 누수를 찾아냅니다. 예전에는 땅을 파봐야 알았는데, 이제는 정확한 위치를 미리 알고 가니 작업 시간이 90% 줄었습니다.",
-        author: "박청수",
-        position: "관로관리팀장",
-        company: "K-water"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 관로의 미세한 소리를 듣고 누수를 찾아냅니다. 예전에는 땅을 파봐야 알았는데, 이제는 정확한 위치를 미리 알고 가니 작업 시간이 90% 줄었습니다.",
+      author: "박청수",
+      position: "관로관리팀장",
+      company: "K-water"
+    },
     featured: false,
     implementationPeriod: '7개월',
     teamSize: '52명',
@@ -1097,14 +1083,12 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
         'ETS 거래 시스템'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 공장 전체의 탄소 배출을 실시간으로 추적하고 최적의 감축 방법을 제시합니다. 덕분에 탄소중립 목표를 훨씬 빨리 달성할 수 있게 되었고, 비용도 크게 절감했습니다.",
-        author: "최그린",
-        position: "탄소중립추진단장",
-        company: "포스코"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 공장 전체의 탄소 배출을 실시간으로 추적하고 최적의 감축 방법을 제시합니다. 덕분에 탄소중립 목표를 훨씬 빨리 달성할 수 있게 되었고, 비용도 크게 절감했습니다.",
+      author: "최그린",
+      position: "탄소중립추진단장",
+      company: "포스코"
+    },
     featured: true,
     implementationPeriod: '12개월',
     teamSize: '125명',
@@ -1303,14 +1287,12 @@ export const energyEnvironmentCaseDetails: { [key: string]: SuccessCaseDetail } 
         '환경 빅데이터'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 시스템 덕분에 6개월 걸리던 환경영향평가를 2개월 만에 끝낼 수 있었습니다. 더 정확하고 객관적인 평가가 가능해져 사업 추진이 훨씬 원활해졌습니다.",
-        author: "김환경",
-        position: "평가1팀장",
-        company: "한국환경공단"
-      }
-    ],
+    testimonial: {
+      quote: "AI 시스템 덕분에 6개월 걸리던 환경영향평가를 2개월 만에 끝낼 수 있었습니다. 더 정확하고 객관적인 평가가 가능해져 사업 추진이 훨씬 원활해졌습니다.",
+      author: "김환경",
+      position: "평가1팀장",
+      company: "한국환경공단"
+    },
     featured: false,
     implementationPeriod: '7개월',
     teamSize: '48명',
