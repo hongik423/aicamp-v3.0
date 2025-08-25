@@ -289,7 +289,7 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
         }`}
       >
         <div className={`mx-auto transition-all duration-500 ${
-          isMinimized ? 'max-w-md' : isMobile ? 'max-w-full mx-4' : 'max-w-5xl mx-6'
+          isMinimized ? 'max-w-md' : isMobile ? 'max-w-full mx-4' : 'max-w-4xl mx-6'
         }`}>
           <div className={`bg-white/95 backdrop-blur-xl border border-gray-200/50 shadow-2xl transition-all duration-500 ${
             isMinimized ? 'rounded-2xl mx-4' : 'rounded-t-3xl'
@@ -319,7 +319,7 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
             ) : (
               /* 전체 상태 */
               <div className={`p-6 overflow-y-auto ${
-                isMobile ? 'max-h-[70vh]' : 'max-h-[60vh]'
+                isMobile ? 'max-h-[70vh]' : 'max-h-[50vh]'
               }`}>
                 {/* 헤더 */}
                 <div className="flex items-center justify-between mb-6">
@@ -485,8 +485,9 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                         setIsVisible(false);
                         console.log('AI역량진단 링크 클릭 - 배너 닫기 처리 완료');
                         if (onHide) onHide();
-                        // 전역 배너 숨김 처리
+                        // 전역 배너 즉시 닫힘 처리 강화
                         if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('immediateCloseBanners'));
                           window.dispatchEvent(new CustomEvent('hideAllBanners'));
                         }
                       }}
@@ -503,8 +504,9 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                         setIsVisible(false);
                         console.log('상담신청 링크 클릭 - 배너 닫기 처리 완료');
                         if (onHide) onHide();
-                        // 전역 배너 숨김 처리
+                        // 전역 배너 즉시 닫힘 처리 강화
                         if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('immediateCloseBanners'));
                           window.dispatchEvent(new CustomEvent('hideAllBanners'));
                         }
                       }}

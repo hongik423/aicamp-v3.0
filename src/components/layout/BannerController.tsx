@@ -60,18 +60,18 @@ const BannerController: React.FC = () => {
       id: 'content-guide',
       component: AICampContentGuide,
       priority: 1,
-      delay: 2000, // 2초 지연으로 증가
+      delay: 3000, // 3초 지연으로 더 증가
       isActive: true,
       isVisible: false,
       autoHide: true,
-      showOnce: false // 세션당 한 번만 표시
+      showOnce: true // 한 번만 표시로 변경
     },
     {
       id: 'book-promotion',
       component: BookPromotionBanner,
       priority: 2,
-      delay: 3000, // 3초 지연으로 증가
-      duration: 8000, // 8초간 표시로 증가
+      delay: 5000, // 5초 지연으로 증가
+      duration: 10000, // 10초간 표시로 증가
       isActive: true,
       isVisible: false,
       autoHide: true,
@@ -81,7 +81,7 @@ const BannerController: React.FC = () => {
       id: 'n8n-curriculum',
       component: N8nCurriculumBanner,
       priority: 3,
-      delay: 4000, // 4초 지연으로 증가
+      delay: 7000, // 7초 지연으로 증가
       isActive: true,
       isVisible: false,
       autoHide: true,
@@ -101,23 +101,53 @@ const BannerController: React.FC = () => {
       console.log('🚀 배너 시스템 활성화 - 스마트 제어 시스템 준비 완료');
     }, 100); // 빠른 초기화
 
-    // 전역 배너 숨김 이벤트 리스너
+    // 전역 배너 숨김 이벤트 리스너 강화
     const handleHideAllBanners = () => {
       setBanners(prev => prev.map(banner => ({ ...banner, isVisible: false })));
-      console.log('🎯 전역 배너 숨김 이벤트 수신 - 모든 배너 숨김 처리');
+      // localStorage에 모든 배너 숨김 상태 저장
+      localStorage.setItem('all-banners-hidden', 'true');
+      localStorage.setItem('banner-hide-timestamp', Date.now().toString());
+      console.log('🎯 전역 배너 숨김 이벤트 수신 - 모든 배너 숨김 처리 및 상태 저장');
+    };
+
+    // 즉시 닫힘 이벤트 리스너 추가
+    const handleImmediateClose = () => {
+      setBanners(prev => prev.map(banner => ({ ...banner, isVisible: false, isActive: false })));
+      localStorage.setItem('banners-disabled-for-session', 'true');
+      console.log('⚡ 즉시 닫힘 이벤트 수신 - 모든 배너 완전 비활성화');
     };
 
     window.addEventListener('hideAllBanners', handleHideAllBanners);
+    window.addEventListener('immediateCloseBanners', handleImmediateClose);
 
     return () => {
       clearTimeout(initTimer);
       window.removeEventListener('hideAllBanners', handleHideAllBanners);
+      window.removeEventListener('immediateCloseBanners', handleImmediateClose);
     };
   }, []);
 
   // 순차적 배너 활성화 (스마트 표시 모드)
   useEffect(() => {
     if (!isSystemActive) return;
+
+    // 세션 기반 배너 비활성화 확인
+    const bannersDisabled = localStorage.getItem('banners-disabled-for-session') === 'true';
+    if (bannersDisabled) {
+      console.log('🚫 세션 동안 배너 비활성화됨 - 모든 배너 건너뛰기');
+      return;
+    }
+
+    // 최근 배너 숨김 시간 확인 (30분 내 숨김 시 재표시 안함)
+    const hideTimestamp = localStorage.getItem('banner-hide-timestamp');
+    if (hideTimestamp) {
+      const timeDiff = Date.now() - parseInt(hideTimestamp);
+      const thirtyMinutes = 30 * 60 * 1000;
+      if (timeDiff < thirtyMinutes) {
+        console.log('⏰ 최근 30분 내 배너 숨김 - 재표시 안함');
+        return;
+      }
+    }
 
     // showOnce 로직을 적용한 배너 필터링
     const activeBanners = BANNER_CONFIG.filter(banner => {
@@ -143,7 +173,7 @@ const BannerController: React.FC = () => {
     
     // 순차적 배너 표시 (우선순위 기반)
     sortedBanners.forEach((banner, index) => {
-      const sequentialDelay = banner.delay + (index * 500); // 각 배너마다 500ms씩 지연 (더 여유롭게)
+      const sequentialDelay = banner.delay + (index * 1000); // 각 배너마다 1초씩 지연 (더욱 여유롭게)
       
       const timer = setTimeout(() => {
         setBanners(prev => prev.map(b => 
@@ -269,15 +299,15 @@ const BannerController: React.FC = () => {
             <motion.div 
               key={banner.id} 
               className={`banner-${banner.id}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
               transition={{ 
-                duration: 0.3, 
-                ease: "easeInOut",
+                duration: 0.4, 
+                ease: "easeOut",
                 type: "spring",
-                stiffness: 300,
-                damping: 25
+                stiffness: 200,
+                damping: 20
               }}
             >
               <Component 

@@ -282,7 +282,7 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
           }}
           className={cn(
             "relative z-10 w-full mx-auto",
-            isMobile ? "max-w-sm sm:max-w-md" : "max-w-3xl",
+            isMobile ? "max-w-sm sm:max-w-md" : "max-w-2xl",
             shouldReduceMotion ? "" : "perspective-1000"
           )}
           onClick={handleContentClick}
@@ -509,8 +509,9 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                           setIsVisible(false);
                           console.log('상담신청 링크 클릭 - 배너 닫기 처리 완료');
                           if (onHide) onHide();
-                          // 전역 배너 숨김 처리
+                          // 전역 배너 즉시 닫힘 처리 강화
                           if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('immediateCloseBanners'));
                             window.dispatchEvent(new CustomEvent('hideAllBanners'));
                           }
                         }}
@@ -563,8 +564,9 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                           setIsVisible(false);
                           console.log('AI역량진단 링크 클릭 - 배너 닫기 처리 완료');
                           if (onHide) onHide();
-                          // 전역 배너 숨김 처리
+                          // 전역 배너 즉시 닫힘 처리 강화
                           if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('immediateCloseBanners'));
                             window.dispatchEvent(new CustomEvent('hideAllBanners'));
                           }
                           // 터치 종료 시 명시적으로 링크 이동
