@@ -79,6 +79,7 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
   const [downloadCount, setDownloadCount] = useState(2847);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
@@ -158,9 +159,19 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
     };
   }, [isVisible, isMobile]);
 
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      setIsClosing(false);
+      console.log('N8n 커리큘럼 배너 수동 닫기');
+      if (onHide) onHide();
+    }, 300);
+  }, [onHide]);
+
   const handleBackgroundClick = useCallback(() => {
-    setIsVisible(false);
-  }, []);
+    handleClose();
+  }, [handleClose]);
 
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -288,16 +299,15 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
               damping: 25,
               duration: 0.6
             }}
-            className="relative z-10 w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto custom-scrollbar"
+            className={cn(
+              "relative z-10 w-full mx-auto overflow-y-auto custom-scrollbar",
+              isMobile ? "max-w-sm max-h-[90vh]" : "max-w-4xl max-h-[85vh]"
+            )}
             onClick={handleContentClick}
           >
             {/* 개선된 닫기 버튼 */}
             <motion.button
-              onClick={() => {
-                console.log('상단 닫기 버튼 클릭됨');
-                setIsVisible(false);
-                localStorage.setItem('n8n-curriculum-viewed', 'true');
-              }}
+              onClick={handleClose}
               title="배너 닫기"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
@@ -577,6 +587,10 @@ const N8nCurriculumBanner: React.FC<N8nCurriculumBannerProps> = ({ forceVisible 
                           setIsVisible(false);
                           localStorage.setItem('n8n-curriculum-viewed', 'true');
                           if (onHide) onHide();
+                          // 전역 배너 숨김 처리
+                          if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('hideAllBanners'));
+                          }
                         }}
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

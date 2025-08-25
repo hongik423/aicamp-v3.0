@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import AICampContentGuide from './AICampContentGuide';
 import BookPromotionBanner from './BookPromotionBanner';
 import N8nCurriculumBanner from './N8nCurriculumBanner';
@@ -54,38 +54,38 @@ export const hideBanner = (id: string) => {
 };
 
 const BannerController: React.FC = () => {
-  // 배너 설정을 상수로 분리하여 중복 제거 (매번 표시 모드)
+  // 배너 설정을 상수로 분리하여 중복 제거 (스마트 표시 모드)
   const BANNER_CONFIG = [
     {
       id: 'content-guide',
       component: AICampContentGuide,
       priority: 1,
-      delay: 1000,
+      delay: 2000, // 2초 지연으로 증가
       isActive: true,
       isVisible: false,
-      autoHide: true
-      // showOnce 제거 - 매번 표시
+      autoHide: true,
+      showOnce: false // 세션당 한 번만 표시
     },
     {
       id: 'book-promotion',
       component: BookPromotionBanner,
       priority: 2,
-      delay: 1000,
-      duration: 5000, // 5초간 표시로 증가
+      delay: 3000, // 3초 지연으로 증가
+      duration: 8000, // 8초간 표시로 증가
       isActive: true,
       isVisible: false,
-      autoHide: true
-      // showOnce 제거 - 매번 표시
+      autoHide: true,
+      showOnce: true // 한 번만 표시
     },
     {
       id: 'n8n-curriculum',
       component: N8nCurriculumBanner,
       priority: 3,
-      delay: 1000,
+      delay: 4000, // 4초 지연으로 증가
       isActive: true,
       isVisible: false,
-      autoHide: true
-      // showOnce 제거 - 매번 표시
+      autoHide: true,
+      showOnce: true // 한 번만 표시
     }
   ];
 
@@ -101,23 +101,49 @@ const BannerController: React.FC = () => {
       console.log('🚀 배너 시스템 활성화 - 스마트 제어 시스템 준비 완료');
     }, 100); // 빠른 초기화
 
-    return () => clearTimeout(initTimer);
+    // 전역 배너 숨김 이벤트 리스너
+    const handleHideAllBanners = () => {
+      setBanners(prev => prev.map(banner => ({ ...banner, isVisible: false })));
+      console.log('🎯 전역 배너 숨김 이벤트 수신 - 모든 배너 숨김 처리');
+    };
+
+    window.addEventListener('hideAllBanners', handleHideAllBanners);
+
+    return () => {
+      clearTimeout(initTimer);
+      window.removeEventListener('hideAllBanners', handleHideAllBanners);
+    };
   }, []);
 
-  // 순차적 배너 활성화 (매번 표시 - 홍보와 후킹이 중요하므로)
+  // 순차적 배너 활성화 (스마트 표시 모드)
   useEffect(() => {
     if (!isSystemActive) return;
 
-    // 모든 활성 배너를 표시 (showOnce 로직 제거 - 매번 표시)
-    const activeBanners = BANNER_CONFIG.filter(banner => banner.isActive);
-    console.log(`🎯 홍보 배너 ${activeBanners.length}개 활성화 - 매번 표시 모드`);
+    // showOnce 로직을 적용한 배너 필터링
+    const activeBanners = BANNER_CONFIG.filter(banner => {
+      if (!banner.isActive) return false;
+      
+      // showOnce가 true인 배너는 localStorage에서 확인
+      if (banner.showOnce) {
+        const viewedKey = `banner-${banner.id}-viewed`;
+        const hasViewed = localStorage.getItem(viewedKey) === 'true';
+        if (hasViewed) {
+          console.log(`⏭️ ${banner.id} 배너는 이미 표시됨 - 건너뛰기`);
+          return false;
+        }
+      }
+      
+      return true;
+    });
+
+    console.log(`🎯 홍보 배너 ${activeBanners.length}개 활성화 - 스마트 표시 모드`);
 
     const sortedBanners = [...activeBanners].sort((a, b) => a.priority - b.priority);
     const timers: NodeJS.Timeout[] = [];
     
     // 순차적 배너 표시 (우선순위 기반)
     sortedBanners.forEach((banner, index) => {
-      const sequentialDelay = banner.delay + (index * 200); // 각 배너마다 200ms씩 지연 (더 여유롭게)
+      const sequentialDelay = banner.delay + (index * 500); // 각 배너마다 500ms씩 지연 (더 여유롭게)
       
       const timer = setTimeout(() => {
         setBanners(prev => prev.map(b => 
@@ -126,7 +152,14 @@ const BannerController: React.FC = () => {
             : b
         ));
         
-        console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1}) - 매번 표시 모드`);
+        console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1}) - 스마트 표시 모드`);
+        
+        // showOnce 배너는 표시 후 localStorage에 기록
+        if (banner.showOnce) {
+          const viewedKey = `banner-${banner.id}-viewed`;
+          localStorage.setItem(viewedKey, 'true');
+          console.log(`💾 ${banner.id} 배너 표시 기록 저장`);
+        }
         
         // 지속 시간이 설정된 배너는 자동으로 비활성화
         if (banner.duration) {
@@ -229,16 +262,29 @@ const BannerController: React.FC = () => {
 
   return (
     <div className="banner-controller">
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         {banners.map(banner => {
           const Component = banner.component;
-          return banner.isActive ? (
-            <div key={banner.id} className={`banner-${banner.id}`}>
+          return banner.isActive && banner.isVisible ? (
+            <motion.div 
+              key={banner.id} 
+              className={`banner-${banner.id}`}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ 
+                duration: 0.3, 
+                ease: "easeInOut",
+                type: "spring",
+                stiffness: 300,
+                damping: 25
+              }}
+            >
               <Component 
                 forceVisible={banner.isVisible} 
                 onHide={() => hideBannerLocal(banner.id)}
               />
-            </div>
+            </motion.div>
           ) : null;
         })}
       </AnimatePresence>

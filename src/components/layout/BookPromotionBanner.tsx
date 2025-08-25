@@ -109,6 +109,7 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
   const [isLoaded, setIsLoaded] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   
   const shouldReduceMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
@@ -189,9 +190,19 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
     };
   }, [isVisible, isMobile]);
 
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      setIsClosing(false);
+      console.log('도서 홍보 배너 수동 닫기');
+      if (onHide) onHide();
+    }, 300);
+  }, [onHide]);
+
   const handleBackgroundClick = useCallback(() => {
-    setIsVisible(false);
-  }, []);
+    handleClose();
+  }, [handleClose]);
 
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -270,23 +281,24 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
             duration: shouldReduceMotion ? 0.3 : 0.8
           }}
           className={cn(
-            "relative z-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl mx-auto",
+            "relative z-10 w-full mx-auto",
+            isMobile ? "max-w-sm sm:max-w-md" : "max-w-3xl",
             shouldReduceMotion ? "" : "perspective-1000"
           )}
           onClick={handleContentClick}
         >
           {/* 닫기 버튼 - 모바일에서 더 큰 터치 영역 */}
           <button
-            onClick={() => setIsVisible(false)}
+            onClick={handleClose}
             title="배너 닫기"
             className={cn(
-              "absolute -top-2 -right-2 sm:-top-4 sm:-right-4 z-20 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95",
+              "absolute -top-2 -right-2 sm:-top-4 sm:-right-4 z-20 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 transition-all focus:outline-none focus:ring-2 focus:ring-red-500 active:scale-95",
               isMobile ? "w-12 h-12 touch-manipulation" : "w-10 h-10",
-              "webkit-tap-highlight-transparent touch-manipulation"
+              "webkit-tap-highlight-transparent touch-manipulation group"
             )}
             aria-label="책 홍보 배너 닫기"
           >
-            <X size={isMobile ? 24 : 20} />
+            <X size={isMobile ? 24 : 20} className="group-hover:text-red-600 transition-colors duration-200" />
           </button>
 
           {/* 메인 카드 */}
@@ -497,6 +509,10 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                           setIsVisible(false);
                           console.log('상담신청 링크 클릭 - 배너 닫기 처리 완료');
                           if (onHide) onHide();
+                          // 전역 배너 숨김 처리
+                          if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('hideAllBanners'));
+                          }
                         }}
                       >
                         <BookOpen className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
@@ -547,6 +563,10 @@ AI역량진단+ AI CAMP 교육비 20% 할인
                           setIsVisible(false);
                           console.log('AI역량진단 링크 클릭 - 배너 닫기 처리 완료');
                           if (onHide) onHide();
+                          // 전역 배너 숨김 처리
+                          if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('hideAllBanners'));
+                          }
                           // 터치 종료 시 명시적으로 링크 이동
                           setTimeout(() => {
                             window.location.href = '/ai-diagnosis';

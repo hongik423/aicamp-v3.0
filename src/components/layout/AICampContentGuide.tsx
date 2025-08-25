@@ -214,12 +214,21 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const categories = ['전체', '핵심서비스', '주요액션', '기타서비스'];
 
-  // Hydration 오류 방지
+  // Hydration 오류 방지 및 모바일 감지
   useEffect(() => {
     setIsMounted(true);
+    
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const filteredContent = selectedCategory === '전체' 
@@ -280,7 +289,7 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
         }`}
       >
         <div className={`mx-auto transition-all duration-500 ${
-          isMinimized ? 'max-w-md' : 'max-w-7xl'
+          isMinimized ? 'max-w-md' : isMobile ? 'max-w-full mx-4' : 'max-w-5xl mx-6'
         }`}>
           <div className={`bg-white/95 backdrop-blur-xl border border-gray-200/50 shadow-2xl transition-all duration-500 ${
             isMinimized ? 'rounded-2xl mx-4' : 'rounded-t-3xl'
@@ -309,7 +318,9 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
               </motion.div>
             ) : (
               /* 전체 상태 */
-              <div className="p-6 max-h-[80vh] overflow-y-auto">
+              <div className={`p-6 overflow-y-auto ${
+                isMobile ? 'max-h-[70vh]' : 'max-h-[60vh]'
+              }`}>
                 {/* 헤더 */}
                 <div className="flex items-center justify-between mb-6">
                   <motion.div
@@ -330,19 +341,27 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                   </motion.div>
                   
                   <div className="flex items-center space-x-2">
+                    {/* 데스크톱에서만 최소화 버튼 표시 */}
+                    {!isMobile && (
+                      <button
+                        onClick={() => setIsMinimized(true)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                        title="최소화"
+                      >
+                        <ArrowDown className="w-5 h-5 text-gray-600" />
+                      </button>
+                    )}
+                    {/* 닫기 버튼 - 더 눈에 띄게 개선 */}
                     <button
-                      onClick={() => setIsMinimized(true)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                      title="최소화"
-                    >
-                      <ArrowDown className="w-5 h-5 text-gray-600" />
-                    </button>
-                    <button
-                      onClick={() => setIsVisible(false)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                      onClick={() => {
+                        setIsVisible(false);
+                        console.log('AI CAMP 가이드 배너 수동 닫기');
+                        if (onHide) onHide();
+                      }}
+                      className="p-2 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all duration-200 group"
                       title="닫기"
                     >
-                      <X className="w-5 h-5 text-gray-600" />
+                      <X className="w-5 h-5 text-gray-600 group-hover:text-red-600 transition-colors duration-200" />
                     </button>
                   </div>
                 </div>
@@ -466,6 +485,10 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                         setIsVisible(false);
                         console.log('AI역량진단 링크 클릭 - 배너 닫기 처리 완료');
                         if (onHide) onHide();
+                        // 전역 배너 숨김 처리
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('hideAllBanners'));
+                        }
                       }}
                     >
                       <Target className="w-5 h-5" />
@@ -480,6 +503,10 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                         setIsVisible(false);
                         console.log('상담신청 링크 클릭 - 배너 닫기 처리 완료');
                         if (onHide) onHide();
+                        // 전역 배너 숨김 처리
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('hideAllBanners'));
+                        }
                       }}
                     >
                       <MessageSquare className="w-5 h-5" />
