@@ -160,7 +160,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
           <div className="flex items-center text-sm">
             <TrendingUp className={`w-4 h-4 mr-2 ${indicator.color}`} />
             <span className={`font-medium ${indicator.color}`}>
-              선택된 평가: {indicator.score}점 → {barsIndicator?.level || displayIndicator?.keyword || indicator.keyword}
+              선택된 평가: {indicator.score}점 → {barsIndicator?.level || displayIndicator?.keyword || (indicator as any).keyword || indicator.label}
             </span>
           </div>
         </motion.div>
