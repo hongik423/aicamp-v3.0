@@ -90,7 +90,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
                   ${isSelected ? `${indicator.color} border-current` : 'text-gray-600 border-gray-300'}
                 `}
               >
-{displayIndicator?.keyword || indicator.keyword}
+{(displayIndicator && 'keyword' in displayIndicator) ? displayIndicator.keyword : indicator.keyword}
               </Badge>
             </div>
           </div>
@@ -99,7 +99,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
             text-sm leading-relaxed
             ${isSelected ? indicator.color : 'text-gray-600'}
           `}>
-{barsIndicator?.behaviorDescription || displayIndicator?.description || indicator.description}
+{barsIndicator?.behaviorDescription || (displayIndicator && 'description' in displayIndicator ? displayIndicator.description : indicator.description)}
           </p>
           
           {/* BARS 시스템의 실제 업무 사례 표시 */}

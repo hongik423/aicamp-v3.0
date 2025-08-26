@@ -210,16 +210,16 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     ],
     aiImplementations: [
       {
-        aiTool: 'NLP 챗봇',
-        useCase: '고객 상담 및 상품 안내',
+        type: 'NLP 챗봇',
+        purpose: '고객 상담 및 상품 안내',
         accuracy: '94%',
-        trainingData: '100만건 상담 기록'
+        processingTime: '평균 2초'
       },
       {
-        aiTool: '추천 시스템',
-        useCase: '개인화 상품 추천',
+        type: '추천 시스템',
+        purpose: '개인화 상품 추천',
         accuracy: '92%',
-        trainingData: '500만건 거래 데이터'
+        processingTime: '실시간'
       }
     ],
     departmentAutomations: [
@@ -448,16 +448,16 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     ],
     aiImplementations: [
       {
-        aiTool: 'Computer Vision',
-        useCase: '서류 검토 및 OCR',
+        type: 'Computer Vision',
+        purpose: '서류 검토 및 OCR',
         accuracy: '98%',
-        trainingData: '100만건 서류 이미지'
+        processingTime: '평균 3초'
       },
       {
-        aiTool: 'Anomaly Detection',
-        useCase: '사기 탐지',
+        type: 'Anomaly Detection',
+        purpose: '사기 탐지',
         accuracy: '95%',
-        trainingData: '50만건 청구 데이터'
+        processingTime: '실시간'
       }
     ],
     departmentAutomations: [
@@ -541,8 +541,8 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
       { name: '경보/요약/차트', description: '이벤트 감지→요약/그래프', nodes: 6, triggers: ['이벤트', '임계값'], actions: ['감지', '요약', '차트 생성'] }
     ],
     aiImplementations: [
-      { aiTool: 'LLM 요약', useCase: '뉴스/리포트 요약', accuracy: 'N/A', trainingData: '수백만 문서' },
-      { aiTool: '이상탐지', useCase: '가격 급변 경보', accuracy: '92%', trainingData: '틱 데이터' }
+      { type: 'LLM 요약', purpose: '뉴스/리포트 요약', accuracy: 'N/A', processingTime: '평균 5초' },
+      { type: '이상탐지', purpose: '가격 급변 경보', accuracy: '92%', processingTime: '실시간' }
     ],
     departmentAutomations: [
       { department: '리서치', processes: ['수집', '요약', '리포트'], automationLevel: '75%', manualHours: '32시간/주', automatedHours: '8시간/주', efficiency: '75% 개선' },
@@ -576,7 +576,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     tags: ['사기탐지', '스트리밍', '분쟁자동화'],
     automationMetrics: { timeReduction: '65%', costSaving: '연 260억원', errorReduction: '60%', productivityGain: '120%' },
     n8nWorkflows: [ { name: '스트리밍 탐지', description: '거래→피처→모델→액션', nodes: 12, triggers: ['실시간', '거래 이벤트'], actions: ['피처 추출', '모델 예측', '액션 실행'] } ],
-    aiImplementations: [ { aiTool: '이상탐지', useCase: '사기탐지', accuracy: '92%', trainingData: '거래 로그' } ],
+    aiImplementations: [ { type: '이상탐지', purpose: '사기탐지', accuracy: '92%', processingTime: '실시간' } ],
     departmentAutomations: [ { department: '리스크', processes: ['탐지', '조사'], automationLevel: '70%', manualHours: '30시간/주', automatedHours: '9시간/주', efficiency: '70% 개선' } ],
     roiData: { investment: '12억원', monthlySavings: '9억원', paybackPeriod: '1.3개월', threeYearROI: '2,700%' },
     implementationTimeline: '12주',
@@ -606,7 +606,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     tags: ['KYC', '신용평가', '온보딩'],
     automationMetrics: { timeReduction: '80%', costSaving: '연 180억원', errorReduction: '60%', productivityGain: '110%' },
     n8nWorkflows: [ { name: '온보딩/KYC', description: '문서/얼굴/KBA→승인', nodes: 10, triggers: ['가입', '신원조회'], actions: ['OCR 처리', '얼굴 인식', '승인 처리'] } ],
-    aiImplementations: [ { aiTool: '신용/사기 모델', useCase: '평가/탐지', accuracy: 'N/A', trainingData: '금융 데이터' } ],
+    aiImplementations: [ { type: '신용/사기 모델', purpose: '평가/탐지', accuracy: 'N/A', processingTime: '평균 10초' } ],
     departmentAutomations: [ { department: '리스크', processes: ['평가', '승인'], automationLevel: '75%', manualHours: '28시간/주', automatedHours: '7시간/주', efficiency: '75% 개선' } ],
     roiData: { investment: '10억원', monthlySavings: '7.5억원', paybackPeriod: '1.3개월', threeYearROI: '2,700%' },
     implementationTimeline: '10주',
@@ -636,7 +636,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     tags: ['로보어드바이저', '리밸런싱', '리포팅'],
     automationMetrics: { timeReduction: '35%', costSaving: '연 95억원', errorReduction: '40%', productivityGain: '90%' },
     n8nWorkflows: [ { name: '리밸런싱 주문', description: '신호→주문→체결', nodes: 8, triggers: ['스케줄', '시장 신호'], actions: ['신호 분석', '주문 생성', '체결 확인'] } ],
-    aiImplementations: [ { aiTool: '추천/리스크 모델', useCase: '전략추천/위험관리', accuracy: 'N/A', trainingData: '시계열' } ],
+    aiImplementations: [ { type: '추천/리스크 모델', purpose: '전략추천/위험관리', accuracy: 'N/A', processingTime: '평균 15초' } ],
     departmentAutomations: [ { department: '자문', processes: ['추천', '리밸런싱'], automationLevel: '70%', manualHours: '28시간/주', automatedHours: '8시간/주', efficiency: '71.4% 개선' } ],
     roiData: { investment: '9억원', monthlySavings: '6억원', paybackPeriod: '1.5개월', threeYearROI: '2,400%' },
     implementationTimeline: '11주',
@@ -666,7 +666,7 @@ export const financeInsuranceCaseDetails: { [key: string]: SuccessCaseDetail } =
     tags: ['정산', '정합', '온보딩', '차지백'],
     automationMetrics: { timeReduction: '70%', costSaving: '연 75억원', errorReduction: '88%', productivityGain: '120%' },
     n8nWorkflows: [ { name: '정산/정합', description: '파일 수집→정합→리포트', nodes: 9, triggers: ['스케줄', '파일 도착'], actions: ['파일 수집', '데이터 정합', '리포트 생성'] } ],
-    aiImplementations: [ { aiTool: '이상탐지', useCase: '오류/사기행위 탐지', accuracy: '90%', trainingData: '정산 데이터' } ],
+    aiImplementations: [ { type: '이상탐지', purpose: '오류/사기행위 탐지', accuracy: '90%', processingTime: '실시간' } ],
     departmentAutomations: [ { department: '정산', processes: ['정합', '리포트'], automationLevel: '80%', manualHours: '32시간/주', automatedHours: '6시간/주', efficiency: '81.3% 개선' } ],
     roiData: { investment: '8억원', monthlySavings: '5.5억원', paybackPeriod: '1.5개월', threeYearROI: '2,475%' },
     implementationTimeline: '10주',

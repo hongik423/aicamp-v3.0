@@ -266,21 +266,21 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
     },
     n8nWorkflows: [
       {
-        workflowName: 'AI 민원 처리',
+        name: 'AI 민원 처리',
         description: '자동 분류, 처리, 답변 생성',
         triggerType: '민원 접수',
         integrations: ['정부24', 'AI 엔진', '부처 시스템'],
         executionCount: 50000
       },
       {
-        workflowName: '정책 영향 분석',
+        name: '정책 영향 분석',
         description: 'AI 시뮬레이션 정책 예측',
         triggerType: '정책 수립',
         integrations: ['빅데이터', 'AI 모델', '통계청'],
         executionCount: 2000
       },
       {
-        workflowName: '보안 위협 대응',
+        name: '보안 위협 대응',
         description: '실시간 탐지 및 자동 차단',
         triggerType: '이상 감지',
         integrations: ['보안 시스템', 'AI 분석', '대응 체계'],
@@ -289,20 +289,20 @@ export const publicNonprofitCaseDetails: { [key: string]: SuccessCaseDetail } = 
     ],
     aiImplementations: [
       {
-        aiTool: 'NLP 챗봇',
-        useCase: '민원 상담',
+        type: 'NLP 챗봇',
+        purpose: '민원 상담',
         accuracy: '96%',
         processingTime: '평균 30초'
       },
       {
-        aiTool: '예측 분석',
-        useCase: '정책 효과 예측',
+        type: '예측 분석',
+        purpose: '정책 효과 예측',
         accuracy: '89%',
         processingTime: '평균 5분'
       },
       {
-        aiTool: '이상 탐지',
-        useCase: '보안 위협 감지',
+        type: '이상 탐지',
+        purpose: '보안 위협 감지',
         accuracy: '99.9%',
         processingTime: '실시간'
       }

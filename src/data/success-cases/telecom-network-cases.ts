@@ -269,20 +269,12 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
         'Open RAN'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 네트워크를 24시간 자동으로 최적화하니 품질이 획기적으로 개선되었습니다. 특히 대규모 이벤트나 재난 상황에서도 안정적인 통신이 가능해져 고객들의 신뢰가 크게 높아졌습니다. 진정한 자율 네트워크 시대가 열렸습니다.",
-        author: "김네트워크",
-        position: "네트워크운영센터장",
-        company: "SK텔레콤"
-      },
-      {
-        quote: "예전에는 기지국 하나를 최적화하는데 일주일이 걸렸는데, 이제 AI가 수천 개 기지국을 실시간으로 최적화합니다. 에너지도 크게 절약되어 탄소중립 목표 달성이 눈앞에 왔습니다.",
-        author: "박5G",
-        position: "기술전략본부장",
-        company: "SK텔레콤"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 네트워크를 24시간 자동으로 최적화하니 품질이 획기적으로 개선되었습니다. 특히 대규모 이벤트나 재난 상황에서도 안정적인 통신이 가능해져 고객들의 신뢰가 크게 높아졌습니다. 진정한 자율 네트워크 시대가 열렸습니다.",
+      author: "김네트워크",
+      position: "네트워크운영센터장",
+      company: "SK텔레콤"
+    },
     featured: true,
     implementationPeriod: '10개월',
     teamSize: '125명',
@@ -481,14 +473,12 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
         'EDR/XDR 솔루션'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 수십억 건의 로그를 실시간으로 분석하고 위협을 즉시 차단합니다. 보안 팀이 더 이상 단순 모니터링이 아닌 전략적 보안 강화에 집중할 수 있게 되었습니다.",
-        author: "이보안",
-        position: "CISO",
-        company: "안랩"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 수십억 건의 로그를 실시간으로 분석하고 위협을 즉시 차단합니다. 보안 팀이 더 이상 단순 모니터링이 아닌 전략적 보안 강화에 집중할 수 있게 되었습니다.",
+      author: "이보안",
+      position: "CISO",
+      company: "안랩"
+    },
     featured: true,
     implementationPeriod: '8개월',
     teamSize: '35명',
@@ -686,14 +676,12 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
         'Multi-Cloud APIs'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 워크로드를 실시간으로 분석하고 최적의 클라우드에 자동 배치합니다. 비용은 절반으로 줄고 성능은 두 배로 늘었습니다.",
-        author: "김클라우드",
-        position: "클라우드아키텍트",
-        company: "네이버 클라우드 플랫폼"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 워크로드를 실시간으로 분석하고 최적의 클라우드에 자동 배치합니다. 비용은 절반으로 줄고 성능은 두 배로 늘었습니다.",
+      author: "김클라우드",
+      position: "클라우드아키텍트",
+      company: "네이버 클라우드 플랫폼"
+    },
     featured: false,
     implementationPeriod: '7개월',
     teamSize: '45명',
@@ -891,14 +879,12 @@ export const telecomNetworkCaseDetails: { [key: string]: SuccessCaseDetail } = {
         'Time Series DB'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 수백만 개의 IoT 디바이스를 자동으로 관리하고 최적화합니다. 엣지 AI로 실시간 처리가 가능해져 스마트시티와 스마트팩토리 구현이 현실이 되었습니다.",
-        author: "박IoT",
-        position: "IoT사업본부장",
-        company: "LG유플러스"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 수백만 개의 IoT 디바이스를 자동으로 관리하고 최적화합니다. 엣지 AI로 실시간 처리가 가능해져 스마트시티와 스마트팩토리 구현이 현실이 되었습니다.",
+      author: "박IoT",
+      position: "IoT사업본부장",
+      company: "LG유플러스"
+    },
     featured: false,
     implementationPeriod: '9개월',
     teamSize: '85명',

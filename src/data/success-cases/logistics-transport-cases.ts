@@ -236,7 +236,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
         '글로벌 물류 경쟁력 확보'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'AI 경로 최적화',
@@ -266,20 +266,12 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
         '고객사 API 연동'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 시스템 도입 후 배송 효율이 획기적으로 개선되었습니다. 특히 라스트마일 구간에서 AI가 최적 경로를 제시해주어 하루에 더 많은 배송을 처리할 수 있게 되었습니다.",
-        author: "김성호",
-        position: "배송팀장",
-        company: "CJ대한통운 서울지사"
-      },
-      {
-        quote: "실시간으로 화물 위치를 확인할 수 있고, 예상 도착 시간이 정확해져서 고객 응대가 훨씬 수월해졌습니다. 고객 만족도가 크게 향상되었습니다.",
-        author: "이지은",
-        position: "CS매니저",
-        company: "이커머스 고객사"
-      }
-    ],
+    testimonial: {
+      quote: "AI 시스템 도입 후 배송 효율이 획기적으로 개선되었습니다. 특히 라스트마일 구간에서 AI가 최적 경로를 제시해주어 하루에 더 많은 배송을 처리할 수 있게 되었습니다.",
+      author: "김성호",
+      position: "배송팀장",
+      company: "CJ대한통운 서울지사"
+    },
     featured: true,
     implementationPeriod: '12개월',
     teamSize: '120명',
@@ -448,7 +440,7 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
         '선박 안전성 향상'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'AI 항로 최적화',
@@ -472,14 +464,12 @@ export const logisticsTransportCaseDetails: { [key: string]: SuccessCaseDetail }
         '고객 TMS 연동'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 항로 최적화로 연료를 크게 절감하면서도 정시 운항률이 대폭 개선되었습니다. 환경 규제에도 선제적으로 대응할 수 있게 되었습니다.",
-        author: "최진호",
-        position: "선장",
-        company: "HMM 컨테이너선"
-      }
-    ],
+    testimonial: {
+      quote: "AI 항로 최적화로 연료를 크게 절감하면서도 정시 운항률이 대폭 개선되었습니다. 환경 규제에도 선제적으로 대응할 수 있게 되었습니다.",
+      author: "최진호",
+      position: "선장",
+      company: "HMM 컨테이너선"
+    },
     featured: true,
     implementationPeriod: '10개월',
     teamSize: '85명',

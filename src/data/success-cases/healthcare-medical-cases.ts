@@ -236,7 +236,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         'JCI 국제 인증 획득'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: '환자 예약 및 문진 자동화',
@@ -266,20 +266,12 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '검사 장비 실시간 데이터 연동'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 도입 후 환자를 위한 실질적인 진료 시간이 2배 이상 늘었습니다. 행정 업무에서 해방되어 의사 본연의 역할에 집중할 수 있게 되었고, 환자들의 만족도도 크게 향상되었습니다.",
-        author: "김정호",
-        position: "내과 과장",
-        company: "서울대학교병원"
-      },
-      {
-        quote: "검사 예약부터 결과 확인까지 모든 과정이 간소화되어 정말 편리합니다. 특히 AI 챗봇이 24시간 상담해주어 불안할 때마다 도움을 받을 수 있어 좋습니다.",
-        author: "이미선",
-        position: "외래 환자",
-        company: "당뇨병 치료 중"
-      }
-    ],
+    testimonial: {
+      quote: "AI 도입 후 환자를 위한 실질적인 진료 시간이 2배 이상 늘었습니다. 행정 업무에서 해방되어 의사 본연의 역할에 집중할 수 있게 되었고, 환자들의 만족도도 크게 향상되었습니다.",
+      author: "김정호",
+      position: "내과 과장",
+      company: "서울대학교병원"
+    },
     featured: true,
     implementationPeriod: '8개월',
     teamSize: '45명',
@@ -448,7 +440,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '지역 내 평판 1위 달성'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: '스마트 예약 관리',
@@ -472,14 +464,12 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '검사 기관 연계'
       ]
     },
-    testimonials: [
-      {
-        quote: "작은 의원에서도 대형 병원 못지않은 스마트한 진료 시스템을 구축할 수 있었습니다. 환자분들의 만족도가 크게 올라갔고, 저희도 진료에만 집중할 수 있게 되었습니다.",
-        author: "박준영",
-        position: "원장",
-        company: "강남 연세의원"
-      }
-    ],
+    testimonial: {
+      quote: "작은 의원에서도 대형 병원 못지않은 스마트한 진료 시스템을 구축할 수 있었습니다. 환자분들의 만족도가 크게 올라갔고, 저희도 진료에만 집중할 수 있게 되었습니다.",
+      author: "박준영",
+      position: "원장",
+      company: "강남 연세의원"
+    },
     featured: true,
     implementationPeriod: '3개월',
     teamSize: '8명',
@@ -647,7 +637,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '약사 업무 만족도 향상'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'OCR 처방전 자동 입력',
@@ -671,14 +661,12 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '병원 처방 시스템'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 도입 후 단순 반복 업무에서 벗어나 환자 상담과 복약 지도에 더 많은 시간을 할애할 수 있게 되었습니다. 전문가로서의 역할에 집중할 수 있어 매우 만족합니다.",
-        author: "최현주",
-        position: "약국장",
-        company: "온누리약국 강남점"
-      }
-    ],
+    testimonial: {
+      quote: "AI 도입 후 단순 반복 업무에서 벗어나 환자 상담과 복약 지도에 더 많은 시간을 할애할 수 있게 되었습니다. 전문가로서의 역할에 집중할 수 있어 매우 만족합니다.",
+      author: "최현주",
+      position: "약국장",
+      company: "온누리약국 강남점"
+    },
     featured: false,
     implementationPeriod: '5개월',
     teamSize: '12명',
@@ -846,7 +834,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '의료진 진단 자신감 향상'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'AI X-ray 분석',
@@ -870,14 +858,12 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '보험 청구 시스템'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 영상 진단 도입 후 놓치기 쉬운 초기 충치나 치주 질환을 정확하게 찾아낼 수 있게 되었습니다. 환자분들께 더 정확한 진단과 치료를 제공할 수 있어 자부심을 느낍니다.",
-        author: "김민수",
-        position: "원장",
-        company: "서울미소치과 강남점"
-      }
-    ],
+    testimonial: {
+      quote: "AI 영상 진단 도입 후 놓치기 쉬운 초기 충치나 치주 질환을 정확하게 찾아낼 수 있게 되었습니다. 환자분들께 더 정확한 진단과 치료를 제공할 수 있어 자부심을 느낍니다.",
+      author: "김민수",
+      position: "원장",
+      company: "서울미소치과 강남점"
+    },
     featured: true,
     implementationPeriod: '6개월',
     teamSize: '15명',
@@ -1045,7 +1031,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '예방 의료 서비스 강화'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'AI 통합 판독',
@@ -1069,14 +1055,12 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '협력 병원 네트워크'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 도입으로 미세한 이상 소견도 놓치지 않게 되었고, 당일 결과를 받아볼 수 있어 검진의 가치가 크게 높아졌습니다. 고객들의 건강을 더 잘 지킬 수 있게 되어 보람을 느낍니다.",
-        author: "이정훈",
-        position: "센터장",
-        company: "KMI 강남센터"
-      }
-    ],
+    testimonial: {
+      quote: "AI 도입으로 미세한 이상 소견도 놓치지 않게 되었고, 당일 결과를 받아볼 수 있어 검진의 가치가 크게 높아졌습니다. 고객들의 건강을 더 잘 지킬 수 있게 되어 보람을 느낍니다.",
+      author: "이정훈",
+      position: "센터장",
+      company: "KMI 강남센터"
+    },
     featured: false,
     implementationPeriod: '8개월',
     teamSize: '25명',
@@ -1244,7 +1228,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '재활 의학 선도 병원 인정'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: '3D 동작 분석',
@@ -1268,14 +1252,12 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '원격 진료 시스템'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 동작 분석 시스템 덕분에 환자의 미세한 진전도 정확히 파악할 수 있게 되었습니다. 맞춤형 재활 프로그램으로 환자들의 회복 속도가 눈에 띄게 빨라졌습니다.",
-        author: "정수진",
-        position: "재활의학과 과장",
-        company: "하나재활병원"
-      }
-    ],
+    testimonial: {
+      quote: "AI 동작 분석 시스템 덕분에 환자의 미세한 진전도 정확히 파악할 수 있게 되었습니다. 맞춤형 재활 프로그램으로 환자들의 회복 속도가 눈에 띄게 빨라졌습니다.",
+      author: "정수진",
+      position: "재활의학과 과장",
+      company: "하나재활병원"
+    },
     featured: true,
     implementationPeriod: '7개월',
     teamSize: '18명',
@@ -1443,7 +1425,7 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '지역사회 정신건강 증진'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'AI 감정 모니터링',
@@ -1467,14 +1449,12 @@ export const healthcareMedicalCaseDetails: { [key: string]: SuccessCaseDetail } 
         '지역 정신건강센터'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 시스템 도입으로 환자들의 미세한 변화도 놓치지 않게 되었습니다. 특히 자살 위험을 조기에 감지하여 소중한 생명을 구할 수 있었던 것이 가장 큰 보람입니다.",
-        author: "김태현",
-        position: "원장",
-        company: "마음드림 정신건강의학과"
-      }
-    ],
+    testimonial: {
+      quote: "AI 시스템 도입으로 환자들의 미세한 변화도 놓치지 않게 되었습니다. 특히 자살 위험을 조기에 감지하여 소중한 생명을 구할 수 있었던 것이 가장 큰 보람입니다.",
+      author: "김태현",
+      position: "원장",
+      company: "마음드림 정신건강의학과"
+    },
     featured: false,
     implementationPeriod: '6개월',
     teamSize: '10명',

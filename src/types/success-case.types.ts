@@ -43,6 +43,7 @@ export interface QuantitativeResult {
 export interface FinancialResult {
   item: string;
   amount: string;
+  details?: string;
 }
 
 export interface Results {
@@ -56,6 +57,8 @@ export interface Testimonial {
   author: string;
   position: string;
   company: string;
+  metrics?: string;
+  additionalContext?: string;
 }
 
 export interface FollowUpResult {
@@ -85,9 +88,13 @@ export interface AutomationMetrics {
 export interface N8nWorkflow {
   name: string;
   description: string;
-  nodes: number;
-  triggers: string[];
-  actions: string[];
+  nodes?: number;
+  triggers?: string[];
+  actions?: string[];
+  // 확장된 속성들 (선택적)
+  triggerType?: string;
+  integrations?: string[];
+  executionCount?: number;
 }
 
 export interface AIImplementation {
@@ -100,8 +107,14 @@ export interface AIImplementation {
 export interface DepartmentAutomation {
   department: string;
   automationLevel: string;
-  timeSaved: string;
-  costReduction: string;
+  timeSaved?: string;
+  costReduction?: string;
+  // 확장된 속성들 (선택적)
+  processes?: string[];
+  manualHours?: string;
+  automatedHours?: string;
+  efficiency?: string;
+  details?: string;
 }
 
 // 메인 성공사례 상세 인터페이스
@@ -111,18 +124,18 @@ export interface SuccessCaseDetail {
   industry: string;
   subIndustry: string;
   companyName: string;
-  companySize: string;
+  companySize?: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   description: string;
   icon: LucideIcon;
   color: string;
-  heroImage: string;
-  companyInfo: CompanyInfo;
-  challenges: Challenge[];
-  curriculum: Curriculum;
+  heroImage?: string;
+  companyInfo?: CompanyInfo;
+  challenges?: Challenge[];
+  curriculum?: Curriculum;
   process?: ProcessPhase[];
-  results: Results;
+  results?: Results;
   testimonial?: Testimonial;
   followUpResults?: FollowUpResult[];
   tags?: string[];
@@ -158,6 +171,7 @@ export interface SuccessCase {
   id: string;
   category: string;
   industry: string;
+  subIndustry?: string;
   companyName: string;
   title: string;
   description: string;

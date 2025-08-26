@@ -236,7 +236,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
         '시청자 맞춤형 콘텐츠 제공'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'AI 영상 편집',
@@ -266,20 +266,12 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
         'AI 음성합성 엔진'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI 도입으로 단순 편집 작업에서 벗어나 창의적인 기획과 스토리텔링에 집중할 수 있게 되었습니다. 제작 속도가 빨라져 더 많은 실험적 콘텐츠도 시도할 수 있게 되었죠.",
-        author: "김현주",
-        position: "예능PD",
-        company: "JTBC"
-      },
-      {
-        quote: "실시간 자막과 다국어 번역이 자동화되어 글로벌 시청자들과 즉시 소통할 수 있게 되었습니다. 한국 콘텐츠의 세계화에 큰 도움이 됩니다.",
-        author: "이정민",
-        position: "글로벌사업팀장",
-        company: "JTBC"
-      }
-    ],
+    testimonial: {
+      quote: "AI 도입으로 단순 편집 작업에서 벗어나 창의적인 기획과 스토리텔링에 집중할 수 있게 되었습니다. 제작 속도가 빨라져 더 많은 실험적 콘텐츠도 시도할 수 있게 되었죠.",
+      author: "김현주",
+      position: "예능PD",
+      company: "JTBC"
+    },
     featured: true,
     implementationPeriod: '10개월',
     teamSize: '85명',
@@ -448,7 +440,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
         '오리지널 콘텐츠 투자 확대'
       ]
     },
-    automationDetails: {
+    automationMetrics: {
       workflows: [
         {
           name: 'AI 콘텐츠 추천',
@@ -472,14 +464,12 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
         'Google Cloud Vision'
       ]
     },
-    testimonials: [
-      {
-        quote: "AI가 제 취향을 정확히 파악해서 추천해주는 콘텐츠가 정말 마음에 들어요. 이제는 뭘 볼지 고민하는 시간이 거의 없어졌습니다.",
-        author: "박서연",
-        position: "프리미엄 구독자",
-        company: "왓챠 사용자"
-      }
-    ],
+    testimonial: {
+      quote: "AI가 제 취향을 정확히 파악해서 추천해주는 콘텐츠가 정말 마음에 들어요. 이제는 뭘 볼지 고민하는 시간이 거의 없어졌습니다.",
+      author: "박서연",
+      position: "프리미엄 구독자",
+      company: "왓챠 사용자"
+    },
     featured: true,
     implementationPeriod: '7개월',
     teamSize: '42명',

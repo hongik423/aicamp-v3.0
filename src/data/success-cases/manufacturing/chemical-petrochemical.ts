@@ -1,7 +1,7 @@
 'use client';
 
 import { SuccessCaseDetail } from '@/types/success-case.types';
-import { Flask, Droplets, AlertTriangle, LineChart } from 'lucide-react';
+import { Beaker, Droplets, AlertTriangle, LineChart } from 'lucide-react';
 
 export const chemicalPetrochemicalCase: SuccessCaseDetail = {
   id: 'chemical-petrochemical-001',
@@ -13,7 +13,7 @@ export const chemicalPetrochemicalCase: SuccessCaseDetail = {
   title: 'AI 공정 최적화로 에너지 효율 40% 개선',
   subtitle: '실시간 화학 반응 예측과 n8n 자동 제어 시스템',
   description: 'AI 기반 화학 공정 시뮬레이션과 n8n 자동화를 통해 에너지 소비를 최소화하고 생산 수율을 극대화한 친환경 스마트 플랜트 구축 사례',
-  icon: Flask,
+  icon: Beaker,
   color: 'green',
   heroImage: '/images/benchmark/68AI 기반 석유·가스 생산 관리.png',
   

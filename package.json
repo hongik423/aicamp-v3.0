@@ -5,7 +5,8 @@
   "main": "src/app/api/ai-diagnosis/route.ts",
   "scripts": {
     "dev": "next dev",
-    "build": "DISABLE_ESLINT_PLUGIN=true next build",
+    "build": "cross-env DISABLE_ESLINT_PLUGIN=true next build",
+    "build:win": "set DISABLE_ESLINT_PLUGIN=true && next build",
     "start": "next start",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel",
