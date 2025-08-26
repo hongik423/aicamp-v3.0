@@ -661,8 +661,8 @@ const Real45QuestionForm: React.FC = () => {
           console.log('✅ 이메일 발송 완료 - 배너 숨김 처리');
           
           // 배너 숨김 함수 호출 (전역 함수 사용)
-          if (typeof window !== 'undefined' && window.hideAllBanners) {
-            window.hideAllBanners();
+          if (typeof window !== 'undefined' && (window as any).hideAllBanners) {
+            (window as any).hideAllBanners();
           }
           
           // 완료 토스트 표시
