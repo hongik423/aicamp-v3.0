@@ -283,6 +283,14 @@ const BannerController: React.FC = () => {
     setGlobalHideAllBanners(hideAllBanners);
     setGlobalDisableAllBanners(disableAllBanners);
     setGlobalHideBanner(hideBannerLocal);
+
+    // 🎯 window 객체에도 등록 (이메일 발송 완료 시 사용)
+    if (typeof window !== 'undefined') {
+      (window as any).hideAllBanners = hideAllBanners;
+      (window as any).disableAllBanners = disableAllBanners;
+      (window as any).hideBanner = hideBannerLocal;
+      console.log('🌐 배너 제어 함수들이 전역으로 등록되었습니다.');
+    }
   }, []);
 
   // 배너 표시 기록 초기화 함수 (안전한 처리)

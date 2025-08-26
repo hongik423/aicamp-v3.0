@@ -102,6 +102,16 @@ const Real45QuestionForm: React.FC = () => {
     'data-storage': { status: 'pending', progress: 0, label: '3단계: 데이터 저장' },
     'email-dispatch': { status: 'pending', progress: 0, label: '4단계: 보고서 발송' }
   });
+
+  // 🎯 이메일 발송 상태 추적 관련 상태
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState({
+    status: 'pending', // 'pending' | 'checking' | 'sent' | 'delivered' | 'confirmed' | 'completed' | 'error'
+    message: '이메일 발송 준비 중...',
+    timestamp: null,
+    shouldHideBanner: false,
+    completionMessage: ''
+  });
+  const [emailVerificationInterval, setEmailVerificationInterval] = useState<NodeJS.Timeout | null>(null);
   
   // 점수체계 안내 모달 상태 (비활성화)
   const [showScoreGuide, setShowScoreGuide] = useState(false);
@@ -394,8 +404,15 @@ const Real45QuestionForm: React.FC = () => {
     return () => {
       // 진행 중인 요청이나 타이머가 있다면 정리
       setIsSubmitting(false);
+      
+      // 🎯 이메일 발송 상태 추적 인터벌 정리
+      if (emailVerificationInterval) {
+        clearInterval(emailVerificationInterval);
+        setEmailVerificationInterval(null);
+        console.log('🧹 이메일 발송 상태 추적 인터벌 정리 완료');
+      }
     };
-  }, []);
+  }, [emailVerificationInterval]);
 
   // 진행 상황 안내 표시
   const showProgressGuidance = () => {
@@ -588,6 +605,130 @@ const Real45QuestionForm: React.FC = () => {
         eventSource = null;
       }
     };
+  };
+
+  // 🎯 이메일 발송 상태 추적 함수
+  const startEmailVerificationTracking = (diagnosisId: string, email: string) => {
+    if (!diagnosisId || !email) {
+      console.warn('⚠️ 이메일 발송 추적을 위한 필수 정보가 누락되었습니다.');
+      return;
+    }
+
+    console.log('📧 이메일 발송 상태 추적 시작:', { diagnosisId, email });
+
+    setEmailVerificationStatus({
+      status: 'checking',
+      message: '이메일 발송 상태 확인 중...',
+      timestamp: new Date().toISOString(),
+      shouldHideBanner: false,
+      completionMessage: ''
+    });
+
+    // 이메일 발송 상태를 주기적으로 확인 (30초마다)
+    const checkEmailStatus = async () => {
+      try {
+        const response = await fetch('/api/email-verification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            diagnosisId,
+            email,
+            action: 'check',
+            type: 'ai_diagnosis'
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`이메일 상태 확인 실패: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        console.log('📧 이메일 상태 확인 결과:', result);
+
+        setEmailVerificationStatus({
+          status: result.status || 'pending',
+          message: getEmailStatusMessage(result.status),
+          timestamp: new Date().toISOString(),
+          shouldHideBanner: result.data?.shouldHideBanner || false,
+          completionMessage: result.data?.completionMessage || ''
+        });
+
+        // 이메일 발송 완료 시 배너 숨김 처리
+        if (result.status === 'sent' || result.status === 'delivered') {
+          console.log('✅ 이메일 발송 완료 - 배너 숨김 처리');
+          
+          // 배너 숨김 함수 호출 (전역 함수 사용)
+          if (typeof window !== 'undefined' && window.hideAllBanners) {
+            window.hideAllBanners();
+          }
+          
+          // 완료 토스트 표시
+          toast({
+            title: "📧 이메일 발송 완료",
+            description: result.data?.completionMessage || "AI역량진단 신청이 완료되었습니다. 확인 이메일을 발송했습니다.",
+            variant: "default"
+          });
+
+          // 추적 중단
+          if (emailVerificationInterval) {
+            clearInterval(emailVerificationInterval);
+            setEmailVerificationInterval(null);
+          }
+        }
+
+      } catch (error) {
+        console.error('❌ 이메일 상태 확인 오류:', error);
+        
+        setEmailVerificationStatus({
+          status: 'error',
+          message: '이메일 상태 확인 중 오류가 발생했습니다.',
+          timestamp: new Date().toISOString(),
+          shouldHideBanner: false,
+          completionMessage: ''
+        });
+      }
+    };
+
+    // 즉시 첫 번째 확인 실행
+    checkEmailStatus();
+
+    // 30초마다 상태 확인 (최대 10분간)
+    const interval = setInterval(checkEmailStatus, 30000);
+    setEmailVerificationInterval(interval);
+
+    // 10분 후 자동 중단
+    setTimeout(() => {
+      if (interval) {
+        clearInterval(interval);
+        setEmailVerificationInterval(null);
+        console.log('⏰ 이메일 발송 상태 추적 타임아웃 (10분)');
+      }
+    }, 600000); // 10분
+  };
+
+  // 이메일 상태에 따른 메시지 생성
+  const getEmailStatusMessage = (status: string): string => {
+    switch (status) {
+      case 'pending':
+        return '이메일 발송 준비 중...';
+      case 'checking':
+        return '이메일 발송 상태 확인 중...';
+      case 'sent':
+        return '✅ 이메일 발송 완료!';
+      case 'delivered':
+        return '✅ 이메일 전달 완료!';
+      case 'confirmed':
+        return '✅ 이메일 확인 완료!';
+      case 'completed':
+        return '✅ 모든 처리 완료!';
+      case 'error':
+        return '❌ 이메일 발송 오류';
+      default:
+        return '이메일 상태 확인 중...';
+    }
   };
 
   // 신청서 접수 진행 단계 업데이트 함수
@@ -836,6 +977,9 @@ const Real45QuestionForm: React.FC = () => {
         // 실제 진행상황 추적 시작
         startProgressTracking(diagnosisId);
         
+        // 🎯 이메일 발송 상태 추적 시작
+        startEmailVerificationTracking(diagnosisId, formState.companyInfo.contactEmail);
+        
         // 신청서 접수 요청을 클라이언트에서 즉시 트리거 (장시간 처리 안전)
         try {
           const gasPayload = {
@@ -945,7 +1089,37 @@ const Real45QuestionForm: React.FC = () => {
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">✅ 신청서 제출 완료!</h2>
           <p className="text-gray-600 mb-4">AI 역량진단 신청서가 성공적으로 접수되었습니다.</p>
-          <p className="text-sm text-gray-500 mb-6">신청 ID: {diagnosisResult.diagnosisId}</p>
+          <p className="text-sm text-gray-500 mb-4">신청 ID: {diagnosisResult.diagnosisId}</p>
+          
+          {/* 🎯 이메일 발송 상태 표시 */}
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-center space-x-2">
+              {emailVerificationStatus.status === 'checking' && (
+                <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+              )}
+              {emailVerificationStatus.status === 'sent' || emailVerificationStatus.status === 'delivered' ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : emailVerificationStatus.status === 'error' ? (
+                <X className="w-4 h-4 text-red-500" />
+              ) : (
+                <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+              )}
+              <span className={`text-sm font-medium ${
+                emailVerificationStatus.status === 'sent' || emailVerificationStatus.status === 'delivered' 
+                  ? 'text-green-700' 
+                  : emailVerificationStatus.status === 'error'
+                  ? 'text-red-700'
+                  : 'text-blue-700'
+              }`}>
+                {emailVerificationStatus.message}
+              </span>
+            </div>
+            {emailVerificationStatus.completionMessage && (
+              <p className="text-xs text-gray-600 mt-2 text-center">
+                {emailVerificationStatus.completionMessage}
+              </p>
+            )}
+          </div>
           
           <div className="space-y-3">
             {/* 신청서 PDF 다운로드 버튼들 */}
