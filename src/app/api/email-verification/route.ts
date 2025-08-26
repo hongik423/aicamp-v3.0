@@ -78,9 +78,11 @@ export async function POST(request: NextRequest) {
       let mockStatus: 'pending' | 'checking' | 'sent' | 'delivered' | 'confirmed' | 'completed' | 'error' = 'pending';
       let mockSuccess = true;
       
-      if (timeDiff > 30000) { // 30초 후 - 빠른 테스트
+      if (timeDiff > 45000) { // 45초 후 - 배송 완료
+        mockStatus = 'delivered';
+      } else if (timeDiff > 30000) { // 30초 후 - 발송 완료
         mockStatus = 'sent';
-      } else if (timeDiff > 15000) { // 15초 후
+      } else if (timeDiff > 15000) { // 15초 후 - 확인 중
         mockStatus = 'checking';
       } else {
         mockStatus = 'pending';

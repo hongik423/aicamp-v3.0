@@ -3,6 +3,9 @@ const nextConfig = {
   // React Strict Mode 비활성화로 hydration 오류 감소
   reactStrictMode: false,
   
+  // Vercel 배포 최적화
+  output: 'standalone',
+  
   // ESLint 플러그인 완전 비활성화
   eslint: {
     ignoreDuringBuilds: true,
