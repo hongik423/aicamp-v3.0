@@ -64,7 +64,7 @@ const BannerController: React.FC = () => {
       isActive: true,
       isVisible: false,
       autoHide: true,
-      showOnce: true // 한 번만 표시로 변경
+      showOnce: false // 🎯 재접속 시 다시 표시되도록 변경
     },
     {
       id: 'book-promotion',
@@ -75,7 +75,7 @@ const BannerController: React.FC = () => {
       isActive: true,
       isVisible: false,
       autoHide: true,
-      showOnce: true // 한 번만 표시
+      showOnce: false // 🎯 재접속 시 다시 표시되도록 변경
     },
     {
       id: 'n8n-curriculum',
@@ -85,7 +85,7 @@ const BannerController: React.FC = () => {
       isActive: true,
       isVisible: false,
       autoHide: true,
-      showOnce: true // 한 번만 표시
+      showOnce: false // 🎯 재접속 시 다시 표시되도록 변경
     }
   ];
 
@@ -98,6 +98,26 @@ const BannerController: React.FC = () => {
   useEffect(() => {
     const initTimer = setTimeout(() => {
       setIsSystemActive(true);
+      
+      // 🎯 도메인 재접속 감지 및 배너 복구 시스템
+      const isNewSession = !sessionStorage.getItem('aicamp-session-started');
+      if (isNewSession) {
+        // 새 세션 시작 - 모든 집중 모드 상태 초기화
+        sessionStorage.removeItem('banners-hidden-for-focus');
+        sessionStorage.removeItem('banners-disabled-for-session');
+        
+        // localStorage의 배너 관련 기록도 초기화 (재접속 시 배너 복구)
+        localStorage.removeItem('banner-content-guide-viewed');
+        localStorage.removeItem('banner-book-promotion-viewed');
+        localStorage.removeItem('banner-n8n-curriculum-viewed');
+        localStorage.removeItem('banners-disabled-for-session');
+        localStorage.removeItem('banner-hide-timestamp');
+        localStorage.removeItem('all-banners-hidden');
+        
+        sessionStorage.setItem('aicamp-session-started', 'true');
+        console.log('🌟 새 세션 시작 - 배너 시스템 완전 복구 (애니메이션 준비)');
+      }
+      
       console.log('🚀 배너 시스템 활성화 - 스마트 제어 시스템 준비 완료');
     }, 100); // 빠른 초기화
 
@@ -131,38 +151,27 @@ const BannerController: React.FC = () => {
   useEffect(() => {
     if (!isSystemActive) return;
 
+    // 🎯 세션 기반 사용자 집중 모드 확인 (신청서 작성 중)
+    const bannersHiddenForFocus = sessionStorage.getItem('banners-hidden-for-focus') === 'true';
+    if (bannersHiddenForFocus) {
+      console.log('🎯 사용자 집중 모드 활성 - 신청서 작성 중이므로 모든 배너 숨김');
+      return;
+    }
+
     // 세션 기반 배너 비활성화 확인
-    const bannersDisabled = localStorage.getItem('banners-disabled-for-session') === 'true';
-    if (bannersDisabled) {
+    const bannersDisabledSession = sessionStorage.getItem('banners-disabled-for-session') === 'true';
+    if (bannersDisabledSession) {
       console.log('🚫 세션 동안 배너 비활성화됨 - 모든 배너 건너뛰기');
       return;
     }
 
-    // 최근 배너 숨김 시간 확인 (30분 내 숨김 시 재표시 안함)
-    const hideTimestamp = localStorage.getItem('banner-hide-timestamp');
-    if (hideTimestamp) {
-      const timeDiff = Date.now() - parseInt(hideTimestamp);
-      const thirtyMinutes = 30 * 60 * 1000;
-      if (timeDiff < thirtyMinutes) {
-        console.log('⏰ 최근 30분 내 배너 숨김 - 재표시 안함');
-        return;
-      }
-    }
+    // 🎯 새 세션 감지는 초기화에서 이미 처리됨
 
-    // showOnce 로직을 적용한 배너 필터링
+    // 🎯 모든 배너를 활성 상태로 설정 (showOnce 로직 제거)
     const activeBanners = BANNER_CONFIG.filter(banner => {
       if (!banner.isActive) return false;
       
-      // showOnce가 true인 배너는 localStorage에서 확인
-      if (banner.showOnce) {
-        const viewedKey = `banner-${banner.id}-viewed`;
-        const hasViewed = localStorage.getItem(viewedKey) === 'true';
-        if (hasViewed) {
-          console.log(`⏭️ ${banner.id} 배너는 이미 표시됨 - 건너뛰기`);
-          return false;
-        }
-      }
-      
+      // 🎯 showOnce 로직 완전 제거 - 재접속 시마다 배너 표시
       return true;
     });
 
@@ -182,14 +191,10 @@ const BannerController: React.FC = () => {
             : b
         ));
         
-        console.log(`📢 ${banner.id} 배너 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1}) - 스마트 표시 모드`);
+        console.log(`🎬 ${banner.id} 배너 애니메이션 활성화 (우선순위: ${banner.priority}, 순서: ${index + 1}) - 도메인 재접속 복구 모드`);
         
-        // showOnce 배너는 표시 후 localStorage에 기록
-        if (banner.showOnce) {
-          const viewedKey = `banner-${banner.id}-viewed`;
-          localStorage.setItem(viewedKey, 'true');
-          console.log(`💾 ${banner.id} 배너 표시 기록 저장`);
-        }
+        // 🎯 showOnce 로직 제거 - 재접속 시마다 배너 표시되도록 개선
+        console.log(`✨ ${banner.id} 배너 표시 완료 - 재접속 시 다시 표시 가능`);
         
         // 지속 시간이 설정된 배너는 자동으로 비활성화
         if (banner.duration) {
