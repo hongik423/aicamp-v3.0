@@ -15,7 +15,7 @@ interface EmailVerificationRequest {
 
 interface EmailVerificationResponse {
   success: boolean;
-  status: 'pending' | 'sent' | 'delivered' | 'confirmed' | 'completed';
+  status: 'pending' | 'checking' | 'sent' | 'delivered' | 'confirmed' | 'completed' | 'error';
   timestamp?: string;
   error?: string;
   data?: any;
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       const diagnosisTime = parseInt(requestData.diagnosisId.split('-').pop() || '0');
       const timeDiff = currentTime - diagnosisTime;
       
-      let mockStatus = 'pending';
+      let mockStatus: 'pending' | 'checking' | 'sent' | 'delivered' | 'confirmed' | 'completed' | 'error' = 'pending';
       let mockSuccess = true;
       
       if (timeDiff > 30000) { // 30초 후 - 빠른 테스트
