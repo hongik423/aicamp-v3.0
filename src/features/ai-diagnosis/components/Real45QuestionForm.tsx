@@ -656,13 +656,26 @@ const Real45QuestionForm: React.FC = () => {
           completionMessage: result.data?.completionMessage || ''
         });
 
-        // 이메일 발송 완료 시 배너 숨김 처리
+        // 🎯 이메일 발송 완료 시 배너 숨김 처리
         if (result.status === 'sent' || result.status === 'delivered') {
-          console.log('✅ 이메일 발송 완료 - 배너 숨김 처리');
+          console.log('✅ 이메일 발송 완료 감지 - 배너 숨김 처리 시작');
+          console.log('📧 이메일 상태 결과:', result);
           
           // 배너 숨김 함수 호출 (전역 함수 사용)
-          if (typeof window !== 'undefined' && (window as any).hideAllBanners) {
-            (window as any).hideAllBanners();
+          console.log('🔍 window.hideAllBanners 함수 확인:', typeof (window as any).hideAllBanners);
+          
+          if (typeof window !== 'undefined') {
+            if ((window as any).hideAllBanners) {
+              console.log('🎯 배너 숨김 함수 호출 시작');
+              (window as any).hideAllBanners();
+              console.log('✅ 배너 숨김 함수 호출 완료');
+            } else {
+              console.warn('⚠️ window.hideAllBanners 함수를 찾을 수 없습니다.');
+              
+              // 대체 방법: 직접 배너 숨김 이벤트 발송
+              console.log('🔄 대체 방법: 배너 숨김 이벤트 직접 발송');
+              window.dispatchEvent(new CustomEvent('hideAllBanners'));
+            }
           }
           
           // 완료 토스트 표시
@@ -676,6 +689,7 @@ const Real45QuestionForm: React.FC = () => {
           if (emailVerificationInterval) {
             clearInterval(emailVerificationInterval);
             setEmailVerificationInterval(null);
+            console.log('🛑 이메일 상태 추적 중단');
           }
         }
 
