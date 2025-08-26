@@ -39,12 +39,26 @@ export const hideAllBanners = () => {
   if (globalHideAllBanners) {
     globalHideAllBanners();
   }
+  
+  // 🎯 세션 동안 배너 완전 비활성화 (네비게이션 클릭 시에도 적용)
+  sessionStorage.setItem('banners-hidden-for-focus', 'true');
+  sessionStorage.setItem('banners-disabled-for-session', 'true');
+  sessionStorage.setItem('banner-hide-timestamp', Date.now().toString());
+  
+  console.log('🎯 사용자 집중 모드 활성화 - 모든 배너 숨김 (세션 동안 유지)');
 };
 
 export const disableAllBanners = () => {
   if (globalDisableAllBanners) {
     globalDisableAllBanners();
   }
+  
+  // 🎯 세션 동안 배너 완전 비활성화 (네비게이션 클릭 포함)
+  sessionStorage.setItem('banners-disabled-for-session', 'true');
+  sessionStorage.setItem('banners-hidden-for-focus', 'true');
+  sessionStorage.setItem('banner-hide-timestamp', Date.now().toString());
+  
+  console.log('🚫 배너 시스템 완전 비활성화 - 사용자 집중 모드 (네비게이션 클릭 포함)');
 };
 
 export const hideBanner = (id: string) => {
@@ -102,9 +116,10 @@ const BannerController: React.FC = () => {
       // 🎯 도메인 재접속 감지 및 배너 복구 시스템
       const isNewSession = !sessionStorage.getItem('aicamp-session-started');
       if (isNewSession) {
-        // 새 세션 시작 - 모든 집중 모드 상태 초기화
+        // 🌟 새 세션 시작 - 모든 집중 모드 상태 초기화
         sessionStorage.removeItem('banners-hidden-for-focus');
         sessionStorage.removeItem('banners-disabled-for-session');
+        sessionStorage.removeItem('banner-hide-timestamp');
         
         // localStorage의 배너 관련 기록도 초기화 (재접속 시 배너 복구)
         localStorage.removeItem('banner-content-guide-viewed');
@@ -115,26 +130,41 @@ const BannerController: React.FC = () => {
         localStorage.removeItem('all-banners-hidden');
         
         sessionStorage.setItem('aicamp-session-started', 'true');
-        console.log('🌟 새 세션 시작 - 배너 시스템 완전 복구 (애니메이션 준비)');
+        console.log('🌟 새 세션 시작 - 배너 시스템 완전 복구 (네비게이션 클릭 기록 초기화 포함)');
       }
       
       console.log('🚀 배너 시스템 활성화 - 스마트 제어 시스템 준비 완료');
     }, 100); // 빠른 초기화
 
-    // 전역 배너 숨김 이벤트 리스너 강화
+    // 🎯 전역 배너 숨김 이벤트 리스너 강화 - 네비게이션 클릭 포함
     const handleHideAllBanners = () => {
       setBanners(prev => prev.map(banner => ({ ...banner, isVisible: false })));
-      // localStorage에 모든 배너 숨김 상태 저장
+      
+      // 🎯 세션 기반 완전 비활성화 (네비게이션 클릭 시에도 적용)
+      sessionStorage.setItem('banners-hidden-for-focus', 'true');
+      sessionStorage.setItem('banners-disabled-for-session', 'true');
+      sessionStorage.setItem('banner-hide-timestamp', Date.now().toString());
+      
+      // 레거시 호환성을 위해 localStorage도 설정
       localStorage.setItem('all-banners-hidden', 'true');
       localStorage.setItem('banner-hide-timestamp', Date.now().toString());
-      console.log('🎯 전역 배너 숨김 이벤트 수신 - 모든 배너 숨김 처리 및 상태 저장');
+      
+      console.log('🎯 전역 배너 숨김 이벤트 수신 - 세션 동안 완전 비활성화 (네비게이션 클릭 포함)');
     };
 
-    // 즉시 닫힘 이벤트 리스너 추가
+    // 🎯 즉시 닫힘 이벤트 리스너 - 네비게이션 클릭 포함
     const handleImmediateClose = () => {
       setBanners(prev => prev.map(banner => ({ ...banner, isVisible: false, isActive: false })));
+      
+      // 🎯 세션 기반 완전 비활성화
+      sessionStorage.setItem('banners-disabled-for-session', 'true');
+      sessionStorage.setItem('banners-hidden-for-focus', 'true');
+      sessionStorage.setItem('banner-hide-timestamp', Date.now().toString());
+      
+      // 레거시 호환성
       localStorage.setItem('banners-disabled-for-session', 'true');
-      console.log('⚡ 즉시 닫힘 이벤트 수신 - 모든 배너 완전 비활성화');
+      
+      console.log('⚡ 즉시 닫힘 이벤트 수신 - 세션 동안 완전 비활성화 (네비게이션 클릭 포함)');
     };
 
     window.addEventListener('hideAllBanners', handleHideAllBanners);
@@ -158,10 +188,17 @@ const BannerController: React.FC = () => {
       return;
     }
 
-    // 세션 기반 배너 비활성화 확인
+    // 🎯 세션 기반 배너 비활성화 확인 (네비게이션 클릭 포함)
     const bannersDisabledSession = sessionStorage.getItem('banners-disabled-for-session') === 'true';
     if (bannersDisabledSession) {
-      console.log('🚫 세션 동안 배너 비활성화됨 - 모든 배너 건너뛰기');
+      console.log('🚫 세션 동안 배너 비활성화됨 - 네비게이션 클릭으로 인한 사용자 집중 모드');
+      return;
+    }
+
+    // 🎯 추가 세션 체크 - 배너 숨김 타임스탬프 확인
+    const sessionHideTimestamp = sessionStorage.getItem('banner-hide-timestamp');
+    if (sessionHideTimestamp) {
+      console.log('🚫 세션 내 배너 숨김 기록 존재 - 재접속까지 배너 비활성화 유지');
       return;
     }
 
