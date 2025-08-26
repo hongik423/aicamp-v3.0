@@ -316,7 +316,7 @@ export class AICampProgramMatcher {
     }
     
     // 우선순위 개선 영역에 따른 추천
-    gapAnalysis.priorityAreas.forEach(area => {
+    (gapAnalysis as any).priorityAreas?.forEach((area: string) => {
       if (area.includes('자동화') || area.includes('프로세스')) {
         recommendations.shortTerm.push(
           AI_CAMP_PROGRAMS.find(p => p.id === 'ai-automation-rpa')!
@@ -333,7 +333,7 @@ export class AICampProgramMatcher {
     recommendations: any
   ) {
     // 즉시 실행 항목이 많은 경우
-    if (priorityMatrix.quadrants.doFirst.items.length > 3) {
+    if ((priorityMatrix as any).quadrants?.doFirst?.items?.length > 3) {
       // 실행 역량 강화 과정 추천
       recommendations.immediate.push(
         AI_CAMP_PROGRAMS.find(p => p.id === 'ai-tools-practical')!
@@ -341,7 +341,7 @@ export class AICampProgramMatcher {
     }
     
     // 계획 수립 항목이 많은 경우
-    if (priorityMatrix.quadrants.schedule.items.length > 2) {
+    if ((priorityMatrix as any).quadrants?.schedule?.items?.length > 2) {
       // 전략 수립 역량 강화
       recommendations.shortTerm.push(
         AI_CAMP_PROGRAMS.find(p => p.id === 'ai-leadership-strategy')!
@@ -362,7 +362,7 @@ export class AICampProgramMatcher {
     
     // IT/소프트웨어 업종 특화
     if (industry.includes('IT') || industry.includes('소프트웨어')) {
-      if (scores.categoryScores.techInfrastructure >= 70) {
+      if (scores.categoryScores.techInfra >= 70) {
         recommendations.mediumTerm.push(
           AI_CAMP_PROGRAMS.find(p => p.id === 'ai-advanced-analytics')!
         );

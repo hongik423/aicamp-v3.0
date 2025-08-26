@@ -457,24 +457,7 @@ export class McKinseyReportGenerator {
   private readonly VERSION = 'V15.0-ULTIMATE-MCKINSEY';
   
   constructor(config: McKinseyReportConfig) {
-    this.config = {
-      ...config,
-      version: this.VERSION,
-      sections: [
-        'coverPage',
-        'executiveSummary',
-        'companyInformation',
-        'diagnosisVisualization',
-        'behavioralAnalysis',
-        'benchmarkAnalysis',
-        'swotAnalysis',
-        'priorityMatrix',
-        'n8nMethodology',
-        'aicampCurriculum',
-        'roadmap',
-        'conclusion'
-      ]
-    };
+    this.config = config;
   }
   
   /**

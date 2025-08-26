@@ -95,7 +95,7 @@ const EnhancedQuestionRenderer: React.FC<EnhancedQuestionRendererProps> = ({
     return (
       <div className="space-y-2">
         <Input
-          type={question.type === 'email' ? 'email' : question.type === 'tel' ? 'tel' : 'text'}
+          type="text"
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={question.placeholder}
@@ -399,7 +399,7 @@ const EnhancedQuestionRenderer: React.FC<EnhancedQuestionRendererProps> = ({
     const categories = question.categories || [];
     const totalPercentage = question.totalPercentage || 100;
     
-    const currentTotal = Object.values(percentageValue).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0);
+    const currentTotal: number = Object.values(percentageValue).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0) as number;
     const remaining = totalPercentage - currentTotal;
     
     return (
@@ -448,8 +448,6 @@ const EnhancedQuestionRenderer: React.FC<EnhancedQuestionRendererProps> = ({
   const renderQuestion = () => {
     switch (question.type) {
       case 'text':
-      case 'email':
-      case 'tel':
         return renderTextInput();
       case 'textarea':
         return renderTextarea();
@@ -496,7 +494,7 @@ const EnhancedQuestionRenderer: React.FC<EnhancedQuestionRendererProps> = ({
             {renderRequiredIndicator()}
             
             {/* 도움말 버튼 */}
-            {question.description && (
+            {(question as any).description && (
               <Button
                 type="button"
                 variant="ghost"
@@ -511,7 +509,7 @@ const EnhancedQuestionRenderer: React.FC<EnhancedQuestionRendererProps> = ({
           
           {/* 도움말 */}
           <AnimatePresence>
-            {showHint && question.description && (
+            {showHint && (question as any).description && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -519,7 +517,7 @@ const EnhancedQuestionRenderer: React.FC<EnhancedQuestionRendererProps> = ({
                 className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3"
               >
                 <p className="text-sm text-blue-700">
-                  {question.description}
+                  {(question as any).description}
                 </p>
               </motion.div>
             )}

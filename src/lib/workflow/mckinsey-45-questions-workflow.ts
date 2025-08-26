@@ -697,7 +697,9 @@ export async function executeLeeKyoJang45QuestionsWorkflow(
         phone: request.contactPhone || ''
       }
     },
-    responses: request.responses,
+    responses: Array.isArray(request.responses) 
+  ? request.responses.reduce((acc, val, idx) => ({ ...acc, [`Q${idx + 1}`]: val }), {})
+  : request.responses,
     scoreAnalysis: {
       ...scoreAnalysis,
       grade,

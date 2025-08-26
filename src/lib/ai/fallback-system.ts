@@ -94,7 +94,7 @@ export interface ServiceInfo {
     results: string;
     roi: string;
   }>;
-  relatedServices: string[];
+  relatedServices?: string[];
   prerequisites: string[];
   expectedOutcomes: string[];
 }
@@ -555,8 +555,8 @@ export function analyzeQuestionWithTone(question: string, sessionId?: string): F
           confidence: response.confidence,
           category: response.category,
           tone: emotionalAnalysis.suggestedTone,
-          nextSteps: response.nextSteps,
-          contactInfo: response.contactInfo,
+          nextSteps: (response as any).nextSteps || [],
+          contactInfo: (response as any).contactInfo || '',
           context,
           emotionalAnalysis
         };
@@ -566,7 +566,7 @@ export function analyzeQuestionWithTone(question: string, sessionId?: string): F
   
   // n8n 커리큘럼 특화 질문 처리
   if (normalizedQuestion.includes('n8n') || normalizedQuestion.includes('자동화')) {
-    const n8nResponse = handleN8nQuestionWithTone(normalizedQuestion, context, emotionalAnalysis);
+    const n8nResponse = handleN8nQuestionWithTone(normalizedQuestion);
     
     // 📚 실시간 학습 및 개인화
     if (sessionId) {
@@ -581,7 +581,7 @@ export function analyzeQuestionWithTone(question: string, sessionId?: string): F
   }
   
   // 서비스 특화 질문 처리
-  const serviceMatch = findServiceMatchWithTone(normalizedQuestion, context, emotionalAnalysis);
+  const serviceMatch = findServiceMatchWithTone(normalizedQuestion);
   if (serviceMatch) {
     // 📚 실시간 학습 및 개인화
     if (sessionId) {

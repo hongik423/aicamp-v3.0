@@ -17,6 +17,7 @@ export interface GPUOptimizationConfig {
   gpuLayers: number;
   npuLayers: number;
   hybridMode: boolean;
+  workloadDistribution?: { gpu: number; npu: number; cpu: number };
 }
 
 export interface SystemResources {

@@ -77,31 +77,31 @@ export function generatePriorityMatrix(
   const actionItems: PriorityActionItem[] = [];
   
   // 1. SO 전략에서 액션 아이템 추출
-  swotAnalysis.strategicRecommendations.so_strategies.forEach((strategy, index) => {
+  (swotAnalysis as any).strategicRecommendations?.so_strategies?.forEach((strategy: any, index: number) => {
     const actionItem = createActionItemFromSOStrategy(strategy, index, scores, companyData);
     actionItems.push(actionItem);
   });
   
   // 2. WO 전략에서 액션 아이템 추출  
-  swotAnalysis.strategicRecommendations.wo_strategies.forEach((strategy, index) => {
+  (swotAnalysis as any).strategicRecommendations?.wo_strategies?.forEach((strategy: any, index: number) => {
     const actionItem = createActionItemFromWOStrategy(strategy, index, scores, gapAnalysis, companyData);
     actionItems.push(actionItem);
   });
   
   // 3. ST 전략에서 액션 아이템 추출
-  swotAnalysis.strategicRecommendations.st_strategies.forEach((strategy, index) => {
+  (swotAnalysis as any).strategicRecommendations?.st_strategies?.forEach((strategy: any, index: number) => {
     const actionItem = createActionItemFromSTStrategy(strategy, index, scores, companyData);
     actionItems.push(actionItem);
   });
   
   // 4. WT 전략에서 액션 아이템 추출
-  swotAnalysis.strategicRecommendations.wt_strategies.forEach((strategy, index) => {
+  (swotAnalysis as any).strategicRecommendations?.wt_strategies?.forEach((strategy: any, index: number) => {
     const actionItem = createActionItemFromWTStrategy(strategy, index, scores, gapAnalysis, companyData);
     actionItems.push(actionItem);
   });
   
   // 5. 갭 분석에서 추가 액션 아이템 추출
-  gapAnalysis.priorityAreas.forEach((area, index) => {
+  (gapAnalysis as any).priorityAreas?.forEach((area: any, index: number) => {
     const actionItem = createActionItemFromGapAnalysis(area, index, scores, gapAnalysis, companyData);
     actionItems.push(actionItem);
   });
@@ -218,7 +218,9 @@ function createActionItemFromSOStrategy(
     swotOrigin: {
       type: 'SO',
       source: strategy
-    }
+    },
+    priorityScore: 0, // 나중에 계산됨
+    quadrant: 'DO' as const // 기본값
   };
 }
 
@@ -270,7 +272,9 @@ function createActionItemFromWOStrategy(
     swotOrigin: {
       type: 'WO',
       source: strategy
-    }
+    },
+    priorityScore: 0,
+    quadrant: 'DO' as const
   };
 }
 
@@ -321,7 +325,9 @@ function createActionItemFromSTStrategy(
     swotOrigin: {
       type: 'ST',
       source: strategy
-    }
+    },
+    priorityScore: 0,
+    quadrant: 'DO' as const
   };
 }
 
@@ -373,7 +379,9 @@ function createActionItemFromWTStrategy(
     swotOrigin: {
       type: 'WT',
       source: strategy
-    }
+    },
+    priorityScore: 0,
+    quadrant: 'DO' as const
   };
 }
 
@@ -447,7 +455,7 @@ function createActionItemFromGapAnalysis(
     urgency: template.urgency!,
     feasibility: calculateFeasibilityBasedOnScores(scores, 'medium'),
     priorityScore: 0, // 나중에 계산됨
-    quadrant: 'DO', // 나중에 계산됨
+    quadrant: 'DO' as const, // 나중에 계산됨
     estimatedCost: template.estimatedCost!,
     estimatedDuration: template.estimatedDuration!,
     requiredResources: ["전문 컨설턴트", "내부 실무진", "외부 파트너"],
@@ -467,7 +475,7 @@ function calculateFeasibilityBasedOnScores(scores: EnhancedScoreResult, level: '
   const avgScore = (
     scores.categoryScores.organizationReadiness + 
     scores.categoryScores.executionCapability + 
-    scores.categoryScores.techInfrastructure
+    scores.categoryScores.techInfra
   ) / 3;
   
   const baseFeasibility = Math.round(avgScore / 10); // 0-10 스케일로 변환

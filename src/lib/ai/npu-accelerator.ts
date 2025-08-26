@@ -49,7 +49,7 @@ export async function initializeNPUSystem(): Promise<NPUSystem> {
   const monitor = new NPUMonitorImpl();
   
   // NPU 가용성 확인
-  const status = await scheduler.getStatus();
+  const status = scheduler.getStatus();
   console.log(`🧠 NPU 상태: ${status.isAvailable ? '사용 가능' : '사용 불가'}`);
   
   return { scheduler, monitor };
@@ -87,7 +87,7 @@ class NPUSchedulerImpl implements NPUScheduler {
     }
   }
 
-  async getStatus(): Promise<NPUStatus> {
+  getStatus(): NPUStatus {
     // NPU 상태 시뮬레이션
     return {
       isAvailable: true,

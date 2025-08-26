@@ -38,6 +38,13 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
   // BARS 우선, 없으면 기존 카테고리 지표 사용
   const displayIndicator = barsIndicator || categoryIndicator;
   
+  // 안전하게 keyword 추출
+  const getKeywordText = () => {
+    if (barsIndicator?.level) return barsIndicator.level;
+    if (categoryIndicator && 'keyword' in categoryIndicator) return categoryIndicator.keyword;
+    return indicator.keyword;
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -90,7 +97,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
                   ${isSelected ? `${indicator.color} border-current` : 'text-gray-600 border-gray-300'}
                 `}
               >
-{(displayIndicator && 'keyword' in displayIndicator) ? displayIndicator.keyword : indicator.keyword}
+{getKeywordText()}
               </Badge>
             </div>
           </div>
@@ -160,7 +167,7 @@ const BehaviorIndicatorCard: React.FC<BehaviorIndicatorCardProps> = ({
           <div className="flex items-center text-sm">
             <TrendingUp className={`w-4 h-4 mr-2 ${indicator.color}`} />
             <span className={`font-medium ${indicator.color}`}>
-              선택된 평가: {indicator.score}점 → {barsIndicator?.level || (displayIndicator as any)?.keyword || (indicator as any).keyword || indicator.label}
+              선택된 평가: {indicator.score}점 → {getKeywordText()}
             </span>
           </div>
         </motion.div>

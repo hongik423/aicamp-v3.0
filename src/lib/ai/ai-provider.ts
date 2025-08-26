@@ -259,7 +259,9 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
     tokensPerSecond,
     memoryUsage: gpuHealth.memoryUsed / gpuHealth.memoryTotal,
     gpuUtilization: gpuHealth.utilization,
-    temperature: gpuHealth.temperature
+    temperature: gpuHealth.temperature,
+    throughput: tokensPerSecond,
+    latency: processingTime
   });
 
   // 🎯 하이브리드 성능 메트릭 업데이트
@@ -290,7 +292,9 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
     tokensPerSecond,
     memoryUsage: gpuHealth.memoryUsed / gpuHealth.memoryTotal,
     gpuUtilization: gpuHealth.utilization,
-    temperature: gpuHealth.temperature
+    temperature: gpuHealth.temperature,
+    throughput: tokensPerSecond,
+    latency: processingTime
   });
   
   npuMonitor.recordTask(processingTime);

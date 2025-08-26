@@ -163,7 +163,7 @@ export interface ResponseMetadata {
   version: string;
   timestamp: Date;
   cacheHit: boolean;
-  fallbackLevel: number;
+  fallbackLevel?: number;
 }
 
 export interface EnhancedResponse {

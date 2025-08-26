@@ -23,14 +23,14 @@ export const enhancedDiagnosisSections: DiagnosisSection[] = [
           },
           {
             id: 'contactEmail',
-            type: 'email',
+            type: 'text',
             question: '담당자 이메일을 입력해주세요',
             required: true,
             validation: 'email'
           },
           {
             id: 'contactPhone',
-            type: 'tel',
+            type: 'text',
             question: '담당자 연락처를 입력해주세요',
             required: true,
             placeholder: '010-0000-0000'

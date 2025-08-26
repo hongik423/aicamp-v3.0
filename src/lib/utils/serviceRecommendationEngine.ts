@@ -513,7 +513,7 @@ export class ServiceRecommendationEngine {
     if (service.category === 'AI교육') {
       const trackType = service.id.includes('basic') ? '입문' : '심화';
       return [
-        `1. 부서별 교육 대상자 선정 (${service.target || '해당 부서 전원'})`,
+        `1. 부서별 교육 대상자 선정 (${(service as any).target || '해당 부서 전원'})`,
         `2. ${trackType} 과정 일정 조율 및 확정`,
         `3. 사전 과제 및 준비사항 안내`,
         `4. ${service.duration} 집중 교육 진행`,
@@ -548,7 +548,12 @@ export { AICAMP_SERVICES };
 // GovernmentSupportReportGenerator 클래스 추가
 export class GovernmentSupportReportGenerator {
   static generateReport(data: any): any {
-    const recommendations = ServiceRecommendationEngine.recommend(data);
+    const recommendations = ServiceRecommendationEngine.getRecommendations(
+      data.totalScore,
+      data.businessStage,
+      data.weaknesses || [],
+      data.industry
+    );
     
     return {
       companyName: data.companyName,

@@ -640,7 +640,7 @@ function analyzeCurrentState(scores: EnhancedScoreResult, gapAnalysis: Benchmark
   return {
     level: scores.maturityLevel,
     position: gapAnalysis.competitivePosition,
-    majorGaps: gapAnalysis.priorityAreas
+    majorGaps: (gapAnalysis as any).priorityAreas || []
   };
 }
 

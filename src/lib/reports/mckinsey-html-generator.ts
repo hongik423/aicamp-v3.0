@@ -3,11 +3,11 @@
  * Chart.js 기반 동적 시각화 + 인터랙티브 요소 + 애니메이션
  */
 
-import { McKinsey45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
+import { LeeKyoJang45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
 // Ollama 전용 모드: 외부 Gemini 의존성 제거
 
 export interface McKinseyHTMLReportRequest {
-  analysisResult: McKinsey45QuestionsResult;
+  analysisResult: LeeKyoJang45QuestionsResult;
   geminiReport?: { content: Record<string, string> };
   branding?: {
     companyName?: string;
@@ -357,7 +357,7 @@ body {
 /**
  * 1. 표지 페이지 생성
  */
-function generateCoverPage(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateCoverPage(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   const { companyInfo, scoreAnalysis, diagnosisId } = analysisResult;
   
   return `
@@ -439,7 +439,7 @@ function generateTableOfContents(): string {
 /**
  * 나머지 섹션들 생성
  */
-function generateExecutiveSummary(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateExecutiveSummary(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   const { scoreAnalysis } = analysisResult;
   
   return `
@@ -476,7 +476,7 @@ function generateExecutiveSummary(analysisResult: McKinsey45QuestionsResult, gem
 </div>`;
 }
 
-function generateCompanyInformation(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateCompanyInformation(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `
 <div class="section" id="section-02">
     <div class="section-header">
@@ -487,7 +487,7 @@ function generateCompanyInformation(analysisResult: McKinsey45QuestionsResult, g
 </div>`;
 }
 
-function generateDiagnosisVisualization(analysisResult: McKinsey45QuestionsResult): string {
+function generateDiagnosisVisualization(analysisResult: LeeKyoJang45QuestionsResult): string {
   const { scoreAnalysis } = analysisResult;
   
   return `
@@ -568,35 +568,35 @@ function generateDiagnosisVisualization(analysisResult: McKinsey45QuestionsResul
 }
 
 // 나머지 섹션들은 간단하게 구현
-function generateBehavioralAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateBehavioralAnalysis(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `<div class="section" id="section-04"><div class="section-header"><div class="section-number">04</div><h1 class="section-title">행동지표 기반 분석</h1></div>${(geminiReport?.content?.behavioralAnalysis || '')}</div>`;
 }
 
-function generateBenchmarkAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateBenchmarkAnalysis(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `<div class="section" id="section-05"><div class="section-header"><div class="section-number">05</div><h1 class="section-title">벤치마크 분석</h1></div>${(geminiReport?.content?.benchmarkAnalysis || '')}</div>`;
 }
 
-function generateSWOTAnalysis(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateSWOTAnalysis(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `<div class="section" id="section-06"><div class="section-header"><div class="section-number">06</div><h1 class="section-title">SWOT 분석</h1></div>${(geminiReport?.content?.swotAnalysis || '')}</div>`;
 }
 
-function generatePriorityMatrix(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generatePriorityMatrix(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `<div class="section" id="section-07"><div class="section-header"><div class="section-number">07</div><h1 class="section-title">우선순위 매트릭스</h1></div>${(geminiReport?.content?.priorityMatrix || '')}</div>`;
 }
 
-function generateN8nMethodology(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateN8nMethodology(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `<div class="section" id="section-08"><div class="section-header"><div class="section-number">08</div><h1 class="section-title">n8n 기반 실행방법론</h1></div>${(geminiReport?.content?.n8nMethodology || '')}</div>`;
 }
 
-function generateAICampCurriculum(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateAICampCurriculum(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `<div class="section" id="section-09"><div class="section-header"><div class="section-number">09</div><h1 class="section-title">AICAMP 커리큘럼 추천</h1></div>${(geminiReport?.content?.aicampCurriculum || '')}</div>`;
 }
 
-function generateImplementationRoadmap(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateImplementationRoadmap(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `<div class="section" id="section-10"><div class="section-header"><div class="section-number">10</div><h1 class="section-title">3단계 실행 로드맵</h1></div>${(geminiReport?.content?.implementationRoadmap || '')}</div>`;
 }
 
-function generateConclusionNextSteps(analysisResult: McKinsey45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
+function generateConclusionNextSteps(analysisResult: LeeKyoJang45QuestionsResult, geminiReport?: { content: Record<string, string> }): string {
   return `
 <div class="section" id="section-11">
     <div class="section-header">
@@ -630,7 +630,7 @@ function generateConclusionNextSteps(analysisResult: McKinsey45QuestionsResult, 
 /**
  * 인터랙티브 JavaScript 생성
  */
-function generateInteractiveJavaScript(analysisResult: McKinsey45QuestionsResult): string {
+function generateInteractiveJavaScript(analysisResult: LeeKyoJang45QuestionsResult): string {
   const { scoreAnalysis } = analysisResult;
   
   return `

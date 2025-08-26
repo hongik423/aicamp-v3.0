@@ -48,7 +48,7 @@ interface CurriculumModule {
   objectives: string[];
   practicalExercises: string[];
   expectedOutcomes: string[];
-  tools: string[];
+  tools?: string[];
   difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'executive';
   category?: 'basic' | 'advanced' | 'executive';
 }
@@ -473,7 +473,7 @@ export default function DetailedCurriculumModal({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {[...new Set(modules.flatMap(module => module.tools))].map((tool, index) => (
+                  {[...new Set(modules.flatMap(module => module.tools || []))].map((tool, index) => (
                     <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center text-white">

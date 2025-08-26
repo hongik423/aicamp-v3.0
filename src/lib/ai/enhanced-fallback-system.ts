@@ -406,7 +406,7 @@ export class EmotionalAnalysisEngine {
       .with({ emotion: 'excitement' }, () => 'enthusiastic')
       .with({ emotion: 'concern' }, () => 'reassuring')
       .with({ urgency: 'high' }, () => 'urgent')
-      .with({ intensity: { $gte: 0.8 } }, () => 'empathetic')
+      .when(({ intensity }) => intensity && intensity >= 0.8, () => 'empathetic')
       .otherwise(() => 'friendly');
   }
   
@@ -423,7 +423,8 @@ export class EmotionalAnalysisEngine {
     const urgencyMultiplier = match(context.urgency)
       .with('high', () => 1.2)
       .with('medium', () => 1.0)
-      .with('low', () => 0.8);
+      .with('low', () => 0.8)
+      .otherwise(() => 1.0);
     
     return Math.min(baseEmpathy * urgencyMultiplier, 1.0);
   }
@@ -432,7 +433,8 @@ export class EmotionalAnalysisEngine {
     const urgencyBase = match(urgency)
       .with('high', () => 0.9)
       .with('medium', () => 0.6)
-      .with('low', () => 0.3);
+      .with('low', () => 0.3)
+      .otherwise(() => 0.5);
     
     return Math.min(urgencyBase + (intensity * 0.2), 1.0);
   }
@@ -727,14 +729,24 @@ export class MultiLayerFallbackSystem {
       ...response,
       answer: personalizedAnswer,
       qualityMetrics,
-      personalization: personalizationEngine.getUserProfile(sessionId || 'default'),
+      personalization: { 
+        userPreferences: [],
+        interactionHistory: [],
+        learningProgress: {
+          topics: [],
+          proficiency: {},
+          interests: [],
+          goals: []
+        },
+        customizationLevel: 0.8
+      },
       metadata: {
         processingTime: performance.now() - startTime,
         model: 'Enhanced-Fallback-System',
         version: '2.0',
         timestamp: new Date(),
         cacheHit: false,
-        fallbackLevel: response.fallbackLevel
+        fallbackLevel: (response as any).fallbackLevel || 0
       }
     };
   }
@@ -788,8 +800,7 @@ export class MultiLayerFallbackSystem {
       nextSteps: ['AI 역량진단 받아보기', '상담 예약하기', '교육과정 알아보기'],
       contactInfo: '010-9251-9743',
       context,
-      emotionalAnalysis,
-      fallbackLevel: 4
+      emotionalAnalysis
     };
   }
   

@@ -3,7 +3,7 @@
  * 45개 행동지표 기반 맥킨지 보고서 결과 처리
  */
 
-import { McKinsey45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
+import { LeeKyoJang45QuestionsResult } from '@/lib/workflow/mckinsey-45-questions-workflow';
 // Ollama 전용 모드: 외부 Gemini 의존성 제거
 
 export interface EmailSheetsRequest {
@@ -14,7 +14,7 @@ export interface EmailSheetsRequest {
   contactPhone?: string;
   
   // 분석 결과
-  analysisResult: McKinsey45QuestionsResult;
+  analysisResult: LeeKyoJang45QuestionsResult;
   geminiReport?: { content?: Record<string, string>; metadata?: any; success?: boolean };
   htmlReport?: string;
   
@@ -417,7 +417,7 @@ AICAMP | 이교장의AI역량진단보고서 V15.0 ULTIMATE
 /**
  * 최우선 과제 추출
  */
-function getTopPriority(analysisResult: McKinsey45QuestionsResult): string {
+function getTopPriority(analysisResult: LeeKyoJang45QuestionsResult): string {
   const { categoryScores } = analysisResult.scoreAnalysis;
   
   // 가장 낮은 점수의 카테고리 찾기

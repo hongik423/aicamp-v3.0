@@ -3,7 +3,21 @@
  * 메인 파일에 추가할 나머지 질문들의 BARS 지표
  */
 
-import { QuestionBARSMapping } from './bars-behavior-indicators';
+// QuestionBARSMapping 인터페이스 정의
+interface QuestionBARSMapping {
+  questionId: number;
+  question: string;
+  category: string;
+  indicators: {
+    score: number;
+    label: string;
+    behaviorDescription: string;
+    businessExample: string;
+    keywords: string[];
+    color: string;
+    bgColor: string;
+  }[];
+}
 
 export const REMAINING_BARS_QUESTIONS: QuestionBARSMapping[] = [
   // ===== 사업기반 영역 나머지 질문들 (3-8번) =====

@@ -299,9 +299,9 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 <div className="mt-4">
                   <p className="text-sm text-gray-600 mb-2">선택 가능한 항목:</p>
                   <div className="flex flex-wrap gap-2">
-                    {availableOptions.map((option) => (
+                    {availableOptions.map((option, idx) => (
                       <Badge
-                        key={option}
+                        key={typeof option === 'string' ? option : option.value}
                         variant="outline"
                         className="cursor-pointer hover:bg-gray-100"
                         onClick={() => {
@@ -310,7 +310,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           }
                         }}
                       >
-                        + {option}
+                        + {typeof option === 'string' ? option : option.label}
                       </Badge>
                     ))}
                   </div>
@@ -322,7 +322,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
       case 'percentage':
         const percentages = value || {};
-        const total = Object.values(percentages).reduce((sum: number, val: any) => sum + (val || 0), 0);
+        const total = Object.values(percentages).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0) as number;
         
         return (
           <div className="space-y-4">
