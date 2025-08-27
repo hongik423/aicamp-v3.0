@@ -981,6 +981,24 @@ const Real45QuestionForm: React.FC = () => {
         
         setDiagnosisResult(enhancedResult);
         
+        // 🎯 V22.0 알림 배너를 위한 로컬 스토리지 저장
+        if (result.data?.reportInfo) {
+          localStorage.setItem('completedDiagnosisId', diagnosisId);
+          localStorage.setItem('diagnosisReportInfo', JSON.stringify({
+            diagnosisId: diagnosisId,
+            companyName: formState.companyInfo.companyName,
+            fileName: result.data.reportInfo.fileName,
+            totalScore: result.data.reportInfo.totalScore,
+            grade: result.data.reportInfo.grade,
+            createdAt: result.data.reportInfo.createdAt
+          }));
+          
+          // 페이지 새로고침으로 알림 배너 표시
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+        
         // 세션 스토리지에 결과 저장 (페이지 새로고침 대비)
         try {
           sessionStorage.setItem('diagnosisResult', JSON.stringify(enhancedResult));

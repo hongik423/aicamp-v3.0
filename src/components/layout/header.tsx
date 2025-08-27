@@ -13,6 +13,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import CurriculumSidePanel from './CurriculumSidePanel';
+// import DiagnosisNotificationBanner from '@/components/diagnosis/DiagnosisNotificationBanner';
 
 
 // Service Worker 등록 비활성화 (layout.tsx에서 통합 관리)
@@ -93,9 +94,13 @@ export default function Header() {
   const visibleNavigation = navigation;
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 gpu-accelerate ${
-      isScrolled ? 'bg-white/95 backdrop-blur-optimized shadow-lg' : 'bg-white'
-    }`}>
+    <>
+      {/* V22.0 진단 완료 알림 배너 - 임시 비활성화 */}
+      {/* <DiagnosisNotificationBanner /> */}
+      
+      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 gpu-accelerate ${
+        isScrolled ? 'bg-white/95 backdrop-blur-optimized shadow-lg' : 'bg-white'
+      }`}>
       <div className="w-full max-w-none px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <div ref={containerRef} className="flex items-center h-14 sm:h-16 w-full">
           {/* 로고 영역 - 좌측 고정 */}
@@ -411,5 +416,6 @@ export default function Header() {
         onClose={() => setIsCurriculumPanelOpen(false)}
       />
     </header>
+    </>
   );
 }
