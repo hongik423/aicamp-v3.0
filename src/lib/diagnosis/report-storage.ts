@@ -338,9 +338,50 @@ export class ReportStorage {
   /**
    * 임시 샘플 보고서 생성 (개발/테스트용)
    */
+  /**
+   * 실제 진단 데이터를 기반으로 HTML 보고서 생성
+   */
+  static async generateHTMLReport(
+    diagnosisData: any,
+    fileName: string
+  ): Promise<StorageResult> {
+    try {
+      console.log('🚀 실제 진단 데이터 기반 HTML 보고서 생성:', diagnosisData.diagnosisId);
+      
+      // HTML 보고서 생성기 import
+      const { HTMLReportGenerator } = await import('./html-report-generator');
+      
+      // HTML 보고서 생성
+      const htmlContent = HTMLReportGenerator.generateReport(diagnosisData);
+      
+      // 메타데이터 생성
+      const metadata = HTMLReportGenerator.generateReportMetadata(diagnosisData);
+      metadata.fileSize = new Blob([htmlContent]).size;
+      
+      // 보고서 저장
+      const result = await this.storeReport(fileName, htmlContent, metadata);
+      
+      console.log('✅ HTML 보고서 생성 및 저장 완료:', result);
+      return result;
+      
+    } catch (error: any) {
+      console.error('❌ HTML 보고서 생성 실패:', error);
+      return {
+        success: false,
+        error: error.message || 'HTML 보고서 생성에 실패했습니다.'
+      };
+    }
+  }
+
   private static generateSampleReport(diagnosisId: string): string {
-    return `
-<!DOCTYPE html>
+    return this.getFullHTMLReport(diagnosisId);
+  }
+
+  /**
+   * 완전한 HTML 보고서 생성 (250827_aicamp_diagnosis_report.html 기반)
+   */
+  private static getFullHTMLReport(diagnosisId: string): string {
+    return `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">

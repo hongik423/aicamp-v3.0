@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 interface DiagnosisReport {
   diagnosisId: string;
@@ -40,11 +41,49 @@ interface DiagnosisReport {
 }
 
 export default function DiagnosisReportsPage() {
+  const { toast } = useToast();
   const [reports, setReports] = useState<DiagnosisReport[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterGrade, setFilterGrade] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [userDiagnosisId, setUserDiagnosisId] = useState('');
+
+  // HTML 보고서 다운로드 함수
+  const handleDownloadReport = async (report: DiagnosisReport) => {
+    try {
+      // ReportStorage에서 HTML 보고서 조회
+      const { ReportStorage } = await import('@/lib/diagnosis/report-storage');
+      const htmlContent = await ReportStorage.getReport(report.diagnosisId);
+      
+      if (htmlContent) {
+        // HTML 파일 다운로드
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_${new Date().toISOString().split('T')[0]}.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: "✅ 다운로드 완료",
+          description: "HTML 보고서가 성공적으로 다운로드되었습니다.",
+          variant: "default"
+        });
+      } else {
+        throw new Error('보고서를 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('보고서 다운로드 실패:', error);
+      toast({
+        title: "❌ 다운로드 실패",
+        description: "보고서 다운로드 중 오류가 발생했습니다.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // 샘플 데이터 (실제로는 API에서 가져옴)
   useEffect(() => {
@@ -365,9 +404,13 @@ export default function DiagnosisReportsPage() {
                                 보기
                               </Button>
                             </Link>
-                            <Button variant="default" size="sm">
+                            <Button 
+                              variant="default" 
+                              size="sm"
+                              onClick={() => handleDownloadReport(report)}
+                            >
                               <Download className="h-4 w-4 mr-2" />
-                              다운로드
+                              HTML 다운로드
                             </Button>
                           </>
                         )}

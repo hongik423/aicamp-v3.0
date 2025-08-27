@@ -1039,6 +1039,57 @@ const Real45QuestionForm: React.FC = () => {
             createdAt: result.data.reportInfo.createdAt
           }));
           
+          // HTML 보고서 생성 및 저장
+          try {
+            const { ReportStorage } = await import('@/lib/diagnosis/report-storage');
+            
+            // 진단 데이터 구성
+            const diagnosisData = {
+              diagnosisId,
+              companyInfo: {
+                companyName: formState.companyInfo.companyName,
+                contactName: formState.companyInfo.contactName,
+                contactEmail: formState.companyInfo.contactEmail,
+                industry: formState.companyInfo.industry,
+                employeeCount: formState.companyInfo.employeeCount
+              },
+              scores: {
+                totalScore: result.totalScore,
+                categoryScores: {
+                  businessFoundation: result.categoryScores?.businessFoundation || 0,
+                  currentAIUsage: result.categoryScores?.currentAIUsage || 0,
+                  organizationalReadiness: result.categoryScores?.organizationalReadiness || 0,
+                  technicalInfrastructure: result.categoryScores?.technicalInfrastructure || 0,
+                  goalClarity: result.categoryScores?.goalClarity || 0,
+                  executionCapability: result.categoryScores?.executionCapability || 0
+                }
+              },
+              recommendations: result.recommendations || [
+                '즉시 실행 (1주일 내): AI 전략 TF 구성 및 기술인프라 현황 진단',
+                '단기 목표 (1개월 내): 클라우드 인프라 구축 및 AI 성과 측정 체계 수립',
+                '중기 목표 (3개월 내): 파일럿 프로젝트 실행 및 전문인력 확보',
+                '장기 목표 (6개월 내): 전사 AI 도입 완료 및 업계 선도기업 도약'
+              ],
+              maturityLevel: result.maturityLevel || 'Level 2: AI 준비기업',
+              grade: result.grade || 'C',
+              createdAt: new Date().toISOString()
+            };
+
+            // HTML 보고서 파일명 생성
+            const fileName = `AICAMP_AI역량진단보고서_${formState.companyInfo.companyName}_${diagnosisId}_${new Date().toISOString().split('T')[0]}.html`;
+            
+            // HTML 보고서 생성 및 저장
+            const reportResult = await ReportStorage.generateHTMLReport(diagnosisData, fileName);
+            
+            if (reportResult.success) {
+              console.log('✅ HTML 보고서 생성 성공:', reportResult);
+            } else {
+              console.error('❌ HTML 보고서 생성 실패:', reportResult.error);
+            }
+          } catch (error) {
+            console.error('❌ HTML 보고서 생성 중 오류:', error);
+          }
+
           // 완료 배너 업데이트
           updateBanner('🎉 진단 완료! 보고서 페이지로 이동합니다', {
             variant: 'success',
