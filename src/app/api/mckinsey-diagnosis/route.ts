@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
     const emailPromise = sendEmailNotification({
       ...normalizedData,
       diagnosisId,
-      driveLink: reportStorageResult.driveWebViewLink || reportStorageResult.localStorageKey,
+      driveLink: reportStorageResult.shareLink || reportStorageResult.localStorageKey,
       reportData: mckinseyReport,
       email: normalizedData.contactEmail,
       companyName: normalizedData.companyName,
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
         percentile: scoreAnalysis.percentile,
         reportGenerated: true,
         reportSaved: reportStorageResult.success,
-        driveLink: reportStorageResult.driveWebViewLink,
+        driveLink: reportStorageResult.shareLink,
         localStorageKey: reportStorageResult.localStorageKey,
         emailSent: emailResult.status === 'fulfilled' ? emailResult.value.success : false,
         processingTime: `${processingTime}ms`
@@ -805,7 +805,7 @@ async function saveReportWithAdvancedSystem(
   diagnosisId: string, 
   normalizedData: any, 
   scoreAnalysis: any
-) {
+): Promise<{ success: boolean; shareLink?: string; driveWebViewLink?: string; localStorageKey?: string; fileId?: string; fileName?: string; error?: string }> {
   try {
     console.log('🚀 V22.0 보고서 저장 시스템 시작:', diagnosisId);
     
@@ -838,7 +838,14 @@ async function saveReportWithAdvancedSystem(
         console.error('⚠️ 저장소 정리 실패:', error);
       });
       
-      return result;
+      return {
+        success: result.success,
+        shareLink: result.driveWebViewLink,
+        driveWebViewLink: result.driveWebViewLink,
+        localStorageKey: result.localStorageKey,
+        fileId: result.driveFileId,
+        fileName: fileName
+      };
     } else {
       console.error('❌ V22.0 보고서 저장 실패:', result.error);
       
