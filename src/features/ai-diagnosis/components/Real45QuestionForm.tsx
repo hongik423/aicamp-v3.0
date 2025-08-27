@@ -1040,15 +1040,15 @@ const Real45QuestionForm: React.FC = () => {
           }));
           
           // 완료 배너 업데이트
-          updateBanner('🎉 진단 완료! 보고서가 생성되었습니다', {
+          updateBanner('🎉 진단 완료! 보고서 페이지로 이동합니다', {
             variant: 'success',
-            subMessage: '이제 보고서를 확인하고 다운로드할 수 있습니다.',
+            subMessage: '잠시 후 보고서 페이지로 자동 이동됩니다.',
             persistent: true
           });
           
-          // 페이지 새로고침으로 알림 배너 표시
+          // 보고서 페이지로 직접 이동
           setTimeout(() => {
-            window.location.reload();
+            window.location.href = `/diagnosis-results/${diagnosisId}`;
           }, 2000);
         }
         

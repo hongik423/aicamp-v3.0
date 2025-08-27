@@ -46,11 +46,12 @@ export default function Header() {
     { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 2 },
     { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 3 },
     { href: '/benchmark', label: 'AI벤치마크', isSpecial: false, priority: 4 },
-    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 5 },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 6 },
-    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 7 },
-    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 8 },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 9 }
+    { href: '/diagnosis-reports', label: '결과보고서조회', isSpecial: false, priority: 5, badge: 'NEW' },
+    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 6 },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 7 },
+    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 8 },
+    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 9 },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 10 }
   ];
 
   // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시
