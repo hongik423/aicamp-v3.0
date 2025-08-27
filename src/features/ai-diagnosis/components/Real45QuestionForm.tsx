@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useBannerStore } from '@/lib/stores/bannerStore';
+import RealtimeProgressBanner from '@/components/diagnosis/RealtimeProgressBanner';
 import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions';
 import { getQuestionBehaviorIndicators } from '../constants/question-specific-behavior-indicators';
 import { AddressInput } from '@/components/ui/address-input';
@@ -361,6 +362,23 @@ const Real45QuestionForm: React.FC = () => {
     setIsHydrated(true);
     console.log('✅ Hydration 완료');
     
+    // 완료된 진단이 있는지 확인하고 알림 배너 표시
+    const completedDiagnosisId = localStorage.getItem('completedDiagnosisId');
+    const diagnosisReportInfo = localStorage.getItem('diagnosisReportInfo');
+    
+    if (completedDiagnosisId && diagnosisReportInfo) {
+      try {
+        const reportInfo = JSON.parse(diagnosisReportInfo);
+        showBanner(`🎉 ${reportInfo.companyName}의 AI 역량진단이 완료되었습니다!`, {
+          variant: 'success',
+          subMessage: `진단 ID: ${completedDiagnosisId} | 총점: ${reportInfo.totalScore}점 (${reportInfo.grade}등급)`,
+          persistent: true
+        });
+      } catch (error) {
+        console.error('진단 정보 파싱 오류:', error);
+      }
+    }
+    
     // URL 파라미터로 초기화 요청 확인
     const urlParams = new URLSearchParams(window.location.search);
     const shouldReset = urlParams.get('reset') === 'true';
@@ -392,7 +410,7 @@ const Real45QuestionForm: React.FC = () => {
       console.error('로컬 스토리지 데이터 복원 실패:', error);
       resetDiagnosis();
     }
-  }, []);
+  }, [showBanner]);
 
   // 데이터 변경 시 로컬 스토리지에 저장 (Hydration 완료 후에만)
   useEffect(() => {
@@ -993,10 +1011,11 @@ const Real45QuestionForm: React.FC = () => {
       const result = await response.json();
       
       if (result.success) {
-        // V22.0 배너 업데이트 - 분석 완료
-        updateBanner('✅ 분석 완료! 보고서 생성 중...', {
+        // V22.0 배너 표시 - 분석 완료
+        showBanner('✅ 분석 완료! 보고서 생성 중...', {
           variant: 'success',
-          subMessage: '맞춤형 AI 역량진단 보고서를 준비하고 있습니다.'
+          subMessage: '맞춤형 AI 역량진단 보고서를 준비하고 있습니다.',
+          persistent: true
         });
         
         // 진단 결과를 상태에 저장하여 완료 화면으로 전환
@@ -1020,10 +1039,17 @@ const Real45QuestionForm: React.FC = () => {
             createdAt: result.data.reportInfo.createdAt
           }));
           
+          // 완료 배너 업데이트
+          updateBanner('🎉 진단 완료! 보고서가 생성되었습니다', {
+            variant: 'success',
+            subMessage: '이제 보고서를 확인하고 다운로드할 수 있습니다.',
+            persistent: true
+          });
+          
           // 페이지 새로고침으로 알림 배너 표시
           setTimeout(() => {
             window.location.reload();
-          }, 1000);
+          }, 2000);
         }
         
         // 세션 스토리지에 결과 저장 (페이지 새로고침 대비)
@@ -1154,6 +1180,25 @@ const Real45QuestionForm: React.FC = () => {
   if (diagnosisResult) {
     return (
       <>
+        {/* 실시간 진행 배너 */}
+        <RealtimeProgressBanner
+          isVisible={true}
+          diagnosisId={diagnosisResult.diagnosisId || ''}
+          companyName={formState.companyInfo.companyName}
+          onComplete={(result) => {
+            console.log('진단 완료:', result);
+            updateBanner('🎉 진단 완료! 보고서가 생성되었습니다', {
+              variant: 'success',
+              subMessage: '이제 보고서를 확인하고 다운로드할 수 있습니다.',
+              persistent: true
+            });
+          }}
+          onError={(error) => {
+            console.error('진단 오류:', error);
+          }}
+          autoHideOnComplete={false}
+        />
+        
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center pt-24">
         <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-lg">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
