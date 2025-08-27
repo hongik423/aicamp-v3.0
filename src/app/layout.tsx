@@ -58,7 +58,7 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180' },
     ],
   },
-  manifest: '/manifest.webmanifest',
+  manifest: '/api/manifest',
   formatDetection: {
     email: false,
     address: false,
@@ -309,7 +309,7 @@ export default function RootLayout({
         <script src="/suppress-errors.js" suppressHydrationWarning />
         
         {/* PWA 매니페스트 - 표준 경로로 연결 */}
-        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="manifest" href="/api/manifest" />
         
         {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

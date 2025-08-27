@@ -612,9 +612,12 @@ async function generateAdvancedHTMLReport(report: McKinseyReportStructure, score
       },
       scoreAnalysis: {
         totalScore: scoreAnalysis.totalScore || 0,
+        averageScore: scoreAnalysis.averageScore || Math.round((scoreAnalysis.totalScore || 0) / 45),
+        percentage: scoreAnalysis.percentage || Math.round(((scoreAnalysis.totalScore || 0) / 225) * 100),
         grade: scoreAnalysis.grade || 'C',
         maturityLevel: scoreAnalysis.maturityLevel || 'Basic',
         percentile: scoreAnalysis.percentile || 50,
+        weightedScore: scoreAnalysis.weightedScore || scoreAnalysis.totalScore || 0,
         categoryScores: scoreAnalysis.categoryScores || {
           businessFoundation: 0,
           currentAI: 0,
@@ -625,38 +628,102 @@ async function generateAdvancedHTMLReport(report: McKinseyReportStructure, score
         }
       },
       detailedAnalysis: {
-        strengths: ['경영진의 AI 도입 의지', '기본적인 디지털 인프라'],
-        weaknesses: ['AI 전문 인력 부족', '데이터 관리 체계 미흡'],
+        strengths: [
+          {
+            category: 'businessFoundation',
+            score: scoreAnalysis.categoryScores?.businessFoundation || 0,
+            description: '경영진의 AI 도입 의지',
+            actionItems: ['AI 전략 수립', '예산 확보']
+          },
+          {
+            category: 'techInfrastructure',
+            score: scoreAnalysis.categoryScores?.techInfrastructure || 0,
+            description: '기본적인 디지털 인프라',
+            actionItems: ['인프라 고도화', '보안 강화']
+          }
+        ],
+        weaknesses: [
+          {
+            category: 'currentAI',
+            score: scoreAnalysis.categoryScores?.currentAI || 0,
+            description: 'AI 전문 인력 부족',
+            actionItems: ['인력 채용', '교육 프로그램']
+          },
+          {
+            category: 'organizationReadiness',
+            score: scoreAnalysis.categoryScores?.organizationReadiness || 0,
+            description: '데이터 관리 체계 미흡',
+            actionItems: ['데이터 거버넌스', '품질 관리']
+          }
+        ],
         opportunities: ['AI 기술 도입 기회', '업무 자동화 가능성'],
         threats: ['경쟁사 AI 도입 가속화', '기술 변화 속도']
       },
-      recommendations: [
-        'AI 기초 교육 프로그램 도입',
-        '데이터 품질 관리 체계 구축',
-        '조직 내 AI 문화 조성',
-        '단계별 AI 도입 로드맵 수립'
-      ],
+      recommendations: {
+        immediate: [
+          {
+            priority: 1,
+            title: 'AI 기초 교육 프로그램 도입',
+            description: '전 직원 대상 AI 기초 소양 교육 실시',
+            timeline: '1개월',
+            resources: ['교육 전문가', '교육 자료'],
+            expectedOutcome: 'AI에 대한 기본 이해도 향상'
+          }
+        ],
+        shortTerm: [
+          {
+            priority: 1,
+            title: '데이터 품질 관리 체계 구축',
+            description: '데이터 수집, 정제, 관리 프로세스 표준화',
+            timeline: '3개월',
+            resources: ['데이터 엔지니어', '관리 도구'],
+            expectedOutcome: '고품질 데이터 확보'
+          }
+        ],
+        longTerm: [
+          {
+            priority: 1,
+            title: '조직 내 AI 문화 조성',
+            description: 'AI 활용을 위한 조직 문화 및 프로세스 개선',
+            timeline: '6개월',
+            resources: ['변화관리 전문가', '내부 챔피언'],
+            expectedOutcome: 'AI 친화적 조직 문화 정착'
+          }
+        ]
+      },
       roadmap: {
         phase1: {
           title: 'AI 기반 구축',
           duration: '1-3개월',
-          tasks: ['AI 교육', '데이터 정리', '인프라 준비']
+          objectives: ['AI 기초 역량 확보', '데이터 인프라 구축'],
+          keyActivities: ['AI 교육', '데이터 정리', '인프라 준비'],
+          milestones: ['교육 완료', '데이터 품질 개선', '기본 인프라 구축'],
+          budget: '1,000만원'
         },
         phase2: {
           title: 'AI 활용 확산',
           duration: '3-6개월',
-          tasks: ['파일럿 프로젝트', '프로세스 개선', '성과 측정']
+          objectives: ['AI 활용 사례 확산', '프로세스 개선'],
+          keyActivities: ['파일럿 프로젝트', '프로세스 개선', '성과 측정'],
+          milestones: ['파일럿 성공', '프로세스 표준화', 'ROI 달성'],
+          budget: '3,000만원'
         },
         phase3: {
           title: 'AI 전문 조직',
           duration: '6-12개월',
-          tasks: ['전문 조직 구성', '고도화', '확산']
+          objectives: ['AI 전문 조직 구성', '고도화 달성'],
+          keyActivities: ['전문 조직 구성', '고도화', '확산'],
+          milestones: ['전담 조직 설립', '고급 AI 도입', '전사 확산'],
+          budget: '5,000만원'
         }
       },
-      responses: [], // 빈 배열로 초기화
+      responses: normalizedData.responses || {}, // Record<string, number> 타입으로 초기화
       qualityMetrics: {
-        overallQuality: 85,
-        dataCompleteness: 95
+        dataCompleteness: 95,
+        responseConsistency: 90,
+        analysisDepth: 85,
+        recommendationRelevance: 88,
+        overallQuality: 89
       }
     };
     
