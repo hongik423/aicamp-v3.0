@@ -5,7 +5,7 @@ import '../styles/mobile-optimization.css';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
-// import GlobalBanner from '@/components/layout/GlobalBanner';
+import GlobalBanner from '@/components/layout/GlobalBanner';
 
 // import N8nCurriculumBanner from '@/components/layout/N8nCurriculumBanner';
 // import AutoShowBanners from '@/components/layout/AutoShowBanners';
@@ -412,6 +412,9 @@ export default function RootLayout({
           
           {/* 접근성 컨트롤 */}
           <AccessibilityControls />
+          
+          {/* V22.0 글로벌 알림 배너 시스템 */}
+          <GlobalBanner />
           
           {/* 기존 배너들을 BannerController로 통합 관리 */}
           <BannerController />

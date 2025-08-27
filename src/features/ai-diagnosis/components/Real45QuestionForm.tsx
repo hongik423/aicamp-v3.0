@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useBannerStore } from '@/lib/stores/bannerStore';
 import { REAL_45_QUESTIONS, RealQuestion } from '../constants/real-45-questions';
 import { getQuestionBehaviorIndicators } from '../constants/question-specific-behavior-indicators';
 import { AddressInput } from '@/components/ui/address-input';
@@ -68,6 +69,7 @@ interface DiagnosisResult {
 
 const Real45QuestionForm: React.FC = () => {
   const { toast } = useToast();
+  const { show: showBanner, hide: hideBanner, update: updateBanner } = useBannerStore();
   const [isHydrated, setIsHydrated] = useState(true);
   const prevProgressStatus = useRef<string>(''); // 강제로 Hydration 완료로 설정
   const [formState, setFormState] = useState<FormState>({
@@ -678,6 +680,17 @@ const Real45QuestionForm: React.FC = () => {
             }
           }
           
+          // V22.0 배너 업데이트 - 이메일 발송 완료
+          updateBanner('📧 보고서 이메일 발송 완료!', {
+            variant: 'success',
+            subMessage: 'AI 역량진단 보고서가 이메일로 발송되었습니다.'
+          });
+          
+          // 3초 후 배너 자동 숨김
+          setTimeout(() => {
+            hideBanner();
+          }, 3000);
+          
           // 완료 토스트 표시
           toast({
             title: "📧 이메일 발송 완료",
@@ -931,6 +944,14 @@ const Real45QuestionForm: React.FC = () => {
 
     setIsSubmitting(true);
     setPersistentNoticeOpen(true);
+    
+    // V22.0 알림 배너 시스템 활성화
+    showBanner('🚀 AI 역량진단을 시작합니다...', {
+      variant: 'info',
+      subMessage: '45개 행동지표 기반 정밀 분석 진행 중',
+      persistent: true
+    });
+    
     try {
       // API 호출 로직 - 실제 신청서 데이터 연계 수정
       const response = await fetch('/api/ai-diagnosis', {
@@ -972,6 +993,12 @@ const Real45QuestionForm: React.FC = () => {
       const result = await response.json();
       
       if (result.success) {
+        // V22.0 배너 업데이트 - 분석 완료
+        updateBanner('✅ 분석 완료! 보고서 생성 중...', {
+          variant: 'success',
+          subMessage: '맞춤형 AI 역량진단 보고서를 준비하고 있습니다.'
+        });
+        
         // 진단 결과를 상태에 저장하여 완료 화면으로 전환
         const diagnosisId = result.diagnosisId || result.data?.diagnosisId || `TEMP-${Date.now()}`;
         const enhancedResult = {
@@ -1069,6 +1096,17 @@ const Real45QuestionForm: React.FC = () => {
       
     } catch (error: any) {
       console.error('신청서 제출 오류:', error);
+      
+      // V22.0 배너 업데이트 - 오류 발생
+      updateBanner('❌ 진단 처리 중 오류 발생', {
+        variant: 'error',
+        subMessage: '잠시 후 다시 시도해주세요.'
+      });
+      
+      // 5초 후 배너 자동 숨김
+      setTimeout(() => {
+        hideBanner();
+      }, 5000);
       
       // 오류 유형에 따른 상세 메시지 제공
       let errorMessage = "신청서 제출 중 오류가 발생했습니다.";
