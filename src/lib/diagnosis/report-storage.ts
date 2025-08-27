@@ -261,7 +261,9 @@ export class ReportStorage {
         
         // 실제 HTML 보고서 생성기 사용
         try {
+          console.log('🔄 HTMLReportGenerator 임포트 시도...');
           const { HTMLReportGenerator } = await import('./html-report-generator');
+          console.log('✅ HTMLReportGenerator 임포트 성공');
           
           // 샘플 진단 데이터 (실제로는 데이터베이스에서 조회)
           const sampleDiagnosisData = {
@@ -295,13 +297,15 @@ export class ReportStorage {
             createdAt: new Date().toISOString()
           };
           
+          console.log('🔄 HTML 보고서 생성 시작...');
           // 실제 HTML 보고서 생성
           const htmlReport = HTMLReportGenerator.generateReport(sampleDiagnosisData);
-          console.log('✅ 실제 HTML 보고서 생성 완료');
+          console.log('✅ 실제 HTML 보고서 생성 완료, 길이:', htmlReport.length);
           return htmlReport;
           
         } catch (error) {
           console.error('❌ HTML 보고서 생성 실패:', error);
+          console.error('❌ 오류 스택:', error.stack);
         }
         
         // 폴백: 기본 보고서 반환

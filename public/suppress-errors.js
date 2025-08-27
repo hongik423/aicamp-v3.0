@@ -233,10 +233,21 @@ const errorPatterns = [
     // React DevTools 관련 이벤트 차단
     const originalPostMessage = window.postMessage;
     window.postMessage = function(message, targetOrigin, transfer) {
-      if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
-        return; // React DevTools 메시지 차단
+      try {
+        if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
+          return; // React DevTools 메시지 차단
+        }
+        
+        // targetOrigin이 undefined이거나 null인 경우 안전한 기본값 설정
+        if (targetOrigin === undefined || targetOrigin === null || targetOrigin === 'undefined') {
+          targetOrigin = window.location.origin || '*';
+        }
+        
+        return originalPostMessage.call(this, message, targetOrigin, transfer);
+      } catch (error) {
+        console.warn('🛡️ postMessage 오류 차단:', error.message);
+        return false;
       }
-      return originalPostMessage.call(this, message, targetOrigin, transfer);
     };
   }
   
