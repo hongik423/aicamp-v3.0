@@ -161,8 +161,10 @@ export async function GET(
       }
 
       let result: any;
+      let responseText: string = '';
+      
       try {
-        const responseText = await scriptResponse.text();
+        responseText = await scriptResponse.text();
         console.log('📄 Google Apps Script 원본 응답:', responseText.substring(0, 200) + '...');
         
         // HTML 응답인지 확인
@@ -213,7 +215,7 @@ export async function GET(
         result = JSON.parse(responseText);
       } catch (parseError) {
         console.error('❌ JSON 파싱 오류:', parseError);
-        console.log('📄 파싱 실패한 응답 내용:', responseText?.substring(0, 500));
+        console.log('📄 파싱 실패한 응답 내용:', responseText.substring(0, 500));
         
         // 파싱 실패 시 기본 데이터 반환
         return NextResponse.json(
