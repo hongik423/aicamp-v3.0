@@ -33,8 +33,16 @@ export class HTMLReportGenerator {
    * 실제 진단 데이터를 기반으로 HTML 보고서 생성
    */
   static generateReport(data: DiagnosisData): string {
-    const categoryScores = data.scores.categoryScores;
-    const totalScore = data.scores.totalScore;
+    // 안전한 기본값 설정
+    const categoryScores = data.scores?.categoryScores || {
+      businessFoundation: 3.0,
+      currentAIUsage: 3.0,
+      organizationalReadiness: 3.0,
+      technicalInfrastructure: 3.0,
+      goalClarity: 3.0,
+      executionCapability: 3.0
+    };
+    const totalScore = data.scores?.totalScore || 3.0;
     const grade = this.calculateGrade(totalScore);
     const maturityLevel = this.calculateMaturityLevel(totalScore);
     
@@ -357,7 +365,7 @@ export class HTMLReportGenerator {
                     </div>
                 </div>
                 <div class="score-display">
-                    <div class="main-score">${totalScore.toFixed(1)}</div>
+                    <div class="main-score">${(totalScore || 0).toFixed(1)}</div>
                     <div class="score-label">종합 점수 / 5.0</div>
                     <div style="margin-top: 20px; font-size: 1.4rem;">
                         등급: <strong>${grade} (${this.getGradeDescription(grade)})</strong>
@@ -372,32 +380,32 @@ export class HTMLReportGenerator {
                 <div class="score-grid">
                     <div class="score-card">
                         <div class="score-category">사업기반</div>
-                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.businessFoundation)};">${categoryScores.businessFoundation.toFixed(1)}</div>
-                        <div class="score-comparison">업종 평균: 3.5 (${this.getComparisonText(categoryScores.businessFoundation, 3.5)})</div>
+                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.businessFoundation || 0)};">${(categoryScores.businessFoundation || 0).toFixed(1)}</div>
+                        <div class="score-comparison">업종 평균: 3.5 (${this.getComparisonText(categoryScores.businessFoundation || 0, 3.5)})</div>
                     </div>
                     <div class="score-card">
                         <div class="score-category">AI활용</div>
-                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.currentAIUsage)};">${categoryScores.currentAIUsage.toFixed(1)}</div>
-                        <div class="score-comparison">업종 평균: 2.8 (${this.getComparisonText(categoryScores.currentAIUsage, 2.8)})</div>
+                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.currentAIUsage || 0)};">${(categoryScores.currentAIUsage || 0).toFixed(1)}</div>
+                        <div class="score-comparison">업종 평균: 2.8 (${this.getComparisonText(categoryScores.currentAIUsage || 0, 2.8)})</div>
                     </div>
                     <div class="score-card">
                         <div class="score-category">조직준비도</div>
-                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.organizationalReadiness)};">${categoryScores.organizationalReadiness.toFixed(1)}</div>
+                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.organizationalReadiness || 0)};">${(categoryScores.organizationalReadiness || 0).toFixed(1)}</div>
                         <div class="score-comparison">업종 평균: 3.2 (${this.getComparisonText(categoryScores.organizationalReadiness, 3.2)})</div>
                     </div>
                     <div class="score-card">
                         <div class="score-category">기술인프라</div>
-                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.technicalInfrastructure)};">${categoryScores.technicalInfrastructure.toFixed(1)}</div>
+                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.technicalInfrastructure || 0)};">${(categoryScores.technicalInfrastructure || 0).toFixed(1)}</div>
                         <div class="score-comparison">업종 평균: 3.0 (${this.getComparisonText(categoryScores.technicalInfrastructure, 3.0)})</div>
                     </div>
                     <div class="score-card">
                         <div class="score-category">목표명확성</div>
-                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.goalClarity)};">${categoryScores.goalClarity.toFixed(1)}</div>
+                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.goalClarity || 0)};">${(categoryScores.goalClarity || 0).toFixed(1)}</div>
                         <div class="score-comparison">업종 평균: 3.1 (${this.getComparisonText(categoryScores.goalClarity, 3.1)})</div>
                     </div>
                     <div class="score-card">
                         <div class="score-category">실행역량</div>
-                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.executionCapability)};">${categoryScores.executionCapability.toFixed(1)}</div>
+                        <div class="score-value" style="color: ${this.getScoreColor(categoryScores.executionCapability || 0)};">${(categoryScores.executionCapability || 0).toFixed(1)}</div>
                         <div class="score-comparison">업종 평균: 3.3 (${this.getComparisonText(categoryScores.executionCapability, 3.3)})</div>
                     </div>
                 </div>

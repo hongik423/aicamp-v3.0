@@ -29,6 +29,8 @@ const nextConfig = {
   experimental: {
     // 서버 컴포넌트 최적화
     serverComponentsExternalPackages: ['@prisma/client'],
+    // preload 경고 해결
+    optimizePackageImports: ['lucide-react'],
   },
   
   // 웹팩 설정 최적화

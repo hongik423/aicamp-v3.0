@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useBannerStore } from '@/lib/stores/bannerStore';
-import { AlertCircle, CheckCircle2, Info, Loader2, Mail } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Info, Loader2, Mail, X } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const variantStyles: Record<string, string> = {
@@ -20,7 +20,7 @@ const variantIcon: Record<string, React.ReactNode> = {
 };
 
 export default function GlobalBanner() {
-  const { isVisible, message, subMessage, variant, progressPercent, stepLabel } = useBannerStore();
+  const { isVisible, message, subMessage, variant, progressPercent, stepLabel, hide } = useBannerStore();
 
   if (!isVisible) return null;
 
@@ -31,6 +31,13 @@ export default function GlobalBanner() {
   // 파랑 계열 배경(info)일 때는 보색(노랑/호박) 계열로 텍스트를 강제 적용
   const messageTextClass = isInfo ? 'text-yellow-200' : 'text-white';
   const subMessageTextClass = isInfo ? 'text-yellow-100' : 'opacity-90';
+
+  const handleClose = () => {
+    hide();
+    // 세션 동안 배너 비활성화 (네비게이션 사용 가능하도록)
+    sessionStorage.setItem('banners-disabled-for-session', 'true');
+    console.log('🚫 사용자가 배너를 닫음 - 세션 동안 배너 비활성화');
+  };
 
   return (
     <div className="fixed top-0 inset-x-0 z-[10003] pointer-events-none isolate" aria-live="polite">
@@ -60,6 +67,14 @@ export default function GlobalBanner() {
             <Loader2 className="w-4 h-4 animate-spin" />
             <span>{typeof progressPercent === 'number' ? `${Math.round(progressPercent)}%` : '진행 중'}</span>
             <Mail className="w-4 h-4" />
+            <button
+              onClick={handleClose}
+              className="ml-2 p-1 hover:bg-white/20 rounded-full transition-colors duration-200 group"
+              title="배너 닫기 (네비게이션 사용 가능)"
+              aria-label="배너 닫기"
+            >
+              <X className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+            </button>
           </div>
         </div>
       </div>
