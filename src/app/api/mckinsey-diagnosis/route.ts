@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     });
     
     // 7단계: V22.0 동적 HTML 보고서 생성
-    const htmlReport = await generateAdvancedHTMLReport(mckinseyReport, scoreAnalysis);
+    const htmlReport = await generateAdvancedHTMLReport(mckinseyReport, scoreAnalysis, normalizedData);
     
     // 8단계: V22.0 보고서 저장 시스템 활용
     const reportStorageResult = await saveReportWithAdvancedSystem(htmlReport, diagnosisId, normalizedData, scoreAnalysis);
@@ -590,17 +590,25 @@ function generatePriorityMatrix() {
 /**
  * V22.0 고도화된 동적 HTML 보고서 생성
  */
-async function generateAdvancedHTMLReport(report: McKinseyReportStructure, scoreAnalysis: any) {
+async function generateAdvancedHTMLReport(report: McKinseyReportStructure, scoreAnalysis: any, normalizedData: any) {
   try {
     // McKinsey HTML Generator 사용
     const { generateMcKinseyHTMLReport } = await import('@/lib/reports/mckinsey-html-generator');
     
-    // 분석 결과를 HTML Generator 형식으로 변환
+    // 분석 결과를 LeeKyoJang45QuestionsResult 형식으로 변환
     const analysisResult = {
+      diagnosisId: report.coverPage.diagnosisId,
+      timestamp: new Date().toISOString(),
       companyInfo: {
         name: report.coverPage.companyName,
-        industry: '정보 없음', // 실제 데이터에서 가져와야 함
-        size: '정보 없음'
+        industry: normalizedData.industry || '정보 없음',
+        size: normalizedData.employeeCount || '정보 없음',
+        contact: {
+          name: normalizedData.contactName || '',
+          email: normalizedData.contactEmail || '',
+          phone: normalizedData.contactPhone,
+          position: ''
+        }
       },
       scoreAnalysis: {
         totalScore: scoreAnalysis.totalScore || 0,
@@ -616,7 +624,36 @@ async function generateAdvancedHTMLReport(report: McKinseyReportStructure, score
           executionCapability: 0
         }
       },
-      diagnosisId: report.coverPage.diagnosisId,
+      detailedAnalysis: {
+        strengths: ['경영진의 AI 도입 의지', '기본적인 디지털 인프라'],
+        weaknesses: ['AI 전문 인력 부족', '데이터 관리 체계 미흡'],
+        opportunities: ['AI 기술 도입 기회', '업무 자동화 가능성'],
+        threats: ['경쟁사 AI 도입 가속화', '기술 변화 속도']
+      },
+      recommendations: [
+        'AI 기초 교육 프로그램 도입',
+        '데이터 품질 관리 체계 구축',
+        '조직 내 AI 문화 조성',
+        '단계별 AI 도입 로드맵 수립'
+      ],
+      roadmap: {
+        phase1: {
+          title: 'AI 기반 구축',
+          duration: '1-3개월',
+          tasks: ['AI 교육', '데이터 정리', '인프라 준비']
+        },
+        phase2: {
+          title: 'AI 활용 확산',
+          duration: '3-6개월',
+          tasks: ['파일럿 프로젝트', '프로세스 개선', '성과 측정']
+        },
+        phase3: {
+          title: 'AI 전문 조직',
+          duration: '6-12개월',
+          tasks: ['전문 조직 구성', '고도화', '확산']
+        }
+      },
+      responses: [], // 빈 배열로 초기화
       qualityMetrics: {
         overallQuality: 85,
         dataCompleteness: 95
