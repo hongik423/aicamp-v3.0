@@ -11,7 +11,7 @@ export interface GlobalBannerState {
   stepLabel?: string; // 현재 단계 라벨(선택)
   persistent?: boolean; // 지속적으로 표시할지 여부
   show: (message: string, options?: { subMessage?: string; variant?: GlobalBannerState['variant']; persistent?: boolean }) => void;
-  update: (message: string, options?: { subMessage?: string; variant?: GlobalBannerState['variant'] }) => void;
+  update: (message: string, options?: { subMessage?: string; variant?: GlobalBannerState['variant']; persistent?: boolean }) => void;
   hide: () => void;
 }
 
@@ -37,6 +37,7 @@ export const useBannerStore = create<GlobalBannerState>((set) => ({
       message,
       subMessage: options?.subMessage ?? state.subMessage,
       variant: options?.variant || state.variant,
+      persistent: options?.persistent ?? state.persistent,
       // progress/step은 전달된 경우에만 갱신 (유지 가능)
       progressPercent: (options as any)?.progressPercent ?? state.progressPercent,
       stepLabel: (options as any)?.stepLabel ?? state.stepLabel,
