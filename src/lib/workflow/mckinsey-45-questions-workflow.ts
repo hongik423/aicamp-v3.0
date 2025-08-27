@@ -254,18 +254,16 @@ export function determineMaturityLevel(totalScore: number): string {
  * 등급 결정
  */
 export function determineGrade(totalScore: number): string {
-  if (totalScore >= 95) return 'A+';
-  if (totalScore >= 90) return 'A';
-  if (totalScore >= 85) return 'A-';
-  if (totalScore >= 80) return 'B+';
-  if (totalScore >= 75) return 'B';
-  if (totalScore >= 70) return 'B-';
-  if (totalScore >= 65) return 'C+';
-  if (totalScore >= 60) return 'C';
-  if (totalScore >= 55) return 'C-';
-  if (totalScore >= 50) return 'D+';
-  if (totalScore >= 45) return 'D';
-  return 'F';
+  // 225점 만점 기준으로 백분율 계산
+  const percentage = (totalScore / 225) * 100;
+  
+  if (percentage >= 90) return 'A+';  // 90% 이상 (203-225점)
+  if (percentage >= 80) return 'A';   // 80-89% (180-202점)
+  if (percentage >= 70) return 'B+';  // 70-79% (158-179점)
+  if (percentage >= 60) return 'B';   // 60-69% (135-157점)
+  if (percentage >= 50) return 'C+';  // 50-59% (113-134점)
+  if (percentage >= 40) return 'C';   // 40-49% (90-112점)
+  return 'F';                         // 40% 미만 (89점 이하)
 }
 
 /**

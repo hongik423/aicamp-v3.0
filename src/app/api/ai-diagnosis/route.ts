@@ -18,6 +18,21 @@ import { addProgressEvent } from '../_progressStore';
 // import { ReportGenerator } from '@/lib/diagnosis/report-generator';
 // import { ReportStorage } from '@/lib/diagnosis/report-storage';
 
+/**
+ * 점수 기반 등급 계산 (225점 만점 기준)
+ */
+function determineGradeFromScore(totalScore: number): string {
+  const percentage = (totalScore / 225) * 100;
+  
+  if (percentage >= 90) return 'A+';  // 90% 이상 (203-225점)
+  if (percentage >= 80) return 'A';   // 80-89% (180-202점)
+  if (percentage >= 70) return 'B+';  // 70-79% (158-179점)
+  if (percentage >= 60) return 'B';   // 60-69% (135-157점)
+  if (percentage >= 50) return 'C+';  // 50-59% (113-134점)
+  if (percentage >= 40) return 'C';   // 40-49% (90-112점)
+  return 'F';                         // 40% 미만 (89점 이하)
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🎓 45문항 점수 집계 시스템 요청 수신 - V17.0 간소화');
@@ -103,7 +118,7 @@ export async function POST(request: NextRequest) {
           createdAt: new Date().toISOString(),
           version: 'V22.0',
           totalScore: enhancedScores.totalScore,
-          grade: enhancedScores.totalScore >= 80 ? 'A' : enhancedScores.totalScore >= 60 ? 'B' : 'C'
+          grade: determineGradeFromScore(enhancedScores.totalScore)
         };
         
         // 워크플로우 단계 진행 이벤트 기록 (V22.0 업데이트)
