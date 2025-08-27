@@ -40,10 +40,7 @@ export default function ErrorShield() {
       'chrome.storage',
       'chrome.webNavigation',
       
-      // Manifest 관련 (강화)
-      'Manifest fetch',
-      'manifest.json',
-      'manifest.webmanifest',
+
       'Failed to load resource',
       'status of 401',
       'code 401',
@@ -126,10 +123,8 @@ export default function ErrorShield() {
         return false;
       }
 
-      // Manifest 오류 차단
-      if (message.includes('Manifest fetch') ||
-          message.includes('manifest.json') ||
-          message.includes('401') ||
+      // 기타 오류 차단
+      if (message.includes('401') ||
           message.includes('403')) {
         event.preventDefault();
         return false;
@@ -239,25 +234,7 @@ export default function ErrorShield() {
     window.fetch = function(url: RequestInfo | URL, ...args: any[]) {
       const urlString = typeof url === 'string' ? url : url.toString();
       
-      // Manifest 요청 특별 처리
-      if (urlString.includes('manifest.webmanifest') || 
-          urlString.includes('manifest.json') ||
-          urlString.includes('/api/manifest')) {
-        return originalFetch.apply(this, [url, ...args]).catch(error => {
-          // Manifest 오류는 기본 응답으로 대체
-          return new Response(JSON.stringify({
-            "name": "AI역량진단",
-            "short_name": "AI진단",
-            "start_url": "/",
-            "display": "browser",
-            "background_color": "#ffffff",
-            "theme_color": "#3b82f6"
-          }), { 
-            status: 200, 
-            headers: { 'Content-Type': 'application/manifest+json' } 
-          });
-        });
-      }
+
 
       return originalFetch.apply(this, [url, ...args]);
     };

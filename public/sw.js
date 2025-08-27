@@ -4,8 +4,7 @@ const CACHE_NAME = 'aicamp-v' + CACHE_VERSION + '-' + new Date().getTime();
 const urlsToCache = [
   '/',
   '/images/aicamp_logo.png',
-  '/images/aicamp_logo_del_250726.png',
-  '/api/manifest'
+  '/images/aicamp_logo_del_250726.png'
 ];
 
 // 캐시 버전 체크 및 강제 업데이트 키
@@ -136,29 +135,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 매니페스트 요청에 대해서는 네트워크 우선 전략 사용
-  if (event.request.url.includes('manifest.webmanifest') || event.request.url.includes('/api/manifest')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // 성공적으로 받아온 경우 캐시에 저장 (안전한 요청만)
-          if (response.status === 200 && event.request.url.startsWith('http')) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseClone);
-              })
-              .catch(() => {}); // 캐시 저장 실패 시 무시
-          }
-          return response;
-        })
-        .catch(() => {
-          // 네트워크 실패 시 캐시에서 반환
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
+
 
   // 일반 요청에 대한 캐시 우선 전략
   event.respondWith(

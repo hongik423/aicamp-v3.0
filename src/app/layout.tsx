@@ -58,7 +58,7 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180' },
     ],
   },
-  manifest: '/api/manifest',
+
   formatDetection: {
     email: false,
     address: false,
@@ -127,16 +127,14 @@ const registerServiceWorkerSafely = () => {
         message.includes('content.js') ||
         message.includes('runtime.lastError') ||
         message.includes('The message port closed') ||
-        message.includes('Manifest fetch') ||
-        message.includes('manifest.json') ||
-        message.includes('manifest.webmanifest') ||
+
         message.includes('Failed to load resource') ||
         message.includes('401') ||
         message.includes('403') ||
         message.includes('개인정보 동의') ||
         message.includes('privacyConsent') ||
         message.includes('message port closed')) {
-      return; // 🛡️ 확장 프로그램, manifest, 개인정보 관련 오류는 무시
+      return; // 🛡️ 확장 프로그램, 개인정보 관련 오류는 무시
     }
     originalConsoleWarn.apply(console, args);
   };
@@ -149,16 +147,14 @@ const registerServiceWorkerSafely = () => {
         message.includes('content.js') ||
         message.includes('runtime.lastError') ||
         message.includes('The message port closed') ||
-        message.includes('Manifest fetch') ||
-        message.includes('manifest.json') ||
-        message.includes('manifest.webmanifest') ||
+
         message.includes('Failed to load resource') ||
         message.includes('401') ||
         message.includes('403') ||
         message.includes('개인정보 동의') ||
         message.includes('privacyConsent') ||
         message.includes('message port closed')) {
-      return; // 🛡️ 확장 프로그램, manifest, 개인정보 관련 오류는 무시
+      return; // 🛡️ 확장 프로그램, 개인정보 관련 오류는 무시
     }
     originalConsoleError.apply(console, args);
   };
@@ -171,7 +167,7 @@ const registerServiceWorkerSafely = () => {
         errorMessage.includes('Extension context') ||
         errorMessage.includes('chrome-extension://') ||
         errorMessage.includes('content.js') ||
-        errorMessage.includes('manifest.webmanifest') ||
+
         errorMessage.includes('Failed to load resource') ||
         errorMessage.includes('401') ||
         errorMessage.includes('403') ||
@@ -192,7 +188,7 @@ const registerServiceWorkerSafely = () => {
         reason.includes('Extension context') ||
         reason.includes('chrome-extension://') ||
         reason.includes('content.js') ||
-        reason.includes('manifest.webmanifest') ||
+
         reason.includes('Failed to load resource') ||
         reason.includes('401') ||
         reason.includes('403') ||
@@ -308,8 +304,7 @@ export default function RootLayout({
         {/* 오류 차단 스크립트 - 최우선 로드 */}
         <script src="/suppress-errors.js" suppressHydrationWarning />
         
-        {/* PWA 매니페스트 - 표준 경로로 연결 */}
-        <link rel="manifest" href="/api/manifest" />
+
         
         {/* 폰트 최적화 */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -356,7 +351,7 @@ export default function RootLayout({
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
                       msg.includes('The message port closed') ||
-                      msg.includes('manifest.webmanifest') ||
+
                       msg.includes('Failed to load resource') ||
                       msg.includes('401') ||
                       msg.includes('403') ||
@@ -377,7 +372,7 @@ export default function RootLayout({
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
                       msg.includes('The message port closed') ||
-                      msg.includes('manifest.webmanifest') ||
+
                       msg.includes('Failed to load resource') ||
                       msg.includes('401') ||
                       msg.includes('403') ||

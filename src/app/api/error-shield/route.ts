@@ -9,11 +9,7 @@ export async function GET(request: NextRequest) {
       status: "active",
       timestamp: new Date().toISOString(),
       protections: {
-        manifestErrors: {
-          status: "active",
-          description: "Manifest API 401 오류 차단",
-          lastUpdate: new Date().toISOString()
-        },
+
         serviceWorkerErrors: {
           status: "active", 
           description: "Service Worker 중복 등록 및 런타임 오류 차단",
@@ -37,13 +33,13 @@ export async function GET(request: NextRequest) {
       },
       statistics: {
         totalErrorsBlocked: Math.floor(Math.random() * 1000 + 500),
-        manifestErrorsBlocked: Math.floor(Math.random() * 200 + 100),
+
         serviceWorkerErrorsBlocked: Math.floor(Math.random() * 150 + 75),
         chromeExtensionErrorsBlocked: Math.floor(Math.random() * 300 + 200),
         uptime: "99.9%"
       },
       healthCheck: {
-        manifestApi: await checkManifestApi(request),
+
         serviceWorker: checkServiceWorkerStatus(),
         errorHandlers: checkErrorHandlers(),
         overallHealth: "healthy"
@@ -79,29 +75,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Manifest API 상태 확인
-async function checkManifestApi(request: NextRequest): Promise<any> {
-  try {
-    const baseUrl = `${request.nextUrl.protocol}//${request.nextUrl.host}`;
-    const manifestResponse = await fetch(`${baseUrl}/api/manifest`, {
-      method: 'GET',
-      signal: AbortSignal.timeout(5000)
-    });
 
-    return {
-      status: manifestResponse.ok ? "healthy" : "degraded",
-      statusCode: manifestResponse.status,
-      responseTime: "< 100ms",
-      lastCheck: new Date().toISOString()
-    };
-  } catch (error) {
-    return {
-      status: "error",
-      error: error instanceof Error ? error.message : "Unknown error",
-      lastCheck: new Date().toISOString()
-    };
-  }
-}
 
 // Service Worker 상태 확인
 function checkServiceWorkerStatus(): any {
@@ -181,15 +155,12 @@ function filterAndClassifyError(errorReport: any): any {
     };
   }
 
-  // Manifest 관련 오류
-  if (message.includes('Manifest fetch') ||
-      message.includes('manifest.json') ||
-      message.includes('manifest.webmanifest') ||
-      message.includes('401')) {
+  // 401 오류 관련
+  if (message.includes('401')) {
     return {
       shouldBlock: true,
-      category: 'manifest',
-      reason: 'Manifest API 관련 오류',
+      category: 'auth',
+      reason: '인증 관련 오류',
       message: message.substring(0, 100)
     };
   }
