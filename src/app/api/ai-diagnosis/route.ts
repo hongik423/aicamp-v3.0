@@ -120,8 +120,8 @@ export async function POST(request: NextRequest) {
               currentAI: workflowResult.scoreAnalysis.categoryScores?.currentAI || 0,
               organizationReadiness: workflowResult.scoreAnalysis.categoryScores?.organizationReadiness || 0,
               technologyInfrastructure: workflowResult.scoreAnalysis.categoryScores?.techInfrastructure || 0,
-              dataManagement: workflowResult.scoreAnalysis.categoryScores?.dataManagement || 0,
-              humanResources: workflowResult.scoreAnalysis.categoryScores?.humanResources || 0
+              dataManagement: workflowResult.scoreAnalysis.categoryScores?.goalClarity || 0,
+              humanResources: workflowResult.scoreAnalysis.categoryScores?.executionCapability || 0
             }
           },
           timestamp: new Date().toISOString()
