@@ -13,10 +13,9 @@ import {
   LeeKyoJang45QuestionsResult
 } from '@/lib/workflow/mckinsey-45-questions-workflow';
 import { addProgressEvent } from '../_progressStore';
-// V22.0 새로운 기능들 임포트 - 임시 비활성화
-// import { advancedScoringEngine } from '@/lib/analysis/advanced-scoring-engine';
-// import { ReportGenerator } from '@/lib/diagnosis/report-generator';
-// import { ReportStorage } from '@/lib/diagnosis/report-storage';
+// V23.0 완전한 폴백 보고서 생성 시스템
+import AdvancedFallbackEngine, { DiagnosisData } from '@/lib/diagnosis/advanced-fallback-engine';
+import EnhancedReportStorage from '@/lib/diagnosis/enhanced-report-storage';
 
 /**
  * 점수 기반 등급 계산 (225점 만점 기준)
@@ -95,31 +94,80 @@ export async function POST(request: NextRequest) {
       const workflowResult = await executeLeeKyoJang45QuestionsWorkflow(workflowRequest);
       
       if (workflowResult) {
-        console.log('✅ 점수 계산 완료 - V22.0 고도화 기능 시작');
+        console.log('✅ 점수 계산 완료 - V23.0 완전한 폴백 시스템 시작');
         
-        // 🚀 V22.0 고도화된 기능들 - 임시 비활성화 (빌드 안정성을 위해)
-        console.log('🎯 V22.0 기능 준비 중... (현재 기본 기능으로 동작)');
-        
-        // V22.0 시뮬레이션 데이터
+        // 🚀 V23.0 완전한 폴백 보고서 생성 시스템
         const diagnosisId = workflowResult.diagnosisId;
-        const enhancedScores = {
-          totalScore: workflowResult.scoreAnalysis.totalScore,
-          categoryScores: [],
-          statisticalAnalysis: { mean: 0, median: 0, standardDeviation: 0, variance: 0, skewness: 0, kurtosis: 0, confidenceInterval: [0, 0], reliability: 0.9 },
-          benchmarkComparison: { industryRanking: 50, sizeRanking: 50, globalRanking: 50, competitorAnalysis: [], marketPosition: 'Challenger' as const },
-          aiAnalysisData: { responsePatterns: [], inconsistencies: [], correlations: [], predictiveFactors: [] },
-          qualityMetrics: { completeness: 1, consistency: 0.9, reliability: 0.9, validity: 0.9, overallQuality: 'Good' as const, qualityFlags: [] }
+        
+        // DiagnosisData 형식으로 변환
+        const diagnosisData: DiagnosisData = {
+          diagnosisId: diagnosisId,
+          companyInfo: {
+            name: workflowRequest.companyName,
+            industry: workflowRequest.industry || 'IT/소프트웨어',
+            size: workflowRequest.companySize || '중소기업',
+            revenue: workflowRequest.revenue,
+            employees: workflowRequest.employees
+          },
+          responses: workflowRequest.responses,
+          scores: {
+            total: workflowResult.scoreAnalysis.totalScore,
+            percentage: Math.round((workflowResult.scoreAnalysis.totalScore / 225) * 100),
+            categoryScores: workflowResult.scoreAnalysis.categoryScores || {
+              businessFoundation: 0,
+              currentAI: 0,
+              organizationReadiness: 0,
+              technologyInfrastructure: 0,
+              dataManagement: 0,
+              humanResources: 0
+            }
+          },
+          timestamp: new Date().toISOString()
         };
         
-        const reportMetadata = {
-          diagnosisId: diagnosisId,
-          companyName: workflowRequest.companyName,
-          fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_V22.html`,
-          createdAt: new Date().toISOString(),
-          version: 'V22.0',
-          totalScore: enhancedScores.totalScore,
-          grade: determineGradeFromScore(enhancedScores.totalScore)
-        };
+        // V23.0 완전한 폴백 보고서 생성
+        try {
+          console.log('🎯 V23.0 완전한 폴백 보고서 생성 시작');
+          
+          const htmlReport = await EnhancedReportStorage.generateCompleteReport(diagnosisData, {
+            useAdvancedAnalysis: true,
+            includeCharts: true,
+            includeBenchmarks: true,
+            format: 'html',
+            language: 'ko'
+          });
+          
+          console.log('✅ V23.0 완전한 폴백 보고서 생성 완료');
+          
+          const reportMetadata = {
+            diagnosisId: diagnosisId,
+            companyName: workflowRequest.companyName,
+            fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_V23.html`,
+            createdAt: new Date().toISOString(),
+            version: 'V23.0-FALLBACK-COMPLETE',
+            totalScore: diagnosisData.scores.total,
+            grade: determineGradeFromScore(diagnosisData.scores.total),
+            reportGenerated: true,
+            fallbackSystemUsed: true
+          };
+          
+        } catch (fallbackError) {
+          console.error('❌ V23.0 폴백 보고서 생성 실패:', fallbackError);
+          
+          // 최종 폴백: 기본 시스템 사용
+          const reportMetadata = {
+            diagnosisId: diagnosisId,
+            companyName: workflowRequest.companyName,
+            fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_BASIC.html`,
+            createdAt: new Date().toISOString(),
+            version: 'V23.0-BASIC-FALLBACK',
+            totalScore: diagnosisData.scores.total,
+            grade: determineGradeFromScore(diagnosisData.scores.total),
+            reportGenerated: false,
+            fallbackSystemUsed: true,
+            error: fallbackError instanceof Error ? fallbackError.message : 'Unknown error'
+          };
+        }
         
         // 워크플로우 단계 진행 이벤트 기록 (V22.0 업데이트)
         addProgressEvent({

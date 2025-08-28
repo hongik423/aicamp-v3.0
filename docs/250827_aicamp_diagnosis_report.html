@@ -3037,9 +3037,14 @@
     </div>
 
     <script>
+        // 🚀 이교장의 AI역량진단 보고서 - 고급 프리젠테이션 시스템 V23.0
+        
         // ===== 전역 변수 =====
         let currentSlideIndex = 0;
         const totalSlides = 23;
+        let isFullscreen = false;
+        let presentationMode = false;
+        let autoPlayInterval = null;
         let charts = {};
 
         // ===== 초기화 =====
@@ -3865,22 +3870,126 @@
         // 자동 정리 (5분마다)
         setInterval(cleanupInactiveSlides, 300000);
         
+        // ===== 핵심 네비게이션 함수들 =====
+        
+        // 슬라이드 전환 함수
+        function changeSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+            
+            // 현재 슬라이드 숨기기
+            const currentSlide = document.querySelector(`.slide:nth-child(${currentSlideIndex + 1})`);
+            if (currentSlide) {
+                currentSlide.style.display = 'none';
+                currentSlide.classList.remove('active');
+            }
+            
+            // 새 슬라이드 표시
+            const newSlide = document.querySelector(`.slide:nth-child(${index + 1})`);
+            if (newSlide) {
+                newSlide.style.display = 'block';
+                newSlide.classList.add('active');
+                currentSlideIndex = index;
+                
+                // 프로그레스 바 업데이트
+                updateProgressBar();
+                
+                // 슬라이드 번호 업데이트
+                updateSlideNumber();
+                
+                // 애니메이션 효과
+                newSlide.style.opacity = '0';
+                setTimeout(() => {
+                    newSlide.style.transition = 'opacity 0.5s ease-in-out';
+                    newSlide.style.opacity = '1';
+                }, 50);
+                
+                // 차트 리사이즈
+                setTimeout(() => {
+                    resizeChartsInCurrentSlide();
+                }, 100);
+            }
+        }
+        
+        // 다음 슬라이드
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                changeSlide(currentSlideIndex + 1);
+            }
+        }
+        
+        // 이전 슬라이드
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                changeSlide(currentSlideIndex - 1);
+            }
+        }
+        
+        // 전체화면 토글 (기본)
+        function toggleFullscreen() {
+            enhancedToggleFullscreen();
+        }
+        
         // 전체화면 모드 개선
         function enhancedToggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().then(() => {
                     document.body.classList.add('fullscreen-mode');
+                    isFullscreen = true;
+                    presentationMode = true;
+                    showPresentationControls();
                     setTimeout(() => {
                         resizeChartsInCurrentSlide();
                     }, 300);
+                }).catch((err) => {
+                    console.log('전체화면 모드 진입 실패:', err);
                 });
             } else {
                 document.exitFullscreen().then(() => {
                     document.body.classList.remove('fullscreen-mode');
+                    isFullscreen = false;
+                    presentationMode = false;
+                    hidePresentationControls();
                     setTimeout(() => {
                         resizeChartsInCurrentSlide();
                     }, 300);
+                }).catch((err) => {
+                    console.log('전체화면 모드 해제 실패:', err);
                 });
+            }
+        }
+        
+        // 프로그레스 바 업데이트
+        function updateProgressBar() {
+            const progressBar = document.querySelector('.progress-bar');
+            if (progressBar) {
+                const progress = ((currentSlideIndex + 1) / totalSlides) * 100;
+                progressBar.style.width = progress + '%';
+            }
+        }
+        
+        // 슬라이드 번호 업데이트
+        function updateSlideNumber() {
+            const slideNumber = document.querySelector('.slide-number');
+            if (slideNumber) {
+                slideNumber.textContent = `${currentSlideIndex + 1} / ${totalSlides}`;
+            }
+        }
+        
+        // 프리젠테이션 컨트롤 표시
+        function showPresentationControls() {
+            const controls = document.querySelector('.presentation-controls');
+            if (controls) {
+                controls.style.display = 'flex';
+                controls.style.opacity = '1';
+            }
+        }
+        
+        // 프리젠테이션 컨트롤 숨기기
+        function hidePresentationControls() {
+            const controls = document.querySelector('.presentation-controls');
+            if (controls) {
+                controls.style.display = 'none';
+                controls.style.opacity = '0';
             }
         }
         
