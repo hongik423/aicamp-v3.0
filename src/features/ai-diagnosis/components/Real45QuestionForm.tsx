@@ -1041,53 +1041,55 @@ const Real45QuestionForm: React.FC = () => {
           
           // HTML 보고서 생성 및 저장
           try {
-            const { ReportStorage } = await import('@/lib/diagnosis/report-storage');
+            const EnhancedReportStorage = (await import('@/lib/diagnosis/enhanced-report-storage')).default;
             
-            // 진단 데이터 구성
+            // V23.0 DiagnosisData 형식으로 구성
             const diagnosisData = {
               diagnosisId,
               companyInfo: {
-                companyName: formState.companyInfo.companyName,
-                contactName: formState.companyInfo.contactName,
-                contactEmail: formState.companyInfo.contactEmail,
-                industry: formState.companyInfo.industry,
-                employeeCount: formState.companyInfo.employeeCount
+                name: formState.companyInfo.companyName,
+                industry: formState.companyInfo.industry || 'IT/소프트웨어',
+                size: '중소기업',
+                revenue: undefined,
+                employees: undefined
               },
+              responses: formState.answers,
               scores: {
-                totalScore: result.totalScore,
+                total: result.totalScore,
+                percentage: Math.round((result.totalScore / 225) * 100),
                 categoryScores: {
                   businessFoundation: result.categoryScores?.businessFoundation || 0,
-                  currentAIUsage: result.categoryScores?.currentAIUsage || 0,
-                  organizationalReadiness: result.categoryScores?.organizationalReadiness || 0,
-                  technicalInfrastructure: result.categoryScores?.technicalInfrastructure || 0,
-                  goalClarity: result.categoryScores?.goalClarity || 0,
-                  executionCapability: result.categoryScores?.executionCapability || 0
+                  currentAI: result.categoryScores?.currentAIUsage || 0,
+                  organizationReadiness: result.categoryScores?.organizationalReadiness || 0,
+                  technologyInfrastructure: result.categoryScores?.technicalInfrastructure || 0,
+                  dataManagement: result.categoryScores?.goalClarity || 0,
+                  humanResources: result.categoryScores?.executionCapability || 0
                 }
               },
-              recommendations: result.recommendations || [
-                '즉시 실행 (1주일 내): AI 전략 TF 구성 및 기술인프라 현황 진단',
-                '단기 목표 (1개월 내): 클라우드 인프라 구축 및 AI 성과 측정 체계 수립',
-                '중기 목표 (3개월 내): 파일럿 프로젝트 실행 및 전문인력 확보',
-                '장기 목표 (6개월 내): 전사 AI 도입 완료 및 업계 선도기업 도약'
-              ],
-              maturityLevel: result.maturityLevel || 'Level 2: AI 준비기업',
-              grade: result.grade || 'C',
-              createdAt: new Date().toISOString()
+              timestamp: new Date().toISOString()
             };
 
-            // HTML 보고서 파일명 생성
-            const fileName = `AICAMP_AI역량진단보고서_${formState.companyInfo.companyName}_${diagnosisId}_${new Date().toISOString().split('T')[0]}.html`;
+            // V23.0 Enhanced HTML 보고서 생성
+            const htmlReport = await EnhancedReportStorage.generateCompleteReport(diagnosisData, {
+              useAdvancedAnalysis: true,
+              includeCharts: true,
+              includeBenchmarks: true,
+              format: 'html',
+              language: 'ko'
+            });
             
-            // HTML 보고서 생성 및 저장
-            const reportResult = await ReportStorage.generateHTMLReport(diagnosisData, fileName);
+            console.log('✅ V23.0 Enhanced HTML 보고서 생성 성공');
             
-            if (reportResult.success) {
-              console.log('✅ HTML 보고서 생성 성공:', reportResult);
-            } else {
-              console.error('❌ HTML 보고서 생성 실패:', reportResult.error);
+            // 로컬 스토리지에 보고서 저장 (브라우저에서 접근 가능)
+            const reportKey = `aicamp_report_${diagnosisId}`;
+            try {
+              localStorage.setItem(reportKey, htmlReport);
+              console.log('✅ 보고서 로컬 저장 완료:', reportKey);
+            } catch (storageError) {
+              console.warn('⚠️ 로컬 저장 실패:', storageError);
             }
           } catch (error) {
-            console.error('❌ HTML 보고서 생성 중 오류:', error);
+            console.error('❌ V23.0 Enhanced HTML 보고서 생성 중 오류:', error);
           }
 
           // 완료 배너 업데이트
