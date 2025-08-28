@@ -45,7 +45,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         return;
       }
       
-      // 2. API에서 직접 V23.1 보고서 요청
+      // 2. API에서 직접 V23.1 보고서 요청 (선택사항)
       try {
         console.log('📡 API에서 V23.1 보고서 요청 중...');
         const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`);
@@ -59,9 +59,11 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
             localStorage.setItem(reportKey, data.htmlReport);
             return;
           }
+        } else {
+          console.warn('API 응답 오류:', response.status, '- 다른 방법으로 시도');
         }
       } catch (apiError) {
-        console.warn('API 요청 실패:', apiError);
+        console.warn('API 요청 실패:', apiError.message, '- 다른 방법으로 시도');
       }
       
       // 3. sessionStorage에서 최근 진단 결과로 V23.1 보고서 생성
