@@ -11,7 +11,7 @@ import { callAI } from '@/lib/ai/ai-provider';
 // V22.0 고도화된 점수 계산 엔진
 import { advancedScoringEngine, QuestionResponse } from '@/lib/analysis/advanced-scoring-engine';
 // V22.0 보고서 저장 시스템
-import { ReportStorage, ReportMetadata } from '@/lib/diagnosis/report-storage';
+import { ReportStorage } from '@/lib/diagnosis/report-storage';
 // 환경 변수 (Ollama 전용)
 const GAS_DEPLOYMENT_URL = process.env.GAS_DEPLOYMENT_URL || '';
 const DRIVE_FOLDER_ID = '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj';
@@ -916,20 +916,8 @@ async function saveReportWithAdvancedSystem(
     // 파일명 생성
     const fileName = `AI역량진단보고서_${normalizedData.companyName}_${diagnosisId}_${new Date().toISOString().split('T')[0]}.html`;
     
-    // 메타데이터 구성
-    const metadata: ReportMetadata = {
-      diagnosisId: diagnosisId,
-      companyName: normalizedData.companyName,
-      createdAt: new Date().toISOString(),
-      totalScore: scoreAnalysis.totalScore || 0,
-      grade: scoreAnalysis.grade || 'C',
-      maturityLevel: scoreAnalysis.maturityLevel || 'Basic',
-      fileSize: new Blob([htmlReport]).size,
-      version: 'V22.0'
-    };
-    
     // 고도화된 저장 시스템 실행
-    const result = await ReportStorage.storeReport(fileName, htmlReport, metadata);
+    const result = await ReportStorage.generateHTMLReport(normalizedData, fileName);
     
     if (result.success) {
       console.log('✅ V22.0 보고서 저장 성공:', {

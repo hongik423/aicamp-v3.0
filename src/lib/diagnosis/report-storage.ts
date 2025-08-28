@@ -9,6 +9,7 @@ export interface ReportMetadata {
   industry: string;
   totalScore: number;
   grade: string;
+  maturityLevel: string;
   createdAt: string;
   fileSize: number;
   version: string;
@@ -20,6 +21,10 @@ export interface StorageResult {
   message: string;
   diagnosisId: string;
   downloadUrl?: string;
+  driveWebViewLink?: string;
+  localStorageKey?: string;
+  driveFileId?: string;
+  error?: string;
   metadata?: ReportMetadata;
 }
 
@@ -48,6 +53,7 @@ export class ReportStorage {
         industry: processedData.industry,
         totalScore: processedData.totalScore,
         grade: processedData.grade,
+        maturityLevel: processedData.level || 'Basic',
         createdAt: new Date().toISOString(),
         fileSize: new Blob([htmlContent]).size,
         version: 'V22.0',
