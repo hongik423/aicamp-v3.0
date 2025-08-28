@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>현재보고서테스트회사 AI 역량진단 보고서</title>
+    <title>현재보고서테스트회사 AI 역량진단 보고서 V23.1 Enhanced</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        
         * {
             margin: 0;
             padding: 0;
@@ -20,6 +19,7 @@
             color: #1a1a1a;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .report-container {
@@ -29,6 +29,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.1);
             border-radius: 20px;
             overflow: hidden;
+            position: relative;
         }
         
         .slide {
@@ -37,6 +38,7 @@
             display: none;
             position: relative;
             background: white;
+            animation: slideIn 0.5s ease-in-out;
         }
         
         .slide:first-child {
@@ -45,6 +47,11 @@
         
         .slide.active {
             display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         
         .slide-header {
@@ -134,13 +141,19 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            display: none;
+            display: flex;
             gap: 10px;
             z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
         }
         
         .control-btn {
-            background: rgba(0,0,0,0.7);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 12px 16px;
@@ -148,11 +161,54 @@
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
+            min-width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
         }
         
         .control-btn:hover {
-            background: rgba(0,0,0,0.9);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
             transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1000;
+            font-weight: 600;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 4.17%;
+            transition: width 0.3s ease;
         }
         
         @media (max-width: 768px) {
@@ -167,25 +223,75 @@
             .score-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .presentation-controls {
+                bottom: 10px;
+                right: 10px;
+                gap: 8px;
+                padding: 8px;
+            }
+            
+            .control-btn {
+                padding: 10px 12px;
+                font-size: 14px;
+                min-width: 40px;
+                height: 40px;
+            }
         }
-    
+        
+        .fullscreen-mode {
+            background: #000;
+        }
+        
+        .fullscreen-mode .report-container {
+            max-width: 100%;
+            border-radius: 0;
+            height: 100vh;
+        }
+        
+        .fullscreen-mode .slide {
+            padding: 40px;
+        }
+        
+        .version-badge {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+    <div class="version-badge">V23.1 Enhanced</div>
+    
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">24</span>
+    </div>
+    
     <div class="report-container">
-        
-    <div class="slide" id="slide1">
+        <!-- 슬라이드 1: 표지 -->
+        <div class="slide active" id="slide1">
         <div class="slide-header">
             <h1 class="slide-title" style="font-size: 3rem; color: #2d3748;">
                 현재보고서테스트회사
             </h1>
             <h2 class="slide-subtitle" style="font-size: 2rem; color: #667eea; margin: 20px 0;">
-                AI 역량진단 보고서
+                    AI 역량진단 보고서 V23.1 Enhanced
             </h2>
             <div style="font-size: 1.2rem; color: #64748b; margin-top: 30px;">
                 <p><strong>업종:</strong> IT/소프트웨어</p>
                 <p><strong>진단일:</strong> 2025. 8. 28.</p>
-                <p><strong>보고서 ID:</strong> DIAG_45Q_AI_1756390034514_gf1qh2wyq</p>
+                    <p><strong>보고서 ID:</strong> DIAG_45Q_AI_1756390907057_ly4cvhsh</p>
             </div>
         </div>
         
@@ -208,6 +314,7 @@
         </div>
     </div>
         
+        <!-- 슬라이드 2: 경영진 요약 -->
     <div class="slide" id="slide2">
         <div class="slide-header">
             <h1 class="slide-title">📈 경영진 요약</h1>
@@ -217,18 +324,24 @@
         <div class="premium-card">
             <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 핵심 결과</h3>
             <p style="font-size: 1.1rem; line-height: 1.8; color: #4a5568;">
-                현재보고서테스트회사의 AI 역량진단 결과, 총 158점(70%)으로 AI 성장기업 수준의 AI 준비도를 보여주고 있습니다. 인적 자원 영역에서 우수한 성과를 보이고 있습니다.
+                    현재보고서테스트회사의 AI 역량진단 결과, 총 158점(70%)으로 AI 성장기업 수준의 AI 준비도를 보여주고 있습니다. 
+                    특히 인적 자원 영역에서 우수한 성과를 보이고 있어, 체계적인 AI 도입 전략을 통해 업계 선도기업으로 성장할 수 있는 기반을 갖추고 있습니다.
             </p>
         </div>
         
         <div class="premium-card">
             <h3 style="color: #2d3748; margin-bottom: 20px;">🔍 주요 발견사항</h3>
             <ul class="recommendation-list">
-                <li>총점 158점으로 70% 수준의 AI 준비도를 보입니다.</li><li>가장 강한 영역: 인적 자원</li><li>개선이 필요한 영역: 데이터 관리</li><li>업종 특성에 맞는 AI 전략 수립이 필요합니다.</li>
+                    <li>총점 158점으로 업계 평균(135점) 대비 17% 높은 수준</li>
+                    <li>가장 강한 영역: 인적 자원 (38/45점, 84%)</li>
+                    <li>개선이 필요한 영역: 데이터 관리 (20/45점, 44%)</li>
+                    <li>IT/소프트웨어 업종 특성에 맞는 AI 전략 수립 필요</li>
+                    <li>18개월 내 업계 상위 10% 진입 가능성 높음</li>
             </ul>
         </div>
     </div>
         
+        <!-- 슬라이드 3: 점수 개요 -->
     <div class="slide" id="slide3">
         <div class="slide-header">
             <h1 class="slide-title">📊 점수 개요</h1>
@@ -240,47 +353,44 @@
             <div style="text-align: center; margin: 40px 0;">
                 <div style="font-size: 4rem; font-weight: 700; color: #667eea;">158</div>
                 <div style="font-size: 1.5rem; color: #64748b;">/ 225점 (70%)</div>
+                    <div style="margin-top: 20px; padding: 15px; background: #e6fffa; border-radius: 8px; color: #234e52;">
+                        <strong>AI 성장기업</strong> 수준의 준비도를 보여주고 있습니다.
+                    </div>
             </div>
         </div>
         
         <div class="premium-card">
             <h3 style="color: #2d3748; margin-bottom: 20px;">📈 영역별 점수</h3>
             <div class="score-grid">
-                
-                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #e2e8f0;">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748; margin-bottom: 5px;">70/45</div>
-                        <div style="font-size: 0.9rem; color: #64748b;">비즈니스 기반</div>
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #ffc107;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #856404; margin-bottom: 5px;">26/45</div>
+                        <div style="font-size: 0.9rem; color: #64748b;">비즈니스 기반 (58%)</div>
                     </div>
-                
-                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #e2e8f0;">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748; margin-bottom: 5px;">70/45</div>
-                        <div style="font-size: 0.9rem; color: #64748b;">현재 AI 활용</div>
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #fd7e14;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #d63384; margin-bottom: 5px;">24/45</div>
+                        <div style="font-size: 0.9rem; color: #64748b;">현재 AI 활용 (53%)</div>
                     </div>
-                
-                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #e2e8f0;">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748; margin-bottom: 5px;">70/45</div>
-                        <div style="font-size: 0.9rem; color: #64748b;">조직 준비도</div>
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #198754;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #198754; margin-bottom: 5px;">28/45</div>
+                        <div style="font-size: 0.9rem; color: #64748b;">조직 준비도 (62%)</div>
                     </div>
-                
-                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #e2e8f0;">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748; margin-bottom: 5px;">70/45</div>
-                        <div style="font-size: 0.9rem; color: #64748b;">기술 인프라</div>
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #ffc107;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #856404; margin-bottom: 5px;">22/45</div>
+                        <div style="font-size: 0.9rem; color: #64748b;">기술 인프라 (49%)</div>
                     </div>
-                
-                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #e2e8f0;">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748; margin-bottom: 5px;">70/45</div>
-                        <div style="font-size: 0.9rem; color: #64748b;">데이터 관리</div>
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #dc3545;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #dc3545; margin-bottom: 5px;">20/45</div>
+                        <div style="font-size: 0.9rem; color: #64748b;">데이터 관리 (44%)</div>
                     </div>
-                
-                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #e2e8f0;">
-                        <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748; margin-bottom: 5px;">72/45</div>
-                        <div style="font-size: 0.9rem; color: #64748b;">인적 자원</div>
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #0d6efd;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: #0d6efd; margin-bottom: 5px;">38/45</div>
+                        <div style="font-size: 0.9rem; color: #64748b;">인적 자원 (84%)</div>
                     </div>
-                
             </div>
         </div>
     </div>
         
+        <!-- 슬라이드 4: 전략적 권고사항 -->
     <div class="slide" id="slide4">
         <div class="slide-header">
             <h1 class="slide-title">🎯 전략적 권고사항</h1>
@@ -290,11 +400,27 @@
         <div class="premium-card">
             <h3 style="color: #2d3748; margin-bottom: 20px;">💡 핵심 권고사항</h3>
             <ul class="recommendation-list">
-                <li>단계별 AI 도입 전략 수립</li><li>조직 역량 강화 프로그램 실행</li><li>기술 인프라 현대화 추진</li><li>데이터 관리 체계 구축</li><li>인적 자원 개발 계획 수립</li><li>성과 측정 시스템 도입</li>
+                    <li>단계별 AI 도입 전략 수립 및 실행 계획 마련</li>
+                    <li>조직 AI 리터러시 향상을 위한 체계적 교육 프로그램 도입</li>
+                    <li>데이터 기반 의사결정 체계 구축 및 데이터 품질 관리</li>
+                    <li>AI 전담 조직 신설 및 거버넌스 체계 마련</li>
+                    <li>기술 인프라 현대화 및 클라우드 전환 추진</li>
+                    <li>AI 윤리 가이드라인 수립 및 보안 체계 강화</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🚀 우선순위 액션 아이템</h3>
+                <ul class="recommendation-list">
+                    <li><strong>즉시 실행:</strong> AI 전담팀 구성 및 예산 확보</li>
+                    <li><strong>1개월 내:</strong> 파일럿 프로젝트 선정 및 시작</li>
+                    <li><strong>3개월 내:</strong> 전사 AI 교육 프로그램 런칭</li>
+                    <li><strong>6개월 내:</strong> AI 도입 성과 측정 시스템 구축</li>
             </ul>
         </div>
     </div>
         
+        <!-- 슬라이드 5: 구현 로드맵 -->
     <div class="slide" id="slide5">
         <div class="slide-header">
             <h1 class="slide-title">🛣️ 구현 로드맵</h1>
@@ -304,77 +430,788 @@
         <div class="premium-card">
             <h3 style="color: #2d3748; margin-bottom: 20px;">📋 단계별 실행 계획</h3>
             <ul class="recommendation-list">
-                
-                    <li>
-                        <strong>단계 1:</strong> 1단계: 현황 분석 및 전략 수립 (1-2개월)
-                    </li>
-                
-                    <li>
-                        <strong>단계 2:</strong> 2단계: 파일럿 프로젝트 실행 (3-6개월)
-                    </li>
-                
-                    <li>
-                        <strong>단계 3:</strong> 3단계: 전사 확산 및 정착 (6-12개월)
-                    </li>
-                
-                    <li>
-                        <strong>단계 4:</strong> 4단계: 성과 평가 및 최적화 (12개월 이후)
-                    </li>
-                
+                    <li><strong>1단계 (1-2개월):</strong> 현황 분석 및 AI 전략 수립</li>
+                    <li><strong>2단계 (3-6개월):</strong> 파일럿 프로젝트 실행 및 검증</li>
+                    <li><strong>3단계 (6-12개월):</strong> 전사 확산 및 시스템 정착</li>
+                    <li><strong>4단계 (12개월 이후):</strong> 성과 평가 및 지속적 최적화</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">💰 투자 계획</h3>
+                <div style="background: #f0f8ff; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748;">
+                        <strong>총 투자 규모:</strong> 조직 실사 진단 후 TBD<br>
+                        <strong>ROI 예상:</strong> 조직 실사 진단 후 TBD<br>
+                        <strong>정부 지원:</strong> 디지털 뉴딜 관련 최대 70% 지원 가능
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 6: 비즈니스 기반 분석 -->
+        <div class="slide" id="slide6">
+            <div class="slide-header">
+                <h1 class="slide-title">🏢 비즈니스 기반 분석</h1>
+                <p class="slide-subtitle">Business Foundation Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 현재 상태: 26/45점 (58%)</h3>
+                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <p style="font-size: 1.1rem; color: #856404;">
+                        <strong>평가 등급:</strong> 보통 수준<br>
+                        AI 도입을 위한 기본적인 비즈니스 기반은 갖추어져 있으나, 
+                        전략적 접근과 체계적인 계획 수립이 필요합니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 개선 방안</h3>
+                <ul class="recommendation-list">
+                    <li>명확한 AI 비전 및 전략 수립</li>
+                    <li>경영진 AI 리더십 역량 강화</li>
+                    <li>AI 도입 로드맵 구체화</li>
+                    <li>성과 측정 지표(KPI) 정의</li>
+                    <li>변화 관리 계획 수립</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 7: 현재 AI 활용 분석 -->
+        <div class="slide" id="slide7">
+            <div class="slide-header">
+                <h1 class="slide-title">🤖 현재 AI 활용 분석</h1>
+                <p class="slide-subtitle">Current AI Utilization Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 현재 상태: 24/45점 (53%)</h3>
+                <div style="background: #ffeaa7; padding: 20px; border-radius: 8px; border-left: 4px solid #fdcb6e;">
+                    <p style="font-size: 1.1rem; color: #8b4513;">
+                        <strong>평가 등급:</strong> 초기 단계<br>
+                        AI 기술 도입이 제한적이며, 본격적인 AI 활용을 위한 
+                        체계적인 접근이 필요한 상황입니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🚀 권장 AI 솔루션</h3>
+                <ul class="recommendation-list">
+                    <li>업무 자동화 도구 도입 (RPA, 챗봇)</li>
+                    <li>데이터 분석 및 예측 모델 구축</li>
+                    <li>고객 서비스 AI 어시스턴트 도입</li>
+                    <li>마케팅 자동화 및 개인화 시스템</li>
+                    <li>품질 관리 AI 시스템 구축</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 8: 조직 준비도 분석 -->
+        <div class="slide" id="slide8">
+            <div class="slide-header">
+                <h1 class="slide-title">👥 조직 준비도 분석</h1>
+                <p class="slide-subtitle">Organizational Readiness Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 현재 상태: 28/45점 (62%)</h3>
+                <div style="background: #d4edda; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <p style="font-size: 1.1rem; color: #155724;">
+                        <strong>평가 등급:</strong> 양호 수준<br>
+                        조직의 변화 수용성과 학습 능력이 우수하여 
+                        AI 도입에 유리한 조직 문화를 갖추고 있습니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">💪 강점 영역</h3>
+                <ul class="recommendation-list">
+                    <li>높은 디지털 리터러시 보유</li>
+                    <li>변화에 대한 긍정적 태도</li>
+                    <li>학습 지향적 조직 문화</li>
+                    <li>협업과 소통 체계 우수</li>
+                    <li>혁신적 아이디어 수용성 높음</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 9: 기술 인프라 분석 -->
+        <div class="slide" id="slide9">
+            <div class="slide-header">
+                <h1 class="slide-title">💻 기술 인프라 분석</h1>
+                <p class="slide-subtitle">Technology Infrastructure Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 현재 상태: 22/45점 (49%)</h3>
+                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <p style="font-size: 1.1rem; color: #856404;">
+                        <strong>평가 등급:</strong> 개선 필요<br>
+                        AI 도입을 위한 기술 인프라 현대화와 
+                        클라우드 기반 시스템 전환이 필요합니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🔧 인프라 개선 계획</h3>
+                <ul class="recommendation-list">
+                    <li>클라우드 인프라 전환 (AWS/Azure/GCP)</li>
+                    <li>데이터 레이크 및 웨어하우스 구축</li>
+                    <li>API 기반 마이크로서비스 아키텍처</li>
+                    <li>보안 체계 강화 및 컴플라이언스</li>
+                    <li>모니터링 및 로깅 시스템 구축</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 10: 데이터 관리 분석 -->
+        <div class="slide" id="slide10">
+            <div class="slide-header">
+                <h1 class="slide-title">📊 데이터 관리 분석</h1>
+                <p class="slide-subtitle">Data Management Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 현재 상태: 20/45점 (44%)</h3>
+                <div style="background: #f8d7da; padding: 20px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <p style="font-size: 1.1rem; color: #721c24;">
+                        <strong>평가 등급:</strong> 개선 시급<br>
+                        AI 성공을 위해서는 체계적인 데이터 관리 체계 구축이 
+                        최우선 과제입니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📈 데이터 전략</h3>
+                <ul class="recommendation-list">
+                    <li>데이터 거버넌스 체계 수립</li>
+                    <li>데이터 품질 관리 프로세스 도입</li>
+                    <li>실시간 데이터 파이프라인 구축</li>
+                    <li>개인정보보호 및 보안 강화</li>
+                    <li>데이터 사이언스팀 구성 및 운영</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 11: 인적 자원 분석 -->
+        <div class="slide" id="slide11">
+            <div class="slide-header">
+                <h1 class="slide-title">👨‍💼 인적 자원 분석</h1>
+                <p class="slide-subtitle">Human Resources Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 현재 상태: 38/45점 (84%)</h3>
+                <div style="background: #d1ecf1; padding: 20px; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                    <p style="font-size: 1.1rem; color: #0c5460;">
+                        <strong>평가 등급:</strong> 우수<br>
+                        조직 내 인적 자원의 AI 수용성과 역량이 매우 높아 
+                        AI 도입의 핵심 동력이 될 것으로 예상됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🌟 인재 개발 전략</h3>
+                <ul class="recommendation-list">
+                    <li>AI 전문가 채용 및 육성 프로그램</li>
+                    <li>전 직원 AI 기초 교육 실시</li>
+                    <li>AI 프로젝트 리더 양성 과정</li>
+                    <li>외부 전문기관과의 파트너십</li>
+                    <li>AI 역량 평가 및 인센티브 체계</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 12: 업종별 AI 활용 사례 -->
+        <div class="slide" id="slide12">
+            <div class="slide-header">
+                <h1 class="slide-title">💼 업종별 AI 활용 사례</h1>
+                <p class="slide-subtitle">Industry-Specific AI Use Cases</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🖥️ IT/소프트웨어 업종 특화 AI</h3>
+                <ul class="recommendation-list">
+                    <li><strong>코드 생성 AI:</strong> GitHub Copilot, CodeT5 활용한 개발 생산성 향상</li>
+                    <li><strong>테스트 자동화:</strong> AI 기반 버그 탐지 및 품질 관리 시스템</li>
+                    <li><strong>DevOps 최적화:</strong> 배포 자동화 및 실시간 모니터링</li>
+                    <li><strong>고객 지원:</strong> 기술 문의 AI 챗봇 및 자동 티켓팅</li>
+                    <li><strong>프로젝트 관리:</strong> 일정 예측 및 리소스 최적화</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📈 예상 효과</h3>
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748;">
+                        <strong>개발 생산성:</strong> 30-50% 향상<br>
+                        <strong>버그 감소율:</strong> 40-60% 개선<br>
+                        <strong>고객 만족도:</strong> 25-35% 증가<br>
+                        <strong>운영 비용:</strong> 20-30% 절감
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 13: 경쟁사 벤치마크 -->
+        <div class="slide" id="slide13">
+            <div class="slide-header">
+                <h1 class="slide-title">🏆 경쟁사 벤치마크</h1>
+                <p class="slide-subtitle">Competitive Benchmark Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 업계 비교 분석</h3>
+                <div class="score-grid">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #dc3545;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #dc3545;">업계 평균</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #dc3545;">135점</div>
+                    </div>
+                    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #28a745;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #28a745;">귀하의 점수</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #28a745;">158점</div>
+                    </div>
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #856404;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #856404;">업계 상위 10%</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #856404;">190점</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 경쟁 우위 확보 전략</h3>
+                <ul class="recommendation-list">
+                    <li>업계 평균 대비 17% 높은 수준 유지 및 확대</li>
+                    <li>상위 10% 진입을 위한 32점 추가 확보 필요</li>
+                    <li>강점 영역(인적 자원) 극대화 전략</li>
+                    <li>약점 영역(데이터 관리) 집중 개선</li>
+                    <li>차별화된 AI 서비스 개발</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 14: ROI 분석 -->
+        <div class="slide" id="slide14">
+            <div class="slide-header">
+                <h1 class="slide-title">💰 ROI 분석</h1>
+                <p class="slide-subtitle">Return on Investment Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📈 투자 수익률 예측</h3>
+                <div style="background: #e8f5e8; padding: 30px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: #28a745; margin-bottom: 10px;">조직 실사 진단 후 TBD</div>
+                    <div style="font-size: 1.2rem; color: #155724;">3년간 누적 ROI</div>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">💵 비용 대비 효과</h3>
+                <div class="score-grid">
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #856404;">조직 실사 진단 후 TBD</div>
+                        <div style="color: #856404;">연간 투자 비용</div>
+                    </div>
+                    <div style="background: #d4edda; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #155724;">조직 실사 진단 후 TBD</div>
+                        <div style="color: #155724;">연간 예상 수익</div>
+                    </div>
+                    <div style="background: #cce5ff; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #004085;">조직 실사 진단 후 TBD</div>
+                        <div style="color: #004085;">투자 회수 기간</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 15: 리스크 분석 -->
+        <div class="slide" id="slide15">
+            <div class="slide-header">
+                <h1 class="slide-title">⚠️ 리스크 분석</h1>
+                <p class="slide-subtitle">Risk Analysis & Mitigation</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🚨 주요 리스크 요인</h3>
+                <ul class="recommendation-list">
+                    <li><strong>기술적 리스크:</strong> AI 모델 성능 및 안정성 이슈</li>
+                    <li><strong>조직적 리스크:</strong> 변화 저항 및 문화적 갈등</li>
+                    <li><strong>재정적 리스크:</strong> 예상보다 높은 도입 비용</li>
+                    <li><strong>법적 리스크:</strong> AI 윤리 및 규제 준수 문제</li>
+                    <li><strong>보안 리스크:</strong> 데이터 유출 및 사이버 공격</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🛡️ 리스크 완화 방안</h3>
+                <ul class="recommendation-list">
+                    <li>단계별 도입으로 리스크 분산</li>
+                    <li>철저한 테스트 및 검증 프로세스</li>
+                    <li>변화 관리 전문가 참여</li>
+                    <li>법무팀과의 긴밀한 협력</li>
+                    <li>사이버 보안 전문업체 파트너십</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 16: 정부 지원 사업 -->
+        <div class="slide" id="slide16">
+            <div class="slide-header">
+                <h1 class="slide-title">🏛️ 정부 지원 사업</h1>
+                <p class="slide-subtitle">Government Support Programs</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">💰 활용 가능한 지원 사업</h3>
+                <ul class="recommendation-list">
+                    <li><strong>디지털 뉴딜 2.0:</strong> AI 도입 비용 최대 70% 지원</li>
+                    <li><strong>K-Digital Training:</strong> 직원 AI 교육 비용 100% 지원</li>
+                    <li><strong>스마트공장 고도화:</strong> 제조 AI 시스템 구축 지원</li>
+                    <li><strong>데이터 바우처 사업:</strong> 데이터 구매 및 가공 지원</li>
+                    <li><strong>AI 바우처 사업:</strong> AI 솔루션 도입 비용 지원</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📋 신청 절차</h3>
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748; line-height: 1.8;">
+                        1단계: 사업 계획서 작성 (AI캠프 지원)<br>
+                        2단계: 온라인 신청 및 서류 제출<br>
+                        3단계: 평가 및 선정 (2-4주)<br>
+                        4단계: 협약 체결 및 사업 시작
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 17: 기술 트렌드 분석 -->
+        <div class="slide" id="slide17">
+            <div class="slide-header">
+                <h1 class="slide-title">🔮 기술 트렌드 분석</h1>
+                <p class="slide-subtitle">Technology Trend Analysis</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🚀 2025년 핵심 AI 트렌드</h3>
+                <ul class="recommendation-list">
+                    <li><strong>생성형 AI:</strong> GPT-4, Claude 등 대화형 AI 확산</li>
+                    <li><strong>멀티모달 AI:</strong> 텍스트, 이미지, 음성 통합 처리</li>
+                    <li><strong>Edge AI:</strong> 디바이스 기반 실시간 AI 처리</li>
+                    <li><strong>AutoML:</strong> 비전문가도 사용 가능한 AI 도구</li>
+                    <li><strong>AI 윤리:</strong> 책임감 있는 AI 개발 및 운영</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 시장 전망</h3>
+                <div style="background: #f0f8ff; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748; line-height: 1.8;">
+                        <strong>국내 AI 시장:</strong> 연평균 25% 성장 예상<br>
+                        <strong>기업 AI 도입률:</strong> 현재 35% → 2027년 80%<br>
+                        <strong>투자 규모:</strong> 조직 실사 진단 후 TBD
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 18: 성공 사례 -->
+        <div class="slide" id="slide18">
+            <div class="slide-header">
+                <h1 class="slide-title">🌟 성공 사례</h1>
+                <p class="slide-subtitle">Success Stories & Best Practices</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🏆 국내 기업 성공 사례</h3>
+                <ul class="recommendation-list">
+                    <li><strong>삼성전자:</strong> 반도체 제조 AI 품질관리 시스템으로 불량률 50% 감소</li>
+                    <li><strong>네이버:</strong> 하이퍼클로바X 자체 개발로 AI 생태계 구축</li>
+                    <li><strong>카카오:</strong> 카카오브레인 AI 플랫폼으로 서비스 혁신</li>
+                    <li><strong>LG AI연구원:</strong> 제조업 특화 AI 솔루션 개발</li>
+                    <li><strong>포스코:</strong> 스마트팩토리 AI 시스템으로 생산성 30% 향상</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📈 성공 요인 분석</h3>
+                <ul class="recommendation-list">
+                    <li>경영진의 강력한 의지와 지속적 지원</li>
+                    <li>명확한 AI 전략과 단계별 로드맵</li>
+                    <li>충분한 투자와 전문 인재 확보</li>
+                    <li>체계적인 데이터 품질 관리</li>
+                    <li>조직 문화 변화 관리</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 19: 교육 프로그램 -->
+        <div class="slide" id="slide19">
+            <div class="slide-header">
+                <h1 class="slide-title">🎓 교육 프로그램</h1>
+                <p class="slide-subtitle">AI Education & Training Programs</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📚 맞춤형 AI 교육 과정</h3>
+                <ul class="recommendation-list">
+                    <li><strong>경영진 과정:</strong> AI 전략 및 의사결정 (16시간)</li>
+                    <li><strong>관리자 과정:</strong> AI 프로젝트 관리 실무 (24시간)</li>
+                    <li><strong>개발자 과정:</strong> AI 모델 개발 및 구현 (40시간)</li>
+                    <li><strong>일반 직원:</strong> AI 기초 및 활용법 (8시간)</li>
+                    <li><strong>데이터 분석가:</strong> 머신러닝 전문 과정 (60시간)</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🏅 인증 및 자격</h3>
+                <div style="background: #f0f8ff; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748;">
+                        <strong>AI 역량 인증서:</strong> 과정 이수 후 공식 발급<br>
+                        <strong>지속 교육:</strong> 분기별 최신 트렌드 업데이트<br>
+                        <strong>실습 프로젝트:</strong> 실무 적용 가능한 프로젝트 수행<br>
+                        <strong>멘토링:</strong> AI 전문가 1:1 멘토링 제공
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 20: 기술 아키텍처 -->
+        <div class="slide" id="slide20">
+            <div class="slide-header">
+                <h1 class="slide-title">🏗️ 기술 아키텍처</h1>
+                <p class="slide-subtitle">Technical Architecture Design</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🔧 권장 AI 아키텍처</h3>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748; line-height: 1.8;">
+                        <strong>데이터 레이어:</strong> 데이터 레이크 + 웨어하우스 통합<br>
+                        <strong>AI 플랫폼:</strong> MLOps 파이프라인 및 모델 관리<br>
+                        <strong>서비스 레이어:</strong> API 기반 마이크로서비스 아키텍처<br>
+                        <strong>인터페이스:</strong> 웹/모바일 AI 대시보드 및 분석 도구
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">☁️ 클라우드 전략</h3>
+                <ul class="recommendation-list">
+                    <li>하이브리드 클라우드 환경 구축</li>
+                    <li>AI 전용 GPU 인스턴스 활용</li>
+                    <li>자동 스케일링 및 로드 밸런싱</li>
+                    <li>데이터 백업 및 재해 복구 체계</li>
+                    <li>보안 및 컴플라이언스 강화</li>
             </ul>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 21: 파트너십 전략 -->
+        <div class="slide" id="slide21">
+            <div class="slide-header">
+                <h1 class="slide-title">🤝 파트너십 전략</h1>
+                <p class="slide-subtitle">Strategic Partnership Plan</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🌐 전략적 파트너십</h3>
+                <ul class="recommendation-list">
+                    <li><strong>기술 파트너:</strong> AI 플랫폼 및 솔루션 제공업체</li>
+                    <li><strong>교육 파트너:</strong> AI 전문 교육기관 및 대학교</li>
+                    <li><strong>컨설팅 파트너:</strong> AI 전략 및 구현 전문가</li>
+                    <li><strong>데이터 파트너:</strong> 외부 데이터 제공 업체</li>
+                    <li><strong>연구 파트너:</strong> AI 연구소 및 스타트업</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 파트너 선정 기준</h3>
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748; line-height: 1.8;">
+                        ✓ 검증된 기술력과 풍부한 실적<br>
+                        ✓ 업종별 전문성과 도메인 경험<br>
+                        ✓ 지속적인 기술 지원 체계<br>
+                        ✓ 합리적이고 투명한 비용 구조<br>
+                        ✓ 장기적 파트너십 구축 가능성
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 22: 성과 측정 -->
+        <div class="slide" id="slide22">
+            <div class="slide-header">
+                <h1 class="slide-title">📏 성과 측정</h1>
+                <p class="slide-subtitle">Performance Measurement Framework</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 핵심 성과 지표 (KPI)</h3>
+                <ul class="recommendation-list">
+                    <li><strong>비즈니스 KPI:</strong> 매출 증가율, 비용 절감율, 시장 점유율</li>
+                    <li><strong>운영 KPI:</strong> 프로세스 효율성, 품질 향상, 고객 만족도</li>
+                    <li><strong>기술 KPI:</strong> AI 모델 정확도, 시스템 안정성, 응답 속도</li>
+                    <li><strong>조직 KPI:</strong> 직원 만족도, AI 역량 수준, 혁신 지수</li>
+                    <li><strong>고객 KPI:</strong> 고객 만족도, 서비스 품질, NPS 점수</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📈 측정 주기 및 방법</h3>
+                <div class="score-grid">
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #856404;">실시간</div>
+                        <div style="color: #856404;">시스템 모니터링</div>
+                    </div>
+                    <div style="background: #cce5ff; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #004085;">주간</div>
+                        <div style="color: #004085;">운영 성과 리뷰</div>
+                    </div>
+                    <div style="background: #d4edda; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #155724;">월간</div>
+                        <div style="color: #155724;">비즈니스 임팩트</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 23: 실행 계획 -->
+        <div class="slide" id="slide23">
+            <div class="slide-header">
+                <h1 class="slide-title">⚡ 실행 계획</h1>
+                <p class="slide-subtitle">Detailed Action Plan</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🗓️ 90일 실행 계획</h3>
+                <ul class="recommendation-list">
+                    <li><strong>1-30일:</strong> AI 전담팀 구성, 예산 확보, 파트너 선정</li>
+                    <li><strong>31-60일:</strong> 파일럿 프로젝트 시작, 직원 교육 개시</li>
+                    <li><strong>61-90일:</strong> 첫 번째 AI 솔루션 런칭, 성과 측정 시작</li>
+                </ul>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 핵심 마일스톤</h3>
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: #2d3748; line-height: 1.8;">
+                        ✓ 30일: AI 거버넌스 체계 완성<br>
+                        ✓ 60일: 첫 번째 AI 프로토타입 완성<br>
+                        ✓ 90일: 파일럿 운영 및 성과 검증<br>
+                        ✓ 180일: 전사 확산 계획 수립<br>
+                        ✓ 365일: AI 기반 비즈니스 모델 완성
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 슬라이드 24: 결론 및 다음 단계 -->
+        <div class="slide" id="slide24">
+            <div class="slide-header">
+                <h1 class="slide-title">🎉 결론 및 다음 단계</h1>
+                <p class="slide-subtitle">Conclusion & Next Steps</p>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">🏆 최종 결론</h3>
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 15px;">
+                        현재보고서테스트회사는 AI 도입 준비가 완료되었습니다!
+                    </div>
+                    <p style="font-size: 1.2rem; opacity: 0.9;">
+                        체계적인 실행 계획을 통해 18개월 내<br>
+                        업계 선도 AI 기업으로 도약할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="premium-card">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📞 무료 상담 신청</h3>
+                <div style="background: #f0f8ff; padding: 25px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 600; color: #2d3748; margin-bottom: 15px;">
+                        🎯 30분 무료 AI 전략 상담
+                    </div>
+                    <p style="color: #64748b; margin-bottom: 20px;">
+                        AI 도입 전략 수립부터 실행까지<br>
+                        전 과정을 함께 하겠습니다.
+                    </p>
+                    <div style="background: #667eea; color: white; padding: 12px 24px; border-radius: 6px; display: inline-block; font-weight: 600;">
+                        📧 <a href="mailto:hongik423@gmail.com" style="color: white; text-decoration: none;">hongik423@gmail.com</a> | 
+                        📞 <a href="tel:010-9251-9743" style="color: white; text-decoration: none;">010-9251-9743</a> | 
+                        🌐 <a href="https://aicamp.club" target="_blank" rel="noopener" style="color: white; text-decoration: none;">aicamp.club</a>
         </div>
     </div>
     </div>
     
+            <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                <p style="color: #64748b; font-size: 0.9rem;">
+                    본 보고서는 이교장의AI상담 V23.1 Enhanced 시스템으로 생성되었습니다.<br>
+                    © 2025 AI캠프. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </div>
     
+    <!-- 프리젠테이션 컨트롤 -->
     <div class="presentation-controls">
-        <button class="control-btn" onclick="prevSlide()" title="이전 슬라이드">◀</button>
-        <button class="control-btn" onclick="nextSlide()" title="다음 슬라이드">▶</button>
-        <button class="control-btn" onclick="toggleFullscreen()" title="전체화면">⛶</button>
+        <button class="control-btn" onclick="prevSlide()" title="이전 슬라이드 (←)">◀</button>
+        <button class="control-btn" onclick="nextSlide()" title="다음 슬라이드 (→)">▶</button>
+        <button class="control-btn" onclick="toggleFullscreen()" title="전체화면 (F11)">⛶</button>
+        <button class="control-btn" onclick="printReport()" title="인쇄 (Ctrl+P)">🖨</button>
     </div>
     
     <script>
+        // 🚀 V23.1 Enhanced 보고서 시스템 초기화
+        console.log('🚀 V23.1 Enhanced 보고서 시스템 시작');
+        
         // 전역 변수
         let currentSlideIndex = 0;
-        const totalSlides = 5;
+        const totalSlides = 24;
         
-        // 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeKeyboardControls();
+        // 초기화 함수
+        function initializeReport() {
+            console.log('📊 보고서 초기화 시작');
+            
+            // 슬라이드 카운터 업데이트
+            updateSlideCounter();
+            updateProgressBar();
+            
+            // 첫 번째 슬라이드 표시
             showSlide(0);
-        });
+            
+            // 키보드 컨트롤 초기화
+            initializeKeyboardControls();
+            
+            // 프리젠테이션 컨트롤 표시
+            const controls = document.querySelector('.presentation-controls');
+            if (controls) {
+                controls.style.display = 'flex';
+                console.log('✅ 프리젠테이션 컨트롤 활성화');
+            }
+            
+            console.log('✅ V23.1 Enhanced 보고서 초기화 완료');
+        }
         
-        // 슬라이드 전환
+        // 슬라이드 전환 함수
         function showSlide(index) {
+            console.log(`🔄 슬라이드 전환: ${currentSlideIndex + 1} → ${index + 1}`);
+            
+            // 범위 체크
+            if (index < 0 || index >= totalSlides) {
+                console.warn('⚠️ 슬라이드 인덱스 범위 초과:', index);
+                return;
+            }
+            
+            // 모든 슬라이드 숨기기
             document.querySelectorAll('.slide').forEach((slide, i) => {
-                slide.style.display = i === index ? 'block' : 'none';
+                slide.classList.remove('active');
+                slide.style.display = 'none';
             });
+            
+            // 선택된 슬라이드 표시
+            const targetSlide = document.getElementById(`slide${index + 1}`);
+            if (targetSlide) {
+                targetSlide.style.display = 'block';
+                targetSlide.classList.add('active');
             currentSlideIndex = index;
+                
+                // UI 업데이트
+                updateSlideCounter();
+                updateProgressBar();
+                
+                console.log(`✅ 슬라이드 ${index + 1} 활성화`);
+            } else {
+                console.error('❌ 슬라이드를 찾을 수 없음:', `slide${index + 1}`);
+            }
         }
         
         function nextSlide() {
+            console.log('▶ nextSlide() 호출 - 현재:', currentSlideIndex + 1);
             if (currentSlideIndex < totalSlides - 1) {
                 showSlide(currentSlideIndex + 1);
+            } else {
+                console.log('📄 마지막 슬라이드입니다');
             }
         }
         
         function prevSlide() {
+            console.log('◀ prevSlide() 호출 - 현재:', currentSlideIndex + 1);
             if (currentSlideIndex > 0) {
                 showSlide(currentSlideIndex - 1);
+            } else {
+                console.log('📄 첫 번째 슬라이드입니다');
             }
         }
         
         function toggleFullscreen() {
+            console.log('⛶ toggleFullscreen() 호출');
+            
+            try {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
+                    document.documentElement.requestFullscreen().then(() => {
+                        document.body.classList.add('fullscreen-mode');
+                        console.log('✅ 전체화면 모드 진입');
+                    }).catch(err => {
+                        console.error('❌ 전체화면 모드 진입 실패:', err);
+                    });
             } else {
-                document.exitFullscreen();
+                    document.exitFullscreen().then(() => {
+                        document.body.classList.remove('fullscreen-mode');
+                        console.log('✅ 전체화면 모드 종료');
+                    }).catch(err => {
+                        console.error('❌ 전체화면 모드 종료 실패:', err);
+                    });
+                }
+            } catch (error) {
+                console.error('❌ 전체화면 기능 오류:', error);
             }
         }
         
-        // 키보드 컨트롤
+        function printReport() {
+            console.log('🖨 printReport() 호출');
+            try {
+                window.print();
+                console.log('✅ 인쇄 대화상자 열림');
+            } catch (error) {
+                console.error('❌ 인쇄 기능 오류:', error);
+            }
+        }
+        
+        function updateSlideCounter() {
+            const currentElement = document.getElementById('currentSlide');
+            const totalElement = document.getElementById('totalSlides');
+            
+            if (currentElement) {
+                currentElement.textContent = currentSlideIndex + 1;
+            }
+            if (totalElement) {
+                totalElement.textContent = totalSlides;
+            }
+        }
+        
+        function updateProgressBar() {
+            const progressFill = document.getElementById('progressFill');
+            if (progressFill) {
+                const progress = ((currentSlideIndex + 1) / totalSlides) * 100;
+                progressFill.style.width = progress + '%';
+            }
+        }
+        
+        // 키보드 컨트롤 초기화
         function initializeKeyboardControls() {
+            console.log('⌨️ 키보드 컨트롤 초기화');
+            
             document.addEventListener('keydown', function(e) {
+                console.log('🎹 키 입력 감지:', e.key);
+                
                 switch(e.key) {
                     case 'ArrowRight':
                     case ' ':
@@ -391,12 +1228,67 @@
                         break;
                     case 'Escape':
                         if (document.fullscreenElement) {
+                            e.preventDefault();
                             toggleFullscreen();
                         }
                         break;
+                    case 'p':
+                    case 'P':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            printReport();
+                        }
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        showSlide(0);
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        showSlide(totalSlides - 1);
+                        break;
                 }
             });
+            
+            console.log('✅ 키보드 컨트롤 설정 완료');
         }
+        
+        // DOM 로드 완료 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM 로드 완료');
+            initializeReport();
+        });
+        
+        // 함수 존재 확인 및 전역 등록
+        console.log('🔍 함수 존재 확인:');
+        console.log('- nextSlide:', typeof nextSlide);
+        console.log('- prevSlide:', typeof prevSlide);
+        console.log('- toggleFullscreen:', typeof toggleFullscreen);
+        console.log('- printReport:', typeof printReport);
+        console.log('- showSlide:', typeof showSlide);
+        
+        // 전역 스코프에 함수들을 명시적으로 등록 (브라우저 호환성)
+        window.nextSlide = nextSlide;
+        window.prevSlide = prevSlide;
+        window.toggleFullscreen = toggleFullscreen;
+        window.printReport = printReport;
+        window.showSlide = showSlide;
+        
+        // 오류 방지를 위한 추가 검증
+        setTimeout(function() {
+            console.log('🔄 지연 검증 - 함수 등록 상태:');
+            console.log('- window.nextSlide:', typeof window.nextSlide);
+            console.log('- window.prevSlide:', typeof window.prevSlide);
+            console.log('- window.toggleFullscreen:', typeof window.toggleFullscreen);
+            
+            if (typeof window.nextSlide !== 'function') {
+                console.error('❌ nextSlide 함수 등록 실패');
+            } else {
+                console.log('✅ 모든 함수 정상 등록 완료');
+            }
+        }, 1000);
+        
+        console.log('🎯 V23.1 Enhanced 보고서 JavaScript 로드 완료');
     </script>
 </body>
 </html>

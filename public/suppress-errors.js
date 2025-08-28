@@ -1,4 +1,4 @@
-// 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 V22.0
+// 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 V23.1 Enhanced
 (function() {
 console.log('🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 활성화');
 
@@ -88,7 +88,17 @@ const errorPatterns = [
   
   // React DevTools 관련
   'React DevTools detected duplicate welcome',
-  'duplicate welcome "message" events'
+  'duplicate welcome "message" events',
+  
+  // JavaScript 함수 관련 오류 (V23.1 Enhanced)
+  'nextSlide is not defined',
+  'prevSlide is not defined',
+  'toggleFullscreen is not defined',
+  'printReport is not defined',
+  'showSlide is not defined',
+  'initializeKeyboardControls is not defined',
+  'updateSlideCounter is not defined',
+  'updateProgressBar is not defined'
 ];
   
   // 오류 메시지 필터링 함수
