@@ -33,26 +33,46 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     try {
       setLoading(true);
       
-      console.log('🔍 API 우회 - 클라이언트 직접 보고서 조회:', diagnosisId);
+      console.log('🔍 V23.1 Enhanced 보고서 조회:', diagnosisId);
       
-      // 1. localStorage에서 직접 조회 (API 우회)
-      const { ReportStorage } = await import('@/lib/diagnosis/report-storage');
-      const htmlContent = await ReportStorage.getReport(diagnosisId);
+      // 1. V23.1 Enhanced 로컬 스토리지에서 조회
+      const reportKey = `aicamp_report_${diagnosisId}`;
+      const v23Report = localStorage.getItem(reportKey);
       
-      if (htmlContent) {
-        console.log('✅ localStorage에서 보고서 조회 성공');
-        setReportContent(htmlContent);
+      if (v23Report) {
+        console.log('✅ V23.1 Enhanced 보고서 조회 성공');
+        setReportContent(v23Report);
         return;
       }
       
-      // 2. sessionStorage에서 최근 진단 결과 확인
+      // 2. API에서 직접 V23.1 보고서 요청
+      try {
+        console.log('📡 API에서 V23.1 보고서 요청 중...');
+        const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.htmlReport) {
+            console.log('✅ API에서 V23.1 보고서 조회 성공');
+            setReportContent(data.htmlReport);
+            // 로컬 스토리지에 캐시
+            localStorage.setItem(reportKey, data.htmlReport);
+            return;
+          }
+        }
+      } catch (apiError) {
+        console.warn('API 요청 실패:', apiError);
+      }
+      
+      // 3. sessionStorage에서 최근 진단 결과로 V23.1 보고서 생성
       const sessionResult = sessionStorage.getItem('diagnosisResult');
       if (sessionResult) {
         try {
           const data = JSON.parse(sessionResult);
           if (data.diagnosisId === diagnosisId) {
-            console.log('✅ sessionStorage에서 진단 결과 발견');
-            setReportContent(generateFallbackReport(data));
+            console.log('✅ sessionStorage 데이터로 V23.1 보고서 생성');
+            const generatedReport = await generateV23Report(data);
+            setReportContent(generatedReport);
             return;
           }
         } catch (sessionError) {
@@ -60,37 +80,88 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         }
       }
       
-      // 3. 기존 로컬 스토리지 폴백
-      const reportInfo = localStorage.getItem('diagnosisReportInfo');
-      if (reportInfo) {
-        try {
-          const data = JSON.parse(reportInfo);
-          if (data.diagnosisId === diagnosisId) {
-            console.log('✅ 기존 reportInfo에서 보고서 생성');
-            setReportContent(generateFallbackReport(data));
-            return;
-          }
-        } catch (parseError) {
-          console.warn('reportInfo 파싱 실패:', parseError);
-        }
-      }
-      
-      // 4. 최종 폴백: 샘플 보고서 생성
-      console.log('⚠️ 저장된 보고서 없음, 샘플 보고서 생성');
-      const fallbackHtml = generateFallbackReport({
+      // 4. 최종 폴백: V23.1 샘플 보고서 생성
+      console.log('⚠️ 저장된 보고서 없음, V23.1 샘플 보고서 생성');
+      const fallbackData = {
         diagnosisId,
-        companyName: '기업명',
-        totalScore: 3.5,
-        grade: 'B',
-        createdAt: new Date().toISOString()
-      });
-      setReportContent(fallbackHtml);
+        companyInfo: {
+          name: '기업명',
+          industry: 'IT/소프트웨어',
+          size: '중소기업'
+        },
+        responses: {},
+        scores: {
+          total: 158,
+          percentage: 70,
+          categoryScores: {
+            businessFoundation: 25,
+            currentAI: 20,
+            organizationReadiness: 30,
+            technologyInfrastructure: 28,
+            dataManagement: 25,
+            humanResources: 30
+          }
+        },
+        timestamp: new Date().toISOString()
+      };
+      
+      const fallbackReport = await generateV23Report(fallbackData);
+      setReportContent(fallbackReport);
       
     } catch (err) {
-      console.error('보고서 로드 실패:', err);
+      console.error('V23.1 보고서 로드 실패:', err);
       setError('보고서 로드 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateV23Report = async (data: any) => {
+    try {
+      console.log('🚀 V23.1 Enhanced 보고서 생성 시작');
+      
+      const EnhancedReportStorage = (await import('@/lib/diagnosis/enhanced-report-storage')).default;
+      
+      // DiagnosisData 형식으로 변환
+      const diagnosisData = {
+        diagnosisId: data.diagnosisId || diagnosisId,
+        companyInfo: {
+          name: data.companyInfo?.name || data.companyName || '기업명',
+          industry: data.companyInfo?.industry || data.industry || 'IT/소프트웨어',
+          size: data.companyInfo?.size || '중소기업',
+          revenue: undefined,
+          employees: undefined
+        },
+        responses: data.responses || {},
+        scores: {
+          total: data.scores?.total || data.totalScore || 158,
+          percentage: data.scores?.percentage || Math.round(((data.scores?.total || data.totalScore || 158) / 225) * 100),
+          categoryScores: {
+            businessFoundation: data.scores?.categoryScores?.businessFoundation || 25,
+            currentAI: data.scores?.categoryScores?.currentAI || data.scores?.categoryScores?.currentAIUsage || 20,
+            organizationReadiness: data.scores?.categoryScores?.organizationReadiness || data.scores?.categoryScores?.organizationalReadiness || 30,
+            technologyInfrastructure: data.scores?.categoryScores?.technologyInfrastructure || data.scores?.categoryScores?.technicalInfrastructure || 28,
+            dataManagement: data.scores?.categoryScores?.dataManagement || data.scores?.categoryScores?.goalClarity || 25,
+            humanResources: data.scores?.categoryScores?.humanResources || data.scores?.categoryScores?.executionCapability || 30
+          }
+        },
+        timestamp: data.timestamp || new Date().toISOString()
+      };
+      
+      const htmlReport = await EnhancedReportStorage.generateCompleteReport(diagnosisData, {
+        useAdvancedAnalysis: true,
+        includeCharts: true,
+        includeBenchmarks: true,
+        format: 'html',
+        language: 'ko'
+      });
+      
+      console.log('✅ V23.1 Enhanced 보고서 생성 완료');
+      return htmlReport;
+      
+    } catch (error) {
+      console.error('❌ V23.1 보고서 생성 실패:', error);
+      return generateFallbackReport(data);
     }
   };
 
@@ -100,7 +171,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>${data.companyName} AI 역량진단보고서 V22.0</title>
+    <title>${data.companyName} AI 역량진단보고서 V23.1</title>
     <style>
         body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; background: #ffffff; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
@@ -115,7 +186,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     <div class="container">
         <div class="header">
             <h1>${data.companyName}</h1>
-            <h2>AI 역량진단보고서 V22.0</h2>
+            <h2>AI 역량진단보고서 V23.1</h2>
             <p>진단일: ${new Date().toLocaleDateString('ko-KR')} | 진단ID: ${data.diagnosisId}</p>
         </div>
         <div class="content">
@@ -124,12 +195,14 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                 <div class="total-score">${data.totalScore?.toFixed(1) || '계산중'}점</div>
                 <div class="grade-badge">${data.grade || 'C'}등급</div>
             </div>
-            <h3>🎯 V22.0 고도화된 진단 시스템</h3>
+            <h3>🎯 V23.1 Enhanced 진단 시스템</h3>
             <ul>
+                <li>24페이지 완전한 분석 보고서</li>
                 <li>McKinsey 방법론 기반 고도화된 점수 계산</li>
-                <li>45문항 정밀 분석</li>
-                <li>업종별 벤치마크 비교</li>
-                <li>AI 기반 개선 방안 제시</li>
+                <li>45문항 정밀 분석 및 행동지표 매핑</li>
+                <li>업종별 벤치마크 비교 및 경쟁사 분석</li>
+                <li>AI 기반 개선 방안 및 실행 로드맵 제시</li>
+                <li>실시간 프리젠테이션 모드 지원</li>
             </ul>
             <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                 <h4>📧 상세 보고서 발송</h4>
@@ -147,7 +220,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `AI역량진단보고서_${diagnosisId}_V22.html`;
+      a.download = `AI역량진단보고서_${diagnosisId}_V23.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -160,7 +233,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">V22.0 진단 보고서를 로드하는 중...</p>
+          <p className="text-gray-600">V23.1 Enhanced 진단 보고서를 로드하는 중...</p>
         </div>
       </div>
     );
@@ -193,7 +266,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 돌아가기
               </Button>
-              <h1 className="text-xl font-semibold">AI 역량진단 보고서 V22.0</h1>
+              <h1 className="text-xl font-semibold">AI 역량진단 보고서 V23.1</h1>
             </div>
             <Button onClick={handleDownload}>
               <Download className="h-4 w-4 mr-2" />
