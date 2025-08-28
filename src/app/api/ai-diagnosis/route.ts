@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
             
             // V22.0 고도화 기능 상태
             version: 'V22.0-ENHANCED-STABLE',
-            enhancedScores: enhancedScores,
+            enhancedScores: diagnosisData.scores,
             v22Features: {
               advancedScoring: true,
               dynamicReportGeneration: true,
