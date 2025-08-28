@@ -109,7 +109,9 @@ export async function POST(request: NextRequest) {
             revenue: undefined,
             employees: undefined
           },
-          responses: workflowRequest.responses,
+          responses: Array.isArray(workflowRequest.responses) 
+            ? workflowRequest.responses.reduce((acc, val, index) => ({ ...acc, [index]: val }), {})
+            : workflowRequest.responses,
           scores: {
             total: workflowResult.scoreAnalysis.totalScore,
             percentage: Math.round((workflowResult.scoreAnalysis.totalScore / 225) * 100),
