@@ -1,5 +1,7 @@
-// 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템
+// 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 V22.0
 (function() {
+console.log('🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 활성화');
+
 const errorPatterns = [
   // Chrome Extension 관련 (강화)
   'Extension context invalidated',
@@ -22,8 +24,26 @@ const errorPatterns = [
   'chrome.tabs',
   'chrome.storage',
   'chrome.webNavigation',
+  'chrome.extension',
+  'browser-extension',
+  'Extension manifest',
+  'chrome.contextMenus',
+  'chrome.cookies',
+  'chrome.downloads',
+  'chrome.history',
+  'chrome.identity',
+  'chrome.management',
+  'chrome.permissions',
+  'chrome.privacy',
+  'chrome.proxy',
+  'chrome.sessions',
+  'chrome.topSites',
+  'chrome.webRequest',
   
-
+  // Manifest 관련
+  'Manifest fetch',
+  'manifest.json',
+  'manifest.webmanifest',
   'Failed to load resource',
   'status of 401',
   'code 401',
@@ -204,11 +224,30 @@ const errorPatterns = [
     }
   }
   
-  // fetch 오버라이드 (일반 오류 처리)
+  // fetch 오버라이드 (manifest 오류 특별 처리)
   const originalFetch = window.fetch;
   window.fetch = function(url, ...args) {
     try {
       const urlString = safeUrlToString(url);
+      
+      // manifest 관련 요청은 실패해도 조용히 처리
+      if (urlString && (urlString.includes('manifest.webmanifest') || urlString.includes('manifest.json') || urlString.includes('/api/manifest'))) {
+        return originalFetch.apply(this, [url, ...args]).catch(error => {
+          // manifest 관련 오류는 조용히 무시하고 기본 응답 반환
+          console.log('🔇 Manifest 오류 무시:', urlString);
+          return new Response(JSON.stringify({
+            "name": "AI역량진단",
+            "short_name": "AI진단",
+            "start_url": "/",
+            "display": "browser",
+            "background_color": "#ffffff",
+            "theme_color": "#3b82f6"
+          }), { 
+            status: 200, 
+            headers: { 'Content-Type': 'application/manifest+json' } 
+          });
+        });
+      }
       
       // Service Worker 관련 요청도 조용히 처리
       if (urlString && (urlString.includes('sw.js') || urlString.includes('service-worker'))) {
@@ -233,21 +272,10 @@ const errorPatterns = [
     // React DevTools 관련 이벤트 차단
     const originalPostMessage = window.postMessage;
     window.postMessage = function(message, targetOrigin, transfer) {
-      try {
-        if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
-          return; // React DevTools 메시지 차단
-        }
-        
-        // targetOrigin이 undefined이거나 null인 경우 안전한 기본값 설정
-        if (targetOrigin === undefined || targetOrigin === null || targetOrigin === 'undefined') {
-          targetOrigin = window.location.origin || '*';
-        }
-        
-        return originalPostMessage.call(this, message, targetOrigin, transfer);
-      } catch (error) {
-        console.warn('🛡️ postMessage 오류 차단:', error.message);
-        return false;
+      if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
+        return; // React DevTools 메시지 차단
       }
+      return originalPostMessage.call(this, message, targetOrigin, transfer);
     };
   }
   
