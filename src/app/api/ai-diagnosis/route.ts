@@ -327,11 +327,11 @@ export async function POST(request: NextRequest) {
               notificationBanner: true
             },
             reportInfo: {
-              fileName: reportMetadata.fileName,
+              fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_V23.html`,
               diagnosisId: diagnosisId,
-              createdAt: reportMetadata.createdAt,
-              totalScore: enhancedScores.totalScore,
-              grade: reportMetadata.grade
+              createdAt: new Date().toISOString(),
+              totalScore: diagnosisData.scores.total,
+              grade: determineGradeFromScore(diagnosisData.scores.total)
             },
             features: [
               'V22.0 고도화된 점수 계산 엔진 완료',
