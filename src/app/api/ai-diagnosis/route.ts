@@ -105,9 +105,9 @@ export async function POST(request: NextRequest) {
           companyInfo: {
             name: workflowRequest.companyName,
             industry: workflowRequest.industry || 'IT/소프트웨어',
-            size: workflowRequest.companySize || '중소기업',
-            revenue: workflowRequest.revenue,
-            employees: workflowRequest.employees
+            size: '중소기업',
+            revenue: undefined,
+            employees: undefined
           },
           responses: workflowRequest.responses,
           scores: {
