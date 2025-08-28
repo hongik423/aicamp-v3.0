@@ -128,10 +128,13 @@ export async function POST(request: NextRequest) {
         };
         
         // V23.0 완전한 폴백 보고서 생성
+        let htmlReport = '';
+        let reportMetadata = {};
+        
         try {
           console.log('🎯 V23.0 완전한 폴백 보고서 생성 시작');
           
-          const htmlReport = await EnhancedReportStorage.generateCompleteReport(diagnosisData, {
+          htmlReport = await EnhancedReportStorage.generateCompleteReport(diagnosisData, {
             useAdvancedAnalysis: true,
             includeCharts: true,
             includeBenchmarks: true,
@@ -141,7 +144,7 @@ export async function POST(request: NextRequest) {
           
           console.log('✅ V23.0 완전한 폴백 보고서 생성 완료');
           
-          const reportMetadata = {
+          reportMetadata = {
             diagnosisId: diagnosisId,
             companyName: workflowRequest.companyName,
             fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_V23.html`,
@@ -157,7 +160,7 @@ export async function POST(request: NextRequest) {
           console.error('❌ V23.0 폴백 보고서 생성 실패:', fallbackError);
           
           // 최종 폴백: 기본 시스템 사용
-          const reportMetadata = {
+          reportMetadata = {
             diagnosisId: diagnosisId,
             companyName: workflowRequest.companyName,
             fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_BASIC.html`,
@@ -169,6 +172,7 @@ export async function POST(request: NextRequest) {
             fallbackSystemUsed: true,
             error: fallbackError instanceof Error ? fallbackError.message : 'Unknown error'
           };
+          htmlReport = ''; // 폴백 시 빈 보고서
         }
         
         // 워크플로우 단계 진행 이벤트 기록 (V22.0 업데이트)
@@ -326,13 +330,8 @@ export async function POST(request: NextRequest) {
               reportStorage: true,
               notificationBanner: true
             },
-            reportInfo: {
-              fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_V23.html`,
-              diagnosisId: diagnosisId,
-              createdAt: new Date().toISOString(),
-              totalScore: diagnosisData.scores.total,
-              grade: determineGradeFromScore(diagnosisData.scores.total)
-            },
+            reportInfo: reportMetadata,
+            htmlReport: htmlReport, // V23.0 생성된 HTML 보고서 포함
             features: [
               'V22.0 고도화된 점수 계산 엔진 완료',
               'V22.0 동적 HTML 보고서 생성 완료',
