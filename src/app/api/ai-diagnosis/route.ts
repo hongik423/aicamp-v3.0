@@ -119,8 +119,7 @@ export async function POST(request: NextRequest) {
               businessFoundation: workflowResult.scoreAnalysis.categoryScores?.businessFoundation || 0,
               currentAI: workflowResult.scoreAnalysis.categoryScores?.currentAI || 0,
               organizationReadiness: workflowResult.scoreAnalysis.categoryScores?.organizationReadiness || 0,
-              technologyInfrastructure: workflowResult.scoreAnalysis.categoryScores?.technologyInfrastructure || 
-                workflowResult.scoreAnalysis.categoryScores?.techInfrastructure || 0,
+              technologyInfrastructure: workflowResult.scoreAnalysis.categoryScores?.techInfrastructure || 0,
               dataManagement: workflowResult.scoreAnalysis.categoryScores?.dataManagement || 0,
               humanResources: workflowResult.scoreAnalysis.categoryScores?.humanResources || 0
             }
