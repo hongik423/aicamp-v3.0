@@ -246,11 +246,16 @@ export default function DiagnosisReportsPage() {
     loadReports();
   }, []);
 
-  // 필터링된 보고서 목록
+  // 필터링된 보고서 목록 (V27.0 Ultimate 안전성 강화)
   const filteredReports = reports.filter(report => {
-    const matchesSearch = report.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         report.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         report.diagnosisId.toLowerCase().includes(searchTerm.toLowerCase());
+    // null/undefined 안전성 검사 추가
+    const companyName = report.companyName || '';
+    const contactName = report.contactName || '';
+    const diagnosisId = report.diagnosisId || '';
+    
+    const matchesSearch = companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         diagnosisId.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesGrade = filterGrade === 'all' || report.grade === filterGrade;
     
@@ -329,6 +334,8 @@ export default function DiagnosisReportsPage() {
                 value={filterGrade}
                 onChange={(e) => setFilterGrade(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                title="등급별 필터링"
+                aria-label="등급별 필터링"
               >
                 <option value="all">전체 등급</option>
                 <option value="S">S등급</option>

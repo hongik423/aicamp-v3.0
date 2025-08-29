@@ -1,6 +1,6 @@
 /**
- * V23.1 Enhanced 진단 보고서 조회 API
- * 24페이지 완전한 보고서 생성 및 반환
+ * V27.0 Ultimate 35페이지 진단 보고서 조회 API
+ * 완전한 보안 기능 및 35페이지 보고서 생성
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +14,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { diagnosisId } = await params;
     
-    console.log('🔍 V27.0 Ultimate n8n Enhanced 보고서 조회 요청:', diagnosisId);
+    console.log('🔍 V27.0 Ultimate 35페이지 보고서 조회 요청:', diagnosisId);
+    
+    // 🛡️ V27.0 보안 기능: 진단 ID 유효성 검사
+    if (!diagnosisId || diagnosisId.length < 10) {
+      console.warn('⚠️ 유효하지 않은 진단 ID:', diagnosisId);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: '유효하지 않은 진단 ID입니다.',
+          code: 'INVALID_DIAGNOSIS_ID'
+        },
+        { status: 400 }
+      );
+    }
     
     // Google Sheets에서 실제 진단 데이터 조회
     let diagnosisData: DiagnosisData;
@@ -195,11 +208,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { diagnosisId } = await params;
     console.error('❌ V26.0 n8n Enhanced AI 역량진단 보고서 조회 실패:', error);
     
-    // 오류 발생 시에도 안정적인 보고서 제공 (실제 점수 반영)
+    // V27.0 Ultimate: 오류 발생 시에도 35페이지 보고서 제공
     try {
-      const { DynamicReportEngine } = await import('@/lib/diagnosis/dynamic-report-engine');
-      
-      const fallbackData = {
+      const fallbackData: DiagnosisData = {
         diagnosisId,
         companyInfo: {
           name: diagnosisId.includes('AI_') ? 'AI기업' : '진단기업',
@@ -236,11 +247,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }
       });
       
+      // V27.0 Ultimate 35페이지 폴백 보고서 생성
+      console.log('🔄 V27.0 Ultimate 35페이지 폴백 보고서 생성 시작');
       const fallbackReport = Ultimate35PageGenerator.generateUltimate35PageReport(fallbackData);
       
       return NextResponse.json({
         success: true,
-        message: 'V27.0 Ultimate n8n Enhanced 폴백 보고서 생성 성공 - 실제 평가점수 반영',
+        message: 'V27.0 Ultimate 35페이지 폴백 보고서 생성 성공',
         diagnosisId,
         htmlReport: fallbackReport,
         reportInfo: {

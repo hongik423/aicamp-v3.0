@@ -101,10 +101,15 @@ export default function AdminDiagnosisReportsPage() {
   };
 
   const filteredReports = reports.filter(report => {
+    // V27.0 Ultimate 안전성 강화: null/undefined 검사
+    const companyName = report.companyName || '';
+    const contactName = report.contactName || '';
+    const diagnosisId = report.diagnosisId || '';
+    
     const matchesSearch = 
-      report.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.diagnosisId.toLowerCase().includes(searchTerm.toLowerCase());
+      companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      diagnosisId.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesGrade = filterGrade === 'all' || report.grade === filterGrade;
     
