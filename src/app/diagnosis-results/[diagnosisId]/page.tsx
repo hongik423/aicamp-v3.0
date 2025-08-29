@@ -14,6 +14,8 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
   const [reportContent, setReportContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const loadParams = async () => {
@@ -25,9 +27,45 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
 
   useEffect(() => {
     if (diagnosisId) {
-      loadReport();
+      verifyAccess();
     }
   }, [diagnosisId]);
+
+  const verifyAccess = async () => {
+    try {
+      setAuthLoading(true);
+      console.log('🔐 진단 결과 접근 권한 검증:', diagnosisId);
+      
+      const response = await fetch('/api/diagnosis-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          diagnosisId: diagnosisId,
+          accessType: 'user'
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ 접근 권한 확인됨');
+        setIsAuthorized(true);
+        loadReport();
+      } else {
+        console.log('❌ 접근 권한 없음:', result.error);
+        setIsAuthorized(false);
+        setError(result.error || '진단 결과에 접근할 권한이 없습니다.');
+      }
+    } catch (error) {
+      console.error('❌ 권한 검증 실패:', error);
+      setIsAuthorized(false);
+      setError('권한 검증 중 오류가 발생했습니다.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const loadReport = async () => {
     try {
@@ -229,6 +267,40 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       URL.revokeObjectURL(url);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">접근 권한을 확인하는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthorized === false) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-8 w-8 text-red-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">접근 권한이 없습니다</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <div className="space-y-3">
+            <Button onClick={() => window.location.href = '/report-access'}>
+              진단 결과 조회 페이지로 이동
+            </Button>
+            <Button variant="outline" onClick={() => window.history.back()}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              돌아가기
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

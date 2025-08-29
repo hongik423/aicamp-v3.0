@@ -48,57 +48,86 @@ export default function DiagnosisReportsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [userDiagnosisId, setUserDiagnosisId] = useState('');
 
-  // HTML 보고서 다운로드 함수 (API 우회)
+  // 24페이지 완성본 HTML 보고서 다운로드 함수
   const handleDownloadReport = async (report: DiagnosisReport) => {
     try {
-      console.log('📥 API 우회 - 클라이언트 직접 다운로드:', report.diagnosisId);
+      console.log('📥 24페이지 완성본 다운로드 시작:', report.diagnosisId);
       
-      // ReportStorage에서 HTML 보고서 조회 (API 우회)
-      const { ReportStorage } = await import('@/lib/diagnosis/report-storage');
-      const htmlContent = await ReportStorage.getReport(report.diagnosisId);
+      // 1. API에서 24페이지 완성본 조회
+      const response = await fetch(`/api/diagnosis-reports/${report.diagnosisId}`);
       
-      if (htmlContent) {
-        // HTML 파일 다운로드
-        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_${new Date().toISOString().split('T')[0]}.html`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+      if (response.ok) {
+        const data = await response.json();
         
-        console.log('✅ 클라이언트 직접 다운로드 완료');
-        toast({
-          title: "✅ 다운로드 완료",
-          description: "HTML 보고서가 성공적으로 다운로드되었습니다. (API 우회 방식)",
-          variant: "default"
-        });
-      } else {
-        // 폴백: 기본 보고서 생성 후 다운로드
-        console.log('⚠️ 저장된 보고서 없음, 기본 보고서 생성');
-        const fallbackHtml = await ReportStorage.getReport(report.diagnosisId); // 샘플 보고서 생성됨
-        
-        if (fallbackHtml) {
-          const blob = new Blob([fallbackHtml], { type: 'text/html;charset=utf-8' });
+        if (data.success && data.htmlReport) {
+          // 24페이지 완성본 다운로드
+          const blob = new Blob([data.htmlReport], { type: 'text/html;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_${new Date().toISOString().split('T')[0]}.html`;
+          link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_V23.1_${new Date().toISOString().split('T')[0]}.html`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
           
+          console.log('✅ 24페이지 완성본 다운로드 완료');
           toast({
-            title: "✅ 기본 보고서 다운로드",
-            description: "기본 보고서가 생성되어 다운로드되었습니다.",
+            title: "✅ 24페이지 완성본 다운로드",
+            description: "V23.1 Enhanced 24페이지 AI 역량진단 보고서가 다운로드되었습니다.",
             variant: "default"
           });
-        } else {
-          throw new Error('보고서를 생성할 수 없습니다.');
+          return;
         }
+      }
+      
+      // 2. 폴백: 로컬 스토리지에서 V23.1 보고서 조회
+      const reportKey = `aicamp_report_${report.diagnosisId}`;
+      const v23Report = localStorage.getItem(reportKey);
+      
+      if (v23Report) {
+        const blob = new Blob([v23Report], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_V23.1_${new Date().toISOString().split('T')[0]}.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        console.log('✅ 로컬 V23.1 보고서 다운로드 완료');
+        toast({
+          title: "✅ V23.1 보고서 다운로드",
+          description: "로컬에 저장된 V23.1 Enhanced 보고서가 다운로드되었습니다.",
+          variant: "default"
+        });
+        return;
+      }
+      
+      // 3. 최종 폴백: 기본 보고서 생성
+      console.log('⚠️ 24페이지 완성본 없음, 기본 보고서 생성');
+      const { ReportStorage } = await import('@/lib/diagnosis/report-storage');
+      const fallbackHtml = await ReportStorage.getReport(report.diagnosisId);
+      
+      if (fallbackHtml) {
+        const blob = new Blob([fallbackHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_기본_${new Date().toISOString().split('T')[0]}.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: "✅ 기본 보고서 다운로드",
+          description: "기본 보고서가 생성되어 다운로드되었습니다.",
+          variant: "default"
+        });
+      } else {
+        throw new Error('보고서를 생성할 수 없습니다.');
       }
     } catch (error) {
       console.error('보고서 다운로드 실패:', error);
@@ -110,87 +139,108 @@ export default function DiagnosisReportsPage() {
     }
   };
 
-  // 샘플 데이터 (실제로는 API에서 가져옴)
+  // 실제 API에서 데이터 로드 (24페이지 완성본 연결)
   useEffect(() => {
     const loadReports = async () => {
       setIsLoading(true);
       
-      // 로컬 스토리지에서 사용자의 진단 결과 확인
-      const completedDiagnosisId = localStorage.getItem('completedDiagnosisId');
-      const diagnosisReportInfo = localStorage.getItem('diagnosisReportInfo');
-      
-      const sampleReports: DiagnosisReport[] = [];
-      
-      // 사용자의 실제 진단 결과가 있으면 추가
-      if (completedDiagnosisId && diagnosisReportInfo) {
-        try {
-          const reportInfo = JSON.parse(diagnosisReportInfo);
-          sampleReports.push({
-            diagnosisId: completedDiagnosisId,
-            companyName: reportInfo.companyName || '내 회사',
-            contactName: '본인',
-            industry: '정보통신업',
-            totalScore: reportInfo.totalScore || 85.2,
-            grade: reportInfo.grade || 'A',
-            createdAt: reportInfo.createdAt || new Date().toISOString(),
+      try {
+        console.log('🔄 실제 진단 보고서 데이터 로드 시작');
+        
+        // 1. 관리자 API에서 실제 데이터 조회
+        const response = await fetch('/api/admin/diagnosis-reports', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          
+          if (result.success && result.data && Array.isArray(result.data)) {
+            console.log('✅ 실제 진단 데이터 로드 성공:', result.data.length);
+            
+            // 실제 데이터를 페이지 형식에 맞게 변환
+            const actualReports: DiagnosisReport[] = result.data.map((item: any) => ({
+              diagnosisId: item.diagnosisId || '',
+              companyName: item.companyName || '',
+              contactName: item.contactName || '',
+              industry: item.industry || '정보통신업',
+              totalScore: item.totalScore || 0,
+              grade: item.grade || 'N/A',
+              createdAt: item.submittedAt || item.createdAt || new Date().toISOString(),
+              status: 'completed',
+              reportUrl: `/diagnosis-results/${item.diagnosisId}`
+            }));
+            
+            setReports(actualReports);
+          } else {
+            throw new Error(result.error || '데이터를 불러올 수 없습니다.');
+          }
+        } else {
+          throw new Error(`API 응답 오류: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('❌ 실제 데이터 로드 실패:', error);
+        
+        // 폴백: 로컬 스토리지에서 사용자의 진단 결과 확인
+        const completedDiagnosisId = localStorage.getItem('completedDiagnosisId');
+        const diagnosisReportInfo = localStorage.getItem('diagnosisReportInfo');
+        
+        const fallbackReports: DiagnosisReport[] = [];
+        
+        // 사용자의 실제 진단 결과가 있으면 추가
+        if (completedDiagnosisId && diagnosisReportInfo) {
+          try {
+            const reportInfo = JSON.parse(diagnosisReportInfo);
+            fallbackReports.push({
+              diagnosisId: completedDiagnosisId,
+              companyName: reportInfo.companyName || '내 회사',
+              contactName: '본인',
+              industry: '정보통신업',
+              totalScore: reportInfo.totalScore || 85.2,
+              grade: reportInfo.grade || 'A',
+              createdAt: reportInfo.createdAt || new Date().toISOString(),
+              status: 'completed',
+              fileName: reportInfo.fileName,
+              reportUrl: `/diagnosis-results/${completedDiagnosisId}`
+            });
+          } catch (error) {
+            console.error('진단 정보 파싱 오류:', error);
+          }
+        }
+        
+        // 샘플 데이터 추가 (폴백용)
+        fallbackReports.push(
+          {
+            diagnosisId: 'DIAG_SAMPLE_001',
+            companyName: '테크스타트업(주)',
+            contactName: '김대표',
+            industry: '소프트웨어개발업',
+            totalScore: 92.5,
+            grade: 'S',
+            createdAt: '2025-01-15T10:30:00Z',
             status: 'completed',
-            fileName: reportInfo.fileName,
-            reportUrl: `/diagnosis-results/${completedDiagnosisId}`
-          });
-        } catch (error) {
-          console.error('진단 정보 파싱 오류:', error);
-        }
+            reportUrl: '/diagnosis-results/DIAG_SAMPLE_001'
+          },
+          {
+            diagnosisId: 'DIAG_SAMPLE_002',
+            companyName: '제조혁신(주)',
+            contactName: '박이사',
+            industry: '제조업',
+            totalScore: 78.3,
+            grade: 'B',
+            createdAt: '2025-01-14T14:20:00Z',
+            status: 'completed',
+            reportUrl: '/diagnosis-results/DIAG_SAMPLE_002'
+          }
+        );
+        
+        setReports(fallbackReports);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // 샘플 데이터 추가
-      sampleReports.push(
-        {
-          diagnosisId: 'DIAG_SAMPLE_001',
-          companyName: '테크스타트업(주)',
-          contactName: '김대표',
-          industry: '소프트웨어개발업',
-          totalScore: 92.5,
-          grade: 'S',
-          createdAt: '2025-01-15T10:30:00Z',
-          status: 'completed',
-          reportUrl: '/diagnosis-results/DIAG_SAMPLE_001'
-        },
-        {
-          diagnosisId: 'DIAG_SAMPLE_002',
-          companyName: '제조혁신(주)',
-          contactName: '박이사',
-          industry: '제조업',
-          totalScore: 78.3,
-          grade: 'B',
-          createdAt: '2025-01-14T14:20:00Z',
-          status: 'completed',
-          reportUrl: '/diagnosis-results/DIAG_SAMPLE_002'
-        },
-        {
-          diagnosisId: 'DIAG_SAMPLE_003',
-          companyName: '글로벌무역(주)',
-          contactName: '이부장',
-          industry: '도소매업',
-          totalScore: 65.8,
-          grade: 'C',
-          createdAt: '2025-01-13T09:15:00Z',
-          status: 'completed',
-          reportUrl: '/diagnosis-results/DIAG_SAMPLE_003'
-        },
-        {
-          diagnosisId: 'DIAG_PROCESSING_001',
-          companyName: '신규기업(주)',
-          contactName: '최대표',
-          industry: '서비스업',
-          totalScore: 0,
-          grade: '-',
-          createdAt: '2025-01-16T16:45:00Z',
-          status: 'processing'
-        }
-      );
-      
-      setReports(sampleReports);
-      setIsLoading(false);
     };
 
     loadReports();
@@ -423,10 +473,10 @@ export default function DiagnosisReportsPage() {
                       <div className="flex items-center gap-2 ml-4">
                         {report.status === 'completed' && report.reportUrl && (
                           <>
-                            <Link href={report.reportUrl}>
+                            <Link href={`/diagnosis-results/${report.diagnosisId}`}>
                               <Button variant="outline" size="sm">
                                 <Eye className="h-4 w-4 mr-2" />
-                                보기
+                                24페이지 보기
                               </Button>
                             </Link>
                             <Button 
@@ -435,7 +485,7 @@ export default function DiagnosisReportsPage() {
                               onClick={() => handleDownloadReport(report)}
                             >
                               <Download className="h-4 w-4 mr-2" />
-                              HTML 다운로드
+                              V23.1 다운로드
                             </Button>
                           </>
                         )}
