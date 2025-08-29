@@ -1041,7 +1041,7 @@ const Real45QuestionForm: React.FC = () => {
           
           // HTML 보고서 생성 및 저장
           try {
-            const EnhancedReportStorage = (await import('@/lib/diagnosis/enhanced-report-storage')).default;
+            const { generateCompleteReport } = await import('@/lib/diagnosis/enhanced-report-storage');
             
             // V23.0 DiagnosisData 형식으로 구성
             const diagnosisData = {
@@ -1069,8 +1069,8 @@ const Real45QuestionForm: React.FC = () => {
               timestamp: new Date().toISOString()
             };
 
-            // V23.0 Enhanced HTML 보고서 생성
-            const htmlReport = await EnhancedReportStorage.generateCompleteReport(diagnosisData, {
+            // V27.0 Ultimate 35페이지 HTML 보고서 생성
+            const htmlReport = await generateCompleteReport(diagnosisData, {
               useAdvancedAnalysis: true,
               includeCharts: true,
               includeBenchmarks: true,
@@ -1078,7 +1078,7 @@ const Real45QuestionForm: React.FC = () => {
               language: 'ko'
             });
             
-            console.log('✅ V23.0 Enhanced HTML 보고서 생성 성공');
+            console.log('✅ V27.0 Ultimate 35페이지 HTML 보고서 생성 성공');
             
             // 로컬 스토리지에 보고서 저장 (브라우저에서 접근 가능)
             const reportKey = `aicamp_report_${diagnosisId}`;
