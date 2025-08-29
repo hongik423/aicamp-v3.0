@@ -1041,7 +1041,7 @@ const Real45QuestionForm: React.FC = () => {
           
           // HTML 보고서 생성 및 저장
           try {
-            const { generateCompleteReport } = await import('@/lib/diagnosis/enhanced-report-storage');
+            const { EnhancedReportStorageV24 } = await import('@/lib/diagnosis/enhanced-report-storage');
             
             // V23.0 DiagnosisData 형식으로 구성
             const diagnosisData = {
@@ -1070,7 +1070,7 @@ const Real45QuestionForm: React.FC = () => {
             };
 
             // V27.0 Ultimate 35페이지 HTML 보고서 생성
-            const htmlReport = await generateCompleteReport(diagnosisData, {
+            const htmlReport = await EnhancedReportStorageV24.generateCompleteReport(diagnosisData, {
               useAdvancedAnalysis: true,
               includeCharts: true,
               includeBenchmarks: true,

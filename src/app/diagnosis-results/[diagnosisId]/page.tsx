@@ -54,7 +54,24 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         })
       });
 
-      const result = await response.json();
+      // 응답 상태 확인
+      if (!response.ok) {
+        throw new Error(`권한 검증 실패: ${response.status} ${response.statusText}`);
+      }
+
+      // 응답 텍스트 확인 후 JSON 파싱
+      const responseText = await response.text();
+      if (!responseText) {
+        throw new Error('빈 응답을 받았습니다.');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ JSON 파싱 오류:', parseError, '응답 텍스트:', responseText);
+        throw new Error('서버 응답 형식이 올바르지 않습니다.');
+      }
       
       if (result.success) {
         console.log('✅ 접근 권한 확인됨');
@@ -69,7 +86,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     } catch (error: any) {
       console.error('❌ 권한 검증 오류:', error);
       setIsAuthorized(false);
-      setError('권한 검증 중 오류가 발생했습니다.');
+      setError(error.message || '권한 검증 중 오류가 발생했습니다.');
     } finally {
       setAuthLoading(false);
     }
@@ -97,7 +114,19 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         throw new Error(`보고서 로드 실패: ${response.status} ${response.statusText}`);
       }
 
-      const result = await response.json();
+      // 응답 텍스트 확인 후 JSON 파싱
+      const responseText = await response.text();
+      if (!responseText) {
+        throw new Error('빈 응답을 받았습니다.');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ JSON 파싱 오류:', parseError, '응답 텍스트:', responseText);
+        throw new Error('서버 응답 형식이 올바르지 않습니다.');
+      }
       
       if (result.success && result.htmlReport) {
         console.log('✅ V25.5 보고서 로드 실패 해결 - 보고서 로드 성공');

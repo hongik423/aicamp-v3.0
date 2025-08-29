@@ -610,3 +610,6 @@ export class EnhancedReportStorageV24 {
     }
   }
 }
+
+// 별도 export를 위한 함수
+export const generateCompleteReport = EnhancedReportStorageV24.generateCompleteReport;
