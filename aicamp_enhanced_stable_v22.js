@@ -1481,8 +1481,8 @@ function createApplicantEmailTemplate(data, scoreData) {
     <div class="container">
         <div class="header">
             <div class="logo-section">
-                <div style="width: 40px; height: 40px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                    <span style="color: #4a90e2; font-weight: bold; font-size: 20px;">AI</span>
+                <div style="width: 60px; height: 60px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <img src="https://aicamp.club/images/aicamp_logo_del_250726.png" alt="AICAMP 로고" style="width: 50px; height: 50px; object-fit: contain;">
                 </div>
                 <div class="logo-text">AICAMP</div>
             </div>
@@ -1568,6 +1568,47 @@ function createApplicantEmailTemplate(data, scoreData) {
                         <li>업계 벤치마킹 결과</li>
                         <li>맞춤형 AI 전략 로드맵</li>
                     </ul>
+                </div>
+            </div>
+            
+            <div class="report-section" style="background: #e8f5e8; border: 2px solid #4caf50;">
+                <div class="report-title" style="color: #2e7d32;">🔑 진단 결과 조회 방법</div>
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #4caf50;">
+                    <h4 style="color: #2e7d32; margin-bottom: 15px;">📋 귀하의 진단 정보</h4>
+                    <div style="margin-bottom: 15px;">
+                        <strong>진단ID:</strong> 
+                        <code style="background: #f5f5f5; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 14px; color: #2e7d32; font-weight: bold;">
+                            ${data.diagnosisId || 'DIAG_45Q_' + Date.now()}
+                        </code>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <strong>회사명:</strong> ${data.companyName || 'N/A'}<br>
+                        <strong>담당자:</strong> ${data.contactName || 'N/A'}<br>
+                        <strong>진단일시:</strong> ${new Date().toLocaleString('ko-KR')}
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6;">
+                        <h5 style="color: #2e7d32; margin-bottom: 10px;">💡 결과 조회 방법</h5>
+                        <ol style="margin: 0; padding-left: 20px; color: #495057;">
+                            <li style="margin-bottom: 8px;">아래 <strong>"진단 결과 보기"</strong> 버튼을 클릭하세요</li>
+                            <li style="margin-bottom: 8px;">또는 <strong>aicamp.club/report-access</strong>에 접속하세요</li>
+                            <li style="margin-bottom: 8px;">위의 <strong>진단ID</strong>를 입력하세요</li>
+                            <li style="margin-bottom: 8px;">본인의 진단 결과를 확인할 수 있습니다</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="https://aicamp.club/report-access" class="btn" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                        🔍 진단 결과 보기
+                    </a>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px;">
+                    <p style="margin: 0; color: #856404; font-size: 14px;">
+                        <strong>⚠️ 보안 안내:</strong> 진단ID는 본인만 사용할 수 있는 고유한 식별번호입니다. 
+                        타인과 공유하지 마시고 안전하게 보관해 주세요.
+                    </p>
                 </div>
             </div>
             
@@ -2128,6 +2169,18 @@ function doPost(e) {
           result = runSystemTest();
           break;
           
+        case 'admin_query':
+          result = processAdminQuery(requestData);
+          break;
+          
+        case 'query_diagnosis':
+          result = queryDiagnosisById(requestData);
+          break;
+          
+        case 'verify_diagnosis_id':
+          result = verifyDiagnosisId(requestData);
+          break;
+          
         default:
           console.log(`⚠️ 알 수 없는 요청 타입 '${requestType}', AI 역량진단으로 처리`);
           result = processDiagnosis(requestData);
@@ -2216,6 +2269,351 @@ function doGet(e) {
     return ContentService
       .createTextOutput(JSON.stringify(errorResponse))
       .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ================================================================================
+// 🔍 데이터 조회 및 관리자 기능
+// ================================================================================
+
+/**
+ * 관리자 쿼리 처리 함수
+ */
+function processAdminQuery(requestData) {
+  try {
+    console.log('📊 관리자 쿼리 처리 시작');
+    
+    const action = requestData.action || 'get_all_diagnosis_reports';
+    
+    switch (action) {
+      case 'get_all_diagnosis_reports':
+        return getAllDiagnosisReports();
+      default:
+        throw new Error(`알 수 없는 관리자 액션: ${action}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ 관리자 쿼리 처리 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * 모든 진단 결과 조회 (관리자용)
+ */
+function getAllDiagnosisReports() {
+  try {
+    console.log('📋 모든 진단 결과 조회 시작');
+    
+    const config = getEnvironmentConfig();
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (sheetError) {
+      throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
+    }
+    
+    const sheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    
+    if (!sheet) {
+      return {
+        success: true,
+        data: [],
+        message: '진단 데이터가 없습니다.',
+        summary: {
+          totalReports: 0,
+          averageScore: 0,
+          topGrade: 'N/A',
+          todayReports: 0
+        }
+      };
+    }
+    
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      return {
+        success: true,
+        data: [],
+        message: '진단 데이터가 없습니다.',
+        summary: {
+          totalReports: 0,
+          averageScore: 0,
+          topGrade: 'N/A',
+          todayReports: 0
+        }
+      };
+    }
+    
+    // 헤더를 제외한 모든 데이터 조회
+    const dataRange = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn());
+    const values = dataRange.getValues();
+    
+    const reports = [];
+    const today = new Date().toDateString();
+    let totalScore = 0;
+    let todayCount = 0;
+    let topGrade = 'F';
+    
+    values.forEach(row => {
+      if (row[0]) { // 진단ID가 있는 행만 처리
+        const report = {
+          diagnosisId: row[0],
+          submittedAt: row[1],
+          companyName: row[2],
+          contactName: row[3],
+          contactEmail: row[4],
+          contactPhone: row[5],
+          position: row[6],
+          industry: row[7],
+          employeeCount: row[8],
+          annualRevenue: row[9],
+          location: row[10],
+          totalScore: row[11],
+          percentage: row[12],
+          grade: row[13],
+          maturityLevel: row[14],
+          businessFoundationScore: row[15],
+          currentAIScore: row[16],
+          organizationReadinessScore: row[17],
+          techInfrastructureScore: row[18],
+          goalClarityScore: row[19],
+          executionCapabilityScore: row[20],
+          status: row[21],
+          createdAt: row[22]
+        };
+        
+        reports.push(report);
+        totalScore += report.totalScore || 0;
+        
+        // 오늘 제출된 진단 수 계산
+        if (row[1] && new Date(row[1]).toDateString() === today) {
+          todayCount++;
+        }
+        
+        // 최고 등급 계산
+        if (report.grade && report.grade > topGrade) {
+          topGrade = report.grade;
+        }
+      }
+    });
+    
+    const averageScore = reports.length > 0 ? Math.round(totalScore / reports.length) : 0;
+    
+    console.log(`✅ 진단 결과 조회 완료: ${reports.length}건`);
+    
+    return {
+      success: true,
+      data: reports,
+      summary: {
+        totalReports: reports.length,
+        averageScore: averageScore,
+        topGrade: topGrade,
+        todayReports: todayCount
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 모든 진단 결과 조회 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * 특정 진단 ID로 데이터 조회
+ */
+function queryDiagnosisById(requestData) {
+  try {
+    console.log('🔍 진단 ID로 데이터 조회:', requestData.diagnosisId);
+    
+    if (!requestData.diagnosisId) {
+      throw new Error('진단 ID가 필요합니다.');
+    }
+    
+    const config = getEnvironmentConfig();
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (sheetError) {
+      throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
+    }
+    
+    // 메인 시트에서 기본 정보 조회
+    const mainSheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    const detailSheet = spreadsheet.getSheetByName(config.DETAIL_SHEET_NAME);
+    
+    if (!mainSheet) {
+      throw new Error('메인 데이터 시트를 찾을 수 없습니다.');
+    }
+    
+    const lastRow = mainSheet.getLastRow();
+    if (lastRow <= 1) {
+      throw new Error('진단 데이터가 없습니다.');
+    }
+    
+    // 진단 ID로 데이터 검색
+    const dataRange = mainSheet.getRange(2, 1, lastRow - 1, mainSheet.getLastColumn());
+    const values = dataRange.getValues();
+    
+    let foundRow = null;
+    for (let i = 0; i < values.length; i++) {
+      if (values[i][0] === requestData.diagnosisId) {
+        foundRow = values[i];
+        break;
+      }
+    }
+    
+    if (!foundRow) {
+      throw new Error('해당 진단 ID의 데이터를 찾을 수 없습니다.');
+    }
+    
+    // 상세 데이터도 조회 (45문항 응답)
+    let detailResponses = {};
+    if (detailSheet) {
+      const detailLastRow = detailSheet.getLastRow();
+      if (detailLastRow > 4) { // 헤더 4행 제외
+        const detailDataRange = detailSheet.getRange(5, 1, detailLastRow - 4, detailSheet.getLastColumn());
+        const detailValues = detailDataRange.getValues();
+        
+        // 진단 ID 또는 회사명/담당자명으로 매칭
+        for (let i = 0; i < detailValues.length; i++) {
+          const detailRow = detailValues[i];
+          if (detailRow[1] === foundRow[2] && detailRow[2] === foundRow[3]) { // 회사명, 담당자명 매칭
+            // 45문항 응답 추출 (9번째 컬럼부터 53번째 컬럼까지)
+            for (let j = 0; j < 45; j++) {
+              detailResponses[j + 1] = detailRow[9 + j] || 0;
+            }
+            break;
+          }
+        }
+      }
+    }
+    
+    const diagnosisData = {
+      diagnosisId: foundRow[0],
+      companyName: foundRow[2],
+      contactName: foundRow[3],
+      contactEmail: foundRow[4],
+      contactPhone: foundRow[5],
+      position: foundRow[6],
+      industry: foundRow[7],
+      employeeCount: foundRow[8],
+      annualRevenue: foundRow[9],
+      location: foundRow[10],
+      totalScore: foundRow[11],
+      percentage: foundRow[12],
+      grade: foundRow[13],
+      maturityLevel: foundRow[14],
+      categoryScores: {
+        businessFoundation: foundRow[15],
+        currentAI: foundRow[16],
+        organizationReadiness: foundRow[17],
+        techInfrastructure: foundRow[18],
+        goalClarity: foundRow[19],
+        executionCapability: foundRow[20]
+      },
+      responses: detailResponses,
+      assessmentResponses: detailResponses,
+      status: foundRow[21],
+      timestamp: foundRow[22]
+    };
+    
+    console.log('✅ 진단 데이터 조회 완료:', requestData.diagnosisId);
+    
+    return {
+      success: true,
+      data: diagnosisData,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 진단 ID 조회 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * 진단 ID 존재 여부 확인
+ */
+function verifyDiagnosisId(requestData) {
+  try {
+    console.log('🔐 진단 ID 검증:', requestData.diagnosisId);
+    
+    if (!requestData.diagnosisId) {
+      throw new Error('진단 ID가 필요합니다.');
+    }
+    
+    const config = getEnvironmentConfig();
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (sheetError) {
+      throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
+    }
+    
+    const sheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    
+    if (!sheet) {
+      return {
+        success: true,
+        exists: false,
+        message: '데이터 시트가 없습니다.'
+      };
+    }
+    
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      return {
+        success: true,
+        exists: false,
+        message: '진단 데이터가 없습니다.'
+      };
+    }
+    
+    // 진단 ID로 데이터 검색
+    const dataRange = sheet.getRange(2, 1, lastRow - 1, 1); // 첫 번째 컬럼만 (진단 ID)
+    const values = dataRange.getValues();
+    
+    let exists = false;
+    for (let i = 0; i < values.length; i++) {
+      if (values[i][0] === requestData.diagnosisId) {
+        exists = true;
+        break;
+      }
+    }
+    
+    console.log(`✅ 진단 ID 검증 완료: ${requestData.diagnosisId} - ${exists ? '존재함' : '존재하지 않음'}`);
+    
+    return {
+      success: true,
+      exists: exists,
+      diagnosisId: requestData.diagnosisId,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 진단 ID 검증 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      exists: false,
+      timestamp: new Date().toISOString()
+    };
   }
 }
 

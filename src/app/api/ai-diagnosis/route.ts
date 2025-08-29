@@ -236,12 +236,13 @@ export async function POST(request: NextRequest) {
           contactName: requestData.contactName,
           contactEmail: requestData.contactEmail,
           contactPhone: requestData.contactPhone || '',
+          position: requestData.position || requestData.contactPosition || '', // 직책 필드 추가
           industry: requestData.industry || '',
           employeeCount: requestData.employeeCount || '',
           annualRevenue: requestData.annualRevenue || '',
           location: requestData.location || '',
           
-          // 45문항 응답 (V22 호환 형식 - 배열 또는 객체)
+          // 45문항 응답 (V22 호환 형식 - 객체 형태로 통일)
           responses: requestData.assessmentResponses || requestData.responses,
           assessmentResponses: requestData.assessmentResponses || requestData.responses,
           
