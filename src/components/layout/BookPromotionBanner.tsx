@@ -356,7 +356,6 @@ const BookPromotionBanner: React.FC<BookPromotionBannerProps> = ({ forceVisible 
                             fill
                             sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, (max-width: 1024px) 256px, 256px"
                             style={{ objectFit: 'cover' }}
-                            priority
                             onLoad={handleImageLoad}
                             onError={handleImageError}
                             className={`transition-transform duration-300 ${

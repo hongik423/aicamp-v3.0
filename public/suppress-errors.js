@@ -1,6 +1,12 @@
 // 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 V23.1 Enhanced
 (function() {
-console.log('🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 활성화');
+  // 중복 로딩 방지
+  if (window.AICAMP_ERROR_SUPPRESSION_LOADED) {
+    return;
+  }
+  window.AICAMP_ERROR_SUPPRESSION_LOADED = true;
+  
+  console.log('🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 활성화');
 
 const errorPatterns = [
   // Chrome Extension 관련 (강화)

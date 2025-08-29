@@ -301,8 +301,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-navbutton-color" content="#3b82f6" />
         
-        {/* 오류 차단 스크립트 - 최우선 로드 */}
-        <script src="/suppress-errors.js" suppressHydrationWarning />
+        {/* 오류 차단 스크립트 - 최우선 로드 (중복 방지) */}
+        <script 
+          src="/suppress-errors.js" 
+          suppressHydrationWarning
+          id="suppress-errors-script"
+        />
         
 
         

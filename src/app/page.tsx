@@ -409,7 +409,6 @@ export default function Home() {
                       fill
                       sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, (max-width: 1024px) 256px, 288px"
                       style={{ objectFit: 'cover' }}
-                      priority
                       className="group-hover:brightness-110 transition-all duration-300"
                     />
                     {/* 호버 효과 오버레이 */}
