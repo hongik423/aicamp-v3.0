@@ -122,7 +122,7 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* AI역량진단 버튼 - 데스크톱 (최신 경로로 통일) */}
+          {/* AI역량진단 & 상담신청 버튼 - 데스크톱 (최신 경로로 통일) */}
           <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
@@ -136,6 +136,22 @@ export default function Header() {
               <span>AI역량진단</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
+              </Badge>
+            </Link>
+            
+            {/* 네비바 상담신청 버튼 - AI역량진단 바로 옆, 격을 높인 디자인 */}
+            <Link
+              href="/consultation"
+              className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2.5 rounded-xl text-xs xl:text-sm font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30"
+              onClick={() => {
+                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                hideAllBanners();
+                console.log('헤더 네비바 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+              }}
+            >
+              <span className="font-black">네비바 상담신청</span>
+              <Badge variant="secondary" className="ml-1 text-xs bg-white/30 text-white border-0 font-bold">
+                HOT
               </Badge>
             </Link>
             
@@ -192,7 +208,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* AI역량진단 버튼 - 태블릿용 (최신 경로로 통일) */}
+          {/* AI역량진단 & 상담신청 버튼 - 태블릿용 (최신 경로로 통일) */}
           <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
@@ -207,6 +223,22 @@ export default function Header() {
               <span className="sm:hidden">AI역량진단</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
+              </Badge>
+            </Link>
+            
+            {/* 네비바 상담신청 버튼 - 태블릿용, AI역량진단 바로 옆, 격을 높인 디자인 */}
+            <Link
+              href="/consultation"
+              className="inline-flex items-center px-3 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30"
+              onClick={() => {
+                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                hideAllBanners();
+                console.log('헤더 태블릿 네비바 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+              }}
+            >
+              <span className="font-black">네비바 상담신청</span>
+              <Badge variant="secondary" className="ml-1 text-xs bg-white/30 text-white border-0 font-bold">
+                HOT
               </Badge>
             </Link>
             
@@ -225,7 +257,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* 태블릿용 스마트 네비게이션 - 자동 조절 */}
+          {/* 태블릿용 스마트 네비게이션 - 자동 조절 (상담신청은 상단 버튼으로 이동) */}
           <nav className="hidden md:flex lg:hidden items-center justify-center flex-1 min-w-0 mx-2 overflow-hidden">
             <div className="flex items-center space-x-1 overflow-hidden">
               <Link
@@ -241,17 +273,11 @@ export default function Header() {
                 AI벤치마크
               </Link>
               <Link
-                href="/consultation"
+                href="/about"
                 className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
-                onClick={() => {
-                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                  hideAllBanners();
-                  console.log('헤더 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
-                }}
               >
-                상담신청
+                AICAMP소개
               </Link>
-              
               <Link
                 href="/tax-calculator"
                 className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
@@ -288,7 +314,6 @@ export default function Header() {
             }}
             className="md:hidden p-3 rounded-lg text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-all duration-300 touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-[48px] min-h-[48px]"
             aria-label={isMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
-            aria-expanded={isMenuOpen ? 'true' : 'false'}
           >
             <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : 'rotate-0'}`}>
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -334,6 +359,23 @@ export default function Header() {
                 </Badge>
               </Link>
 
+              {/* 네비바 상담신청 버튼 - AI역량진단 바로 다음, 격을 높인 디자인 */}
+              <Link
+                href="/consultation"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                  hideAllBanners();
+                  console.log('헤더 모바일 네비바 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                }}
+                className="flex items-center justify-between px-5 py-4 rounded-2xl font-black bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 touch-manipulation active:scale-95 mb-3 animate-pulse border-2 border-white/40"
+              >
+                <span className="text-lg font-black">🔥 네비바 상담신청</span>
+                <Badge variant="secondary" className="text-sm ml-2 bg-white/30 text-white border-0 font-black px-3 py-1">
+                  HOT
+                </Badge>
+              </Link>
+
               {/* n8n 커리큘럼 다운로드 버튼 - 모바일 */}
               <button
                 onClick={() => {
@@ -362,11 +404,6 @@ export default function Header() {
                     href={item.href}
                     onClick={() => {
                       setIsMenuOpen(false);
-                      // 🎯 상담신청 버튼 클릭 시 배너 숨기기
-                      if (item.href === '/consultation') {
-                        hideAllBanners();
-                        console.log('헤더 모바일 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
-                      }
                     }}
                     className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation active:scale-95"
                   >
@@ -379,21 +416,16 @@ export default function Header() {
                   </Link>
                 ))}
                 
-                {/* 추가 서비스 그룹 */}
+                {/* 추가 서비스 그룹 (상담신청 제외) */}
                 <div className="text-xs font-semibold text-gray-500 px-2 py-1 uppercase tracking-wider mt-4">
                   추가 서비스
                 </div>
-                {navigation.slice(3).map((item) => (
+                {navigation.slice(3).filter(item => item.href !== '/consultation').map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => {
                       setIsMenuOpen(false);
-                      // 🎯 상담신청 버튼 클릭 시 배너 숨기기
-                      if (item.href === '/consultation') {
-                        hideAllBanners();
-                        console.log('헤더 모바일 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
-                      }
                     }}
                     className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation active:scale-95"
                     style={{ WebkitTapHighlightColor: 'transparent' }}

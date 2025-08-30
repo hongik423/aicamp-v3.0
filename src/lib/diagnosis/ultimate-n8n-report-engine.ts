@@ -4,6 +4,8 @@
  * 세계 최고 수준의 고몰입 조직구축 동기부여 보고서 생성
  */
 
+import { getIndustryCurriculum, generateIndustryEducationRecommendation } from './industry-specific-curriculums';
+
 export interface N8nAutomationSolution {
   category: string;
   title: string;
@@ -264,6 +266,301 @@ const INDUSTRY_N8N_SOLUTIONS: Record<string, IndustrySpecificAnalysis> = {
     ]
   },
 
+  '건설업': {
+    industry: '건설업',
+    characteristics: [
+      '프로젝트 기반 업무 특성',
+      '안전 관리 및 규정 준수 중요',
+      '다양한 협력업체 관리 필요',
+      '현장과 사무실 간 정보 공유 필수'
+    ],
+    automationOpportunities: [
+      '프로젝트 일정 관리 자동화',
+      '안전 점검 및 보고 자동화',
+      '자재 발주 및 재고 관리',
+      '현장 진행 상황 실시간 공유',
+      '품질 검사 및 준공 관리'
+    ],
+    n8nSolutions: [
+      {
+        category: '프로젝트 관리',
+        title: '스마트 건설 프로젝트 관리',
+        description: '공정 진행률 → 자동 업데이트 → 지연 알림 → 대응 조치 → 진행 보고',
+        tools: ['IoT 센서', 'Drone 촬영', 'MS Project', 'Slack', 'Google Sheets'],
+        benefits: ['공정 지연 50% 감소', '현장 가시성 80% 향상', '의사소통 효율성 60% 개선'],
+        implementation: [
+          '1단계: 현장 IoT 센서 및 모니터링 시스템 설치',
+          '2단계: 실시간 공정 진행률 추적 워크플로 구축',
+          '3단계: 자동 알림 및 보고 시스템 연동',
+          '4단계: 협력업체 통합 관리 플랫폼 구축'
+        ],
+        roi: '프로젝트 관리 비용 30% 절감, 공기 단축 15%'
+      },
+      {
+        category: '안전 관리',
+        title: '현장 안전 모니터링 자동화',
+        description: '안전 점검 → AI 위험 감지 → 즉시 알림 → 조치 지시 → 사고 예방',
+        tools: ['CCTV AI', 'Wearable Device', 'Emergency Alert', 'Safety App'],
+        benefits: ['안전사고 70% 감소', '안전 점검 효율성 90% 향상', '규정 준수율 100%'],
+        implementation: [
+          '1단계: AI 기반 현장 모니터링 시스템 구축',
+          '2단계: 웨어러블 안전 장비 연동',
+          '3단계: 실시간 위험 감지 및 알림 시스템',
+          '4단계: 안전 교육 자동화 플랫폼 구축'
+        ],
+        roi: '안전 관리 비용 40% 절감, 보험료 25% 절약'
+      }
+    ],
+    competitiveAdvantage: [
+      'AI 기반 현장 관리로 공정 효율성 극대화',
+      '예측 분석을 통한 리스크 사전 대응',
+      '디지털 트윈 기술로 설계 최적화',
+      '스마트 건설 기술 선도로 시장 차별화'
+    ],
+    implementationRoadmap: [
+      '1개월: 핵심 현장 모니터링 시스템 구축',
+      '3개월: AI 기반 안전 관리 시스템 도입',
+      '6개월: 스마트 건설 플랫폼 완성',
+      '12개월: 건설 4.0 선도기업 도약'
+    ]
+  },
+
+  '교육업': {
+    industry: '교육업',
+    characteristics: [
+      '개인화 학습 요구 증가',
+      '학습 성과 측정 및 분석 중요',
+      '다양한 학습자 관리 필요',
+      '콘텐츠 품질 및 업데이트 지속 필요'
+    ],
+    automationOpportunities: [
+      '개인화 학습 경로 자동 생성',
+      '학습 성과 분석 자동화',
+      '출결 및 과제 관리 자동화',
+      '학부모 소통 자동화',
+      '교육 콘텐츠 자동 업데이트'
+    ],
+    n8nSolutions: [
+      {
+        category: '학습 관리',
+        title: '개인화 학습 관리 시스템',
+        description: '학습 데이터 → AI 분석 → 맞춤 학습 경로 → 진도 추적 → 성과 리포트',
+        tools: ['LMS API', 'ChatGPT API', 'Google Classroom', 'Zoom API', 'Analytics'],
+        benefits: ['학습 효과 40% 향상', '교사 업무 부담 50% 감소', '학부모 만족도 35% 증가'],
+        implementation: [
+          '1단계: 학습 데이터 통합 플랫폼 구축',
+          '2단계: AI 기반 개인화 추천 엔진 개발',
+          '3단계: 자동 진도 관리 및 알림 시스템',
+          '4단계: 학습 성과 분석 대시보드 구축'
+        ],
+        roi: '교육 운영 비용 25% 절감, 학습 성취도 30% 향상'
+      },
+      {
+        category: '행정 관리',
+        title: '교육 행정 업무 자동화',
+        description: '출결 체크 → 성적 관리 → 학부모 알림 → 상담 일정 → 보고서 생성',
+        tools: ['QR Code', 'Google Forms', 'Email API', 'Calendar API', 'PDF Generator'],
+        benefits: ['행정 업무 시간 60% 단축', '정확성 95% 향상', '학부모 소통 효율성 80% 개선'],
+        implementation: [
+          '1단계: 디지털 출결 시스템 구축',
+          '2단계: 자동 성적 관리 및 분석',
+          '3단계: 학부모 소통 자동화 플랫폼',
+          '4단계: 종합 교육 관리 대시보드'
+        ],
+        roi: '행정 비용 35% 절감, 교육 품질 관리 효율성 50% 향상'
+      }
+    ],
+    competitiveAdvantage: [
+      'AI 기반 개인화 교육으로 학습 효과 극대화',
+      '데이터 기반 교육 운영으로 품질 일관성 확보',
+      '자동화된 행정 시스템으로 교육 집중도 향상',
+      '실시간 학습 분석으로 조기 개입 체계 구축'
+    ],
+    implementationRoadmap: [
+      '1개월: 핵심 학습 관리 시스템 자동화',
+      '3개월: AI 기반 개인화 교육 플랫폼 구축',
+      '6개월: 통합 교육 관리 생태계 완성',
+      '12개월: 에듀테크 선도기관 도약'
+    ]
+  },
+
+  '의료업': {
+    industry: '의료업',
+    characteristics: [
+      '환자 안전 및 의료 품질 최우선',
+      '정확한 진단 및 치료 기록 필수',
+      '의료진 간 협업 및 정보 공유 중요',
+      '의료 규정 및 개인정보보호 엄격'
+    ],
+    automationOpportunities: [
+      '환자 진료 기록 자동화',
+      '의료 스케줄 최적화',
+      '의료진 업무 분담 자동화',
+      '환자 만족도 조사 자동화',
+      '의료 재고 관리 자동화'
+    ],
+    n8nSolutions: [
+      {
+        category: '진료 관리',
+        title: '스마트 진료 워크플로',
+        description: '예약 → 접수 → 진료 → 처방 → 수납 → 후속 관리 자동화',
+        tools: ['EMR System', 'Appointment API', 'Payment Gateway', 'SMS API', 'Analytics'],
+        benefits: ['대기 시간 40% 단축', '진료 효율성 35% 향상', '환자 만족도 30% 증가'],
+        implementation: [
+          '1단계: 통합 예약 관리 시스템 구축',
+          '2단계: 진료 프로세스 자동화 워크플로',
+          '3단계: 환자 커뮤니케이션 자동화',
+          '4단계: 진료 품질 모니터링 시스템'
+        ],
+        roi: '운영 효율성 30% 향상, 환자 서비스 품질 25% 개선'
+      },
+      {
+        category: '의료 관리',
+        title: '의료진 업무 최적화',
+        description: '환자 상태 모니터링 → AI 분석 → 우선순위 알림 → 치료 가이드',
+        tools: ['Patient Monitor', 'AI Diagnosis', 'Alert System', 'Medical Database'],
+        benefits: ['진단 정확도 20% 향상', '의료진 업무 부담 30% 감소', '응급 대응 시간 50% 단축'],
+        implementation: [
+          '1단계: 환자 모니터링 데이터 통합',
+          '2단계: AI 기반 진단 보조 시스템',
+          '3단계: 의료진 알림 및 가이드 시스템',
+          '4단계: 의료 품질 관리 자동화'
+        ],
+        roi: '의료 오류 80% 감소, 치료 효과 25% 향상'
+      }
+    ],
+    competitiveAdvantage: [
+      'AI 진단 보조로 의료 정확성 극대화',
+      '환자 중심 자동화 서비스로 만족도 향상',
+      '의료진 업무 효율성으로 치료 집중도 강화',
+      '데이터 기반 의료 품질 관리 체계 구축'
+    ],
+    implementationRoadmap: [
+      '1개월: 핵심 진료 프로세스 자동화',
+      '3개월: AI 진단 보조 시스템 도입',
+      '6개월: 통합 의료 관리 플랫폼 구축',
+      '12개월: 스마트 헬스케어 선도기관 완성'
+    ]
+  },
+
+  '운송업': {
+    industry: '운송업',
+    characteristics: [
+      '실시간 위치 추적 및 관리 필수',
+      '연료비 및 운영비 최적화 중요',
+      '안전 운행 및 사고 예방 필수',
+      '고객 서비스 및 배송 품질 관리'
+    ],
+    automationOpportunities: [
+      '배송 경로 최적화 자동화',
+      '차량 상태 모니터링 자동화',
+      '운행 일지 자동 생성',
+      '고객 배송 알림 자동화',
+      '연료비 분석 및 최적화'
+    ],
+    n8nSolutions: [
+      {
+        category: '배송 관리',
+        title: '스마트 배송 최적화',
+        description: '주문 접수 → 경로 최적화 → 실시간 추적 → 배송 완료 → 고객 알림',
+        tools: ['GPS Tracker', 'Route Optimizer', 'SMS API', 'Google Maps API', 'Analytics'],
+        benefits: ['배송 시간 25% 단축', '연료비 20% 절감', '고객 만족도 40% 향상'],
+        implementation: [
+          '1단계: 실시간 차량 추적 시스템 구축',
+          '2단계: AI 기반 경로 최적화 엔진',
+          '3단계: 고객 알림 자동화 시스템',
+          '4단계: 배송 성과 분석 대시보드'
+        ],
+        roi: '운송 비용 30% 절감, 배송 품질 35% 향상'
+      },
+      {
+        category: '차량 관리',
+        title: '예측 정비 및 차량 관리',
+        description: '차량 데이터 → AI 분석 → 정비 예측 → 자동 예약 → 비용 최적화',
+        tools: ['OBD Scanner', 'Maintenance API', 'Calendar API', 'Cost Tracker'],
+        benefits: ['차량 고장 60% 감소', '정비 비용 25% 절감', '차량 가동률 15% 향상'],
+        implementation: [
+          '1단계: 차량 상태 실시간 모니터링',
+          '2단계: 예측 정비 AI 모델 구축',
+          '3단계: 자동 정비 예약 시스템',
+          '4단계: 차량 운영 최적화 플랫폼'
+        ],
+        roi: '차량 운영비 35% 절감, 서비스 가용성 20% 향상'
+      }
+    ],
+    competitiveAdvantage: [
+      'AI 경로 최적화로 운송 효율성 극대화',
+      '예측 정비로 차량 가동률 및 안전성 확보',
+      '실시간 추적으로 고객 서비스 품질 향상',
+      '데이터 기반 운영 최적화로 수익성 강화'
+    ],
+    implementationRoadmap: [
+      '1개월: 핵심 배송 추적 시스템 자동화',
+      '3개월: AI 기반 경로 최적화 시스템 구축',
+      '6개월: 통합 운송 관리 플랫폼 완성',
+      '12개월: 스마트 로지스틱스 선도기업 달성'
+    ]
+  },
+
+  '농업': {
+    industry: '농업',
+    characteristics: [
+      '기후 및 환경 변수 의존성 높음',
+      '생육 단계별 정밀 관리 필요',
+      '수확량 및 품질 최적화 중요',
+      '지속가능한 농업 실천 요구'
+    ],
+    automationOpportunities: [
+      '스마트팜 환경 제어 자동화',
+      '작물 생육 모니터링 자동화',
+      '병해충 예측 및 방제 자동화',
+      '수확 시기 예측 자동화',
+      '농산물 유통 관리 자동화'
+    ],
+    n8nSolutions: [
+      {
+        category: '스마트팜',
+        title: '정밀 농업 자동화 시스템',
+        description: '환경 센서 → 데이터 분석 → 자동 제어 → 생육 최적화 → 수확량 예측',
+        tools: ['IoT 센서', 'Weather API', 'Irrigation Control', 'AI Vision', 'Analytics'],
+        benefits: ['수확량 30% 증가', '물 사용량 40% 절감', '농약 사용 50% 감소'],
+        implementation: [
+          '1단계: 환경 모니터링 센서 네트워크 구축',
+          '2단계: AI 기반 생육 분석 시스템 개발',
+          '3단계: 자동 환경 제어 시스템 연동',
+          '4단계: 수확량 예측 및 최적화 플랫폼'
+        ],
+        roi: '농업 생산성 35% 향상, 운영비 30% 절감'
+      },
+      {
+        category: '유통 관리',
+        title: '농산물 유통 최적화',
+        description: '생산 계획 → 품질 검사 → 유통 경로 → 가격 최적화 → 판매 분석',
+        tools: ['Quality Scanner', 'Price API', 'Logistics API', 'Market Analysis'],
+        benefits: ['유통 마진 25% 향상', '폐기율 60% 감소', '시장 대응력 50% 강화'],
+        implementation: [
+          '1단계: 품질 자동 검사 시스템 구축',
+          '2단계: 시장 가격 모니터링 자동화',
+          '3단계: 최적 유통 경로 선택 시스템',
+          '4단계: 농산물 브랜딩 및 마케팅 자동화'
+        ],
+        roi: '유통 수익 40% 증가, 시장 점유율 20% 확대'
+      }
+    ],
+    competitiveAdvantage: [
+      'IoT 기반 정밀 농업으로 생산성 극대화',
+      'AI 예측 분석으로 리스크 최소화',
+      '친환경 스마트팜으로 지속가능성 확보',
+      '데이터 기반 농업 경영으로 수익성 향상'
+    ],
+    implementationRoadmap: [
+      '1개월: 핵심 환경 모니터링 자동화',
+      '3개월: AI 기반 생육 관리 시스템 구축',
+      '6개월: 통합 스마트팜 플랫폼 완성',
+      '12개월: 농업 4.0 선도농가 달성'
+    ]
+  },
+
   '유통/소매업': {
     industry: '유통/소매업',
     characteristics: [
@@ -472,17 +769,32 @@ export class UltimateN8nReportEngine {
   private static getIndustrySpecificAnalysis(data: UltimateReportData): IndustrySpecificAnalysis {
     const industry = data.companyInfo.industry || 'IT/소프트웨어';
     
-    // 업종 매핑 (유사 업종 포함)
+    // 정확한 업종 매핑 (모든 업종 지원)
     let mappedIndustry = 'IT/소프트웨어';
     
-    if (industry.includes('제조') || industry.includes('생산') || industry.includes('공장')) {
+    // 직접 매칭 우선
+    if (INDUSTRY_N8N_SOLUTIONS[industry]) {
+      mappedIndustry = industry;
+    }
+    // 키워드 기반 매핑 (기타 업종 포함)
+    else if (industry.includes('제조') || industry.includes('생산') || industry.includes('공장')) {
       mappedIndustry = '제조업';
-    } else if (industry.includes('서비스') || industry.includes('교육') || industry.includes('의료') || industry.includes('컨설팅')) {
-      mappedIndustry = '서비스업';
+    } else if (industry.includes('건설') || industry.includes('시공') || industry.includes('토목')) {
+      mappedIndustry = '건설업';
+    } else if (industry.includes('교육') || industry.includes('학교') || industry.includes('학원') || industry.includes('대학')) {
+      mappedIndustry = '교육업';
+    } else if (industry.includes('의료') || industry.includes('병원') || industry.includes('클리닉') || industry.includes('헬스케어')) {
+      mappedIndustry = '의료업';
+    } else if (industry.includes('운송') || industry.includes('물류') || industry.includes('배송') || industry.includes('택배')) {
+      mappedIndustry = '운송업';
+    } else if (industry.includes('농업') || industry.includes('농장') || industry.includes('축산') || industry.includes('어업')) {
+      mappedIndustry = '농업';
     } else if (industry.includes('금융') || industry.includes('은행') || industry.includes('보험') || industry.includes('증권')) {
       mappedIndustry = '금융업';
     } else if (industry.includes('유통') || industry.includes('소매') || industry.includes('이커머스') || industry.includes('쇼핑몰')) {
       mappedIndustry = '유통/소매업';
+    } else if (industry.includes('서비스') || industry.includes('컨설팅') || industry.includes('외식') || industry.includes('호텔')) {
+      mappedIndustry = '서비스업';
     }
     
     const baseAnalysis = INDUSTRY_N8N_SOLUTIONS[mappedIndustry];
@@ -1085,6 +1397,44 @@ export class UltimateN8nReportEngine {
             </div>
         </div>
 
+        <!-- 맞춤 교육 추천 -->
+        <div class="section">
+            <h2 class="section-title">🎓 ${industryAnalysis.industry} 맞춤 n8n 자동화 교육 추천</h2>
+            
+            <div style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f9ff 100%); padding: 40px; border-radius: 25px; margin: 30px 0;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h3 style="color: #1e40af; font-size: 2rem; font-weight: 700; margin-bottom: 15px;">
+                        🚀 AICAMP ${industryAnalysis.industry} 전문 교육 프로그램
+                    </h3>
+                    <p style="color: #3730a3; font-size: 1.2rem; font-weight: 500;">
+                        ${data.companyInfo.name}의 AI 준비도 ${data.scores.percentage}%에 최적화된 맞춤 교육
+                    </p>
+                </div>
+                
+                ${this.generateEducationRecommendationHTML(data.companyInfo.industry, data.scores.percentage)}
+                
+                <div style="background: white; padding: 30px; border-radius: 20px; margin: 25px 0; border: 2px solid #3b82f6;">
+                    <h4 style="color: #1e40af; font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; text-align: center;">
+                        📞 맞춤 교육 문의
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e40af; margin-bottom: 5px;">📧 이메일</div>
+                            <div style="color: #4b5563;">education@aicamp.co.kr</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: #1e40af; margin-bottom: 5px;">📱 전화</div>
+                            <div style="color: #4b5563;">010-9251-9743</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: #1e40af; margin-bottom: 5px;">🌐 웹사이트</div>
+                            <div style="color: #4b5563;">aicamp.club</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 실행 가이드 -->
         <div class="section">
             <h2 class="section-title">📋 AI 자동화 실행 가이드</h2>
@@ -1387,6 +1737,100 @@ export class UltimateN8nReportEngine {
           results: '불량률 60% 감소, 공급망 효율성 30% 향상',
           roi: '품질 비용 40% 절감, 고객 만족도 35% 증가'
         }
+      ],
+      '건설업': [
+        {
+          company: 'Autodesk Construction Cloud',
+          solution: 'BIM 연동 프로젝트 관리 및 협업 자동화',
+          results: '프로젝트 완료 시간 25% 단축, 설계 오류 70% 감소',
+          roi: '프로젝트 비용 20% 절감, 품질 향상 30%'
+        },
+        {
+          company: 'Komatsu Smart Construction',
+          solution: 'IoT 기반 건설장비 자동화 및 최적화',
+          results: '장비 가동률 30% 향상, 연료 소비 15% 감소',
+          roi: '운영비 25% 절감, 생산성 40% 향상'
+        }
+      ],
+      '교육업': [
+        {
+          company: 'Khan Academy',
+          solution: 'AI 기반 개인화 학습 경로 및 진도 관리',
+          results: '학습 완료율 60% 향상, 학습 시간 효율성 45% 증가',
+          roi: '교육 효과 50% 향상, 운영비 30% 절감'
+        },
+        {
+          company: 'Coursera for Business',
+          solution: '기업 교육 자동화 및 스킬 매칭 시스템',
+          results: '직원 스킬 향상 40% 가속화, 교육 ROI 3배 증가',
+          roi: '교육 비용 35% 절감, 직원 만족도 50% 향상'
+        }
+      ],
+      '의료업': [
+        {
+          company: 'Mayo Clinic',
+          solution: 'AI 진단 보조 및 환자 관리 자동화',
+          results: '진단 정확도 25% 향상, 환자 대기시간 40% 단축',
+          roi: '의료 효율성 35% 향상, 환자 만족도 45% 증가'
+        },
+        {
+          company: 'Cleveland Clinic',
+          solution: '예측 분석 기반 환자 케어 자동화',
+          results: '재입원율 30% 감소, 치료 성과 20% 향상',
+          roi: '의료비 25% 절감, 치료 품질 30% 개선'
+        }
+      ],
+      '운송업': [
+        {
+          company: 'UPS ORION',
+          solution: 'AI 기반 배송 경로 최적화 시스템',
+          results: '배송 거리 10% 단축, 연료비 15% 절감',
+          roi: '운송비 20% 절감, 고객 만족도 30% 향상'
+        },
+        {
+          company: 'DHL Smart Logistics',
+          solution: 'IoT 기반 물류 자동화 및 예측 분석',
+          results: '배송 정확도 99.5% 달성, 처리 시간 35% 단축',
+          roi: '물류 효율성 40% 향상, 운영비 25% 절감'
+        }
+      ],
+      '농업': [
+        {
+          company: 'John Deere',
+          solution: 'AI 기반 정밀 농업 및 자동화 시스템',
+          results: '수확량 20% 증가, 비료 사용 30% 절감',
+          roi: '농업 수익 35% 향상, 환경 영향 50% 감소'
+        },
+        {
+          company: 'Plenty (수직농장)',
+          solution: 'AI 제어 실내 농업 자동화 시스템',
+          results: '연중 생산 가능, 물 사용량 95% 절감',
+          roi: '생산성 10배 향상, 지속가능성 확보'
+        }
+      ],
+      '서비스업': [
+        {
+          company: 'McDonald\'s',
+          solution: 'AI 기반 주문 예측 및 매장 운영 자동화',
+          results: '대기시간 30% 단축, 재고 최적화 25% 향상',
+          roi: '운영비 20% 절감, 고객 만족도 35% 증가'
+        }
+      ],
+      '금융업': [
+        {
+          company: 'JPMorgan Chase',
+          solution: 'AI 기반 리스크 관리 및 자동화 시스템',
+          results: '리스크 탐지 속도 90% 향상, 손실 50% 감소',
+          roi: '리스크 관리 비용 40% 절감, 컴플라이언스 100% 달성'
+        }
+      ],
+      '유통/소매업': [
+        {
+          company: 'Amazon',
+          solution: 'AI 기반 재고 최적화 및 수요 예측',
+          results: '재고 회전율 30% 향상, 품절 손실 80% 감소',
+          roi: '재고 관리 비용 35% 절감, 매출 15% 증가'
+        }
       ]
     };
     
@@ -1537,9 +1981,114 @@ export class UltimateN8nReportEngine {
     const descriptions = {
       '코드 리뷰 자동화': 'AI 기반 코드 품질 검사 및 자동 피드백 시스템으로 개발 품질 향상',
       '고객 문의 분류/요약': 'AI 기반 고객 문의 자동 분류 및 응답 템플릿 제공으로 CS 효율성 극대화',
-      '재고 최적화 자동화': 'AI 수요 예측과 n8n 자동화로 최적 재고 수준 유지 및 비용 절감'
+      '재고 최적화 자동화': 'AI 수요 예측과 n8n 자동화로 최적 재고 수준 유지 및 비용 절감',
+      '프로젝트 일정 관리 자동화': '건설 프로젝트 공정 관리 및 진행률 추적 자동화로 효율성 극대화',
+      '개인화 학습 경로 자동 생성': 'AI 기반 학습자 맞춤 교육 과정 설계 및 진도 관리 자동화',
+      '환자 진료 기록 자동화': '음성 인식 기반 진료 기록 자동화로 의료진 업무 효율성 향상',
+      '배송 경로 최적화 자동화': 'AI 기반 최적 배송 경로 설계로 연료비 절감 및 배송 시간 단축',
+      '스마트팜 환경 제어 자동화': 'IoT 센서 기반 자동 환경 제어로 수확량 증대 및 자원 절약'
     };
     
     return descriptions[opportunity] || `${industry} 특화 ${opportunity} 솔루션으로 업무 효율성 극대화`;
+  }
+
+  /**
+   * 업종별 교육 추천 HTML 생성
+   */
+  private static generateEducationRecommendationHTML(industry: string, aiReadinessScore: number): string {
+    const curriculum = getIndustryCurriculum(industry);
+    
+    if (!curriculum) {
+      return `
+        <div style="background: white; padding: 30px; border-radius: 20px; text-align: center;">
+          <h4 style="color: #667eea; font-size: 1.4rem; margin-bottom: 15px;">
+            🔧 ${industry} 맞춤형 교육 프로그램 개발
+          </h4>
+          <p style="color: #4a5568; font-size: 1.1rem;">
+            ${industry} 업종을 위한 전용 AI 자동화 교육 프로그램을 맞춤 개발하여 제공해드리겠습니다.
+          </p>
+        </div>
+      `;
+    }
+
+    const urgencyLevel = aiReadinessScore < 50 ? '긴급' : aiReadinessScore < 70 ? '우선' : '고도화';
+    const urgencyColor = aiReadinessScore < 50 ? '#e53e3e' : aiReadinessScore < 70 ? '#dd6b20' : '#38a169';
+    
+    return `
+      <div style="background: white; padding: 30px; border-radius: 20px; margin: 20px 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+          <h3 style="color: #2d3748; font-size: 1.6rem; font-weight: 700;">
+            📚 ${curriculum.industry} 전문 교육 과정
+          </h3>
+          <div style="background: ${urgencyColor}; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
+            ${urgencyLevel} 교육 필요
+          </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0;">
+          <div>
+            <h4 style="color: #667eea; font-size: 1.3rem; font-weight: 600; margin-bottom: 15px;">🎯 핵심 교육 목표</h4>
+            <ul style="color: #4a5568; font-size: 0.95rem;">
+              ${curriculum.coreObjectives.map(obj => `<li style="margin: 8px 0;">• ${obj}</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4 style="color: #667eea; font-size: 1.3rem; font-weight: 600; margin-bottom: 15px;">👥 교육 대상</h4>
+            <ul style="color: #4a5568; font-size: 0.95rem;">
+              ${curriculum.targetAudience.map(audience => `<li style="margin: 8px 0;">• ${audience}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        
+        <div style="background: #f7fafc; padding: 25px; border-radius: 15px; margin: 20px 0;">
+          <h4 style="color: #2d3748; font-size: 1.3rem; font-weight: 600; margin-bottom: 15px;">📋 우선 수강 추천 세션 (1-4교시)</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+            ${curriculum.curriculum.slice(0, 4).map(session => `
+              <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                <h5 style="color: #667eea; font-weight: 600; margin-bottom: 8px;">
+                  ${session.session}교시: ${session.title}
+                </h5>
+                <p style="color: #4a5568; font-size: 0.85rem; margin-bottom: 8px;">
+                  ${session.content}
+                </p>
+                <div style="color: #718096; font-size: 0.8rem;">
+                  <strong>실습:</strong> ${session.practicalPoints}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #e6fffa 0%, #f0fff4 100%); padding: 25px; border-radius: 15px; margin: 20px 0;">
+          <h4 style="color: #2c7a7b; font-size: 1.3rem; font-weight: 600; margin-bottom: 15px;">📈 교육 후 기대 효과</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <h5 style="color: #2c7a7b; font-weight: 600; margin-bottom: 10px;">📊 정량적 효과</h5>
+              <ul style="color: #4a5568; font-size: 0.9rem;">
+                ${curriculum.expectedOutcomes.quantitative.map(outcome => `<li style="margin: 5px 0;">• ${outcome}</li>`).join('')}
+              </ul>
+            </div>
+            <div>
+              <h5 style="color: #2c7a7b; font-weight: 600; margin-bottom: 10px;">💡 정성적 효과</h5>
+              <ul style="color: #4a5568; font-size: 0.9rem;">
+                ${curriculum.expectedOutcomes.qualitative.map(outcome => `<li style="margin: 5px 0;">• ${outcome}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div style="background: #fff5f5; padding: 20px; border-radius: 15px; border: 2px solid #fed7d7;">
+          <h4 style="color: #c53030; font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">🚀 즉시 신청 혜택</h4>
+          <p style="color: #4a5568; font-size: 1rem; margin-bottom: 10px;">
+            AI 준비도 ${aiReadinessScore}% 기준 맞춤형 교육 과정 제공 + 3개월 무료 기술 지원
+          </p>
+          <div style="text-align: center; margin-top: 15px;">
+            <div style="display: inline-block; background: #c53030; color: white; padding: 12px 24px; border-radius: 25px; font-weight: 600;">
+              📞 교육 문의: 010-9251-9743
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   }
 }

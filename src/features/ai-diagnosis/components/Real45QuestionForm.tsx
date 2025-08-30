@@ -1675,12 +1675,12 @@ const Real45QuestionForm: React.FC = () => {
                       <option value="의료업">의료업</option>
                       <option value="운송업">운송업</option>
                       <option value="농업">농업</option>
-                      <option value="직접입력">직접입력</option>
+                      <option value="기타">기타</option>
                     </select>
                   </div>
 
-                  {/* 업종 직접입력 필드 */}
-                  {formState.companyInfo.industry === '직접입력' && (
+                  {/* 업종 기타입력 필드 */}
+                  {formState.companyInfo.industry === '기타' && (
                     <div className="space-y-3">
                       <label className="flex items-center text-sm font-semibold text-gray-700">
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-bold mr-2">필수</span>
