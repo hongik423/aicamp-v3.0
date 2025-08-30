@@ -64,3 +64,5 @@ export function determineMaturityLevelFromScore(totalScore: number): string {
   if (totalScore >= 140) return '기초';
   return '도입';
 }
+
+

@@ -1600,8 +1600,12 @@ function createApplicantEmailTemplate(data, scoreData) {
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
-                    <a href="https://aicamp.club/report-access" class="btn" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                    <a href="https://aicamp.club/diagnosis-results/${data.diagnosisId || 'DIAG_45Q_' + Date.now()}" class="btn" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
                         🔍 진단 결과 보기
+                    </a>
+                    <br><br>
+                    <a href="https://aicamp.club/report-access" class="btn" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); margin-top: 10px;">
+                        🔐 진단ID로 접근
                     </a>
                 </div>
                 
