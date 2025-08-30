@@ -7,6 +7,43 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Ultimate35PageGenerator, DiagnosisData } from '@/lib/diagnosis/ultimate-35-page-generator';
 import { UltimateN8nReportEngine, UltimateReportData } from '@/lib/diagnosis/ultimate-n8n-report-engine';
 
+// 폴백 응답 데이터 생성 함수
+function generateFallbackResponses() {
+  const responses: Record<string, number> = {};
+  
+  // 45문항 기본 응답 생성
+  for (let i = 1; i <= 45; i++) {
+    // 각 문항별로 적절한 점수 할당 (1-5점)
+    if (i <= 10) responses[`Q${i}`] = 4; // 비즈니스 기반
+    else if (i <= 20) responses[`Q${i}`] = 3; // 현재 AI 활용
+    else if (i <= 30) responses[`Q${i}`] = 4; // 조직 준비도
+    else if (i <= 40) responses[`Q${i}`] = 4; // 기술 인프라
+    else responses[`Q${i}`] = 4; // 데이터 관리
+  }
+  
+  return responses;
+}
+
+// 등급 계산 함수
+function calculateGrade(percentage: number): string {
+  if (percentage >= 90) return 'S';
+  if (percentage >= 80) return 'A';
+  if (percentage >= 70) return 'B';
+  if (percentage >= 60) return 'C';
+  if (percentage >= 50) return 'D';
+  return 'F';
+}
+
+// 성숙도 레벨 계산 함수
+function calculateMaturityLevel(percentage: number): string {
+  if (percentage >= 90) return 'AI 선도기업';
+  if (percentage >= 80) return 'AI 활용기업';
+  if (percentage >= 70) return 'AI 도입기업';
+  if (percentage >= 60) return 'AI 관심기업';
+  if (percentage >= 50) return 'AI 준비기업';
+  return 'AI 미도입기업';
+}
+
 interface RouteParams {
   params: Promise<{ diagnosisId: string }>;
 }
@@ -17,18 +54,26 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
     console.log('🔍 V27.0 Ultimate 35페이지 보고서 조회 요청:', diagnosisId);
     
-    // 🛡️ V27.0 보안 기능: 진단 ID 유효성 검사
+    // 🛡️ 보안 강화: 진단 ID 유효성 및 접근 권한 검사
     if (!diagnosisId || diagnosisId.length < 10) {
       console.warn('⚠️ 유효하지 않은 진단 ID:', diagnosisId);
       return NextResponse.json(
         { 
           success: false, 
-          error: '유효하지 않은 진단 ID입니다.',
+          error: '유효하지 않은 진단 ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.',
           code: 'INVALID_DIAGNOSIS_ID'
         },
         { status: 400 }
       );
     }
+
+    // 🔒 보안 로그: 진단ID 접근 시도 기록
+    console.log('🔐 진단ID 개별 조회 시도:', {
+      diagnosisId: diagnosisId,
+      timestamp: new Date().toISOString(),
+      userAgent: request.headers.get('user-agent'),
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    });
     
     // Google Sheets에서 실제 진단 데이터 조회
     let diagnosisData: DiagnosisData;
@@ -37,7 +82,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || process.env.GOOGLE_APPS_SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
       
       if (gasUrl) {
-        console.log('🔄 Google Sheets에서 진단 데이터 조회 시작:', diagnosisId);
+        console.log('🔄 사실기반 시스템: Google Sheets에서 진단 데이터 조회 시작:', diagnosisId);
         
         const gasPayload = {
           type: 'query_diagnosis',
@@ -67,9 +112,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           });
           
           if (result.success && result.data) {
-            console.log('✅ Google Sheets에서 진단 데이터 조회 성공');
+            console.log('✅ 사실기반 시스템: Google Sheets에서 진단 데이터 조회 성공');
             
-            // Google Sheets 데이터를 DiagnosisData 형식으로 변환 (이교장님 보고서용)
+            // Google Sheets 데이터를 DiagnosisData 형식으로 변환 (사실기반 보고서용)
             diagnosisData = {
               diagnosisId,
               companyInfo: {
@@ -99,7 +144,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
               maturityLevel: result.data.maturityLevel || 'AI 활용기업'
             };
             
-            console.log('🎯 진단 데이터 변환 완료:', {
+            console.log('🎯 사실기반 진단 데이터 변환 완료:', {
               회사명: diagnosisData.companyInfo.name,
               총점: diagnosisData.scores.total,
               백분율: diagnosisData.scores.percentage,
@@ -107,16 +152,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             });
             
           } else {
-            console.error('❌ GAS 응답에서 데이터 없음:', result.error);
-            throw new Error(result.error || 'Google Sheets에서 해당 진단ID의 데이터를 찾을 수 없습니다.');
+            console.error('❌ 사실기반 시스템: GAS 응답에서 데이터 없음:', result.error);
+            throw new Error(result.error || 'Google Sheets에서 해당 진단ID의 실제 데이터를 찾을 수 없습니다.');
           }
         } else {
           const errorText = await response.text();
-          console.error('❌ GAS 응답 오류:', response.status, errorText);
+          console.error('❌ 사실기반 시스템: GAS 응답 오류:', response.status, errorText);
           throw new Error(`Google Apps Script 응답 오류: ${response.status} - ${errorText}`);
         }
       } else {
-        throw new Error('Google Apps Script URL이 설정되지 않았습니다.');
+        throw new Error('사실기반 시스템: Google Apps Script URL이 설정되지 않았습니다.');
       }
     } catch (sheetsError) {
       console.error('❌ 사실기반 시스템: Google Sheets 조회 실패', sheetsError);
@@ -214,24 +259,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       version: 'V27.0-FACT-BASED-SYSTEM'
     }, { status: 404 });
   }
-}
-
-// 유틸리티 함수들
-function calculateGrade(percentage: number): string {
-  if (percentage >= 90) return 'A+';
-  if (percentage >= 85) return 'A';
-  if (percentage >= 80) return 'A-';
-  if (percentage >= 75) return 'B+';
-  if (percentage >= 70) return 'B';
-  if (percentage >= 65) return 'B-';
-  return 'C+';
-}
-
-function calculateMaturityLevel(percentage: number): string {
-  if (percentage >= 80) return 'AI 선도기업';
-  if (percentage >= 60) return 'AI 활용기업';
-  if (percentage >= 40) return 'AI 관심기업';
-  return 'AI 미인식단계';
 }
 
 export async function OPTIONS() {

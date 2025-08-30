@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Download, ArrowLeft, FileText, Eye, Printer, Share2, BarChart3, Shield, CheckCircle, AlertCircle, Loader2, Monitor, Smartphone } from 'lucide-react';
+import { Download, ArrowLeft, FileText, Eye, Printer, Share2, BarChart3, Shield, CheckCircle, AlertCircle, Loader2, Monitor, Smartphone, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface DiagnosisResultPageProps {
@@ -241,7 +241,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       setError('진단ID가 필요합니다. 올바른 링크를 사용하거나 진단ID를 직접 입력해주세요.');
       setAuthLoading(false);
     }
-  }, [diagnosisId, verifyAccess]);
+  }, [diagnosisId, loadReportData]);
 
   // 사실기반 보고서 다운로드 (실제 데이터만)
   const handleDownloadReport = async () => {
@@ -454,10 +454,28 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
             
             <div className="bg-red-50 p-4 rounded-lg border border-red-200">
               <h4 className="font-semibold text-red-800 mb-2">🛡️ 사실기반 시스템 안내</h4>
-              <ul className="text-sm text-red-700 space-y-1">
+              <ul className="text-sm text-red-700 space-y-2">
                 <li>• 실제 평가 데이터만 사용하여 보고서 생성</li>
                 <li>• 추정값이나 가짜 데이터 사용 금지</li>
-                <li>• 정확한 진단ID 필수</li>
+                <li className="flex items-center gap-2">
+                  <span>• 현재 진단ID:</span>
+                  <code className="bg-white px-2 py-1 rounded border text-xs font-mono">{diagnosisId}</code>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(diagnosisId);
+                      toast({
+                        title: "✅ 복사 완료",
+                        description: "진단ID가 클립보드에 복사되었습니다.",
+                        variant: "default"
+                      });
+                    }}
+                    className="h-6 px-2 text-xs"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </li>
               </ul>
             </div>
             
@@ -492,25 +510,58 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">AI 역량진단 보고서 (사실기반)</h1>
-              <p className="text-sm text-gray-600">진단 ID: {diagnosisId}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-gray-600">진단 ID:</span>
+                <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">{diagnosisId}</code>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    navigator.clipboard.writeText(diagnosisId);
+                    toast({
+                      title: "✅ 복사 완료",
+                      description: "진단ID가 클립보드에 복사되었습니다.",
+                      variant: "default"
+                    });
+                  }}
+                  className="h-6 px-2 text-xs"
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
               <p className="text-xs text-green-600">✅ 실제 평가 데이터 기반 35페이지 보고서</p>
             </div>
-            <div className="flex gap-3">
-              <Button onClick={handleDownloadReport} variant="outline" size="sm" disabled={downloadLoading}>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={handleDownloadReport} variant="default" size="sm" disabled={downloadLoading} className="bg-green-600 hover:bg-green-700">
                 {downloadLoading ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <Download className="h-4 w-4 mr-2" />
                 )}
-                HTML 다운로드
+                35페이지 보고서 다운로드
               </Button>
-              <Button onClick={handleViewInNewWindow} size="sm">
+              <Button onClick={handleViewInNewWindow} size="sm" variant="outline">
                 <Eye className="h-4 w-4 mr-2" />
                 새 창에서 보기
               </Button>
               <Button onClick={handlePrintReport} variant="outline" size="sm">
                 <Printer className="h-4 w-4 mr-2" />
-                인쇄
+                인쇄하기
+              </Button>
+              <Button 
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast({
+                    title: "✅ 링크 복사 완료",
+                    description: "보고서 링크가 클립보드에 복사되었습니다.",
+                    variant: "default"
+                  });
+                }}
+                variant="outline" 
+                size="sm"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                링크 공유
               </Button>
             </div>
           </div>

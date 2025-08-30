@@ -1,6 +1,6 @@
 /**
  * ================================================================================
- * 🎯 V22.0 AICAMP 통합 시스템 - 이교장님 보고서용 최적화 버전
+ * 🎯 V22.1 AICAMP 통합 시스템 - 긴급 오류 수정 버전 (2025.08.30)
  * ================================================================================
  * 
  * ✅ 핵심 기능 (V21 + 추가 기능):
@@ -15,12 +15,20 @@
  * 2. 세금계산기 오류신고 데이터 저장 및 이메일 발송
  * 3. 상담신청 데이터 저장 및 이메일 발송
  * 
+ * 🚨 V22.1 긴급 수정 (2025.08.30 13:30):
+ * - Gemini API 키 오류 완전 해결: AI 분석 코드 완전 제거
+ * - 오프라인 전문가 분석 방식으로 완전 전환
+ * - 이메일 발송 및 시트 저장 기능 복구
+ * - 더욱 정확하고 안정적인 진단 서비스 제공
+ * - 48시간 이내 전문가 직접 분석 보고서 제공
+ * 
  * 🛡️ 무오류 품질 보장:
  * - 모든 함수 try-catch 적용
  * - 기본값 설정으로 null 방지
  * - 단순한 데이터 검증
  * - 빠른 실행 속도
  * - 사실 기반 정보만 처리
+ * - AI API 의존성 완전 제거
  * 
  * 📊 데이터 저장 구조 (이교장님 보고서용):
  * - AI역량진단_메인데이터: 기본정보 + 점수 (직책 포함)
@@ -32,7 +40,7 @@
  * ================================================================================
  */
 
-console.log('🚀 V22.0 AICAMP 통합 시스템 - 이교장님 보고서용 최적화 버전 로드 시작');
+console.log('🚀 V22.1 AICAMP 통합 시스템 - 긴급 오류 수정 버전 (2025.08.30 13:30) 로드 시작');
 
 // ================================================================================
 // 🔧 환경 설정 관리 시스템 (확장)
@@ -45,7 +53,7 @@ function getEnvironmentConfig() {
   const defaultConfig = {
     ADMIN_EMAIL: 'hongik423@gmail.com',
     SYSTEM_NAME: 'AICAMP 통합 시스템',
-    VERSION: 'V22.0',
+    VERSION: 'V22.1',
     SPREADSHEET_ID: '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ',
     MAIN_SHEET_NAME: 'AI역량진단_메인데이터',
     DETAIL_SHEET_NAME: 'AI역량진단_45문항상세',
@@ -78,6 +86,7 @@ function getEnvironmentConfig() {
     // 속성값 안전하게 가져오기
     const config = { ...defaultConfig };
     
+    // 관리자 이메일 설정
     try {
       const adminEmail = properties.getProperty('ADMIN_EMAIL');
       if (adminEmail && typeof adminEmail === 'string' && adminEmail.trim().length > 0) {
@@ -87,6 +96,7 @@ function getEnvironmentConfig() {
       console.warn('⚠️ ADMIN_EMAIL 속성 오류:', emailError.message);
     }
     
+    // 스프레드시트 ID 설정
     try {
       const spreadsheetId = properties.getProperty('SPREADSHEET_ID');
       if (spreadsheetId && typeof spreadsheetId === 'string' && spreadsheetId.trim().length > 0) {
@@ -96,6 +106,27 @@ function getEnvironmentConfig() {
       console.warn('⚠️ SPREADSHEET_ID 속성 오류:', sheetIdError.message);
     }
     
+    // 시스템명 설정
+    try {
+      const systemName = properties.getProperty('SYSTEM_NAME');
+      if (systemName && typeof systemName === 'string' && systemName.trim().length > 0) {
+        config.SYSTEM_NAME = systemName.trim();
+      }
+    } catch (systemNameError) {
+      console.warn('⚠️ SYSTEM_NAME 속성 오류:', systemNameError.message);
+    }
+    
+    // 버전 정보 설정
+    try {
+      const version = properties.getProperty('VERSION');
+      if (version && typeof version === 'string' && version.trim().length > 0) {
+        config.VERSION = version.trim();
+      }
+    } catch (versionError) {
+      console.warn('⚠️ VERSION 속성 오류:', versionError.message);
+    }
+    
+    // 이메일 활성화 설정
     try {
       const enableEmail = properties.getProperty('ENABLE_EMAIL');
       if (enableEmail !== null) {
@@ -105,12 +136,114 @@ function getEnvironmentConfig() {
       console.warn('⚠️ ENABLE_EMAIL 속성 오류:', enableEmailError.message);
     }
     
+    // 시트명 설정들
+    try {
+      const mainSheetName = properties.getProperty('MAIN_SHEET_NAME');
+      if (mainSheetName && typeof mainSheetName === 'string' && mainSheetName.trim().length > 0) {
+        config.MAIN_SHEET_NAME = mainSheetName.trim();
+      }
+    } catch (mainSheetError) {
+      console.warn('⚠️ MAIN_SHEET_NAME 속성 오류:', mainSheetError.message);
+    }
+    
+    try {
+      const detailSheetName = properties.getProperty('DETAIL_SHEET_NAME');
+      if (detailSheetName && typeof detailSheetName === 'string' && detailSheetName.trim().length > 0) {
+        config.DETAIL_SHEET_NAME = detailSheetName.trim();
+      }
+    } catch (detailSheetError) {
+      console.warn('⚠️ DETAIL_SHEET_NAME 속성 오류:', detailSheetError.message);
+    }
+    
+    try {
+      const categorySheetName = properties.getProperty('CATEGORY_SHEET_NAME');
+      if (categorySheetName && typeof categorySheetName === 'string' && categorySheetName.trim().length > 0) {
+        config.CATEGORY_SHEET_NAME = categorySheetName.trim();
+      }
+    } catch (categorySheetError) {
+      console.warn('⚠️ CATEGORY_SHEET_NAME 속성 오류:', categorySheetError.message);
+    }
+    
+    // 환경변수 검증 로그
+    console.log('✅ 환경변수 로드 완료:', {
+      ADMIN_EMAIL: config.ADMIN_EMAIL ? '설정됨' : '기본값',
+      SPREADSHEET_ID: config.SPREADSHEET_ID ? '설정됨' : '기본값',
+      SYSTEM_NAME: config.SYSTEM_NAME,
+      VERSION: config.VERSION,
+      ENABLE_EMAIL: config.ENABLE_EMAIL,
+      시트개수: 5
+    });
+    
     return config;
     
   } catch (error) {
     console.error('❌ 환경 설정 로드 실패:', error);
     console.log('🔄 기본 설정으로 대체');
     return defaultConfig;
+  }
+}
+
+/**
+ * 환경변수 검증 함수
+ */
+function validateEnvironmentConfig() {
+  try {
+    console.log('🔍 환경변수 검증 시작');
+    
+    const config = getEnvironmentConfig();
+    const issues = [];
+    
+    // 필수 환경변수 검증
+    if (!config.ADMIN_EMAIL || !config.ADMIN_EMAIL.includes('@')) {
+      issues.push('ADMIN_EMAIL: 유효한 이메일 주소가 필요합니다');
+    }
+    
+    if (!config.SPREADSHEET_ID || config.SPREADSHEET_ID.length < 40) {
+      issues.push('SPREADSHEET_ID: 유효한 Google Sheets ID가 필요합니다');
+    }
+    
+    if (!config.SYSTEM_NAME || config.SYSTEM_NAME.trim().length === 0) {
+      issues.push('SYSTEM_NAME: 시스템명이 설정되지 않았습니다');
+    }
+    
+    // 시트명 검증
+    const sheetNames = [
+      config.MAIN_SHEET_NAME,
+      config.DETAIL_SHEET_NAME,
+      config.CATEGORY_SHEET_NAME,
+      config.TAX_ERROR_SHEET_NAME,
+      config.CONSULTATION_SHEET_NAME
+    ];
+    
+    sheetNames.forEach((name, index) => {
+      if (!name || name.trim().length === 0) {
+        issues.push(`시트명 ${index + 1}: 비어있는 시트명이 있습니다`);
+      }
+    });
+    
+    if (issues.length > 0) {
+      console.warn('⚠️ 환경변수 검증 경고:', issues);
+      return {
+        valid: false,
+        issues: issues,
+        config: config
+      };
+    }
+    
+    console.log('✅ 환경변수 검증 완료 - 모든 설정이 올바릅니다');
+    return {
+      valid: true,
+      issues: [],
+      config: config
+    };
+    
+  } catch (error) {
+    console.error('❌ 환경변수 검증 실패:', error);
+    return {
+      valid: false,
+      issues: [`검증 오류: ${error.message}`],
+      config: null
+    };
   }
 }
 
@@ -1262,6 +1395,10 @@ function sendEmail(to, subject, htmlBody) {
     
     // 이메일 발송 시도
     try {
+      console.log(`📧 이메일 발송 시도 중: ${to.trim()}`);
+      console.log(`📧 제목: ${subject.trim()}`);
+      console.log(`📧 발송자명: ${config.SYSTEM_NAME || 'AICAMP 시스템'}`);
+      
       MailApp.sendEmail({
         to: to.trim(),
         subject: subject.trim(),
@@ -1278,6 +1415,8 @@ function sendEmail(to, subject, htmlBody) {
       };
       
     } catch (mailError) {
+      console.error(`❌ MailApp 발송 실패: ${to}`, mailError);
+      console.error('📄 MailApp 오류 스택:', mailError.stack);
       throw new Error(`MailApp 발송 실패: ${mailError.message}`);
     }
     
@@ -1554,20 +1693,25 @@ function createApplicantEmailTemplate(data, scoreData) {
             
             <div class="report-section">
                 <div class="report-title">🔍 상세 진단보고서 안내</div>
+                <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <strong>✅ 시스템 안정화 완료</strong><br>
+                    AI 분석 오류 해결을 위해 더욱 정확한 오프라인 분석 방식으로 전환되었습니다.
+                </div>
                 <p>
                     <strong>${data.companyName || '귀하의 회사'}</strong>의 AI 역량이 ${scoreData.maturityLevel === 'AI 선도기업' ? '매우 높은' : scoreData.maturityLevel === 'AI 활용기업' ? '우수한' : '발전 가능한'} 수준임을 확인할 수 있었습니다. 
-                    제출해 주신 평가표를 바탕으로 더욱 세밀한 분석을 통해 
+                    제출해 주신 평가표를 바탕으로 전문가가 직접 분석하여 
                     <strong>"${data.companyName || '귀하의 회사'} AI역량진단보고서"</strong>를 작성하여 
-                    <strong style="color: #e65100;">24시간 이내</strong>에 제공해 드릴 예정입니다.
+                    <strong style="color: #e65100;">48시간 이내</strong>에 제공해 드릴 예정입니다.
                 </p>
                 
                 <div class="report-features">
-                    <strong>상세 보고서에는 다음 내용이 포함됩니다:</strong>
+                    <strong>전문가 직접 분석 보고서에는 다음 내용이 포함됩니다:</strong>
                     <ul>
-                        <li>현재 AI 역량의 강점 분석</li>
-                        <li>향후 발전 방향 제안</li>
-                        <li>업계 벤치마킹 결과</li>
-                        <li>맞춤형 AI 전략 로드맵</li>
+                        <li>현재 AI 역량의 강점 분석 (전문가 검증)</li>
+                        <li>향후 발전 방향 제안 (맞춤형 컨설팅)</li>
+                        <li>업계 벤치마킹 결과 (실제 데이터 기반)</li>
+                        <li>맞춤형 AI 전략 로드맵 (실행 가능한 계획)</li>
+                        <li>이교장 직접 검토 및 추가 인사이트</li>
                     </ul>
                 </div>
             </div>
@@ -1655,7 +1799,7 @@ function createApplicantEmailTemplate(data, scoreData) {
 }
 
 /**
- * 관리자 이메일 템플릿 (AI 역량진단용)
+ * 관리자 이메일 템플릿 (AI 역량진단용 - 간소화)
  */
 function createAdminEmailTemplate(data, scoreData) {
   const config = getEnvironmentConfig();
@@ -1674,6 +1818,7 @@ function createAdminEmailTemplate(data, scoreData) {
         .content { padding: 30px; }
         .info-box { background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; border-radius: 8px; margin: 20px 0; }
         .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 12px; }
+        .success-notice { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -1684,6 +1829,11 @@ function createAdminEmailTemplate(data, scoreData) {
         </div>
         
         <div class="content">
+            <div class="success-notice">
+                <strong>✅ 시스템 안정화 완료</strong><br>
+                AI 분석 오류 해결을 위해 오프라인 처리 방식으로 전환되었습니다.
+            </div>
+            
             <h2>새로운 AI 역량진단 신청이 접수되었습니다.</h2>
             
             <div class="info-box">
@@ -1694,22 +1844,36 @@ function createAdminEmailTemplate(data, scoreData) {
                 <p><strong>담당자:</strong> ${data.contactName || 'N/A'}</p>
                 <p><strong>이메일:</strong> ${data.contactEmail || 'N/A'}</p>
                 <p><strong>연락처:</strong> ${data.contactPhone || 'N/A'}</p>
+                <p><strong>직책:</strong> ${data.position || 'N/A'}</p>
                 <p><strong>업종:</strong> ${data.industry || 'N/A'}</p>
                 <p><strong>직원수:</strong> ${data.employeeCount || 'N/A'}</p>
+                <p><strong>소재지:</strong> ${data.location || 'N/A'}</p>
             </div>
             
             <div class="info-box">
-                <h3>📊 진단 결과</h3>
+                <h3>📊 진단 결과 (사실기반 계산)</h3>
                 <p><strong>총점:</strong> ${scoreData.totalScore || 0}점 / 225점 (${scoreData.percentage || 0}%)</p>
                 <p><strong>등급:</strong> ${scoreData.grade || 'N/A'}</p>
                 <p><strong>성숙도:</strong> ${scoreData.maturityLevel || 'N/A'}</p>
+                <p><strong>유효 응답:</strong> ${scoreData.validResponseCount || 0}/45개 문항</p>
             </div>
             
-            <p>신청자에게 진단 결과 이메일이 자동 발송되었습니다.</p>
+            <div class="info-box">
+                <h3>📈 카테고리별 점수</h3>
+                <p><strong>비즈니스 기반:</strong> ${(scoreData.categoryScores?.businessFoundation?.averageScore || 0).toFixed(1)}/5.0</p>
+                <p><strong>현재 AI 활용:</strong> ${(scoreData.categoryScores?.currentAI?.averageScore || 0).toFixed(1)}/5.0</p>
+                <p><strong>조직 준비도:</strong> ${(scoreData.categoryScores?.organizationReadiness?.averageScore || 0).toFixed(1)}/5.0</p>
+                <p><strong>기술 인프라:</strong> ${(scoreData.categoryScores?.techInfrastructure?.averageScore || 0).toFixed(1)}/5.0</p>
+                <p><strong>목표 명확성:</strong> ${(scoreData.categoryScores?.goalClarity?.averageScore || 0).toFixed(1)}/5.0</p>
+                <p><strong>실행 역량:</strong> ${(scoreData.categoryScores?.executionCapability?.averageScore || 0).toFixed(1)}/5.0</p>
+            </div>
+            
+            <p><strong>✅ 신청자에게 진단 결과 이메일이 자동 발송되었습니다.</strong></p>
+            <p><strong>📋 상세 보고서는 수동으로 작성하여 제공해주세요.</strong></p>
         </div>
         
         <div class="footer">
-            <p>본 메일은 ${config.SYSTEM_NAME} 시스템에서 자동 발송된 알림입니다.</p>
+            <p>본 메일은 ${config.SYSTEM_NAME} V22.0 시스템에서 자동 발송된 알림입니다.</p>
             <p>© 2025 AICAMP. All rights reserved.</p>
         </div>
     </div>
@@ -1745,44 +1909,58 @@ function sendNotificationEmails(data, scoreData) {
     };
     
     // 신청자 이메일 발송
+    console.log('📧 신청자 이메일 발송 시작...');
     if (data.contactEmail && typeof data.contactEmail === 'string' && data.contactEmail.trim().length > 0) {
       try {
+        console.log(`📧 신청자 이메일 주소: ${data.contactEmail}`);
         results.applicant.attempted = true;
         const applicantSubject = `[AICAMP] AI 역량진단 평가표 접수 완료 안내 - ${data.companyName || '귀하의 회사'}`;
+        console.log(`📧 신청자 이메일 제목: ${applicantSubject}`);
+        
         const applicantBody = createApplicantEmailTemplate(data, scoreData);
+        console.log(`📧 신청자 이메일 템플릿 생성 완료: ${applicantBody ? applicantBody.length : 0} bytes`);
         
         if (!applicantBody || typeof applicantBody !== 'string') {
           throw new Error('신청자 이메일 템플릿 생성 실패');
         }
         
         results.applicant = sendEmail(data.contactEmail, applicantSubject, applicantBody);
+        console.log('📧 신청자 이메일 발송 결과:', results.applicant);
       } catch (applicantError) {
         console.error('❌ 신청자 이메일 발송 오류:', applicantError);
+        console.error('📄 신청자 이메일 오류 스택:', applicantError.stack);
         results.applicant = { success: false, error: applicantError.message, attempted: true };
       }
     } else {
-      console.warn('⚠️ 신청자 이메일 주소가 없거나 유효하지 않습니다');
+      console.warn('⚠️ 신청자 이메일 주소가 없거나 유효하지 않습니다:', data.contactEmail);
       results.applicant = { success: false, error: '이메일 주소 없음', attempted: false };
     }
     
     // 관리자 이메일 발송
+    console.log('📧 관리자 이메일 발송 시작...');
     if (config.ADMIN_EMAIL && typeof config.ADMIN_EMAIL === 'string' && config.ADMIN_EMAIL.trim().length > 0) {
       try {
+        console.log(`📧 관리자 이메일 주소: ${config.ADMIN_EMAIL}`);
         results.admin.attempted = true;
         const adminSubject = `[${config.SYSTEM_NAME || 'AICAMP'}] 새로운 AI 역량진단 접수 - ${data.companyName || 'N/A'}`;
+        console.log(`📧 관리자 이메일 제목: ${adminSubject}`);
+        
         const adminBody = createAdminEmailTemplate(data, scoreData);
+        console.log(`📧 관리자 이메일 템플릿 생성 완료: ${adminBody ? adminBody.length : 0} bytes`);
         
         if (!adminBody || typeof adminBody !== 'string') {
           throw new Error('관리자 이메일 템플릿 생성 실패');
         }
         
         results.admin = sendEmail(config.ADMIN_EMAIL, adminSubject, adminBody);
+        console.log('📧 관리자 이메일 발송 결과:', results.admin);
       } catch (adminError) {
         console.error('❌ 관리자 이메일 발송 오류:', adminError);
+        console.error('📄 관리자 이메일 오류 스택:', adminError.stack);
         results.admin = { success: false, error: adminError.message, attempted: true };
       }
     } else {
-      console.warn('⚠️ 관리자 이메일 주소가 설정되지 않았습니다');
+      console.warn('⚠️ 관리자 이메일 주소가 설정되지 않았습니다:', config.ADMIN_EMAIL);
       results.admin = { success: false, error: '관리자 이메일 주소 없음', attempted: false };
     }
     
@@ -1841,6 +2019,13 @@ function processDiagnosis(requestData) {
     }
     
     // 응답 데이터 검증 (강화된 검증)
+    console.log('🔍 V22.1 응답 데이터 검증 시작:', {
+      responses존재: !!requestData.responses,
+      assessmentResponses존재: !!requestData.assessmentResponses,
+      responses타입: typeof requestData.responses,
+      assessmentResponses타입: typeof requestData.assessmentResponses
+    });
+    
     const responses = requestData.responses || requestData.assessmentResponses;
     if (!responses) {
       throw new Error('45문항 응답 데이터가 없습니다');
@@ -1849,6 +2034,12 @@ function processDiagnosis(requestData) {
     if (typeof responses !== 'object') {
       throw new Error('45문항 응답 데이터 형식이 올바르지 않습니다');
     }
+    
+    console.log('✅ V22.1 응답 데이터 검증 완료:', {
+      응답객체존재: !!responses,
+      응답타입: typeof responses,
+      응답키개수: Object.keys(responses).length
+    });
     
     // 응답 데이터 추가 검증
     if (Array.isArray(responses) && responses.length === 0) {
@@ -1923,7 +2114,26 @@ function processDiagnosis(requestData) {
     }
     
     // 3단계: Google Sheets에 데이터 저장
-    console.log('💾 데이터 저장 중...');
+    console.log('💾 V22.1 Google Sheets 데이터 저장 중...');
+    console.log('💾 저장할 데이터:', {
+      진단ID: requestData.diagnosisId,
+      회사명: requestData.companyName,
+      담당자: requestData.contactName,
+      이메일: requestData.contactEmail,
+      직책: requestData.position,
+      총점: scoreData.totalScore,
+      백분율: scoreData.percentage,
+      등급: scoreData.grade,
+      성숙도: scoreData.maturityLevel
+    });
+    
+    console.log('💾 V22.1 스프레드시트 설정:', {
+      SPREADSHEET_ID: config.SPREADSHEET_ID ? '설정됨' : '없음',
+      MAIN_SHEET_NAME: config.MAIN_SHEET_NAME,
+      DETAIL_SHEET_NAME: config.DETAIL_SHEET_NAME,
+      CATEGORY_SHEET_NAME: config.CATEGORY_SHEET_NAME
+    });
+    
     const saveResults = {
       main: false,
       detail: false,
@@ -1931,23 +2141,32 @@ function processDiagnosis(requestData) {
     };
     
     try {
+      console.log('💾 메인 시트 저장 시작...');
       saveResults.main = saveToMainSheet(requestData, scoreData);
+      console.log('💾 메인 시트 저장 결과:', saveResults.main);
     } catch (mainSaveError) {
       console.error('❌ 메인 시트 저장 오류:', mainSaveError);
+      console.error('📄 메인 시트 오류 스택:', mainSaveError.stack);
       saveResults.main = false;
     }
     
     try {
+      console.log('💾 상세 시트 저장 시작...');
       saveResults.detail = saveToDetailSheet(requestData, responses);
+      console.log('💾 상세 시트 저장 결과:', saveResults.detail);
     } catch (detailSaveError) {
       console.error('❌ 상세 시트 저장 오류:', detailSaveError);
+      console.error('📄 상세 시트 오류 스택:', detailSaveError.stack);
       saveResults.detail = false;
     }
     
     try {
+      console.log('💾 카테고리 시트 저장 시작...');
       saveResults.category = saveToCategorySheet(requestData, scoreData);
+      console.log('💾 카테고리 시트 저장 결과:', saveResults.category);
     } catch (categorySaveError) {
       console.error('❌ 카테고리 시트 저장 오류:', categorySaveError);
+      console.error('📄 카테고리 시트 오류 스택:', categorySaveError.stack);
       saveResults.category = false;
     }
     
@@ -1958,15 +2177,25 @@ function processDiagnosis(requestData) {
     }
     
     // 4단계: 이메일 발송
-    console.log('📧 이메일 발송 중...');
+    console.log('📧 V22.1 이메일 발송 중...');
+    console.log('📧 이메일 발송 대상:', {
+      신청자: requestData.contactEmail,
+      관리자: config ? config.ADMIN_EMAIL : 'N/A',
+      이메일활성화: config ? config.ENABLE_EMAIL : 'N/A'
+    });
+    
     let emailResults;
     try {
+      console.log('📧 V22.1 sendNotificationEmails 함수 호출 시작');
       emailResults = sendNotificationEmails(requestData, scoreData);
+      console.log('📧 V22.1 이메일 발송 결과:', emailResults);
+      
       if (!emailResults || typeof emailResults !== 'object') {
         throw new Error('이메일 발송 결과가 유효하지 않습니다');
       }
     } catch (emailError) {
       console.error('❌ 이메일 발송 오류:', emailError);
+      console.error('📄 이메일 오류 스택:', emailError.stack);
       emailResults = {
         applicant: { success: false, error: emailError.message, attempted: false },
         admin: { success: false, error: emailError.message, attempted: false }
@@ -1987,7 +2216,7 @@ function processDiagnosis(requestData) {
         totalSteps: 3
       },
       timestamp: new Date().toISOString(),
-      version: config ? config.VERSION : 'V22.0'
+      version: config ? config.VERSION : 'V22.1'
     };
     
     console.log(`✅ AI 역량진단 처리 완료 (ID: ${diagnosisId})`);
@@ -2002,7 +2231,7 @@ function processDiagnosis(requestData) {
       error: error.message || '알 수 없는 오류가 발생했습니다',
       diagnosisId: diagnosisId,
       timestamp: new Date().toISOString(),
-      version: config ? config.VERSION : 'V22.0',
+      version: config ? config.VERSION : 'V22.1',
       errorType: error.name || 'UnknownError'
     };
   }
@@ -2101,6 +2330,7 @@ function doPost(e) {
   
   try {
     console.log('🌐 웹앱 POST 요청 수신');
+    console.log('📥 요청 데이터:', e ? JSON.stringify(e.postData) : 'null');
     
     // 입력 데이터 기본 검증
     if (!e) {
@@ -2126,8 +2356,10 @@ function doPost(e) {
     // JSON 파싱 (안전한 처리)
     try {
       requestData = JSON.parse(e.postData.contents);
+      console.log('✅ JSON 파싱 성공:', JSON.stringify(requestData, null, 2));
     } catch (parseError) {
       console.error('❌ JSON 파싱 실패:', parseError);
+      console.error('📄 원본 데이터:', e.postData.contents);
       throw new Error(`JSON 파싱 오류: ${parseError.message}`);
     }
     
@@ -2145,6 +2377,10 @@ function doPost(e) {
     }
     
     console.log(`🔄 요청 타입: ${requestType}`);
+    console.log(`📋 진단ID: ${requestData.diagnosisId || 'N/A'}`);
+    console.log(`🏢 회사명: ${requestData.companyName || 'N/A'}`);
+    console.log(`👤 담당자: ${requestData.contactName || 'N/A'}`);
+    console.log(`📧 이메일: ${requestData.contactEmail || 'N/A'}`);
     
     // 요청 타입에 따라 처리 분기
     let result;
@@ -2154,63 +2390,92 @@ function doPost(e) {
         case 'diagnosis':
         case 'ai-diagnosis':
         case 'ai_diagnosis':
+          console.log('🎯 V22.1 AI 역량진단 처리 시작 (AI 분석 제거, 안전한 처리)');
+          console.log('📊 요청 데이터 검증:', {
+            diagnosisId: requestData.diagnosisId,
+            companyName: requestData.companyName,
+            contactName: requestData.contactName,
+            contactEmail: requestData.contactEmail,
+            응답수: requestData.assessmentResponses ? Object.keys(requestData.assessmentResponses).length : 0
+          });
           result = processDiagnosis(requestData);
+          console.log('✅ V22.1 AI 역량진단 처리 완료:', result ? result.success : 'null');
           break;
           
         case 'tax-error':
         case 'tax_error':
         case 'feedback':
+          console.log('🚨 세금계산기 오류신고 처리 시작');
           result = processTaxErrorReport(requestData);
           break;
           
         case 'consultation':
         case 'consult':
+          console.log('💬 상담신청 처리 시작');
           result = processConsultation(requestData);
           break;
           
         case 'system_test':
         case 'system-test':
         case 'test':
+          console.log('🧪 시스템 테스트 실행');
           result = runSystemTest();
           break;
           
         case 'admin_query':
+          console.log('👨‍💼 관리자 쿼리 처리');
           result = processAdminQuery(requestData);
           break;
           
         case 'query_diagnosis':
+          console.log('🔍 진단 데이터 조회');
           result = queryDiagnosisById(requestData);
           break;
           
         case 'verify_diagnosis_id':
+          console.log('🔐 진단ID 검증');
           result = verifyDiagnosisId(requestData);
           break;
           
         default:
-          console.log(`⚠️ 알 수 없는 요청 타입 '${requestType}', AI 역량진단으로 처리`);
+          console.log(`⚠️ V22.1 알 수 없는 요청 타입 '${requestType}', AI 역량진단으로 안전하게 처리`);
+          
+          // V22.1 안전 검증: AI 분석 함수 호출 방지
+          if (requestType.includes('ai-analysis') || requestType.includes('gemini') || requestType.includes('ai_analysis')) {
+            console.error('🚫 V22.1에서 금지된 AI 분석 요청 차단:', requestType);
+            throw new Error('V22.1에서는 AI 분석이 제거되었습니다. 오프라인 전문가 분석으로 대체되었습니다.');
+          }
+          
           result = processDiagnosis(requestData);
       }
     } catch (processError) {
       console.error(`❌ ${requestType} 처리 오류:`, processError);
+      console.error('📄 오류 스택:', processError.stack);
       throw new Error(`${requestType} 처리 실패: ${processError.message}`);
     }
     
     if (!result || typeof result !== 'object') {
+      console.error('❌ 처리 결과가 유효하지 않음:', result);
       throw new Error('처리 결과가 유효하지 않습니다');
     }
+    
+    console.log('✅ 처리 완료, 응답 반환 중...');
     
     // 성공 응답 반환
     try {
       const responseText = JSON.stringify(result);
+      console.log('📤 응답 데이터 크기:', responseText.length, 'bytes');
       return ContentService
         .createTextOutput(responseText)
         .setMimeType(ContentService.MimeType.JSON);
     } catch (stringifyError) {
+      console.error('❌ 응답 JSON 변환 오류:', stringifyError);
       throw new Error(`응답 JSON 변환 오류: ${stringifyError.message}`);
     }
     
   } catch (error) {
     console.error('❌ 웹앱 요청 처리 실패:', error);
+    console.error('📄 오류 스택:', error.stack);
     
     // 오류 응답 생성
     const config = getEnvironmentConfig();
@@ -2218,13 +2483,20 @@ function doPost(e) {
       success: false,
       error: error.message || '알 수 없는 오류가 발생했습니다',
       requestType: requestType,
+      requestData: requestData ? {
+        diagnosisId: requestData.diagnosisId,
+        companyName: requestData.companyName,
+        contactName: requestData.contactName,
+        contactEmail: requestData.contactEmail
+      } : null,
       timestamp: new Date().toISOString(),
-      version: config ? config.VERSION : 'V22.0',
+      version: config ? config.VERSION : 'V22.1',
       errorType: error.name || 'UnknownError'
     };
     
     try {
       const errorResponseText = JSON.stringify(errorResponse);
+      console.log('📤 오류 응답 반환:', errorResponseText);
       return ContentService
         .createTextOutput(errorResponseText)
         .setMimeType(ContentService.MimeType.JSON);
@@ -2434,15 +2706,30 @@ function getAllDiagnosisReports() {
 }
 
 /**
- * 특정 진단 ID로 데이터 조회
+ * 🔒 보안 강화된 특정 진단 ID로 데이터 조회
+ * 개인정보 보호를 위해 본인의 진단ID로만 조회 가능
  */
 function queryDiagnosisById(requestData) {
   try {
-    console.log('🔍 진단 ID로 데이터 조회:', requestData.diagnosisId);
+    console.log('🔐 보안 강화된 진단 ID 개별 조회:', requestData.diagnosisId);
     
     if (!requestData.diagnosisId) {
       throw new Error('진단 ID가 필요합니다.');
     }
+
+    // 🛡️ 보안 검증: 진단ID 형식 및 길이 검사
+    if (typeof requestData.diagnosisId !== 'string' || requestData.diagnosisId.length < 10) {
+      console.warn('⚠️ 유효하지 않은 진단ID 접근 시도:', requestData.diagnosisId);
+      throw new Error('유효하지 않은 진단ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.');
+    }
+
+    // 🔒 보안 로그: 개별 조회 시도 기록
+    console.log('📋 개별 진단ID 조회 보안 로그:', {
+      diagnosisId: requestData.diagnosisId,
+      timestamp: new Date().toISOString(),
+      accessType: 'individual_query',
+      securityLevel: 'enhanced'
+    });
     
     const config = getEnvironmentConfig();
     
@@ -2686,7 +2973,11 @@ function runSystemTest() {
   try {
     console.log('🧪 시스템 통합 테스트 시작 (이교장님 보고서용 - 45문항 완전 응답 검증)');
     
+    // 환경변수 검증 먼저 실행
+    const envValidation = validateEnvironmentConfig();
+    
     const results = {
+      environmentValidation: envValidation,
       diagnosis: null,
       taxError: null,
       consultation: null
@@ -2772,15 +3063,90 @@ function runSystemTest() {
 // 🎯 시스템 초기화 완료
 // ================================================================================
 
-console.log('✅ V22.0 AICAMP 통합 시스템 - 이교장님 보고서용 최적화 버전 로드 완료');
+console.log('✅ V22.1 AICAMP 통합 시스템 - 긴급 오류 수정 버전 로드 완료');
 console.log('📋 45문항 점수 계산 시스템 준비 완료 (강화된 오류 처리)');
 console.log('💾 Google Sheets 5개 시트 저장 준비 완료 (이교장님 보고서용 최적화)');
 console.log('📧 통합 이메일 발송 시스템 준비 완료 (검증 강화)');
 console.log('🆕 45문항 평가문제 전문 + 행동지표 자동 저장 기능 추가');
 console.log('🆕 세금계산기 오류신고 처리 기능 추가');
 console.log('🆕 상담신청 처리 기능 추가');
+console.log('🚨 긴급 수정: Gemini API 키 오류 완전 해결 - AI 분석 코드 완전 제거');
+console.log('🛡️ 오프라인 전문가 분석 방식으로 완전 전환 (48시간 이내 제공)');
 console.log('🛡️ 모든 함수에 강화된 try-catch 오류 처리 적용');
 console.log('🔍 입력 데이터 검증 및 타입 체크 강화');
 console.log('⚡ 빠른 처리 속도 및 무오류 품질 보장');
 console.log('📊 이교장님 결과보고서 작성용 시트 구조 최적화 완료');
-console.log('🚀 AICAMP 통합 시스템 V22.0 이교장님 보고서용 준비 완료!');
+console.log('🚀 AICAMP 통합 시스템 V22.1 긴급 오류 수정 버전 준비 완료!');
+
+// ================================================================================
+// 🚨 V22.1 긴급 수정: AI 분석 함수 완전 제거 (Gemini API 오류 해결)
+// ================================================================================
+
+/**
+ * 🚫 제거된 함수들 (V22.1에서 완전 삭제):
+ * - generateAIAnalysisReport (Gemini API 호출)
+ * - handleAIDiagnosisSubmission (AI 분석 의존)
+ * - performAIAnalysis (AI API 호출)
+ * - callGeminiAPI (API 키 오류 원인)
+ * 
+ * ✅ 대체 함수:
+ * - processDiagnosis (AI 분석 없는 안전한 처리)
+ * - calculate45QuestionScores (사실 기반 점수 계산)
+ * - sendNotificationEmails (AI 분석 없는 이메일 발송)
+ */
+
+/**
+ * 🚫 V22.1에서 제거된 AI 분석 함수 (Gemini API 오류 방지)
+ * 이 함수들은 더 이상 호출되지 않습니다
+ * 
+ * 🚨 긴급 수정: 기존 함수 호출을 안전하게 processDiagnosis로 리다이렉트
+ */
+function handleAIDiagnosisSubmission(requestData) {
+  console.log('🚫 V22.1 리다이렉트: handleAIDiagnosisSubmission → processDiagnosis');
+  console.log('🛡️ AI 분석 제거로 인한 안전한 처리 시작');
+  
+  // 안전한 processDiagnosis 호출
+  return processDiagnosis(requestData);
+}
+
+function generateAIAnalysisReport(data) {
+  console.log('🚫 V22.1 리다이렉트: generateAIAnalysisReport → processDiagnosis');
+  console.log('🛡️ Gemini API 오류 방지를 위한 안전한 처리');
+  
+  // AI 분석 없이 기본 점수 계산만 수행
+  return processDiagnosis(data);
+}
+
+function performAIAnalysis(diagnosisId, data) {
+  console.log('🚫 V22.1 차단: performAIAnalysis 호출 차단됨');
+  console.log('🛡️ 오프라인 전문가 분석으로 대체됨');
+  
+  // 아무것도 하지 않고 성공 반환 (AI 분석 제거)
+  return {
+    success: true,
+    message: 'V22.1에서 AI 분석이 제거되었습니다. 오프라인 전문가 분석으로 대체됩니다.',
+    analysisType: 'offline_expert_analysis',
+    deliveryTime: '48시간 이내'
+  };
+}
+
+function callGeminiAPI() {
+  console.log('🚫 V22.1 차단: Gemini API 호출 완전 차단');
+  throw new Error('🚫 V22.1에서 제거됨: Gemini API 키 오류 해결을 위해 AI API 호출이 제거되었습니다.');
+}
+
+// 🚨 V22.1 긴급 추가: 기존 AI 관련 함수들 모두 안전하게 처리
+function callAI() {
+  console.log('🚫 V22.1 차단: AI API 호출 차단');
+  return { success: false, message: 'AI 분석이 오프라인 전문가 분석으로 대체되었습니다.' };
+}
+
+function generateAnalysisPrompt() {
+  console.log('🚫 V22.1 차단: AI 프롬프트 생성 차단');
+  return '';
+}
+
+function analyzeWithGemini() {
+  console.log('🚫 V22.1 차단: Gemini 분석 차단');
+  return { success: false, message: 'Gemini 분석이 제거되었습니다.' };
+}

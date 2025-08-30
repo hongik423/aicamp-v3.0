@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,31 @@ export default function ReportAccessPage() {
   const [diagnosisId, setDiagnosisId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+
+  // 최근 조회한 진단ID 로드
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('aicamp_recent_diagnosis_ids');
+      if (saved) {
+        try {
+          const ids = JSON.parse(saved);
+          setRecentIds(Array.isArray(ids) ? ids.slice(0, 5) : []);
+        } catch (error) {
+          console.error('최근 진단ID 로드 실패:', error);
+        }
+      }
+    }
+  }, []);
+
+  // 최근 조회한 진단ID 저장
+  const saveRecentId = (id: string) => {
+    if (typeof window !== 'undefined') {
+      const updated = [id, ...recentIds.filter(existingId => existingId !== id)].slice(0, 5);
+      setRecentIds(updated);
+      localStorage.setItem('aicamp_recent_diagnosis_ids', JSON.stringify(updated));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +109,9 @@ export default function ReportAccessPage() {
 
       console.log('✅ 진단 데이터 존재 확인 완료');
 
+      // 최근 조회한 진단ID 저장
+      saveRecentId(diagnosisId.trim());
+
       // 3단계: 진단 결과 페이지로 리다이렉트
       toast({
         title: "접근 권한 확인됨",
@@ -149,18 +177,24 @@ export default function ReportAccessPage() {
                 <Input
                   id="diagnosisId"
                   type="text"
-                  placeholder="DIAG_45Q_xxxxxxxxx"
+                  placeholder="DIAG_45Q_AI1756528197552_xte4ept68"
                   value={diagnosisId}
                   onChange={(e) => {
                     setDiagnosisId(e.target.value);
                     setError('');
                   }}
-                  className="text-center font-mono"
+                  className="text-center font-mono text-sm"
                   disabled={loading}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSubmit(e);
+                    }
+                  }}
                 />
-                <p className="text-xs text-gray-500 text-center">
-                  이메일로 받은 진단ID를 정확히 입력해주세요
-                </p>
+                <div className="text-xs text-gray-500 text-center space-y-1">
+                  <p>이메일로 받은 진단ID를 정확히 입력해주세요</p>
+                  <p className="text-blue-600">💡 팁: Ctrl+V로 복사한 진단ID를 붙여넣기 하세요</p>
+                </div>
               </div>
 
               {error && (
@@ -190,6 +224,37 @@ export default function ReportAccessPage() {
                 )}
               </Button>
             </form>
+
+            {/* 최근 조회한 진단ID */}
+            {recentIds.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  최근 조회한 진단ID
+                </h4>
+                <div className="space-y-2">
+                  {recentIds.map((recentId, index) => (
+                    <button
+                      key={recentId}
+                      onClick={() => {
+                        setDiagnosisId(recentId);
+                        setError('');
+                      }}
+                      className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <code className="text-xs font-mono text-gray-700">
+                          {recentId.length > 25 ? `${recentId.substring(0, 25)}...` : recentId}
+                        </code>
+                        <span className="text-xs text-gray-500">
+                          {index === 0 ? '최근' : `${index + 1}번째`}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 안내 정보 */}
             <div className="space-y-4">

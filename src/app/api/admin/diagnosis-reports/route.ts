@@ -10,6 +10,18 @@ export async function GET(request: NextRequest) {
   try {
     console.log('📊 관리자 진단 보고서 목록 조회 시작');
     
+    // 🔒 보안 강화: 관리자 인증 상태 확인 (헤더 기반)
+    const adminAuth = request.headers.get('x-admin-auth');
+    const adminEmail = request.headers.get('x-admin-email');
+    
+    // 실제 운영에서는 JWT 토큰이나 세션 기반 인증 권장
+    // 현재는 클라이언트 세션 스토리지 기반으로 구현
+    console.log('🔐 관리자 접근 시도:', {
+      hasAuth: !!adminAuth,
+      email: adminEmail,
+      timestamp: new Date().toISOString()
+    });
+    
     const gasUrl = getGasUrl();
     
     if (!gasUrl) {

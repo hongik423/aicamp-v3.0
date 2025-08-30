@@ -47,10 +47,10 @@ export default function Header() {
   // 네비게이션 메뉴 정의 - 개별 신청자 중심 몰입감 있는 UX
   const navigation = [
     { href: '/services/ai-curriculum', label: '직무AI트랙', isSpecial: false, priority: 1, category: 'education' },
-    { href: '/services', label: '서비스들', isSpecial: false, priority: 2, category: 'service' },
-    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 3, category: 'assessment' },
-    { href: '/about', label: '캠프소개', isSpecial: false, priority: 4, category: 'info' },
-    { href: '/my-diagnosis', label: '나의보고서', isSpecial: true, priority: 5, category: 'diagnosis', highlight: true },
+    { href: '/my-diagnosis', label: '보고서조회', isSpecial: true, priority: 2, category: 'diagnosis', highlight: true },
+    { href: '/services', label: '서비스들', isSpecial: false, priority: 3, category: 'service' },
+    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 4, category: 'assessment' },
+    { href: '/about', label: '캠프소개', isSpecial: false, priority: 5, category: 'info' },
     { href: '/seminar', label: '세미나', isSpecial: false, priority: 6, category: 'education' },
     { href: '/services/investment-analysis', label: '타당성분석', isSpecial: false, priority: 7, category: 'analysis' },
     { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8, category: 'tool' }
@@ -196,15 +196,7 @@ export default function Header() {
               <span className="ml-1 text-xs bg-white/20 px-1 rounded">START</span>
             </Link>
             
-            {/* 나의보고서 버튼 - 개별 신청자 중심 몰입감 있는 UX */}
-            <Link
-              href="/my-diagnosis"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border-2 border-purple-300/30`}
-            >
-              <FileText className="w-4 h-4 mr-1" />
-              <span>나의보고서</span>
-              <span className="ml-1 text-xs bg-white/20 px-1 rounded">NEW</span>
-            </Link>
+
             
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
@@ -281,7 +273,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* AI역량진단 & 나의보고서 버튼 - 태블릿용 (개별 신청자 중심 UX) */}
+          {/* AI역량진단 & 보고서조회 버튼 - 태블릿용 (개별 신청자 중심 UX) */}
           <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
@@ -302,7 +294,7 @@ export default function Header() {
               className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-purple-300/30`}
             >
               <FileText className="w-4 h-4 mr-1" />
-              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>나의보고서</span>
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>보고서조회</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>보고서</span>
             </Link>
             
@@ -437,7 +429,7 @@ export default function Header() {
                 </span>
               </Link>
 
-              {/* 나의보고서 버튼 - 개별 신청자 중심 몰입감 있는 UX */}
+              {/* 보고서조회 버튼 - 개별 신청자 중심 몰입감 있는 UX */}
               <Link
                 href="/my-diagnosis"
                 onClick={() => {
@@ -447,7 +439,7 @@ export default function Header() {
               >
                 <span className="text-base font-medium flex items-center">
                   <FileText className="w-4 h-4 mr-2" />
-                  나의보고서
+                  보고서조회
                 </span>
                 <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
                   NEW

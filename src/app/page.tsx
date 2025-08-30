@@ -345,6 +345,13 @@ export default function Home() {
                 </button>
               </Link>
               
+              <Link href="/my-diagnosis">
+                <button className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  나의 보고서 조회
+                </button>
+              </Link>
+              
               <Link href="/consultation">
                 <button 
                   className="px-8 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"

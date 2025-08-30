@@ -1,30 +1,34 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   FileText, 
   Search, 
-  Calendar, 
-  Building, 
-  Star, 
-  Download,
   Eye,
-  Clock,
-  TrendingUp,
+  Download,
+  Shield,
+  ArrowRight,
+  BarChart3,
   Award,
-  Filter,
+  Calendar,
+  Building,
+  Star,
   RefreshCw,
+  Loader2,
   AlertCircle,
   CheckCircle,
-  ArrowRight,
-  BarChart3
+  Lock,
+  Mail,
+  Key,
+  LogOut,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 interface DiagnosisReport {
@@ -42,213 +46,362 @@ interface DiagnosisReport {
 
 export default function DiagnosisReportsPage() {
   const { toast } = useToast();
+  
+  // 진단ID 직접 조회 관련 상태
+  const [directSearchId, setDirectSearchId] = useState('');
+  const [directSearchLoading, setDirectSearchLoading] = useState(false);
+  const [directSearchError, setDirectSearchError] = useState('');
+  
+  // 관리자 인증 관련 상태
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminEmail, setAdminEmail] = useState('hongik423@gmail.com');
+  const [authCode, setAuthCode] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // 관리자 전용 보고서 목록
   const [reports, setReports] = useState<DiagnosisReport[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterGrade, setFilterGrade] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
-  const [userDiagnosisId, setUserDiagnosisId] = useState('');
+
+  // 컴포넌트 마운트 시 관리자 인증 상태 확인
+  useEffect(() => {
+    checkAdminAuth();
+  }, []);
+
+  // 관리자 인증 상태 확인
+  const checkAdminAuth = () => {
+    if (typeof window !== 'undefined') {
+      const isAuth = sessionStorage.getItem('admin_authenticated');
+      const authTime = sessionStorage.getItem('admin_auth_time');
+      
+      if (isAuth === 'true' && authTime) {
+        const timeDiff = Date.now() - parseInt(authTime);
+        const maxAge = 60 * 60 * 1000; // 1시간
+        
+        if (timeDiff < maxAge) {
+          setIsAuthenticated(true);
+          setIsAdminMode(true);
+          loadReports(); // 관리자 인증된 경우에만 전체 목록 로드
+        } else {
+          // 세션 만료
+          sessionStorage.removeItem('admin_authenticated');
+          sessionStorage.removeItem('admin_auth_time');
+        }
+      }
+    }
+  };
+
+  // 진단ID 직접 조회 함수 (보안 강화)
+  const handleDirectSearch = async () => {
+    if (!directSearchId.trim()) {
+      setDirectSearchError('진단ID를 입력해주세요.');
+      return;
+    }
+
+    setDirectSearchLoading(true);
+    setDirectSearchError('');
+
+    try {
+      console.log('🔍 보안 강화된 진단ID 조회 시작:', directSearchId);
+      
+      // 진단ID 유효성 검사
+      const cleanId = directSearchId.trim();
+      if (cleanId.length < 10) {
+        throw new Error('유효하지 않은 진단ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.');
+      }
+
+      // API로 해당 진단ID 존재 여부 확인 (개별 조회)
+      const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(cleanId)}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(15000)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('✅ 보안 검증 완료, 개별 보고서 조회 성공');
+          
+          toast({
+            title: "✅ 진단보고서 조회 성공",
+            description: "본인의 보고서 페이지로 이동합니다.",
+            variant: "default"
+          });
+          
+          // 개별 결과 페이지로 직접 이동 (보안 강화)
+          window.open(`/diagnosis-results/${cleanId}`, '_blank');
+          
+          // 검색 필드 초기화
+          setDirectSearchId('');
+          
+        } else {
+          throw new Error(result.error || '해당 진단ID의 보고서를 찾을 수 없습니다.');
+        }
+      } else if (response.status === 404) {
+        throw new Error('해당 진단ID의 보고서를 찾을 수 없습니다. 이메일로 받으신 정확한 진단ID를 확인해주세요.');
+      } else {
+        throw new Error(`조회 실패: ${response.status} ${response.statusText}`);
+      }
+
+    } catch (error: any) {
+      console.error('❌ 보안 강화된 진단ID 조회 실패:', error);
+      
+      let errorMessage = '보고서 조회 중 오류가 발생했습니다.';
+      
+      if (error.name === 'AbortError') {
+        errorMessage = '조회 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setDirectSearchError(errorMessage);
+      
+      toast({
+        title: "❌ 조회 실패",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setDirectSearchLoading(false);
+    }
+  };
+
+  // 관리자 인증번호 발송
+  const sendAuthCode = async () => {
+    if (adminEmail !== 'hongik423@gmail.com') {
+      setAuthError('관리자 이메일이 아닙니다.');
+      return;
+    }
+
+    try {
+      setAuthLoading(true);
+      setAuthError('');
+      
+      console.log('📧 관리자 인증번호 발송 요청');
+      
+      const response = await fetch('/api/admin/send-auth-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: adminEmail })
+      });
+
+      if (!response.ok) {
+        throw new Error('인증번호 발송에 실패했습니다.');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "인증번호 발송 완료",
+          description: "이메일로 6자리 인증번호가 발송되었습니다.",
+        });
+      } else {
+        throw new Error(result.error || '인증번호 발송에 실패했습니다.');
+      }
+      
+    } catch (error: any) {
+      console.error('❌ 인증번호 발송 실패:', error);
+      setAuthError(error.message);
+      toast({
+        title: "발송 실패",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // 관리자 인증번호 검증
+  const verifyAuthCode = async () => {
+    if (!authCode.trim() || authCode.length !== 6) {
+      setAuthError('6자리 인증번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      setAuthLoading(true);
+      setAuthError('');
+      
+      console.log('🔐 관리자 인증번호 검증');
+      
+      const response = await fetch('/api/admin/verify-auth-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: adminEmail,
+          code: authCode.trim()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('인증번호 검증에 실패했습니다.');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // 인증 성공 - 세션 스토리지에 저장
+        sessionStorage.setItem('admin_authenticated', 'true');
+        sessionStorage.setItem('admin_auth_time', Date.now().toString());
+        
+        setIsAuthenticated(true);
+        setAuthCode('');
+        
+        toast({
+          title: "관리자 인증 성공",
+          description: "전체 보고서 목록을 조회합니다.",
+        });
+
+        // 전체 보고서 로드
+        loadReports();
+        
+      } else {
+        throw new Error(result.error || '잘못된 인증번호입니다.');
+      }
+      
+    } catch (error: any) {
+      console.error('❌ 인증번호 검증 실패:', error);
+      setAuthError(error.message);
+      toast({
+        title: "인증 실패",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // 관리자 로그아웃
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_authenticated');
+    sessionStorage.removeItem('admin_auth_time');
+    setIsAuthenticated(false);
+    setIsAdminMode(false);
+    setAuthCode('');
+    setAuthError('');
+    setAdminEmail('hongik423@gmail.com');
+    setReports([]);
+    
+    toast({
+      title: "로그아웃 완료",
+      description: "관리자 세션이 종료되었습니다.",
+    });
+  };
+
+  // 관리자 전용 보고서 로드 함수
+  const loadReports = async () => {
+    if (!isAuthenticated) return;
+    
+    setIsLoading(true);
+    
+    try {
+      console.log('🔄 관리자 전용 진단 보고서 데이터 로드 시작');
+      
+      const response = await fetch('/api/admin/diagnosis-reports', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-auth': 'authenticated',
+          'x-admin-email': adminEmail,
+          'x-admin-timestamp': Date.now().toString()
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (result.success && result.data && Array.isArray(result.data)) {
+          console.log('✅ 관리자 전용 데이터 로드 성공:', result.data.length);
+          
+          const actualReports: DiagnosisReport[] = result.data.map((item: any) => ({
+            diagnosisId: item.diagnosisId || '',
+            companyName: item.companyName || '정보 없음',
+            contactName: item.contactName || '정보 없음',
+            industry: item.industry || '정보통신업',
+            totalScore: parseFloat(item.totalScore) || 0,
+            grade: item.grade || 'F',
+            createdAt: item.createdAt || new Date().toISOString(),
+            status: 'completed' as const,
+            reportUrl: `/diagnosis-results/${item.diagnosisId}`
+          }));
+          
+          setReports(actualReports);
+          
+        } else {
+          console.log('⚠️ 관리자 데이터 없음');
+          setReports([]);
+        }
+      } else {
+        throw new Error(`관리자 API 오류: ${response.status}`);
+      }
+      
+    } catch (error: any) {
+      console.error('❌ 관리자 데이터 로드 실패:', error);
+      toast({
+        title: "데이터 로드 실패",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // 24페이지 완성본 HTML 보고서 다운로드 함수
   const handleDownloadReport = async (report: DiagnosisReport) => {
     try {
       console.log('📥 24페이지 완성본 다운로드 시작:', report.diagnosisId);
       
-      // 1. API에서 24페이지 완성본 조회
       const response = await fetch(`/api/diagnosis-reports/${report.diagnosisId}`);
       
       if (response.ok) {
         const data = await response.json();
         
-        if (data.success && data.htmlReport) {
-          // 24페이지 완성본 다운로드
-          const blob = new Blob([data.htmlReport], { type: 'text/html;charset=utf-8' });
+        if (data.success && data.htmlContent) {
+          const blob = new Blob([data.htmlContent], { type: 'text/html;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_V23.1_${new Date().toISOString().split('T')[0]}.html`;
+          link.download = `AI역량진단보고서_${report.companyName}_${report.diagnosisId}.html`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
           
-          console.log('✅ 24페이지 완성본 다운로드 완료');
           toast({
-            title: "✅ 24페이지 완성본 다운로드",
-            description: "V23.1 Enhanced 24페이지 AI 역량진단 보고서가 다운로드되었습니다.",
-            variant: "default"
+            title: "✅ 다운로드 완료",
+            description: "24페이지 완성본 보고서가 다운로드되었습니다.",
           });
-          return;
+        } else {
+          throw new Error('보고서 데이터를 찾을 수 없습니다.');
         }
-      }
-      
-      // 2. 폴백: 로컬 스토리지에서 V23.1 보고서 조회
-      const reportKey = `aicamp_report_${report.diagnosisId}`;
-      const v23Report = localStorage.getItem(reportKey);
-      
-      if (v23Report) {
-        const blob = new Blob([v23Report], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_V23.1_${new Date().toISOString().split('T')[0]}.html`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        console.log('✅ 로컬 V23.1 보고서 다운로드 완료');
-        toast({
-          title: "✅ V23.1 보고서 다운로드",
-          description: "로컬에 저장된 V23.1 Enhanced 보고서가 다운로드되었습니다.",
-          variant: "default"
-        });
-        return;
-      }
-      
-      // 3. 최종 폴백: 기본 보고서 생성
-      console.log('⚠️ 24페이지 완성본 없음, 기본 보고서 생성');
-      const { ReportStorage } = await import('@/lib/diagnosis/report-storage');
-      const fallbackHtml = await ReportStorage.getReport(report.diagnosisId);
-      
-      if (fallbackHtml) {
-        const blob = new Blob([fallbackHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `AICAMP_AI역량진단보고서_${report.companyName}_${report.diagnosisId}_기본_${new Date().toISOString().split('T')[0]}.html`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        toast({
-          title: "✅ 기본 보고서 다운로드",
-          description: "기본 보고서가 생성되어 다운로드되었습니다.",
-          variant: "default"
-        });
       } else {
-        throw new Error('보고서를 생성할 수 없습니다.');
+        throw new Error(`다운로드 실패: ${response.status}`);
       }
-    } catch (error) {
-      console.error('보고서 다운로드 실패:', error);
+      
+    } catch (error: any) {
+      console.error('❌ 보고서 다운로드 실패:', error);
       toast({
         title: "❌ 다운로드 실패",
-        description: "보고서 다운로드 중 오류가 발생했습니다.",
+        description: error.message,
         variant: "destructive"
       });
     }
   };
 
-  // 실제 API에서 데이터 로드 (24페이지 완성본 연결)
-  useEffect(() => {
-    const loadReports = async () => {
-      setIsLoading(true);
-      
-      try {
-        console.log('🔄 실제 진단 보고서 데이터 로드 시작');
-        
-        // 1. 관리자 API에서 실제 데이터 조회
-        const response = await fetch('/api/admin/diagnosis-reports', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          
-          if (result.success && result.data && Array.isArray(result.data)) {
-            console.log('✅ 실제 진단 데이터 로드 성공:', result.data.length);
-            
-            // 실제 데이터를 페이지 형식에 맞게 변환
-            const actualReports: DiagnosisReport[] = result.data.map((item: any) => ({
-              diagnosisId: item.diagnosisId || '',
-              companyName: item.companyName || '',
-              contactName: item.contactName || '',
-              industry: item.industry || '정보통신업',
-              totalScore: item.totalScore || 0,
-              grade: item.grade || 'N/A',
-              createdAt: item.submittedAt || item.createdAt || new Date().toISOString(),
-              status: 'completed',
-              reportUrl: `/diagnosis-results/${item.diagnosisId}`
-            }));
-            
-            setReports(actualReports);
-          } else {
-            throw new Error(result.error || '데이터를 불러올 수 없습니다.');
-          }
-        } else {
-          throw new Error(`API 응답 오류: ${response.status}`);
-        }
-      } catch (error) {
-        console.error('❌ 실제 데이터 로드 실패:', error);
-        
-        // 폴백: 로컬 스토리지에서 사용자의 진단 결과 확인
-        const completedDiagnosisId = localStorage.getItem('completedDiagnosisId');
-        const diagnosisReportInfo = localStorage.getItem('diagnosisReportInfo');
-        
-        const fallbackReports: DiagnosisReport[] = [];
-        
-        // 사용자의 실제 진단 결과가 있으면 추가
-        if (completedDiagnosisId && diagnosisReportInfo) {
-          try {
-            const reportInfo = JSON.parse(diagnosisReportInfo);
-            fallbackReports.push({
-              diagnosisId: completedDiagnosisId,
-              companyName: reportInfo.companyName || '내 회사',
-              contactName: '본인',
-              industry: '정보통신업',
-              totalScore: reportInfo.totalScore || 85.2,
-              grade: reportInfo.grade || 'A',
-              createdAt: reportInfo.createdAt || new Date().toISOString(),
-              status: 'completed',
-              fileName: reportInfo.fileName,
-              reportUrl: `/diagnosis-results/${completedDiagnosisId}`
-            });
-          } catch (error) {
-            console.error('진단 정보 파싱 오류:', error);
-          }
-        }
-        
-        // 샘플 데이터 추가 (폴백용)
-        fallbackReports.push(
-          {
-            diagnosisId: 'DIAG_SAMPLE_001',
-            companyName: '테크스타트업(주)',
-            contactName: '김대표',
-            industry: '소프트웨어개발업',
-            totalScore: 92.5,
-            grade: 'S',
-            createdAt: '2025-01-15T10:30:00Z',
-            status: 'completed',
-            reportUrl: '/diagnosis-results/DIAG_SAMPLE_001'
-          },
-          {
-            diagnosisId: 'DIAG_SAMPLE_002',
-            companyName: '제조혁신(주)',
-            contactName: '박이사',
-            industry: '제조업',
-            totalScore: 78.3,
-            grade: 'B',
-            createdAt: '2025-01-14T14:20:00Z',
-            status: 'completed',
-            reportUrl: '/diagnosis-results/DIAG_SAMPLE_002'
-          }
-        );
-        
-        setReports(fallbackReports);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadReports();
-  }, []);
-
-  // 필터링된 보고서 목록 (V27.0 Ultimate 안전성 강화)
+  // 필터링된 보고서 목록 (관리자 전용)
   const filteredReports = reports.filter(report => {
-    // null/undefined 안전성 검사 및 문자열 타입 검증 추가
     const companyName = String(report.companyName || '');
     const contactName = String(report.contactName || '');
     const diagnosisId = String(report.diagnosisId || '');
@@ -275,263 +428,390 @@ export default function DiagnosisReportsPage() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'processing': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'failed': return <AlertCircle className="h-4 w-4 text-red-500" />;
-      default: return <Clock className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed': return '완료';
-      case 'processing': return '처리중';
-      case 'failed': return '실패';
-      default: return '대기';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                🎯 AI 역량진단 결과보고서 조회
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                완료된 AI 역량진단 보고서를 조회하고 다운로드할 수 있습니다.
-              </p>
-            </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* 헤더 */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+              <FileText className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              AI 역량진단 결과보고서 조회
+            </h1>
           </div>
-        </div>
-      </div>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            완료된 AI 역량진단 보고서를 조회하고 다운로드할 수 있습니다.
+          </p>
+        </motion.div>
 
-      {/* 검색 및 필터 */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        {/* 보안 강화 알림 */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <Alert className="border-amber-200 bg-amber-50">
+            <Shield className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800">
+              <strong>보안 강화 안내:</strong> 개인정보 보호를 위해 본인의 진단ID로만 보고서 조회가 가능합니다. 
+              관리자는 별도 인증 후 전체 목록에 접근할 수 있습니다.
+            </AlertDescription>
+          </Alert>
+        </motion.div>
+
+        {/* 진단ID 직접 조회 (일반 사용자) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <Card className="border-blue-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
+              <CardTitle className="flex items-center gap-2 text-blue-800">
+                <Search className="h-5 w-5" />
+                진단ID로 바로 조회하기
+              </CardTitle>
+              <CardDescription>
+                이메일로 받으신 진단ID를 입력하면 바로 결과보고서를 확인할 수 있습니다
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="flex gap-3">
                 <Input
-                  placeholder="회사명, 담당자명, 진단ID로 검색..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  placeholder="DIAG_450_AT_1756007646381_cezr4cnfx"
+                  value={directSearchId}
+                  onChange={(e) => {
+                    setDirectSearchId(e.target.value);
+                    setDirectSearchError('');
+                  }}
+                  className="flex-1"
+                  disabled={directSearchLoading}
                 />
+                <Button 
+                  onClick={handleDirectSearch}
+                  disabled={directSearchLoading || !directSearchId.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                >
+                  {directSearchLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Eye className="h-4 w-4 mr-2" />
+                  )}
+                  조회하기
+                </Button>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <select
-                value={filterGrade}
-                onChange={(e) => setFilterGrade(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title="등급별 필터링"
-                aria-label="등급별 필터링"
-              >
-                <option value="all">전체 등급</option>
-                <option value="S">S등급</option>
-                <option value="A">A등급</option>
-                <option value="B">B등급</option>
-                <option value="C">C등급</option>
-                <option value="D">D등급</option>
-                <option value="F">F등급</option>
-              </select>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                필터
-              </Button>
-            </div>
-          </div>
-        </div>
+              
+              {directSearchError && (
+                <Alert className="mt-4 border-red-200 bg-red-50">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    {directSearchError}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+                <AlertCircle className="h-4 w-4" />
+                <span>진단ID를 입력해주세요.</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        {/* 통계 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">총 보고서</p>
-                  <p className="text-2xl font-bold text-gray-900">{reports.length}</p>
+        {/* 관리자 인증 섹션 */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <Card className="border-purple-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+              <CardTitle className="flex items-center gap-2 text-purple-800">
+                <Shield className="h-5 w-5" />
+                관리자 전체 목록 조회
+              </CardTitle>
+              <CardDescription>
+                관리자 인증 후 전체 진단 보고서 목록을 확인할 수 있습니다
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {!isAuthenticated ? (
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <Input
+                      type="email"
+                      placeholder="관리자 이메일"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      className="flex-1"
+                      disabled={authLoading}
+                    />
+                    <Button 
+                      onClick={sendAuthCode}
+                      disabled={authLoading || adminEmail !== 'hongik423@gmail.com'}
+                      variant="outline"
+                      className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                    >
+                      {authLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Mail className="h-4 w-4 mr-2" />
+                      )}
+                      인증번호 발송
+                    </Button>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <Input
+                      placeholder="6자리 인증번호"
+                      value={authCode}
+                      onChange={(e) => setAuthCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="flex-1"
+                      disabled={authLoading}
+                      maxLength={6}
+                    />
+                    <Button 
+                      onClick={verifyAuthCode}
+                      disabled={authLoading || authCode.length !== 6}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      {authLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Key className="h-4 w-4 mr-2" />
+                      )}
+                      인증하기
+                    </Button>
+                  </div>
+                  
+                  {authError && (
+                    <Alert className="border-red-200 bg-red-50">
+                      <AlertCircle className="h-4 w-4 text-red-600" />
+                      <AlertDescription className="text-red-800">
+                        {authError}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
-                <FileText className="h-8 w-8 text-blue-500" />
-              </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <span className="text-green-800 font-medium">관리자 인증 완료</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      {adminEmail}
+                    </Badge>
+                  </div>
+                  <Button 
+                    onClick={handleLogout}
+                    variant="outline"
+                    className="border-red-300 text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    로그아웃
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">완료된 진단</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {reports.filter(r => r.status === 'completed').length}
-                  </p>
-                </div>
-                <CheckCircle className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">평균 점수</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {reports.filter(r => r.status === 'completed').length > 0 
-                      ? (reports.filter(r => r.status === 'completed').reduce((sum, r) => sum + r.totalScore, 0) / reports.filter(r => r.status === 'completed').length).toFixed(1)
-                      : '0.0'
-                    }
-                  </p>
-                </div>
-                <BarChart3 className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">처리중</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {reports.filter(r => r.status === 'processing').length}
-                  </p>
-                </div>
-                <Clock className="h-8 w-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        </motion.div>
 
-        {/* 보고서 목록 */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
-            <p className="text-gray-600">보고서를 불러오는 중...</p>
-          </div>
-        ) : filteredReports.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">보고서가 없습니다</h3>
-            <p className="text-gray-600 mb-6">검색 조건을 변경하거나 새로운 진단을 시작해보세요.</p>
-            <Link href="/ai-diagnosis">
-              <Button>
-                <TrendingUp className="h-4 w-4 mr-2" />
-                AI 역량진단 시작하기
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredReports.map((report, index) => (
-              <motion.div
-                key={report.diagnosisId}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-              >
-                <Card className="hover:shadow-md transition-shadow duration-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          {getStatusIcon(report.status)}
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {report.companyName}
-                          </h3>
-                          <Badge className={`${getGradeColor(report.grade)} border`}>
-                            {report.grade}등급
-                          </Badge>
-                          <Badge variant="outline">
-                            {getStatusText(report.status)}
-                          </Badge>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Building className="h-4 w-4" />
-                            <span>{report.industry}</span>
+        {/* 관리자 전용 보고서 목록 */}
+        {isAuthenticated && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            {/* 검색 및 필터 */}
+            <Card className="mb-6">
+              <CardContent className="pt-6">
+                <div className="flex gap-4 mb-4">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="회사명, 담당자명, 진단ID로 검색..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <select
+                    value={filterGrade}
+                    onChange={(e) => setFilterGrade(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="등급별 필터링"
+                    aria-label="등급별 필터링"
+                  >
+                    <option value="all">전체 등급</option>
+                    <option value="S">S등급</option>
+                    <option value="A">A등급</option>
+                    <option value="B">B등급</option>
+                    <option value="C">C등급</option>
+                    <option value="D">D등급</option>
+                    <option value="F">F등급</option>
+                  </select>
+                  <Button 
+                    onClick={loadReports}
+                    disabled={isLoading}
+                    variant="outline"
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                    새로고침
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 통계 카드 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+              <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-600 text-sm font-medium">총 보고서</p>
+                      <p className="text-2xl font-bold text-blue-800">{filteredReports.length}</p>
+                    </div>
+                    <FileText className="h-8 w-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-600 text-sm font-medium">완료된 진단</p>
+                      <p className="text-2xl font-bold text-green-800">
+                        {filteredReports.filter(r => r.status === 'completed').length}
+                      </p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-600 text-sm font-medium">평균 점수</p>
+                      <p className="text-2xl font-bold text-purple-800">
+                        {filteredReports.length > 0 
+                          ? (filteredReports.reduce((sum, r) => sum + r.totalScore, 0) / filteredReports.length).toFixed(1)
+                          : '0'
+                        }
+                      </p>
+                    </div>
+                    <BarChart3 className="h-8 w-8 text-purple-600" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-orange-600 text-sm font-medium">처리중</p>
+                      <p className="text-2xl font-bold text-orange-800">0</p>
+                    </div>
+                    <Loader2 className="h-8 w-8 text-orange-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 보고서 목록 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  진단 보고서 목록 ({filteredReports.length}개)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                    <span className="ml-2 text-gray-600">데이터를 불러오는 중...</span>
+                  </div>
+                ) : filteredReports.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">조회된 보고서가 없습니다.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredReports.map((report, index) => (
+                      <motion.div
+                        key={report.diagnosisId}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <Badge className={getGradeColor(report.grade)}>
+                                {report.grade}등급
+                              </Badge>
+                              <span className="font-medium text-gray-900">{report.companyName}</span>
+                              <span className="text-sm text-gray-500">담당자: {report.contactName}</span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <Building className="h-4 w-4" />
+                                {report.industry}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                {new Date(report.createdAt).toLocaleDateString('ko-KR')}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <BarChart3 className="h-4 w-4" />
+                                점수: {report.totalScore.toFixed(1)}
+                              </span>
+                            </div>
+                            <div className="mt-2 text-xs text-gray-500 font-mono">
+                              진단ID: {report.diagnosisId}
+                            </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>{new Date(report.createdAt).toLocaleDateString('ko-KR')}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Award className="h-4 w-4" />
-                            <span>점수: {report.totalScore.toFixed(1)}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
-                            <span>ID: {report.diagnosisId}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 ml-4">
-                        {report.status === 'completed' && report.reportUrl && (
-                          <>
-                            <Link href={`/diagnosis-results/${report.diagnosisId}`}>
-                              <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4 mr-2" />
-                                24페이지 보기
-                              </Button>
-                            </Link>
-                            <Button 
-                              variant="default" 
+                            <Button
+                              onClick={() => window.open(report.reportUrl, '_blank')}
                               size="sm"
-                              onClick={() => handleDownloadReport(report)}
+                              variant="outline"
+                              className="border-blue-300 text-blue-700 hover:bg-blue-50"
                             >
-                              <Download className="h-4 w-4 mr-2" />
+                              <Eye className="h-4 w-4 mr-1" />
+                              24페이지 보기
+                            </Button>
+                            <Button
+                              onClick={() => handleDownloadReport(report)}
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              <Download className="h-4 w-4 mr-1" />
                               V23.1 다운로드
                             </Button>
-                          </>
-                        )}
-                        {report.status === 'processing' && (
-                          <Button variant="outline" size="sm" disabled>
-                            <Clock className="h-4 w-4 mr-2" />
-                            처리중
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
-
-        {/* 새 진단 시작 CTA */}
-        <div className="mt-12 text-center">
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <CardContent className="p-8">
-              <TrendingUp className="h-12 w-12 mx-auto mb-4 text-blue-500" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                새로운 AI 역량진단을 시작해보세요
-              </h3>
-              <p className="text-gray-600 mb-6">
-                45개 행동지표 기반 정밀 진단으로 맞춤형 AI 전략을 수립하세요
-              </p>
-              <Link href="/ai-diagnosis">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                  <ArrowRight className="h-5 w-5 mr-2" />
-                  AI 역량진단 시작하기
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );
