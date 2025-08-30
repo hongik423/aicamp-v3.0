@@ -47,9 +47,10 @@ console.log('🚀 V22.1 AICAMP 통합 시스템 - 긴급 오류 수정 버전 (2
 // ================================================================================
 
 /**
- * 환경 설정 조회 (기본값 적용)
+ * 환경 설정 조회 (기본값 적용) - 안전한 버전
  */
 function getEnvironmentConfig() {
+  // 기본 설정 정의 (매번 새로 생성하여 충돌 방지)
   const defaultConfig = {
     ADMIN_EMAIL: 'hongik423@gmail.com',
     SYSTEM_NAME: 'AICAMP 통합 시스템',
@@ -84,13 +85,13 @@ function getEnvironmentConfig() {
     }
     
     // 속성값 안전하게 가져오기
-    const config = { ...defaultConfig };
+    const resultConfig = { ...defaultConfig };
     
     // 관리자 이메일 설정
     try {
       const adminEmail = properties.getProperty('ADMIN_EMAIL');
       if (adminEmail && typeof adminEmail === 'string' && adminEmail.trim().length > 0) {
-        config.ADMIN_EMAIL = adminEmail.trim();
+        resultConfig.ADMIN_EMAIL = adminEmail.trim();
       }
     } catch (emailError) {
       console.warn('⚠️ ADMIN_EMAIL 속성 오류:', emailError.message);
@@ -100,7 +101,7 @@ function getEnvironmentConfig() {
     try {
       const spreadsheetId = properties.getProperty('SPREADSHEET_ID');
       if (spreadsheetId && typeof spreadsheetId === 'string' && spreadsheetId.trim().length > 0) {
-        config.SPREADSHEET_ID = spreadsheetId.trim();
+        resultConfig.SPREADSHEET_ID = spreadsheetId.trim();
       }
     } catch (sheetIdError) {
       console.warn('⚠️ SPREADSHEET_ID 속성 오류:', sheetIdError.message);
@@ -110,7 +111,7 @@ function getEnvironmentConfig() {
     try {
       const systemName = properties.getProperty('SYSTEM_NAME');
       if (systemName && typeof systemName === 'string' && systemName.trim().length > 0) {
-        config.SYSTEM_NAME = systemName.trim();
+        resultConfig.SYSTEM_NAME = systemName.trim();
       }
     } catch (systemNameError) {
       console.warn('⚠️ SYSTEM_NAME 속성 오류:', systemNameError.message);
@@ -120,7 +121,7 @@ function getEnvironmentConfig() {
     try {
       const version = properties.getProperty('VERSION');
       if (version && typeof version === 'string' && version.trim().length > 0) {
-        config.VERSION = version.trim();
+        resultConfig.VERSION = version.trim();
       }
     } catch (versionError) {
       console.warn('⚠️ VERSION 속성 오류:', versionError.message);
@@ -130,7 +131,7 @@ function getEnvironmentConfig() {
     try {
       const enableEmail = properties.getProperty('ENABLE_EMAIL');
       if (enableEmail !== null) {
-        config.ENABLE_EMAIL = enableEmail !== 'false';
+        resultConfig.ENABLE_EMAIL = enableEmail !== 'false';
       }
     } catch (enableEmailError) {
       console.warn('⚠️ ENABLE_EMAIL 속성 오류:', enableEmailError.message);
@@ -140,7 +141,7 @@ function getEnvironmentConfig() {
     try {
       const mainSheetName = properties.getProperty('MAIN_SHEET_NAME');
       if (mainSheetName && typeof mainSheetName === 'string' && mainSheetName.trim().length > 0) {
-        config.MAIN_SHEET_NAME = mainSheetName.trim();
+        resultConfig.MAIN_SHEET_NAME = mainSheetName.trim();
       }
     } catch (mainSheetError) {
       console.warn('⚠️ MAIN_SHEET_NAME 속성 오류:', mainSheetError.message);
@@ -149,7 +150,7 @@ function getEnvironmentConfig() {
     try {
       const detailSheetName = properties.getProperty('DETAIL_SHEET_NAME');
       if (detailSheetName && typeof detailSheetName === 'string' && detailSheetName.trim().length > 0) {
-        config.DETAIL_SHEET_NAME = detailSheetName.trim();
+        resultConfig.DETAIL_SHEET_NAME = detailSheetName.trim();
       }
     } catch (detailSheetError) {
       console.warn('⚠️ DETAIL_SHEET_NAME 속성 오류:', detailSheetError.message);
@@ -158,7 +159,7 @@ function getEnvironmentConfig() {
     try {
       const categorySheetName = properties.getProperty('CATEGORY_SHEET_NAME');
       if (categorySheetName && typeof categorySheetName === 'string' && categorySheetName.trim().length > 0) {
-        config.CATEGORY_SHEET_NAME = categorySheetName.trim();
+        resultConfig.CATEGORY_SHEET_NAME = categorySheetName.trim();
       }
     } catch (categorySheetError) {
       console.warn('⚠️ CATEGORY_SHEET_NAME 속성 오류:', categorySheetError.message);
@@ -166,15 +167,15 @@ function getEnvironmentConfig() {
     
     // 환경변수 검증 로그
     console.log('✅ 환경변수 로드 완료:', {
-      ADMIN_EMAIL: config.ADMIN_EMAIL ? '설정됨' : '기본값',
-      SPREADSHEET_ID: config.SPREADSHEET_ID ? '설정됨' : '기본값',
-      SYSTEM_NAME: config.SYSTEM_NAME,
-      VERSION: config.VERSION,
-      ENABLE_EMAIL: config.ENABLE_EMAIL,
+      ADMIN_EMAIL: resultConfig.ADMIN_EMAIL ? '설정됨' : '기본값',
+      SPREADSHEET_ID: resultConfig.SPREADSHEET_ID ? '설정됨' : '기본값',
+      SYSTEM_NAME: resultConfig.SYSTEM_NAME,
+      VERSION: resultConfig.VERSION,
+      ENABLE_EMAIL: resultConfig.ENABLE_EMAIL,
       시트개수: 5
     });
     
-    return config;
+    return resultConfig;
     
   } catch (error) {
     console.error('❌ 환경 설정 로드 실패:', error);
@@ -2127,11 +2128,12 @@ function processDiagnosis(requestData) {
       성숙도: scoreData.maturityLevel
     });
     
+    const debugConfig = getEnvironmentConfig();
     console.log('💾 V22.1 스프레드시트 설정:', {
-      SPREADSHEET_ID: config.SPREADSHEET_ID ? '설정됨' : '없음',
-      MAIN_SHEET_NAME: config.MAIN_SHEET_NAME,
-      DETAIL_SHEET_NAME: config.DETAIL_SHEET_NAME,
-      CATEGORY_SHEET_NAME: config.CATEGORY_SHEET_NAME
+      SPREADSHEET_ID: debugConfig.SPREADSHEET_ID ? '설정됨' : '없음',
+      MAIN_SHEET_NAME: debugConfig.MAIN_SHEET_NAME,
+      DETAIL_SHEET_NAME: debugConfig.DETAIL_SHEET_NAME,
+      CATEGORY_SHEET_NAME: debugConfig.CATEGORY_SHEET_NAME
     });
     
     const saveResults = {
@@ -2178,10 +2180,11 @@ function processDiagnosis(requestData) {
     
     // 4단계: 이메일 발송
     console.log('📧 V22.1 이메일 발송 중...');
+    const currentConfig = getEnvironmentConfig();
     console.log('📧 이메일 발송 대상:', {
       신청자: requestData.contactEmail,
-      관리자: config ? config.ADMIN_EMAIL : 'N/A',
-      이메일활성화: config ? config.ENABLE_EMAIL : 'N/A'
+      관리자: currentConfig ? currentConfig.ADMIN_EMAIL : 'N/A',
+      이메일활성화: currentConfig ? currentConfig.ENABLE_EMAIL : 'N/A'
     });
     
     let emailResults;
@@ -2203,7 +2206,7 @@ function processDiagnosis(requestData) {
     }
     
     // 5단계: 결과 반환
-    const config = getEnvironmentConfig();
+    const finalConfig = getEnvironmentConfig();
     const result = {
       success: true,
       diagnosisId: diagnosisId,
@@ -2216,7 +2219,7 @@ function processDiagnosis(requestData) {
         totalSteps: 3
       },
       timestamp: new Date().toISOString(),
-      version: config ? config.VERSION : 'V22.1'
+      version: finalConfig ? finalConfig.VERSION : 'V22.1'
     };
     
     console.log(`✅ AI 역량진단 처리 완료 (ID: ${diagnosisId})`);
@@ -2225,13 +2228,13 @@ function processDiagnosis(requestData) {
   } catch (error) {
     console.error('❌ AI 역량진단 처리 실패:', error);
     
-    const config = getEnvironmentConfig();
+    const errorConfig = getEnvironmentConfig();
     return {
       success: false,
       error: error.message || '알 수 없는 오류가 발생했습니다',
       diagnosisId: diagnosisId,
       timestamp: new Date().toISOString(),
-      version: config ? config.VERSION : 'V22.1',
+      version: errorConfig ? errorConfig.VERSION : 'V22.1',
       errorType: error.name || 'UnknownError'
     };
   }
