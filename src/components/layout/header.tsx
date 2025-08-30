@@ -10,7 +10,9 @@ import {
   Menu, 
   X,
   Download,
-  BookOpen
+  BookOpen,
+  FileText,
+  BarChart3
 } from 'lucide-react';
 import CurriculumSidePanel from './CurriculumSidePanel';
 // import DiagnosisNotificationBanner from '@/components/diagnosis/DiagnosisNotificationBanner';
@@ -42,15 +44,16 @@ export default function Header() {
   const [navTextSize, setNavTextSize] = useState<'xs' | 'sm' | 'md'>('sm');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 네비게이션 메뉴 정의 - 모든 태그 제거, 중복 버튼 제거
+  // 네비게이션 메뉴 정의 - 개별 신청자 중심 몰입감 있는 UX
   const navigation = [
-    { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 1 },
-    { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 2 },
-    { href: '/benchmark', label: 'AI벤치마크', isSpecial: false, priority: 3 },
-    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 4 },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 5 },
-    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 6 },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 7 }
+    { href: '/services/ai-curriculum', label: '직무AI트랙', isSpecial: false, priority: 1, category: 'education' },
+    { href: '/services', label: '서비스들', isSpecial: false, priority: 2, category: 'service' },
+    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 3, category: 'assessment' },
+    { href: '/about', label: '캠프소개', isSpecial: false, priority: 4, category: 'info' },
+    { href: '/my-diagnosis', label: '나의보고서', isSpecial: true, priority: 5, category: 'diagnosis', highlight: true },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 6, category: 'education' },
+    { href: '/services/investment-analysis', label: '타당성분석', isSpecial: false, priority: 7, category: 'analysis' },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8, category: 'tool' }
   ];
 
   // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시 + 동적 크기 조절
@@ -181,25 +184,26 @@ export default function Header() {
           <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-blue-300/30`}
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
                 console.log('헤더 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
               }}
             >
+              <BarChart3 className="w-4 h-4 mr-1" />
               <span>AI역량진단</span>
-
+              <span className="ml-1 text-xs bg-white/20 px-1 rounded">START</span>
             </Link>
             
-            {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
+            {/* 나의보고서 버튼 - 개별 신청자 중심 몰입감 있는 UX */}
             <Link
-              href="/diagnosis-reports"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
+              href="/my-diagnosis"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border-2 border-purple-300/30`}
             >
-              <span>AI진단보고서조회</span>
-
-
+              <FileText className="w-4 h-4 mr-1" />
+              <span>나의보고서</span>
+              <span className="ml-1 text-xs bg-white/20 px-1 rounded">NEW</span>
             </Link>
             
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
@@ -232,17 +236,28 @@ export default function Header() {
           {/* 데스크톱 네비게이션 - 가변 영역 (동적 크기 조절 적용) */}
           <nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-2 overflow-hidden">
             <div className={`flex items-center ${getNavSpacingClasses(navTextSize)} overflow-hidden`}>
-              {visibleNavigation.filter(item => !item.isSpecial).map((item) => (
+              {visibleNavigation.map((item) => (
                 <div key={item.href} className="relative group flex-shrink-0">
                   <Link
                     href={item.href}
-                    className={`inline-flex items-center ${getNavTextSizeClasses(navTextSize)} rounded-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap`}
+                    className={`inline-flex items-center ${getNavTextSizeClasses(navTextSize)} rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${
+                      (item as any).highlight 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-md hover:shadow-lg hover:scale-105 px-3 py-2' 
+                        : item.isSpecial 
+                          ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 bg-blue-50/50 px-2 py-1 border border-blue-200 hover:border-blue-300'
+                          : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105'
+                    }`}
                   >
                     <span className="truncate">{item.label}</span>
                     {(item as any).badge && (
                       <Badge variant="secondary" className="ml-1 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
                         {(item as any).badge}
                       </Badge>
+                    )}
+                    {(item as any).highlight && (
+                      <span className="ml-1 text-xs bg-white/20 px-1 rounded text-white">
+                        NEW
+                      </span>
                     )}
                   </Link>
                 </div>
@@ -266,31 +281,29 @@ export default function Header() {
             </button>
           </div>
 
-          {/* AI역량진단 & 상담신청 버튼 - 태블릿용 (동적 크기 조절 적용) */}
+          {/* AI역량진단 & 나의보고서 버튼 - 태블릿용 (개별 신청자 중심 UX) */}
           <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-blue-300/30`}
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
                 console.log('헤더 태블릿 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
               }}
             >
+              <BarChart3 className="w-4 h-4 mr-1" />
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>AI역량진단</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI진단</span>
-
             </Link>
             
-            {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
             <Link
-              href="/diagnosis-reports"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
+              href="/my-diagnosis"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-purple-300/30`}
             >
-              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>AI진단보고서조회</span>
-              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI진단보고서</span>
-
-
+              <FileText className="w-4 h-4 mr-1" />
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>나의보고서</span>
+              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>보고서</span>
             </Link>
             
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
@@ -332,13 +345,13 @@ export default function Header() {
                 href="/benchmark"
                 className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
               >
-                AI벤치마크
+                벤치마크
               </Link>
               <Link
                 href="/about"
                 className="px-2 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0"
               >
-                AICAMP소개
+                캠프소개
               </Link>
               <Link
                 href="/tax-calculator"
@@ -404,7 +417,7 @@ export default function Header() {
               </button>
 
               {/* 우선순위별 메뉴 그룹화 */}
-              {/* AI역량진단 특별 버튼 - 최신 버전으로 통일 */}
+              {/* AI역량진단 특별 버튼 - 개별 신청자 중심 강조 */}
               <Link
                 href="/ai-diagnosis"
                 onClick={() => {
@@ -413,22 +426,32 @@ export default function Header() {
                   hideAllBanners();
                   console.log('헤더 모바일 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
                 }}
-                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2"
+                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2 border-2 border-blue-300/30"
               >
-                <span className="text-base font-medium">AI역량진단</span>
-
+                <span className="text-base font-medium flex items-center">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  AI역량진단
+                </span>
+                <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                  START
+                </span>
               </Link>
 
-              {/* AI진단보고서조회 버튼 - AI역량진단 바로 다음 */}
+              {/* 나의보고서 버튼 - 개별 신청자 중심 몰입감 있는 UX */}
               <Link
-                href="/diagnosis-reports"
+                href="/my-diagnosis"
                 onClick={() => {
                   setIsMenuOpen(false);
                 }}
-                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2"
+                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2 border-2 border-purple-300/30"
               >
-                <span className="text-base font-medium">AI진단보고서조회</span>
-
+                <span className="text-base font-medium flex items-center">
+                  <FileText className="w-4 h-4 mr-2" />
+                  나의보고서
+                </span>
+                <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                  NEW
+                </span>
               </Link>
 
               {/* 상담신청 버튼 - 격을 높인 디자인 */}
@@ -495,15 +518,29 @@ export default function Header() {
                     onClick={() => {
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation active:scale-95"
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200 touch-manipulation active:scale-95 ${
+                      (item as any).highlight 
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg border-2 border-purple-300/30' 
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100'
+                    }`}
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
-                    <span className="text-base">{item.label}</span>
-                    {(item as any).badge && (
-                      <Badge variant="secondary" className="text-xs ml-2 bg-blue-100 text-blue-600">
-                        {(item as any).badge}
-                      </Badge>
-                    )}
+                    <span className={`text-base flex items-center ${(item as any).highlight ? 'font-semibold' : ''}`}>
+                      {(item as any).highlight && <FileText className="w-4 h-4 mr-2" />}
+                      {item.label}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {(item as any).badge && (
+                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-600">
+                          {(item as any).badge}
+                        </Badge>
+                      )}
+                      {(item as any).highlight && (
+                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                          NEW
+                        </span>
+                      )}
+                    </div>
                   </Link>
                 ))}
               </div>

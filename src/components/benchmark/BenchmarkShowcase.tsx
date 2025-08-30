@@ -200,7 +200,7 @@ export default function BenchmarkShowcase({
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white drop-shadow-2xl relative z-40" 
                   style={{ color: '#ffffff !important', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-                업종별 AI 성공사례 AI벤치마크
+                업종별 AI 성공사례 벤치마크
               </h1>
               <p className="text-xl mb-8 max-w-3xl mx-auto text-white drop-shadow-lg relative z-40"
                  style={{ color: '#ffffff !important', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
