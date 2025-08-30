@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,71 +27,18 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
   useEffect(() => {
     const loadParams = async () => {
       const resolvedParams = await params;
-      setDiagnosisId(resolvedParams.diagnosisId);
+      const id = resolvedParams.diagnosisId;
+      
+      // URL에서 받은 진단ID 디코딩 및 정리
+      const cleanId = decodeURIComponent(id).trim();
+      setDiagnosisId(cleanId);
+      
+      console.log('📋 URL에서 받은 진단ID:', cleanId);
     };
     loadParams();
   }, [params]);
 
-  useEffect(() => {
-    if (diagnosisId) {
-      console.log('🔍 사실기반 진단 결과 페이지 로드:', diagnosisId);
-      verifyAccess();
-    }
-  }, [diagnosisId]);
-
-  const verifyAccess = async () => {
-    try {
-      setAuthLoading(true);
-      console.log('🔐 사실기반 시스템: 진단 결과 접근 권한 검증:', diagnosisId);
-      
-      const response = await fetch('/api/diagnosis-auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          diagnosisId: diagnosisId,
-          accessType: 'user'
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`권한 검증 실패: ${response.status} ${response.statusText}`);
-      }
-
-      const responseText = await response.text();
-      if (!responseText) {
-        throw new Error('빈 응답을 받았습니다.');
-      }
-
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('❌ JSON 파싱 오류:', parseError, '응답 텍스트:', responseText);
-        throw new Error('서버 응답 형식이 올바르지 않습니다.');
-      }
-      
-      if (result.success) {
-        console.log('✅ 접근 권한 확인됨 - 사실기반 데이터 조회 시작');
-        setIsAuthorized(true);
-        loadReportData();
-      } else {
-        console.warn('❌ 접근 권한 없음:', result.error);
-        setIsAuthorized(false);
-        setError(result.error || '진단 결과에 접근할 권한이 없습니다.');
-      }
-      
-    } catch (error: any) {
-      console.error('❌ 권한 검증 오류:', error);
-      setIsAuthorized(false);
-      setError(error.message || '권한 검증 중 오류가 발생했습니다.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const loadReportData = async () => {
+  const loadReportData = useCallback(async () => {
     try {
       setLoading(true);
       console.log('📄 사실기반 35페이지 보고서 로드 시작:', diagnosisId);
@@ -190,7 +137,82 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [diagnosisId]);
+
+  const verifyAccess = useCallback(async () => {
+    try {
+      setAuthLoading(true);
+      console.log('🔐 사실기반 시스템: 진단 결과 접근 권한 검증:', diagnosisId);
+      
+      const response = await fetch('/api/diagnosis-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          diagnosisId: diagnosisId,
+          accessType: 'user'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`권한 검증 실패: ${response.status} ${response.statusText}`);
+      }
+
+      const responseText = await response.text();
+      if (!responseText) {
+        throw new Error('빈 응답을 받았습니다.');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ JSON 파싱 오류:', parseError, '응답 텍스트:', responseText);
+        throw new Error('서버 응답 형식이 올바르지 않습니다.');
+      }
+      
+      if (result.success) {
+        console.log('✅ 접근 권한 확인됨 - 사실기반 데이터 조회 시작');
+        setIsAuthorized(true);
+        loadReportData();
+      } else {
+        console.warn('❌ 접근 권한 없음:', result.error);
+        setIsAuthorized(false);
+        setError(result.error || '진단 결과에 접근할 권한이 없습니다.');
+      }
+      
+    } catch (error: any) {
+      console.error('❌ 권한 검증 오류:', error);
+      setIsAuthorized(false);
+      setError(error.message || '권한 검증 중 오류가 발생했습니다.');
+    } finally {
+      setAuthLoading(false);
+    }
+  }, [diagnosisId, loadReportData]);
+
+  useEffect(() => {
+    if (diagnosisId) {
+      console.log('🔍 사실기반 진단 결과 페이지 로드:', diagnosisId);
+      
+      // 진단ID 기본 형식 검증
+      if (diagnosisId.length < 10 || !diagnosisId.startsWith('DIAG_')) {
+        console.warn('⚠️ 잘못된 진단ID 형식:', diagnosisId);
+        setIsAuthorized(false);
+        setError('유효하지 않은 진단ID 형식입니다. 이메일로 받은 정확한 진단ID를 확인해주세요.');
+        setAuthLoading(false);
+        return;
+      }
+      
+      verifyAccess();
+    } else {
+      // 진단ID가 없는 경우
+      console.warn('⚠️ 진단ID가 제공되지 않음');
+      setIsAuthorized(false);
+      setError('진단ID가 필요합니다. 올바른 링크를 사용하거나 진단ID를 직접 입력해주세요.');
+      setAuthLoading(false);
+    }
+  }, [diagnosisId, verifyAccess]);
 
   // 사실기반 보고서 다운로드 (실제 데이터만)
   const handleDownloadReport = async () => {
