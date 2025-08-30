@@ -1724,7 +1724,7 @@ function createApplicantEmailTemplate(data, scoreData) {
                     <div style="margin-bottom: 15px;">
                         <strong>진단ID:</strong> 
                         <code style="background: #f5f5f5; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 14px; color: #2e7d32; font-weight: bold;">
-                            ${data.diagnosisId || 'DIAG_45Q_' + Date.now()}
+                            ${data.diagnosisId}
                         </code>
                     </div>
                     <div style="margin-bottom: 20px;">
@@ -1745,7 +1745,7 @@ function createApplicantEmailTemplate(data, scoreData) {
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
-                    <a href="https://aicamp.club/diagnosis-results/${data.diagnosisId || 'DIAG_45Q_' + Date.now()}" class="btn" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                    <a href="https://aicamp.club/diagnosis-results/${data.diagnosisId}" class="btn" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
                         🔍 진단 결과 보기
                     </a>
                     <br><br>
@@ -2091,14 +2091,27 @@ function processDiagnosis(requestData) {
     
     console.log(`✅ 45개 문항 모두 유효하게 응답됨`);
     
-    // 진단 ID 생성 (안전한 처리)
+    // 진단 ID 생성 (혼동 방지 개선 버전)
     try {
-      diagnosisId = requestData.diagnosisId || `DIAG_45Q_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      if (!requestData.diagnosisId) {
+        // 혼동하기 쉬운 문자 제거: 0, O, 1, l, I 제외
+        // 사용 가능한 문자: 2-9, a-k, m-n, p-z (대소문자 구분 없이 소문자만 사용)
+        const safeChars = '23456789abcdefghjkmnpqrstuvwxyz';
+        let randomSuffix = '';
+        for (let i = 0; i < 9; i++) {
+          randomSuffix += safeChars.charAt(Math.floor(Math.random() * safeChars.length));
+        }
+        diagnosisId = `DIAG_45Q_AI_${Date.now()}_${randomSuffix}`;
+        console.log('✅ 안전한 진단 ID 생성:', diagnosisId);
+      } else {
+        diagnosisId = requestData.diagnosisId;
+        console.log('✅ 기존 진단 ID 사용:', diagnosisId);
+      }
       requestData.diagnosisId = diagnosisId;
     } catch (idError) {
-      diagnosisId = `DIAG_45Q_${Date.now()}_ERROR`;
+      diagnosisId = `DIAG_45Q_AI_${Date.now()}_SAFE`;
       requestData.diagnosisId = diagnosisId;
-      console.warn('⚠️ 진단 ID 생성 오류, 기본 ID 사용:', diagnosisId);
+      console.warn('⚠️ 진단 ID 생성 오류, 안전한 기본 ID 사용:', diagnosisId);
     }
     
     // 2단계: 45문항 점수 계산

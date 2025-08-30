@@ -228,10 +228,24 @@ export default function MyDiagnosisPage() {
               <div className="space-y-4">
                 <div className="relative">
                   <Input
-                    placeholder="DIAG_45Q_AI1756528197552_xte4ept68"
+                    placeholder="DIAG_45Q_AI_1756528197552_xte4ept68"
                     value={diagnosisId}
                     onChange={(e) => {
-                      setDiagnosisId(e.target.value);
+                      let value = e.target.value;
+                      // 혼동하기 쉬운 문자 자동 수정
+                      value = value
+                        .replace(/[0O]/g, '') // 0과 O 제거
+                        .replace(/[1lI]/g, '') // 1, l, I 제거
+                        .toUpperCase(); // 대문자로 통일 (접두사 부분)
+                      
+                      // DIAG_ 부분은 대문자, 나머지는 소문자로
+                      if (value.startsWith('DIAG_')) {
+                        const prefix = value.substring(0, value.lastIndexOf('_') + 1);
+                        const suffix = value.substring(value.lastIndexOf('_') + 1).toLowerCase();
+                        value = prefix + suffix;
+                      }
+                      
+                      setDiagnosisId(value);
                       setError('');
                       setHasReport(false);
                     }}
@@ -501,3 +515,4 @@ export default function MyDiagnosisPage() {
     </div>
   );
 }
+
