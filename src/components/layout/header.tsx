@@ -42,16 +42,15 @@ export default function Header() {
   const [navTextSize, setNavTextSize] = useState<'xs' | 'sm' | 'md'>('sm');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의 (홈 중복 제거, 결과보고서조회 텍스트 변경)
+  // 네비게이션 메뉴 정의 - 모든 태그 제거, 중복 버튼 제거
   const navigation = [
     { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 1 },
     { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 2 },
     { href: '/benchmark', label: 'AI벤치마크', isSpecial: false, priority: 3 },
-    { href: '/diagnosis-reports', label: 'AI진단보고서조회', isSpecial: false, priority: 4, badge: 'NEW' },
-    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 5 },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 6 },
-    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 7 },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8 }
+    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 4 },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 5 },
+    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 6 },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 7 }
   ];
 
   // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시 + 동적 크기 조절
@@ -190,9 +189,7 @@ export default function Header() {
               }}
             >
               <span>AI역량진단</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
-                무료
-              </Badge>
+
             </Link>
             
             {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
@@ -201,9 +198,8 @@ export default function Header() {
               className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
             >
               <span>AI진단보고서조회</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
-                NEW
-              </Badge>
+
+
             </Link>
             
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
@@ -217,9 +213,7 @@ export default function Header() {
               }}
             >
               <span className="font-black">상담신청</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/30 text-white border-0 font-bold">
-                HOT
-              </Badge>
+
             </Link>
             
             {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
@@ -231,9 +225,7 @@ export default function Header() {
               <BookOpen className="w-4 h-4 mr-1" />
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>n8n커리큘럼</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>n8n</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
-                무료
-              </Badge>
+
             </button>
           </div>
 
@@ -287,9 +279,7 @@ export default function Header() {
             >
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>AI역량진단</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI진단</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
-                무료
-              </Badge>
+
             </Link>
             
             {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
@@ -299,15 +289,14 @@ export default function Header() {
             >
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>AI진단보고서조회</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI진단보고서</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
-                NEW
-              </Badge>
+
+
             </Link>
             
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
               href="/consultation"
-              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30`}
+              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap border-2 border-white/30`}
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
@@ -315,9 +304,6 @@ export default function Header() {
               }}
             >
               <span className="font-black">상담신청</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/30 text-white border-0 font-bold">
-                HOT
-              </Badge>
             </Link>
             
             {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
@@ -329,9 +315,7 @@ export default function Header() {
               <BookOpen className="w-4 h-4 mr-1" />
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>n8n커리큘럼</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>n8n</span>
-              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
-                무료
-              </Badge>
+
             </button>
           </div>
 
@@ -432,9 +416,7 @@ export default function Header() {
                 className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2"
               >
                 <span className="text-base font-medium">AI역량진단</span>
-                <Badge variant="secondary" className="text-xs ml-2 bg-white/20 text-white border-0">
-                  무료
-                </Badge>
+
               </Link>
 
               {/* AI진단보고서조회 버튼 - AI역량진단 바로 다음 */}
@@ -446,9 +428,7 @@ export default function Header() {
                 className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2"
               >
                 <span className="text-base font-medium">AI진단보고서조회</span>
-                <Badge variant="secondary" className="text-xs ml-2 bg-white/20 text-white border-0">
-                  NEW
-                </Badge>
+
               </Link>
 
               {/* 상담신청 버튼 - 격을 높인 디자인 */}
@@ -463,9 +443,7 @@ export default function Header() {
                 className="flex items-center justify-between px-5 py-4 rounded-2xl font-black bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 touch-manipulation active:scale-95 mb-3 animate-pulse border-2 border-white/40"
               >
                 <span className="text-lg font-black">🔥 상담신청</span>
-                <Badge variant="secondary" className="text-sm ml-2 bg-white/30 text-white border-0 font-black px-3 py-1">
-                  HOT
-                </Badge>
+
               </Link>
 
               {/* n8n커리큘럼 버튼 - 모바일, 텍스트 변경 */}
@@ -480,9 +458,7 @@ export default function Header() {
                   <BookOpen className="w-4 h-4 mr-2" />
                   n8n커리큘럼
                 </span>
-                <Badge variant="secondary" className="text-xs ml-2 bg-white/20 text-white border-0">
-                  무료
-                </Badge>
+
               </button>
 
               <div className="space-y-1">

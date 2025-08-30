@@ -85,11 +85,11 @@ export default function BenchmarkShowcase({
     const subIndustryValue = ((caseData as any).subIndustry as string | undefined) ??
       (benchmarkCaseDetails as any)[caseData.id]?.subIndustry;
     const subIndustryMatch = selectedSubIndustry === 'all' || subIndustryValue === selectedSubIndustry;
-    const title = (caseData.title || '').toLowerCase();
-    const description = (caseData.description || '').toLowerCase();
-    const subIndustryLower = (subIndustryValue || '').toLowerCase();
-    const industryLower = (caseIndustry || '').toLowerCase();
-    const query = (searchQuery || '').toLowerCase();
+    const title = String(caseData.title || '').toLowerCase();
+    const description = String(caseData.description || '').toLowerCase();
+    const subIndustryLower = String(subIndustryValue || '').toLowerCase();
+    const industryLower = String(caseIndustry || '').toLowerCase();
+    const query = String(searchQuery || '').toLowerCase();
     // 그룹명으로 검색해도 매칭되도록 보강
     const aliasKeys = Object.keys(industryAlias);
     const aliasHit = aliasKeys.find(k => k.toLowerCase() === query || query.includes(k.toLowerCase()));

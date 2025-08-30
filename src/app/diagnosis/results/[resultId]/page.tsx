@@ -52,14 +52,97 @@ export default function DiagnosisResultPage() {
   const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [error, setError] = useState<string>('');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   const resultId = params?.resultId as string;
 
   useEffect(() => {
     if (resultId) {
-      loadDiagnosisResult(resultId);
+      verifyAccess();
+    } else {
+      setIsAuthorized(false);
+      setError('진단ID가 필요합니다. 올바른 링크를 사용하거나 진단ID를 직접 입력해주세요.');
+      setAuthLoading(false);
     }
   }, [resultId]);
+
+  const verifyAccess = async () => {
+    try {
+      setAuthLoading(true);
+      
+      // 진단ID 기본 형식 검증
+      if (!resultId || resultId.length < 10 || !resultId.startsWith('DIAG_')) {
+        console.warn('⚠️ 잘못된 진단ID 형식:', resultId);
+        setIsAuthorized(false);
+        setError('유효하지 않은 진단ID 형식입니다. 이메일로 받은 정확한 진단ID를 확인해주세요.');
+        setAuthLoading(false);
+        return;
+      }
+      
+      // 세션에서 인증 상태 확인 (30분 유효)
+      const sessionAuth = sessionStorage.getItem(`diagnosis_auth_${resultId}`);
+      const authTime = sessionStorage.getItem(`diagnosis_auth_time_${resultId}`);
+      
+      if (sessionAuth === 'true' && authTime) {
+        const authTimestamp = parseInt(authTime);
+        const currentTime = Date.now();
+        const authDuration = 30 * 60 * 1000; // 30분
+        
+        if (currentTime - authTimestamp < authDuration) {
+          console.log('✅ 세션 인증 확인됨:', resultId);
+          setIsAuthorized(true);
+          setAuthLoading(false);
+          loadDiagnosisResult(resultId);
+          return;
+        } else {
+          // 인증 시간 만료
+          console.log('⚠️ 세션 인증 시간 만료:', resultId);
+          sessionStorage.removeItem(`diagnosis_auth_${resultId}`);
+          sessionStorage.removeItem(`diagnosis_auth_time_${resultId}`);
+        }
+      }
+      
+      // 접근 권한 검증
+      const authResponse = await fetch('/api/diagnosis-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          diagnosisId: resultId,
+          accessType: 'user'
+        })
+      });
+
+      if (!authResponse.ok) {
+        const authError = await authResponse.json();
+        throw new Error(authError.error || '접근 권한 검증에 실패했습니다.');
+      }
+
+      const authResult = await authResponse.json();
+      
+      if (!authResult.success) {
+        throw new Error(authResult.error || '진단ID에 접근할 권한이 없습니다.');
+      }
+
+      console.log('✅ 접근 권한 확인 완료');
+      
+      // 인증 성공 시 세션에 저장
+      sessionStorage.setItem(`diagnosis_auth_${resultId}`, 'true');
+      sessionStorage.setItem(`diagnosis_auth_time_${resultId}`, Date.now().toString());
+      
+      setIsAuthorized(true);
+      setAuthLoading(false);
+      loadDiagnosisResult(resultId);
+
+    } catch (err) {
+      console.error('❌ 접근 권한 검증 실패:', err);
+      setIsAuthorized(false);
+      setError(err instanceof Error ? err.message : '접근 권한을 확인할 수 없습니다. 이메일로 받은 정확한 링크를 사용해주세요.');
+      setAuthLoading(false);
+    }
+  };
 
   const loadDiagnosisResult = async (id: string) => {
     try {
@@ -576,6 +659,64 @@ export default function DiagnosisResultPage() {
     if (score >= 55) return 'D';
     return 'F';
   };
+
+  // 인증 로딩 중
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="w-full max-w-md">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                접근 권한 확인 중...
+              </h3>
+              <p className="text-sm text-gray-600 text-center">
+                진단ID를 검증하고 있습니다
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // 접근 권한이 없는 경우
+  if (isAuthorized === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="flex items-center justify-center min-h-[60vh] px-4">
+          <Card className="w-full max-w-md border-red-200">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                접근 권한이 필요합니다
+              </h3>
+              <p className="text-sm text-gray-600 text-center mb-6">
+                {error || '진단 결과를 조회하려면 올바른 진단ID가 필요합니다.'}
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => router.push('/report-access')}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Brain className="w-4 h-4 mr-2" />
+                  진단ID 입력하기
+                </Button>
+                <Button
+                  onClick={() => router.push('/ai-diagnosis')}
+                  variant="outline"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  새 진단 시작
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

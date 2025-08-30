@@ -224,14 +224,14 @@ export const getCaseDetail = (caseId: string): SuccessCaseDetail | undefined => 
 
 // 검색 함수
 export const searchBenchmarkCases = (query: string): SuccessCase[] => {
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = String(query || '').toLowerCase();
   return allBenchmarkCases.filter(c => 
-    c.title.toLowerCase().includes(lowerQuery) ||
-    c.description.toLowerCase().includes(lowerQuery) ||
-    c.companyName.toLowerCase().includes(lowerQuery) ||
-    c.industry.toLowerCase().includes(lowerQuery) ||
-    c.subIndustry?.toLowerCase().includes(lowerQuery) ||
-    c.tags?.some(tag => tag.toLowerCase().includes(lowerQuery)) || false
+    String(c.title || '').toLowerCase().includes(lowerQuery) ||
+    String(c.description || '').toLowerCase().includes(lowerQuery) ||
+    String(c.companyName || '').toLowerCase().includes(lowerQuery) ||
+    String(c.industry || '').toLowerCase().includes(lowerQuery) ||
+    String(c.subIndustry || '').toLowerCase().includes(lowerQuery) ||
+    (c.tags || []).some(tag => String(tag || '').toLowerCase().includes(lowerQuery)) || false
   );
 };
 
