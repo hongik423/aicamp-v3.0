@@ -40,18 +40,16 @@ export default function Header() {
   const [isCurriculumPanelOpen, setIsCurriculumPanelOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의
+  // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의 (홈 중복 제거, 결과보고서조회 텍스트 변경)
   const navigation = [
-    { href: '/', label: '홈', isSpecial: false, priority: 1 },
-    { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 2 },
-    { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 3 },
-    { href: '/benchmark', label: 'AI벤치마크', isSpecial: false, priority: 4 },
-    { href: '/diagnosis-reports', label: '결과보고서조회', isSpecial: false, priority: 5, badge: 'NEW' },
-    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 6 },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 7 },
-    { href: '/consultation', label: '상담신청', isSpecial: false, priority: 8 },
-    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 9 },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 10 }
+    { href: '/services/ai-curriculum', label: 'AICAMP교육', isSpecial: false, priority: 1 },
+    { href: '/services', label: 'AICAMP서비스', isSpecial: false, priority: 2 },
+    { href: '/benchmark', label: 'AI벤치마크', isSpecial: false, priority: 3 },
+    { href: '/diagnosis-reports', label: 'AI진단보고서조회', isSpecial: false, priority: 4, badge: 'NEW' },
+    { href: '/about', label: 'AICAMP소개', isSpecial: false, priority: 5 },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 6 },
+    { href: '/services/investment-analysis', label: '사업타당성분석기', isSpecial: false, priority: 7 },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8 }
   ];
 
   // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시
@@ -122,7 +120,7 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* AI역량진단 & 상담신청 버튼 - 데스크톱 (최신 경로로 통일) */}
+          {/* AI역량진단 & 상담신청 버튼 - 데스크톱 (버튼 텍스트 변경, 위치 조정) */}
           <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
@@ -139,30 +137,41 @@ export default function Header() {
               </Badge>
             </Link>
             
-            {/* 네비바 상담신청 버튼 - AI역량진단 바로 옆, 격을 높인 디자인 */}
+            {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
+            <Link
+              href="/diagnosis-reports"
+              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+            >
+              <span>AI진단보고서조회</span>
+              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
+                NEW
+              </Badge>
+            </Link>
+            
+            {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
               href="/consultation"
               className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2.5 rounded-xl text-xs xl:text-sm font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30"
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
-                console.log('헤더 네비바 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                console.log('헤더 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
               }}
             >
-              <span className="font-black">네비바 상담신청</span>
+              <span className="font-black">상담신청</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/30 text-white border-0 font-bold">
                 HOT
               </Badge>
             </Link>
             
-            {/* n8n 커리큘럼 다운로드 버튼 - 데스크톱 */}
+            {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
             <button
               onClick={() => setIsCurriculumPanelOpen(true)}
               className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
               title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
-              <span className="hidden xl:inline">n8n 커리큘럼</span>
+              <span className="hidden xl:inline">n8n커리큘럼</span>
               <span className="xl:hidden">n8n</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
@@ -170,26 +179,24 @@ export default function Header() {
             </button>
           </div>
 
-          {/* 데스크톱 네비게이션 - 가변 영역 */}
+          {/* 데스크톱 네비게이션 - 가변 영역 (텍스트 크기 자동조절 개선) */}
           <nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-2 overflow-hidden">
-            <div className="flex items-center space-x-0 lg:space-x-0.5 xl:space-x-1 overflow-hidden">
+            <div className="flex items-center space-x-0 lg:space-x-0.5 xl:space-x-1 2xl:space-x-2 overflow-hidden">
               {visibleNavigation.filter(item => !item.isSpecial).map((item) => (
                 <div key={item.href} className="relative group flex-shrink-0">
                   <Link
                     href={item.href}
-                    className="inline-flex items-center px-1 py-1 lg:px-1.5 lg:py-1.5 xl:px-2 xl:py-1.5 rounded-lg text-xs lg:text-xs xl:text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                    className="inline-flex items-center px-1 py-1 lg:px-1.5 lg:py-1.5 xl:px-2 xl:py-1.5 2xl:px-3 2xl:py-2 rounded-lg text-xs lg:text-xs xl:text-sm 2xl:text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="truncate max-w-[60px] lg:max-w-[75px] xl:max-w-[90px]">{item.label}</span>
+                    <span className="truncate max-w-[60px] lg:max-w-[75px] xl:max-w-[90px] 2xl:max-w-[110px]">{item.label}</span>
                     {(item as any).badge && (
-                      <Badge variant="secondary" className="ml-1 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
+                      <Badge variant="secondary" className="ml-1 text-xs lg:text-xs xl:text-xs 2xl:text-xs bg-blue-100 text-blue-600 flex-shrink-0">
                         {(item as any).badge}
                       </Badge>
                     )}
                   </Link>
                 </div>
               ))}
-              
-
             </div>
           </nav>
 
@@ -208,7 +215,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* AI역량진단 & 상담신청 버튼 - 태블릿용 (최신 경로로 통일) */}
+          {/* AI역량진단 & 상담신청 버튼 - 태블릿용 (버튼 텍스트 변경, 위치 조정) */}
           <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
@@ -226,30 +233,42 @@ export default function Header() {
               </Badge>
             </Link>
             
-            {/* 네비바 상담신청 버튼 - 태블릿용, AI역량진단 바로 옆, 격을 높인 디자인 */}
+            {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
+            <Link
+              href="/diagnosis-reports"
+              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+            >
+              <span className="hidden sm:inline">AI진단보고서조회</span>
+              <span className="sm:hidden">AI진단보고서</span>
+              <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
+                NEW
+              </Badge>
+            </Link>
+            
+            {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
               href="/consultation"
               className="inline-flex items-center px-3 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30"
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
-                console.log('헤더 태블릿 네비바 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                console.log('헤더 태블릿 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
               }}
             >
-              <span className="font-black">네비바 상담신청</span>
+              <span className="font-black">상담신청</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/30 text-white border-0 font-bold">
                 HOT
               </Badge>
             </Link>
             
-            {/* n8n 커리큘럼 다운로드 버튼 */}
+            {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
             <button
               onClick={() => setIsCurriculumPanelOpen(true)}
               className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
               title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">n8n 커리큘럼</span>
+              <span className="hidden sm:inline">n8n커리큘럼</span>
               <span className="sm:hidden">n8n</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
@@ -359,24 +378,38 @@ export default function Header() {
                 </Badge>
               </Link>
 
-              {/* 네비바 상담신청 버튼 - AI역량진단 바로 다음, 격을 높인 디자인 */}
+              {/* AI진단보고서조회 버튼 - AI역량진단 바로 다음 */}
+              <Link
+                href="/diagnosis-reports"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                }}
+                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2"
+              >
+                <span className="text-base font-medium">AI진단보고서조회</span>
+                <Badge variant="secondary" className="text-xs ml-2 bg-white/20 text-white border-0">
+                  NEW
+                </Badge>
+              </Link>
+
+              {/* 상담신청 버튼 - 격을 높인 디자인 */}
               <Link
                 href="/consultation"
                 onClick={() => {
                   setIsMenuOpen(false);
                   // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                   hideAllBanners();
-                  console.log('헤더 모바일 네비바 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
+                  console.log('헤더 모바일 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
                 }}
                 className="flex items-center justify-between px-5 py-4 rounded-2xl font-black bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 touch-manipulation active:scale-95 mb-3 animate-pulse border-2 border-white/40"
               >
-                <span className="text-lg font-black">🔥 네비바 상담신청</span>
+                <span className="text-lg font-black">🔥 상담신청</span>
                 <Badge variant="secondary" className="text-sm ml-2 bg-white/30 text-white border-0 font-black px-3 py-1">
                   HOT
                 </Badge>
               </Link>
 
-              {/* n8n 커리큘럼 다운로드 버튼 - 모바일 */}
+              {/* n8n커리큘럼 버튼 - 모바일, 텍스트 변경 */}
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
@@ -386,7 +419,7 @@ export default function Header() {
               >
                 <span className="text-base font-medium flex items-center">
                   <BookOpen className="w-4 h-4 mr-2" />
-                  n8n 커리큘럼
+                  n8n커리큘럼
                 </span>
                 <Badge variant="secondary" className="text-xs ml-2 bg-white/20 text-white border-0">
                   무료
@@ -416,11 +449,11 @@ export default function Header() {
                   </Link>
                 ))}
                 
-                {/* 추가 서비스 그룹 (상담신청 제외) */}
+                {/* 추가 서비스 그룹 */}
                 <div className="text-xs font-semibold text-gray-500 px-2 py-1 uppercase tracking-wider mt-4">
                   추가 서비스
                 </div>
-                {navigation.slice(3).filter(item => item.href !== '/consultation').map((item) => (
+                {navigation.slice(3).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
