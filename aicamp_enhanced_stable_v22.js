@@ -560,15 +560,15 @@ function saveToDetailSheet(data, responses) {
       try {
         sheet = spreadsheet.insertSheet(config.DETAIL_SHEET_NAME);
         
-        // 첫 번째 행: 기본 정보 + 문항별 점수 (이교장님 보고서용)
-        const headers1 = ['진단일시', '회사명', '담당자명', '이메일', '연락처', '직책', '업종', '직원수', '소재지'];
+        // 첫 번째 행: 진단ID + 기본 정보 + 문항별 점수 (이교장님 보고서용)
+        const headers1 = ['진단ID', '진단일시', '회사명', '담당자명', '이메일', '연락처', '직책', '업종', '직원수', '소재지'];
         for (let i = 1; i <= 45; i++) {
           headers1.push(`문항${i}_점수`);
         }
         headers1.push('생성일시');
         
         // 두 번째 행: 평가문제 전문 + 행동지표 (이교장님 보고서용)
-        const headers2 = ['', '', '', '', '', '', '', '', ''];
+        const headers2 = ['', '', '', '', '', '', '', '', '', ''];
         if (EVALUATION_QUESTIONS && Array.isArray(EVALUATION_QUESTIONS) && EVALUATION_QUESTIONS.length === 45) {
           EVALUATION_QUESTIONS.forEach((q, index) => {
             const questionText = q && q.question ? String(q.question) : `문항${index + 1}`;
@@ -591,7 +591,7 @@ function saveToDetailSheet(data, responses) {
         headers2.push('');
         
         // 세 번째 행: 카테고리 정보 (안전한 처리)
-        const headers3 = ['', '', '', '', '', '', '', '', ''];
+        const headers3 = ['', '', '', '', '', '', '', '', '', ''];
         if (EVALUATION_QUESTIONS && Array.isArray(EVALUATION_QUESTIONS) && EVALUATION_QUESTIONS.length === 45) {
           EVALUATION_QUESTIONS.forEach(q => {
             headers3.push(q && q.category ? String(q.category) : '기본카테고리');
@@ -611,7 +611,7 @@ function saveToDetailSheet(data, responses) {
         headers3.push('');
         
         // 네 번째 행: 가중치 정보 (안전한 처리)
-        const headers4 = ['', '', '', '', '', '', '', '', ''];
+        const headers4 = ['', '', '', '', '', '', '', '', '', ''];
         if (EVALUATION_QUESTIONS && Array.isArray(EVALUATION_QUESTIONS) && EVALUATION_QUESTIONS.length === 45) {
           EVALUATION_QUESTIONS.forEach(q => {
             headers4.push(q && q.weight ? Number(q.weight) : 1.0);
@@ -680,9 +680,10 @@ function saveToDetailSheet(data, responses) {
       }
     }
     
-    // 데이터 행 추가 (5번째 행부터 시작) - 이교장님 보고서용
+    // 데이터 행 추가 (5번째 행부터 시작) - 이교장님 보고서용 (진단ID 포함)
     const currentTime = new Date();
     const rowData = [
+      String(data.diagnosisId || `DIAG_${Date.now()}`), // 진단ID (첫 번째 컬럼)
       currentTime, // 진단일시
       String(data.companyName || ''), // 회사명
       String(data.contactName || ''), // 담당자명
@@ -708,11 +709,11 @@ function saveToDetailSheet(data, responses) {
       
       sheet.getRange(targetRow, 1, 1, rowData.length).setValues([rowData]);
       
-      // 점수에 따른 색상 코딩 (이교장님 보고서용 - 9개 기본정보 컬럼 이후)
+      // 점수에 따른 색상 코딩 (이교장님 보고서용 - 10개 기본정보 컬럼 이후)
       for (let i = 0; i < 45; i++) {
         try {
           const score = responseArray[i] || 0;
-          const cell = sheet.getRange(targetRow, 10 + i); // 9개 기본정보 + 1개 생성일시 이후
+          const cell = sheet.getRange(targetRow, 11 + i); // 10개 기본정보 (진단ID 포함) 이후
           
           if (score >= 4) {
             cell.setBackground('#d4edda'); // 녹색 (우수)
@@ -1592,8 +1593,8 @@ function createApplicantEmailTemplate(data, scoreData) {
                         <ol style="margin: 0; padding-left: 20px; color: #495057;">
                             <li style="margin-bottom: 8px;">아래 <strong>"진단 결과 보기"</strong> 버튼을 클릭하세요</li>
                             <li style="margin-bottom: 8px;">또는 <strong>aicamp.club/report-access</strong>에 접속하세요</li>
-                            <li style="margin-bottom: 8px;">위의 <strong>진단ID</strong>를 입력하세요</li>
-                            <li style="margin-bottom: 8px;">본인의 진단 결과를 확인할 수 있습니다</li>
+                            <li style="margin-bottom: 8px;">위의 <strong>진단ID</strong>를 정확히 입력하세요</li>
+                            <li style="margin-bottom: 8px;">접근 권한 확인 후 진단 결과를 확인할 수 있습니다</li>
                         </ol>
                     </div>
                 </div>
@@ -2477,25 +2478,53 @@ function queryDiagnosisById(requestData) {
       throw new Error('해당 진단 ID의 데이터를 찾을 수 없습니다.');
     }
     
-    // 상세 데이터도 조회 (45문항 응답)
+    // 상세 데이터도 조회 (45문항 응답) - 이교장님 보고서용 개선
     let detailResponses = {};
     if (detailSheet) {
-      const detailLastRow = detailSheet.getLastRow();
-      if (detailLastRow > 4) { // 헤더 4행 제외
-        const detailDataRange = detailSheet.getRange(5, 1, detailLastRow - 4, detailSheet.getLastColumn());
-        const detailValues = detailDataRange.getValues();
+      try {
+        const detailLastRow = detailSheet.getLastRow();
+        console.log(`📋 상세 시트 행 수: ${detailLastRow}`);
         
-        // 진단 ID 또는 회사명/담당자명으로 매칭
-        for (let i = 0; i < detailValues.length; i++) {
-          const detailRow = detailValues[i];
-          if (detailRow[1] === foundRow[2] && detailRow[2] === foundRow[3]) { // 회사명, 담당자명 매칭
-            // 45문항 응답 추출 (9번째 컬럼부터 53번째 컬럼까지)
-            for (let j = 0; j < 45; j++) {
-              detailResponses[j + 1] = detailRow[9 + j] || 0;
+        if (detailLastRow > 4) { // 헤더 4행 제외
+          const detailDataRange = detailSheet.getRange(5, 1, detailLastRow - 4, detailSheet.getLastColumn());
+          const detailValues = detailDataRange.getValues();
+          
+          console.log(`🔍 상세 데이터 검색 시작 - 대상: ${foundRow[2]} / ${foundRow[3]}`);
+          
+          // 진단ID 직접 매칭 우선, 없으면 기존 방식 (이교장님 보고서용)
+          for (let i = 0; i < detailValues.length; i++) {
+            const detailRow = detailValues[i];
+            
+            // 1순위: 진단ID 직접 매칭 (가장 정확)
+            const diagnosisIdMatch = detailRow[0] === requestData.diagnosisId;
+            
+            // 사실기반 시스템: 진단ID 직접 매칭만 허용 (폴백 매칭 금지)
+            if (diagnosisIdMatch) {
+              console.log(`✅ 진단ID 직접 매칭 성공 (행 ${i + 5})`);
+              
+              // 45문항 응답 추출 (10번째 컬럼부터 54번째 컬럼까지 - 진단ID 컬럼 추가 반영)
+              for (let j = 0; j < 45; j++) {
+                const scoreValue = detailRow[10 + j]; // 진단ID 컬럼 추가로 인덱스 +1
+                if (scoreValue !== null && scoreValue !== undefined && scoreValue !== '') {
+                  detailResponses[j + 1] = Number(scoreValue) || 0;
+                }
+              }
+              
+              console.log(`📊 45문항 응답 추출 완료: ${Object.keys(detailResponses).length}개`);
+              break;
             }
-            break;
+          }
+          
+          // 사실기반 시스템: 진단ID로 데이터를 찾지 못하면 오류 반환 (추정값 생성 금지)
+          if (Object.keys(detailResponses).length === 0) {
+            console.error('❌ 해당 진단ID의 45문항 상세 데이터를 찾을 수 없습니다');
+            throw new Error(`진단ID ${requestData.diagnosisId}의 45문항 상세 데이터가 존재하지 않습니다. 사실기반 보고서 작성을 위해 정확한 진단ID가 필요합니다.`);
           }
         }
+      } catch (detailError) {
+        console.error('❌ 상세 데이터 조회 중 오류 발생:', detailError.message);
+        // 사실기반 시스템: 오류 발생 시 추정값 생성 금지, 오류를 상위로 전파
+        throw new Error(`진단ID ${requestData.diagnosisId}의 상세 데이터 조회 실패: ${detailError.message}`);
       }
     }
     
@@ -2566,9 +2595,47 @@ function verifyDiagnosisId(requestData) {
       throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
     }
     
-    const sheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    const mainSheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    const detailSheet = spreadsheet.getSheetByName(config.DETAIL_SHEET_NAME);
     
-    if (!sheet) {
+    let exists = false;
+    
+    // 1순위: 메인 시트에서 진단ID 확인
+    if (mainSheet) {
+      const lastRow = mainSheet.getLastRow();
+      if (lastRow > 1) {
+        const dataRange = mainSheet.getRange(2, 1, lastRow - 1, 1); // 첫 번째 컬럼만 (진단 ID)
+        const values = dataRange.getValues();
+        
+        for (let i = 0; i < values.length; i++) {
+          if (values[i][0] === requestData.diagnosisId) {
+            exists = true;
+            console.log(`✅ 메인 시트에서 진단ID 확인됨 (행 ${i + 2})`);
+            break;
+          }
+        }
+      }
+    }
+    
+    // 2순위: 상세 시트에서도 진단ID 확인 (이중 검증)
+    if (!exists && detailSheet) {
+      const detailLastRow = detailSheet.getLastRow();
+      if (detailLastRow > 4) { // 헤더 4행 제외
+        const detailDataRange = detailSheet.getRange(5, 1, detailLastRow - 4, 1); // 첫 번째 컬럼만
+        const detailValues = detailDataRange.getValues();
+        
+        for (let i = 0; i < detailValues.length; i++) {
+          if (detailValues[i][0] === requestData.diagnosisId) {
+            exists = true;
+            console.log(`✅ 상세 시트에서 진단ID 확인됨 (행 ${i + 5})`);
+            break;
+          }
+        }
+      }
+    }
+    
+    // 시트가 없거나 데이터가 없는 경우
+    if (!mainSheet && !detailSheet) {
       return {
         success: true,
         exists: false,
@@ -2576,25 +2643,12 @@ function verifyDiagnosisId(requestData) {
       };
     }
     
-    const lastRow = sheet.getLastRow();
-    if (lastRow <= 1) {
+    if ((!mainSheet || mainSheet.getLastRow() <= 1) && (!detailSheet || detailSheet.getLastRow() <= 4)) {
       return {
         success: true,
         exists: false,
         message: '진단 데이터가 없습니다.'
       };
-    }
-    
-    // 진단 ID로 데이터 검색
-    const dataRange = sheet.getRange(2, 1, lastRow - 1, 1); // 첫 번째 컬럼만 (진단 ID)
-    const values = dataRange.getValues();
-    
-    let exists = false;
-    for (let i = 0; i < values.length; i++) {
-      if (values[i][0] === requestData.diagnosisId) {
-        exists = true;
-        break;
-      }
     }
     
     console.log(`✅ 진단 ID 검증 완료: ${requestData.diagnosisId} - ${exists ? '존재함' : '존재하지 않음'}`);

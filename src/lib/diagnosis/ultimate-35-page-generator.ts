@@ -11,6 +11,8 @@ export interface DiagnosisData {
     size: string;
     revenue?: string | number;
     employees?: string | number;
+    position?: string;
+    location?: string;
   };
   responses: Record<string, number>;
   scores: {
@@ -26,6 +28,8 @@ export interface DiagnosisData {
     };
   };
   timestamp: string;
+  grade?: string;
+  maturityLevel?: string;
 }
 
 export class Ultimate35PageGenerator {
@@ -35,14 +39,33 @@ export class Ultimate35PageGenerator {
   static generateUltimate35PageReport(data: DiagnosisData): string {
     console.log('🚀 V27.0 Ultimate 35페이지 보고서 생성 시작');
     
-    // 카테고리별 점수 및 퍼센트 계산
+    // 카테고리별 점수 및 퍼센트 계산 (GAS 데이터 구조 반영)
     const categoryScores = data.scores.categoryScores;
-    const businessFoundationPercentage = Math.round((categoryScores.businessFoundation / 45) * 100);
-    const currentAIPercentage = Math.round((categoryScores.currentAI / 45) * 100);
-    const organizationReadinessPercentage = Math.round((categoryScores.organizationReadiness / 45) * 100);
-    const techInfrastructurePercentage = Math.round((categoryScores.technologyInfrastructure / 45) * 100);
-    const dataManagementPercentage = Math.round((categoryScores.dataManagement / 45) * 100);
-    const humanResourcesPercentage = Math.round((categoryScores.humanResources / 45) * 100);
+    
+    // GAS에서 오는 실제 데이터 구조에 맞춰 매핑
+    const businessFoundationScore = categoryScores.businessFoundation || 0;
+    const currentAIScore = categoryScores.currentAI || 0;
+    const organizationReadinessScore = categoryScores.organizationReadiness || 0;
+    const techInfrastructureScore = categoryScores.technologyInfrastructure || 0;
+    const goalClarityScore = categoryScores.dataManagement || 0;
+    const executionCapabilityScore = categoryScores.humanResources || 0;
+    
+    // 5점 만점 기준으로 퍼센트 계산 (GAS에서 평균 점수로 전달됨)
+    const businessFoundationPercentage = Math.round((businessFoundationScore / 5) * 100);
+    const currentAIPercentage = Math.round((currentAIScore / 5) * 100);
+    const organizationReadinessPercentage = Math.round((organizationReadinessScore / 5) * 100);
+    const techInfrastructurePercentage = Math.round((techInfrastructureScore / 5) * 100);
+    const dataManagementPercentage = Math.round((goalClarityScore / 5) * 100);
+    const humanResourcesPercentage = Math.round((executionCapabilityScore / 5) * 100);
+    
+    console.log('📊 카테고리별 점수 매핑 완료:', {
+      비즈니스기반: `${businessFoundationScore}점 (${businessFoundationPercentage}%)`,
+      현재AI활용: `${currentAIScore}점 (${currentAIPercentage}%)`,
+      조직준비도: `${organizationReadinessScore}점 (${organizationReadinessPercentage}%)`,
+      기술인프라: `${techInfrastructureScore}점 (${techInfrastructurePercentage}%)`,
+      목표명확성: `${goalClarityScore}점 (${dataManagementPercentage}%)`,
+      실행역량: `${executionCapabilityScore}점 (${humanResourcesPercentage}%)`
+    });
 
     // 성숙도 레벨 결정
     const maturityLevel = data.scores.percentage >= 90 ? 'AI 선도기업' :

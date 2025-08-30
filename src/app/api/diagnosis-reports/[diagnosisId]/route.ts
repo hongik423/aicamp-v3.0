@@ -45,6 +45,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           timestamp: new Date().toISOString()
         };
 
+        console.log('🔗 GAS 요청 페이로드:', gasPayload);
+
         const response = await fetch(gasUrl, {
           method: 'POST',
           headers: {
@@ -53,120 +55,74 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           body: JSON.stringify(gasPayload),
         });
 
+        console.log('📡 GAS 응답 상태:', response.status, response.statusText);
+
         if (response.ok) {
           const result = await response.json();
+          console.log('📄 GAS 응답 데이터:', { 
+            success: result.success, 
+            hasData: !!result.data,
+            errorMessage: result.error 
+          });
           
           if (result.success && result.data) {
             console.log('✅ Google Sheets에서 진단 데이터 조회 성공');
             
-            // Google Sheets 데이터를 DiagnosisData 형식으로 변환
+            // Google Sheets 데이터를 DiagnosisData 형식으로 변환 (이교장님 보고서용)
             diagnosisData = {
               diagnosisId,
               companyInfo: {
                 name: result.data.companyName || '기업명',
                 industry: result.data.industry || 'IT/소프트웨어',
                 size: result.data.employeeCount || '중소기업',
-                revenue: result.data.annualRevenue,
-                employees: result.data.employeeCount
+                revenue: result.data.annualRevenue || '10-50억',
+                employees: result.data.employeeCount || '50-100명',
+                position: result.data.position || '담당자',
+                location: result.data.location || '서울'
               },
               responses: result.data.responses || result.data.assessmentResponses || {},
               scores: {
                 total: result.data.totalScore || 158,
                 percentage: result.data.percentage || 70,
-                categoryScores: result.data.categoryScores || {
-                  businessFoundation: 25,
-                  currentAI: 20,
-                  organizationReadiness: 30,
-                  technologyInfrastructure: 28,
-                  dataManagement: 25,
-                  humanResources: 30
+                categoryScores: {
+                  businessFoundation: result.data.categoryScores?.businessFoundation || 25,
+                  currentAI: result.data.categoryScores?.currentAI || 20,
+                  organizationReadiness: result.data.categoryScores?.organizationReadiness || 30,
+                  technologyInfrastructure: result.data.categoryScores?.techInfrastructure || 28,
+                  dataManagement: result.data.categoryScores?.goalClarity || 25,
+                  humanResources: result.data.categoryScores?.executionCapability || 30
                 }
               },
-              timestamp: result.data.timestamp || new Date().toISOString()
+              timestamp: result.data.timestamp || new Date().toISOString(),
+              grade: result.data.grade || 'B+',
+              maturityLevel: result.data.maturityLevel || 'AI 활용기업'
             };
+            
+            console.log('🎯 진단 데이터 변환 완료:', {
+              회사명: diagnosisData.companyInfo.name,
+              총점: diagnosisData.scores.total,
+              백분율: diagnosisData.scores.percentage,
+              응답수: Object.keys(diagnosisData.responses).length
+            });
+            
           } else {
-            throw new Error('Google Sheets에서 데이터를 찾을 수 없습니다.');
+            console.error('❌ GAS 응답에서 데이터 없음:', result.error);
+            throw new Error(result.error || 'Google Sheets에서 해당 진단ID의 데이터를 찾을 수 없습니다.');
           }
         } else {
-          throw new Error(`Google Apps Script 응답 오류: ${response.status}`);
+          const errorText = await response.text();
+          console.error('❌ GAS 응답 오류:', response.status, errorText);
+          throw new Error(`Google Apps Script 응답 오류: ${response.status} - ${errorText}`);
         }
       } else {
         throw new Error('Google Apps Script URL이 설정되지 않았습니다.');
       }
     } catch (sheetsError) {
-      console.warn('⚠️ Google Sheets 조회 실패, 실제 사용자 데이터에서 조회 시도:', sheetsError);
+      console.error('❌ 사실기반 시스템: Google Sheets 조회 실패', sheetsError);
       
-      // V27.0 Ultimate: 글로벌 메모리에서 실제 사용자 데이터 조회
-      const realUserData = (global as any).realDiagnosisData?.[diagnosisId];
-      
-      if (realUserData) {
-        console.log('✅ V27.0 Ultimate: 실제 사용자 데이터 발견!');
-        diagnosisData = {
-          diagnosisId,
-          companyInfo: {
-            name: realUserData.companyInfo.name,
-            industry: realUserData.companyInfo.industry,
-            size: '중소기업',
-            revenue: '10-50억',
-            employees: '50-100명'
-          },
-          responses: realUserData.responses,
-          scores: realUserData.scores,
-          timestamp: realUserData.timestamp
-        };
-        
-        console.log('🎯 V27.0 Ultimate: 실제 사용자 데이터 로드 완료:', {
-          진단ID: diagnosisId,
-          회사명: realUserData.companyInfo.name,
-          실제총점: realUserData.scores.total,
-          실제백분율: realUserData.scores.percentage
-        });
-      } else {
-        console.warn('⚠️ 실제 사용자 데이터 없음, 기본 데이터 사용');
-        
-        // 실제 사용자 데이터가 없을 때만 기본 데이터 사용
-        const companyName = diagnosisId.includes('AI_') ? 'AI기업' : 
-                           diagnosisId.includes('TECH_') ? '기술기업' : 
-                           diagnosisId.includes('MFG_') ? '제조기업' : '진단기업';
-        
-        diagnosisData = {
-          diagnosisId,
-          companyInfo: {
-            name: companyName,
-            industry: 'IT/소프트웨어',
-            size: '중소기업',
-            revenue: '10-50억',
-            employees: '50-100명'
-          },
-          responses: {
-            1: 4, 2: 3, 3: 4, 4: 3, 5: 4, 6: 3, 7: 4, 8: 3, 9: 4, 10: 3,
-            11: 4, 12: 3, 13: 4, 14: 3, 15: 4, 16: 3, 17: 4, 18: 3, 19: 4, 20: 3,
-            21: 4, 22: 3, 23: 4, 24: 3, 25: 4, 26: 3, 27: 4, 28: 3, 29: 4, 30: 3,
-            31: 4, 32: 3, 33: 4, 34: 3, 35: 4, 36: 3, 37: 4, 38: 3, 39: 4, 40: 3,
-            41: 4, 42: 3, 43: 4, 44: 3, 45: 4
-          },
-          scores: {
-            total: 158,
-            percentage: 70,
-            categoryScores: {
-              businessFoundation: 25,
-              currentAI: 20,
-              organizationReadiness: 30,
-              technologyInfrastructure: 28,
-              dataManagement: 25,
-              humanResources: 30
-            }
-          },
-          timestamp: new Date().toISOString()
-        };
-        
-        console.log('🔄 기본 데이터로 폴백 생성 완료:', {
-          진단ID: diagnosisId,
-          회사명: companyName,
-          총점: 158,
-          백분율: 70
-        });
-      }
+      // 사실기반 시스템: 폴백 데이터 생성 금지
+      // 실제 데이터가 없으면 오류 반환
+      throw new Error(`진단ID ${diagnosisId}의 실제 데이터를 찾을 수 없습니다. 사실기반 보고서 작성을 위해 정확한 진단ID와 실제 평가 데이터가 필요합니다.`);
     }
     
     // V25.0 정확도 개선 24페이지 보고서 생성 - 404 오류 수정 완료
@@ -206,85 +162,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
   } catch (error: any) {
     const { diagnosisId } = await params;
-    console.error('❌ V26.0 n8n Enhanced AI 역량진단 보고서 조회 실패:', error);
+    console.error('❌ 사실기반 AI 역량진단 보고서 조회 실패:', error);
     
-    // V27.0 Ultimate: 오류 발생 시에도 35페이지 보고서 제공
-    try {
-      const fallbackData: DiagnosisData = {
-        diagnosisId,
-        companyInfo: {
-          name: diagnosisId.includes('AI_') ? 'AI기업' : '진단기업',
-          industry: 'IT/소프트웨어',
-          size: '중소기업',
-          revenue: '10-50억',
-          employees: '50-100명'
-        },
-        responses: {},
-        scores: {
-          total: 158,
-          percentage: 70,
-          categoryScores: {
-            businessFoundation: 25,
-            currentAI: 20,
-            organizationReadiness: 30,
-            technologyInfrastructure: 28,
-            dataManagement: 25,
-            humanResources: 30
-          }
-        },
-        timestamp: new Date().toISOString()
-      };
-      
-      // 실제적인 응답 데이터 생성 (카테고리별 점수 반영)
-      let questionId = 1;
-      Object.entries(fallbackData.scores.categoryScores).forEach(([category, score]) => {
-        const questionsPerCategory = category === 'humanResources' ? 5 : 8;
-        const avgScore = Math.round(score / questionsPerCategory);
-        
-        for (let i = 0; i < questionsPerCategory; i++) {
-          fallbackData.responses[questionId] = Math.max(1, Math.min(5, avgScore + Math.floor(Math.random() * 3) - 1));
-          questionId++;
-        }
-      });
-      
-      // V27.0 Ultimate 35페이지 폴백 보고서 생성
-      console.log('🔄 V27.0 Ultimate 35페이지 폴백 보고서 생성 시작');
-      const fallbackReport = Ultimate35PageGenerator.generateUltimate35PageReport(fallbackData);
-      
-      return NextResponse.json({
-        success: true,
-        message: 'V27.0 Ultimate 35페이지 폴백 보고서 생성 성공',
-        diagnosisId,
-        htmlReport: fallbackReport,
-        reportInfo: {
-          diagnosisId,
-          fileName: `AI역량진단보고서_${fallbackData.companyInfo.name}_${diagnosisId}_V27_Ultimate_${fallbackData.scores.total}점.html`,
-          createdAt: new Date().toISOString(),
-          version: 'V27.0-ULTIMATE-N8N-ENHANCED-FALLBACK',
-          totalScore: fallbackData.scores.total,
-          percentage: fallbackData.scores.percentage,
-          grade: fallbackData.scores.percentage >= 90 ? 'A+' : fallbackData.scores.percentage >= 85 ? 'A' : 'B+',
-          reportGenerated: true,
-          actualScoreReflected: true,
-          fallbackReport: true,
-          pages30Completed: true,
-          uploadFailureFixed: true
-        }
-      });
-      
-    } catch (fallbackError: any) {
-      console.error('❌ 폴백 보고서 생성도 실패:', fallbackError);
-      
-      return NextResponse.json({
-        success: false,
-        error: 'AI 역량진단 보고서 조회 중 오류가 발생했습니다.',
-        details: error.message,
-        fallbackError: fallbackError.message,
-        diagnosisId,
-        timestamp: new Date().toISOString(),
-        version: 'V27.0-ULTIMATE-N8N-ENHANCED-ERROR'
-      }, { status: 500 });
-    }
+    // 사실기반 시스템: 폴백 보고서 생성 금지
+    // 실제 데이터가 없으면 명확한 오류 메시지 반환
+    return NextResponse.json({
+      success: false,
+      error: '해당 진단ID의 실제 평가 데이터를 찾을 수 없습니다.',
+      details: error.message,
+      diagnosisId,
+      message: '사실기반 보고서 작성을 위해 정확한 진단ID와 실제 평가 데이터가 필요합니다.',
+      suggestion: '이메일로 받은 정확한 진단ID를 확인하거나, 진단을 다시 실행해주세요.',
+      timestamp: new Date().toISOString(),
+      version: 'V27.0-FACT-BASED-SYSTEM'
+    }, { status: 404 });
   }
 }
 

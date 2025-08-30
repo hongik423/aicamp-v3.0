@@ -77,13 +77,22 @@ export async function GET(
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
 
     try {
-      console.log('🔗 Google Apps Script 요청 URL:', `${GOOGLE_SCRIPT_URL}?diagnosisId=${encodeURIComponent(diagnosisId)}&action=getResult`);
+      console.log('🔗 Google Apps Script POST 요청 시작:', diagnosisId);
       
-      const scriptResponse = await fetch(`${GOOGLE_SCRIPT_URL}?diagnosisId=${encodeURIComponent(diagnosisId)}&action=getResult`, {
-        method: 'GET',
+      // POST 방식으로 변경 (GAS 함수와 일치)
+      const gasPayload = {
+        type: 'query_diagnosis',
+        action: 'queryDiagnosisById',
+        diagnosisId: diagnosisId,
+        timestamp: new Date().toISOString()
+      };
+      
+      const scriptResponse = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(gasPayload),
         signal: controller.signal
       });
 
@@ -102,45 +111,16 @@ export async function GET(
         }
 
         if (scriptResponse.status === 404) {
-          // 404인 경우 기본 보고서 데이터 반환
-          console.log('📄 Google Sheets에서 데이터를 찾을 수 없어 기본 보고서 데이터 반환');
+          console.log('❌ Google Sheets에서 해당 진단ID를 찾을 수 없음:', diagnosisId);
           return NextResponse.json(
             { 
-              success: true, 
-              data: {
-                diagnosis: {
-                  resultId: diagnosisId,
-                  companyName: 'AI CAMP',
-                  contactName: '이후경 교장',
-                  contactEmail: 'hongik423@gmail.com',
-                  industry: '제조업',
-                  employeeCount: '10-50명',
-                  createdAt: new Date().toISOString(),
-                  totalScore: 4.2,
-                  grade: 'B+',
-                  maturityLevel: 'Level 3: AI 준비기업',
-                  categoryScores: {
-                    businessFoundation: 4.5,
-                    currentAIUsage: 4.0,
-                    organizationalReadiness: 4.2,
-                    technicalInfrastructure: 3.8,
-                    goalClarity: 4.1,
-                    executionCapability: 4.6
-                  },
-                  recommendations: [
-                    '즉시 실행 (1-2주): AI 전략 TF 구성 및 기술인프라 정밀 진단',
-                    '단기 목표 (1-3개월): 클라우드 인프라 고도화 및 AI 성과 측정 체계 수립',
-                    '중기 목표 (3-6개월): AI 파일럿 프로젝트 실행 및 전문인력 확보',
-                    '장기 목표 (6-12개월): 전사 AI 시스템 본격 도입 및 업계 선도기업 도약'
-                  ]
-                },
-                reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-                status: 'completed'
-              },
+              success: false, 
+              error: '해당 진단ID의 결과를 찾을 수 없습니다.',
+              details: '이메일로 받은 정확한 진단ID를 확인해주세요.',
               diagnosisId: diagnosisId,
-              message: '진단 결과를 성공적으로 조회했습니다.'
+              suggestion: '진단ID 형식: DIAG_45Q_xxxxxxxxx'
             },
-            { headers: corsHeaders }
+            { status: 404, headers: corsHeaders }
           );
         }
         
@@ -170,45 +150,8 @@ export async function GET(
         // HTML 응답인지 확인
         if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
           console.log('⚠️ HTML 응답 감지 - JSON 파싱 불가');
-          // HTML 응답인 경우 기본 데이터 반환
-          return NextResponse.json(
-            { 
-              success: true, 
-              data: {
-                diagnosis: {
-                  resultId: diagnosisId,
-                  companyName: 'AI CAMP',
-                  contactName: '이후경 교장',
-                  contactEmail: 'hongik423@gmail.com',
-                  industry: '제조업',
-                  employeeCount: '10-50명',
-                  createdAt: new Date().toISOString(),
-                  totalScore: 4.2,
-                  grade: 'B+',
-                  maturityLevel: 'Level 3: AI 준비기업',
-                  categoryScores: {
-                    businessFoundation: 4.5,
-                    currentAIUsage: 4.0,
-                    organizationalReadiness: 4.2,
-                    technicalInfrastructure: 3.8,
-                    goalClarity: 4.1,
-                    executionCapability: 4.6
-                  },
-                  recommendations: [
-                    '즉시 실행 (1-2주): AI 전략 TF 구성 및 기술인프라 정밀 진단',
-                    '단기 목표 (1-3개월): 클라우드 인프라 고도화 및 AI 성과 측정 체계 수립',
-                    '중기 목표 (3-6개월): AI 파일럿 프로젝트 실행 및 전문인력 확보',
-                    '장기 목표 (6-12개월): 전사 AI 시스템 본격 도입 및 업계 선도기업 도약'
-                  ]
-                },
-                reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-                status: 'completed'
-              },
-              diagnosisId: diagnosisId,
-              message: '진단 결과를 성공적으로 조회했습니다.'
-            },
-            { headers: corsHeaders }
-          );
+                  // 사실기반 시스템: HTML 응답은 유효하지 않은 데이터로 간주
+        throw new Error('GAS에서 유효하지 않은 응답 형식을 받았습니다.');
         }
         
         // JSON 파싱 시도
@@ -217,74 +160,74 @@ export async function GET(
         console.error('❌ JSON 파싱 오류:', parseError);
         console.log('📄 파싱 실패한 응답 내용:', responseText.substring(0, 500));
         
-        // 파싱 실패 시 기본 데이터 반환
-        return NextResponse.json(
-          { 
-            success: true, 
-            data: {
-              diagnosis: {
-                resultId: diagnosisId,
-                companyName: 'AI CAMP',
-                contactName: '이후경 교장',
-                contactEmail: 'hongik423@gmail.com',
-                industry: '제조업',
-                employeeCount: '10-50명',
-                createdAt: new Date().toISOString(),
-                totalScore: 4.2,
-                grade: 'B+',
-                maturityLevel: 'Level 3: AI 준비기업',
-                categoryScores: {
-                  businessFoundation: 4.5,
-                  currentAIUsage: 4.0,
-                  organizationalReadiness: 4.2,
-                  technicalInfrastructure: 3.8,
-                  goalClarity: 4.1,
-                  executionCapability: 4.6
-                },
-                recommendations: [
-                  '즉시 실행 (1-2주): AI 전략 TF 구성 및 기술인프라 정밀 진단',
-                  '단기 목표 (1-3개월): 클라우드 인프라 고도화 및 AI 성과 측정 체계 수립',
-                  '중기 목표 (3-6개월): AI 파일럿 프로젝트 실행 및 전문인력 확보',
-                  '장기 목표 (6-12개월): 전사 AI 시스템 본격 도입 및 업계 선도기업 도약'
-                ]
-              },
-              reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-              status: 'completed'
-            },
-            diagnosisId: diagnosisId,
-            message: '진단 결과를 성공적으로 조회했습니다. (기본 데이터)'
-          },
-          { headers: corsHeaders }
-        );
+        // 사실기반 시스템: 파싱 실패 시 오류 반환 (기본 데이터 생성 금지)
+        throw new Error('GAS 응답 데이터 파싱에 실패했습니다.');
       }
       
-      console.log('✅ 진단 결과 조회 성공:', {
+      console.log('✅ GAS 응답 처리 시작:', {
         success: result.success,
         hasData: !!result.data,
-        diagnosisId: result.data?.diagnosis?.resultId || result.data?.resultId || diagnosisId
+        diagnosisId: result.data?.diagnosisId || diagnosisId
       });
 
-      // 결과 데이터 검증 및 보완
-      if (!result || (!result.success && !result.data)) {
-        console.warn('⚠️ 빈 응답 또는 실패 응답:', result);
+      // GAS 응답 검증 및 처리
+      if (!result || !result.success) {
+        console.warn('❌ GAS에서 실패 응답:', result?.error || 'Unknown error');
         return NextResponse.json(
           { 
             success: false, 
-            error: '진단 결과 데이터가 비어있습니다',
-            details: '진단이 아직 완료되지 않았거나 데이터가 손상되었을 수 있습니다.',
+            error: result?.error || '진단 결과를 찾을 수 없습니다',
+            details: '해당 진단ID의 데이터가 Google Sheets에 없습니다.',
             diagnosisId: diagnosisId,
-            suggestion: '진단을 다시 실행해주세요.'
+            suggestion: '이메일로 받은 정확한 진단ID를 확인해주세요.'
           },
           { status: 404, headers: corsHeaders }
         );
       }
       
-      // 성공적인 응답 반환
+      if (!result.data) {
+        console.warn('❌ GAS 응답에 데이터 없음');
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: '진단 결과 데이터가 없습니다',
+            details: '진단이 완료되지 않았거나 데이터 처리 중 오류가 발생했습니다.',
+            diagnosisId: diagnosisId,
+            suggestion: '잠시 후 다시 시도해주세요.'
+          },
+          { status: 404, headers: corsHeaders }
+        );
+      }
+      
+      // 성공적인 GAS 응답 반환 (표준화된 형식)
+      console.log('✅ 진단 결과 조회 성공 - GAS 연동 완료');
       return NextResponse.json(
         { 
           success: true, 
-          data: result?.data || result,
+          data: {
+            diagnosis: {
+              resultId: diagnosisId,
+              companyName: result.data.companyName || 'N/A',
+              contactName: result.data.contactName || 'N/A',
+              contactEmail: result.data.contactEmail || '',
+              industry: result.data.industry || 'N/A',
+              employeeCount: result.data.employeeCount || 'N/A',
+              position: result.data.position || 'N/A',
+              location: result.data.location || 'N/A',
+              createdAt: result.data.timestamp || new Date().toISOString(),
+              totalScore: result.data.percentage || 0,
+              grade: result.data.grade || 'N/A',
+              maturityLevel: result.data.maturityLevel || 'N/A',
+              categoryScores: result.data.categoryScores || {},
+              responses: result.data.responses || result.data.assessmentResponses || {},
+              rawData: result.data
+            },
+            reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
+            status: 'completed',
+            source: 'gas'
+          },
           diagnosisId: diagnosisId,
+          message: '진단 결과를 성공적으로 조회했습니다.',
           timestamp: new Date().toISOString()
         },
         { headers: corsHeaders }
