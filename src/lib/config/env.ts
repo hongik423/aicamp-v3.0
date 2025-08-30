@@ -7,8 +7,8 @@
 import { z } from 'zod';
 
 // 🔧 **실제 AICAMP 구글시트 정보** (V22.0 강화된 안정 버전 + 5개 시트 저장)
-// 올바른 Google Apps Script URL (HTML 리다이렉트 문제 해결)
-const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLirWVBuxoKx0ynWeSgGCVtgBSZT8wOw_vzKoa96K4VvsDNscckxQi7HFlOCLdPTSxLS3dmhKBEYqHD13dXRbVu_106hkKKZEeMKfdYAkNNa0sqMx63hvwWU-RzObYGTImc7Z0QX0OjAMp2FUfAVN58J6Q_Pv6tCDNku3GAl9qu4ch0nwkvhPE6NAo_ByWy0Koi4tFaoTFuwtWW7plEkBOql4rDV6gqMUz7VjU5Aix8-0ey771OvTvYTo9tEGfMxsp8HIgrObrjiaAZHMNDEHAqaE7LMyw&lib=MJlLl_HeZJeZO0hcIAwr7JEzN9sd4IQmq'; // V22.0 aicamp_enhanced_stable_v22.js 스크립트
+// 올바른 Google Apps Script URL (POST 요청 지원)
+const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec'; // V22.0 aicamp_enhanced_stable_v22.js 스크립트
 const GOOGLE_SHEETS_ID = '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ';
 
 // 환경변수 스키마 정의 (GEMINI 제거됨 - Ollama 전용)

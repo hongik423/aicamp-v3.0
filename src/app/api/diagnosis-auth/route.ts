@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         
         const gasPayload = {
           type: 'verify_diagnosis_id',
-          action: 'verifyDiagnosisId',
+          action: 'verify_diagnosis_id',
           diagnosisId: diagnosisId,
           timestamp: new Date().toISOString()
         };
@@ -78,15 +78,26 @@ export async function POST(request: NextRequest) {
 
     // GAS 검증 실패 시 기본 검증 (형식 검증)
     console.log('✅ 기본 형식 검증으로 진단 결과 접근 권한 승인:', diagnosisId);
-
-    return NextResponse.json({
-      success: true,
-      message: '접근 권한이 확인되었습니다.',
-      diagnosisId: diagnosisId,
-      accessType: accessType || 'user',
-      verified: false,
-      note: 'GAS 검증 실패로 기본 검증 적용'
-    });
+    
+    // 진단ID 형식이 올바르면 일단 접근 허용 (Google Apps Script 업데이트 필요)
+    if (diagnosisId.startsWith('DIAG_') && diagnosisId.length > 15) {
+      return NextResponse.json({
+        success: true,
+        message: '접근 권한이 확인되었습니다.',
+        diagnosisId: diagnosisId,
+        accessType: accessType || 'user',
+        verified: false,
+        note: 'GAS 검증 실패로 기본 검증 적용 - Google Apps Script 업데이트 필요'
+      });
+    } else {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: '유효하지 않은 진단ID 형식입니다. DIAG_로 시작하는 올바른 진단ID를 입력해주세요.' 
+        },
+        { status: 400 }
+      );
+    }
 
   } catch (error) {
     console.error('❌ 진단 결과 접근 권한 검증 오류:', error);

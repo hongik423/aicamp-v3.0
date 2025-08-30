@@ -18,7 +18,7 @@ export async function OPTIONS() {
 // GET 요청 처리 - 진단 결과 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ diagnosisId: string }> }
 ) {
   // 오류 로깅을 위한 스코프 밖 변수
   let diagnosisId: string | undefined;
@@ -26,7 +26,7 @@ export async function GET(
 
   try {
     const resolved = await params;
-    diagnosisId = resolved.id;
+    diagnosisId = resolved.diagnosisId;
     
     if (!diagnosisId) {
       return NextResponse.json(
@@ -150,8 +150,8 @@ export async function GET(
         // HTML 응답인지 확인
         if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
           console.log('⚠️ HTML 응답 감지 - JSON 파싱 불가');
-                  // 사실기반 시스템: HTML 응답은 유효하지 않은 데이터로 간주
-        throw new Error('GAS에서 유효하지 않은 응답 형식을 받았습니다.');
+          // 사실기반 시스템: HTML 응답은 유효하지 않은 데이터로 간주
+          throw new Error('GAS에서 유효하지 않은 응답 형식을 받았습니다.');
         }
         
         // JSON 파싱 시도
@@ -173,13 +173,24 @@ export async function GET(
       // GAS 응답 검증 및 처리
       if (!result || !result.success) {
         console.warn('❌ GAS에서 실패 응답:', result?.error || 'Unknown error');
+        
+        // Google Apps Script 업데이트 필요 메시지 추가
+        const errorMessage = result?.error?.includes('Unknown action') 
+          ? '현재 Google Apps Script가 업데이트되지 않아 진단 결과 조회 기능을 사용할 수 없습니다.'
+          : '진단 결과를 찾을 수 없습니다';
+          
         return NextResponse.json(
           { 
             success: false, 
-            error: result?.error || '진단 결과를 찾을 수 없습니다',
-            details: '해당 진단ID의 데이터가 Google Sheets에 없습니다.',
+            error: errorMessage,
+            details: result?.error?.includes('Unknown action') 
+              ? 'Google Apps Script V22 업데이트가 필요합니다. 관리자에게 문의해주세요.'
+              : '해당 진단ID의 데이터가 Google Sheets에 없습니다.',
             diagnosisId: diagnosisId,
-            suggestion: '이메일로 받은 정확한 진단ID를 확인해주세요.'
+            suggestion: result?.error?.includes('Unknown action')
+              ? '관리자(hongik423@gmail.com)에게 Google Apps Script 업데이트를 요청해주세요.'
+              : '이메일로 받은 정확한 진단ID를 확인해주세요.',
+            needsGasUpdate: result?.error?.includes('Unknown action') || false
           },
           { status: 404, headers: corsHeaders }
         );
