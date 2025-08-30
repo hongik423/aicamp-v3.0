@@ -248,14 +248,15 @@ export default function DiagnosisReportsPage() {
 
   // 필터링된 보고서 목록 (V27.0 Ultimate 안전성 강화)
   const filteredReports = reports.filter(report => {
-    // null/undefined 안전성 검사 추가
-    const companyName = report.companyName || '';
-    const contactName = report.contactName || '';
-    const diagnosisId = report.diagnosisId || '';
+    // null/undefined 안전성 검사 및 문자열 타입 검증 추가
+    const companyName = String(report.companyName || '');
+    const contactName = String(report.contactName || '');
+    const diagnosisId = String(report.diagnosisId || '');
+    const searchTermLower = String(searchTerm || '').toLowerCase();
     
-    const matchesSearch = companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         diagnosisId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = companyName.toLowerCase().includes(searchTermLower) ||
+                         contactName.toLowerCase().includes(searchTermLower) ||
+                         diagnosisId.toLowerCase().includes(searchTermLower);
     
     const matchesGrade = filterGrade === 'all' || report.grade === filterGrade;
     

@@ -21,10 +21,11 @@ export default function IndustryListPage() {
 
   // 검색 및 필터링
   const filteredCases = Object.entries(allIndustryCases).filter(([id, caseData]) => {
+    const searchQueryLower = String(searchQuery || '').toLowerCase();
     const matchesSearch = searchQuery === '' || 
-      caseData.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      caseData.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      caseData.subIndustry.toLowerCase().includes(searchQuery.toLowerCase());
+      String(caseData.title || '').toLowerCase().includes(searchQueryLower) ||
+      String(caseData.companyName || '').toLowerCase().includes(searchQueryLower) ||
+      String(caseData.subIndustry || '').toLowerCase().includes(searchQueryLower);
     
     const matchesCategory = selectedCategory === 'all' || caseData.category === selectedCategory;
     

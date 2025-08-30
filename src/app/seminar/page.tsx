@@ -207,9 +207,10 @@ export default function SeminarPage() {
   // 필터링된 비디오 목록
   const filteredVideos = seminarVideos.filter(video => {
     const matchesCategory = selectedCategory === 'all' || video.category === selectedCategory;
-    const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    const searchQueryLower = String(searchQuery || '').toLowerCase();
+    const matchesSearch = String(video.title || '').toLowerCase().includes(searchQueryLower) ||
+                         String(video.description || '').toLowerCase().includes(searchQueryLower) ||
+                         video.tags.some(tag => String(tag || '').toLowerCase().includes(searchQueryLower));
     return matchesCategory && matchesSearch;
   });
 

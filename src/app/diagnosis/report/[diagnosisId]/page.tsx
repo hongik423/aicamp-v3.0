@@ -27,12 +27,90 @@ export default function DiagnosisReportPage() {
   const [report, setReport] = useState<DiagnosisReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     if (diagnosisId) {
-      fetchReport();
+      verifyAccess();
     }
   }, [diagnosisId]);
+
+  const verifyAccess = async () => {
+    try {
+      setAuthLoading(true);
+      
+      // 진단ID 기본 형식 검증
+      if (diagnosisId.length < 10 || !diagnosisId.startsWith('DIAG_')) {
+        console.warn('⚠️ 잘못된 진단ID 형식:', diagnosisId);
+        setIsAuthorized(false);
+        setError('유효하지 않은 진단ID 형식입니다.');
+        setAuthLoading(false);
+        return;
+      }
+      
+      // 세션에서 인증 상태 확인 (30분 유효)
+      const sessionAuth = sessionStorage.getItem(`diagnosis_auth_${diagnosisId}`);
+      const authTime = sessionStorage.getItem(`diagnosis_auth_time_${diagnosisId}`);
+      
+      if (sessionAuth === 'true' && authTime) {
+        const authTimestamp = parseInt(authTime);
+        const currentTime = Date.now();
+        const authDuration = 30 * 60 * 1000; // 30분
+        
+        if (currentTime - authTimestamp < authDuration) {
+          console.log('✅ 세션 인증 확인됨:', diagnosisId);
+          setIsAuthorized(true);
+          setAuthLoading(false);
+          fetchReport();
+          return;
+        } else {
+          // 인증 시간 만료
+          console.log('⚠️ 세션 인증 시간 만료:', diagnosisId);
+          sessionStorage.removeItem(`diagnosis_auth_${diagnosisId}`);
+          sessionStorage.removeItem(`diagnosis_auth_time_${diagnosisId}`);
+        }
+      }
+      
+      // 접근 권한 검증
+      const authResponse = await fetch('/api/diagnosis-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          diagnosisId: diagnosisId,
+          accessType: 'user'
+        })
+      });
+
+      if (!authResponse.ok) {
+        throw new Error('접근 권한 검증에 실패했습니다.');
+      }
+
+      const authResult = await authResponse.json();
+      
+      if (!authResult.success) {
+        throw new Error(authResult.error || '진단ID에 접근할 권한이 없습니다.');
+      }
+
+      console.log('✅ 접근 권한 확인됨');
+      
+      // 세션에 인증 상태 저장 (30분 유효)
+      sessionStorage.setItem(`diagnosis_auth_${diagnosisId}`, 'true');
+      sessionStorage.setItem(`diagnosis_auth_time_${diagnosisId}`, Date.now().toString());
+      
+      setIsAuthorized(true);
+      fetchReport();
+
+    } catch (err) {
+      console.error('❌ 접근 권한 검증 실패:', err);
+      setIsAuthorized(false);
+      setError(err instanceof Error ? err.message : '접근 권한 검증에 실패했습니다.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const fetchReport = async () => {
     try {
@@ -98,6 +176,45 @@ export default function DiagnosisReportPage() {
       newWindow.document.close();
     }
   };
+
+  // 인증 로딩 중
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+            <h2 className="text-xl font-semibold mb-2">접근 권한 확인 중...</h2>
+            <p className="text-gray-600">진단ID를 검증하고 있습니다.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 인증되지 않은 경우
+  if (isAuthorized === false) {
+    // 즉시 진단ID 입력 페이지로 리다이렉트
+    if (typeof window !== 'undefined') {
+      window.location.href = '/report-access';
+      return null;
+    }
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
+            <h2 className="text-xl font-semibold mb-2 text-red-700">접근 권한 없음</h2>
+            <p className="text-gray-600 mb-4">진단ID 입력 페이지로 이동합니다...</p>
+            <Button onClick={() => window.location.href = '/report-access'}>
+              진단ID 입력하기
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

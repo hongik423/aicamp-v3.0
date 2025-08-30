@@ -256,15 +256,16 @@ export default function AdminDiagnosisReportsPage() {
   };
 
   const filteredReports = reports.filter(report => {
-    // V27.0 Ultimate 안전성 강화: null/undefined 검사
-    const companyName = report.companyName || '';
-    const contactName = report.contactName || '';
-    const diagnosisId = report.diagnosisId || '';
+    // V27.0 Ultimate 안전성 강화: null/undefined 검사 및 문자열 타입 검증
+    const companyName = String(report.companyName || '');
+    const contactName = String(report.contactName || '');
+    const diagnosisId = String(report.diagnosisId || '');
+    const searchTermLower = String(searchTerm || '').toLowerCase();
     
     const matchesSearch = 
-      companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      diagnosisId.toLowerCase().includes(searchTerm.toLowerCase());
+      companyName.toLowerCase().includes(searchTermLower) ||
+      contactName.toLowerCase().includes(searchTermLower) ||
+      diagnosisId.toLowerCase().includes(searchTermLower);
     
     const matchesGrade = filterGrade === 'all' || report.grade === filterGrade;
     

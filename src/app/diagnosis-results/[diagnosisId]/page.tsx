@@ -174,6 +174,11 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       
       if (result.success) {
         console.log('✅ 접근 권한 확인됨 - 사실기반 데이터 조회 시작');
+        
+        // 세션에 인증 상태 저장 (30분 유효)
+        sessionStorage.setItem(`diagnosis_auth_${diagnosisId}`, 'true');
+        sessionStorage.setItem(`diagnosis_auth_time_${diagnosisId}`, Date.now().toString());
+        
         setIsAuthorized(true);
         loadReportData();
       } else {
@@ -204,6 +209,30 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         return;
       }
       
+      // 세션에서 인증 상태 확인 (30분 유효)
+      const sessionAuth = sessionStorage.getItem(`diagnosis_auth_${diagnosisId}`);
+      const authTime = sessionStorage.getItem(`diagnosis_auth_time_${diagnosisId}`);
+      
+      if (sessionAuth === 'true' && authTime) {
+        const authTimestamp = parseInt(authTime);
+        const currentTime = Date.now();
+        const authDuration = 30 * 60 * 1000; // 30분
+        
+        if (currentTime - authTimestamp < authDuration) {
+          console.log('✅ 세션 인증 확인됨:', diagnosisId);
+          setIsAuthorized(true);
+          setAuthLoading(false);
+          loadReportData();
+          return;
+        } else {
+          // 인증 시간 만료
+          console.log('⚠️ 세션 인증 시간 만료:', diagnosisId);
+          sessionStorage.removeItem(`diagnosis_auth_${diagnosisId}`);
+          sessionStorage.removeItem(`diagnosis_auth_time_${diagnosisId}`);
+        }
+      }
+      
+      // 세션 인증이 없으면 접근 권한 검증
       verifyAccess();
     } else {
       // 진단ID가 없는 경우
@@ -312,6 +341,12 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
   }
 
   if (isAuthorized === false) {
+    // 즉시 진단ID 입력 페이지로 리다이렉트
+    if (typeof window !== 'undefined') {
+      window.location.href = '/report-access';
+      return null;
+    }
+    
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center p-4">
         <Card className="w-full max-w-lg">

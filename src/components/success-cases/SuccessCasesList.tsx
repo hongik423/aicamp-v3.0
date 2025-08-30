@@ -58,9 +58,10 @@ export default function SuccessCasesList({
   // 필터링된 성공사례
   const filteredCases = useMemo(() => {
     return allSuccessCases.filter(caseItem => {
-      const matchesSearch = caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           caseItem.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           caseItem.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+      const searchTermLower = String(searchTerm || '').toLowerCase();
+      const matchesSearch = String(caseItem.title || '').toLowerCase().includes(searchTermLower) ||
+                           String(caseItem.description || '').toLowerCase().includes(searchTermLower) ||
+                           String(caseItem.companyName || '').toLowerCase().includes(searchTermLower);
       
       const matchesIndustry = selectedIndustry === 'all' || caseItem.category === selectedIndustry;
       const matchesDepartment = selectedDepartment === 'all'; // 추후 부서별 필터링 로직 추가
