@@ -38,6 +38,8 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [visibleItems, setVisibleItems] = useState<number>(9);
   const [isCurriculumPanelOpen, setIsCurriculumPanelOpen] = useState(false);
+  const [buttonSize, setButtonSize] = useState<'xs' | 'sm' | 'md' | 'lg'>('md');
+  const [navTextSize, setNavTextSize] = useState<'xs' | 'sm' | 'md'>('sm');
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 네비게이션 메뉴 정의 - useEffect보다 먼저 정의 (홈 중복 제거, 결과보고서조회 텍스트 변경)
@@ -52,17 +54,31 @@ export default function Header() {
     { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8 }
   ];
 
-  // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시
+  // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시 + 동적 크기 조절
   useEffect(() => {
-    const calculateVisibleItems = () => {
+    const calculateResponsiveSizes = () => {
+      const width = window.innerWidth;
+      
       // 모든 메뉴 항상 표시 (더보기 없음)
       setVisibleItems(navigation.length);
+      
+      // 화면 크기에 따른 버튼 크기 자동 조절
+      if (width < 1280) { // xl 미만
+        setButtonSize('xs');
+        setNavTextSize('xs');
+      } else if (width < 1536) { // xl ~ 2xl
+        setButtonSize('sm');
+        setNavTextSize('sm');
+      } else { // 2xl 이상
+        setButtonSize('md');
+        setNavTextSize('md');
+      }
     };
 
     const handleResize = () => {
       // 디바운스를 통한 성능 최적화
       clearTimeout((window as any).resizeTimer);
-      (window as any).resizeTimer = setTimeout(calculateVisibleItems, 100);
+      (window as any).resizeTimer = setTimeout(calculateResponsiveSizes, 100);
     };
 
     const handleScroll = () => {
@@ -75,7 +91,7 @@ export default function Header() {
     }, 1000);
 
     // 초기 계산 및 이벤트 리스너 등록
-    calculateVisibleItems();
+    calculateResponsiveSizes();
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
     
@@ -91,6 +107,48 @@ export default function Header() {
 
   // 모든 메뉴 표시 (더보기 없음)
   const visibleNavigation = navigation;
+
+  // 동적 크기 조절을 위한 유틸리티 함수들
+  const getButtonSizeClasses = (size: 'xs' | 'sm' | 'md' | 'lg') => {
+    switch (size) {
+      case 'xs':
+        return 'px-1.5 py-1 text-xs';
+      case 'sm':
+        return 'px-2 py-1.5 text-xs';
+      case 'md':
+        return 'px-3 py-2 text-sm';
+      case 'lg':
+        return 'px-4 py-2.5 text-sm';
+      default:
+        return 'px-2 py-1.5 text-xs';
+    }
+  };
+
+  const getNavTextSizeClasses = (size: 'xs' | 'sm' | 'md') => {
+    switch (size) {
+      case 'xs':
+        return 'text-xs px-1 py-1 max-w-[50px]';
+      case 'sm':
+        return 'text-sm px-1.5 py-1.5 max-w-[70px]';
+      case 'md':
+        return 'text-sm px-2 py-1.5 max-w-[90px]';
+      default:
+        return 'text-xs px-1 py-1 max-w-[50px]';
+    }
+  };
+
+  const getNavSpacingClasses = (size: 'xs' | 'sm' | 'md') => {
+    switch (size) {
+      case 'xs':
+        return 'space-x-0.5';
+      case 'sm':
+        return 'space-x-1';
+      case 'md':
+        return 'space-x-1.5';
+      default:
+        return 'space-x-1';
+    }
+  };
 
   return (
     <>
@@ -120,11 +178,11 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* AI역량진단 & 상담신청 버튼 - 데스크톱 (버튼 텍스트 변경, 위치 조정) */}
+          {/* AI역량진단 & 상담신청 버튼 - 데스크톱 (동적 크기 조절 적용) */}
           <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
-              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
@@ -140,7 +198,7 @@ export default function Header() {
             {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
             <Link
               href="/diagnosis-reports"
-              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
             >
               <span>AI진단보고서조회</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
@@ -151,7 +209,7 @@ export default function Header() {
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
               href="/consultation"
-              className="inline-flex items-center px-3 py-2 xl:px-4 xl:py-2.5 rounded-xl text-xs xl:text-sm font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30"
+              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30`}
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
@@ -167,30 +225,30 @@ export default function Header() {
             {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
             <button
               onClick={() => setIsCurriculumPanelOpen(true)}
-              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
               title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
-              <span className="hidden xl:inline">n8n커리큘럼</span>
-              <span className="xl:hidden">n8n</span>
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>n8n커리큘럼</span>
+              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>n8n</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
               </Badge>
             </button>
           </div>
 
-          {/* 데스크톱 네비게이션 - 가변 영역 (텍스트 크기 자동조절 개선) */}
+          {/* 데스크톱 네비게이션 - 가변 영역 (동적 크기 조절 적용) */}
           <nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-2 overflow-hidden">
-            <div className="flex items-center space-x-0 lg:space-x-0.5 xl:space-x-1 2xl:space-x-2 overflow-hidden">
+            <div className={`flex items-center ${getNavSpacingClasses(navTextSize)} overflow-hidden`}>
               {visibleNavigation.filter(item => !item.isSpecial).map((item) => (
                 <div key={item.href} className="relative group flex-shrink-0">
                   <Link
                     href={item.href}
-                    className="inline-flex items-center px-1 py-1 lg:px-1.5 lg:py-1.5 xl:px-2 xl:py-1.5 2xl:px-3 2xl:py-2 rounded-lg text-xs lg:text-xs xl:text-sm 2xl:text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+                    className={`inline-flex items-center ${getNavTextSizeClasses(navTextSize)} rounded-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105 transition-all duration-200 whitespace-nowrap`}
                   >
-                    <span className="truncate max-w-[60px] lg:max-w-[75px] xl:max-w-[90px] 2xl:max-w-[110px]">{item.label}</span>
+                    <span className="truncate">{item.label}</span>
                     {(item as any).badge && (
-                      <Badge variant="secondary" className="ml-1 text-xs lg:text-xs xl:text-xs 2xl:text-xs bg-blue-100 text-blue-600 flex-shrink-0">
+                      <Badge variant="secondary" className="ml-1 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
                         {(item as any).badge}
                       </Badge>
                     )}
@@ -200,7 +258,7 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* AI 상담 버튼 - 가장 우측에 고정, 컴팩트 디자인 */}
+          {/* AI 상담 버튼 - 가장 우측에 고정, 동적 크기 조절 적용 */}
           <div className="hidden lg:flex items-center flex-shrink-0 ml-auto pl-2 pr-4 xl:pr-6 2xl:pr-8">
             <button
               onClick={() => {
@@ -209,25 +267,26 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="inline-flex items-center px-2 py-1.5 xl:px-3 xl:py-2 rounded-lg text-xs xl:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse`}
             >
-              <span className="lg:inline xl:inline">이교장의AI상담</span>
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>이교장의AI상담</span>
+              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI상담</span>
             </button>
           </div>
 
-          {/* AI역량진단 & 상담신청 버튼 - 태블릿용 (버튼 텍스트 변경, 위치 조정) */}
+          {/* AI역량진단 & 상담신청 버튼 - 태블릿용 (동적 크기 조절 적용) */}
           <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
-              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
                 console.log('헤더 태블릿 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
               }}
             >
-              <span className="hidden sm:inline">AI역량진단</span>
-              <span className="sm:hidden">AI역량진단</span>
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>AI역량진단</span>
+              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI진단</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
               </Badge>
@@ -236,10 +295,10 @@ export default function Header() {
             {/* AI진단보고서조회 버튼 - AI역량진단 바로 옆 오른쪽 */}
             <Link
               href="/diagnosis-reports"
-              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
             >
-              <span className="hidden sm:inline">AI진단보고서조회</span>
-              <span className="sm:hidden">AI진단보고서</span>
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>AI진단보고서조회</span>
+              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI진단보고서</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 NEW
               </Badge>
@@ -248,7 +307,7 @@ export default function Header() {
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
               href="/consultation"
-              className="inline-flex items-center px-3 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30"
+              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30`}
               onClick={() => {
                 // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
                 hideAllBanners();
@@ -264,12 +323,12 @@ export default function Header() {
             {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
             <button
               onClick={() => setIsCurriculumPanelOpen(true)}
-              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
               title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">n8n커리큘럼</span>
-              <span className="sm:hidden">n8n</span>
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>n8n커리큘럼</span>
+              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>n8n</span>
               <Badge variant="secondary" className="ml-1 text-xs bg-white/20 text-white border-0">
                 무료
               </Badge>
@@ -306,7 +365,7 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* 태블릿용 AI 상담 버튼 - 가장 우측에 고정, 추가 여백 확보 */}
+          {/* 태블릿용 AI 상담 버튼 - 가장 우측에 고정, 동적 크기 조절 적용 */}
           <div className="hidden md:flex lg:hidden items-center flex-shrink-0 ml-auto pl-2 pr-6 xl:pr-8">
             <button
               onClick={() => {
@@ -315,10 +374,10 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className="inline-flex items-center px-2 py-1.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap animate-pulse"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap animate-pulse`}
             >
-              <span className="hidden sm:inline">이교장의AI상담</span>
-              <span className="sm:hidden">이교장의AI상담</span>
+              <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>이교장의AI상담</span>
+              <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI상담</span>
             </button>
           </div>
 
