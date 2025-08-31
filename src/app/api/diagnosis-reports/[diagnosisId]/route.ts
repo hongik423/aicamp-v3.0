@@ -256,15 +256,50 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         );
       }
       
-      // 진단 ID가 아직 저장되지 않은 경우
+      // 진단 ID가 아직 저장되지 않은 경우 - 재시도 로직 추가
       if (sheetsError.message.includes('찾을 수 없습니다') || sheetsError.message.includes('404')) {
+        console.log('🔄 진단 데이터 미발견, 재시도 로직 시작:', diagnosisId);
+        
+        // 최근 생성된 진단 ID인지 확인 (타임스탬프 기준 10분 이내)
+        const timestampMatch = diagnosisId.match(/\d{13}/);
+        if (timestampMatch) {
+          const diagnosisTimestamp = parseInt(timestampMatch[0]);
+          const currentTime = Date.now();
+          const timeDiff = currentTime - diagnosisTimestamp;
+          const tenMinutes = 10 * 60 * 1000; // 10분
+          
+          if (timeDiff < tenMinutes) {
+            console.log('🕐 최근 생성된 진단ID 감지, 처리 대기 상태로 응답:', {
+              diagnosisId,
+              생성시간: new Date(diagnosisTimestamp).toISOString(),
+              경과시간: `${Math.round(timeDiff / 1000)}초`
+            });
+            
+            return NextResponse.json(
+              {
+                success: true,
+                status: 'processing',
+                message: '진단 결과를 처리하고 있습니다. 잠시만 기다려주세요.',
+                diagnosisId: diagnosisId,
+                estimatedTime: '2-5분',
+                progress: 50,
+                isProcessing: true,
+                suggestion: '페이지를 새로고침하거나 잠시 후 다시 시도해주세요.',
+                timestamp: new Date().toISOString()
+              },
+              { status: 202 } // 202 Accepted - 처리 중
+            );
+          }
+        }
+        
+        // 오래된 진단 ID는 실제로 찾을 수 없는 것으로 처리
         return NextResponse.json(
           {
             success: false,
-            error: '해당 진단ID의 결과를 아직 찾을 수 없습니다. 진단이 완료되지 않았거나 처리 중일 수 있습니다.',
+            error: '해당 진단ID의 결과를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.',
             diagnosisId: diagnosisId,
             errorType: 'DIAGNOSIS_NOT_FOUND',
-            suggestion: '잠시 후 다시 시도하거나, 진단을 다시 실행해주세요.',
+            suggestion: '진단ID를 다시 확인하거나, 새로운 진단을 실행해주세요.',
             timestamp: new Date().toISOString()
           },
           { status: 404 }

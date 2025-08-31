@@ -25,6 +25,8 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
   const [authLoading, setAuthLoading] = useState(true);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [reportInfo, setReportInfo] = useState<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingMessage, setProcessingMessage] = useState('');
 
   // URL 파라미터에서 진단 ID 추출
   useEffect(() => {
@@ -192,6 +194,29 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
               createdAt: new Date().toISOString()
             });
             setError('');
+          } else if (result.success && result.status === 'processing') {
+            // 처리 중 상태 처리
+            console.log('⏳ 진단 결과 처리 중:', result.message);
+            setError('');
+            setLoading(false);
+            
+            // 처리 중 상태 설정
+            setIsProcessing(true);
+            setProcessingMessage(result.message || "진단 결과를 처리하고 있습니다. 잠시 후 다시 시도해주세요.");
+            
+            // 처리 중 메시지 표시
+            toast({
+              title: "⏳ 처리 중",
+              description: result.message || "진단 결과를 처리하고 있습니다.",
+              variant: "default",
+            });
+            
+            // 5초 후 자동 재시도
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+            
+            return; // 오류로 처리하지 않음
           } else {
             throw new Error(result.error || '보고서를 생성할 수 없습니다.');
           }
@@ -375,6 +400,35 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                 </AlertDescription>
               </Alert>
             )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 처리 중 상태
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-orange-600" />
+            <h2 className="text-xl font-semibold mb-2">진단 결과 처리 중...</h2>
+            <p className="text-gray-600 mb-4">{processingMessage}</p>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <p className="text-sm text-orange-800">
+                🕐 5초 후 자동으로 새로고침됩니다.
+              </p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="mt-3"
+                variant="outline"
+                size="sm"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                지금 새로고침
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
