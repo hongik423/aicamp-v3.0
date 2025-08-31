@@ -116,10 +116,6 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         } catch (storageError) {
           console.warn('⚠️ 로컬 저장 실패:', storageError);
         }
-      } else {
-        console.error('❌ 사실기반 보고서 로드 실패:', result.error);
-        throw new Error(result.error || '해당 진단ID의 실제 평가 데이터를 찾을 수 없습니다. 사실기반 보고서 작성을 위해 정확한 진단ID가 필요합니다.');
-      }
       
     } catch (error: any) {
       console.error('❌ 사실기반 35페이지 보고서 로드 오류:', error);
