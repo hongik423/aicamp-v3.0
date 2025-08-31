@@ -19,6 +19,7 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
 import ScoreGuideModal from '@/components/diagnosis/ScoreGuideModal';
 import ConsultationRequestModal from '@/components/diagnosis/ConsultationRequestModal';
+import WaitingSystemModal from '@/components/diagnosis/WaitingSystemModal';
 import { generateDiagnosisFormPDF, downloadPDF, generateAndUploadDiagnosisFormPDF } from '@/lib/pdf/diagnosis-form-generator';
 import { generateScoreReportPDF, generateAndUploadScoreReportPDF } from '@/lib/pdf/score-report-generator';
 // import EnhancedDiagnosisComplete from './EnhancedDiagnosisComplete'; // 삭제된 컴포넌트
@@ -99,6 +100,7 @@ const Real45QuestionForm: React.FC = () => {
   const [showMissingAnswerAlert, setShowMissingAnswerAlert] = useState(false);
   const [progressData, setProgressData] = useState<any>(null);
   const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [showWaitingModal, setShowWaitingModal] = useState(false);
   const [progressSteps, setProgressSteps] = useState({
     'data-validation': { status: 'pending', progress: 0, label: '1단계: 데이터 검증' },
     'report-generation': { status: 'pending', progress: 0, label: '2단계: 보고서 생성' },
@@ -446,6 +448,34 @@ const Real45QuestionForm: React.FC = () => {
       showProgressGuidance();
     }
   }, [showCompanyForm, formState.currentQuestion]);
+
+  // 🚀 대기 시스템 완료 핸들러
+  const handleWaitingComplete = (reportUrl: string) => {
+    console.log('✅ 대기 시스템 완료, 보고서 페이지로 이동:', reportUrl);
+    setShowWaitingModal(false);
+    
+    // 보고서 페이지로 즉시 리다이렉트
+    window.location.href = reportUrl;
+  };
+
+  // 🚨 대기 시스템 오류 핸들러
+  const handleWaitingError = (error: string) => {
+    console.error('❌ 대기 시스템 오류:', error);
+    setShowWaitingModal(false);
+    
+    toast({
+      title: "보고서 생성 오류",
+      description: error + " 진단ID로 직접 접근해주세요.",
+      variant: "destructive"
+    });
+    
+    // 진단ID 접근 페이지로 안내
+    if (diagnosisResult?.diagnosisId) {
+      setTimeout(() => {
+        window.location.href = `/report-access?id=${diagnosisResult.diagnosisId}`;
+      }, 3000);
+    }
+  };
 
   // 신청서 접수 진행상황 추적
   const startProgressTracking = (diagnosisId: string) => {
@@ -1025,6 +1055,8 @@ const Real45QuestionForm: React.FC = () => {
           diagnosisId: diagnosisId
         };
         
+        // 🚀 대기 시스템 모달 표시
+        setShowWaitingModal(true);
         setDiagnosisResult(enhancedResult);
         
         // 🎯 V22.0 알림 배너를 위한 로컬 스토리지 저장
@@ -2152,7 +2184,16 @@ const Real45QuestionForm: React.FC = () => {
         </div>
       )}
 
-              {/* 이교장 직접 상담 신청 모달 */}
+        {/* 🚀 대기 시스템 모달 */}
+        <WaitingSystemModal
+          isOpen={showWaitingModal}
+          diagnosisId={diagnosisResult?.diagnosisId || ''}
+          companyName={formState.companyInfo.companyName}
+          onComplete={handleWaitingComplete}
+          onError={handleWaitingError}
+        />
+
+        {/* 이교장 직접 상담 신청 모달 */}
         <ConsultationRequestModal
           isOpen={showConsultationModal}
           onClose={() => setShowConsultationModal(false)}

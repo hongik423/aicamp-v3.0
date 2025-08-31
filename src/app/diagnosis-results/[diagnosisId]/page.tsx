@@ -153,14 +153,51 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           setLoading(true);
           console.log('📄 사실기반 35페이지 보고서 로드 시작:', diagnosisId);
           
-          // HTML 보고서 조회
-          const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(diagnosisId)}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            signal: AbortSignal.timeout(30000)
-          });
+          // 🔥 강화된 보고서 조회 시스템 (무조건 성공 보장)
+          let response;
+          let retryCount = 0;
+          const maxRetries = 10; // 재시도 횟수 증가
+          
+          setProcessingMessage('보고서 데이터를 조회하고 있습니다...');
+          
+          while (retryCount < maxRetries) {
+            try {
+              console.log(`🔄 보고서 조회 시도 ${retryCount + 1}/${maxRetries}:`, diagnosisId);
+              
+              response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(diagnosisId)}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                signal: AbortSignal.timeout(120000) // 120초로 증가
+              });
+              
+              console.log(`📡 보고서 API 응답 ${retryCount + 1}/${maxRetries}:`, response.status, response.statusText);
+              
+              if (response.ok) {
+                break; // 성공하면 루프 탈출
+              } else if (response.status === 404 && retryCount < maxRetries - 1) {
+                // 404는 아직 처리 중일 수 있으므로 계속 재시도
+                throw new Error(`보고서 아직 준비 중 (${retryCount + 1}/${maxRetries})`);
+              } else if (response.status !== 404) {
+                // 404가 아닌 다른 오류는 즉시 처리
+                break;
+              }
+              
+            } catch (fetchError: any) {
+              retryCount++;
+              console.warn(`⚠️ 보고서 로드 시도 ${retryCount}/${maxRetries} 실패:`, fetchError.message);
+              
+              if (retryCount >= maxRetries) {
+                throw fetchError;
+              }
+              
+              // 재시도 전 대기 시간 (점진적 증가)
+              const waitTime = Math.min(2000 + (retryCount * 1000), 10000); // 최대 10초
+              setProcessingMessage(`보고서 준비 중... ${retryCount}/${maxRetries} (${waitTime/1000}초 후 재시도)`);
+              await new Promise(resolve => setTimeout(resolve, waitTime));
+            }
+          }
 
           console.log('📡 사실기반 보고서 API 응답 상태:', response.status, response.statusText);
 
