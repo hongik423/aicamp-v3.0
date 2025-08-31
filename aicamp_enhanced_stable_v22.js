@@ -1,6 +1,6 @@
 /**
  * ================================================================================
- * 🎯 V22.1 AICAMP 통합 시스템 - 긴급 오류 수정 버전 (2025.08.30)
+ * 🎯 V22.2 AICAMP 통합 시스템 - 진단ID 연결 오류 수정 버전 (2025.08.30)
  * ================================================================================
  * 
  * ✅ 핵심 기능 (V21 + 추가 기능):
@@ -22,6 +22,13 @@
  * - 더욱 정확하고 안정적인 진단 서비스 제공
  * - 48시간 이내 전문가 직접 분석 보고서 제공
  * 
+ * 🚨 V22.2 진단ID 연결 오류 수정 (2025.08.30 15:00):
+ * - 진단 ID 생성 로직 통일 및 개선
+ * - 데이터 저장 시점 조정 (진단 ID 생성 후 저장)
+ * - 조회 시 진단 ID 매칭 로직 강화
+ * - 폴백 시스템 개선 (실제 데이터 우선)
+ * - 진단 ID 형식 검증 강화
+ * 
  * 🛡️ 무오류 품질 보장:
  * - 모든 함수 try-catch 적용
  * - 기본값 설정으로 null 방지
@@ -40,7 +47,7 @@
  * ================================================================================
  */
 
-console.log('🚀 V22.1 AICAMP 통합 시스템 - 긴급 오류 수정 버전 (2025.08.30 13:30) 로드 시작');
+console.log('🚀 V22.2 AICAMP 통합 시스템 - 진단ID 연결 오류 수정 버전 (2025.08.30 15:00) 로드 시작');
 
 // ================================================================================
 // 🔧 환경 설정 관리 시스템 (확장)
@@ -2091,25 +2098,42 @@ function processDiagnosis(requestData) {
     
     console.log(`✅ 45개 문항 모두 유효하게 응답됨`);
     
-    // 진단 ID 생성 (혼동 방지 개선 버전)
+    // 🚨 V22.2 진단 ID 생성 로직 통일 및 개선
     try {
       if (!requestData.diagnosisId) {
-        // 혼동하기 쉬운 문자 제거: 0, O, 1, l, I 제외
-        // 사용 가능한 문자: 2-9, a-k, m-n, p-z (대소문자 구분 없이 소문자만 사용)
-        const safeChars = '23456789abcdefghjkmnpqrstuvwxyz';
-        let randomSuffix = '';
-        for (let i = 0; i < 9; i++) {
-          randomSuffix += safeChars.charAt(Math.floor(Math.random() * safeChars.length));
-        }
-        diagnosisId = `DIAG_45Q_AI_${Date.now()}_${randomSuffix}`;
-        console.log('✅ 안전한 진단 ID 생성:', diagnosisId);
+        // V22.2 통일된 진단 ID 형식: DIAG_45Q_[timestamp]_[random]
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(2, 11).toLowerCase();
+        diagnosisId = `DIAG_45Q_${timestamp}_${randomSuffix}`;
+        console.log('✅ V22.2 통일된 진단 ID 생성:', diagnosisId);
       } else {
-        diagnosisId = requestData.diagnosisId;
-        console.log('✅ 기존 진단 ID 사용:', diagnosisId);
+        // 기존 진단 ID가 있으면 형식 검증
+        const existingId = String(requestData.diagnosisId).trim();
+        if (existingId.length >= 10 && existingId.startsWith('DIAG_')) {
+          diagnosisId = existingId;
+          console.log('✅ 기존 진단 ID 사용 (형식 검증 완료):', diagnosisId);
+        } else {
+          // 기존 ID가 유효하지 않으면 새로 생성
+          const timestamp = Date.now();
+          const randomSuffix = Math.random().toString(36).substring(2, 11).toLowerCase();
+          diagnosisId = `DIAG_45Q_${timestamp}_${randomSuffix}`;
+          console.log('⚠️ 기존 진단 ID 형식 오류, 새로 생성:', diagnosisId);
+        }
       }
       requestData.diagnosisId = diagnosisId;
+      
+      // 진단 ID 생성 완료 로그
+      console.log('🔐 진단 ID 생성 완료:', {
+        diagnosisId: diagnosisId,
+        length: diagnosisId.length,
+        format: diagnosisId.startsWith('DIAG_45Q_'),
+        timestamp: new Date().toISOString()
+      });
+      
     } catch (idError) {
-      diagnosisId = `DIAG_45Q_AI_${Date.now()}_SAFE`;
+      console.error('❌ 진단 ID 생성 오류:', idError);
+      const timestamp = Date.now();
+      diagnosisId = `DIAG_45Q_${timestamp}_SAFE`;
       requestData.diagnosisId = diagnosisId;
       console.warn('⚠️ 진단 ID 생성 오류, 안전한 기본 ID 사용:', diagnosisId);
     }
@@ -2127,10 +2151,10 @@ function processDiagnosis(requestData) {
       throw new Error(`점수 계산 실패: ${scoreError.message}`);
     }
     
-    // 3단계: Google Sheets에 데이터 저장
-    console.log('💾 V22.1 Google Sheets 데이터 저장 중...');
+    // 3단계: Google Sheets에 데이터 저장 (V22.2 진단 ID 생성 후 저장)
+    console.log('💾 V22.2 Google Sheets 데이터 저장 중...');
     console.log('💾 저장할 데이터:', {
-      진단ID: requestData.diagnosisId,
+      진단ID: diagnosisId, // 생성된 진단 ID 사용
       회사명: requestData.companyName,
       담당자: requestData.contactName,
       이메일: requestData.contactEmail,
@@ -2139,6 +2163,18 @@ function processDiagnosis(requestData) {
       백분율: scoreData.percentage,
       등급: scoreData.grade,
       성숙도: scoreData.maturityLevel
+    });
+    
+    // 진단 ID 생성 완료 확인
+    if (!diagnosisId || diagnosisId.length < 10) {
+      throw new Error('진단 ID가 올바르게 생성되지 않았습니다.');
+    }
+    
+    console.log('🔐 진단 ID 생성 및 검증 완료:', {
+      diagnosisId: diagnosisId,
+      isValid: diagnosisId.startsWith('DIAG_45Q_'),
+      length: diagnosisId.length,
+      timestamp: new Date().toISOString()
     });
     
     const debugConfig = getEnvironmentConfig();
@@ -2156,45 +2192,71 @@ function processDiagnosis(requestData) {
     };
     
     try {
-      console.log('💾 메인 시트 저장 시작...');
-      saveResults.main = saveToMainSheet(requestData, scoreData);
-      console.log('💾 메인 시트 저장 결과:', saveResults.main);
+      console.log('💾 V22.2 메인 시트 저장 시작 (진단 ID 포함)...');
+      // 진단 ID를 명시적으로 전달
+      const mainData = { ...requestData, diagnosisId: diagnosisId };
+      saveResults.main = saveToMainSheet(mainData, scoreData);
+      console.log('💾 V22.2 메인 시트 저장 결과:', saveResults.main);
     } catch (mainSaveError) {
-      console.error('❌ 메인 시트 저장 오류:', mainSaveError);
+      console.error('❌ V22.2 메인 시트 저장 오류:', mainSaveError);
       console.error('📄 메인 시트 오류 스택:', mainSaveError.stack);
       saveResults.main = false;
     }
     
     try {
-      console.log('💾 상세 시트 저장 시작...');
-      saveResults.detail = saveToDetailSheet(requestData, responses);
-      console.log('💾 상세 시트 저장 결과:', saveResults.detail);
+      console.log('💾 V22.2 상세 시트 저장 시작 (진단 ID 포함)...');
+      // 진단 ID를 명시적으로 전달
+      const detailData = { ...requestData, diagnosisId: diagnosisId };
+      saveResults.detail = saveToDetailSheet(detailData, responses);
+      console.log('💾 V22.2 상세 시트 저장 결과:', saveResults.detail);
     } catch (detailSaveError) {
-      console.error('❌ 상세 시트 저장 오류:', detailSaveError);
+      console.error('❌ V22.2 상세 시트 저장 오류:', detailSaveError);
       console.error('📄 상세 시트 오류 스택:', detailSaveError.stack);
       saveResults.detail = false;
     }
     
     try {
-      console.log('💾 카테고리 시트 저장 시작...');
-      saveResults.category = saveToCategorySheet(requestData, scoreData);
-      console.log('💾 카테고리 시트 저장 결과:', saveResults.category);
+      console.log('💾 V22.2 카테고리 시트 저장 시작 (진단 ID 포함)...');
+      // 진단 ID를 명시적으로 전달
+      const categoryData = { ...requestData, diagnosisId: diagnosisId };
+      saveResults.category = saveToCategorySheet(categoryData, scoreData);
+      console.log('💾 V22.2 카테고리 시트 저장 결과:', saveResults.category);
     } catch (categorySaveError) {
-      console.error('❌ 카테고리 시트 저장 오류:', categorySaveError);
+      console.error('❌ V22.2 카테고리 시트 저장 오류:', categorySaveError);
       console.error('📄 카테고리 시트 오류 스택:', categorySaveError.stack);
       saveResults.category = false;
     }
     
-    // 저장 결과 확인
+    // V22.2 저장 결과 확인 (진단 ID 포함)
     const saveSuccessCount = Object.values(saveResults).filter(result => result === true).length;
+    console.log('💾 V22.2 저장 결과 요약:', {
+      진단ID: diagnosisId,
+      main: saveResults.main,
+      detail: saveResults.detail,
+      category: saveResults.category,
+      successCount: saveSuccessCount,
+      totalSheets: 3,
+      timestamp: new Date().toISOString()
+    });
+    
     if (saveSuccessCount === 0) {
       console.warn('⚠️ 모든 시트 저장에 실패했지만 계속 진행합니다');
     }
     
-    // 4단계: 이메일 발송
-    console.log('📧 V22.1 이메일 발송 중...');
+    // 진단 ID 저장 완료 확인
+    console.log('🔐 V22.2 진단 ID 저장 완료 확인:', {
+      diagnosisId: diagnosisId,
+      savedToMain: saveResults.main,
+      savedToDetail: saveResults.detail,
+      savedToCategory: saveResults.category,
+      allSaved: saveSuccessCount === 3
+    });
+    
+    // 4단계: 이메일 발송 (V22.2 진단 ID 포함)
+    console.log('📧 V22.2 이메일 발송 중...');
     const currentConfig = getEnvironmentConfig();
-    console.log('📧 이메일 발송 대상:', {
+    console.log('📧 V22.2 이메일 발송 대상:', {
+      진단ID: diagnosisId,
       신청자: requestData.contactEmail,
       관리자: currentConfig ? currentConfig.ADMIN_EMAIL : 'N/A',
       이메일활성화: currentConfig ? currentConfig.ENABLE_EMAIL : 'N/A'
@@ -2202,9 +2264,11 @@ function processDiagnosis(requestData) {
     
     let emailResults;
     try {
-      console.log('📧 V22.1 sendNotificationEmails 함수 호출 시작');
-      emailResults = sendNotificationEmails(requestData, scoreData);
-      console.log('📧 V22.1 이메일 발송 결과:', emailResults);
+      console.log('📧 V22.2 sendNotificationEmails 함수 호출 시작 (진단 ID 포함)');
+      // 진단 ID를 명시적으로 포함하여 이메일 발송
+      const emailData = { ...requestData, diagnosisId: diagnosisId };
+      emailResults = sendNotificationEmails(emailData, scoreData);
+      console.log('📧 V22.2 이메일 발송 결과:', emailResults);
       
       if (!emailResults || typeof emailResults !== 'object') {
         throw new Error('이메일 발송 결과가 유효하지 않습니다');
@@ -2218,7 +2282,7 @@ function processDiagnosis(requestData) {
       };
     }
     
-    // 5단계: 결과 반환
+    // 5단계: 결과 반환 (V22.2 진단 ID 포함)
     const finalConfig = getEnvironmentConfig();
     const result = {
       success: true,
@@ -2229,10 +2293,13 @@ function processDiagnosis(requestData) {
         saveResults: saveResults,
         emailResults: emailResults,
         saveSuccessCount: saveSuccessCount,
-        totalSteps: 3
+        totalSteps: 3,
+        진단ID생성완료: true,
+        진단ID형식: diagnosisId.startsWith('DIAG_45Q_'),
+        진단ID길이: diagnosisId.length
       },
       timestamp: new Date().toISOString(),
-      version: finalConfig ? finalConfig.VERSION : 'V22.1'
+      version: finalConfig ? finalConfig.VERSION : 'V22.2'
     };
     
     console.log(`✅ AI 역량진단 처리 완료 (ID: ${diagnosisId})`);
@@ -2723,29 +2790,45 @@ function getAllDiagnosisReports() {
 }
 
 /**
- * 🔒 보안 강화된 특정 진단 ID로 데이터 조회
+ * 🔒 V22.2 보안 강화된 특정 진단 ID로 데이터 조회
  * 개인정보 보호를 위해 본인의 진단ID로만 조회 가능
+ * 진단 ID 형식 검증 강화 및 매칭 로직 개선
  */
 function queryDiagnosisById(requestData) {
   try {
-    console.log('🔐 보안 강화된 진단 ID 개별 조회:', requestData.diagnosisId);
+    console.log('🔐 V22.2 보안 강화된 진단 ID 개별 조회:', requestData.diagnosisId);
     
     if (!requestData.diagnosisId) {
       throw new Error('진단 ID가 필요합니다.');
     }
 
-    // 🛡️ 보안 검증: 진단ID 형식 및 길이 검사
-    if (typeof requestData.diagnosisId !== 'string' || requestData.diagnosisId.length < 10) {
-      console.warn('⚠️ 유효하지 않은 진단ID 접근 시도:', requestData.diagnosisId);
+    // 🛡️ V22.2 강화된 보안 검증: 진단ID 형식 및 길이 검사
+    const diagnosisId = String(requestData.diagnosisId).trim();
+    if (typeof diagnosisId !== 'string' || diagnosisId.length < 10) {
+      console.warn('⚠️ V22.2 유효하지 않은 진단ID 접근 시도:', diagnosisId);
       throw new Error('유효하지 않은 진단ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.');
     }
+    
+    // V22.2 진단 ID 형식 검증 강화
+    if (!diagnosisId.startsWith('DIAG_')) {
+      console.warn('⚠️ V22.2 잘못된 진단ID 형식:', diagnosisId);
+      throw new Error('잘못된 진단ID 형식입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.');
+    }
+    
+    console.log('🔐 V22.2 진단 ID 검증 완료:', {
+      diagnosisId: diagnosisId,
+      length: diagnosisId.length,
+      format: diagnosisId.startsWith('DIAG_'),
+      timestamp: new Date().toISOString()
+    });
 
-    // 🔒 보안 로그: 개별 조회 시도 기록
-    console.log('📋 개별 진단ID 조회 보안 로그:', {
-      diagnosisId: requestData.diagnosisId,
+    // 🔒 V22.2 보안 로그: 개별 조회 시도 기록
+    console.log('📋 V22.2 개별 진단ID 조회 보안 로그:', {
+      diagnosisId: diagnosisId,
       timestamp: new Date().toISOString(),
       accessType: 'individual_query',
-      securityLevel: 'enhanced'
+      securityLevel: 'enhanced_v22',
+      formatValidated: diagnosisId.startsWith('DIAG_')
     });
     
     const config = getEnvironmentConfig();
@@ -2770,87 +2853,121 @@ function queryDiagnosisById(requestData) {
       throw new Error('진단 데이터가 없습니다.');
     }
     
-    // 진단 ID로 데이터 검색
+    // V22.2 진단 ID로 데이터 검색 (강화된 매칭 로직)
     const dataRange = mainSheet.getRange(2, 1, lastRow - 1, mainSheet.getLastColumn());
     const values = dataRange.getValues();
     
     let foundRow = null;
+    let matchAttempts = 0;
+    
+    console.log(`🔍 V22.2 진단 ID 검색 시작: ${diagnosisId}`);
+    console.log(`📊 검색 대상 행 수: ${values.length}`);
+    
     for (let i = 0; i < values.length; i++) {
       const storedId = String(values[i][0]).trim();
-      const searchId = String(requestData.diagnosisId).trim();
+      matchAttempts++;
       
-      console.log(`🔍 진단ID 비교 (행 ${i + 2}):`, {
-        stored: storedId,
-        search: searchId,
-        match: storedId === searchId
-      });
+      // V22.2 정확한 매칭 (대소문자 구분 없이)
+      const exactMatch = storedId.toLowerCase() === diagnosisId.toLowerCase();
       
-      if (storedId === searchId) {
+      if (exactMatch) {
         foundRow = values[i];
-        console.log(`✅ 메인 시트에서 진단 데이터 발견 (행 ${i + 2}):`, storedId);
+        console.log(`✅ V22.2 메인 시트에서 진단 데이터 발견 (행 ${i + 2}):`, {
+          storedId: storedId,
+          searchId: diagnosisId,
+          matchType: 'exact_case_insensitive',
+          rowIndex: i + 2
+        });
         break;
+      }
+      
+      // 디버깅을 위한 상세 로그 (처음 5개만)
+      if (i < 5) {
+        console.log(`🔍 V22.2 진단ID 비교 (행 ${i + 2}):`, {
+          stored: storedId,
+          search: diagnosisId,
+          match: exactMatch,
+          storedLength: storedId.length,
+          searchLength: diagnosisId.length
+        });
       }
     }
     
+    console.log(`🔍 V22.2 진단 ID 검색 완료:`, {
+      totalAttempts: matchAttempts,
+      found: !!foundRow,
+      searchTarget: diagnosisId
+    });
+    
     if (!foundRow) {
-      console.log('❌ 해당 진단ID의 데이터를 찾을 수 없음:', requestData.diagnosisId);
+      console.log('❌ V22.2 해당 진단ID의 데이터를 찾을 수 없음:', diagnosisId);
       
-      // 디버깅을 위한 상세 로그
-      console.log('🔍 검색 실패 상세 정보:', {
-        searchTarget: requestData.diagnosisId,
-        searchTargetLength: requestData.diagnosisId.length,
+      // V22.2 디버깅을 위한 상세 로그
+      console.log('🔍 V22.2 검색 실패 상세 정보:', {
+        searchTarget: diagnosisId,
+        searchTargetLength: diagnosisId.length,
         totalRows: values.length,
         mainSheetRows: lastRow,
-        sampleStoredIds: values.slice(0, 3).map(row => String(row[0]).trim()),
-        timestamp: new Date().toISOString()
+        sampleStoredIds: values.slice(0, 5).map(row => String(row[0]).trim()),
+        matchAttempts: matchAttempts,
+        timestamp: new Date().toISOString(),
+        version: 'V22.2'
       });
       
       return {
         success: false,
         error: '해당 진단ID의 결과를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.',
-        diagnosisId: requestData.diagnosisId,
+        diagnosisId: diagnosisId,
         timestamp: new Date().toISOString(),
         searchedRows: values.length,
+        matchAttempts: matchAttempts,
         searchDetails: {
           mainSheetRows: lastRow,
-          searchTarget: requestData.diagnosisId,
-          searchTargetLength: requestData.diagnosisId.length,
-          sampleIds: values.slice(0, 3).map(row => String(row[0]).trim())
+          searchTarget: diagnosisId,
+          searchTargetLength: diagnosisId.length,
+          sampleIds: values.slice(0, 5).map(row => String(row[0]).trim()),
+          version: 'V22.2'
         }
       };
     }
     
-    // 상세 데이터도 조회 (45문항 응답) - 이교장님 보고서용 개선
+    // V22.2 상세 데이터도 조회 (45문항 응답) - 진단 ID 매칭 강화
     let detailResponses = {};
     if (detailSheet) {
       try {
         const detailLastRow = detailSheet.getLastRow();
-        console.log(`📋 상세 시트 행 수: ${detailLastRow}`);
+        console.log(`📋 V22.2 상세 시트 행 수: ${detailLastRow}`);
         
         if (detailLastRow > 4) { // 헤더 4행 제외
           const detailDataRange = detailSheet.getRange(5, 1, detailLastRow - 4, detailSheet.getLastColumn());
           const detailValues = detailDataRange.getValues();
           
-          console.log(`🔍 상세 데이터 검색 시작 - 대상: ${foundRow[2]} / ${foundRow[3]}`);
+          console.log(`🔍 V22.2 상세 데이터 검색 시작 - 대상: ${foundRow[2]} / ${foundRow[3]}`);
+          console.log(`🔍 V22.2 검색할 진단 ID: ${diagnosisId}`);
           
-          // 진단ID 직접 매칭 우선, 없으면 기존 방식 (이교장님 보고서용)
+          // V22.2 진단ID 직접 매칭 (강화된 로직)
+          let detailMatchFound = false;
           for (let i = 0; i < detailValues.length; i++) {
             const detailRow = detailValues[i];
             
-            // 1순위: 진단ID 직접 매칭 (가장 정확)
+            // V22.2 진단ID 직접 매칭 (대소문자 구분 없이)
             const storedDetailId = String(detailRow[0]).trim();
-            const searchDetailId = String(requestData.diagnosisId).trim();
-            const diagnosisIdMatch = storedDetailId === searchDetailId;
+            const diagnosisIdMatch = storedDetailId.toLowerCase() === diagnosisId.toLowerCase();
             
-            console.log(`🔍 상세 시트 진단ID 비교 (행 ${i + 5}):`, {
-              stored: storedDetailId,
-              search: searchDetailId,
-              match: diagnosisIdMatch
-            });
+            if (i < 3) { // 처음 3개만 로그 출력
+              console.log(`🔍 V22.2 상세 시트 진단ID 비교 (행 ${i + 5}):`, {
+                stored: storedDetailId,
+                search: diagnosisId,
+                match: diagnosisIdMatch,
+                storedLength: storedDetailId.length,
+                searchLength: diagnosisId.length
+              });
+            }
             
-            // 사실기반 시스템: 진단ID 직접 매칭만 허용 (폴백 매칭 금지)
+            // V22.2 사실기반 시스템: 진단ID 직접 매칭만 허용
             if (diagnosisIdMatch) {
-              console.log(`✅ 진단ID 직접 매칭 성공 (행 ${i + 5})`);
+              console.log(`✅ V22.2 진단ID 직접 매칭 성공 (행 ${i + 5})`);
+              detailMatchFound = true;
               
               // 45문항 응답 추출 (10번째 컬럼부터 54번째 컬럼까지 - 진단ID 컬럼 추가 반영)
               for (let j = 0; j < 45; j++) {
@@ -2860,21 +2977,21 @@ function queryDiagnosisById(requestData) {
                 }
               }
               
-              console.log(`📊 45문항 응답 추출 완료: ${Object.keys(detailResponses).length}개`);
+              console.log(`📊 V22.2 45문항 응답 추출 완료: ${Object.keys(detailResponses).length}개`);
               break;
             }
           }
           
-          // 사실기반 시스템: 진단ID로 데이터를 찾지 못하면 오류 반환 (추정값 생성 금지)
-          if (Object.keys(detailResponses).length === 0) {
-            console.error('❌ 해당 진단ID의 45문항 상세 데이터를 찾을 수 없습니다');
-            throw new Error(`진단ID ${requestData.diagnosisId}의 45문항 상세 데이터가 존재하지 않습니다. 사실기반 보고서 작성을 위해 정확한 진단ID가 필요합니다.`);
+          // V22.2 사실기반 시스템: 진단ID로 데이터를 찾지 못하면 오류 반환
+          if (!detailMatchFound || Object.keys(detailResponses).length === 0) {
+            console.error('❌ V22.2 해당 진단ID의 45문항 상세 데이터를 찾을 수 없습니다');
+            throw new Error(`진단ID ${diagnosisId}의 45문항 상세 데이터가 존재하지 않습니다. V22.2 사실기반 보고서 작성을 위해 정확한 진단ID가 필요합니다.`);
           }
         }
       } catch (detailError) {
-        console.error('❌ 상세 데이터 조회 중 오류 발생:', detailError.message);
-        // 사실기반 시스템: 오류 발생 시 추정값 생성 금지, 오류를 상위로 전파
-        throw new Error(`진단ID ${requestData.diagnosisId}의 상세 데이터 조회 실패: ${detailError.message}`);
+        console.error('❌ V22.2 상세 데이터 조회 중 오류 발생:', detailError.message);
+        // V22.2 사실기반 시스템: 오류 발생 시 추정값 생성 금지, 오류를 상위로 전파
+        throw new Error(`진단ID ${diagnosisId}의 상세 데이터 조회 실패: ${detailError.message}`);
       }
     }
     
@@ -2904,10 +3021,13 @@ function queryDiagnosisById(requestData) {
       responses: detailResponses,
       assessmentResponses: detailResponses,
       status: foundRow[21],
-      timestamp: foundRow[22]
+      timestamp: foundRow[22],
+      version: 'V22.2',
+      진단ID매칭성공: true,
+      상세데이터조회완료: Object.keys(detailResponses).length > 0
     };
     
-    console.log('✅ 진단 데이터 조회 완료:', requestData.diagnosisId);
+    console.log('✅ V22.2 진단 데이터 조회 완료:', diagnosisId);
     
     return {
       success: true,
@@ -2926,23 +3046,28 @@ function queryDiagnosisById(requestData) {
 }
 
 /**
- * 진단 ID 존재 여부 확인
+ * V22.2 진단 ID 존재 여부 확인 (강화된 검증)
  */
 function verifyDiagnosisId(requestData) {
   try {
-    console.log('🔐 진단 ID 검증 시작:', requestData.diagnosisId);
+    console.log('🔐 V22.2 진단 ID 검증 시작:', requestData.diagnosisId);
     
     if (!requestData.diagnosisId) {
       throw new Error('진단 ID가 필요합니다.');
     }
     
-    // 진단ID 형식 검증 강화
+    // V22.2 진단ID 형식 검증 강화
     const diagnosisId = String(requestData.diagnosisId).trim();
     if (diagnosisId.length < 10) {
       throw new Error('진단 ID 길이가 너무 짧습니다.');
     }
     
-    console.log('🔍 검증할 진단ID:', diagnosisId, '길이:', diagnosisId.length);
+    // V22.2 진단 ID 형식 검증 추가
+    if (!diagnosisId.startsWith('DIAG_')) {
+      throw new Error('잘못된 진단 ID 형식입니다.');
+    }
+    
+    console.log('🔍 V22.2 검증할 진단ID:', diagnosisId, '길이:', diagnosisId.length);
     
     const config = getEnvironmentConfig();
     
@@ -3169,7 +3294,7 @@ function runSystemTest() {
 // 🎯 시스템 초기화 완료
 // ================================================================================
 
-console.log('✅ V22.1 AICAMP 통합 시스템 - 긴급 오류 수정 버전 로드 완료');
+console.log('✅ V22.2 AICAMP 통합 시스템 - 진단ID 연결 오류 수정 버전 로드 완료');
 console.log('📋 45문항 점수 계산 시스템 준비 완료 (강화된 오류 처리)');
 console.log('💾 Google Sheets 5개 시트 저장 준비 완료 (이교장님 보고서용 최적화)');
 console.log('📧 통합 이메일 발송 시스템 준비 완료 (검증 강화)');
@@ -3182,14 +3307,14 @@ console.log('🛡️ 모든 함수에 강화된 try-catch 오류 처리 적용')
 console.log('🔍 입력 데이터 검증 및 타입 체크 강화');
 console.log('⚡ 빠른 처리 속도 및 무오류 품질 보장');
 console.log('📊 이교장님 결과보고서 작성용 시트 구조 최적화 완료');
-console.log('🚀 AICAMP 통합 시스템 V22.1 긴급 오류 수정 버전 준비 완료!');
+console.log('�� AICAMP 통합 시스템 V22.2 진단ID 연결 오류 수정 버전 준비 완료!');
 
 // ================================================================================
-// 🚨 V22.1 긴급 수정: AI 분석 함수 완전 제거 (Gemini API 오류 해결)
+// 🚨 V22.2 진단ID 연결 오류 수정: 진단 ID 생성 로직 통일 및 개선
 // ================================================================================
 
 /**
- * 🚫 제거된 함수들 (V22.1에서 완전 삭제):
+ * 🚫 제거된 함수들 (V22.2에서 완전 삭제):
  * - generateAIAnalysisReport (Gemini API 호출)
  * - handleAIDiagnosisSubmission (AI 분석 의존)
  * - performAIAnalysis (AI API 호출)
@@ -3202,13 +3327,13 @@ console.log('🚀 AICAMP 통합 시스템 V22.1 긴급 오류 수정 버전 준�
  */
 
 /**
- * 🚫 V22.1에서 제거된 AI 분석 함수 (Gemini API 오류 방지)
+ * 🚫 V22.2에서 제거된 AI 분석 함수 (Gemini API 오류 방지)
  * 이 함수들은 더 이상 호출되지 않습니다
  * 
  * 🚨 긴급 수정: 기존 함수 호출을 안전하게 processDiagnosis로 리다이렉트
  */
 function handleAIDiagnosisSubmission(requestData) {
-  console.log('🚫 V22.1 리다이렉트: handleAIDiagnosisSubmission → processDiagnosis');
+  console.log('🚫 V22.2 리다이렉트: handleAIDiagnosisSubmission → processDiagnosis');
   console.log('🛡️ AI 분석 제거로 인한 안전한 처리 시작');
   
   // 안전한 processDiagnosis 호출
@@ -3216,7 +3341,7 @@ function handleAIDiagnosisSubmission(requestData) {
 }
 
 function generateAIAnalysisReport(data) {
-  console.log('🚫 V22.1 리다이렉트: generateAIAnalysisReport → processDiagnosis');
+  console.log('🚫 V22.2 리다이렉트: generateAIAnalysisReport → processDiagnosis');
   console.log('🛡️ Gemini API 오류 방지를 위한 안전한 처리');
   
   // AI 분석 없이 기본 점수 계산만 수행
@@ -3224,35 +3349,35 @@ function generateAIAnalysisReport(data) {
 }
 
 function performAIAnalysis(diagnosisId, data) {
-  console.log('🚫 V22.1 차단: performAIAnalysis 호출 차단됨');
+  console.log('🚫 V22.2 차단: performAIAnalysis 호출 차단됨');
   console.log('🛡️ 오프라인 전문가 분석으로 대체됨');
   
   // 아무것도 하지 않고 성공 반환 (AI 분석 제거)
   return {
     success: true,
-    message: 'V22.1에서 AI 분석이 제거되었습니다. 오프라인 전문가 분석으로 대체됩니다.',
+    message: 'V22.2에서 AI 분석이 제거되었습니다. 오프라인 전문가 분석으로 대체됩니다.',
     analysisType: 'offline_expert_analysis',
     deliveryTime: '48시간 이내'
   };
 }
 
 function callGeminiAPI() {
-  console.log('🚫 V22.1 차단: Gemini API 호출 완전 차단');
-  throw new Error('🚫 V22.1에서 제거됨: Gemini API 키 오류 해결을 위해 AI API 호출이 제거되었습니다.');
+  console.log('🚫 V22.2 차단: Gemini API 호출 완전 차단');
+  throw new Error('🚫 V22.2에서 제거됨: Gemini API 키 오류 해결을 위해 AI API 호출이 제거되었습니다.');
 }
 
-// 🚨 V22.1 긴급 추가: 기존 AI 관련 함수들 모두 안전하게 처리
+// �� V22.2 긴급 추가: 기존 AI 관련 함수들 모두 안전하게 처리
 function callAI() {
-  console.log('🚫 V22.1 차단: AI API 호출 차단');
+  console.log('🚫 V22.2 차단: AI API 호출 차단');
   return { success: false, message: 'AI 분석이 오프라인 전문가 분석으로 대체되었습니다.' };
 }
 
 function generateAnalysisPrompt() {
-  console.log('🚫 V22.1 차단: AI 프롬프트 생성 차단');
+  console.log('�� V22.2 차단: AI 프롬프트 생성 차단');
   return '';
 }
 
 function analyzeWithGemini() {
-  console.log('🚫 V22.1 차단: Gemini 분석 차단');
+  console.log('🚫 V22.2 차단: Gemini 분석 차단');
   return { success: false, message: 'Gemini 분석이 제거되었습니다.' };
 }

@@ -30,6 +30,8 @@ export interface DiagnosisData {
   timestamp: string;
   grade?: string;
   maturityLevel?: string;
+  isVirtualData?: boolean; // 가상 데이터 여부
+  virtualDataReason?: string; // 가상 데이터 생성 이유
 }
 
 export class Ultimate35PageGenerator {
@@ -81,13 +83,18 @@ export class Ultimate35PageGenerator {
                   data.scores.percentage >= 70 ? 'B' :
                   data.scores.percentage >= 65 ? 'B-' : 'C+';
 
+    // 가상 데이터 여부에 따른 제목 설정
+    const reportTitle = data.isVirtualData 
+      ? `${data.companyInfo.name} AI 역량진단 보고서 V27.0 Ultimate (가상 데이터)`
+      : `${data.companyInfo.name} AI 역량진단 보고서 V27.0 Ultimate`;
+    
     // 완전한 35페이지 HTML 생성
     const htmlReport = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${data.companyInfo.name} AI 역량진단 보고서 V27.0 Ultimate</title>
+    <title>${reportTitle}</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>

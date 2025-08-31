@@ -165,13 +165,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     } catch (sheetsError) {
       console.error('❌ 사실기반 시스템: Google Sheets 조회 실패', sheetsError);
       
-      // 폴백 시스템: 테스트 데이터로 35페이지 보고서 생성
-      console.log('🔄 폴백 시스템: 테스트 데이터로 35페이지 보고서 생성 시작');
+      // 폴백 시스템: 가상 데이터로 35페이지 보고서 생성 (실제 데이터 처리 오류 시)
+      console.log('🔄 폴백 시스템: 실제 데이터 처리 오류로 가상 데이터로 35페이지 보고서 생성 시작');
       
       diagnosisData = {
         diagnosisId,
         companyInfo: {
-          name: '테스트 기업 (폴백 데이터)',
+          name: '가상 기업 (실제 데이터 처리 오류)',
           industry: 'IT/소프트웨어',
           size: '중소기업',
           revenue: '10-50억',
@@ -194,10 +194,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         },
         timestamp: new Date().toISOString(),
         grade: 'B+',
-        maturityLevel: 'AI 활용기업'
+        maturityLevel: 'AI 활용기업',
+        isVirtualData: true, // 가상 데이터임을 명시
+        virtualDataReason: '실제 데이터 처리 오류로 인한 가상 응답'
       };
       
-      console.log('✅ 폴백 시스템: 테스트 데이터 생성 완료');
+      console.log('✅ 폴백 시스템: 가상 데이터 생성 완료 (실제 데이터 처리 오류)');
     }
     
     // V27.0 Ultimate 35페이지 보고서 생성
@@ -215,7 +217,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
     return NextResponse.json({
       success: true,
-      message: '📄 35페이지 AI 역량진단 보고서 생성 성공',
+      message: diagnosisData.isVirtualData ? '📄 35페이지 AI 역량진단 보고서 생성 성공 (가상 데이터)' : '📄 35페이지 AI 역량진단 보고서 생성 성공',
       diagnosisId,
       htmlReport,
       reportInfo: {
@@ -229,9 +231,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         maturityLevel: diagnosisData.maturityLevel || calculateMaturityLevel(diagnosisData.scores.percentage),
         industry: diagnosisData.companyInfo.industry,
         reportGenerated: true,
-        actualScoreReflected: true,
+        actualScoreReflected: !diagnosisData.isVirtualData, // 가상 데이터가 아닐 때만 실제 점수 반영
         pages: 35,
-        factBasedSystem: true
+        factBasedSystem: !diagnosisData.isVirtualData, // 가상 데이터가 아닐 때만 사실기반 시스템
+        isVirtualData: diagnosisData.isVirtualData || false,
+        virtualDataReason: diagnosisData.virtualDataReason || null
       }
     });
     
