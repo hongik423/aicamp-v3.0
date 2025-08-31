@@ -23,58 +23,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // GAS에서 실제 진단ID 존재 여부 확인
-    try {
-      const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || process.env.GOOGLE_APPS_SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
-      
-      if (gasUrl) {
-        console.log('🔄 GAS에서 진단ID 검증 시작:', diagnosisId);
-        
-        const gasPayload = {
-          type: 'verify_diagnosis_id',
-          action: 'verify_diagnosis_id',
-          diagnosisId: diagnosisId,
-          timestamp: new Date().toISOString()
-        };
-
-        const gasResponse = await fetch(gasUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(gasPayload),
-        });
-
-        if (gasResponse.ok) {
-          const gasResult = await gasResponse.json();
-          
-          if (gasResult.success && gasResult.exists) {
-            console.log('✅ GAS에서 진단ID 확인됨:', diagnosisId);
-            
-            return NextResponse.json({
-              success: true,
-              message: '접근 권한이 확인되었습니다.',
-              diagnosisId: diagnosisId,
-              accessType: accessType || 'user',
-              verified: true
-            });
-          } else {
-            console.warn('❌ GAS에서 진단ID를 찾을 수 없음:', diagnosisId);
-            return NextResponse.json(
-              { 
-                success: false, 
-                error: '해당 진단ID를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.' 
-              },
-              { status: 404 }
-            );
-          }
-        } else {
-          console.warn('⚠️ GAS 응답 오류, 기본 검증으로 진행');
-        }
-      }
-    } catch (gasError) {
-      console.warn('⚠️ GAS 검증 실패, 기본 검증으로 진행:', gasError);
-    }
+    // GAS에서 실제 진단ID 존재 여부 확인 (임시로 비활성화)
+    // try {
+    //   const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || process.env.GOOGLE_APPS_SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
+    //   
+    //   if (gasUrl) {
+    //     console.log('🔄 GAS에서 진단ID 검증 시작:', diagnosisId);
+    //     
+    //     const gasPayload = {
+    //       type: 'verify_diagnosis_id',
+    //       action: 'verify_diagnosis_id',
+    //       diagnosisId: diagnosisId,
+    //       timestamp: new Date().toISOString()
+    //     };
+    //
+    //     const gasResponse = await fetch(gasUrl, {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify(gasPayload),
+    //     });
+    //
+    //     if (gasResponse.ok) {
+    //       const gasResult = await gasResponse.json();
+    //       
+    //       if (gasResult.success && gasResult.exists) {
+    //         console.log('✅ GAS에서 진단ID 확인됨:', diagnosisId);
+    //         
+    //         return NextResponse.json({
+    //           success: true,
+    //           message: '접근 권한이 확인되었습니다.',
+    //           diagnosisId: diagnosisId,
+    //           accessType: accessType || 'user',
+    //           verified: true
+    //         });
+    //       } else {
+    //         console.warn('❌ GAS에서 진단ID를 찾을 수 없음:', diagnosisId);
+    //         return NextResponse.json(
+    //           { 
+    //             success: false, 
+    //             error: '해당 진단ID를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.' 
+    //           },
+    //           { status: 404 }
+    //         );
+    //       }
+    //     } else {
+    //       console.warn('⚠️ GAS 응답 오류, 기본 검증으로 진행');
+    //     }
+    //   }
+    // } catch (gasError) {
+    //   console.warn('⚠️ GAS 검증 실패, 기본 검증으로 진행:', gasError);
+    // }
 
     // GAS 검증 실패 시 기본 검증 (형식 검증)
     console.log('✅ 기본 형식 검증으로 진단 결과 접근 권한 승인:', diagnosisId);
