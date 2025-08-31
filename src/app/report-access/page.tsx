@@ -103,11 +103,19 @@ export default function ReportAccessPage() {
 
       const verifyResult = await verifyResponse.json();
       
-      if (!verifyResult.success) {
+      console.log('📊 API 응답 확인:', {
+        success: verifyResult.success,
+        hasData: !!verifyResult.data,
+        source: verifyResult.data?.source,
+        message: verifyResult.message
+      });
+      
+      // 강화된 폴백 시스템으로 인해 항상 성공 응답이 옴
+      if (verifyResult.success && verifyResult.data) {
+        console.log('✅ 진단 데이터 존재 확인 완료 (폴백 시스템 포함)');
+      } else {
         throw new Error(verifyResult.error || '진단 결과를 확인할 수 없습니다.');
       }
-
-      console.log('✅ 진단 데이터 존재 확인 완료');
 
       // 최근 조회한 진단ID 저장
       saveRecentId(diagnosisId.trim());

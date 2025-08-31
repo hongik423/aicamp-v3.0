@@ -86,7 +86,8 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         console.log('📊 실제 데이터 기반 보고서 정보:', {
           진단ID: result.diagnosisId,
           크기: `${Math.round(result.htmlReport.length / 1024)}KB`,
-          버전: result.reportInfo?.version
+          버전: result.reportInfo?.version,
+          소스: result.reportInfo?.source || 'unknown'
         });
         
         setReportContent(result.htmlReport);
@@ -97,6 +98,15 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           createdAt: new Date().toISOString()
         });
         setError('');
+      } else {
+        console.error('❌ 보고서 응답 검증 실패:', {
+          success: result.success,
+          hasHtmlReport: !!result.htmlReport,
+          error: result.error,
+          message: result.message
+        });
+        throw new Error(result.error || '보고서를 생성할 수 없습니다.');
+      }
         
         // 로컬 스토리지에 보고서 저장 (백업용)
         try {
