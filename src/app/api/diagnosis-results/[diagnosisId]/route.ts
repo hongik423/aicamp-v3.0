@@ -77,6 +77,7 @@ export async function GET(
 
     try {
       console.log('🔗 Google Apps Script POST 요청 시작:', diagnosisId);
+      console.log('🌐 GAS URL:', GOOGLE_SCRIPT_URL);
       
       // POST 방식으로 변경 (GAS 함수와 일치)
       const gasPayload = {
@@ -85,6 +86,8 @@ export async function GET(
         diagnosisId: diagnosisId,
         timestamp: new Date().toISOString()
       };
+      
+      console.log('📤 GAS 요청 페이로드:', gasPayload);
       
       const scriptResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
@@ -282,7 +285,21 @@ export async function GET(
       if (!result || !result.success) {
         console.warn('❌ GAS에서 실패 응답:', result?.error || 'Unknown error');
         
-        // 폴백: 테스트 데이터 반환
+        // 진단ID를 찾을 수 없는 경우 404 에러 반환 (폴백 데이터 대신)
+        if (result?.error && result.error.includes('해당 진단ID의 결과를 찾을 수 없습니다')) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: result.error,
+              diagnosisId: diagnosisId,
+              suggestion: '이메일로 받은 정확한 진단ID를 확인해주세요.',
+              timestamp: new Date().toISOString()
+            },
+            { status: 404, headers: corsHeaders }
+          );
+        }
+        
+        // 기타 오류의 경우 폴백: 테스트 데이터 반환
         return NextResponse.json(
           { 
             success: true, 

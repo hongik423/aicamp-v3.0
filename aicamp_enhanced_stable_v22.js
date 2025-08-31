@@ -2793,7 +2793,31 @@ function queryDiagnosisById(requestData) {
     }
     
     if (!foundRow) {
-      throw new Error('해당 진단 ID의 데이터를 찾을 수 없습니다.');
+      console.log('❌ 해당 진단ID의 데이터를 찾을 수 없음:', requestData.diagnosisId);
+      
+      // 디버깅을 위한 상세 로그
+      console.log('🔍 검색 실패 상세 정보:', {
+        searchTarget: requestData.diagnosisId,
+        searchTargetLength: requestData.diagnosisId.length,
+        totalRows: values.length,
+        mainSheetRows: lastRow,
+        sampleStoredIds: values.slice(0, 3).map(row => String(row[0]).trim()),
+        timestamp: new Date().toISOString()
+      });
+      
+      return {
+        success: false,
+        error: '해당 진단ID의 결과를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.',
+        diagnosisId: requestData.diagnosisId,
+        timestamp: new Date().toISOString(),
+        searchedRows: values.length,
+        searchDetails: {
+          mainSheetRows: lastRow,
+          searchTarget: requestData.diagnosisId,
+          searchTargetLength: requestData.diagnosisId.length,
+          sampleIds: values.slice(0, 3).map(row => String(row[0]).trim())
+        }
+      };
     }
     
     // 상세 데이터도 조회 (45문항 응답) - 이교장님 보고서용 개선

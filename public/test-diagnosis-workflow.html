@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>진단결과조회 워크플로우 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .log-container {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .success { color: #68d391; }
+        .error { color: #fc8181; }
+        .warning { color: #f6e05e; }
+        .info { color: #63b3ed; }
+        .step { color: #b794f6; font-weight: bold; }
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .result-card h3 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        .status-pending {
+            background: #feebc8;
+            color: #744210;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 진단결과조회 워크플로우 테스트</h1>
+        
+        <div class="test-section">
+            <h2>📋 테스트 설정</h2>
+            <div class="input-group">
+                <label for="diagnosisId">진단ID 입력:</label>
+                <input type="text" id="diagnosisId" placeholder="DIAG_45Q_AI_1756620870176_nq3npoal4" 
+                       value="DIAG_45Q_AI_1756620870176_nq3npoal4">
+            </div>
+            
+            <div class="test-controls">
+                <button onclick="testSingleWorkflow()">🚀 단일 워크플로우 테스트</button>
+                <button onclick="testAllScenarios()">🔄 전체 시나리오 테스트</button>
+                <button onclick="testErrorHandling()">🚨 에러 처리 테스트</button>
+                <button onclick="clearLog()">🗑️ 로그 지우기</button>
+            </div>
+        </div>
+
+        <div class="result-summary" id="resultSummary" style="display: none;">
+            <div class="result-card">
+                <h3>🔐 접근 권한 검증</h3>
+                <span id="authStatus" class="status-indicator status-pending">대기 중</span>
+            </div>
+            <div class="result-card">
+                <h3>🔍 데이터 조회</h3>
+                <span id="dataStatus" class="status-indicator status-pending">대기 중</span>
+            </div>
+            <div class="result-card">
+                <h3>📄 보고서 생성</h3>
+                <span id="reportStatus" class="status-indicator status-pending">대기 중</span>
+            </div>
+            <div class="result-card">
+                <h3>🎯 전체 결과</h3>
+                <span id="overallStatus" class="status-indicator status-pending">대기 중</span>
+            </div>
+        </div>
+
+        <div class="log-container" id="logContainer">
+            <div class="info">🚀 테스트 준비 완료. 위의 버튼을 클릭하여 테스트를 시작하세요.</div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+        
+        // 테스트용 진단ID들
+        const TEST_DIAGNOSIS_IDS = [
+            'DIAG_45Q_AI_1756620870176_nq3npoal4', // 원본 에러 발생 ID
+            'DIAG_45Q_AI_1234567890_test123',      // 테스트용 ID
+            'DIAG_45Q_AI_9999999999_invalid',      // 존재하지 않는 ID
+            'INVALID_ID_FORMAT',                    // 잘못된 형식
+        ];
+
+        function log(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `[${timestamp}] ${message}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+            document.getElementById('resultSummary').style.display = 'none';
+        }
+
+        function updateStatus(step, status) {
+            const statusElement = document.getElementById(step + 'Status');
+            if (statusElement) {
+                statusElement.className = `status-indicator status-${status}`;
+                statusElement.textContent = status === 'success' ? '✅ 성공' : 
+                                          status === 'error' ? '❌ 실패' : '⏳ 진행 중';
+            }
+        }
+
+        function showResultSummary() {
+            document.getElementById('resultSummary').style.display = 'grid';
+        }
+
+        async function testDiagnosisAuth(diagnosisId) {
+            log(`🔐 1단계: 진단ID 접근 권한 검증 테스트 - ${diagnosisId}`, 'step');
+            updateStatus('auth', 'pending');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/diagnosis-auth`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        diagnosisId: diagnosisId,
+                        accessType: 'user'
+                    })
+                });
+
+                const result = await response.json();
+                
+                log(`📊 응답 상태: ${response.status}`, 'info');
+                log(`📋 응답 내용: ${JSON.stringify(result, null, 2)}`, 'info');
+                
+                if (response.ok && result.success) {
+                    log(`✅ 접근 권한 검증 성공`, 'success');
+                    updateStatus('auth', 'success');
+                    return true;
+                } else {
+                    log(`❌ 접근 권한 검증 실패: ${result.error}`, 'error');
+                    updateStatus('auth', 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`💥 접근 권한 검증 오류: ${error.message}`, 'error');
+                updateStatus('auth', 'error');
+                return false;
+            }
+        }
+
+        async function testDiagnosisResults(diagnosisId) {
+            log(`🔍 2단계: 진단 결과 데이터 조회 테스트 - ${diagnosisId}`, 'step');
+            updateStatus('data', 'pending');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/diagnosis-results/${encodeURIComponent(diagnosisId)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+                
+                log(`📊 응답 상태: ${response.status}`, 'info');
+                log(`📋 응답 크기: ${JSON.stringify(result).length} bytes`, 'info');
+                
+                if (response.ok && result.success) {
+                    log(`✅ 진단 결과 조회 성공`, 'success');
+                    log(`📈 데이터 요약: diagnosisId=${result.diagnosisId}, hasData=${!!result.data}, source=${result.data?.source || 'unknown'}`, 'info');
+                    updateStatus('data', 'success');
+                    return true;
+                } else {
+                    log(`❌ 진단 결과 조회 실패: ${result.error}`, 'error');
+                    updateStatus('data', 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`💥 진단 결과 조회 오류: ${error.message}`, 'error');
+                updateStatus('data', 'error');
+                return false;
+            }
+        }
+
+        async function testDiagnosisReport(diagnosisId) {
+            log(`📄 3단계: 35페이지 보고서 생성 테스트 - ${diagnosisId}`, 'step');
+            updateStatus('report', 'pending');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/diagnosis-reports/${encodeURIComponent(diagnosisId)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+                
+                log(`📊 응답 상태: ${response.status}`, 'info');
+                
+                if (response.ok && result.success) {
+                    log(`✅ 35페이지 보고서 생성 성공`, 'success');
+                    log(`📄 보고서 정보: hasHtmlReport=${!!result.htmlReport}, reportLength=${result.htmlReport ? result.htmlReport.length : 0}`, 'info');
+                    updateStatus('report', 'success');
+                    return true;
+                } else {
+                    log(`❌ 35페이지 보고서 생성 실패: ${result.error}`, 'error');
+                    updateStatus('report', 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`💥 35페이지 보고서 생성 오류: ${error.message}`, 'error');
+                updateStatus('report', 'error');
+                return false;
+            }
+        }
+
+        async function testSingleWorkflow() {
+            const diagnosisId = document.getElementById('diagnosisId').value.trim();
+            
+            if (!diagnosisId) {
+                log('❌ 진단ID를 입력해주세요.', 'error');
+                return;
+            }
+
+            showResultSummary();
+            log(`🚀 단일 워크플로우 테스트 시작: ${diagnosisId}`, 'step');
+            log('='.repeat(60), 'info');
+            
+            // 상태 초기화
+            ['auth', 'data', 'report', 'overall'].forEach(step => updateStatus(step, 'pending'));
+            
+            const results = {
+                auth: false,
+                results: false,
+                report: false
+            };
+            
+            // 1단계: 접근 권한 검증
+            results.auth = await testDiagnosisAuth(diagnosisId);
+            
+            // 2단계: 진단 결과 조회 (1단계 성공 시에만)
+            if (results.auth) {
+                results.results = await testDiagnosisResults(diagnosisId);
+            }
+            
+            // 3단계: 보고서 생성 (2단계 성공 시에만)
+            if (results.results) {
+                results.report = await testDiagnosisReport(diagnosisId);
+            }
+            
+            // 결과 요약
+            log(`📊 워크플로우 테스트 결과 - ${diagnosisId}`, 'step');
+            log(`🔐 접근 권한: ${results.auth ? '✅ 성공' : '❌ 실패'}`, results.auth ? 'success' : 'error');
+            log(`🔍 데이터 조회: ${results.results ? '✅ 성공' : '❌ 실패'}`, results.results ? 'success' : 'error');
+            log(`📄 보고서 생성: ${results.report ? '✅ 성공' : '❌ 실패'}`, results.report ? 'success' : 'error');
+            
+            const success = results.auth && results.results && results.report;
+            log(`🎯 전체 결과: ${success ? '✅ 완전 성공' : '❌ 부분 실패'}`, success ? 'success' : 'error');
+            updateStatus('overall', success ? 'success' : 'error');
+        }
+
+        async function testAllScenarios() {
+            log('🔄 전체 시나리오 테스트 시작', 'step');
+            log('='.repeat(80), 'info');
+            
+            const allResults = [];
+            
+            for (const diagnosisId of TEST_DIAGNOSIS_IDS) {
+                log(`\n🧪 테스트 시나리오: ${diagnosisId}`, 'step');
+                
+                const results = {
+                    diagnosisId,
+                    auth: await testDiagnosisAuth(diagnosisId),
+                    results: false,
+                    report: false
+                };
+                
+                if (results.auth) {
+                    results.results = await testDiagnosisResults(diagnosisId);
+                }
+                
+                if (results.results) {
+                    results.report = await testDiagnosisReport(diagnosisId);
+                }
+                
+                allResults.push(results);
+                
+                // 테스트 간 간격
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            // 최종 결과 요약
+            log('\n📊 전체 테스트 결과 요약', 'step');
+            log('='.repeat(80), 'info');
+            
+            allResults.forEach((result, index) => {
+                const success = result.auth && result.results && result.report;
+                log(`${index + 1}. ${result.diagnosisId}`, 'info');
+                log(`   🔐 권한: ${result.auth ? '✅' : '❌'} | 🔍 조회: ${result.results ? '✅' : '❌'} | 📄 보고서: ${result.report ? '✅' : '❌'} | 🎯 전체: ${success ? '✅' : '❌'}`, 
+                    success ? 'success' : 'error');
+            });
+            
+            const totalSuccess = allResults.filter(r => r.auth && r.results && r.report).length;
+            log(`\n🎯 성공률: ${totalSuccess}/${allResults.length} (${Math.round(totalSuccess/allResults.length*100)}%)`, 'info');
+        }
+
+        async function testErrorHandling() {
+            log('🚨 에러 처리 시나리오 테스트', 'step');
+            log('='.repeat(60), 'info');
+            
+            const errorTests = [
+                {
+                    name: '빈 진단ID',
+                    diagnosisId: '',
+                    expectedError: '진단 ID가 필요합니다'
+                },
+                {
+                    name: '짧은 진단ID',
+                    diagnosisId: 'SHORT',
+                    expectedError: '유효하지 않은 진단ID'
+                },
+                {
+                    name: '잘못된 형식',
+                    diagnosisId: 'INVALID_FORMAT_123',
+                    expectedError: '유효하지 않은 진단ID'
+                },
+                {
+                    name: '존재하지 않는 ID',
+                    diagnosisId: 'DIAG_45Q_AI_9999999999_notfound',
+                    expectedError: '해당 진단ID의 결과를 찾을 수 없습니다'
+                }
+            ];
+            
+            for (const test of errorTests) {
+                log(`\n🧪 ${test.name} 테스트: ${test.diagnosisId}`, 'info');
+                
+                try {
+                    const response = await fetch(`${BASE_URL}/api/diagnosis-results/${encodeURIComponent(test.diagnosisId)}`, {
+                        method: 'GET'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok || !result.success) {
+                        log(`✅ 예상된 에러 발생: ${result.error}`, 'success');
+                        const errorMatch = result.error.includes(test.expectedError.split(' ')[0]);
+                        log(`🎯 에러 메시지 일치: ${errorMatch ? '✅' : '❌'}`, errorMatch ? 'success' : 'warning');
+                    } else {
+                        log(`❌ 예상과 다름: 성공 응답 받음`, 'error');
+                    }
+                } catch (error) {
+                    log(`✅ 네트워크 에러 처리: ${error.message}`, 'success');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // 페이지 로드 시 서버 상태 확인
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/api/health`);
+                if (response.ok) {
+                    log('🏥 서버 상태: ✅ 정상 연결됨', 'success');
+                } else {
+                    log('🏥 서버 상태: ⚠️ 응답 이상', 'warning');
+                }
+            } catch (error) {
+                log('🏥 서버 상태: ❌ 연결 불가 - 서버가 실행 중인지 확인해주세요', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

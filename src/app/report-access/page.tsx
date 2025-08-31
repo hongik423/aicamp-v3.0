@@ -142,7 +142,7 @@ export default function ReportAccessPage() {
         <div className="text-center space-y-4">
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg">
             <img 
-              src="https://aicamp.club/images/aicamp_logo_del_250726.png" 
+              src="/images/aicamp_logo_del_250726.png" 
               alt="AICAMP 로고" 
               className="w-16 h-16 object-contain"
             />
