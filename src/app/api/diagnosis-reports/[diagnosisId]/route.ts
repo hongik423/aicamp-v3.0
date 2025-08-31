@@ -78,7 +78,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let diagnosisData: DiagnosisData;
     
     try {
-      const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || process.env.GOOGLE_APPS_SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
+      const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
+                     process.env.GOOGLE_APPS_SCRIPT_URL || 
+                     process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
+                     'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
       
       if (gasUrl) {
         console.log('🔄 사실기반 시스템: Google Sheets에서 진단 데이터 조회 시작:', diagnosisId);
@@ -127,15 +130,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
               },
               responses: result.data.responses || result.data.assessmentResponses || {},
               scores: {
-                total: result.data.totalScore || 158,
-                percentage: result.data.percentage || 70,
+                total: result.data.totalScore || 0, // 실제 점수 사용, 기본값 제거
+                percentage: result.data.percentage || 0, // 실제 백분율 사용
                 categoryScores: {
-                  businessFoundation: result.data.categoryScores?.businessFoundation || 25,
-                  currentAI: result.data.categoryScores?.currentAI || 20,
-                  organizationReadiness: result.data.categoryScores?.organizationReadiness || 30,
-                  technologyInfrastructure: result.data.categoryScores?.techInfrastructure || 28,
-                  dataManagement: result.data.categoryScores?.goalClarity || 25,
-                  humanResources: result.data.categoryScores?.executionCapability || 30
+                  businessFoundation: result.data.categoryScores?.businessFoundation || 0,
+                  currentAI: result.data.categoryScores?.currentAI || 0,
+                  organizationReadiness: result.data.categoryScores?.organizationReadiness || 0,
+                  technologyInfrastructure: result.data.categoryScores?.techInfrastructure || 0,
+                  dataManagement: result.data.categoryScores?.goalClarity || 0,
+                  humanResources: result.data.categoryScores?.executionCapability || 0
                 }
               },
               timestamp: result.data.timestamp || new Date().toISOString(),
@@ -200,12 +203,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                       },
                       responses: altResult.data.responses || altResult.data.assessmentResponses || {},
                       scores: {
-                        total: altResult.data.totalScore || 0,
+                        total: altResult.data.totalScore || 0, // 실제 점수만 사용
                         percentage: altResult.data.percentage || Math.round((altResult.data.totalScore || 0) / 225 * 100),
-                        categoryScores: altResult.data.categoryScores || {}
+                        categoryScores: altResult.data.categoryScores || {
+                          businessFoundation: 0,
+                          currentAI: 0,
+                          organizationReadiness: 0,
+                          technologyInfrastructure: 0,
+                          dataManagement: 0,
+                          humanResources: 0
+                        }
                       },
                       timestamp: altResult.data.timestamp || new Date().toISOString(),
-                      grade: altResult.data.grade || calculateGrade(altResult.data.totalScore || 0),
+                      grade: altResult.data.grade || calculateGrade(altResult.data.percentage || 0),
                       maturityLevel: altResult.data.maturityLevel || calculateMaturityLevel(altResult.data.percentage || 0)
                     };
                     

@@ -384,7 +384,16 @@ function calculate45QuestionScores(responses) {
         console.warn('⚠️ 응답 객체가 비어있습니다');
       }
       for (let i = 1; i <= 45; i++) {
-        const score = parseInt(responses[i] || responses[String(i)] || 0, 10);
+        // Q1, Q2, Q3... 형식 우선 지원 (프론트엔드 호환)
+        const score = parseInt(
+          responses[`Q${i}`] || 
+          responses[`q${i}`] || 
+          responses[i] || 
+          responses[String(i)] || 
+          responses[`question_${i}`] || 
+          0, 
+          10
+        );
         if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i-1] = score;
         }
@@ -2276,17 +2285,65 @@ function processDiagnosis(requestData) {
       console.warn('⚠️ 진단 ID 생성 오류, 안전한 기본 ID 사용 (AI 포함):', diagnosisId);
     }
     
-    // 2단계: 45문항 점수 계산
+    // 2단계: 45문항 점수 계산 (프론트엔드에서 계산된 점수 우선 사용)
     console.log('📊 점수 계산 중...');
     let scoreData;
-    try {
-      scoreData = calculate45QuestionScores(responses);
-      if (!scoreData || typeof scoreData !== 'object') {
-        throw new Error('점수 계산 결과가 유효하지 않습니다');
+    
+    // 프론트엔드에서 이미 계산된 점수가 있으면 사용
+    if (requestData.scoreData && typeof requestData.scoreData === 'object') {
+      console.log('✅ 프론트엔드에서 계산된 점수 사용');
+      scoreData = {
+        totalScore: requestData.scoreData.totalScore || 0,
+        maxScore: 225,
+        percentage: requestData.scoreData.percentage || Math.round((requestData.scoreData.totalScore / 225) * 100),
+        grade: requestData.scoreData.grade || determineGrade(requestData.scoreData.percentage || 0),
+        maturityLevel: requestData.scoreData.maturityLevel || determineMaturityLevel(requestData.scoreData.percentage || 0),
+        categoryScores: {
+          businessFoundation: { 
+            totalScore: requestData.scoreData.categoryScores?.businessFoundation || 0,
+            averageScore: requestData.scoreData.categoryScores?.businessFoundation || 0
+          },
+          currentAI: { 
+            totalScore: requestData.scoreData.categoryScores?.currentAI || 0,
+            averageScore: requestData.scoreData.categoryScores?.currentAI || 0
+          },
+          organizationReadiness: { 
+            totalScore: requestData.scoreData.categoryScores?.organizationReadiness || 0,
+            averageScore: requestData.scoreData.categoryScores?.organizationReadiness || 0
+          },
+          techInfrastructure: { 
+            totalScore: requestData.scoreData.categoryScores?.techInfrastructure || 0,
+            averageScore: requestData.scoreData.categoryScores?.techInfrastructure || 0
+          },
+          goalClarity: { 
+            totalScore: requestData.scoreData.categoryScores?.goalClarity || 0,
+            averageScore: requestData.scoreData.categoryScores?.goalClarity || 0
+          },
+          executionCapability: { 
+            totalScore: requestData.scoreData.categoryScores?.executionCapability || 0,
+            averageScore: requestData.scoreData.categoryScores?.executionCapability || 0
+          }
+        },
+        validResponseCount: 45,
+        totalValidQuestions: 45,
+        calculatedAt: new Date().toISOString()
+      };
+      console.log('📊 프론트엔드 점수 데이터:', {
+        총점: scoreData.totalScore,
+        백분율: scoreData.percentage,
+        등급: scoreData.grade
+      });
+    } else {
+      // 프론트엔드 점수가 없으면 GAS에서 계산
+      try {
+        scoreData = calculate45QuestionScores(responses);
+        if (!scoreData || typeof scoreData !== 'object') {
+          throw new Error('점수 계산 결과가 유효하지 않습니다');
+        }
+      } catch (scoreError) {
+        console.error('❌ 점수 계산 오류:', scoreError);
+        throw new Error(`점수 계산 실패: ${scoreError.message}`);
       }
-    } catch (scoreError) {
-      console.error('❌ 점수 계산 오류:', scoreError);
-      throw new Error(`점수 계산 실패: ${scoreError.message}`);
     }
     
     // 3단계: Google Sheets에 데이터 저장 (V22.2 진단 ID 생성 후 저장)

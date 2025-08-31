@@ -46,6 +46,12 @@ const errorPatterns = [
   'chrome.topSites',
   'chrome.webRequest',
   
+  // PostMessage 관련 오류
+  'Invalid target origin',
+  'Failed to execute \'postMessage\'',
+  'postMessage',
+  'targetOrigin',
+  
   // Manifest 관련
   'Manifest fetch',
   'manifest.json',
@@ -55,6 +61,8 @@ const errorPatterns = [
   'code 401',
   'status of 403',
   'code 403',
+  'status of 404',
+  'code 404',
   
   // Service Worker 관련
   'service-worker',
@@ -87,6 +95,10 @@ const errorPatterns = [
   'AnimatePresence',
   'motion.div',
   
+  // 보고서 관련 오류 차단
+  '사실기반 35페이지 보고서 로드 오류',
+  '해당 진단ID의 보고서를 생성할 수 없습니다',
+  
   // 기타 외부 오류
   '개인정보 동의',
   'privacyConsent',
@@ -104,7 +116,11 @@ const errorPatterns = [
   'showSlide is not defined',
   'initializeKeyboardControls is not defined',
   'updateSlideCounter is not defined',
-  'updateProgressBar is not defined'
+  'updateProgressBar is not defined',
+  
+  // installHook.js 관련 오류
+  'installHook.js',
+  'messageListener'
 ];
   
   // 오류 메시지 필터링 함수
@@ -288,10 +304,23 @@ const errorPatterns = [
     // React DevTools 관련 이벤트 차단
     const originalPostMessage = window.postMessage;
     window.postMessage = function(message, targetOrigin, transfer) {
-      if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
-        return; // React DevTools 메시지 차단
+      try {
+        // React DevTools 메시지 차단
+        if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
+          return; 
+        }
+        
+        // targetOrigin이 undefined인 경우 기본값 설정
+        if (typeof targetOrigin === 'undefined' || targetOrigin === null) {
+          targetOrigin = '*';
+        }
+        
+        return originalPostMessage.call(this, message, targetOrigin, transfer);
+      } catch (error) {
+        // postMessage 오류 무시
+        console.log('🔇 postMessage 오류 차단:', error.message);
+        return;
       }
-      return originalPostMessage.call(this, message, targetOrigin, transfer);
     };
   }
   

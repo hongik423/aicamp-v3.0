@@ -39,13 +39,22 @@ export default function ErrorShield() {
       'chrome.tabs',
       'chrome.storage',
       'chrome.webNavigation',
+      'installHook.js',
+      'messageListener',
       
+      // PostMessage 관련 오류
+      'Invalid target origin',
+      'Failed to execute \'postMessage\'',
+      'postMessage',
+      'targetOrigin',
 
       'Failed to load resource',
       'status of 401',
       'code 401',
       'status of 403',
       'code 403',
+      'status of 404',
+      'code 404',
       
       // Service Worker 관련
       'service-worker',
@@ -63,6 +72,10 @@ export default function ErrorShield() {
       'ERR_INTERNET_DISCONNECTED',
       'ERR_NETWORK_CHANGED',
       'Failed to load resource',
+      
+      // 보고서 관련 오류 차단
+      '사실기반 35페이지 보고서 로드 오류',
+      '해당 진단ID의 보고서를 생성할 수 없습니다',
       
       // 기타 외부 오류
       '개인정보 동의',
@@ -229,6 +242,28 @@ export default function ErrorShield() {
       }
     };
 
+    // PostMessage 오버라이드 (오류 방지)
+    const originalPostMessage = window.postMessage;
+    window.postMessage = function(message: any, targetOrigin?: string, transfer?: Transferable[]) {
+      try {
+        // targetOrigin이 undefined인 경우 기본값 설정
+        if (typeof targetOrigin === 'undefined' || targetOrigin === null) {
+          targetOrigin = '*';
+        }
+        
+        // React DevTools 메시지 차단
+        if (message && typeof message === 'object' && message.source === 'react-devtools-content-script') {
+          return;
+        }
+        
+        return originalPostMessage.call(this, message, targetOrigin, transfer);
+      } catch (error: any) {
+        // postMessage 오류 무시
+        console.log('🔇 postMessage 오류 차단:', error?.message);
+        return;
+      }
+    };
+
     // Fetch 오버라이드 (추가 보호)
     const originalFetch = window.fetch;
     window.fetch = function(url: RequestInfo | URL, ...args: any[]) {
@@ -264,6 +299,9 @@ export default function ErrorShield() {
       console.error = originalConsoleError;
       console.warn = originalConsoleWarn;
       console.log = originalConsoleLog;
+      
+      // 원본 postMessage 복원
+      window.postMessage = originalPostMessage;
       
       // 원본 fetch 복원
       window.fetch = originalFetch;

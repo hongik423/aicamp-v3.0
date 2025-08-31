@@ -180,7 +180,10 @@ export function analyze45QuestionsResponses(responses: Record<string, number> | 
   const answerValues: number[] = REAL_45_QUESTIONS.map(q => {
     const raw = isArrayInput
       ? (responses as number[])[q.id - 1] // 배열 입력일 경우 0-기반 인덱스 보정
-      : (responses as Record<string, number>)[`q${q.id}`] ?? (responses as Record<string, number>)[q.id.toString()];
+      : (responses as Record<string, number>)[`Q${q.id}`] ?? // Q1, Q2, Q3... 형식 우선
+        (responses as Record<string, number>)[`q${q.id}`] ?? // q1, q2, q3... 형식 호환
+        (responses as Record<string, number>)[q.id.toString()] ?? // 숫자 문자열 형식
+        (responses as Record<string, number>)[`question_${q.id}`]; // question_1, question_2... 형식 호환
     const n = Number(raw);
     return Number.isFinite(n) ? Math.max(0, Math.min(5, n)) : 0;
   });
@@ -200,7 +203,10 @@ export function analyze45QuestionsResponses(responses: Record<string, number> | 
     }
     const raw = isArrayInput
       ? (responses as number[])[q.id - 1]
-      : (responses as Record<string, number>)[`q${q.id}`] ?? (responses as Record<string, number>)[q.id.toString()];
+      : (responses as Record<string, number>)[`Q${q.id}`] ?? // Q1, Q2, Q3... 형식 우선
+        (responses as Record<string, number>)[`q${q.id}`] ?? // q1, q2, q3... 형식 호환
+        (responses as Record<string, number>)[q.id.toString()] ?? // 숫자 문자열 형식
+        (responses as Record<string, number>)[`question_${q.id}`]; // question_1, question_2... 형식 호환
     const n = Number.isFinite(Number(raw)) ? Math.max(0, Math.min(5, Number(raw))) : 0;
     categoryScoresRaw[category].sum += n;
     categoryScoresRaw[category].count += 1;

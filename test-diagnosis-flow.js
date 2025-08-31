@@ -46,7 +46,7 @@ async function testDiagnosisSubmission() {
   console.log('📋 1단계: 진단 신청 테스트');
   
   try {
-    const response = await fetch('http://localhost:3000/api/ai-diagnosis', {
+    const response = await fetch('http://localhost:3001/api/ai-diagnosis', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ async function testDiagnosisResult(diagnosisId) {
     console.log(`🔍 시도 ${attempt}/${maxAttempts}: 진단 결과 조회 중...`);
     
     try {
-      const response = await fetch(`http://localhost:3000/api/diagnosis-results/${diagnosisId}`);
+      const response = await fetch(`http://localhost:3001/api/diagnosis-results/${diagnosisId}`);
       const result = await response.json();
       
       if (response.ok && result.success && result.data) {
@@ -173,10 +173,9 @@ async function testGoogleAppsScript(diagnosisId) {
 
 // 4단계: 환경변수 확인
 function testEnvironmentVariables() {
-  console.log('📋 4단계: 환경변수 확인');
+  console.log('📋 4단계: 환경변수 확인 (Google Apps Script 전용)');
   
   const requiredVars = [
-    'GEMINI_API_KEY',
     'NEXT_PUBLIC_GOOGLE_SCRIPT_URL',
     'NEXT_PUBLIC_GOOGLE_SHEETS_ID'
   ];

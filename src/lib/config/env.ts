@@ -1,7 +1,7 @@
 /**
  * 환경변수 검증 및 보안 관리 시스템
- * Ollama GPT-OSS 20B 전용 - 이교장의AI상담 시스템
- * 100% 온디바이스 AI, 외부 API 의존성 완전 제거
+ * AI 분석 제거 - 이교장의AI상담 시스템
+ * Google Apps Script 기반 진단 시스템
  */
 
 import { z } from 'zod';
@@ -11,12 +11,8 @@ import { z } from 'zod';
 const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec'; // V22.3 aicamp_enhanced_stable_v22.js 스크립트 (2025.08.31 배포완료)
 const GOOGLE_SHEETS_ID = '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ';
 
-// 환경변수 스키마 정의 (GEMINI 제거됨 - Ollama 전용)
+// 환경변수 스키마 정의 (AI 분석 제거 - Google Apps Script 전용)
 const envSchema = z.object({
-  // Ollama API 설정 (로컬 AI 서버)
-  OLLAMA_API_URL: z.string().url('유효한 Ollama API URL이 필요합니다').optional(),
-  OLLAMA_MODEL: z.string().optional(),
-  
   // Google Sheets & Apps Script (클라이언트 사이드 허용)
   NEXT_PUBLIC_GOOGLE_SHEETS_ID: z.string().min(1, 'Google Sheets ID는 필수입니다').optional(),
   NEXT_PUBLIC_GOOGLE_SCRIPT_URL: z.string().url('유효한 Google Script URL이 필요합니다').optional(),
@@ -37,8 +33,6 @@ export type EnvConfig = z.infer<typeof envSchema>;
 export function getServerEnv(): EnvConfig {
   try {
     const env = envSchema.parse({
-      OLLAMA_API_URL: process.env.OLLAMA_API_URL,
-      OLLAMA_MODEL: process.env.OLLAMA_MODEL,
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
       NEXT_PUBLIC_GAS_URL: process.env.NEXT_PUBLIC_GAS_URL,
@@ -52,8 +46,6 @@ export function getServerEnv(): EnvConfig {
     console.error('환경변수 검증 실패:', error);
     // 개발 환경에서는 기본값으로 계속 진행
     return {
-      OLLAMA_API_URL: process.env.OLLAMA_API_URL || 'http://localhost:11434',
-      OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'gpt-oss:20b',
       NEXT_PUBLIC_GOOGLE_SHEETS_ID: process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || GOOGLE_SHEETS_ID,
       NEXT_PUBLIC_GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || DEFAULT_GOOGLE_SCRIPT_URL,
       NEXT_PUBLIC_GAS_URL: process.env.NEXT_PUBLIC_GAS_URL || DEFAULT_GOOGLE_SCRIPT_URL,
@@ -100,25 +92,7 @@ export const appConfig = {
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://aicamp.club',
 };
 
-/**
- * Ollama API URL 가져오기 (로컬 AI 서버)
- */
-export function getOllamaUrl(): string {
-  const url = process.env.OLLAMA_API_URL || 'http://localhost:11434';
-  
-  console.log('🤖 Ollama API URL:', url);
-  return url;
-}
-
-/**
- * Ollama 모델명 가져오기
- */
-export function getOllamaModel(): string {
-  const model = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
-  
-  console.log('🧠 Ollama 모델:', model);
-  return model;
-}
+// Ollama 관련 함수들 제거됨 - AI 분석 기능 완전 제거
 
 /**
     * Google Apps Script URL 가져오기 (AI 역량진단용)
@@ -232,11 +206,9 @@ export async function testGoogleScriptConnection(): Promise<{
  */
 export function logEnvStatus(): void {
   if (isDevelopment()) {
-    console.log('🔧 환경변수 상태 (Google Apps Script 통합):', {
+    console.log('🔧 환경변수 상태 (Google Apps Script 전용):', {
       nodeEnv: process.env.NODE_ENV,
-      aiProvider: 'ollama',
-      ollamaUrl: process.env.OLLAMA_API_URL,
-      ollamaModel: process.env.OLLAMA_MODEL,
+      aiProvider: 'none', // AI 분석 기능 제거됨
       hasGoogleSheetsId: !!process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID,
       hasGoogleScriptUrl: !!process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
       hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,

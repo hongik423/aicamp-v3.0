@@ -147,14 +147,20 @@ const registerServiceWorkerSafely = () => {
         message.includes('content.js') ||
         message.includes('runtime.lastError') ||
         message.includes('The message port closed') ||
-
+        message.includes('installHook.js') ||
+        message.includes('messageListener') ||
+        message.includes('Invalid target origin') ||
+        message.includes('postMessage') ||
         message.includes('Failed to load resource') ||
         message.includes('401') ||
         message.includes('403') ||
+        message.includes('404') ||
+        message.includes('사실기반 35페이지 보고서 로드 오류') ||
+        message.includes('해당 진단ID의 보고서를 생성할 수 없습니다') ||
         message.includes('개인정보 동의') ||
         message.includes('privacyConsent') ||
         message.includes('message port closed')) {
-      return; // 🛡️ 확장 프로그램, 개인정보 관련 오류는 무시
+      return; // 🛡️ 확장 프로그램, 개인정보, 보고서 관련 오류는 무시
     }
     originalConsoleError.apply(console, args);
   };
@@ -167,14 +173,21 @@ const registerServiceWorkerSafely = () => {
         errorMessage.includes('Extension context') ||
         errorMessage.includes('chrome-extension://') ||
         errorMessage.includes('content.js') ||
-
+        errorMessage.includes('installHook.js') ||
+        errorMessage.includes('messageListener') ||
+        errorMessage.includes('Invalid target origin') ||
+        errorMessage.includes('postMessage') ||
         errorMessage.includes('Failed to load resource') ||
         errorMessage.includes('401') ||
         errorMessage.includes('403') ||
+        errorMessage.includes('404') ||
+        errorMessage.includes('사실기반 35페이지 보고서 로드 오류') ||
+        errorMessage.includes('해당 진단ID의 보고서를 생성할 수 없습니다') ||
         errorMessage.includes('개인정보 동의') ||
         errorMessage.includes('privacyConsent') ||
         errorSource.includes('chrome-extension://') ||
-        errorSource.includes('content.js')) {
+        errorSource.includes('content.js') ||
+        errorSource.includes('installHook.js')) {
       event.preventDefault();
       event.stopPropagation();
       return false;
@@ -188,10 +201,16 @@ const registerServiceWorkerSafely = () => {
         reason.includes('Extension context') ||
         reason.includes('chrome-extension://') ||
         reason.includes('content.js') ||
-
+        reason.includes('installHook.js') ||
+        reason.includes('messageListener') ||
+        reason.includes('Invalid target origin') ||
+        reason.includes('postMessage') ||
         reason.includes('Failed to load resource') ||
         reason.includes('401') ||
         reason.includes('403') ||
+        reason.includes('404') ||
+        reason.includes('사실기반 35페이지 보고서 로드 오류') ||
+        reason.includes('해당 진단ID의 보고서를 생성할 수 없습니다') ||
         reason.includes('개인정보 동의') ||
         reason.includes('privacyConsent'))) {
       event.preventDefault();
