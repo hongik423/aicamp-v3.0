@@ -1396,36 +1396,62 @@ function sendEmail(to, subject, htmlBody) {
       throw new Error('환경 설정을 불러올 수 없습니다');
     }
     
-    if (!config.ENABLE_EMAIL) {
+    // 이메일 발송 활성화 상태 확인 (강화된 검증)
+    if (config.ENABLE_EMAIL === false || config.ENABLE_EMAIL === 'false') {
       console.log('📧 이메일 발송이 비활성화되어 있습니다.');
       return { success: true, message: '이메일 발송 비활성화', skipped: true };
     }
     
-    // 이메일 발송 시도
+    // MailApp 사용 가능성 확인
+    if (typeof MailApp === 'undefined') {
+      console.error('❌ MailApp이 사용할 수 없습니다.');
+      return { success: false, error: 'MailApp 사용 불가', skipped: true };
+    }
+    
+    // 이메일 발송 시도 (강화된 오류 처리)
     try {
       console.log(`📧 이메일 발송 시도 중: ${to.trim()}`);
       console.log(`📧 제목: ${subject.trim()}`);
       console.log(`📧 발송자명: ${config.SYSTEM_NAME || 'AICAMP 시스템'}`);
+      console.log(`📧 내용 길이: ${htmlBody.length} bytes`);
       
-      MailApp.sendEmail({
+      // 이메일 발송 전 최종 검증
+      if (!to.trim() || !subject.trim() || !htmlBody.trim()) {
+        throw new Error('이메일 발송 데이터가 불완전합니다');
+      }
+      
+      const emailOptions = {
         to: to.trim(),
         subject: subject.trim(),
         htmlBody: htmlBody,
         name: config.SYSTEM_NAME || 'AICAMP 시스템'
-      });
+      };
+      
+      console.log('📧 MailApp.sendEmail 호출 시작...');
+      MailApp.sendEmail(emailOptions);
       
       console.log(`✅ 이메일 발송 성공: ${to}`);
       return { 
         success: true, 
         message: '이메일 발송 성공',
         recipient: to.trim(),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        contentLength: htmlBody.length
       };
       
     } catch (mailError) {
       console.error(`❌ MailApp 발송 실패: ${to}`, mailError);
       console.error('📄 MailApp 오류 스택:', mailError.stack);
-      throw new Error(`MailApp 발송 실패: ${mailError.message}`);
+      console.error('📄 MailApp 오류 타입:', typeof mailError);
+      console.error('📄 MailApp 오류 메시지:', mailError.message);
+      
+      // 구체적인 오류 메시지 제공
+      let errorMessage = 'MailApp 발송 실패';
+      if (mailError.message) {
+        errorMessage += `: ${mailError.message}`;
+      }
+      
+      throw new Error(errorMessage);
     }
     
   } catch (error) {
@@ -1443,7 +1469,30 @@ function sendEmail(to, subject, htmlBody) {
  * 신청자 이메일 템플릿 (AI 역량진단용 - 이교장님 스타일 업그레이드)
  */
 function createApplicantEmailTemplate(data, scoreData) {
-  const config = getEnvironmentConfig();
+  try {
+    console.log('📧 신청자 이메일 템플릿 생성 시작');
+    
+    // 입력 데이터 검증
+    if (!data || typeof data !== 'object') {
+      throw new Error('신청자 이메일 템플릿: 데이터 객체가 유효하지 않습니다');
+    }
+    
+    if (!scoreData || typeof scoreData !== 'object') {
+      throw new Error('신청자 이메일 템플릿: 점수 데이터 객체가 유효하지 않습니다');
+    }
+    
+    const config = getEnvironmentConfig();
+    if (!config) {
+      throw new Error('신청자 이메일 템플릿: 환경 설정을 불러올 수 없습니다');
+    }
+    
+    console.log('📧 신청자 이메일 템플릿 데이터 검증 완료:', {
+      companyName: data.companyName,
+      contactName: data.contactName,
+      diagnosisId: data.diagnosisId,
+      totalScore: scoreData.totalScore,
+      percentage: scoreData.percentage
+    });
   
   return `
 <!DOCTYPE html>
@@ -1804,13 +1853,59 @@ function createApplicantEmailTemplate(data, scoreData) {
 </body>
 </html>
   `;
+  
+  } catch (error) {
+    console.error('❌ 신청자 이메일 템플릿 생성 실패:', error);
+    // 기본 템플릿 반환
+    return `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 역량진단 접수 완료</title>
+</head>
+<body>
+    <h1>AI 역량진단 접수 완료</h1>
+    <p>안녕하세요, ${data?.contactName || '고객'}님</p>
+    <p>AI 역량진단이 성공적으로 접수되었습니다.</p>
+    <p>진단 ID: ${data?.diagnosisId || 'N/A'}</p>
+    <p>48시간 이내에 상세 보고서를 제공해드리겠습니다.</p>
+    <p>감사합니다.</p>
+    <p>AICAMP 팀 드림</p>
+</body>
+</html>
+    `;
+  }
 }
 
 /**
  * 관리자 이메일 템플릿 (AI 역량진단용 - 간소화)
  */
 function createAdminEmailTemplate(data, scoreData) {
-  const config = getEnvironmentConfig();
+  try {
+    console.log('📧 관리자 이메일 템플릿 생성 시작');
+    
+    // 입력 데이터 검증
+    if (!data || typeof data !== 'object') {
+      throw new Error('관리자 이메일 템플릿: 데이터 객체가 유효하지 않습니다');
+    }
+    
+    if (!scoreData || typeof scoreData !== 'object') {
+      throw new Error('관리자 이메일 템플릿: 점수 데이터 객체가 유효하지 않습니다');
+    }
+    
+    const config = getEnvironmentConfig();
+    if (!config) {
+      throw new Error('관리자 이메일 템플릿: 환경 설정을 불러올 수 없습니다');
+    }
+    
+    console.log('📧 관리자 이메일 템플릿 데이터 검증 완료:', {
+      companyName: data.companyName,
+      contactName: data.contactName,
+      diagnosisId: data.diagnosisId,
+      totalScore: scoreData.totalScore,
+      percentage: scoreData.percentage
+    });
   
   return `
 <!DOCTYPE html>
@@ -1888,6 +1983,29 @@ function createAdminEmailTemplate(data, scoreData) {
 </body>
 </html>
   `;
+  
+  } catch (error) {
+    console.error('❌ 관리자 이메일 템플릿 생성 실패:', error);
+    // 기본 템플릿 반환
+    return `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 역량진단 신청 접수</title>
+</head>
+<body>
+    <h1>AI 역량진단 신청 접수</h1>
+    <p>새로운 AI 역량진단 신청이 접수되었습니다.</p>
+    <p>회사명: ${data?.companyName || 'N/A'}</p>
+    <p>담당자: ${data?.contactName || 'N/A'}</p>
+    <p>진단 ID: ${data?.diagnosisId || 'N/A'}</p>
+    <p>총점: ${scoreData?.totalScore || 0}점</p>
+    <p>즉시 확인이 필요합니다.</p>
+</body>
+</html>
+    `;
+  }
 }
 
 /**
@@ -2503,6 +2621,13 @@ function doPost(e) {
         case 'test':
           console.log('🧪 시스템 테스트 실행');
           result = runSystemTest();
+          break;
+          
+        case 'email_test':
+        case 'test_email':
+        case 'test-email':
+          console.log('📧 이메일 시스템 테스트 실행');
+          result = testEmailSystem();
           break;
           
         case 'admin_query':
@@ -3196,6 +3321,50 @@ function verifyDiagnosisId(requestData) {
 // ================================================================================
 // 🧪 테스트 함수
 // ================================================================================
+
+/**
+ * 이메일 시스템 테스트 함수
+ */
+function testEmailSystem() {
+  try {
+    console.log('🧪 이메일 시스템 테스트 시작');
+    
+    const config = getEnvironmentConfig();
+    console.log('📧 이메일 시스템 설정:', {
+      ENABLE_EMAIL: config.ENABLE_EMAIL,
+      ADMIN_EMAIL: config.ADMIN_EMAIL,
+      SYSTEM_NAME: config.SYSTEM_NAME
+    });
+    
+    // 간단한 테스트 이메일 발송
+    const testSubject = `[AICAMP] 이메일 시스템 테스트 - ${new Date().toISOString()}`;
+    const testBody = `
+      <h1>이메일 시스템 테스트</h1>
+      <p>이메일 시스템이 정상적으로 작동하고 있습니다.</p>
+      <p>테스트 시간: ${new Date().toLocaleString('ko-KR')}</p>
+      <p>AICAMP 시스템 V22.2</p>
+    `;
+    
+    const result = sendEmail(config.ADMIN_EMAIL, testSubject, testBody);
+    
+    console.log('✅ 이메일 시스템 테스트 완료:', result);
+    
+    return {
+      success: true,
+      message: '이메일 시스템 테스트 완료',
+      result: result,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 이메일 시스템 테스트 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
 
 /**
  * 시스템 통합 테스트 (45문항 완전 응답 필수)
