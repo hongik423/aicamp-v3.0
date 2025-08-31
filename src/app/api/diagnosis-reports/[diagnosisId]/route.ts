@@ -131,10 +131,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             hasData: !!result.data,
             errorMessage: result.error,
             requestedId: diagnosisId,
+            normalizedId: normalizedDiagnosisId,
             actualData: result.data ? {
               companyName: result.data.companyName,
               totalScore: result.data.totalScore,
-              percentage: result.data.percentage
+              percentage: result.data.percentage,
+              storedId: result.data.diagnosisId
             } : null
           });
           
