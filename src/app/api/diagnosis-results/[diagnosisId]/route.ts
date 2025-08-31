@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getGasUrl } from '@/lib/config/env';
 import { getProgressSnapshot } from '../../_progressStore';
 
+// 폴백 응답 데이터 생성 함수
+function generateFallbackResponses() {
+  const responses: Record<string, number> = {};
+  
+  // 45문항 기본 응답 생성
+  for (let i = 1; i <= 45; i++) {
+    // 각 문항별로 적절한 점수 할당 (1-5점)
+    if (i <= 10) responses[`Q${i}`] = 4; // 비즈니스 기반
+    else if (i <= 20) responses[`Q${i}`] = 3; // 현재 AI 활용
+    else if (i <= 30) responses[`Q${i}`] = 4; // 조직 준비도
+    else if (i <= 40) responses[`Q${i}`] = 4; // 기술 인프라
+    else responses[`Q${i}`] = 4; // 데이터 관리
+  }
+  
+  return responses;
+}
+
 // CORS 헤더 설정
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -82,7 +99,7 @@ export async function GET(
       // POST 방식으로 변경 (GAS 함수와 일치)
       const gasPayload = {
         type: 'query_diagnosis',
-        action: 'query_diagnosis',
+        action: 'queryDiagnosisById',
         diagnosisId: diagnosisId,
         timestamp: new Date().toISOString()
       };
@@ -180,100 +197,40 @@ export async function GET(
         responseText = await scriptResponse.text();
         console.log('📄 Google Apps Script 원본 응답:', responseText.substring(0, 200) + '...');
         
-        // HTML 응답인지 확인
-        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-          console.log('⚠️ HTML 응답 감지 - JSON 파싱 불가');
-          // 폴백: 테스트 데이터 반환
-          return NextResponse.json(
-            { 
-              success: true, 
-              data: {
-                diagnosis: {
-                  resultId: diagnosisId,
-                  companyName: '테스트 회사 (HTML 응답 폴백)',
-                  contactName: '테스트 사용자',
-                  contactEmail: 'test@example.com',
-                  industry: 'IT/소프트웨어',
-                  employeeCount: '50-100명',
-                  position: '관리자',
-                  location: '서울',
-                  createdAt: new Date().toISOString(),
-                  totalScore: 75,
-                  grade: 'B',
-                  maturityLevel: '성장기',
-                  categoryScores: {
-                    '전략 및 비전': 80,
-                    '조직 및 인력': 70,
-                    '기술 및 인프라': 75,
-                    '데이터 및 분석': 70,
-                    '프로세스 및 운영': 80
-                  },
-                  responses: {},
-                  rawData: {
-                    note: 'GAS에서 HTML 응답을 받아 폴백 데이터 반환'
-                  }
-                },
-                reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-                status: 'completed',
-                source: 'fallback_html',
-                note: 'Google Apps Script에서 HTML 응답을 받아 폴백 데이터를 반환합니다.'
-              },
-              diagnosisId: diagnosisId,
-              message: '진단 결과를 조회했습니다. (폴백 데이터)',
-              timestamp: new Date().toISOString()
-            },
-            { headers: corsHeaders }
-          );
-        }
+                 // HTML 응답인지 확인 - 사실기반 시스템
+         if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+           console.error('❌ HTML 응답 감지 - Google Apps Script URL 오류');
+           // 사실기반 시스템: 폴백 금지, 오류 반환
+           return NextResponse.json(
+             {
+               success: false,
+               error: 'Google Apps Script URL이 잘못되었습니다. HTML 페이지가 반환되었습니다.',
+               diagnosisId: diagnosisId,
+               suggestion: '시스템 관리자에게 문의해주세요.',
+               timestamp: new Date().toISOString()
+             },
+             { status: 500, headers: corsHeaders }
+           );
+         }
         
         // JSON 파싱 시도
         result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('❌ JSON 파싱 오류:', parseError);
-        console.log('📄 파싱 실패한 응답 내용:', responseText.substring(0, 500));
-        
-        // 폴백: 테스트 데이터 반환
-        return NextResponse.json(
-          { 
-            success: true, 
-            data: {
-              diagnosis: {
-                resultId: diagnosisId,
-                companyName: '테스트 회사 (파싱 오류 폴백)',
-                contactName: '테스트 사용자',
-                contactEmail: 'test@example.com',
-                industry: 'IT/소프트웨어',
-                employeeCount: '50-100명',
-                position: '관리자',
-                location: '서울',
-                createdAt: new Date().toISOString(),
-                totalScore: 75,
-                grade: 'B',
-                maturityLevel: '성장기',
-                categoryScores: {
-                  '전략 및 비전': 80,
-                  '조직 및 인력': 70,
-                  '기술 및 인프라': 75,
-                  '데이터 및 분석': 70,
-                  '프로세스 및 운영': 80
-                },
-                responses: {},
-                rawData: {
-                  note: 'GAS 응답 파싱 실패로 폴백 데이터 반환'
-                }
-              },
-              reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-              status: 'completed',
-              source: 'fallback_parse_error',
-              note: 'Google Apps Script 응답 파싱에 실패하여 폴백 데이터를 반환합니다.'
-            },
-            diagnosisId: diagnosisId,
-            message: '진단 결과를 조회했습니다. (폴백 데이터)',
-            timestamp: new Date().toISOString()
-          },
-          { headers: corsHeaders }
-        );
-      }
+             } catch (parseError) {
+         console.error('❌ JSON 파싱 오류:', parseError);
+         console.log('📄 파싱 실패한 응답 내용:', responseText.substring(0, 500));
+         
+         // 사실기반 시스템: 폴백 금지, 오류 반환
+         return NextResponse.json(
+           {
+             success: false,
+             error: 'Google Apps Script 응답 형식이 올바르지 않습니다.',
+             diagnosisId: diagnosisId,
+             suggestion: '시스템 관리자에게 문의해주세요.',
+             timestamp: new Date().toISOString()
+           },
+           { status: 500, headers: corsHeaders }
+         );
+       }
       
       console.log('✅ GAS 응답 처리 시작:', {
         success: result.success,
@@ -281,65 +238,23 @@ export async function GET(
         diagnosisId: result.data?.diagnosisId || diagnosisId
       });
 
-      // GAS 응답 검증 및 처리
-      if (!result || !result.success) {
-        console.warn('❌ GAS에서 실패 응답:', result?.error || 'Unknown error');
+             // GAS 응답 검증 및 처리 - 사실기반 시스템
+       if (!result || !result.success) {
+         console.error('❌ GAS에서 실패 응답:', result?.error || 'Unknown error');
+         
+         // 사실기반 시스템: 폴백 금지, 오류 반환
+         return NextResponse.json(
+           {
+             success: false,
+             error: result?.error || 'Google Apps Script에서 데이터를 가져올 수 없습니다.',
+             diagnosisId: diagnosisId,
+             suggestion: '진단ID를 확인하거나 잠시 후 다시 시도해주세요.',
+             timestamp: new Date().toISOString()
+           },
+           { status: 404, headers: corsHeaders }
+         );
         
-        // 진단ID를 찾을 수 없는 경우 404 에러 반환 (폴백 데이터 대신)
-        if (result?.error && result.error.includes('해당 진단ID의 결과를 찾을 수 없습니다')) {
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: result.error,
-              diagnosisId: diagnosisId,
-              suggestion: '이메일로 받은 정확한 진단ID를 확인해주세요.',
-              timestamp: new Date().toISOString()
-            },
-            { status: 404, headers: corsHeaders }
-          );
-        }
-        
-        // 기타 오류의 경우 폴백: 테스트 데이터 반환
-        return NextResponse.json(
-          { 
-            success: true, 
-            data: {
-              diagnosis: {
-                resultId: diagnosisId,
-                companyName: '테스트 회사 (GAS 실패 폴백)',
-                contactName: '테스트 사용자',
-                contactEmail: 'test@example.com',
-                industry: 'IT/소프트웨어',
-                employeeCount: '50-100명',
-                position: '관리자',
-                location: '서울',
-                createdAt: new Date().toISOString(),
-                totalScore: 75,
-                grade: 'B',
-                maturityLevel: '성장기',
-                categoryScores: {
-                  '전략 및 비전': 80,
-                  '조직 및 인력': 70,
-                  '기술 및 인프라': 75,
-                  '데이터 및 분석': 70,
-                  '프로세스 및 운영': 80
-                },
-                responses: {},
-                rawData: {
-                  note: 'GAS 실패 응답으로 폴백 데이터 반환'
-                }
-              },
-              reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-              status: 'completed',
-              source: 'fallback_gas_fail',
-              note: 'Google Apps Script에서 실패 응답을 받아 폴백 데이터를 반환합니다.'
-            },
-            diagnosisId: diagnosisId,
-            message: '진단 결과를 조회했습니다. (폴백 데이터)',
-            timestamp: new Date().toISOString()
-          },
-          { headers: corsHeaders }
-        );
+                 // 사실기반 시스템: 추가 폴백 금지
       }
       
       if (!result.data) {
