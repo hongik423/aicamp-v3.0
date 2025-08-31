@@ -167,6 +167,26 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           if (!response.ok) {
             if (response.status === 404) {
               throw new Error('해당 진단ID의 보고서를 생성할 수 없습니다.');
+            } else if (response.status === 503) {
+              // 시스템 업데이트 중 상태 처리
+              const errorResult = await response.json();
+              console.log('🔧 시스템 업데이트 중:', errorResult);
+              
+              setIsProcessing(true);
+              setProcessingMessage(errorResult.error || '시스템 업데이트 중입니다. 잠시 후 다시 시도해주세요.');
+              
+              toast({
+                title: "🔧 시스템 업데이트 중",
+                description: errorResult.error || "Google Apps Script 시스템을 업데이트하고 있습니다.",
+                variant: "default",
+              });
+              
+              // 30초 후 자동 재시도
+              setTimeout(() => {
+                window.location.reload();
+              }, 30000);
+              
+              return;
             }
             throw new Error(`보고서 로드 실패: ${response.status} ${response.statusText}`);
           }

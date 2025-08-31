@@ -124,11 +124,17 @@ export function getOllamaModel(): string {
     * Google Apps Script URL 가져오기 (AI 역량진단용)
  */
 export function getGasUrl(): string {
-  // 강제로 올바른 URL 사용 (환경변수 무시)
-  const correctUrl = 'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec';
+  // 임시로 기본 URL만 사용 (안정적으로 작동하는 버전)
+  const defaultUrl = DEFAULT_GOOGLE_SCRIPT_URL;
+  console.log('🔧 안정적인 기본 GAS URL 사용:', defaultUrl);
   
-  console.log('🔧 강제 올바른 GAS URL 사용:', correctUrl);
-  return correctUrl;
+  // URL 유효성 검증
+  if (!defaultUrl.includes('script.google.com/macros/s/')) {
+    console.error('❌ 잘못된 GAS URL 형식:', defaultUrl);
+    throw new Error('Google Apps Script URL 형식이 올바르지 않습니다.');
+  }
+  
+  return defaultUrl;
 }
 
 /**

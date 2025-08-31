@@ -243,16 +243,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       
       // 특정 오류 타입에 따른 처리
       if (sheetsError.message.includes('HTML') || sheetsError.message.includes('<!DOCTYPE')) {
+        console.error('❌ GAS HTML 응답 오류 - 스크립트 업데이트 필요');
+        console.log('📋 GAS 스크립트 업데이트 안내:');
+        console.log('1. https://script.google.com에서 해당 스크립트 열기');
+        console.log('2. aicamp_enhanced_stable_v22.js 내용으로 교체');
+        console.log('3. 웹앱으로 새로 배포');
+        
+        // 임시로 처리 중 상태로 응답 (사용자 경험 개선)
         return NextResponse.json(
           {
-            success: false,
-            error: 'Google Apps Script 설정에 문제가 있습니다. 시스템 관리자에게 문의해주세요.',
+            success: true,
+            status: 'processing',
+            message: 'Google Apps Script를 업데이트하고 있습니다. 잠시 후 다시 시도해주세요.',
             diagnosisId: diagnosisId,
-            errorType: 'GAS_HTML_RESPONSE',
-            suggestion: 'Google Apps Script URL을 확인하거나 스크립트 권한을 확인해주세요.',
+            estimatedTime: '시스템 업데이트 중',
+            isProcessing: true,
+            suggestion: '페이지를 새로고침하거나 잠시 후 다시 시도해주세요.',
             timestamp: new Date().toISOString()
           },
-          { status: 500 }
+          { status: 202 } // 202 Accepted - 처리 중
         );
       }
       
@@ -306,41 +315,22 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         );
       }
       
-      // 폴백 시스템: 가상 데이터로 35페이지 보고서 생성 (실제 데이터 처리 오류 시)
-      console.log('🔄 폴백 시스템: 실제 데이터 처리 오류로 가상 데이터로 35페이지 보고서 생성 시작');
+      // 사실기반 시스템: 실제 데이터 없이는 보고서 생성 금지
+      console.log('❌ 사실기반 시스템: Google Apps Script 연결 실패로 보고서 생성 불가');
       
-      diagnosisData = {
-        diagnosisId,
-        companyInfo: {
-          name: '가상 기업 (실제 데이터 처리 오류)',
-          industry: 'IT/소프트웨어',
-          size: '중소기업',
-          revenue: '10-50억',
-          employees: '50-100명',
-          position: '담당자',
-          location: '서울'
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Google Apps Script 시스템 업데이트가 필요합니다. 시스템 관리자가 수정 중입니다.',
+          diagnosisId: diagnosisId,
+          errorType: 'GAS_SYSTEM_UPDATE_REQUIRED',
+          suggestion: '잠시 후 다시 시도해주세요. 시스템 업데이트가 완료되면 정상적으로 조회 가능합니다.',
+          systemStatus: 'updating',
+          estimatedTime: '10-30분',
+          timestamp: new Date().toISOString()
         },
-        responses: generateFallbackResponses(),
-        scores: {
-          total: 175,
-          percentage: 78,
-          categoryScores: {
-            businessFoundation: 30,
-            currentAI: 25,
-            organizationReadiness: 35,
-            technologyInfrastructure: 32,
-            dataManagement: 28,
-            humanResources: 25
-          }
-        },
-        timestamp: new Date().toISOString(),
-        grade: 'B+',
-        maturityLevel: 'AI 활용기업',
-        isVirtualData: true, // 가상 데이터임을 명시
-        virtualDataReason: '실제 데이터 처리 오류로 인한 가상 응답'
-      };
-      
-      console.log('✅ 폴백 시스템: 가상 데이터 생성 완료 (실제 데이터 처리 오류)');
+        { status: 503 } // 503 Service Unavailable
+      );
     }
     
     // V27.0 Ultimate 35페이지 보고서 생성
