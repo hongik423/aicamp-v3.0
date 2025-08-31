@@ -2723,6 +2723,21 @@ function doPost(e) {
           console.log('🔐 진단ID 검증 결과:', result ? result.exists : 'null');
           break;
           
+        case 'send_auth_email':
+          console.log('📧 이메일 인증번호 발송 요청 처리 시작');
+          result = sendAuthCodeEmail(requestData);
+          break;
+          
+        case 'verify_email_diagnosis':
+          console.log('🔐 이메일-진단ID 검증 요청 처리 시작');
+          result = verifyEmailForDiagnosis(requestData);
+          break;
+          
+        case 'verify_diagnosis_exists':
+          console.log('🔍 진단 존재 여부 확인 요청 처리 시작');
+          result = verifyDiagnosisExists(requestData);
+          break;
+          
         default:
           console.log(`⚠️ V22.1 알 수 없는 요청 타입 '${requestType}', AI 역량진단으로 안전하게 처리`);
           
@@ -3750,6 +3765,210 @@ function performAIAnalysis(diagnosisId, data) {
 function callGeminiAPI() {
   console.log('🚫 V22.2 차단: Gemini API 호출 완전 차단');
   throw new Error('🚫 V22.2에서 제거됨: Gemini API 키 오류 해결을 위해 AI API 호출이 제거되었습니다.');
+}
+
+/**
+ * 📧 이메일 인증번호 발송 함수
+ */
+function sendAuthCodeEmail(requestData) {
+  try {
+    console.log('📧 이메일 인증번호 발송 처리 시작');
+    
+    const { email, authCode, diagnosisId } = requestData;
+    
+    if (!email || !authCode || !diagnosisId) {
+      throw new Error('이메일, 인증번호, 진단ID가 필요합니다.');
+    }
+
+    // 이메일 템플릿 생성
+    const emailSubject = '[AICAMP] 보고서 접근 인증번호';
+    const emailBody = `
+안녕하세요, AICAMP AI 역량진단 시스템입니다.
+
+보고서 접근을 위한 인증번호를 발송해드립니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔑 인증번호: ${authCode}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 진단 정보:
+• 진단 ID: ${diagnosisId}
+• 발송 시간: ${new Date().toLocaleString('ko-KR')}
+• 유효 시간: 10분
+
+⚠️ 보안 안내:
+• 인증번호는 10분 후 자동 만료됩니다
+• 최대 5회까지 입력 가능합니다
+• 타인과 공유하지 마세요
+
+🔗 보고서 접근:
+1. 보고서 접근 페이지에서 이메일과 진단ID 입력
+2. 위 인증번호 6자리 입력
+3. 인증 완료 후 보고서 자동 표시
+
+문의사항이 있으시면 언제든지 연락주세요.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AICAMP AI 역량진단 시스템
+웹사이트: https://aicamp.club
+이메일: hongik423@gmail.com
+전화: 010-9251-9743
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+
+    // Gmail API를 통한 이메일 발송
+    try {
+      MailApp.sendEmail({
+        to: email,
+        subject: emailSubject,
+        body: emailBody
+      });
+      
+      console.log('✅ 인증번호 이메일 발송 성공:', email);
+      
+      return {
+        success: true,
+        message: '인증번호가 이메일로 발송되었습니다.',
+        timestamp: new Date().toISOString()
+      };
+      
+    } catch (emailError) {
+      console.error('❌ 이메일 발송 실패:', emailError);
+      
+      return {
+        success: false,
+        error: '이메일 발송에 실패했습니다.',
+        details: emailError.message,
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+  } catch (error) {
+    console.error('❌ 이메일 인증번호 발송 처리 실패:', error);
+    
+    return {
+      success: false,
+      error: error.message || '인증번호 발송 처리 중 오류가 발생했습니다.',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * 🔐 이메일-진단ID 검증 함수
+ */
+function verifyEmailForDiagnosis(requestData) {
+  try {
+    console.log('🔐 이메일-진단ID 검증 처리 시작');
+    
+    const { email, diagnosisId } = requestData;
+    
+    if (!email || !diagnosisId) {
+      throw new Error('이메일과 진단ID가 필요합니다.');
+    }
+
+    const config = getEnvironmentConfig();
+    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    const mainSheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    
+    if (!mainSheet) {
+      throw new Error('메인 데이터 시트를 찾을 수 없습니다.');
+    }
+
+    const lastRow = mainSheet.getLastRow();
+    if (lastRow <= 1) {
+      return {
+        success: false,
+        isValidEmail: false,
+        error: '진단 데이터가 없습니다.'
+      };
+    }
+
+    // 이메일과 진단ID 매칭 확인
+    const dataRange = mainSheet.getRange(2, 1, lastRow - 1, mainSheet.getLastColumn());
+    const values = dataRange.getValues();
+    
+    let foundMatch = false;
+    
+    for (let i = 0; i < values.length; i++) {
+      const storedId = String(values[i][0]).trim(); // 진단ID (A열)
+      const storedEmail = String(values[i][4]).trim(); // 이메일 (E열)
+      
+      // 진단ID 매칭 (다양한 형식 지원)
+      const diagnosisMatch = storedId.toLowerCase() === diagnosisId.toLowerCase() ||
+                            storedId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_/, '') === 
+                            diagnosisId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_/, '');
+      
+      // 이메일 매칭
+      const emailMatch = storedEmail.toLowerCase() === email.toLowerCase();
+      
+      if (diagnosisMatch && emailMatch) {
+        foundMatch = true;
+        console.log('✅ 이메일-진단ID 매칭 성공:', {
+          diagnosisId: diagnosisId,
+          email: email.replace(/(.{3}).*(@.*)/, '$1***$2'),
+          rowIndex: i + 2
+        });
+        break;
+      }
+    }
+    
+    return {
+      success: true,
+      isValidEmail: foundMatch,
+      message: foundMatch ? '유효한 이메일-진단ID 조합입니다.' : '해당 이메일로 신청한 진단을 찾을 수 없습니다.',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 이메일-진단ID 검증 처리 실패:', error);
+    
+    return {
+      success: false,
+      isValidEmail: false,
+      error: error.message || '이메일 검증 처리 중 오류가 발생했습니다.',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * 🔍 진단 존재 여부 확인 함수
+ */
+function verifyDiagnosisExists(requestData) {
+  try {
+    console.log('🔍 진단 존재 여부 확인 처리 시작');
+    
+    const { email, diagnosisId } = requestData;
+    
+    if (!email || !diagnosisId) {
+      throw new Error('이메일과 진단ID가 필요합니다.');
+    }
+
+    // verifyEmailForDiagnosis 함수 재사용
+    const verifyResult = verifyEmailForDiagnosis(requestData);
+    
+    return {
+      success: verifyResult.success,
+      exists: verifyResult.isValidEmail,
+      message: verifyResult.message,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 진단 존재 여부 확인 처리 실패:', error);
+    
+    return {
+      success: false,
+      exists: false,
+      error: error.message || '진단 존재 여부 확인 중 오류가 발생했습니다.',
+      timestamp: new Date().toISOString()
+    };
+  }
 }
 
 // �� V22.2 긴급 추가: 기존 AI 관련 함수들 모두 안전하게 처리

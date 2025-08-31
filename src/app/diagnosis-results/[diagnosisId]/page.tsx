@@ -306,8 +306,37 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     if (isAuthorized === false && !authLoading && !error) {
       const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
       const fromRedirect = urlParams?.get('from') === 'report-access' || urlParams?.get('from') === 'diagnosis-reports';
+      const authMethod = urlParams?.get('auth');
+      const authToken = urlParams?.get('token');
       
-      if (typeof window !== 'undefined' && !fromRedirect) {
+      // 🔐 이메일 인증 토큰 확인
+      if (authMethod === 'email' && authToken) {
+        console.log('🔐 이메일 인증 토큰 확인 중...');
+        
+        try {
+          // 토큰 디코딩 및 검증
+          const tokenData = JSON.parse(Buffer.from(authToken, 'base64').toString());
+          
+          if (tokenData.diagnosisId === diagnosisId && 
+              tokenData.expiresAt > Date.now() && 
+              tokenData.email) {
+            console.log('✅ 이메일 인증 토큰 유효 - 자동 권한 부여');
+            setIsAuthorized(true);
+            return;
+          } else {
+            console.warn('⚠️ 이메일 인증 토큰 만료 또는 무효');
+            toast({
+              title: "인증 만료",
+              description: "인증이 만료되었습니다. 다시 인증해주세요.",
+              variant: "destructive"
+            });
+          }
+        } catch (tokenError) {
+          console.error('❌ 이메일 인증 토큰 검증 실패:', tokenError);
+        }
+      }
+      
+      if (typeof window !== 'undefined' && !fromRedirect && !authToken) {
         console.log('🔄 진단ID 입력 페이지로 리디렉션:', diagnosisId);
         setTimeout(() => {
           window.location.href = `/report-access?target=${encodeURIComponent(diagnosisId)}`;
