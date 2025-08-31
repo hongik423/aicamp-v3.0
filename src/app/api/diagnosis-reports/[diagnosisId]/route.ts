@@ -225,6 +225,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         } else {
           const errorText = await response.text();
           console.error('❌ 사실기반 시스템: GAS 응답 오류:', response.status, errorText);
+          
+          // HTML 응답인지 확인
+          if (errorText.trim().startsWith('<!DOCTYPE') || errorText.trim().startsWith('<html')) {
+            console.error('❌ GAS에서 HTML 페이지 반환 - URL 또는 스크립트 오류');
+            console.log('📄 HTML 응답 내용 (처음 300자):', errorText.substring(0, 300));
+            throw new Error('Google Apps Script URL이 잘못되었거나 스크립트에 오류가 있습니다.');
+          }
+          
           throw new Error(`Google Apps Script 응답 오류: ${response.status} - ${errorText}`);
         }
       } else {
@@ -232,6 +240,36 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     } catch (sheetsError) {
       console.error('❌ 사실기반 시스템: Google Sheets 조회 실패', sheetsError);
+      
+      // 특정 오류 타입에 따른 처리
+      if (sheetsError.message.includes('HTML') || sheetsError.message.includes('<!DOCTYPE')) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Google Apps Script 설정에 문제가 있습니다. 시스템 관리자에게 문의해주세요.',
+            diagnosisId: diagnosisId,
+            errorType: 'GAS_HTML_RESPONSE',
+            suggestion: 'Google Apps Script URL을 확인하거나 스크립트 권한을 확인해주세요.',
+            timestamp: new Date().toISOString()
+          },
+          { status: 500 }
+        );
+      }
+      
+      // 진단 ID가 아직 저장되지 않은 경우
+      if (sheetsError.message.includes('찾을 수 없습니다') || sheetsError.message.includes('404')) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: '해당 진단ID의 결과를 아직 찾을 수 없습니다. 진단이 완료되지 않았거나 처리 중일 수 있습니다.',
+            diagnosisId: diagnosisId,
+            errorType: 'DIAGNOSIS_NOT_FOUND',
+            suggestion: '잠시 후 다시 시도하거나, 진단을 다시 실행해주세요.',
+            timestamp: new Date().toISOString()
+          },
+          { status: 404 }
+        );
+      }
       
       // 폴백 시스템: 가상 데이터로 35페이지 보고서 생성 (실제 데이터 처리 오류 시)
       console.log('🔄 폴백 시스템: 실제 데이터 처리 오류로 가상 데이터로 35페이지 보고서 생성 시작');
