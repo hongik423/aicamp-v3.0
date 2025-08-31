@@ -4,10 +4,10 @@ import { getProgressSnapshot, getProgressState } from '../../_progressStore';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ diagnosisId: string }> }
+  { params }: { params: { diagnosisId: string } }
 ) {
   try {
-    const { diagnosisId } = await params;
+    const { diagnosisId } = params;
     
     console.log('📊 진행상황 조회 요청:', diagnosisId);
     

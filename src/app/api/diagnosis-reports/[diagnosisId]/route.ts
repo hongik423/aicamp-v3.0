@@ -45,12 +45,12 @@ function calculateMaturityLevel(percentage: number): string {
 }
 
 interface RouteParams {
-  params: Promise<{ diagnosisId: string }>;
+  params: { diagnosisId: string };
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { diagnosisId } = await params;
+    const { diagnosisId } = params;
     
     console.log('🔍 V27.0 Ultimate 35페이지 보고서 조회 요청:', diagnosisId);
     

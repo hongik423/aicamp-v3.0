@@ -18,15 +18,14 @@ export async function OPTIONS() {
 // GET 요청 처리 - 진단 결과 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ diagnosisId: string }> }
+  { params }: { params: { diagnosisId: string } }
 ) {
   // 오류 로깅을 위한 스코프 밖 변수
   let diagnosisId: string | undefined;
   let googleScriptUrlForLog: string | undefined;
 
   try {
-    const resolved = await params;
-    diagnosisId = resolved.diagnosisId;
+    diagnosisId = params.diagnosisId;
     
     if (!diagnosisId) {
       return NextResponse.json(
