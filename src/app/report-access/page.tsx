@@ -17,9 +17,17 @@ export default function ReportAccessPage() {
   const [error, setError] = useState('');
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
-  // 최근 조회한 진단ID 로드
+  // URL 매개변수에서 target 진단ID 확인 및 최근 조회한 진단ID 로드
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // URL 매개변수에서 target 진단ID 확인
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetId = urlParams.get('target');
+      if (targetId) {
+        setDiagnosisId(targetId);
+        console.log('🎯 URL에서 대상 진단ID 설정:', targetId);
+      }
+      
       const saved = localStorage.getItem('aicamp_recent_diagnosis_ids');
       if (saved) {
         try {
@@ -120,14 +128,20 @@ export default function ReportAccessPage() {
       // 최근 조회한 진단ID 저장
       saveRecentId(diagnosisId.trim());
 
+      // 세션에 인증 상태 저장 (순환 리디렉션 방지)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(`diagnosis_auth_${diagnosisId.trim()}`, 'true');
+        sessionStorage.setItem(`diagnosis_auth_time_${diagnosisId.trim()}`, Date.now().toString());
+      }
+
       // 3단계: 진단 결과 페이지로 리다이렉트
       toast({
         title: "접근 권한 확인됨",
         description: "진단 결과 페이지로 이동합니다.",
       });
 
-      // 실제 보고서 페이지로 리다이렉트
-      router.push(`/diagnosis-results/${diagnosisId.trim()}`);
+      // 실제 보고서 페이지로 리다이렉트 (순환 방지 매개변수 추가)
+      router.push(`/diagnosis-results/${diagnosisId.trim()}?from=report-access`);
 
     } catch (err: any) {
       console.error('❌ 진단ID 검증 실패:', err);

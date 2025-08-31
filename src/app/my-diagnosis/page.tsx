@@ -90,8 +90,8 @@ export default function MyDiagnosisPage() {
         throw new Error('올바른 진단ID 형식이 아닙니다. 이메일로 받은 정확한 진단ID를 입력해주세요.');
       }
 
-      // API로 보고서 정보 조회
-      const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(cleanId)}`, {
+      // API로 진단 결과 조회 (올바른 엔드포인트 사용)
+      const response = await fetch(`/api/diagnosis-results/${encodeURIComponent(cleanId)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(20000)
@@ -101,15 +101,28 @@ export default function MyDiagnosisPage() {
         const result = await response.json();
         
         if (result.success && result.data) {
-          console.log('✅ 보고서 정보 조회 성공');
+          console.log('✅ 진단 결과 조회 성공:', result);
           
-          setReportInfo(result.data);
+          // 진단 결과 데이터를 보고서 정보 형식으로 변환
+          const diagnosisData = result.data.diagnosis || result.data;
+          setReportInfo({
+            diagnosisId: cleanId,
+            companyName: diagnosisData.companyName || 'N/A',
+            contactName: diagnosisData.contactName || 'N/A',
+            totalScore: diagnosisData.totalScore || 0,
+            grade: diagnosisData.grade || 'N/A',
+            maturityLevel: diagnosisData.maturityLevel || 'N/A',
+            createdAt: diagnosisData.createdAt || diagnosisData.timestamp || new Date().toISOString(),
+            reportUrl: `/diagnosis-results/${cleanId}`,
+            status: 'completed'
+          });
+          
           setHasReport(true);
           saveRecentId(cleanId);
           
           toast({
-            title: "✅ 보고서 조회 성공",
-            description: "AI 역량진단 보고서를 찾았습니다!",
+            title: "✅ 진단보고서 조회 성공",
+            description: `${diagnosisData.companyName || '회사'}의 AI 역량진단 보고서를 찾았습니다.`,
             variant: "default"
           });
           

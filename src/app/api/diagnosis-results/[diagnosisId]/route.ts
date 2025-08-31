@@ -135,15 +135,21 @@ export async function GET(
           // 진단ID 형식 변환 시도
           let alternativeIds = [];
           
-          // DIAG_45Q_AI_ 형식을 DIAG_45Q_ 형식으로 변환
-          if (diagnosisId.startsWith('DIAG_45Q_AI_')) {
-            alternativeIds.push(diagnosisId.replace('DIAG_45Q_AI_', 'DIAG_45Q_'));
-          }
+          // 다양한 진단 ID 형식 변환 시도
+          const baseId = diagnosisId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_/, '');
           
-          // DIAG_45Q_ 형식을 DIAG_45Q_AI_ 형식으로 변환
-          if (diagnosisId.startsWith('DIAG_45Q_')) {
-            alternativeIds.push(diagnosisId.replace('DIAG_45Q_', 'DIAG_45Q_AI_'));
-          }
+          // 모든 가능한 형식으로 변환
+          alternativeIds.push(`DIAG_45Q_AI_${baseId}`);
+          alternativeIds.push(`DIAG_45Q_${baseId}`);
+          alternativeIds.push(`DIAG_AI_${baseId}`);
+          alternativeIds.push(`DIAG_${baseId}`);
+          
+          // 대소문자 변환도 시도
+          alternativeIds.push(diagnosisId.toUpperCase());
+          alternativeIds.push(diagnosisId.toLowerCase());
+          
+          // 중복 제거
+          alternativeIds = [...new Set(alternativeIds.filter(id => id !== diagnosisId && id.length > 10))];
           
           // 대안 ID들로 재시도
           for (const altId of alternativeIds) {

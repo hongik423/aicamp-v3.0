@@ -113,8 +113,8 @@ export default function DiagnosisReportsPage() {
         throw new Error('유효하지 않은 진단ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.');
       }
 
-      // API로 해당 진단ID 존재 여부 확인 (개별 조회)
-      const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(cleanId)}`, {
+      // API로 해당 진단ID 존재 여부 확인 (올바른 엔드포인트 사용)
+      const response = await fetch(`/api/diagnosis-results/${encodeURIComponent(cleanId)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(15000)
@@ -126,17 +126,25 @@ export default function DiagnosisReportsPage() {
         if (result.success) {
           console.log('✅ 보안 검증 완료, 개별 보고서 조회 성공');
           
+          // 세션에 인증 상태 저장 (순환 리디렉션 방지)
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem(`diagnosis_auth_${cleanId}`, 'true');
+            sessionStorage.setItem(`diagnosis_auth_time_${cleanId}`, Date.now().toString());
+          }
+          
           toast({
             title: "✅ 진단보고서 조회 성공",
             description: "본인의 보고서 페이지로 이동합니다.",
             variant: "default"
           });
           
-          // 개별 결과 페이지로 직접 이동 (보안 강화)
-          window.open(`/diagnosis-results/${cleanId}`, '_blank');
-          
           // 검색 필드 초기화
           setDirectSearchId('');
+          
+          // 짧은 지연 후 이동 (토스트 메시지 표시 시간 확보)
+          setTimeout(() => {
+            window.location.href = `/diagnosis-results/${cleanId}?from=diagnosis-reports`;
+          }, 1000);
           
         } else {
           throw new Error(result.error || '해당 진단ID의 보고서를 찾을 수 없습니다.');

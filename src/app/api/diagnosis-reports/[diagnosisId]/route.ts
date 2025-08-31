@@ -152,7 +152,75 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             
           } else {
             console.error('❌ 사실기반 시스템: GAS 응답에서 데이터 없음:', result.error);
-            throw new Error(result.error || 'Google Sheets에서 해당 진단ID의 실제 데이터를 찾을 수 없습니다.');
+            
+            // 형식 변환 재시도 로직 추가
+            console.log('🔄 진단 ID 형식 변환 재시도 시작:', diagnosisId);
+            
+            const baseId = diagnosisId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_/, '');
+            const alternativeFormats = [
+              `DIAG_45Q_AI_${baseId}`,
+              `DIAG_45Q_${baseId}`,
+              `DIAG_AI_${baseId}`,
+              `DIAG_${baseId}`
+            ].filter(id => id !== diagnosisId && id.length > 10);
+            
+            let foundData = false;
+            for (const altFormat of alternativeFormats) {
+              try {
+                console.log('🔄 대안 형식으로 재시도:', altFormat);
+                
+                const altPayload = {
+                  type: 'query_diagnosis',
+                  action: 'queryDiagnosisById',
+                  diagnosisId: altFormat,
+                  timestamp: new Date().toISOString()
+                };
+                
+                const altResponse = await fetch(gasUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(altPayload),
+                });
+                
+                if (altResponse.ok) {
+                  const altResult = await altResponse.json();
+                  if (altResult.success && altResult.data) {
+                    console.log('✅ 대안 형식으로 조회 성공:', altFormat);
+                    
+                    diagnosisData = {
+                      diagnosisId: diagnosisId, // 원본 ID 유지
+                      companyInfo: {
+                        name: altResult.data.companyName || 'N/A',
+                        industry: altResult.data.industry || 'IT/소프트웨어',
+                        size: altResult.data.employeeCount || '중소기업',
+                        revenue: altResult.data.annualRevenue,
+                        employees: altResult.data.employeeCount,
+                        position: altResult.data.position || '담당자',
+                        location: altResult.data.location || '서울'
+                      },
+                      responses: altResult.data.responses || altResult.data.assessmentResponses || {},
+                      scores: {
+                        total: altResult.data.totalScore || 0,
+                        percentage: altResult.data.percentage || Math.round((altResult.data.totalScore || 0) / 225 * 100),
+                        categoryScores: altResult.data.categoryScores || {}
+                      },
+                      timestamp: altResult.data.timestamp || new Date().toISOString(),
+                      grade: altResult.data.grade || calculateGrade(altResult.data.totalScore || 0),
+                      maturityLevel: altResult.data.maturityLevel || calculateMaturityLevel(altResult.data.percentage || 0)
+                    };
+                    
+                    foundData = true;
+                    break;
+                  }
+                }
+              } catch (altError) {
+                console.log('❌ 대안 형식 조회 실패:', altFormat, altError);
+              }
+            }
+            
+            if (!foundData) {
+              throw new Error(result.error || 'Google Sheets에서 해당 진단ID의 실제 데이터를 찾을 수 없습니다.');
+            }
           }
         } else {
           const errorText = await response.text();
