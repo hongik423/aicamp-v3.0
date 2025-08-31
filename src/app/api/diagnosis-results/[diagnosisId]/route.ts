@@ -131,46 +131,68 @@ export async function GET(
 
         if (scriptResponse.status === 404) {
           console.log('❌ Google Sheets에서 해당 진단ID를 찾을 수 없음:', diagnosisId);
-          // 폴백: 테스트 데이터 반환
+          
+          // 진단ID 형식 변환 시도
+          let alternativeIds = [];
+          
+          // DIAG_45Q_AI_ 형식을 DIAG_45Q_ 형식으로 변환
+          if (diagnosisId.startsWith('DIAG_45Q_AI_')) {
+            alternativeIds.push(diagnosisId.replace('DIAG_45Q_AI_', 'DIAG_45Q_'));
+          }
+          
+          // DIAG_45Q_ 형식을 DIAG_45Q_AI_ 형식으로 변환
+          if (diagnosisId.startsWith('DIAG_45Q_')) {
+            alternativeIds.push(diagnosisId.replace('DIAG_45Q_', 'DIAG_45Q_AI_'));
+          }
+          
+          // 대안 ID들로 재시도
+          for (const altId of alternativeIds) {
+            console.log('🔄 대안 진단ID로 재시도:', altId);
+            
+            try {
+              const altPayload = {
+                type: 'query_diagnosis',
+                action: 'queryDiagnosisById',
+                diagnosisId: altId,
+                timestamp: new Date().toISOString()
+              };
+              
+              const altResponse = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(altPayload),
+                signal: AbortSignal.timeout(15000) // 15초 타임아웃
+              });
+              
+              if (altResponse.ok) {
+                const altResult = await altResponse.json();
+                if (altResult.success && altResult.data) {
+                  console.log('✅ 대안 진단ID로 조회 성공:', altId);
+                  
+                  // 원본 진단ID로 응답 데이터 수정
+                  altResult.data.diagnosisId = diagnosisId;
+                  altResult.diagnosisId = diagnosisId;
+                  
+                  return NextResponse.json(altResult, { headers: corsHeaders });
+                }
+              }
+            } catch (altError) {
+              console.log('❌ 대안 진단ID 조회 실패:', altId, altError);
+            }
+          }
+          
+          // 모든 시도 실패 시 404 반환
           return NextResponse.json(
             { 
-              success: true, 
-              data: {
-                diagnosis: {
-                  resultId: diagnosisId,
-                  companyName: '테스트 회사 (GAS 404 폴백)',
-                  contactName: '테스트 사용자',
-                  contactEmail: 'test@example.com',
-                  industry: 'IT/소프트웨어',
-                  employeeCount: '50-100명',
-                  position: '관리자',
-                  location: '서울',
-                  createdAt: new Date().toISOString(),
-                  totalScore: 75,
-                  grade: 'B',
-                  maturityLevel: '성장기',
-                  categoryScores: {
-                    '전략 및 비전': 80,
-                    '조직 및 인력': 70,
-                    '기술 및 인프라': 75,
-                    '데이터 및 분석': 70,
-                    '프로세스 및 운영': 80
-                  },
-                  responses: {},
-                  rawData: {
-                    note: 'GAS에서 데이터를 찾을 수 없어 폴백 데이터 반환'
-                  }
-                },
-                reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-                status: 'completed',
-                source: 'fallback_404',
-                note: 'Google Apps Script에서 데이터를 찾을 수 없어 폴백 데이터를 반환합니다.'
-              },
+              success: false, 
+              error: '해당 진단ID의 결과를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.',
               diagnosisId: diagnosisId,
-              message: '진단 결과를 조회했습니다. (폴백 데이터)',
-              timestamp: new Date().toISOString()
+              attemptedIds: [diagnosisId, ...alternativeIds],
+              suggestion: '진단ID 형식을 확인하거나 관리자에게 문의해주세요.'
             },
-            { headers: corsHeaders }
+            { status: 404, headers: corsHeaders }
           );
         }
         
@@ -197,40 +219,40 @@ export async function GET(
         responseText = await scriptResponse.text();
         console.log('📄 Google Apps Script 원본 응답:', responseText.substring(0, 200) + '...');
         
-                 // HTML 응답인지 확인 - 사실기반 시스템
-         if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-           console.error('❌ HTML 응답 감지 - Google Apps Script URL 오류');
-           // 사실기반 시스템: 폴백 금지, 오류 반환
-           return NextResponse.json(
-             {
-               success: false,
-               error: 'Google Apps Script URL이 잘못되었습니다. HTML 페이지가 반환되었습니다.',
-               diagnosisId: diagnosisId,
-               suggestion: '시스템 관리자에게 문의해주세요.',
-               timestamp: new Date().toISOString()
-             },
-             { status: 500, headers: corsHeaders }
-           );
-         }
+        // HTML 응답인지 확인 - 사실기반 시스템
+        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+          console.error('❌ HTML 응답 감지 - Google Apps Script URL 오류');
+          // 사실기반 시스템: 폴백 금지, 오류 반환
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'Google Apps Script URL이 잘못되었습니다. HTML 페이지가 반환되었습니다.',
+              diagnosisId: diagnosisId,
+              suggestion: '시스템 관리자에게 문의해주세요.',
+              timestamp: new Date().toISOString()
+            },
+            { status: 500, headers: corsHeaders }
+          );
+        }
         
         // JSON 파싱 시도
         result = JSON.parse(responseText);
-             } catch (parseError) {
-         console.error('❌ JSON 파싱 오류:', parseError);
-         console.log('📄 파싱 실패한 응답 내용:', responseText.substring(0, 500));
-         
-         // 사실기반 시스템: 폴백 금지, 오류 반환
-         return NextResponse.json(
-           {
-             success: false,
-             error: 'Google Apps Script 응답 형식이 올바르지 않습니다.',
-             diagnosisId: diagnosisId,
-             suggestion: '시스템 관리자에게 문의해주세요.',
-             timestamp: new Date().toISOString()
-           },
-           { status: 500, headers: corsHeaders }
-         );
-       }
+      } catch (parseError) {
+        console.error('❌ JSON 파싱 오류:', parseError);
+        console.log('📄 파싱 실패한 응답 내용:', responseText.substring(0, 500));
+        
+        // 사실기반 시스템: 폴백 금지, 오류 반환
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Google Apps Script 응답 형식이 올바르지 않습니다.',
+            diagnosisId: diagnosisId,
+            suggestion: '시스템 관리자에게 문의해주세요.',
+            timestamp: new Date().toISOString()
+          },
+          { status: 500, headers: corsHeaders }
+        );
+      }
       
       console.log('✅ GAS 응답 처리 시작:', {
         success: result.success,
@@ -238,67 +260,34 @@ export async function GET(
         diagnosisId: result.data?.diagnosisId || diagnosisId
       });
 
-             // GAS 응답 검증 및 처리 - 사실기반 시스템
-       if (!result || !result.success) {
-         console.error('❌ GAS에서 실패 응답:', result?.error || 'Unknown error');
-         
-         // 사실기반 시스템: 폴백 금지, 오류 반환
-         return NextResponse.json(
-           {
-             success: false,
-             error: result?.error || 'Google Apps Script에서 데이터를 가져올 수 없습니다.',
-             diagnosisId: diagnosisId,
-             suggestion: '진단ID를 확인하거나 잠시 후 다시 시도해주세요.',
-             timestamp: new Date().toISOString()
-           },
-           { status: 404, headers: corsHeaders }
-         );
+      // GAS 응답 검증 및 처리 - 사실기반 시스템
+      if (!result || !result.success) {
+        console.error('❌ GAS에서 실패 응답:', result?.error || 'Unknown error');
         
-                 // 사실기반 시스템: 추가 폴백 금지
+        // 사실기반 시스템: 폴백 금지, 오류 반환
+        return NextResponse.json(
+          {
+            success: false,
+            error: result?.error || 'Google Apps Script에서 데이터를 가져올 수 없습니다.',
+            diagnosisId: diagnosisId,
+            suggestion: '진단ID를 확인하거나 잠시 후 다시 시도해주세요.',
+            timestamp: new Date().toISOString()
+          },
+          { status: 404, headers: corsHeaders }
+        );
       }
       
       if (!result.data) {
         console.warn('❌ GAS 응답에 데이터 없음');
-        // 폴백: 테스트 데이터 반환
         return NextResponse.json(
-          { 
-            success: true, 
-            data: {
-              diagnosis: {
-                resultId: diagnosisId,
-                companyName: '테스트 회사 (데이터 없음 폴백)',
-                contactName: '테스트 사용자',
-                contactEmail: 'test@example.com',
-                industry: 'IT/소프트웨어',
-                employeeCount: '50-100명',
-                position: '관리자',
-                location: '서울',
-                createdAt: new Date().toISOString(),
-                totalScore: 75,
-                grade: 'B',
-                maturityLevel: '성장기',
-                categoryScores: {
-                  '전략 및 비전': 80,
-                  '조직 및 인력': 70,
-                  '기술 및 인프라': 75,
-                  '데이터 및 분석': 70,
-                  '프로세스 및 운영': 80
-                },
-                responses: {},
-                rawData: {
-                  note: 'GAS 응답에 데이터가 없어 폴백 데이터 반환'
-                }
-              },
-              reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-              status: 'completed',
-              source: 'fallback_no_data',
-              note: 'Google Apps Script 응답에 데이터가 없어 폴백 데이터를 반환합니다.'
-            },
+          {
+            success: false,
+            error: 'Google Apps Script에서 데이터를 찾을 수 없습니다.',
             diagnosisId: diagnosisId,
-            message: '진단 결과를 조회했습니다. (폴백 데이터)',
+            suggestion: '진단ID를 확인하거나 관리자에게 문의해주세요.',
             timestamp: new Date().toISOString()
           },
-          { headers: corsHeaders }
+          { status: 404, headers: corsHeaders }
         );
       }
       
@@ -351,48 +340,17 @@ export async function GET(
         );
       }
       
-      // 폴백: 테스트 데이터 반환
-      console.warn('⚠️ GAS 연동 오류, 폴백 데이터 반환:', fetchError);
+      console.error('❌ Google Apps Script 연동 오류:', fetchError);
       return NextResponse.json(
-        { 
-          success: true, 
-          data: {
-            diagnosis: {
-              resultId: diagnosisId,
-              companyName: '테스트 회사 (연동 오류 폴백)',
-              contactName: '테스트 사용자',
-              contactEmail: 'test@example.com',
-              industry: 'IT/소프트웨어',
-              employeeCount: '50-100명',
-              position: '관리자',
-              location: '서울',
-              createdAt: new Date().toISOString(),
-              totalScore: 75,
-              grade: 'B',
-              maturityLevel: '성장기',
-              categoryScores: {
-                '전략 및 비전': 80,
-                '조직 및 인력': 70,
-                '기술 및 인프라': 75,
-                '데이터 및 분석': 70,
-                '프로세스 및 운영': 80
-              },
-              responses: {},
-              rawData: {
-                note: 'GAS 연동 오류로 폴백 데이터 반환',
-                error: fetchError instanceof Error ? fetchError.message : 'Unknown error'
-              }
-            },
-            reportUrl: `/api/diagnosis-reports/${diagnosisId}`,
-            status: 'completed',
-            source: 'fallback_error',
-            note: 'Google Apps Script 연동 오류로 폴백 데이터를 반환합니다.'
-          },
+        {
+          success: false,
+          error: 'Google Apps Script 연결에 실패했습니다.',
+          details: fetchError instanceof Error ? fetchError.message : '알 수 없는 오류',
           diagnosisId: diagnosisId,
-          message: '진단 결과를 조회했습니다. (폴백 데이터)',
+          suggestion: '네트워크 연결을 확인하고 잠시 후 다시 시도해주세요.',
           timestamp: new Date().toISOString()
         },
-        { headers: corsHeaders }
+        { status: 500, headers: corsHeaders }
       );
     }
 
