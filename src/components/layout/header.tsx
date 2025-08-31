@@ -47,13 +47,12 @@ export default function Header() {
   // 네비게이션 메뉴 정의 - 개별 신청자 중심 몰입감 있는 UX
   const navigation = [
     { href: '/services/ai-curriculum', label: '직무AI트랙', isSpecial: false, priority: 1, category: 'education' },
-    { href: '/my-diagnosis', label: '보고서조회', isSpecial: true, priority: 2, category: 'diagnosis', highlight: true },
-    { href: '/services', label: '서비스들', isSpecial: false, priority: 3, category: 'service' },
-    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 4, category: 'assessment' },
-    { href: '/about', label: '캠프소개', isSpecial: false, priority: 5, category: 'info' },
-    { href: '/seminar', label: '세미나', isSpecial: false, priority: 6, category: 'education' },
-    { href: '/services/investment-analysis', label: '타당성분석', isSpecial: false, priority: 7, category: 'analysis' },
-    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 8, category: 'tool' }
+    { href: '/services', label: '서비스들', isSpecial: false, priority: 2, category: 'service' },
+    { href: '/benchmark', label: '벤치마크', isSpecial: false, priority: 3, category: 'assessment' },
+    { href: '/about', label: '캠프소개', isSpecial: false, priority: 4, category: 'info' },
+    { href: '/seminar', label: '세미나', isSpecial: false, priority: 5, category: 'education' },
+    { href: '/services/investment-analysis', label: '타당성분석', isSpecial: false, priority: 6, category: 'analysis' },
+    { href: '/tax-calculator', label: '세금계산기', isSpecial: false, priority: 7, category: 'tool' }
   ];
 
   // 네비게이션 자동 넓이 조절 로직 - 모든 메뉴 항상 표시 + 동적 크기 조절
@@ -180,7 +179,7 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* AI역량진단 & 상담신청 버튼 - 데스크톱 (동적 크기 조절 적용) */}
+          {/* AI역량진단 & 보고서조회 버튼 - 데스크톱 (동적 크기 조절 적용) */}
           <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
@@ -193,10 +192,15 @@ export default function Header() {
             >
               <BarChart3 className="w-4 h-4 mr-1" />
               <span>AI역량진단</span>
-              <span className="ml-1 text-xs bg-white/20 px-1 rounded">START</span>
             </Link>
             
-
+            <Link
+              href="/my-diagnosis"
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-purple-300/30`}
+            >
+              <FileText className="w-4 h-4 mr-1" />
+              <span>보고서조회</span>
+            </Link>
             
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
@@ -424,9 +428,6 @@ export default function Header() {
                   <BarChart3 className="w-4 h-4 mr-2" />
                   AI역량진단
                 </span>
-                <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                  START
-                </span>
               </Link>
 
               {/* 보고서조회 버튼 - 개별 신청자 중심 몰입감 있는 UX */}
@@ -440,9 +441,6 @@ export default function Header() {
                 <span className="text-base font-medium flex items-center">
                   <FileText className="w-4 h-4 mr-2" />
                   보고서조회
-                </span>
-                <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                  NEW
                 </span>
               </Link>
 
@@ -481,7 +479,7 @@ export default function Header() {
                 <div className="text-xs font-semibold text-gray-500 px-2 py-1 uppercase tracking-wider">
                   핵심 서비스
                 </div>
-                {navigation.slice(0, 3).map((item) => (
+                {navigation.slice(0, 2).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -503,7 +501,7 @@ export default function Header() {
                 <div className="text-xs font-semibold text-gray-500 px-2 py-1 uppercase tracking-wider mt-4">
                   추가 서비스
                 </div>
-                {navigation.slice(3).map((item) => (
+                {navigation.slice(2).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}

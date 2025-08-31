@@ -422,9 +422,14 @@ export class QualityMonitoringSystem {
     };
   }
 
-  // 유틸리티 메서드들
+  // 유틸리티 메서드들 (GAS와 호환되는 형식)
   private generateDiagnosisId(): string {
-    return `DIAG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const safeChars = '23456789abcdefghjkmnpqrstuvwxyz';
+    let randomSuffix = '';
+    for (let i = 0; i < 9; i++) {
+      randomSuffix += safeChars.charAt(Math.floor(Math.random() * safeChars.length));
+    }
+    return `DIAG_45Q_AI_${Date.now()}_${randomSuffix}`;
   }
 
   private generateAlertId(): string {

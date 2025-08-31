@@ -488,20 +488,8 @@ export default function DiagnosisReportsPage() {
                   placeholder="DIAG_45Q_AI_1756007646381_cezr4cnfx"
                   value={directSearchId}
                   onChange={(e) => {
-                    let value = e.target.value;
-                    // 혼동하기 쉬운 문자 자동 수정
-                    value = value
-                      .replace(/[0O]/g, '') // 0과 O 제거
-                      .replace(/[1lI]/g, '') // 1, l, I 제거
-                      .toUpperCase(); // 대문자로 통일 (접두사 부분)
-                    
-                    // DIAG_ 부분은 대문자, 나머지는 소문자로
-                    if (value.startsWith('DIAG_')) {
-                      const prefix = value.substring(0, value.lastIndexOf('_') + 1);
-                      const suffix = value.substring(value.lastIndexOf('_') + 1).toLowerCase();
-                      value = prefix + suffix;
-                    }
-                    
+                    // 사용자가 입력한 값을 그대로 유지 (대소문자 구분)
+                    const value = e.target.value;
                     setDirectSearchId(value);
                     setDirectSearchError('');
                   }}

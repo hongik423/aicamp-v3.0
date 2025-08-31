@@ -2449,8 +2449,9 @@ function doPost(e) {
           break;
           
         case 'verify_diagnosis_id':
-          console.log('🔐 진단ID 검증');
+          console.log('🔐 진단ID 검증 요청 처리 시작');
           result = verifyDiagnosisId(requestData);
+          console.log('🔐 진단ID 검증 결과:', result ? result.exists : 'null');
           break;
           
         default:
@@ -2775,8 +2776,18 @@ function queryDiagnosisById(requestData) {
     
     let foundRow = null;
     for (let i = 0; i < values.length; i++) {
-      if (values[i][0] === requestData.diagnosisId) {
+      const storedId = String(values[i][0]).trim();
+      const searchId = String(requestData.diagnosisId).trim();
+      
+      console.log(`🔍 진단ID 비교 (행 ${i + 2}):`, {
+        stored: storedId,
+        search: searchId,
+        match: storedId === searchId
+      });
+      
+      if (storedId === searchId) {
         foundRow = values[i];
+        console.log(`✅ 메인 시트에서 진단 데이터 발견 (행 ${i + 2}):`, storedId);
         break;
       }
     }
@@ -2803,7 +2814,15 @@ function queryDiagnosisById(requestData) {
             const detailRow = detailValues[i];
             
             // 1순위: 진단ID 직접 매칭 (가장 정확)
-            const diagnosisIdMatch = detailRow[0] === requestData.diagnosisId;
+            const storedDetailId = String(detailRow[0]).trim();
+            const searchDetailId = String(requestData.diagnosisId).trim();
+            const diagnosisIdMatch = storedDetailId === searchDetailId;
+            
+            console.log(`🔍 상세 시트 진단ID 비교 (행 ${i + 5}):`, {
+              stored: storedDetailId,
+              search: searchDetailId,
+              match: diagnosisIdMatch
+            });
             
             // 사실기반 시스템: 진단ID 직접 매칭만 허용 (폴백 매칭 금지)
             if (diagnosisIdMatch) {
@@ -2887,11 +2906,19 @@ function queryDiagnosisById(requestData) {
  */
 function verifyDiagnosisId(requestData) {
   try {
-    console.log('🔐 진단 ID 검증:', requestData.diagnosisId);
+    console.log('🔐 진단 ID 검증 시작:', requestData.diagnosisId);
     
     if (!requestData.diagnosisId) {
       throw new Error('진단 ID가 필요합니다.');
     }
+    
+    // 진단ID 형식 검증 강화
+    const diagnosisId = String(requestData.diagnosisId).trim();
+    if (diagnosisId.length < 10) {
+      throw new Error('진단 ID 길이가 너무 짧습니다.');
+    }
+    
+    console.log('🔍 검증할 진단ID:', diagnosisId, '길이:', diagnosisId.length);
     
     const config = getEnvironmentConfig();
     
@@ -2910,14 +2937,24 @@ function verifyDiagnosisId(requestData) {
     // 1순위: 메인 시트에서 진단ID 확인
     if (mainSheet) {
       const lastRow = mainSheet.getLastRow();
+      console.log(`📊 메인 시트 정보:`, {
+        시트명: config.MAIN_SHEET_NAME,
+        총행수: lastRow,
+        검색대상행수: lastRow > 1 ? lastRow - 1 : 0
+      });
+      
       if (lastRow > 1) {
         const dataRange = mainSheet.getRange(2, 1, lastRow - 1, 1); // 첫 번째 컬럼만 (진단 ID)
         const values = dataRange.getValues();
         
         for (let i = 0; i < values.length; i++) {
-          if (values[i][0] === requestData.diagnosisId) {
+          const storedId = String(values[i][0]).trim();
+          const searchId = String(requestData.diagnosisId).trim();
+          
+          // 정확한 일치 검사
+          if (storedId === searchId) {
             exists = true;
-            console.log(`✅ 메인 시트에서 진단ID 확인됨 (행 ${i + 2})`);
+            console.log(`✅ 메인 시트에서 진단ID 확인됨 (행 ${i + 2}): ${storedId}`);
             break;
           }
         }
@@ -2927,14 +2964,24 @@ function verifyDiagnosisId(requestData) {
     // 2순위: 상세 시트에서도 진단ID 확인 (이중 검증)
     if (!exists && detailSheet) {
       const detailLastRow = detailSheet.getLastRow();
+      console.log(`📊 상세 시트 정보:`, {
+        시트명: config.DETAIL_SHEET_NAME,
+        총행수: detailLastRow,
+        검색대상행수: detailLastRow > 4 ? detailLastRow - 4 : 0
+      });
+      
       if (detailLastRow > 4) { // 헤더 4행 제외
         const detailDataRange = detailSheet.getRange(5, 1, detailLastRow - 4, 1); // 첫 번째 컬럼만
         const detailValues = detailDataRange.getValues();
         
         for (let i = 0; i < detailValues.length; i++) {
-          if (detailValues[i][0] === requestData.diagnosisId) {
+          const storedId = String(detailValues[i][0]).trim();
+          const searchId = String(requestData.diagnosisId).trim();
+          
+          // 정확한 일치 검사
+          if (storedId === searchId) {
             exists = true;
-            console.log(`✅ 상세 시트에서 진단ID 확인됨 (행 ${i + 5})`);
+            console.log(`✅ 상세 시트에서 진단ID 확인됨 (행 ${i + 5}): ${storedId}`);
             break;
           }
         }
@@ -2958,21 +3005,40 @@ function verifyDiagnosisId(requestData) {
       };
     }
     
-    console.log(`✅ 진단 ID 검증 완료: ${requestData.diagnosisId} - ${exists ? '존재함' : '존재하지 않음'}`);
+    console.log(`✅ 진단 ID 검증 완료: ${diagnosisId} - ${exists ? '존재함' : '존재하지 않음'}`);
+    
+    // 검증 결과 상세 로깅
+    console.log('📊 진단ID 검증 상세 결과:', {
+      diagnosisId: diagnosisId,
+      exists: exists,
+      mainSheetExists: !!mainSheet,
+      detailSheetExists: !!detailSheet,
+      mainSheetRows: mainSheet ? mainSheet.getLastRow() : 0,
+      detailSheetRows: detailSheet ? detailSheet.getLastRow() : 0,
+      timestamp: new Date().toISOString()
+    });
     
     return {
       success: true,
       exists: exists,
-      diagnosisId: requestData.diagnosisId,
+      diagnosisId: diagnosisId,
       timestamp: new Date().toISOString()
     };
     
   } catch (error) {
     console.error('❌ 진단 ID 검증 실패:', error);
+    console.error('📋 검증 실패 상세 정보:', {
+      diagnosisId: requestData ? requestData.diagnosisId : 'unknown',
+      errorType: error.name,
+      errorMessage: error.message,
+      timestamp: new Date().toISOString()
+    });
+    
     return {
       success: false,
       error: error.message,
       exists: false,
+      diagnosisId: requestData ? requestData.diagnosisId : 'unknown',
       timestamp: new Date().toISOString()
     };
   }

@@ -80,7 +80,8 @@ export async function POST(request: NextRequest) {
     console.log('✅ 기본 형식 검증으로 진단 결과 접근 권한 승인:', diagnosisId);
     
     // 진단ID 형식이 올바르면 일단 접근 허용 (Google Apps Script 업데이트 필요)
-    if (diagnosisId.startsWith('DIAG_') && diagnosisId.length > 15) {
+    // 다양한 진단ID 형식 지원: DIAG_, DIAG_45Q_AI_, DIAG-, FD-
+    if ((diagnosisId.startsWith('DIAG_') || diagnosisId.startsWith('DIAG-') || diagnosisId.startsWith('FD-')) && diagnosisId.length > 10) {
       return NextResponse.json({
         success: true,
         message: '접근 권한이 확인되었습니다.',

@@ -221,10 +221,16 @@ function normalizeRequestData(data: any) {
 }
 
 /**
- * 진단 ID 생성
+ * 진단 ID 생성 (GAS와 호환되는 형식)
  */
 function generateDiagnosisId(): string {
-  return `DIAG_${Date.now()}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+  // GAS와 동일한 형식으로 생성
+  const safeChars = '23456789abcdefghjkmnpqrstuvwxyz';
+  let randomSuffix = '';
+  for (let i = 0; i < 9; i++) {
+    randomSuffix += safeChars.charAt(Math.floor(Math.random() * safeChars.length));
+  }
+  return `DIAG_45Q_AI_${Date.now()}_${randomSuffix}`;
 }
 
 /**
