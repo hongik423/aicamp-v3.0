@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 // 🔧 **실제 AICAMP 구글시트 정보** (V22.0 강화된 안정 버전 + 5개 시트 저장)
 // 올바른 Google Apps Script URL (POST 요청 지원)
-const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec'; // V22.0 aicamp_enhanced_stable_v22.js 스크립트
+const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/1w8yHheAjhFqvNVvcRQp8wR06YlAR2qv36nTbtvgi7YiwoJ-RCZbc0GiM/exec'; // V22.0 aicamp_enhanced_stable_v22.js 스크립트
 const GOOGLE_SHEETS_ID = '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ';
 
 // 환경변수 스키마 정의 (GEMINI 제거됨 - Ollama 전용)
