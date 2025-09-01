@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Download, ArrowLeft, FileText, Eye, Printer, Share2, BarChart3, Shield, CheckCircle, AlertCircle, Loader2, Monitor, Smartphone, Copy, Search, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DiagnosisAccessController } from '@/lib/auth/diagnosis-access-controller';
 
 interface DiagnosisResultPageProps {
   params: Promise<{ diagnosisId: string }>;
@@ -27,6 +28,8 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
   const [reportInfo, setReportInfo] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingMessage, setProcessingMessage] = useState('');
+  const [showRetryButton, setShowRetryButton] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
   // URL 파라미터에서 진단 ID 추출
   useEffect(() => {
@@ -46,93 +49,52 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     loadParams();
   }, [params]);
 
-  // 진단 ID가 설정되면 인증 확인
+  // 진단 ID가 설정되면 통합 접근 권한 검증
   useEffect(() => {
     if (!diagnosisId) return;
 
-    console.log('🔍 사실기반 진단 결과 페이지 로드:', diagnosisId);
+    console.log('🔍 통합 접근 권한 검증 시작:', diagnosisId);
     
-    // 진단ID 기본 형식 검증
-    if (diagnosisId.length < 10 || !diagnosisId.startsWith('DIAG_')) {
-      console.warn('⚠️ 잘못된 진단ID 형식:', diagnosisId);
-      setIsAuthorized(false);
-      setError('유효하지 않은 진단ID 형식입니다. 이메일로 받은 정확한 진단ID를 확인해주세요.');
-      setAuthLoading(false);
-      return;
-    }
-    
-    // 세션에서 인증 상태 확인 (30분 유효)
-    const sessionAuth = sessionStorage.getItem(`diagnosis_auth_${diagnosisId}`);
-    const authTime = sessionStorage.getItem(`diagnosis_auth_time_${diagnosisId}`);
-    
-    if (sessionAuth === 'true' && authTime) {
-      const authTimestamp = parseInt(authTime);
-      const currentTime = Date.now();
-      const authDuration = 30 * 60 * 1000; // 30분
-      
-      if (currentTime - authTimestamp < authDuration) {
-        console.log('✅ 세션 인증 확인됨:', diagnosisId);
-        setIsAuthorized(true);
-        setAuthLoading(false);
-        return;
-      } else {
-        // 인증 시간 만료
-        console.log('⚠️ 세션 인증 시간 만료:', diagnosisId);
-        sessionStorage.removeItem(`diagnosis_auth_${diagnosisId}`);
-        sessionStorage.removeItem(`diagnosis_auth_time_${diagnosisId}`);
-      }
-    }
-    
-    // 세션 인증이 없으면 접근 권한 검증
     const verifyAccess = async () => {
       try {
         setAuthLoading(true);
-        console.log('🔐 사실기반 시스템: 진단 결과 접근 권한 검증:', diagnosisId);
         
-        const response = await fetch('/api/diagnosis-auth', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            diagnosisId: diagnosisId,
-            accessType: 'user'
-          })
+        // URL 파라미터에서 인증 정보 추출
+        const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const authMethod = urlParams?.get('auth');
+        const authToken = urlParams?.get('token');
+        
+        // 통합 접근 권한 컨트롤러 사용
+        const accessResult = await DiagnosisAccessController.verifyAccess({
+          diagnosisId,
+          authToken: authToken || undefined,
+          authMethod: authMethod || undefined
         });
-
-        if (!response.ok) {
-          throw new Error(`권한 검증 실패: ${response.status} ${response.statusText}`);
-        }
-
-        const responseText = await response.text();
-        if (!responseText) {
-          throw new Error('빈 응답을 받았습니다.');
-        }
-
-        let result;
-        try {
-          result = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error('❌ JSON 파싱 오류:', parseError, '응답 텍스트:', responseText);
-          throw new Error('서버 응답 형식이 올바르지 않습니다.');
-        }
         
-        if (result.success) {
-          console.log('✅ 접근 권한 확인됨 - 사실기반 데이터 조회 시작');
-          
-          // 세션에 인증 상태 저장 (30분 유효)
-          sessionStorage.setItem(`diagnosis_auth_${diagnosisId}`, 'true');
-          sessionStorage.setItem(`diagnosis_auth_time_${diagnosisId}`, Date.now().toString());
-          
+        if (accessResult.isAuthorized) {
+          console.log('✅ 통합 접근 권한 확인됨:', accessResult.authMethod);
           setIsAuthorized(true);
+          
+          // 최근 조회 ID 저장
+          DiagnosisAccessController.saveRecentDiagnosisId(diagnosisId);
+          
         } else {
-          console.warn('❌ 접근 권한 없음:', result.error);
+          console.warn('❌ 접근 권한 없음:', accessResult.error);
           setIsAuthorized(false);
-          setError(result.error || '진단 결과에 접근할 권한이 없습니다.');
+          setError(accessResult.error || '진단 결과에 접근할 권한이 없습니다.');
+          
+          // 리디렉션 URL이 있으면 이동
+          if (accessResult.redirectUrl) {
+            setTimeout(() => {
+              if (typeof window !== 'undefined') {
+                window.location.href = accessResult.redirectUrl!;
+              }
+            }, 100);
+          }
         }
         
       } catch (error: any) {
-        console.error('❌ 권한 검증 오류:', error);
+        console.error('❌ 통합 권한 검증 오류:', error);
         setIsAuthorized(false);
         setError(error.message || '권한 검증 중 오류가 발생했습니다.');
       } finally {
@@ -153,10 +115,11 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           setLoading(true);
           console.log('📄 사실기반 35페이지 보고서 로드 시작:', diagnosisId);
           
-          // 🔥 강화된 보고서 조회 시스템 (무조건 성공 보장)
+          // 🔥 강화된 보고서 조회 시스템 (스마트 재시도)
           let response;
           let retryCount = 0;
-          const maxRetries = 10; // 재시도 횟수 증가
+          const maxRetries = 5; // 재시도 횟수 최적화
+          let lastError: any = null;
           
           setProcessingMessage('보고서 데이터를 조회하고 있습니다...');
           
@@ -169,22 +132,36 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                signal: AbortSignal.timeout(120000) // 120초로 증가
+                signal: AbortSignal.timeout(60000) // 60초로 최적화
               });
               
               console.log(`📡 보고서 API 응답 ${retryCount + 1}/${maxRetries}:`, response.status, response.statusText);
               
               if (response.ok) {
                 break; // 성공하면 루프 탈출
-              } else if (response.status === 404 && retryCount < maxRetries - 1) {
-                // 404는 아직 처리 중일 수 있으므로 계속 재시도
-                throw new Error(`보고서 아직 준비 중 (${retryCount + 1}/${maxRetries})`);
-              } else if (response.status !== 404) {
+              } else if (response.status === 404) {
+                // 404 응답 본문 확인
+                const errorData = await response.json().catch(() => ({}));
+                
+                if (errorData.code === 'DIAGNOSIS_DATA_NOT_FOUND') {
+                  // 데이터가 실제로 존재하지 않는 경우 - 재시도 중단
+                  console.error('❌ 진단 데이터 부재 확인됨, 재시도 중단');
+                  throw new Error(errorData.error || '진단 데이터를 찾을 수 없습니다.');
+                } else if (retryCount < maxRetries - 1) {
+                  // 일시적 404일 수 있으므로 재시도
+                  throw new Error(`보고서 준비 중... (${retryCount + 1}/${maxRetries})`);
+                } else {
+                  // 최대 재시도 도달
+                  throw new Error('보고서 생성이 지연되고 있습니다. 잠시 후 다시 시도해주세요.');
+                }
+              } else {
                 // 404가 아닌 다른 오류는 즉시 처리
-                break;
+                const errorText = await response.text().catch(() => '알 수 없는 오류');
+                throw new Error(`서버 오류 (${response.status}): ${errorText}`);
               }
               
             } catch (fetchError: any) {
+              lastError = fetchError;
               retryCount++;
               console.warn(`⚠️ 보고서 로드 시도 ${retryCount}/${maxRetries} 실패:`, fetchError.message);
               
@@ -192,9 +169,10 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                 throw fetchError;
               }
               
-              // 재시도 전 대기 시간 (점진적 증가)
-              const waitTime = Math.min(2000 + (retryCount * 1000), 10000); // 최대 10초
-              setProcessingMessage(`보고서 준비 중... ${retryCount}/${maxRetries} (${waitTime/1000}초 후 재시도)`);
+              // 스마트 대기 시간 (지수 백오프)
+              const baseWait = 3000; // 3초 기본
+              const waitTime = Math.min(baseWait * Math.pow(1.5, retryCount - 1), 15000); // 최대 15초
+              setProcessingMessage(`보고서 준비 중... (${retryCount}/${maxRetries}) ${Math.ceil(waitTime/1000)}초 후 재시도`);
               await new Promise(resolve => setTimeout(resolve, waitTime));
             }
           }
@@ -310,17 +288,54 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         } catch (error: any) {
           console.error('❌ 사실기반 35페이지 보고서 로드 오류:', error);
           
+          // 에러 타입별 맞춤 메시지 및 처리
           let errorMessage = '사실기반 보고서 로드 중 오류가 발생했습니다.';
+          let showRetryButton = true;
+          let autoRetry = false;
           
           if (error.name === 'AbortError') {
             errorMessage = 'GAS 데이터 조회 시간이 초과되었습니다. 네트워크 상태를 확인하고 잠시 후 다시 시도해주세요.';
-          } else if (error.message.includes('404') || error.message.includes('찾을 수 없습니다')) {
+            autoRetry = true;
+          } else if (error.message?.includes('진단 데이터를 찾을 수 없습니다')) {
+            errorMessage = '해당 진단 ID의 데이터를 찾을 수 없습니다. 진단서 제출이 완료되었는지 확인해주세요.';
+            showRetryButton = false;
+          } else if (error.message?.includes('404') || error.message?.includes('찾을 수 없습니다')) {
             errorMessage = '해당 진단ID의 실제 평가 데이터를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.';
-          } else if (error.message.includes('500')) {
+            showRetryButton = false;
+          } else if (error.message?.includes('500')) {
             errorMessage = 'GAS 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            autoRetry = true;
+          } else if (error.message?.includes('보고서 생성이 지연')) {
+            errorMessage = '보고서 생성이 지연되고 있습니다. 잠시 후 다시 시도해주세요.';
+            autoRetry = true;
           }
           
           setError(errorMessage);
+          setShowRetryButton(showRetryButton);
+          
+          // 자동 재시도 로직 (특정 조건에서만)
+          if (autoRetry && showRetryButton) {
+            console.log('🔄 자동 재시도 예약됨 (30초 후)');
+            setProcessingMessage('30초 후 자동으로 다시 시도됩니다...');
+            
+            setTimeout(() => {
+              if (isAuthorized && diagnosisId) {
+                console.log('🔄 자동 재시도 시작');
+                setError('');
+                setProcessingMessage('');
+                setShowRetryButton(true);
+                loadReport();
+              }
+            }, 30000);
+          }
+          
+          // 사용자 친화적 토스트 메시지
+          toast({
+            title: "보고서 로드 실패",
+            description: errorMessage,
+            variant: "destructive",
+          });
+          
         } finally {
           setLoading(false);
         }
@@ -328,53 +343,11 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       
       loadReport();
     }
-  }, [isAuthorized, diagnosisId]);
+  }, [isAuthorized, diagnosisId, toast]);
 
-  // 리디렉션 처리
-  useEffect(() => {
-    if (isAuthorized === false && !authLoading && !error) {
-      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const fromRedirect = urlParams?.get('from') === 'report-access' || urlParams?.get('from') === 'diagnosis-reports';
-      const authMethod = urlParams?.get('auth');
-      const authToken = urlParams?.get('token');
-      
-      // 🔐 이메일 인증 토큰 확인
-      if (authMethod === 'email' && authToken) {
-        console.log('🔐 이메일 인증 토큰 확인 중...');
-        
-        try {
-          // 토큰 디코딩 및 검증
-          const tokenData = JSON.parse(Buffer.from(authToken, 'base64').toString());
-          
-          if (tokenData.diagnosisId === diagnosisId && 
-              tokenData.expiresAt > Date.now() && 
-              tokenData.email) {
-            console.log('✅ 이메일 인증 토큰 유효 - 자동 권한 부여');
-            setIsAuthorized(true);
-            return;
-          } else {
-            console.warn('⚠️ 이메일 인증 토큰 만료 또는 무효');
-            toast({
-              title: "인증 만료",
-              description: "인증이 만료되었습니다. 다시 인증해주세요.",
-              variant: "destructive"
-            });
-          }
-        } catch (tokenError) {
-          console.error('❌ 이메일 인증 토큰 검증 실패:', tokenError);
-        }
-      }
-      
-      if (typeof window !== 'undefined' && !fromRedirect && !authToken) {
-        console.log('🔄 진단ID 입력 페이지로 리디렉션:', diagnosisId);
-        setTimeout(() => {
-          window.location.href = `/report-access?target=${encodeURIComponent(diagnosisId)}`;
-        }, 100);
-      }
-    }
-  }, [isAuthorized, authLoading, error, diagnosisId]);
+  // 기존 리디렉션 로직은 통합 접근 권한 컨트롤러로 대체됨
 
-  // 보고서 다운로드
+  // 보고서 다운로드 (보안 강화)
   const handleDownloadReport = async () => {
     if (!reportContent) {
       toast({
@@ -385,8 +358,58 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       return;
     }
 
+    // 🔒 보안 검증: 현재 세션에서 인증된 진단ID인지 확인
+    if (!isAuthorized) {
+      toast({
+        title: "❌ 접근 권한 없음",
+        description: "보고서 다운로드 권한이 없습니다. 다시 인증해주세요.",
+        variant: "destructive",
+      });
+      router.push(`/report-access?diagnosisId=${diagnosisId}`);
+      return;
+    }
+
+    // 세션 인증 상태 재확인
+    const authKey = `diagnosis_auth_${diagnosisId}`;
+    const authTime = `diagnosis_auth_time_${diagnosisId}`;
+    const sessionAuth = typeof window !== 'undefined' ? sessionStorage.getItem(authKey) : null;
+    const sessionAuthTime = typeof window !== 'undefined' ? sessionStorage.getItem(authTime) : null;
+    
+    if (sessionAuth !== 'authorized' || !sessionAuthTime) {
+      toast({
+        title: "⚠️ 세션 만료",
+        description: "보안을 위해 다시 인증해주세요.",
+        variant: "destructive",
+      });
+      router.push(`/report-access?diagnosisId=${diagnosisId}`);
+      return;
+    }
+    
+    // 인증 시간 확인 (30분)
+    const authTime_ms = parseInt(sessionAuthTime);
+    const isAuthValid = Date.now() - authTime_ms < 30 * 60 * 1000;
+    
+    if (!isAuthValid) {
+      toast({
+        title: "⚠️ 인증 만료",
+        description: "보안을 위해 다시 인증해주세요.",
+        variant: "destructive",
+      });
+      
+      // 만료된 인증 정보 삭제
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(authKey);
+        sessionStorage.removeItem(authTime);
+      }
+      
+      router.push(`/report-access?diagnosisId=${diagnosisId}`);
+      return;
+    }
+
     try {
       setDownloadLoading(true);
+      
+      console.log('🔒 보안 검증 통과 - 보고서 다운로드 시작:', diagnosisId);
       
       const fileName = reportInfo?.fileName || `AI역량진단보고서_${diagnosisId}.html`;
       const blob = new Blob([reportContent], { type: 'text/html;charset=utf-8' });
@@ -416,6 +439,23 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     } finally {
       setDownloadLoading(false);
     }
+  };
+
+  // 수동 재시도 함수
+  const handleManualRetry = async () => {
+    if (!diagnosisId) return;
+    
+    setRetryCount(prev => prev + 1);
+    setError('');
+    setProcessingMessage('수동 재시도 중...');
+    setLoading(true);
+    
+    console.log(`🔄 수동 재시도 ${retryCount + 1}회 시작:`, diagnosisId);
+    
+    // 잠시 대기 후 다시 로드
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   // 진단ID 복사
@@ -588,14 +628,17 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
             </Alert>
             
             <div className="space-y-3">
-              <Button 
-                onClick={() => window.location.reload()}
-                className="w-full"
-                variant="default"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                다시 시도
-              </Button>
+              {showRetryButton && (
+                <Button 
+                  onClick={handleManualRetry}
+                  className="w-full"
+                  variant="default"
+                  disabled={loading}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  {loading ? '재시도 중...' : `다시 시도 (${retryCount + 1}회)`}
+                </Button>
+              )}
               
               <Button 
                 onClick={() => router.push('/my-diagnosis')}
@@ -614,6 +657,14 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                 홈으로 돌아가기
               </Button>
             </div>
+            
+            {processingMessage && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 text-center">
+                  {processingMessage}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

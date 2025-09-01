@@ -11,6 +11,13 @@ import { z } from 'zod';
 const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec'; // V22.3 aicamp_enhanced_stable_v22.js 스크립트 (2025.08.31 배포완료)
 const GOOGLE_SHEETS_ID = '1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ';
 
+// 🔄 폴백 URL 목록 (여러 배포 버전 지원)
+const FALLBACK_GAS_URLS = [
+  'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec',
+  'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec',
+  'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec'
+];
+
 // 환경변수 스키마 정의 (AI 분석 제거 - Google Apps Script 전용)
 const envSchema = z.object({
   // Google Sheets & Apps Script (클라이언트 사이드 허용)

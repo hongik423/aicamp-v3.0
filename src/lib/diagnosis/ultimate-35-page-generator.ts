@@ -653,12 +653,30 @@ export class Ultimate35PageGenerator {
 
     </div>
 
+    <!-- 진행률 바 -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
+    <!-- 슬라이드 카운터 -->
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">35</span>
+    </div>
+    
     <!-- 프리젠테이션 컨트롤 -->
     <div class="presentation-controls">
-        <button class="control-btn" onclick="prevSlide()" title="이전 슬라이드 (←)">←</button>
-        <button class="control-btn" onclick="nextSlide()" title="다음 슬라이드 (→)">▶</button>
-        <button class="control-btn" onclick="toggleFullscreen()" title="전체화면 (F11)">⛶</button>
-        <button class="control-btn" onclick="printReport()" title="인쇄 (Ctrl+P)">🖨</button>
+        <button class="control-btn" onclick="prevSlide()" title="이전 슬라이드 (←)">
+            <span style="font-size: 24px;">‹</span>
+        </button>
+        <button class="control-btn" onclick="nextSlide()" title="다음 슬라이드 (→)">
+            <span style="font-size: 24px;">›</span>
+        </button>
+        <button class="control-btn" onclick="toggleFullscreen()" title="전체화면 (F11)">
+            <span style="font-size: 18px;">⛶</span>
+        </button>
+        <button class="control-btn" onclick="printReport()" title="인쇄 (Ctrl+P)">
+            <span style="font-size: 18px;">🖨</span>
+        </button>
     </div>
 
     <script>

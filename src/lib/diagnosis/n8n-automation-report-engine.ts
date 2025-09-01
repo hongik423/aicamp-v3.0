@@ -46,7 +46,7 @@ export class N8nAutomationReportEngine {
     
     try {
       // 1단계: 무오류 데이터 동기화
-      const syncResult = await SyncManager.waitForDataAvailability(diagnosisId);
+      const syncResult = await SyncManager.waitForDataSynchronization(diagnosisId);
       
       if (!syncResult.success) {
         return {
@@ -69,7 +69,7 @@ export class N8nAutomationReportEngine {
         htmlReport: htmlReport,
         syncInfo: {
           attempts: syncResult.attempts,
-          waitTime: syncResult.totalWaitTime,
+          waitTime: syncResult.waitTime,
           dataFreshness: enhancedData.syncStatus?.dataFreshness
         }
       };

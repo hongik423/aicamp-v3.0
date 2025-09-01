@@ -17,6 +17,7 @@ import { addProgressEvent } from '../_progressStore';
 // V23.0 완전한 폴백 보고서 생성 시스템
 import AdvancedFallbackEngine, { DiagnosisData } from '@/lib/diagnosis/advanced-fallback-engine';
 import { Ultimate35PageGenerator } from '@/lib/diagnosis/ultimate-35-page-generator';
+import { saveDiagnosisToGAS, sendEmailViaGAS } from '@/lib/gas/gas-connector';
 
 // 점수 계산 함수는 @/lib/diagnosis/score-utils에서 import 사용
 
@@ -279,48 +280,49 @@ export async function POST(request: NextRequest) {
         
         console.log('🔗 Google Apps Script 호출 URL:', `${dynamicBase}/api/google-script-proxy`);
         
-        // 클라이언트에서 직접 프록시를 호출하도록 지연 처리 플래그 사용
-        const deferGAS = requestData?.deferGAS === true;
-        if (!deferGAS) {
-          // 서버에서 직접 호출(호환용). 장시간 처리를 유발하므로 기본적으로 사용 비권장
-          fetch(`${dynamicBase}/api/google-script-proxy`, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'User-Agent': 'AICAMP-V22.0-ENHANCED-STABLE'
-            },
-            body: JSON.stringify(gasPayload),
-            signal: AbortSignal.timeout(60000)
-          }).then(async (gasResponse) => {
-            console.log('📧 Google Apps Script V22.0 후속 처리 시작:', gasResponse.status);
-            if (gasResponse.ok) {
-              addProgressEvent({
-                diagnosisId: workflowResult.diagnosisId,
-                stepId: 'gas-v22-processing',
-                stepName: 'V22 데이터 저장',
-                status: 'completed',
-                progressPercent: 90,
-                message: 'V22 스크립트로 5개 시트 저장 및 이메일 발송 요청 성공'
-              });
-              addProgressEvent({
-                diagnosisId: workflowResult.diagnosisId,
-                stepId: 'email-sending',
-                stepName: '이메일 발송',
-                status: 'in-progress',
-                progressPercent: 95,
-                message: 'V22 이메일 템플릿으로 발송 진행 중'
-              });
-            }
-          }).catch(gasError => {
-            console.error('⚠️ Google Apps Script V22.0 후속 처리 오류 (비차단):', gasError.message);
+        // 🔥 새로운 GAS 헬퍼 함수 사용하여 안정적인 저장
+        try {
+          const gasResult = await saveDiagnosisToGAS(gasPayload);
+          
+          if (gasResult.success) {
+            console.log('✅ GAS 데이터 저장 성공:', gasResult.diagnosisId);
+            addProgressEvent({
+              diagnosisId: workflowResult.diagnosisId,
+              stepId: 'gas-v22-processing',
+              stepName: 'V22 데이터 저장',
+              status: 'completed',
+              progressPercent: 90,
+              message: 'V22 스크립트로 5개 시트 저장 및 이메일 발송 요청 성공'
+            });
+            
+            addProgressEvent({
+              diagnosisId: workflowResult.diagnosisId,
+              stepId: 'email-sending',
+              stepName: '이메일 발송',
+              status: 'in-progress',
+              progressPercent: 95,
+              message: 'V22 이메일 템플릿으로 발송 진행 중'
+            });
+          } else {
+            console.error('❌ GAS 데이터 저장 실패:', gasResult.error);
             addProgressEvent({
               diagnosisId: workflowResult.diagnosisId,
               stepId: 'gas-v22-processing',
               stepName: 'V22 데이터 저장',
               status: 'error',
               progressPercent: 80,
-              message: 'V22 스크립트 연결 실패, 재시도 중...'
+              message: `GAS 저장 실패: ${gasResult.error}`
             });
+          }
+        } catch (gasError: any) {
+          console.error('⚠️ Google Apps Script V22.0 후속 처리 오류 (비차단):', gasError.message);
+          addProgressEvent({
+            diagnosisId: workflowResult.diagnosisId,
+            stepId: 'gas-v22-processing',
+            stepName: 'V22 데이터 저장',
+            status: 'error',
+            progressPercent: 80,
+            message: 'V22 스크립트 연결 실패, 재시도 중...'
           });
         }
         
