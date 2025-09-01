@@ -54,10 +54,21 @@ export default function ReportAccessPage() {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const targetId = urlParams.get('diagnosisId');
+      const method = urlParams.get('method');
       
       if (targetId) {
         setDiagnosisId(targetId);
+        setAuthDiagnosisId(targetId);
         console.log('🎯 URL에서 대상 진단ID 설정:', targetId);
+      }
+      
+      // URL 파라미터로 접근 방법 자동 선택
+      if (method === 'email') {
+        setAccessMethod('email');
+        console.log('📧 URL에서 이메일 인증 방법 자동 선택');
+      } else if (method === 'diagnosisId') {
+        setAccessMethod('diagnosisId');
+        console.log('🆔 URL에서 진단ID 직접 방법 자동 선택');
       }
       
       const saved = localStorage.getItem('aicamp_recent_diagnosis_ids');

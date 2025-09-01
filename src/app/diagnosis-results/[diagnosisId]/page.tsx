@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Download, ArrowLeft, FileText, Eye, Printer, Share2, BarChart3, Shield, CheckCircle, AlertCircle, Loader2, Monitor, Smartphone, Copy, Search, RefreshCw } from 'lucide-react';
+import { Download, ArrowLeft, FileText, Eye, Printer, Share2, BarChart3, Shield, CheckCircle, AlertCircle, Loader2, Monitor, Smartphone, Copy, Search, RefreshCw, Info, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DiagnosisAccessController } from '@/lib/auth/diagnosis-access-controller';
 
@@ -519,15 +519,53 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
               </AlertDescription>
             </Alert>
             
+            {/* 🔐 접근 방법 안내 */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+              <h4 className="font-medium text-blue-900 text-sm flex items-center space-x-2">
+                <Info className="w-4 h-4" />
+                <span>보고서 접근 방법</span>
+              </h4>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <span className="text-blue-800">진단ID 직접 입력</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Mail className="w-4 h-4 text-blue-600" />
+                  <span className="text-blue-800">이메일 6자리 인증</span>
+                </div>
+              </div>
+            </div>
+            
             <div className="space-y-3">
               <Button 
-                onClick={() => router.push('/my-diagnosis')}
-                className="w-full"
-                variant="default"
+                onClick={() => router.push(`/report-access?diagnosisId=${diagnosisId}`)}
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700"
               >
-                <Search className="h-4 w-4 mr-2" />
-                다른 진단ID로 조회하기
+                <Shield className="mr-2 h-4 w-4" />
+                권한 인증하기
               </Button>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => router.push(`/report-access?diagnosisId=${diagnosisId}&method=diagnosisId`)}
+                  className="text-xs"
+                >
+                  <FileText className="mr-1 h-3 w-3" />
+                  진단ID 입력
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => router.push(`/report-access?diagnosisId=${diagnosisId}&method=email`)}
+                  className="text-xs"
+                >
+                  <Mail className="mr-1 h-3 w-3" />
+                  이메일 인증
+                </Button>
+              </div>
               
               <Button 
                 onClick={() => router.push('/ai-diagnosis')}
