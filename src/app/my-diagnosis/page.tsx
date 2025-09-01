@@ -19,7 +19,10 @@ import {
   Calendar,
   Building,
   Star,
-  RefreshCw
+  RefreshCw,
+  Mail,
+  Clock,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,10 +35,22 @@ export default function MyDiagnosisPage() {
   const router = useRouter();
   const { toast } = useToast();
   
+  // 접근 방법 선택
+  const [accessMethod, setAccessMethod] = useState<'diagnosisId' | 'email'>('diagnosisId');
+  
   // 진단ID 입력 관련 상태
   const [diagnosisId, setDiagnosisId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // 이메일 인증 관련 상태
+  const [email, setEmail] = useState('');
+  const [authDiagnosisId, setAuthDiagnosisId] = useState('');
+  const [authCode, setAuthCode] = useState('');
+  const [authStep, setAuthStep] = useState<'input' | 'verify'>('input');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [countdown, setCountdown] = useState(0);
   
   // 조회된 보고서 정보
   const [reportInfo, setReportInfo] = useState<any>(null);
@@ -66,6 +81,126 @@ export default function MyDiagnosisPage() {
       setRecentIds(updated);
       localStorage.setItem('aicamp_recent_diagnosis_ids', JSON.stringify(updated));
     }
+  };
+
+  // 🔐 이메일 인증번호 발송
+  const sendAuthCode = async () => {
+    if (!email.trim() || !authDiagnosisId.trim()) {
+      setAuthError('이메일과 진단ID를 모두 입력해주세요.');
+      return;
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setAuthError('유효한 이메일 주소를 입력해주세요.');
+      return;
+    }
+
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const response = await fetch('/api/email-auth/send-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          diagnosisId: authDiagnosisId.trim()
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setAuthStep('verify');
+        setCountdown(300); // 5분
+        
+        // 카운트다운 시작
+        const timer = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              setAuthStep('input');
+              setAuthError('인증번호가 만료되었습니다. 다시 요청해주세요.');
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        
+        toast({
+          title: "인증번호 발송 완료",
+          description: "이메일로 6자리 인증번호를 발송했습니다.",
+        });
+        
+      } else {
+        throw new Error(result.error || '인증번호 발송에 실패했습니다.');
+      }
+      
+    } catch (error: any) {
+      console.error('❌ 인증번호 발송 실패:', error);
+      setAuthError(error.message || '인증번호 발송 중 오류가 발생했습니다.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // 🔐 인증번호 검증
+  const verifyAuthCode = async () => {
+    if (!authCode.trim()) {
+      setAuthError('인증번호를 입력해주세요.');
+      return;
+    }
+
+    if (!/^\d{6}$/.test(authCode)) {
+      setAuthError('인증번호는 6자리 숫자여야 합니다.');
+      return;
+    }
+
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const response = await fetch('/api/email-auth/verify-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          code: authCode.trim(),
+          diagnosisId: authDiagnosisId.trim()
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.token) {
+        console.log('✅ 이메일 인증 성공');
+        
+        // 인증 토큰과 함께 보고서 페이지로 이동
+        router.push(`/diagnosis-results/${authDiagnosisId.trim()}?auth=email&token=${result.token}`);
+        
+      } else {
+        throw new Error(result.error || '인증번호 검증에 실패했습니다.');
+      }
+      
+    } catch (error: any) {
+      console.error('❌ 인증번호 검증 실패:', error);
+      setAuthError(error.message || '인증번호 검증 중 오류가 발생했습니다.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // 남은 시간 포맷팅
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // 진단ID로 보고서 조회
@@ -237,7 +372,71 @@ export default function MyDiagnosisPage() {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              {/* 진단ID 입력 */}
+              {/* 접근 방법 선택 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-gray-700 text-center">접근 방법을 선택해주세요</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccessMethod('diagnosisId');
+                      setError('');
+                      setAuthError('');
+                    }}
+                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                      accessMethod === 'diagnosisId'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        accessMethod === 'diagnosisId' ? 'bg-blue-100' : 'bg-gray-100'
+                      }`}>
+                        <FileText className={`w-4 h-4 ${
+                          accessMethod === 'diagnosisId' ? 'text-blue-600' : 'text-gray-500'
+                        }`} />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm font-medium">진단ID 직접</div>
+                        <div className="text-xs opacity-75">빠른 접근</div>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccessMethod('email');
+                      setError('');
+                      setAuthError('');
+                      setAuthStep('input');
+                    }}
+                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                      accessMethod === 'email'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        accessMethod === 'email' ? 'bg-blue-100' : 'bg-gray-100'
+                      }`}>
+                        <Mail className={`w-4 h-4 ${
+                          accessMethod === 'email' ? 'text-blue-600' : 'text-gray-500'
+                        }`} />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm font-medium">이메일 인증</div>
+                        <div className="text-xs opacity-75">ID 분실시</div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* 진단ID 직접 입력 */}
+              {accessMethod === 'diagnosisId' && (
               <div className="space-y-4">
                 <div className="relative">
                   <Input
@@ -293,9 +492,164 @@ export default function MyDiagnosisPage() {
                   </Alert>
                 )}
               </div>
+              )}
 
-              {/* 최근 조회한 진단ID */}
-              {recentIds.length > 0 && !hasReport && (
+              {/* 이메일 인증 접근 */}
+              {accessMethod === 'email' && (
+                <div className="space-y-4">
+                  {authStep === 'input' ? (
+                    // 이메일 입력 단계
+                    <div className="space-y-4">
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-start space-x-2">
+                          <Mail className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                          <div className="text-sm text-amber-800">
+                            <div className="font-medium mb-1">이메일 인증 안내</div>
+                            <p className="text-xs">진단 신청 시 사용한 이메일로 6자리 인증번호를 발송합니다.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">이메일 주소</label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <Input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="your-email@company.com"
+                            className="pl-10 h-12"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          진단ID (선택사항)
+                          <span className="text-xs text-gray-500 ml-1">- 더 정확한 검증</span>
+                        </label>
+                        <div className="relative">
+                          <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <Input
+                            type="text"
+                            value={authDiagnosisId}
+                            onChange={(e) => setAuthDiagnosisId(e.target.value)}
+                            placeholder="DIAG_45Q_AI_... (선택사항)"
+                            className="pl-10 h-12"
+                          />
+                        </div>
+                      </div>
+
+                      {authError && (
+                        <Alert className="border-red-200 bg-red-50">
+                          <AlertCircle className="h-4 w-4 text-red-600" />
+                          <AlertDescription className="text-red-700">{authError}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      <Button 
+                        onClick={sendAuthCode}
+                        className="w-full h-12 bg-amber-600 hover:bg-amber-700"
+                        disabled={authLoading || !email.trim()}
+                      >
+                        {authLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            발송 중...
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="mr-2 h-4 w-4" />
+                            인증번호 발송
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    // 인증번호 입력 단계
+                    <div className="space-y-4">
+                      <div className="text-center space-y-2">
+                        <CheckCircle className="w-8 h-8 text-green-600 mx-auto" />
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">{email}</span>로<br />
+                          인증번호를 발송했습니다
+                        </p>
+                        {countdown > 0 && (
+                          <div className="flex items-center justify-center space-x-1 text-xs text-gray-500">
+                            <Clock className="w-3 h-3" />
+                            <span>남은 시간: {formatTime(countdown)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">6자리 인증번호</label>
+                        <Input
+                          type="text"
+                          value={authCode}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                            setAuthCode(value);
+                          }}
+                          placeholder="123456"
+                          className="text-center text-2xl font-mono tracking-widest h-16"
+                          maxLength={6}
+                        />
+                        {authCode.length === 6 && (
+                          <div className="flex items-center justify-center text-green-600">
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            <span className="text-xs">입력 완료</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {authError && (
+                        <Alert className="border-red-200 bg-red-50">
+                          <AlertCircle className="h-4 w-4 text-red-600" />
+                          <AlertDescription className="text-red-700">{authError}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={verifyAuthCode}
+                          className="w-full h-12 bg-green-600 hover:bg-green-700"
+                          disabled={authLoading || authCode.length !== 6}
+                        >
+                          {authLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              인증 중...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              인증번호 확인
+                            </>
+                          )}
+                        </Button>
+
+                        <Button 
+                          variant="outline"
+                          onClick={() => {
+                            setAuthStep('input');
+                            setAuthCode('');
+                            setAuthError('');
+                          }}
+                          className="w-full"
+                          disabled={authLoading}
+                        >
+                          다시 발송
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 최근 조회한 진단ID (진단ID 방법에서만 표시) */}
+              {accessMethod === 'diagnosisId' && recentIds.length > 0 && !hasReport && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <RefreshCw className="h-4 w-4" />

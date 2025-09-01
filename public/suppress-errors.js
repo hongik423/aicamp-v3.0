@@ -310,11 +310,12 @@ const errorPatterns = [
           return; 
         }
         
-        // targetOrigin이 undefined인 경우 기본값 설정
-        if (typeof targetOrigin === 'undefined' || targetOrigin === null) {
-          targetOrigin = '*';
+        // targetOrigin 유효성 검사 강화
+        if (typeof targetOrigin === 'undefined' || targetOrigin === null || targetOrigin === '') {
+          targetOrigin = window.location.origin || '*';
         }
         
+        // 안전한 호출
         return originalPostMessage.call(this, message, targetOrigin, transfer);
       } catch (error) {
         // postMessage 오류 무시
