@@ -2738,6 +2738,11 @@ function doPost(e) {
           result = verifyDiagnosisExists(requestData);
           break;
           
+        case 'track_sync_status':
+          console.log('📊 동기화 상태 추적 요청 처리 시작');
+          result = trackSyncStatus(requestData);
+          break;
+          
         default:
           console.log(`⚠️ V22.1 알 수 없는 요청 타입 '${requestType}', AI 역량진단으로 안전하게 처리`);
           
@@ -3972,6 +3977,67 @@ function verifyDiagnosisExists(requestData) {
 }
 
 // �� V22.2 긴급 추가: 기존 AI 관련 함수들 모두 안전하게 처리
+/**
+ * 📊 동기화 상태 추적 함수
+ */
+function trackSyncStatus(requestData) {
+  try {
+    console.log('📊 동기화 상태 추적 처리 시작');
+    
+    const { diagnosisId, status, metadata } = requestData;
+    
+    if (!diagnosisId || !status) {
+      throw new Error('진단ID와 상태가 필요합니다.');
+    }
+
+    const config = getEnvironmentConfig();
+    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    
+    // 동기화 추적 시트 생성 (없으면 생성)
+    let syncSheet = spreadsheet.getSheetByName('동기화_상태_추적');
+    if (!syncSheet) {
+      syncSheet = spreadsheet.insertSheet('동기화_상태_추적');
+      // 헤더 설정
+      syncSheet.getRange(1, 1, 1, 8).setValues([[
+        '진단ID', '상태', '타임스탬프', '메타데이터', '시도횟수', '대기시간', '오류메시지', '버전'
+      ]]);
+    }
+    
+    // 동기화 상태 기록
+    syncSheet.appendRow([
+      diagnosisId,
+      status,
+      new Date().toISOString(),
+      JSON.stringify(metadata || {}),
+      metadata?.syncAttempts || 0,
+      metadata?.totalWaitTime || 0,
+      metadata?.error || '',
+      'V28.0'
+    ]);
+    
+    console.log('✅ 동기화 상태 추적 완료:', {
+      diagnosisId: diagnosisId,
+      status: status,
+      timestamp: new Date().toISOString()
+    });
+    
+    return {
+      success: true,
+      message: '동기화 상태가 기록되었습니다.',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 동기화 상태 추적 처리 실패:', error);
+    
+    return {
+      success: false,
+      error: error.message || '동기화 상태 추적 중 오류가 발생했습니다.',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
 function callAI() {
   console.log('🚫 V22.2 차단: AI API 호출 차단');
   return { success: false, message: 'AI 분석이 오프라인 전문가 분석으로 대체되었습니다.' };

@@ -203,7 +203,36 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
 
           if (!response.ok) {
             if (response.status === 404) {
-              throw new Error('해당 진단ID의 보고서를 생성할 수 없습니다.');
+              // 404 오류 시 진단 ID 타임스탬프 확인
+              const timestampMatch = diagnosisId.match(/\d{13}/);
+              if (timestampMatch) {
+                const diagnosisTimestamp = parseInt(timestampMatch[0]);
+                const currentTime = Date.now();
+                const timeDiff = currentTime - diagnosisTimestamp;
+                const tenMinutes = 10 * 60 * 1000; // 10분
+                
+                if (timeDiff < tenMinutes) {
+                  console.log('🕐 최근 생성된 진단ID, 처리 중 상태로 전환:', diagnosisId);
+                  
+                  setIsProcessing(true);
+                  setProcessingMessage(`진단 결과를 처리하고 있습니다. (생성 후 ${Math.round(timeDiff / 1000)}초 경과)`);
+                  
+                  toast({
+                    title: "⏳ 진단 처리 중",
+                    description: "진단 결과를 처리하고 있습니다. 잠시 후 다시 시도해주세요.",
+                    variant: "default",
+                  });
+                  
+                  // 10초 후 자동 재시도
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 10000);
+                  
+                  return;
+                }
+              }
+              
+              throw new Error('해당 진단ID의 보고서를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.');
             } else if (response.status === 503) {
               // 시스템 업데이트 중 상태 처리
               const errorResult = await response.json();
