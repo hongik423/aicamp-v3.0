@@ -49,66 +49,38 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     loadParams();
   }, [params]);
 
-  // 진단 ID가 설정되면 통합 접근 권한 검증
+  // ✅ 단순 진단ID 확인 - 복잡한 인증 시스템 완전 제거
   useEffect(() => {
     if (!diagnosisId) return;
 
-    console.log('🔍 통합 접근 권한 검증 시작:', diagnosisId);
+    console.log('✅ 단순 진단ID 확인:', diagnosisId);
     
-    const verifyAccess = async () => {
+    // 진단ID가 있으면 바로 접근 허용 - 단순하게!
+    if (diagnosisId && diagnosisId.length >= 10 && diagnosisId.startsWith('DIAG_')) {
+      setIsAuthorized(true);
+      setAuthLoading(false);
+      console.log('✅ 진단ID 확인 완료 - 바로 접근 허용:', diagnosisId);
+      
+      // 최근 조회 ID 저장
       try {
-        setAuthLoading(true);
-        
-        // URL 파라미터에서 인증 정보 추출
-        const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-        const authMethod = urlParams?.get('auth');
-        const authToken = urlParams?.get('token');
-        
-        // 통합 접근 권한 컨트롤러 사용
-        const accessResult = await DiagnosisAccessController.verifyAccess({
-          diagnosisId,
-          authToken: authToken || undefined,
-          authMethod: authMethod || undefined
-        });
-        
-        if (accessResult.isAuthorized) {
-          console.log('✅ 통합 접근 권한 확인됨:', accessResult.authMethod);
-          setIsAuthorized(true);
-          
-          // 최근 조회 ID 저장
-          DiagnosisAccessController.saveRecentDiagnosisId(diagnosisId);
-          
-        } else {
-          console.warn('❌ 접근 권한 없음:', accessResult.error);
-          setIsAuthorized(false);
-          setError(accessResult.error || '진단 결과에 접근할 권한이 없습니다.');
-          
-          // 리디렉션 URL이 있으면 이동
-          if (accessResult.redirectUrl) {
-            setTimeout(() => {
-              if (typeof window !== 'undefined') {
-                window.location.href = accessResult.redirectUrl!;
-              }
-            }, 100);
-          }
-        }
-        
-      } catch (error: any) {
-        console.error('❌ 통합 권한 검증 오류:', error);
-        setIsAuthorized(false);
-        setError(error.message || '권한 검증 중 오류가 발생했습니다.');
-      } finally {
-        setAuthLoading(false);
+        const recent = JSON.parse(localStorage.getItem('aicamp_recent_diagnosis_ids') || '[]');
+        const updated = [diagnosisId, ...recent.filter((id: string) => id !== diagnosisId)].slice(0, 5);
+        localStorage.setItem('aicamp_recent_diagnosis_ids', JSON.stringify(updated));
+      } catch (e) {
+        console.log('최근 ID 저장 실패:', e);
       }
-    };
-    
-    verifyAccess();
+    } else {
+      setIsAuthorized(false);
+      setAuthLoading(false);
+      setError('유효하지 않은 진단ID입니다.');
+      console.log('❌ 유효하지 않은 진단ID:', diagnosisId);
+    }
   }, [diagnosisId]);
 
-  // 🛡️ 접근 권한 필수 확인 - 인증 성공 시에만 보고서 로드
+  // ✅ 단순 보고서 로드 - 인증된 경우에만
   useEffect(() => {
     if (isAuthorized === true && diagnosisId) {
-      console.log('🔐 접근 권한 확인 완료, 보고서 로드 시작:', diagnosisId);
+      console.log('✅ 진단ID 확인 완료, 보고서 로드 시작:', diagnosisId);
       
       const loadReport = async () => {
         try {
@@ -174,10 +146,10 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     }
   }, [isAuthorized, diagnosisId, toast]);
 
-  // 🛡️ 치명적 오류 수정: 인증 실패 시 즉시 리다이렉트 (접근 권한 필수)
+  // ✅ 단순 리다이렉트 - 진단ID 없으면 접근 페이지로
   useEffect(() => {
     if (isAuthorized === false) {
-      console.log('🚨 접근 권한 없음 - 인증 페이지로 리다이렉트');
+      console.log('📋 진단ID 확인 필요 - 접근 페이지로 이동');
       router.push('/report-access');
     }
   }, [isAuthorized, router]);

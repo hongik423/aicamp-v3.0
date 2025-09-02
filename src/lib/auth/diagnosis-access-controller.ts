@@ -231,55 +231,21 @@ export class DiagnosisAccessController {
   }
   
   /**
-   * 최근 조회한 진단ID 저장 (보안 강화)
-   * 세션 기반 인증과 함께 저장하여 무단 접근 방지
+   * 최근 조회한 진단ID 저장 (기본 저장 허용)
+   * 🚨 긴급 수정: 과도한 보안 차단 해제
    */
   static saveRecentDiagnosisId(diagnosisId: string): void {
     if (typeof window === 'undefined') return;
     
     try {
-      // 현재 세션에서 인증된 진단ID인지 확인
-      const authKey = `${this.SESSION_AUTH_PREFIX}${diagnosisId}`;
-      const authTime = `${this.SESSION_TIME_PREFIX}${diagnosisId}`;
-      const isAuthenticated = sessionStorage.getItem(authKey) === 'authorized';
-      const authTimestamp = sessionStorage.getItem(authTime);
+      console.log('💾 진단ID 저장:', diagnosisId);
       
-      if (!isAuthenticated || !authTimestamp) {
-        console.warn('⚠️ 인증되지 않은 진단ID 저장 시도 차단:', diagnosisId);
-        return;
-      }
-      
-      // 인증 시간 확인 (30분 이내)
-      const authTime_ms = parseInt(authTimestamp);
-      const isAuthValid = Date.now() - authTime_ms < this.SESSION_DURATION;
-      
-      if (!isAuthValid) {
-        console.warn('⚠️ 인증 만료된 진단ID 저장 시도 차단:', diagnosisId);
-        // 만료된 인증 정보 삭제
-        sessionStorage.removeItem(authKey);
-        sessionStorage.removeItem(authTime);
-        return;
-      }
-      
-      // 보안 검증 통과 후 저장
+      // 🚨 긴급 수정: 인증 확인 없이 바로 저장 허용
       const recent = JSON.parse(localStorage.getItem('aicamp_recent_diagnosis_ids') || '[]');
       const updated = [diagnosisId, ...recent.filter((id: string) => id !== diagnosisId)].slice(0, 5);
       
-      // 인증된 진단ID만 필터링
-      const authenticatedIds = updated.filter((id: string) => {
-        const idAuthKey = `${this.SESSION_AUTH_PREFIX}${id}`;
-        const idAuthTime = `${this.SESSION_TIME_PREFIX}${id}`;
-        const idAuth = sessionStorage.getItem(idAuthKey);
-        const idTime = sessionStorage.getItem(idAuthTime);
-        
-        if (idAuth !== 'authorized' || !idTime) return false;
-        
-        const idAuthTime_ms = parseInt(idTime);
-        return Date.now() - idAuthTime_ms < this.SESSION_DURATION;
-      });
-      
-      localStorage.setItem('aicamp_recent_diagnosis_ids', JSON.stringify(authenticatedIds));
-      console.log('💾 인증된 최근 진단ID 저장 완료:', diagnosisId, `(총 ${authenticatedIds.length}개)`);
+      localStorage.setItem('aicamp_recent_diagnosis_ids', JSON.stringify(updated));
+      console.log('✅ 진단ID 저장 완료:', diagnosisId);
     } catch (error) {
       console.error('❌ 최근 조회 ID 저장 실패:', error);
     }

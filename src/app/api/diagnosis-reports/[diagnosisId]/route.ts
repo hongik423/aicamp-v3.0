@@ -39,9 +39,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
     console.log('🛡️ 보고서 조회 요청 - 접근 권한 필수 확인:', diagnosisId);
     
-    // 🚨 치명적 오류 수정: 접근 권한 확인 없이 바로 진행 차단
+    // ✅ 단순 진단ID 확인만 - 복잡한 인증 제거
     if (!diagnosisId || typeof diagnosisId !== 'string' || diagnosisId.length < 10) {
-      console.error('❌ 유효하지 않은 진단 ID - 접근 차단:', diagnosisId);
+      console.log('📋 유효하지 않은 진단 ID - 48시간 답변 메시지');
       return NextResponse.json(
         { 
           success: false, 
@@ -54,22 +54,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
     
-    // 🛡️ 접근 권한 필수 검증 - 세션 또는 인증 토큰 확인
-    const authHeader = request.headers.get('authorization');
-    const sessionAuth = request.headers.get('x-session-auth');
-    
-    if (!authHeader && !sessionAuth) {
-      console.error('❌ 접근 권한 없음 - 인증 필요:', diagnosisId);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: '이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.',
-          code: 'AUTHENTICATION_REQUIRED',
-          message: '보고서 준비 중입니다'
-        },
-        { status: 404 }
-      );
-    }
+    console.log('✅ 진단ID 형식 확인 완료 - 보고서 처리 시작:', diagnosisId);
     
     // 🔄 동기화 상태 추적 시작
     await SyncManager.trackSyncStatus(diagnosisId, 'started', {

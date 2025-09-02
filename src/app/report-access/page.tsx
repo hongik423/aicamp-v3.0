@@ -240,90 +240,10 @@ export default function ReportAccessPage() {
       return;
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
-      console.log('🔍 진단ID 접근 권한 검증:', diagnosisId.trim());
-      
-      // 1단계: 접근 권한 검증
-      const authResponse = await fetch('/api/diagnosis-auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          diagnosisId: diagnosisId.trim(),
-          accessType: 'user'
-        }),
-      });
-
-      if (!authResponse.ok) {
-        const authError = await authResponse.json();
-        throw new Error(authError.error || '접근 권한 검증에 실패했습니다.');
-      }
-
-      const authResult = await authResponse.json();
-      
-      if (!authResult.success) {
-        throw new Error(authResult.error || '진단ID에 접근할 권한이 없습니다.');
-      }
-
-      console.log('✅ 접근 권한 확인 완료');
-
-      // 2단계: 진단 데이터 존재 확인
-      const verifyResponse = await fetch(`/api/diagnosis-reports/${diagnosisId.trim()}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!verifyResponse.ok) {
-        if (verifyResponse.status === 404) {
-          throw new Error('해당 진단ID의 결과를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.');
-        }
-        throw new Error('진단 결과 확인 중 오류가 발생했습니다.');
-      }
-
-      const verifyResult = await verifyResponse.json();
-      
-      if (verifyResult.success) {
-        console.log('✅ 진단 결과 확인 완료:', verifyResult.reportInfo?.version);
-      } else if (verifyResult.error?.includes('아직 준비 중')) {
-        console.log('⏳ 보고서 생성 중... 폴백 시스템으로 처리');
-      } else if (verifyResult.reportInfo?.fallbackMode) {
-        console.log('✅ 진단 데이터 존재 확인 완료 (폴백 시스템 포함)');
-      } else {
-        throw new Error(verifyResult.error || '진단 결과를 확인할 수 없습니다.');
-      }
-
-      // 통합 컨트롤러를 사용하여 최근 조회 ID 저장 및 세션 인증 처리
-      DiagnosisAccessController.saveRecentDiagnosisId(diagnosisId.trim());
-      
-      // 세션 기반 인증 저장 (30분 유효)
-      if (typeof window !== 'undefined') {
-        const authKey = `diagnosis_auth_${diagnosisId.trim()}`;
-        const authTime = `diagnosis_auth_time_${diagnosisId.trim()}`;
-        sessionStorage.setItem(authKey, 'authorized');
-        sessionStorage.setItem(authTime, Date.now().toString());
-      }
-
-      // 보고서 페이지로 이동
-      router.push(`/diagnosis-results/${diagnosisId.trim()}`);
-      
-    } catch (err: any) {
-      console.error('❌ 진단ID 접근 실패:', err);
-      setError(err.message || '진단ID 접근 중 오류가 발생했습니다.');
-      
-      toast({
-        title: "접근 실패",
-        description: err.message || "진단ID를 다시 확인해주세요.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    console.log('✅ 진단ID 확인 - 바로 이동:', diagnosisId.trim());
+    
+    // 바로 보고서 페이지로 이동 - 단순하게!
+    router.push(`/diagnosis-results/${diagnosisId.trim()}`);
   };
 
   return (
