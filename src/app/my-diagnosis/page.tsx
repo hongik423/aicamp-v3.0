@@ -228,6 +228,12 @@ export default function MyDiagnosisPage() {
           setHasReport(true);
           // 보안상 최근 조회 기록 저장 제거
           
+          // 세션에 인증 상태 저장 (30분 유효)
+          const authKey = `diagnosis_auth_${cleanId}`;
+          const authTimeKey = `diagnosis_auth_time_${cleanId}`;
+          sessionStorage.setItem(authKey, 'authorized');
+          sessionStorage.setItem(authTimeKey, Date.now().toString());
+          
           toast({
             title: "✅ 진단보고서 조회 성공",
             description: `${diagnosisData.companyName || '회사'}의 AI 역량진단 보고서를 찾았습니다.`,
@@ -261,10 +267,22 @@ export default function MyDiagnosisPage() {
     }
   };
 
-  // 보고서 보기
+  // 보고서 보기 (세션 인증 확인)
   const handleViewReport = () => {
     if (reportInfo && diagnosisId) {
-      window.open(`/diagnosis-results/${diagnosisId}`, '_blank');
+      // 세션 인증 확인 후 이동
+      const authKey = `diagnosis_auth_${diagnosisId}`;
+      const sessionAuth = sessionStorage.getItem(authKey);
+      
+      if (sessionAuth === 'authorized') {
+        window.open(`/diagnosis-results/${diagnosisId}`, '_blank');
+      } else {
+        toast({
+          title: "⚠️ 인증 필요",
+          description: "보고서 조회를 다시 시도해주세요.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -720,7 +738,7 @@ export default function MyDiagnosisPage() {
                       size="lg"
                     >
                       <Eye className="h-5 w-5 mr-3" />
-                      35페이지 보고서 보기
+                      🔒 35페이지 보고서 보기
                     </Button>
                     
                     <Button 

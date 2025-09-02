@@ -49,46 +49,63 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     loadParams();
   }, [params]);
 
-  // 🔒 강화된 보안 인증 시스템 - 본인만 접근 가능
+  // 🔒 세션 기반 접근 권한 검증 - 올바른 인증 플로우 확인
   useEffect(() => {
     if (!diagnosisId) return;
 
-    console.log('🔒 보안 인증 시작:', diagnosisId);
+    console.log('🔒 세션 인증 확인 시작:', diagnosisId);
     
-    const verifyAccess = async () => {
+    const checkSessionAuth = () => {
       try {
         setAuthLoading(true);
         
-        // DiagnosisAccessController를 사용한 강화된 접근 권한 검증
-        const accessResult = await DiagnosisAccessController.verifyAccess({
-          diagnosisId,
-          authMethod: 'diagnosis-id',
-          skipRedirect: true
-        });
+        // 세션에서 인증 상태 확인
+        const authKey = `diagnosis_auth_${diagnosisId}`;
+        const authTimeKey = `diagnosis_auth_time_${diagnosisId}`;
+        const sessionAuth = sessionStorage.getItem(authKey);
+        const authTime = sessionStorage.getItem(authTimeKey);
         
-        if (accessResult.isAuthorized) {
-          setIsAuthorized(true);
-          console.log('✅ 본인 인증 완료 - 접근 허용:', diagnosisId);
-        } else {
-          setIsAuthorized(false);
-          setError('🔒 접근 권한이 없습니다. 본인의 진단ID를 사용하거나 이메일 인증을 완료해주세요.');
-          console.log('❌ 접근 권한 없음:', diagnosisId);
+        if (sessionAuth === 'authorized' && authTime) {
+          // 인증 시간 확인 (30분 제한)
+          const authTimeMs = parseInt(authTime);
+          const isAuthValid = Date.now() - authTimeMs < 30 * 60 * 1000;
           
-          // 인증 페이지로 리디렉션
+          if (isAuthValid) {
+            setIsAuthorized(true);
+            console.log('✅ 세션 인증 확인 완료 - 접근 허용:', diagnosisId);
+          } else {
+            // 인증 만료
+            sessionStorage.removeItem(authKey);
+            sessionStorage.removeItem(authTimeKey);
+            setIsAuthorized(false);
+            setError('🕒 인증이 만료되었습니다. 다시 인증해주세요.');
+            console.log('❌ 인증 만료:', diagnosisId);
+            
+            setTimeout(() => {
+              router.push(`/my-diagnosis?expired=true&diagnosisId=${encodeURIComponent(diagnosisId)}`);
+            }, 2000);
+          }
+        } else {
+          // 세션 인증 없음 - 직접 URL 접근 차단
+          setIsAuthorized(false);
+          setError('🔒 올바른 인증 과정을 거쳐주세요. 진단ID 입력 페이지로 이동합니다.');
+          console.log('❌ 세션 인증 없음 - 직접 접근 차단:', diagnosisId);
+          
+          // 진단ID 입력 페이지로 리디렉션
           setTimeout(() => {
-            router.push(`/report-access?target=${encodeURIComponent(diagnosisId)}`);
+            router.push(`/my-diagnosis?diagnosisId=${encodeURIComponent(diagnosisId)}`);
           }, 3000);
         }
       } catch (error) {
-        console.error('❌ 보안 인증 실패:', error);
+        console.error('❌ 세션 인증 확인 실패:', error);
         setIsAuthorized(false);
-        setError('보안 인증 중 오류가 발생했습니다.');
+        setError('인증 확인 중 오류가 발생했습니다.');
       } finally {
         setAuthLoading(false);
       }
     };
     
-    verifyAccess();
+    checkSessionAuth();
   }, [diagnosisId, router]);
 
   // ✅ 단순 보고서 로드 - 인증된 경우에만
