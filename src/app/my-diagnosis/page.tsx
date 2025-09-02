@@ -154,7 +154,8 @@ export default function MyDiagnosisPage() {
         console.log('✅ 이메일 인증 성공');
         
         // 인증 토큰과 함께 보고서 페이지로 이동
-        router.push(`/diagnosis-results/${authDiagnosisId.trim()}?auth=email&token=${result.token}`);
+        // 이메일 인증 성공 후 진단 결과를 찾기 위해 이메일 기반으로 리디렉션
+        router.push(`/my-diagnosis?auth=email&token=${result.token}&email=${encodeURIComponent(email)}`);
         
       } else {
         throw new Error(result.error || '인증번호 검증에 실패했습니다.');
