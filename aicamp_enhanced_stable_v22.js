@@ -2390,6 +2390,21 @@ function processDiagnosis(requestData) {
       category: false
     };
     
+    // 🔥 중복 저장 방지: 진단 ID 존재 여부 확인
+    console.log('🔍 V22.4 중복 저장 방지 - 진단 ID 존재 여부 확인:', diagnosisId);
+    const existingCheck = verifyDiagnosisId({ diagnosisId: diagnosisId });
+    
+    if (existingCheck && existingCheck.exists) {
+      console.log('⚠️ V22.4 중복 저장 방지: 이미 존재하는 진단 ID입니다:', diagnosisId);
+      
+      // 기존 데이터 조회
+      const existingData = queryDiagnosisById({ diagnosisId: diagnosisId });
+      if (existingData && existingData.success) {
+        console.log('✅ V22.4 기존 데이터 반환 (중복 저장 방지)');
+        return existingData;
+      }
+    }
+
     try {
       console.log('💾 V22.2 메인 시트 저장 시작 (진단 ID 포함)...');
       // 진단 ID를 명시적으로 전달
