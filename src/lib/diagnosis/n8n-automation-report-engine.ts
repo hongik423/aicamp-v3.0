@@ -45,16 +45,20 @@ export class N8nAutomationReportEngine {
     console.log('🚀 n8n 자동화 중심 보고서 생성 시작:', diagnosisId);
     
     try {
-      // 1단계: 무오류 데이터 동기화
+      // 1단계: 🔥 실제 데이터 동기화 (사실기반 1원칙)
+      console.log('🔥 실제 데이터 동기화 시작 - 사실기반 보고서 작성을 위한 필수 단계');
       const syncResult = await SyncManager.waitForDataSynchronization(diagnosisId);
       
       if (!syncResult.success) {
+        console.error('❌ 실제 데이터 동기화 실패 - 보고서 생성 중단:', syncResult.error);
         return {
           success: false,
-          error: `데이터 동기화 실패: ${syncResult.error}`,
+          error: `🔥 실제 데이터 조회 실패: ${syncResult.error}\n\n사실기반 보고서 작성을 위해 실제 진단 데이터가 필요합니다. 진단서 제출이 완료되었는지 확인해주세요.`,
           syncInfo: syncResult
         };
       }
+      
+      console.log('✅ 실제 데이터 동기화 성공 - 사실기반 보고서 생성 진행');
       
       // 2단계: 고도화된 데이터 분석
       const enhancedData = await this.enhanceWithAutomationInsights(syncResult.data!, diagnosisId);

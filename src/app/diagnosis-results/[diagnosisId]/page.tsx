@@ -149,10 +149,10 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
               }
             }
             
-            // 성공하지 못한 경우 48시간 메시지 표시
-            console.log('📋 보고서 로드 실패 - 48시간 답변 메시지 표시');
-            setError('보고서 준비 중입니다');
-            setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
+            // 실제 데이터 조회 실패 - 명확한 안내 메시지
+            console.log('📋 실제 데이터 조회 실패 - 진단서 제출 확인 필요');
+            setError('실제 진단 데이터를 찾을 수 없습니다');
+            setProcessingMessage('🔥 사실기반 보고서 작성을 위해 실제 진단 데이터가 필요합니다.\n\n진단서 제출이 완료되었는지 확인하시거나, 정확한 진단ID를 사용해주세요.\n\n문의사항이 있으시면 고객센터로 연락해주세요.');
             setLoading(false);
             return;
             

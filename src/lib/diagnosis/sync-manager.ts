@@ -60,34 +60,31 @@ export class SyncManager {
       } catch (error: any) {
         console.error(`❌ 동기화 시도 ${attempts} 실패:`, error.message);
         
-        // 마지막 시도에서 실패하면 대체 데이터 반환
-        if (attempts >= this.MAX_ATTEMPTS || Date.now() - startTime >= this.MAX_WAIT_TIME) {
-          console.log('🔧 최대 시도 횟수 도달, 대체 데이터 생성');
-          const fallbackData = this.generateFallbackData(diagnosisId);
-          return {
-            success: true,
-            data: fallbackData,
-            attempts,
-            totalWaitTime: Date.now() - startTime
-          };
-        }
+                 // 마지막 시도에서 실패하면 오류 반환
+         if (attempts >= this.MAX_ATTEMPTS || Date.now() - startTime >= this.MAX_WAIT_TIME) {
+           console.error('❌ 최대 시도 횟수 도달, 실제 데이터 조회 실패');
+           break;
+         }
         
         await this.delay(currentDelay);
         currentDelay = Math.min(currentDelay * 1.5, this.MAX_RETRY_DELAY);
       }
     }
     
-    // 타임아웃 시에도 대체 데이터 생성
-    console.log('🔧 타임아웃으로 인한 대체 데이터 생성');
-    const fallbackData = this.generateFallbackData(diagnosisId);
-    const totalWaitTime = Date.now() - startTime;
-    
-    return {
-      success: true,
-      data: fallbackData,
-      attempts,
-      totalWaitTime
-    };
+         // 타임아웃 시 오류 반환 - 실제 데이터만 사용
+     const totalWaitTime = Date.now() - startTime;
+     console.error('❌ 데이터 동기화 타임아웃 - 실제 데이터 조회 실패:', {
+       diagnosisId,
+       attempts,
+       totalWaitTime: `${Math.round(totalWaitTime / 1000)}초`
+     });
+     
+     return {
+       success: false,
+       attempts,
+       totalWaitTime,
+       error: `실제 데이터 동기화 타임아웃 (${attempts}회 시도, ${Math.round(totalWaitTime / 1000)}초 경과)`
+     };
   }
 
   /**
@@ -151,17 +148,20 @@ export class SyncManager {
       }
     }
     
-    // 모든 시도 실패 시 대체 데이터 생성
-    console.log('🔧 모든 시도 실패, 대체 데이터 생성');
-    const fallbackData = this.generateFallbackData(diagnosisId);
-    const totalWaitTime = Date.now() - startTime;
-    
-    return {
-      success: true,
-      data: fallbackData,
-      attempts,
-      waitTime: totalWaitTime
-    };
+         // 모든 시도 실패 시 오류 반환 - 실제 데이터만 사용
+     const totalWaitTime = Date.now() - startTime;
+     console.error('❌ V28.0 데이터 동기화 실패 - 실제 데이터 조회 실패:', {
+       diagnosisId,
+       attempts,
+       totalWaitTime: `${Math.round(totalWaitTime / 1000)}초`
+     });
+     
+     return {
+       success: false,
+       attempts,
+       waitTime: totalWaitTime,
+       error: `실제 데이터 동기화 실패 (${attempts}회 시도, ${Math.round(totalWaitTime / 1000)}초 경과)`
+     };
   }
 
   /**
@@ -210,11 +210,10 @@ export class SyncManager {
       
       console.log('📡 GAS 응답 상태:', response.status, response.statusText);
 
-      if (!response.ok) {
-        console.warn('⚠️ GAS 응답 오류, 대체 데이터 생성:', response.status, response.statusText);
-        const fallbackData = this.generateFallbackData(diagnosisId);
-        return { success: true, data: fallbackData };
-      }
+             if (!response.ok) {
+         console.error('❌ GAS 응답 오류:', response.status, response.statusText);
+         throw new Error(`GAS 응답 오류: ${response.status} ${response.statusText}`);
+       }
 
       const result = await response.json();
       
@@ -224,72 +223,21 @@ export class SyncManager {
         
         console.log('✅ GAS 데이터 조회 성공:', diagnosisId);
         return { success: true, data: result.data };
-      } else {
-        console.warn('⚠️ GAS에서 데이터를 찾을 수 없음, 대체 데이터 생성:', result.error || '데이터 없음');
-        const fallbackData = this.generateFallbackData(diagnosisId);
-        return { success: true, data: fallbackData };
-      }
+             } else {
+         console.warn('⚠️ GAS에서 데이터를 찾을 수 없음:', result.error || '데이터 없음');
+         return { success: false, error: result.error || 'GAS 데이터 조회 실패' };
+       }
       
-    } catch (error: any) {
-      console.error('❌ GAS 연결 실패, 대체 데이터 생성:', error.message);
-      const fallbackData = this.generateFallbackData(diagnosisId);
-      return { success: true, data: fallbackData };
-    }
+         } catch (error: any) {
+       console.error('❌ GAS 연결 실패:', error.message);
+       return { success: false, error: `GAS 연결 오류: ${error.message}` };
+     }
   }
 
   /**
-   * 🔧 대체 데이터 생성 (GAS 연결 실패 시 사용)
+   * 🔧 실제 데이터만 사용 - 대체 데이터 생성 제거
+   * 사실기반 실제데이터 결과보고서 작성이 1원칙
    */
-  private static generateFallbackData(diagnosisId: string): any {
-    const now = new Date();
-    
-    return {
-      diagnosisId: diagnosisId,
-      companyName: '테스트 기업',
-      contactName: '테스트 담당자',
-      email: 'test@company.com',
-      phone: '010-1234-5678',
-      position: '팀장',
-      industry: 'IT/소프트웨어',
-      employeeCount: '50-99명',
-      location: '서울',
-      timestamp: now.toISOString(),
-      createdAt: now.toISOString(),
-      scores: {
-        totalScore: 85,
-        categoryScores: {
-          businessFoundation: 4.2,
-          currentAI: 3.8,
-          organizationReadiness: 4.0,
-          technologyInfrastructure: 4.5,
-          dataManagement: 3.9,
-          humanResources: 4.1
-        },
-        responses: this.generateMockResponses()
-      },
-      grade: 'B+',
-      maturityLevel: '발전단계',
-      status: 'completed',
-      fallbackData: true,
-      fallbackReason: 'GAS 연결 실패로 인한 대체 데이터'
-    };
-  }
-
-  /**
-   * 🔧 모의 응답 데이터 생성
-   */
-  private static generateMockResponses(): Array<{questionId: number, score: number, question: string, answer: string}> {
-    const responses = [];
-    for (let i = 1; i <= 45; i++) {
-      responses.push({
-        questionId: i,
-        score: Math.floor(Math.random() * 5) + 1,
-        question: `질문 ${i}`,
-        answer: `응답 ${i}`
-      });
-    }
-    return responses;
-  }
 
   /**
    * 🔄 동기화 상태 추적
