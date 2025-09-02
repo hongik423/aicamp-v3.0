@@ -110,8 +110,9 @@ export function getGasUrl(): string {
                 process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
                 process.env.GOOGLE_APPS_SCRIPT_URL;
   
-  const defaultUrl = envUrl || DEFAULT_GOOGLE_SCRIPT_URL || 
-                    'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
+  // 🔧 V22 스크립트 URL 강제 사용 (GAS에 데이터가 있다고 확인됨)
+  const v22ScriptUrl = 'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
+  const defaultUrl = envUrl || DEFAULT_GOOGLE_SCRIPT_URL || v22ScriptUrl;
   
   console.log('🔧 GAS URL 설정:', {
     환경변수: envUrl ? '✅ 설정됨' : '❌ 누락',
