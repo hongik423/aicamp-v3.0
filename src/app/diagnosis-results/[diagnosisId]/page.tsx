@@ -218,11 +218,8 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         variant: "destructive",
       });
       
-      // 만료된 인증 정보 삭제
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem(authKey);
-        sessionStorage.removeItem(authTime);
-      }
+      // 영속적 접근 권한으로 인해 만료 로직 제거
+      console.log('ℹ️ 영속적 접근 권한 시스템으로 인해 만료 처리 불필요');
       
       router.push(`/report-access?diagnosisId=${diagnosisId}`);
       return;
