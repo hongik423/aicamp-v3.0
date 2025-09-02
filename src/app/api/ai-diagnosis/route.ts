@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
         });
         
       } else {
-        throw new Error(workflowResult?.error || 'GAS 처리 실패');
+        throw new Error('GAS 처리 실패');
       }
       
     } catch (workflowError: any) {
