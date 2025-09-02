@@ -49,33 +49,47 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     loadParams();
   }, [params]);
 
-  // ✅ 단순 진단ID 확인 - 복잡한 인증 시스템 완전 제거
+  // 🔒 강화된 보안 인증 시스템 - 본인만 접근 가능
   useEffect(() => {
     if (!diagnosisId) return;
 
-    console.log('✅ 단순 진단ID 확인:', diagnosisId);
+    console.log('🔒 보안 인증 시작:', diagnosisId);
     
-    // 진단ID가 있으면 바로 접근 허용 - 단순하게!
-    if (diagnosisId && diagnosisId.length >= 10 && diagnosisId.startsWith('DIAG_')) {
-      setIsAuthorized(true);
-      setAuthLoading(false);
-      console.log('✅ 진단ID 확인 완료 - 바로 접근 허용:', diagnosisId);
-      
-      // 최근 조회 ID 저장
+    const verifyAccess = async () => {
       try {
-        const recent = JSON.parse(localStorage.getItem('aicamp_recent_diagnosis_ids') || '[]');
-        const updated = [diagnosisId, ...recent.filter((id: string) => id !== diagnosisId)].slice(0, 5);
-        localStorage.setItem('aicamp_recent_diagnosis_ids', JSON.stringify(updated));
-      } catch (e) {
-        console.log('최근 ID 저장 실패:', e);
+        setAuthLoading(true);
+        
+        // DiagnosisAccessController를 사용한 강화된 접근 권한 검증
+        const accessResult = await DiagnosisAccessController.verifyAccess({
+          diagnosisId,
+          authMethod: 'diagnosis-id',
+          skipRedirect: true
+        });
+        
+        if (accessResult.isAuthorized) {
+          setIsAuthorized(true);
+          console.log('✅ 본인 인증 완료 - 접근 허용:', diagnosisId);
+        } else {
+          setIsAuthorized(false);
+          setError('🔒 접근 권한이 없습니다. 본인의 진단ID를 사용하거나 이메일 인증을 완료해주세요.');
+          console.log('❌ 접근 권한 없음:', diagnosisId);
+          
+          // 인증 페이지로 리디렉션
+          setTimeout(() => {
+            router.push(`/report-access?target=${encodeURIComponent(diagnosisId)}`);
+          }, 3000);
+        }
+      } catch (error) {
+        console.error('❌ 보안 인증 실패:', error);
+        setIsAuthorized(false);
+        setError('보안 인증 중 오류가 발생했습니다.');
+      } finally {
+        setAuthLoading(false);
       }
-    } else {
-      setIsAuthorized(false);
-      setAuthLoading(false);
-      setError('유효하지 않은 진단ID입니다.');
-      console.log('❌ 유효하지 않은 진단ID:', diagnosisId);
-    }
-  }, [diagnosisId]);
+    };
+    
+    verifyAccess();
+  }, [diagnosisId, router]);
 
   // ✅ 단순 보고서 로드 - 인증된 경우에만
   useEffect(() => {
