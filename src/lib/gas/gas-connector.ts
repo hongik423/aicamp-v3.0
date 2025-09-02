@@ -57,7 +57,7 @@ export async function callGAS(payload: GASPayload): Promise<GASResponse> {
           timestamp: new Date().toISOString()
         }),
         // 타임아웃 설정
-        signal: AbortSignal.timeout(30000) // 30초
+        signal: AbortSignal.timeout(120000) // 2분
       });
       
       // 응답 텍스트 먼저 읽기

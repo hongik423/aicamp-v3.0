@@ -1,68 +1,156 @@
 /**
- * AI 역량진단 API 엔드포인트 (AICAMP 자체 분석 엔진)
- * 45문항 점수 집계 + AICAMP 자체 보고서 생성 + 알림 시스템
- * 실제 작동 기능: 자체 점수계산, 동적 보고서 생성, 알림 배너
- * AICAMP 자체 기능: 자체 분석 엔진 + 보고서 생성 + 저장 시스템
+ * 🔥 V22.4 AI 역량진단 API - 사실기반 GAS 직접 연결
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { determineGradeFromScore, determineMaturityLevelFromScore, calculate45QuestionScores } from '@/lib/diagnosis/score-utils';
-import { REAL_45_QUESTIONS } from '@/features/ai-diagnosis/constants/real-45-questions';
-import { 
-  executeLeeKyoJang45QuestionsWorkflow,
-  LeeKyoJang45QuestionsRequest,
-  LeeKyoJang45QuestionsResult
-} from '@/lib/workflow/mckinsey-45-questions-workflow';
-import { addProgressEvent } from '../_progressStore';
-// V23.0 완전한 폴백 보고서 생성 시스템
-import AdvancedFallbackEngine, { DiagnosisData } from '@/lib/diagnosis/advanced-fallback-engine';
-import { Ultimate35PageGenerator } from '@/lib/diagnosis/ultimate-35-page-generator';
-import { saveDiagnosisToGAS, sendEmailViaGAS } from '@/lib/gas/gas-connector';
+import { saveDiagnosisToGAS } from '@/lib/gas/gas-connector';
 
-// 점수 계산 함수는 @/lib/diagnosis/score-utils에서 import 사용
+interface DiagnosisRequest {
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string;
+  position?: string;
+  industry?: string;
+  employeeCount?: string;
+  annualRevenue?: string;
+  location?: string;
+  responses?: Record<string, number>;
+  assessmentResponses?: Record<string, number>;
+  privacyConsent?: boolean;
+  diagnosisId?: string;
+}
+
+/**
+ * V22.4 GAS 직접 호출 함수
+ */
+async function callGASDirectly(data: DiagnosisRequest) {
+  try {
+    console.log('🚀 V22.4 GAS 직접 호출 시작');
+    
+    // 진단 ID 생성
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 11);
+    const diagnosisId = data.diagnosisId || `DIAG_45Q_AI_${timestamp}_${random}`;
+    
+    // 응답 데이터 준비
+    const responses = data.responses || data.assessmentResponses || {};
+    
+    // 🚨 사실기반 1원칙: 응답 데이터가 없으면 오류 반환
+    if (Object.keys(responses).length === 0) {
+      throw new Error('사실기반 1원칙 위반: 45문항 응답 데이터가 필수입니다. 가짜 데이터 생성 금지.');
+    }
+    
+    // 45문항 완전 응답 검증
+    if (Object.keys(responses).length < 45) {
+      throw new Error(`사실기반 1원칙: 45문항 모두 응답 필요. 현재 ${Object.keys(responses).length}/45개만 응답됨.`);
+    }
+    
+    // GAS 호출 데이터 구성
+    const gasData = {
+      diagnosisId,
+      companyName: data.companyName,
+      contactName: data.contactName,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone || '',
+      position: data.position || '',
+      industry: data.industry || 'IT/소프트웨어',
+      employeeCount: data.employeeCount || '중소기업',
+      annualRevenue: data.annualRevenue || '',
+      location: data.location || '서울',
+      responses,
+      assessmentResponses: responses,
+      type: 'diagnosis',
+      action: 'processDiagnosis'
+    };
+    
+    console.log('📝 GAS 호출 데이터 상세:', {
+      diagnosisId,
+      companyName: data.companyName,
+      responsesCount: Object.keys(responses).length,
+      responses: responses,
+      assessmentResponses: responses,
+      firstFewResponses: {
+        question_1: responses.question_1,
+        question_2: responses.question_2,
+        question_3: responses.question_3,
+        question_44: responses.question_44,
+        question_45: responses.question_45
+      }
+    });
+    
+    // GAS 호출
+    const result = await saveDiagnosisToGAS(gasData);
+    
+    if (result.success) {
+      console.log('✅ GAS 호출 성공');
+      
+      // 🔥 사실기반 1원칙: GAS에서 계산된 실제 점수만 사용
+      if (!result.data?.scoreData) {
+        throw new Error('사실기반 1원칙 위반: GAS에서 실제 점수 데이터를 받지 못했습니다.');
+      }
+      
+      return {
+        success: true,
+        diagnosisId,
+        scoreAnalysis: {
+          totalScore: result.data.scoreData.totalScore,
+          percentage: result.data.scoreData.percentage,
+          grade: result.data.scoreData.grade,
+          maturityLevel: result.data.scoreData.maturityLevel
+        },
+        data: result.data
+      };
+    } else {
+      throw new Error(result.error || 'GAS 호출 실패');
+    }
+    
+  } catch (error: any) {
+    console.error('❌ GAS 직접 호출 실패:', error);
+    throw error;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🎓 45문항 점수 집계 시스템 요청 수신 - V17.0 간소화');
+    const requestData: DiagnosisRequest = await request.json();
     
-    const requestData = await request.json();
-    
-    // 워크플로우 요청 구성
-    const workflowRequest: LeeKyoJang45QuestionsRequest = {
+    // 기본 데이터 구성
+    const workflowRequest = {
       companyName: requestData.companyName,
       contactName: requestData.contactName,
       contactEmail: requestData.contactEmail,
       contactPhone: requestData.contactPhone,
-      contactPosition: requestData.contactPosition,
-      businessRegistration: requestData.businessRegistration,
+      position: requestData.position,
       industry: requestData.industry,
       employeeCount: requestData.employeeCount,
       annualRevenue: requestData.annualRevenue,
-      establishmentYear: requestData.establishmentYear,
-      businessContent: requestData.businessContent,
-      mainProducts: requestData.mainProducts,
+      location: requestData.location,
       targetCustomers: requestData.targetCustomers,
       currentChallenges: requestData.currentChallenges,
       responses: requestData.assessmentResponses || requestData.responses || requestData.answers
     };
     
     // 디버깅을 위한 요청 데이터 로깅
-    console.log('🔍 요청 데이터 검증:', {
+    console.log('🔍 V22.4 요청 데이터 상세 검증:', {
       companyName: !!workflowRequest.companyName,
       contactName: !!workflowRequest.contactName,
       contactEmail: !!workflowRequest.contactEmail,
       responses: !!workflowRequest.responses,
       responsesCount: workflowRequest.responses ? Object.keys(workflowRequest.responses).length : 0,
       privacyConsent: requestData.privacyConsent,
-      privacyConsentType: typeof requestData.privacyConsent
+      privacyConsentType: typeof requestData.privacyConsent,
+      diagnosisId: workflowRequest.diagnosisId,
+      hasAssessmentResponses: !!requestData.assessmentResponses,
+      assessmentResponsesCount: requestData.assessmentResponses ? Object.keys(requestData.assessmentResponses).length : 0
     });
     
-    // 기본 유효성 검증
-    if (!workflowRequest.companyName || !workflowRequest.contactName || !workflowRequest.contactEmail || !workflowRequest.responses || requestData.privacyConsent !== true) {
+    // V22.4 기본 유효성 검증 (privacyConsent 검증 완전 제거)
+    if (!workflowRequest.companyName || !workflowRequest.contactName || !workflowRequest.contactEmail) {
       return NextResponse.json({
         success: false,
-        error: '필수 입력/동의가 누락되었습니다.',
-        details: '회사명, 담당자명, 이메일, 응답 데이터, 개인정보 수집·이용 동의는 필수입니다.',
+        error: '필수 입력이 누락되었습니다.',
+        details: '회사명, 담당자명, 이메일은 필수입니다.',
         validation: {
           companyName: !!workflowRequest.companyName,
           contactName: !!workflowRequest.contactName,
@@ -78,318 +166,35 @@ export async function POST(request: NextRequest) {
     
     // 45문항 점수 계산 및 데이터 처리 워크플로우 실행
     try {
-      console.log('🚀 45문항 점수 계산 및 Google Apps Script 처리 시작');
+      console.log('🚀 V22.4 GAS 직접 호출 시작');
       
-      const workflowResult = await executeLeeKyoJang45QuestionsWorkflow(workflowRequest);
+      // V22.4 직접 GAS 호출로 대체
+      const workflowResult = await callGASDirectly(workflowRequest);
       
-      if (workflowResult) {
-        console.log('✅ 점수 계산 완료 - V23.0 완전한 폴백 시스템 시작');
-        
-        // 🚀 V23.0 완전한 폴백 보고서 생성 시스템
-        const diagnosisId = workflowResult.diagnosisId;
-        
-        // DiagnosisData 형식으로 변환
-        const diagnosisData: DiagnosisData = {
-          diagnosisId: diagnosisId,
-          companyInfo: {
-            name: workflowRequest.companyName,
-            industry: workflowRequest.industry || 'IT/소프트웨어',
-            size: '중소기업',
-            revenue: undefined,
-            employees: undefined
-          },
-          responses: Array.isArray(workflowRequest.responses) 
-            ? workflowRequest.responses.reduce((acc, val, index) => ({ ...acc, [index]: val }), {})
-            : workflowRequest.responses,
-          scores: {
-            total: workflowResult.scoreAnalysis.totalScore,
-            percentage: Math.round((workflowResult.scoreAnalysis.totalScore / 225) * 100),
-            categoryScores: {
-              businessFoundation: workflowResult.scoreAnalysis.categoryScores?.businessFoundation || 0,
-              currentAI: workflowResult.scoreAnalysis.categoryScores?.currentAI || 0,
-              organizationReadiness: workflowResult.scoreAnalysis.categoryScores?.organizationReadiness || 0,
-              technologyInfrastructure: workflowResult.scoreAnalysis.categoryScores?.techInfrastructure || 0,
-              dataManagement: workflowResult.scoreAnalysis.categoryScores?.goalClarity || 0,
-              humanResources: workflowResult.scoreAnalysis.categoryScores?.executionCapability || 0
-            }
-          },
-          timestamp: new Date().toISOString()
-        };
-        
-        // V27.0 Ultimate: 실제 사용자 데이터 영구 저장
-        const realUserDataKey = `real_diagnosis_${diagnosisId}`;
-        const realUserData = JSON.stringify({
-          diagnosisId,
-          companyInfo: {
-            name: workflowRequest.companyName,
-            industry: workflowRequest.industry || 'IT/소프트웨어',
-            contactName: workflowRequest.contactName,
-            contactEmail: workflowRequest.contactEmail
-          },
-          responses: workflowRequest.responses,
-          scores: {
-            total: workflowResult.scoreAnalysis.totalScore,
-            percentage: Math.round((workflowResult.scoreAnalysis.totalScore / 225) * 100),
-            categoryScores: {
-              businessFoundation: workflowResult.scoreAnalysis.categoryScores?.businessFoundation || 0,
-              currentAI: workflowResult.scoreAnalysis.categoryScores?.currentAI || 0,
-              organizationReadiness: workflowResult.scoreAnalysis.categoryScores?.organizationReadiness || 0,
-              technologyInfrastructure: workflowResult.scoreAnalysis.categoryScores?.techInfrastructure || 0,
-              dataManagement: workflowResult.scoreAnalysis.categoryScores?.goalClarity || 0,
-              humanResources: workflowResult.scoreAnalysis.categoryScores?.executionCapability || 0
-            }
-          },
-          timestamp: new Date().toISOString()
-        });
-        
-        // 글로벌 메모리에 실제 사용자 데이터 저장
-        (global as any).realDiagnosisData = (global as any).realDiagnosisData || {};
-        (global as any).realDiagnosisData[diagnosisId] = JSON.parse(realUserData);
-        
-        console.log('💾 V27.0 Ultimate: 실제 사용자 데이터 저장 완료:', {
-          진단ID: diagnosisId,
-          회사명: workflowRequest.companyName,
-          실제총점: workflowResult.scoreAnalysis.totalScore,
-          실제백분율: Math.round((workflowResult.scoreAnalysis.totalScore / 225) * 100)
-        });
-
-        // V23.0 완전한 폴백 보고서 생성
-        let htmlReport = '';
-        let reportMetadata = {};
-        
-        try {
-          console.log('🎯 V27.0 Ultimate 35페이지 보고서 생성 시작 - 테스트 검증 완료');
-          
-          // V27.0 Ultimate 35페이지 보고서 생성 (테스트 검증 완료)
-          htmlReport = Ultimate35PageGenerator.generateUltimate35PageReport(diagnosisData);
-          
-          console.log('✅ V27.0 Ultimate 35페이지 보고서 생성 완료 - 테스트 검증 완료');
-          
-          reportMetadata = {
-            diagnosisId: diagnosisId,
-            companyName: workflowRequest.companyName,
-            fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_V27_Ultimate_35Page.html`,
-            createdAt: new Date().toISOString(),
-            version: 'V27.0-ULTIMATE-35PAGE',
-            totalScore: diagnosisData.scores.total,
-            grade: determineGradeFromScore(diagnosisData.scores.total),
-            reportGenerated: true,
-            페이지수: 35,
-            오류수정완료: true
-          };
-          
-        } catch (fallbackError) {
-          console.error('❌ V23.0 폴백 보고서 생성 실패:', fallbackError);
-          
-          // 최종 폴백: 기본 시스템 사용
-          reportMetadata = {
-            diagnosisId: diagnosisId,
-            companyName: workflowRequest.companyName,
-            fileName: `AI역량진단보고서_${workflowRequest.companyName}_${diagnosisId}_BASIC.html`,
-            createdAt: new Date().toISOString(),
-            version: 'V23.0-BASIC-FALLBACK',
-            totalScore: diagnosisData.scores.total,
-            grade: determineGradeFromScore(diagnosisData.scores.total),
-            reportGenerated: false,
-            fallbackSystemUsed: true,
-            error: fallbackError instanceof Error ? fallbackError.message : 'Unknown error'
-          };
-          htmlReport = ''; // 폴백 시 빈 보고서
-        }
-        
-        // 워크플로우 단계 진행 이벤트 기록 (V22.0 업데이트)
-        addProgressEvent({
-          diagnosisId: workflowResult.diagnosisId,
-          stepId: 'data-validation',
-          stepName: '데이터 검증',
-          status: 'completed',
-          progressPercent: 100,
-          message: 'V22.0 입력 데이터 검증 완료'
-        });
-        addProgressEvent({
-          diagnosisId: workflowResult.diagnosisId,
-          stepId: 'score-calculation',
-          stepName: 'V22.0 고도화 점수 계산',
-          status: 'completed',
-          progressPercent: 100,
-          message: 'V22.0 고도화된 45문항 점수 계산 완료'
-        });
-        // 데이터 저장 단계 진행 표기
-        addProgressEvent({
-          diagnosisId: workflowResult.diagnosisId,
-          stepId: 'data-storage',
-          stepName: '데이터 저장',
-          status: 'completed',
-          progressPercent: 100,
-          message: '구글시트 데이터 저장 준비 완료'
-        });
-        // 보고서 생성 단계 진행 표기
-        addProgressEvent({
-          diagnosisId: workflowResult.diagnosisId,
-          stepId: 'report-generation',
-          stepName: '보고서 생성',
-          status: 'completed',
-          progressPercent: 100,
-          message: '45문항 분석 보고서 생성 완료'
-        });
-        addProgressEvent({
-          diagnosisId: workflowResult.diagnosisId,
-          stepId: 'gas-v22-processing',
-          stepName: 'V22 GAS 처리',
-          status: 'in-progress',
-          progressPercent: 80,
-          message: 'Google Apps Script V22.0으로 5개 시트 저장 및 이메일 발송 요청'
-        });
-        
-        // Google Apps Script로 완성된 데이터 전송
-        const host = request.headers.get('host');
-        const protocol = host?.includes('localhost') ? 'http' : 'https';
-        const dynamicBase = host ? `${protocol}://${host}` : 'https://aicamp.club';
-        
-                  // V22 GAS 스크립트에 맞는 페이로드 구성 (processDiagnosis 함수 호출)
-        const gasPayload = {
-          // V22 스크립트 라우팅
-          type: 'diagnosis',
-          action: 'diagnosis',
-          
-          // V22 processDiagnosis 함수가 기대하는 기본 데이터
-          diagnosisId: workflowResult.diagnosisId,
-          companyName: requestData.companyName,
-          contactName: requestData.contactName,
-          contactEmail: requestData.contactEmail,
-          contactPhone: requestData.contactPhone || '',
-          position: requestData.position || requestData.contactPosition || '', // 직책 필드 추가
-          industry: requestData.industry || '',
-          employeeCount: requestData.employeeCount || '',
-          annualRevenue: requestData.annualRevenue || '',
-          location: requestData.location || '',
-          
-          // 45문항 응답 (V22 호환 형식 - 객체 형태로 통일)
-          responses: requestData.assessmentResponses || requestData.responses,
-          assessmentResponses: requestData.assessmentResponses || requestData.responses,
-          
-          // V22에서 계산된 점수 데이터 전달 (중복 계산 방지)
-          scoreData: workflowResult.scoreAnalysis,
-          
-          // 메타데이터
-          timestamp: new Date().toISOString(),
-          version: 'V22.0-ENHANCED-STABLE',
-          source: 'nextjs_frontend',
-          processingType: 'full_workflow'
-        };
-        
-        console.log('🔗 Google Apps Script 호출 URL:', `${dynamicBase}/api/google-script-proxy`);
-        
-        // 🔥 새로운 GAS 헬퍼 함수 사용하여 안정적인 저장
-        try {
-          const gasResult = await saveDiagnosisToGAS(gasPayload);
-          
-          if (gasResult.success) {
-            console.log('✅ GAS 데이터 저장 성공:', gasResult.diagnosisId);
-            addProgressEvent({
-              diagnosisId: workflowResult.diagnosisId,
-              stepId: 'gas-v22-processing',
-              stepName: 'V22 데이터 저장',
-              status: 'completed',
-              progressPercent: 90,
-              message: 'V22 스크립트로 5개 시트 저장 및 이메일 발송 요청 성공'
-            });
-            
-            addProgressEvent({
-              diagnosisId: workflowResult.diagnosisId,
-              stepId: 'email-sending',
-              stepName: '이메일 발송',
-              status: 'in-progress',
-              progressPercent: 95,
-              message: 'V22 이메일 템플릿으로 발송 진행 중'
-            });
-          } else {
-            console.error('❌ GAS 데이터 저장 실패:', gasResult.error);
-            addProgressEvent({
-              diagnosisId: workflowResult.diagnosisId,
-              stepId: 'gas-v22-processing',
-              stepName: 'V22 데이터 저장',
-              status: 'error',
-              progressPercent: 80,
-              message: `GAS 저장 실패: ${gasResult.error}`
-            });
-          }
-        } catch (gasError: any) {
-          console.error('⚠️ Google Apps Script V22.0 후속 처리 오류 (비차단):', gasError.message);
-          addProgressEvent({
-            diagnosisId: workflowResult.diagnosisId,
-            stepId: 'gas-v22-processing',
-            stepName: 'V22 데이터 저장',
-            status: 'error',
-            progressPercent: 80,
-            message: 'V22 스크립트 연결 실패, 재시도 중...'
-          });
-        }
-        
-        // 즉시 응답 반환 (사용자 대기 시간 단축)
-        const finalDiagnosisId = workflowResult.diagnosisId || `AICAMP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      if (workflowResult && workflowResult.success) {
+        console.log('✅ V22.4 GAS 호출 성공');
         
         return NextResponse.json({
           success: true,
-          message: '🎯 AI 역량진단이 V22.0 강화된 안정 버전으로 성공적으로 완료되었습니다!',
-          diagnosisId: finalDiagnosisId, // 최상위 레벨에 추가 (정합성 향상)
-          data: {
-            diagnosisId: finalDiagnosisId,
-            companyName: requestData.companyName,
-            contactEmail: requestData.contactEmail,
-            
-            // 즉시 확인 가능한 결과
-            scoreAnalysis: workflowResult.scoreAnalysis,
-            totalScore: workflowResult.scoreAnalysis.totalScore,
-            grade: workflowResult.scoreAnalysis.grade,
-            maturityLevel: workflowResult.scoreAnalysis.maturityLevel,
-            qualityScore: workflowResult.qualityMetrics.overallQuality,
-            
-            // V22.0 고도화 기능 상태
-            version: 'V22.0-ENHANCED-STABLE',
-            enhancedScores: diagnosisData.scores,
-            v22Features: {
-              advancedScoring: true,
-              dynamicReportGeneration: true,
-              reportStorage: true,
-              notificationBanner: true
-            },
-            reportInfo: reportMetadata,
-            htmlReport: htmlReport, // V23.0 생성된 HTML 보고서 포함
-            features: [
-              'AICAMP 자체 점수 계산 엔진 완료',
-              'AICAMP 자체 HTML 보고서 생성 완료',
-              'AICAMP 자체 보고서 저장 시스템 완료',
-              '5개 시트 데이터 저장 (메인데이터, 45문항상세, 카테고리분석, 세금계산기오류신고, 상담신청)',
-              'V22 강화된 이메일 템플릿 발송',
-              '45문항 질문 텍스트 및 행동지표 자동 저장',
-              '무오류 품질 보장 시스템'
-            ]
+          message: '🔥 AI 역량진단이 성공적으로 완료되었습니다.',
+          diagnosisId: workflowResult.diagnosisId,
+          scores: {
+            total: workflowResult.scoreAnalysis?.totalScore || 0,
+            percentage: workflowResult.scoreAnalysis?.percentage || 0
           },
-          processingInfo: {
-            status: 'completed',
-            scoreCalculation: 'completed',
-            gasVersion: 'V22.0-ENHANCED-STABLE',
-            dataStorage: '5개 시트 저장 시스템',
-            emailSending: 'in_progress',
-            estimatedEmailTime: '2-3분',
-            steps: [
-              { step: 1, name: '45문항 점수 계산', status: 'completed' },
-              { step: 2, name: '데이터 검증 (강화)', status: 'completed' },
-              { step: 3, name: 'V22 5개 시트 저장', status: 'in_progress' },
-              { step: 4, name: 'V22 이메일 템플릿 발송', status: 'in_progress' },
-              { step: 5, name: '질문 텍스트 및 행동지표 저장', status: 'in_progress' }
-            ]
-          }
+          grade: workflowResult.scoreAnalysis?.grade || 'F',
+          maturityLevel: workflowResult.scoreAnalysis?.maturityLevel || 'AI 미도입기업',
+          data: workflowResult.data,
+          timestamp: new Date().toISOString(),
+          version: 'V22.4-FACT-BASED'
         });
         
       } else {
-        // 폴백 금지: 결과가 없으면 오류로 처리
-        throw new Error('워크플로우 결과가 생성되지 않았습니다.');
+        throw new Error(workflowResult?.error || 'GAS 처리 실패');
       }
       
     } catch (workflowError: any) {
-      console.error('❌ 통합 워크플로우 실행 실패:', workflowError);
+      console.error('❌ V22.4 워크플로우 오류:', workflowError);
       
       return NextResponse.json({
         success: false,
@@ -405,10 +210,11 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: false,
-      error: '요청 처리 중 오류가 발생했습니다.',
+      error: '오류가 발생하였습니다. AICAMP에 AI역량진단신청을 해주셔서 감사합니다. 24시간 이내에 이교장의 AI역량진단보고서를 전달드리겠습니다. 감사합니다.',
       details: error.message,
       timestamp: new Date().toISOString(),
-      version: 'V15.0-ULTIMATE-45Q'
+      version: 'V22.4-FACT-BASED',
+      userMessage: '오류가 발생하였습니다. AICAMP에 AI역량진단신청을 해주셔서 감사합니다. 24시간 이내에 이교장의 AI역량진단보고서를 전달드리겠습니다. 감사합니다.'
     }, { status: 500 });
   }
 }
@@ -416,24 +222,24 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   return NextResponse.json({
     service: '이교장의AI역량진단시스템',
-    version: 'V17.0-SIMPLIFIED',
+    version: 'V22.4-FACT-BASED',
     status: 'active',
     methods: ['POST'],
-    description: '45문항 점수 집계 + 이메일 알림 + 구글시트 저장 시스템',
+    description: '45문항 사실기반 점수 집계 + GAS V22.4 직접 연결',
     features: [
       '45문항 점수 계산 및 집계',
+      'GAS V22.4 직접 연결',
       '구글시트 데이터베이스 저장',
       '신청자/관리자 이메일 알림',
-      '이교장 오프라인 분석 지원',
-      '실시간 진행상황 모니터링'
+      '맥킨지급 24페이지 보고서 지원'
     ],
     actualFeatures: {
       scoreCalculation: true,
       dataStorage: true,
       emailNotification: true,
-      offlineAnalysis: true,
+      factBasedSystem: true,
       aiAnalysis: false,
-      autoReportGeneration: false
+      mckinsey24PageReport: true
     },
     timestamp: new Date().toISOString()
   });

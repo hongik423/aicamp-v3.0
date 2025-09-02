@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { Ultimate35PageGenerator, DiagnosisData } from '@/lib/diagnosis/ultimate-35-page-generator';
+import { McKinsey24PageGenerator } from '@/lib/diagnosis/mckinsey-24-page-generator';
 import { queryDiagnosisFromGAS } from '@/lib/gas/gas-connector';
 import { getGasUrl } from '@/lib/config/env';
 
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { diagnosisId } = await params;
     
-    console.log('🔥 실제 35페이지 보고서 생성 요청:', diagnosisId);
+    console.log('🔥 맥킨지급 24페이지 보고서 생성 요청:', diagnosisId);
     
     // 진단ID 검증
     if (!diagnosisId || typeof diagnosisId !== 'string' || diagnosisId.length < 10) {
@@ -113,29 +114,29 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       isVirtualData: false
     };
 
-    // 🚀 실제 35페이지 보고서 생성
-    const htmlReport = Ultimate35PageGenerator.generateUltimate35PageReport(diagnosisData);
+    // 🚀 맥킨지급 24페이지 보고서 생성 (n8n 기반 고몰입 조직 구축)
+    const htmlReport = McKinsey24PageGenerator.generateMcKinsey24PageReport(diagnosisData);
     
-    console.log('✅ 실제 35페이지 보고서 생성 완료');
+    console.log('✅ 맥킨지급 24페이지 보고서 생성 완료');
 
     return NextResponse.json({
       success: true,
-      message: '🔥 실제 데이터 기반 35페이지 AI 역량진단 보고서 생성 성공',
+      message: '🔥 맥킨지급 24페이지 AI 역량진단 보고서 생성 성공 (n8n 기반 고몰입 조직 구축)',
       diagnosisId,
       htmlReport: htmlReport,
       reportInfo: {
         diagnosisId,
-        fileName: `AI역량진단보고서_${diagnosisData.companyInfo.name}_${diagnosisId}_실제35페이지.html`,
+        fileName: `AI역량진단보고서_${diagnosisData.companyInfo.name}_${diagnosisId}_McKinsey24페이지.html`,
         createdAt: new Date().toISOString(),
-        version: 'V27.0-ULTIMATE-35PAGE-REAL',
-        reportType: '실제_데이터_35페이지',
+        version: 'V28.0-MCKINSEY-24PAGE-N8N',
+        reportType: '맥킨지급_24페이지_n8n_고몰입',
         totalScore: diagnosisData.scores.total,
         grade: diagnosisData.grade,
         maturityLevel: diagnosisData.maturityLevel,
         industry: diagnosisData.companyInfo.industry,
         reportGenerated: true,
         actualScoreReflected: true,
-        pages: 35,
+        pages: 24,
         factBasedSystem: true,
         isVirtualData: false
       }
@@ -143,14 +144,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
   } catch (error: any) {
     const { diagnosisId } = await params;
-    console.error('❌ 35페이지 보고서 생성 실패:', error);
+    console.error('❌ 맥킨지급 24페이지 보고서 생성 실패:', error);
+    console.error('❌ 오류 스택:', error.stack);
+    console.error('❌ 오류 타입:', typeof error);
+    console.error('❌ 오류 상세:', JSON.stringify(error, null, 2));
     
     return NextResponse.json({
       success: false,
       error: '보고서 생성 중 오류가 발생했습니다.',
-      details: error.message,
+      details: error.message || String(error),
+      errorType: error.constructor?.name || 'Unknown',
       diagnosisId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      gasUrl: getGasUrl(),
+      errorStack: error.stack
     }, { status: 500 });
   }
 }

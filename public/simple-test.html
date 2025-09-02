@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>간단한 API 테스트</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 8px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🔧 AICAMP API 간단 테스트</h1>
+    
+    <div>
+        <button class="btn-primary" onclick="testDiagnosisSubmission()">1. 진단 신청 테스트</button>
+        <button class="btn-secondary" onclick="testReportGeneration()">2. 보고서 생성 테스트</button>
+        <button class="btn-secondary" onclick="testGASConnection()">3. GAS 연결 테스트</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        let testDiagnosisId = null;
+
+        async function testDiagnosisSubmission() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="result">🔄 진단 신청 테스트 중...</div>';
+
+            try {
+                // 간단한 테스트 데이터
+                const testData = {
+                    companyName: '테스트회사',
+                    contactName: '김테스트',
+                    contactEmail: 'test@aicamp.club',
+                    contactPhone: '010-1234-5678',
+                    position: 'CTO',
+                    industry: 'IT/소프트웨어',
+                    employeeCount: '10명 미만',
+                    location: '서울특별시',
+                    privacyConsent: true,
+                    responses: {
+                        question_1: 4, question_2: 3, question_3: 5, question_4: 4, question_5: 3,
+                        question_6: 4, question_7: 5, question_8: 3, question_9: 4, question_10: 3,
+                        question_11: 5, question_12: 4, question_13: 3, question_14: 4, question_15: 5,
+                        question_16: 3, question_17: 4, question_18: 3, question_19: 5, question_20: 4,
+                        question_21: 3, question_22: 4, question_23: 5, question_24: 3, question_25: 4,
+                        question_26: 3, question_27: 5, question_28: 4, question_29: 3, question_30: 4,
+                        question_31: 5, question_32: 3, question_33: 4, question_34: 3, question_35: 5,
+                        question_36: 4, question_37: 3, question_38: 4, question_39: 5, question_40: 3,
+                        question_41: 4, question_42: 3, question_43: 5, question_44: 4, question_45: 3
+                    },
+                    assessmentResponses: {
+                        question_1: 4, question_2: 3, question_3: 5, question_4: 4, question_5: 3,
+                        question_6: 4, question_7: 5, question_8: 3, question_9: 4, question_10: 3,
+                        question_11: 5, question_12: 4, question_13: 3, question_14: 4, question_15: 5,
+                        question_16: 3, question_17: 4, question_18: 3, question_19: 5, question_20: 4,
+                        question_21: 3, question_22: 4, question_23: 5, question_24: 3, question_25: 4,
+                        question_26: 3, question_27: 5, question_28: 4, question_29: 3, question_30: 4,
+                        question_31: 5, question_32: 3, question_33: 4, question_34: 3, question_35: 5,
+                        question_36: 4, question_37: 3, question_38: 4, question_39: 5, question_40: 3,
+                        question_41: 4, question_42: 3, question_43: 5, question_44: 4, question_45: 3
+                    }
+                };
+
+                console.log('📝 테스트 데이터:', testData);
+
+                const response = await fetch('/api/ai-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                console.log('📊 응답 상태:', response.status);
+                
+                const result = await response.json();
+                console.log('📊 응답 데이터:', result);
+
+                if (result.success) {
+                    testDiagnosisId = result.diagnosisId || result.data?.diagnosisId;
+                    resultsDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ 진단 신청 성공!<br>
+                            진단 ID: <strong>${testDiagnosisId}</strong><br>
+                            응답 메시지: ${result.message}
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ 진단 신청 실패<br>
+                            오류: ${result.error}<br>
+                            상세: ${result.details || 'N/A'}<br>
+                            검증: ${JSON.stringify(result.validation || {}, null, 2)}
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('테스트 오류:', error);
+                resultsDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ 테스트 실행 오류: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testReportGeneration() {
+            if (!testDiagnosisId) {
+                alert('먼저 진단 신청 테스트를 성공시켜주세요.');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += '<div class="result">🔄 보고서 생성 테스트 중...</div>';
+
+            try {
+                const response = await fetch(`/api/diagnosis-reports/${testDiagnosisId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('📊 보고서 응답 상태:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const result = await response.json();
+                console.log('📊 보고서 응답 데이터:', result);
+
+                if (result.success) {
+                    resultsDiv.innerHTML += `
+                        <div class="result success">
+                            ✅ 보고서 생성 성공!<br>
+                            보고서 타입: ${result.reportInfo?.reportType}<br>
+                            페이지 수: ${result.reportInfo?.pages}페이지<br>
+                            HTML 길이: ${result.htmlReport?.length || 0} bytes
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML += `
+                        <div class="result error">
+                            ❌ 보고서 생성 실패<br>
+                            오류: ${result.error}
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('보고서 테스트 오류:', error);
+                resultsDiv.innerHTML += `
+                    <div class="result error">
+                        ❌ 보고서 테스트 오류: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testGASConnection() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += '<div class="result">🔄 GAS 연결 테스트 중...</div>';
+
+            try {
+                // GAS URL 직접 테스트
+                const gasUrl = 'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
+                
+                const response = await fetch(gasUrl, {
+                    method: 'GET'
+                });
+
+                console.log('📊 GAS 응답 상태:', response.status);
+                
+                const result = await response.json();
+                console.log('📊 GAS 응답 데이터:', result);
+
+                resultsDiv.innerHTML += `
+                    <div class="result success">
+                        ✅ GAS 연결 성공!<br>
+                        상태: ${result.status}<br>
+                        메시지: ${result.message}<br>
+                        버전: ${result.version}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('GAS 테스트 오류:', error);
+                resultsDiv.innerHTML += `
+                    <div class="result error">
+                        ❌ GAS 연결 오류: ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

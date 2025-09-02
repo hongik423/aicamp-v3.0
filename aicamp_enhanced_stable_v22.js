@@ -383,21 +383,25 @@ function calculate45QuestionScores(responses) {
       if (Object.keys(responses).length === 0) {
         console.warn('⚠️ 응답 객체가 비어있습니다');
       }
-      for (let i = 1; i <= 45; i++) {
-        // Q1, Q2, Q3... 형식 우선 지원 (프론트엔드 호환)
-        const score = parseInt(
-          responses[`Q${i}`] || 
-          responses[`q${i}`] || 
-          responses[i] || 
-          responses[String(i)] || 
-          responses[`question_${i}`] || 
-          0, 
-          10
-        );
-        if (!isNaN(score) && score >= 1 && score <= 5) {
-          responseArray[i-1] = score;
+              for (let i = 1; i <= 45; i++) {
+          // 🔥 프론트엔드 호환성 강화: question_1, question_2... 형식 우선 지원
+          const score = parseInt(
+            responses[`question_${i}`] || 
+            responses[`Question_${i}`] || 
+            responses[`Q${i}`] || 
+            responses[`q${i}`] || 
+            responses[i] || 
+            responses[String(i)] || 
+            0, 
+            10
+          );
+          if (!isNaN(score) && score >= 1 && score <= 5) {
+            responseArray[i-1] = score;
+            console.log(`✅ 문항 ${i}: ${score}점 (${responses[`question_${i}`] ? 'question_' : '기타'} 형식)`);
+          } else {
+            console.warn(`⚠️ 문항 ${i}: 유효하지 않은 점수 (${score}) - 원본값: ${responses[`question_${i}`]}`);
+          }
         }
-      }
     } else {
       console.warn('⚠️ 응답 데이터가 배열 또는 객체가 아닙니다');
     }
@@ -2635,6 +2639,32 @@ function doPost(e) {
     try {
       requestData = JSON.parse(e.postData.contents);
       console.log('✅ JSON 파싱 성공:', JSON.stringify(requestData, null, 2));
+      
+      // 🔥 디버깅: responses 데이터 상세 확인
+      if (requestData.responses) {
+        console.log('📊 GAS에서 받은 responses 데이터:', {
+          responsesType: typeof requestData.responses,
+          responsesKeys: Object.keys(requestData.responses),
+          responsesCount: Object.keys(requestData.responses).length,
+          firstFewResponses: {
+            question_1: requestData.responses.question_1,
+            question_2: requestData.responses.question_2,
+            question_3: requestData.responses.question_3,
+            question_44: requestData.responses.question_44,
+            question_45: requestData.responses.question_45
+          }
+        });
+      } else {
+        console.log('❌ GAS에서 responses 데이터를 받지 못했습니다!');
+      }
+      
+      if (requestData.assessmentResponses) {
+        console.log('📊 GAS에서 받은 assessmentResponses 데이터:', {
+          assessmentResponsesType: typeof requestData.assessmentResponses,
+          assessmentResponsesKeys: Object.keys(requestData.assessmentResponses),
+          assessmentResponsesCount: Object.keys(requestData.assessmentResponses).length
+        });
+      }
     } catch (parseError) {
       console.error('❌ JSON 파싱 실패:', parseError);
       console.error('📄 원본 데이터:', e.postData.contents);
@@ -3744,19 +3774,19 @@ console.log('�� AICAMP 통합 시스템 V22.2 진단ID 연결 오류 수정 
  * 🚨 긴급 수정: 기존 함수 호출을 안전하게 processDiagnosis로 리다이렉트
  */
 function handleAIDiagnosisSubmission(requestData) {
-  console.log('🚫 V22.2 리다이렉트: handleAIDiagnosisSubmission → processDiagnosis');
-  console.log('🛡️ AI 분석 제거로 인한 안전한 처리 시작');
+  console.log('🚫 V22.4 완전 차단: handleAIDiagnosisSubmission 호출 차단');
+  console.log('🛡️ 사실기반 원칙: AI 분석 완전 제거됨');
   
-  // 안전한 processDiagnosis 호출
-  return processDiagnosis(requestData);
+  // 🚨 AI 분석 완전 차단 - 사실기반 원칙 준수
+  throw new Error('🚫 V22.4에서 완전 제거됨: AI 분석 기능이 사실기반 원칙에 따라 제거되었습니다. processDiagnosis를 직접 호출하세요.');
 }
 
 function generateAIAnalysisReport(data) {
-  console.log('🚫 V22.2 리다이렉트: generateAIAnalysisReport → processDiagnosis');
-  console.log('🛡️ Gemini API 오류 방지를 위한 안전한 처리');
+  console.log('🚫 V22.3 완전 차단: generateAIAnalysisReport 호출 차단');
+  console.log('🛡️ 사실기반 원칙: AI 분석 완전 제거, 점수 계산만 수행');
   
-  // AI 분석 없이 기본 점수 계산만 수행
-  return processDiagnosis(data);
+  // 🚨 AI 분석 완전 차단 - 사실기반 원칙 준수
+  throw new Error('🚫 V22.3에서 완전 제거됨: AI 분석 기능이 사실기반 원칙에 따라 제거되었습니다. processDiagnosis를 직접 호출하세요.');
 }
 
 function performAIAnalysis(diagnosisId, data) {
@@ -3773,8 +3803,8 @@ function performAIAnalysis(diagnosisId, data) {
 }
 
 function callGeminiAPI() {
-  console.log('🚫 V22.2 차단: Gemini API 호출 완전 차단');
-  throw new Error('🚫 V22.2에서 제거됨: Gemini API 키 오류 해결을 위해 AI API 호출이 제거되었습니다.');
+  console.log('🚫 V22.4 완전 차단: Gemini API 호출 완전 차단');
+  throw new Error('🚫 V22.4에서 완전 제거됨: Gemini API 키 오류 해결을 위해 AI API 호출이 완전히 제거되었습니다.');
 }
 
 /**
@@ -4119,16 +4149,16 @@ function trackSyncStatus(requestData) {
 }
 
 function callAI() {
-  console.log('🚫 V22.2 차단: AI API 호출 차단');
-  return { success: false, message: 'AI 분석이 오프라인 전문가 분석으로 대체되었습니다.' };
+  console.log('🚫 V22.4 완전 차단: AI API 호출 완전 차단');
+  throw new Error('🚫 V22.4에서 완전 제거됨: AI API 호출이 사실기반 원칙에 따라 완전히 제거되었습니다.');
 }
 
 function generateAnalysisPrompt() {
-  console.log('�� V22.2 차단: AI 프롬프트 생성 차단');
-  return '';
+  console.log('🚫 V22.4 완전 차단: AI 프롬프트 생성 완전 차단');
+  throw new Error('🚫 V22.4에서 완전 제거됨: AI 프롬프트 생성이 사실기반 원칙에 따라 완전히 제거되었습니다.');
 }
 
 function analyzeWithGemini() {
-  console.log('🚫 V22.2 차단: Gemini 분석 차단');
-  return { success: false, message: 'Gemini 분석이 제거되었습니다.' };
+  console.log('🚫 V22.4 완전 차단: Gemini 분석 완전 차단');
+  throw new Error('🚫 V22.4에서 완전 제거됨: Gemini 분석이 사실기반 원칙에 따라 완전히 제거되었습니다.');
 }
