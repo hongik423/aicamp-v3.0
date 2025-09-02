@@ -95,7 +95,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       console.log('📡 GAS 데이터 존재 확인 요청:', {
         url: gasUrl.substring(0, 50) + '...',
         payload: checkPayload,
-        diagnosisId: normalizedDiagnosisId
+        diagnosisId: normalizedDiagnosisId,
+        originalId: diagnosisId
       });
       
       const checkResponse = await fetch(gasUrl, {
@@ -108,11 +109,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       console.log('📡 GAS 응답 상태:', {
         status: checkResponse.status,
         statusText: checkResponse.statusText,
-        ok: checkResponse.ok
+        ok: checkResponse.ok,
+        headers: Object.fromEntries(checkResponse.headers.entries())
       });
+      
+      // 응답 텍스트도 확인
+      const responseText = await checkResponse.text();
+      console.log('📄 GAS 응답 내용 (첫 500자):', responseText.substring(0, 500));
 
       if (checkResponse.ok) {
-        const checkResult = await checkResponse.json();
+        let checkResult;
+        try {
+          checkResult = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('❌ GAS 응답 JSON 파싱 실패:', parseError);
+          console.log('📄 원본 응답:', responseText);
+          throw new Error('GAS 응답을 파싱할 수 없습니다');
+        }
         console.log('📋 GAS 데이터 존재 확인 결과:', {
           success: checkResult.success,
           exists: checkResult.exists,
@@ -212,8 +225,21 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       console.log('🔄 기존 35페이지 보고서 시스템으로 폴백 처리');
       
       try {
-        // 🔥 개선된 GAS 헬퍼 함수 사용
+        // 🔥 개선된 GAS 헬퍼 함수 사용 - 상세 디버깅
+        console.log('🔍 GAS에서 실제 데이터 조회 시작:', {
+          diagnosisId: normalizedDiagnosisId,
+          originalId: diagnosisId,
+          timestamp: new Date().toISOString()
+        });
+        
         const result = await queryDiagnosisFromGAS(normalizedDiagnosisId);
+        
+        console.log('📋 GAS 데이터 조회 결과:', {
+          success: result.success,
+          hasData: !!result.data,
+          error: result.error,
+          diagnosisId: normalizedDiagnosisId
+        });
           
           if (result.success && result.data) {
             console.log('✅ 폴백: GAS에서 데이터 조회 성공');
