@@ -45,7 +45,6 @@ export default function MyDiagnosisPage() {
   
   // 이메일 인증 관련 상태
   const [email, setEmail] = useState('');
-  const [authDiagnosisId, setAuthDiagnosisId] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [authStep, setAuthStep] = useState<'input' | 'verify'>('input');
   const [authLoading, setAuthLoading] = useState(false);
@@ -56,37 +55,12 @@ export default function MyDiagnosisPage() {
   const [reportInfo, setReportInfo] = useState<any>(null);
   const [hasReport, setHasReport] = useState(false);
   
-  // 최근 조회 기록
-  const [recentIds, setRecentIds] = useState<string[]>([]);
-
-  // 최근 조회한 진단ID 로드
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('aicamp_recent_diagnosis_ids');
-      if (saved) {
-        try {
-          const ids = JSON.parse(saved);
-          setRecentIds(Array.isArray(ids) ? ids.slice(0, 3) : []);
-        } catch (error) {
-          console.error('최근 진단ID 로드 실패:', error);
-        }
-      }
-    }
-  }, []);
-
-  // 최근 조회한 진단ID 저장
-  const saveRecentId = (id: string) => {
-    if (typeof window !== 'undefined') {
-      const updated = [id, ...recentIds.filter(existingId => existingId !== id)].slice(0, 3);
-      setRecentIds(updated);
-      localStorage.setItem('aicamp_recent_diagnosis_ids', JSON.stringify(updated));
-    }
-  };
+  // 최근 조회 기록 제거 - 보안상 이유로 삭제
 
   // 🔐 이메일 인증번호 발송
   const sendAuthCode = async () => {
-    if (!email.trim() || !authDiagnosisId.trim()) {
-      setAuthError('이메일과 진단ID를 모두 입력해주세요.');
+    if (!email.trim()) {
+      setAuthError('이메일 주소를 입력해주세요.');
       return;
     }
 
@@ -107,8 +81,7 @@ export default function MyDiagnosisPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email.trim(),
-          diagnosisId: authDiagnosisId.trim()
+          email: email.trim()
         }),
       });
 
@@ -171,8 +144,7 @@ export default function MyDiagnosisPage() {
         },
         body: JSON.stringify({
           email: email.trim(),
-          code: authCode.trim(),
-          diagnosisId: authDiagnosisId.trim()
+          code: authCode.trim()
         }),
       });
 
@@ -253,7 +225,7 @@ export default function MyDiagnosisPage() {
           });
           
           setHasReport(true);
-          saveRecentId(cleanId);
+          // 보안상 최근 조회 기록 저장 제거
           
           toast({
             title: "✅ 진단보고서 조회 성공",
@@ -341,13 +313,22 @@ export default function MyDiagnosisPage() {
             className="text-center"
           >
             <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FileText className="h-10 w-10 text-white" />
+              <Shield className="h-10 w-10 text-white" />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              나의 AI 역량진단 보고서
+              🔒 내 AI 역량진단 보고서 조회
             </h1>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+              <div className="flex items-start space-x-2">
+                <Shield className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-blue-800">
+                  <div className="font-medium mb-1">본인 전용 보안 페이지</div>
+                  <p className="text-xs">본인이 직접 제출한 평가표에 대한 보고서만 조회할 수 있습니다. 다른 사람의 보고서는 접근할 수 없습니다.</p>
+                </div>
+              </div>
+            </div>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              이메일로 받으신 진단ID를 입력하여 개인화된 AI 역량진단 결과를 확인하세요
+              진단 완료 후 이메일로 받으신 <strong>개인 전용 진단ID</strong> 또는 <strong>이메일 인증</strong>을 통해 본인의 AI 역량진단 결과를 안전하게 확인하세요
             </p>
           </motion.div>
         </div>
@@ -440,7 +421,7 @@ export default function MyDiagnosisPage() {
               <div className="space-y-4">
                 <div className="relative">
                   <Input
-                    placeholder="DIAG_45Q_AI_1756528197552_xte4ept68"
+                    placeholder={diagnosisId ? "" : "DIAG_45Q_AI_1756528197552_xte4ept68"}
                     value={diagnosisId}
                                          onChange={(e) => {
                        // 사용자가 입력한 값을 그대로 유지 (대소문자 구분)
@@ -462,6 +443,16 @@ export default function MyDiagnosisPage() {
                   </div>
                 </div>
                 
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start space-x-2">
+                    <Shield className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-green-800">
+                      <div className="font-medium mb-1">🔐 본인 전용 진단ID 입력</div>
+                      <p className="text-xs">본인이 제출한 평가표의 고유 진단ID만 입력 가능합니다. 다른 사람의 ID는 접근이 차단됩니다.</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="text-center">
                   <Button 
                     onClick={handleSearch}
@@ -476,8 +467,8 @@ export default function MyDiagnosisPage() {
                       </>
                     ) : (
                       <>
-                        <Search className="h-5 w-5 mr-3" />
-                        내 보고서 조회하기
+                        <Shield className="h-5 w-5 mr-3" />
+                        🔒 본인 보고서 조회하기
                       </>
                     )}
                   </Button>
@@ -502,10 +493,10 @@ export default function MyDiagnosisPage() {
                     <div className="space-y-4">
                       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                         <div className="flex items-start space-x-2">
-                          <Mail className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                          <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                           <div className="text-sm text-amber-800">
-                            <div className="font-medium mb-1">이메일 인증 안내</div>
-                            <p className="text-xs">진단 신청 시 사용한 이메일로 6자리 인증번호를 발송합니다.</p>
+                            <div className="font-medium mb-1">🔐 간편 이메일 인증</div>
+                            <p className="text-xs">진단 신청 시 사용한 이메일 주소만 입력하면 6자리 인증번호를 발송합니다. 본인의 이메일로만 접근 가능합니다.</p>
                           </div>
                         </div>
                       </div>
@@ -518,28 +509,13 @@ export default function MyDiagnosisPage() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="your-email@company.com"
+                            placeholder={email ? "" : "your-email@company.com"}
                             className="pl-10 h-12"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
-                          진단ID (선택사항)
-                          <span className="text-xs text-gray-500 ml-1">- 더 정확한 검증</span>
-                        </label>
-                        <div className="relative">
-                          <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <Input
-                            type="text"
-                            value={authDiagnosisId}
-                            onChange={(e) => setAuthDiagnosisId(e.target.value)}
-                            placeholder="DIAG_45Q_AI_... (선택사항)"
-                            className="pl-10 h-12"
-                          />
-                        </div>
-                      </div>
+
 
                       {authError && (
                         <Alert className="border-red-200 bg-red-50">
@@ -592,7 +568,7 @@ export default function MyDiagnosisPage() {
                             const value = e.target.value.replace(/\D/g, '').slice(0, 6);
                             setAuthCode(value);
                           }}
-                          placeholder="123456"
+                          placeholder={authCode ? "" : "123456"}
                           className="text-center text-2xl font-mono tracking-widest h-16"
                           maxLength={6}
                         />
@@ -636,6 +612,7 @@ export default function MyDiagnosisPage() {
                             setAuthStep('input');
                             setAuthCode('');
                             setAuthError('');
+                            setCountdown(0);
                           }}
                           className="w-full"
                           disabled={authLoading}
@@ -648,42 +625,7 @@ export default function MyDiagnosisPage() {
                 </div>
               )}
 
-              {/* 최근 조회한 진단ID (진단ID 방법에서만 표시) */}
-              {accessMethod === 'diagnosisId' && recentIds.length > 0 && !hasReport && (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <RefreshCw className="h-4 w-4" />
-                    최근 조회한 보고서
-                  </h4>
-                  <div className="grid gap-2">
-                    {recentIds.map((recentId, index) => (
-                      <motion.button
-                        key={recentId}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        onClick={() => {
-                          setDiagnosisId(recentId);
-                          setError('');
-                        }}
-                        className="w-full text-left p-4 bg-gradient-to-r from-gray-50 to-blue-50 hover:from-blue-50 hover:to-purple-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <code className="text-sm font-mono text-gray-700 block">
-                              {recentId}
-                            </code>
-                            <span className="text-xs text-gray-500 mt-1">
-                              {index === 0 ? '가장 최근 조회' : `${index + 1}번째 조회`}
-                            </span>
-                          </div>
-                          <ArrowRight className="h-4 w-4 text-blue-600" />
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* 최근 조회 기록 제거 - 보안상 이유로 삭제됨 */}
 
               {/* 조회된 보고서 정보 */}
               {hasReport && reportInfo && (
@@ -700,17 +642,17 @@ export default function MyDiagnosisPage() {
                         <CheckCircle className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-900">보고서를 찾았습니다!</h3>
-                        <p className="text-green-700">{reportInfo.companyName || '귀하의 기업'}의 AI 역량진단 결과</p>
+                        <h3 className="text-xl font-bold text-gray-900">🔒 본인 보고서 조회 완료!</h3>
+                        <p className="text-green-700">인증된 본인의 AI 역량진단 결과 - {reportInfo.companyName || '귀하의 기업'}</p>
                       </div>
                     </div>
                     
                     {/* 진단ID 정보 */}
-                    <div className="bg-white/70 p-4 rounded-lg">
+                    <div className="bg-white/70 p-4 rounded-lg border border-green-200">
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-sm text-gray-600">진단ID:</span>
-                          <code className="ml-2 bg-gray-100 px-3 py-1 rounded font-mono text-sm">{diagnosisId}</code>
+                          <span className="text-sm text-gray-600">🔐 본인 인증 진단ID:</span>
+                          <code className="ml-2 bg-green-100 px-3 py-1 rounded font-mono text-sm text-green-800">{diagnosisId}</code>
                         </div>
                         <Button
                           size="sm"
@@ -718,8 +660,8 @@ export default function MyDiagnosisPage() {
                           onClick={() => {
                             navigator.clipboard.writeText(diagnosisId);
                             toast({
-                              title: "✅ 복사 완료",
-                              description: "진단ID가 클립보드에 복사되었습니다.",
+                              title: "✅ 본인 진단ID 복사 완료",
+                              description: "개인 전용 진단ID가 안전하게 복사되었습니다.",
                               variant: "default"
                             });
                           }}

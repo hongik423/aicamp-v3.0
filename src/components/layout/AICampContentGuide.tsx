@@ -289,7 +289,7 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
         }`}
       >
         <div className={`mx-auto transition-all duration-500 ${
-          isMinimized ? 'max-w-md' : isMobile ? 'max-w-full mx-4' : 'max-w-4xl mx-6'
+          isMinimized ? 'max-w-lg' : isMobile ? 'max-w-full mx-4' : 'max-w-6xl mx-6'
         }`}>
           <div className={`bg-white/95 backdrop-blur-xl border border-gray-200/50 shadow-2xl transition-all duration-500 ${
             isMinimized ? 'rounded-2xl mx-4' : 'rounded-t-3xl'
@@ -318,8 +318,8 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
               </motion.div>
             ) : (
               /* 전체 상태 */
-              <div className={`p-6 overflow-y-auto ${
-                isMobile ? 'max-h-[70vh]' : 'max-h-[50vh]'
+              <div className={`p-8 overflow-y-auto ${
+                isMobile ? 'max-h-[80vh]' : 'max-h-[75vh]'
               }`}>
                 {/* 헤더 */}
                 <div className="flex items-center justify-between mb-6">
@@ -329,14 +329,14 @@ const AICampContentGuide: React.FC<AICampContentGuideProps> = ({ forceVisible = 
                     transition={{ delay: 0.2 }}
                     className="flex items-center space-x-3"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                      <Book className="w-6 h-6 text-white" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                      <Book className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900">
+                      <h2 className="text-3xl font-bold text-gray-900">
                         <span className="animate-pulse">🚀</span> AI CAMP 서비스 가이드
                       </h2>
-                      <p className="text-gray-600">필요한 서비스를 쉽게 찾아보세요 - 하단에서 떠오르는 애니메이션</p>
+                      <p className="text-lg text-gray-600">필요한 서비스를 쉽게 찾아보세요 - 하단에서 떠오르는 애니메이션</p>
                     </div>
                   </motion.div>
                   
