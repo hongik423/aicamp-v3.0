@@ -3179,17 +3179,37 @@ function queryDiagnosisById(requestData) {
       }
       
       if (exactMatch || convertedMatch || partialMatch || similarityMatch) {
-        foundRow = values[i];
-        console.log(`✅ V22.3 메인 시트에서 진단 데이터 발견 (행 ${i + 2}):`, {
-          storedId: storedId,
-          searchId: diagnosisId,
-          matchType: exactMatch ? 'exact_case_insensitive' : 
-                     convertedMatch ? 'converted_format_match' :
-                     partialMatch ? 'timestamp_partial_match' : 'similarity_match',
-          rowIndex: i + 2,
-          similarity: similarityMatch ? calculateSimilarity(storedId, diagnosisId) : null
-        });
-        break;
+        // 🔥 중복 진단ID 처리: 가장 완전한 데이터 선택 (0점이 아닌 데이터 우선)
+        const totalScore = Number(values[i][11]) || 0; // 총점 컬럼
+        const hasValidScore = totalScore > 0;
+        
+        if (!foundRow || (hasValidScore && Number(foundRow[11]) === 0)) {
+          foundRow = values[i];
+          console.log(`✅ V22.3 메인 시트에서 진단 데이터 발견 (행 ${i + 2}):`, {
+            storedId: storedId,
+            searchId: diagnosisId,
+            matchType: exactMatch ? 'exact_case_insensitive' : 
+                       convertedMatch ? 'converted_format_match' :
+                       partialMatch ? 'timestamp_partial_match' : 'similarity_match',
+            rowIndex: i + 2,
+            totalScore: totalScore,
+            hasValidScore: hasValidScore,
+            similarity: similarityMatch ? calculateSimilarity(storedId, diagnosisId) : null,
+            replacedPrevious: foundRow ? true : false
+          });
+        } else {
+          console.log(`🔍 V22.3 중복 진단ID 발견하였으나 기존 데이터 유지 (행 ${i + 2}):`, {
+            storedId: storedId,
+            currentTotalScore: totalScore,
+            existingTotalScore: Number(foundRow[11]),
+            skipped: true
+          });
+        }
+        
+        // 정확한 매칭이면서 유효한 점수가 있으면 더 이상 검색하지 않음
+        if (exactMatch && hasValidScore) {
+          break;
+        }
       }
       
       // 디버깅을 위한 상세 로그 (처음 5개만)
@@ -3323,19 +3343,47 @@ function queryDiagnosisById(requestData) {
             
             // V22.3 사실기반 시스템: 진단ID 직접 매칭 + 형식 변환 매칭 허용
             if (diagnosisIdMatch || convertedDetailMatch || partialDetailMatch) {
-              console.log(`✅ V22.3 진단ID 매칭 성공 (행 ${i + 5})`);
-              detailMatchFound = true;
+              // 🔥 중복 진단ID 처리: 0점이 아닌 데이터 우선 선택
+              const currentResponses = {};
+              let validScoreCount = 0;
               
-              // 45문항 응답 추출 (10번째 컬럼부터 54번째 컬럼까지 - 진단ID 컬럼 추가 반영)
+              // 현재 행의 45문항 응답 확인
               for (let j = 0; j < 45; j++) {
                 const scoreValue = detailRow[10 + j]; // 진단ID 컬럼 추가로 인덱스 +1
-                if (scoreValue !== null && scoreValue !== undefined && scoreValue !== '') {
-                  detailResponses[j + 1] = Number(scoreValue) || 0;
-                }
+                const score = Number(scoreValue) || 0;
+                currentResponses[j + 1] = score;
+                if (score > 0) validScoreCount++;
               }
               
-              console.log(`📊 V22.3 45문항 응답 추출 완료: ${Object.keys(detailResponses).length}개`);
-              break;
+              // 이미 찾은 데이터가 있고, 현재 데이터가 더 좋지 않으면 스킵
+              const existingValidCount = Object.values(detailResponses).filter(score => score > 0).length;
+              
+              if (!detailMatchFound || validScoreCount > existingValidCount) {
+                detailResponses = currentResponses;
+                detailMatchFound = true;
+                
+                console.log(`✅ V22.3 진단ID 매칭 성공 (행 ${i + 5}):`, {
+                  storedId: storedDetailId,
+                  searchId: diagnosisId,
+                  validScores: validScoreCount,
+                  existingValidScores: existingValidCount,
+                  replaced: existingValidCount > 0 ? true : false,
+                  matchType: diagnosisIdMatch ? 'exact' : convertedDetailMatch ? 'converted' : 'partial'
+                });
+                
+                // 정확한 매칭이면서 모든 점수가 유효하면 더 이상 검색하지 않음
+                if (diagnosisIdMatch && validScoreCount === 45) {
+                  console.log('🎯 V22.3 완전한 데이터 발견 - 검색 종료');
+                  break;
+                }
+              } else {
+                console.log(`🔍 V22.3 중복 진단ID 발견하였으나 기존 데이터가 더 완전함 (행 ${i + 5}):`, {
+                  storedId: storedDetailId,
+                  currentValidScores: validScoreCount,
+                  existingValidScores: existingValidCount,
+                  skipped: true
+                });
+              }
             }
           }
           
