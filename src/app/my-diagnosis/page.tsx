@@ -153,9 +153,18 @@ export default function MyDiagnosisPage() {
       if (result.success && result.token) {
         console.log('✅ 이메일 인증 성공');
         
-        // 인증 토큰과 함께 보고서 페이지로 이동
-        // 이메일 인증 성공 후 진단 결과를 찾기 위해 이메일 기반으로 리디렉션
-        router.push(`/my-diagnosis?auth=email&token=${result.token}&email=${encodeURIComponent(email)}`);
+        // 이메일 인증 성공 시 영속적 접근 권한 부여
+        if (result.diagnosisId) {
+          const permanentAuthKey = `diagnosis_permanent_auth_${result.diagnosisId}`;
+          localStorage.setItem(permanentAuthKey, 'authorized');
+          console.log('✅ 이메일 인증 성공 - 영속적 접근 권한 부여:', result.diagnosisId);
+          
+          // 인증 토큰과 함께 보고서 페이지로 이동
+          router.push(`/diagnosis-results/${result.diagnosisId}?auth=email&token=${result.token}`);
+        } else {
+          // 진단ID가 없으면 이메일 기반으로 리디렉션
+          router.push(`/my-diagnosis?auth=email&token=${result.token}&email=${encodeURIComponent(email)}`);
+        }
         
       } else {
         throw new Error(result.error || '인증번호 검증에 실패했습니다.');
@@ -228,11 +237,16 @@ export default function MyDiagnosisPage() {
           setHasReport(true);
           // 보안상 최근 조회 기록 저장 제거
           
-          // 세션에 인증 상태 저장 (30분 유효)
+          // 세션에 인증 상태 저장 (영속적 접근 권한 - 진단ID 고유번호 기반)
           const authKey = `diagnosis_auth_${cleanId}`;
           const authTimeKey = `diagnosis_auth_time_${cleanId}`;
           sessionStorage.setItem(authKey, 'authorized');
           sessionStorage.setItem(authTimeKey, Date.now().toString());
+          
+          // 영속적 접근 권한 저장 (localStorage 사용)
+          const permanentAuthKey = `diagnosis_permanent_auth_${cleanId}`;
+          localStorage.setItem(permanentAuthKey, 'authorized');
+          console.log('✅ 진단ID 고유번호 기반 영속적 접근 권한 부여:', cleanId);
           
           toast({
             title: "✅ 진단보고서 조회 성공",
@@ -270,11 +284,14 @@ export default function MyDiagnosisPage() {
   // 보고서 보기 (세션 인증 확인)
   const handleViewReport = () => {
     if (reportInfo && diagnosisId) {
-      // 세션 인증 확인 후 이동
-      const authKey = `diagnosis_auth_${diagnosisId}`;
-      const sessionAuth = sessionStorage.getItem(authKey);
+      // 영속적 접근 권한 확인 후 이동 (진단ID 고유번호 기반)
+      const permanentAuthKey = `diagnosis_permanent_auth_${diagnosisId}`;
+      const sessionAuthKey = `diagnosis_auth_${diagnosisId}`;
+      const permanentAuth = localStorage.getItem(permanentAuthKey);
+      const sessionAuth = sessionStorage.getItem(sessionAuthKey);
       
-      if (sessionAuth === 'authorized') {
+      if (permanentAuth === 'authorized' || sessionAuth === 'authorized') {
+        console.log('✅ 영속적 접근 권한 확인 완료:', diagnosisId);
         window.open(`/diagnosis-results/${diagnosisId}`, '_blank');
       } else {
         toast({

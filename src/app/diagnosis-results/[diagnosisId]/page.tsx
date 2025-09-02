@@ -59,39 +59,23 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       try {
         setAuthLoading(true);
         
-        // 세션에서 인증 상태 확인
-        const authKey = `diagnosis_auth_${diagnosisId}`;
-        const authTimeKey = `diagnosis_auth_time_${diagnosisId}`;
-        const sessionAuth = sessionStorage.getItem(authKey);
-        const authTime = sessionStorage.getItem(authTimeKey);
+        // 영속적 접근 권한 확인 (진단ID 고유번호 기반 - 무한대 유효)
+        const permanentAuthKey = `diagnosis_permanent_auth_${diagnosisId}`;
+        const sessionAuthKey = `diagnosis_auth_${diagnosisId}`;
+        const permanentAuth = localStorage.getItem(permanentAuthKey);
+        const sessionAuth = sessionStorage.getItem(sessionAuthKey);
         
-        if (sessionAuth === 'authorized' && authTime) {
-          // 인증 시간 확인 (30분 제한)
-          const authTimeMs = parseInt(authTime);
-          const isAuthValid = Date.now() - authTimeMs < 30 * 60 * 1000;
-          
-          if (isAuthValid) {
-            setIsAuthorized(true);
-            console.log('✅ 세션 인증 확인 완료 - 접근 허용:', diagnosisId);
-          } else {
-            // 인증 만료
-            sessionStorage.removeItem(authKey);
-            sessionStorage.removeItem(authTimeKey);
-            setIsAuthorized(false);
-            setError('🕒 인증이 만료되었습니다. 다시 인증해주세요.');
-            console.log('❌ 인증 만료:', diagnosisId);
-            
-            setTimeout(() => {
-              router.push(`/my-diagnosis?expired=true&diagnosisId=${encodeURIComponent(diagnosisId)}`);
-            }, 2000);
-          }
+        if (permanentAuth === 'authorized' || sessionAuth === 'authorized') {
+          // 영속적 접근 권한 또는 세션 인증 확인
+          setIsAuthorized(true);
+          console.log('✅ 진단ID 고유번호 기반 영속적 접근 권한 확인 완료:', diagnosisId);
         } else {
-          // 세션 인증 없음 - 직접 URL 접근 차단
+          // 인증 없음 - 진단ID 입력 페이지로 안내
           setIsAuthorized(false);
-          setError('🔒 올바른 인증 과정을 거쳐주세요. 진단ID 입력 페이지로 이동합니다.');
-          console.log('❌ 세션 인증 없음 - 직접 접근 차단:', diagnosisId);
+          setError('🔒 진단ID 입력을 통한 본인 인증이 필요합니다.');
+          console.log('❌ 영속적 접근 권한 없음 - 진단ID 입력 필요:', diagnosisId);
           
-          // 진단ID 입력 페이지로 리디렉션
+          // 진단ID 입력 페이지로 리디렉션 (진단ID 미리 채움)
           setTimeout(() => {
             router.push(`/my-diagnosis?diagnosisId=${encodeURIComponent(diagnosisId)}`);
           }, 3000);
@@ -208,38 +192,26 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       return;
     }
 
-    // 🔒 보안 검증: 현재 세션에서 인증된 진단ID인지 확인
-    if (!isAuthorized) {
+    // 🔒 영속적 접근 권한 확인 (진단ID 고유번호 기반 - 무한대 유효)
+    const permanentAuthKey = `diagnosis_permanent_auth_${diagnosisId}`;
+    const sessionAuthKey = `diagnosis_auth_${diagnosisId}`;
+    const permanentAuth = typeof window !== 'undefined' ? localStorage.getItem(permanentAuthKey) : null;
+    const sessionAuth = typeof window !== 'undefined' ? sessionStorage.getItem(sessionAuthKey) : null;
+    
+    if (!isAuthorized || (permanentAuth !== 'authorized' && sessionAuth !== 'authorized')) {
       toast({
         title: "❌ 접근 권한 없음",
-        description: "보고서 다운로드 권한이 없습니다. 다시 인증해주세요.",
+        description: "진단ID 입력을 통한 본인 인증이 필요합니다.",
         variant: "destructive",
       });
-      router.push(`/report-access?diagnosisId=${diagnosisId}`);
-      return;
-    }
-
-    // 세션 인증 상태 재확인
-    const authKey = `diagnosis_auth_${diagnosisId}`;
-    const authTime = `diagnosis_auth_time_${diagnosisId}`;
-    const sessionAuth = typeof window !== 'undefined' ? sessionStorage.getItem(authKey) : null;
-    const sessionAuthTime = typeof window !== 'undefined' ? sessionStorage.getItem(authTime) : null;
-    
-    if (sessionAuth !== 'authorized' || !sessionAuthTime) {
-      toast({
-        title: "⚠️ 세션 만료",
-        description: "보안을 위해 다시 인증해주세요.",
-        variant: "destructive",
-      });
-      router.push(`/report-access?diagnosisId=${diagnosisId}`);
+      router.push(`/my-diagnosis?diagnosisId=${diagnosisId}`);
       return;
     }
     
-    // 인증 시간 확인 (30분)
-    const authTime_ms = parseInt(sessionAuthTime);
-    const isAuthValid = Date.now() - authTime_ms < 30 * 60 * 1000;
+    console.log('✅ 진단ID 고유번호 기반 영속적 접근 권한 확인 완료 - 다운로드 허용:', diagnosisId);
     
-    if (!isAuthValid) {
+    // 30분 제한 제거 - 진단ID는 영속적 접근 권한
+    if (false) { // 기존 시간 제한 로직 비활성화
       toast({
         title: "⚠️ 인증 만료",
         description: "보안을 위해 다시 인증해주세요.",

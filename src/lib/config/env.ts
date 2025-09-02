@@ -105,12 +105,22 @@ export const appConfig = {
     * Google Apps Script URL 가져오기 (AI 역량진단용)
  */
 export function getGasUrl(): string {
-  // 임시로 기본 URL만 사용 (안정적으로 작동하는 버전)
-  const defaultUrl = DEFAULT_GOOGLE_SCRIPT_URL;
-  console.log('🔧 안정적인 기본 GAS URL 사용:', defaultUrl);
+  // 🔧 환경변수 우선, 없으면 안정적인 기본 URL 사용
+  const envUrl = process.env.NEXT_PUBLIC_GAS_URL || 
+                process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
+                process.env.GOOGLE_APPS_SCRIPT_URL;
+  
+  const defaultUrl = envUrl || DEFAULT_GOOGLE_SCRIPT_URL || 
+                    'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
+  
+  console.log('🔧 GAS URL 설정:', {
+    환경변수: envUrl ? '✅ 설정됨' : '❌ 누락',
+    사용URL: defaultUrl.substring(0, 50) + '...',
+    출처: envUrl ? '환경변수' : '기본값'
+  });
   
   // URL 유효성 검증
-  if (!defaultUrl.includes('script.google.com/macros/s/')) {
+  if (!defaultUrl || !defaultUrl.includes('script.google.com/macros/s/')) {
     console.error('❌ 잘못된 GAS URL 형식:', defaultUrl);
     throw new Error('Google Apps Script URL 형식이 올바르지 않습니다.');
   }

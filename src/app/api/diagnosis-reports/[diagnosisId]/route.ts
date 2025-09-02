@@ -8,6 +8,7 @@ import { Ultimate35PageGenerator, DiagnosisData } from '@/lib/diagnosis/ultimate
 import { N8nAutomationReportEngine } from '@/lib/diagnosis/n8n-automation-report-engine';
 import { SyncManager } from '@/lib/diagnosis/sync-manager';
 import { queryDiagnosisFromGAS } from '@/lib/gas/gas-connector';
+import { getGasUrl } from '@/lib/config/env';
 
 // 등급 계산 함수
 function calculateGrade(percentage: number): string {
@@ -76,10 +77,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       console.log('🔄 진단 ID 정규화:', diagnosisId, '=>', normalizedDiagnosisId);
     }
 
-    // 🔍 데이터 존재 여부 사전 확인
+        // 🔍 데이터 존재 여부 사전 확인
     console.log('🔍 진단 데이터 존재 여부 사전 확인:', normalizedDiagnosisId);
-    const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
-                   'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
+    
+    // 환경변수에서 GAS URL 가져오기
+    const gasUrl = getGasUrl();
+    console.log('📡 사용할 GAS URL:', gasUrl.substring(0, 50) + '...');
 
     const checkPayload = {
       type: 'verify_diagnosis_id',
@@ -89,28 +92,59 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     };
 
     try {
+      console.log('📡 GAS 데이터 존재 확인 요청:', {
+        url: gasUrl.substring(0, 50) + '...',
+        payload: checkPayload,
+        diagnosisId: normalizedDiagnosisId
+      });
+      
       const checkResponse = await fetch(gasUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(checkPayload),
+        signal: AbortSignal.timeout(15000)
+      });
+      
+      console.log('📡 GAS 응답 상태:', {
+        status: checkResponse.status,
+        statusText: checkResponse.statusText,
+        ok: checkResponse.ok
       });
 
       if (checkResponse.ok) {
         const checkResult = await checkResponse.json();
+        console.log('📋 GAS 데이터 존재 확인 결과:', {
+          success: checkResult.success,
+          exists: checkResult.exists,
+          error: checkResult.error,
+          diagnosisId: normalizedDiagnosisId
+        });
+        
         if (!checkResult.success || !checkResult.exists) {
           console.warn('⚠️ 진단 데이터가 존재하지 않음:', normalizedDiagnosisId);
           return NextResponse.json(
             { 
               success: false, 
-              error: '해당 진단 ID의 데이터를 찾을 수 없습니다. 진단서 제출이 완료되었는지 확인해주세요.',
-              code: 'DIAGNOSIS_DATA_NOT_FOUND',
+              error: '🔥 해당 진단 ID의 실제 데이터를 찾을 수 없습니다.',
+              details: `사실기반 보고서 작성을 위해 실제 진단 데이터가 필요합니다.\n\n진단ID: ${normalizedDiagnosisId}\nGAS 응답: ${checkResult.error || '데이터 없음'}`,
+              code: 'REAL_DIAGNOSIS_DATA_NOT_FOUND',
               diagnosisId: normalizedDiagnosisId,
-              suggestion: '진단서를 다시 제출하거나 이메일로 받으신 정확한 진단 ID를 확인해주세요.'
+              suggestion: '진단서를 다시 제출하거나 이메일로 받으신 정확한 진단 ID를 확인해주세요.',
+              debugInfo: {
+                원본ID: diagnosisId,
+                정규화ID: normalizedDiagnosisId,
+                GAS응답: checkResult
+              }
             },
             { status: 404 }
           );
         }
         console.log('✅ 진단 데이터 존재 확인 완료');
+      } else {
+        console.warn('⚠️ GAS 데이터 존재 확인 API 호출 실패:', {
+          status: checkResponse.status,
+          statusText: checkResponse.statusText
+        });
       }
     } catch (checkError: any) {
       console.warn('⚠️ 데이터 존재 확인 중 오류:', checkError.message);
@@ -242,21 +276,27 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 fallbackMode: true
               }
             });
-          } else {
-            throw new Error('GAS에서 유효한 데이터를 조회할 수 없습니다.');
-          }
+                  } else {
+          console.error('❌ GAS 데이터 조회 실패:', {
+            diagnosisId: normalizedDiagnosisId,
+            result: result,
+            error: result.error || '데이터 없음'
+          });
+          throw new Error(`GAS에서 유효한 데이터를 조회할 수 없습니다: ${result.error || '데이터 없음'}`);
+        }
         
       } catch (fallbackError: any) {
         console.error('❌ 폴백 시스템도 실패:', fallbackError.message);
         
         return NextResponse.json({
           success: false,
-          error: '보고서 생성에 실패했습니다. 잠시 후 다시 시도해주세요.',
-          details: fallbackError.message,
+          error: '🔥 실제 진단 데이터를 찾을 수 없습니다.',
+          details: `사실기반 보고서 작성을 위해 실제 진단 데이터가 필요합니다.\n\n오류 상세: ${fallbackError.message}\n\n진단서 제출이 완료되었는지 확인하시거나, 정확한 진단ID를 사용해주세요.`,
           diagnosisId,
           timestamp: new Date().toISOString(),
-          version: 'V28.0-ERROR'
-        }, { status: 500 });
+          version: 'V28.0-REAL-DATA-REQUIRED',
+          suggestion: '진단서를 다시 제출하거나 고객센터로 문의해주세요.'
+        }, { status: 404 });
       }
     }
     
@@ -266,11 +306,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
     return NextResponse.json({
       success: false,
-      error: '보고서 조회 중 오류가 발생했습니다.',
-      details: error.message,
+      error: '🔥 실제 진단 데이터 조회 중 오류가 발생했습니다.',
+      details: `사실기반 보고서 시스템 오류: ${error.message}`,
       diagnosisId,
       timestamp: new Date().toISOString(),
-      version: 'V28.0-CRITICAL-ERROR'
+      version: 'V28.0-REAL-DATA-ERROR',
+      debugInfo: {
+        환경변수상태: process.env.NEXT_PUBLIC_GAS_URL ? '설정됨' : '누락',
+        오류유형: error.name || 'Unknown',
+        스택트레이스: error.stack?.split('\n')[0] || 'N/A'
+      }
     }, { status: 500 });
   }
 }

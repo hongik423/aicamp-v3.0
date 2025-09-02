@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { getProgressSnapshot, getProgressState } from '../_progressStore';
 
 // SSE로 진단 진행상황을 스트리밍합니다.
-// 내부적으로 10초 간격으로 `/api/diagnosis-results/[id]`를 폴링하여
+// 내부적으로 10초 간격으로 `/api/diagnosis-reports/[id]`를 폴링하여
 // 결과가 준비되면 즉시 완료 이벤트를 보냅니다.
 
 export const runtime = 'nodejs';
