@@ -131,6 +131,7 @@ export async function POST(request: NextRequest) {
       location: requestData.location,
       targetCustomers: requestData.targetCustomers,
       currentChallenges: requestData.currentChallenges,
+      diagnosisId: requestData.diagnosisId,
       responses: requestData.assessmentResponses || requestData.responses || requestData.answers
     };
     
