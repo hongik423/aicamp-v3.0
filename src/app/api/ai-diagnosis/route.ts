@@ -15,8 +15,11 @@ interface DiagnosisRequest {
   employeeCount?: string;
   annualRevenue?: string;
   location?: string;
+  targetCustomers?: string;
+  currentChallenges?: string;
   responses?: Record<string, number>;
   assessmentResponses?: Record<string, number>;
+  answers?: Record<string, number>;
   privacyConsent?: boolean;
   diagnosisId?: string;
 }
