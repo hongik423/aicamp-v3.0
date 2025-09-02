@@ -199,7 +199,7 @@ export default function MyDiagnosisPage() {
       }
 
       // API로 진단 결과 조회 (올바른 엔드포인트 사용)
-      const response = await fetch(`/api/diagnosis-results/${encodeURIComponent(cleanId)}`, {
+      const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(cleanId)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(20000)

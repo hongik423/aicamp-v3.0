@@ -114,7 +114,7 @@ export default function DiagnosisReportsPage() {
       }
 
       // API로 해당 진단ID 존재 여부 확인 (올바른 엔드포인트 사용)
-      const response = await fetch(`/api/diagnosis-results/${encodeURIComponent(cleanId)}`, {
+      const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(cleanId)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(15000)
