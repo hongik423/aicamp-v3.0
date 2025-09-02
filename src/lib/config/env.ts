@@ -105,28 +105,12 @@ export const appConfig = {
     * Google Apps Script URL 가져오기 (AI 역량진단용)
  */
 export function getGasUrl(): string {
-  // 🔧 환경변수 우선, 없으면 안정적인 기본 URL 사용
-  const envUrl = process.env.NEXT_PUBLIC_GAS_URL || 
-                process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
-                process.env.GOOGLE_APPS_SCRIPT_URL;
+  // 🚨 긴급: 완전 강제 V22 URL 사용 - 환경변수 완전 무시
+  const FORCED_V22_URL = 'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
   
-  // 🔧 V22 스크립트 URL 강제 사용 (GAS에 데이터가 있다고 확인됨)
-  const v22ScriptUrl = 'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
-  const defaultUrl = envUrl || DEFAULT_GOOGLE_SCRIPT_URL || v22ScriptUrl;
+  console.log('🚨 강제 V22 URL 사용:', FORCED_V22_URL);
   
-  console.log('🔧 GAS URL 설정:', {
-    환경변수: envUrl ? '✅ 설정됨' : '❌ 누락',
-    사용URL: defaultUrl.substring(0, 50) + '...',
-    출처: envUrl ? '환경변수' : '기본값'
-  });
-  
-  // URL 유효성 검증
-  if (!defaultUrl || !defaultUrl.includes('script.google.com/macros/s/')) {
-    console.error('❌ 잘못된 GAS URL 형식:', defaultUrl);
-    throw new Error('Google Apps Script URL 형식이 올바르지 않습니다.');
-  }
-  
-  return defaultUrl;
+  return FORCED_V22_URL;
 }
 
 /**
