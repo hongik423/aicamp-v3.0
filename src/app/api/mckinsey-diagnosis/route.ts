@@ -1,14 +1,14 @@
 /**
- * 맥킨지 역량진단 시스템 V16.0 OLLAMA ULTIMATE API 라우트
- * Ollama GPT-OSS 20B 전용 - 이교장의AI상담 시스템
- * 100% 온디바이스 AI, 외부 API 의존성 완전 제거
+ * 맥킨지 역량진단 시스템 - AICAMP 자체 분석 엔진 API 라우트
+ * AICAMP 자체 분석 엔진 전용 - 이교장의AI상담 시스템
+ * 100% 자체 분석, 외부 API 의존성 완전 제거
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 
-// Ollama GPT-OSS 20B 전용 AI 호출
+// AICAMP 자체 분석 엔진 호출
 import { callAI } from '@/lib/ai/ai-provider';
-// V22.0 고도화된 점수 계산 엔진
+// AICAMP 자체 점수 계산 엔진
 import { advancedScoringEngine, QuestionResponse } from '@/lib/analysis/advanced-scoring-engine';
 // V22.0 보고서 저장 시스템
 import { ReportStorage } from '@/lib/diagnosis/report-storage';

@@ -1,8 +1,8 @@
 /**
- * AI 역량진단 API 엔드포인트 (V22.0 고도화)
- * 45문항 점수 집계 + V22.0 고도화된 보고서 생성 + 알림 시스템
- * 실제 작동 기능: 고도화된 점수계산, 동적 보고서 생성, 알림 배너
- * V22.0 새 기능: 고도화된 엔진 + 보고서 생성 + 저장 시스템
+ * AI 역량진단 API 엔드포인트 (AICAMP 자체 분석 엔진)
+ * 45문항 점수 집계 + AICAMP 자체 보고서 생성 + 알림 시스템
+ * 실제 작동 기능: 자체 점수계산, 동적 보고서 생성, 알림 배너
+ * AICAMP 자체 기능: 자체 분석 엔진 + 보고서 생성 + 저장 시스템
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -357,9 +357,9 @@ export async function POST(request: NextRequest) {
             reportInfo: reportMetadata,
             htmlReport: htmlReport, // V23.0 생성된 HTML 보고서 포함
             features: [
-              'V22.0 고도화된 점수 계산 엔진 완료',
-              'V22.0 동적 HTML 보고서 생성 완료',
-              'V22.0 보고서 저장 시스템 완료',
+              'AICAMP 자체 점수 계산 엔진 완료',
+              'AICAMP 자체 HTML 보고서 생성 완료',
+              'AICAMP 자체 보고서 저장 시스템 완료',
               '5개 시트 데이터 저장 (메인데이터, 45문항상세, 카테고리분석, 세금계산기오류신고, 상담신청)',
               'V22 강화된 이메일 템플릿 발송',
               '45문항 질문 텍스트 및 행동지표 자동 저장',

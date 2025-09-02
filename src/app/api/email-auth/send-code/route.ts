@@ -43,14 +43,14 @@ async function sendAuthCodeEmail(email: string, authCode: string, diagnosisId: s
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, diagnosisId } = await request.json();
+    const { email } = await request.json();
 
-    // 입력 데이터 검증
-    if (!email || !diagnosisId) {
+    // 입력 데이터 검증 (이메일만 필요)
+    if (!email) {
       return NextResponse.json(
         { 
           success: false, 
-          error: '이메일과 진단ID가 필요합니다.' 
+          error: '이메일이 필요합니다.' 
         },
         { status: 400 }
       );
@@ -68,48 +68,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 진단ID 형식 검증
-    if (diagnosisId.length < 10 || !diagnosisId.startsWith('DIAG_')) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: '유효한 진단ID 형식이 아닙니다.' 
-        },
-        { status: 400 }
-      );
-    }
-
     console.log('🔐 이메일 인증번호 발송 요청:', {
       email: email.replace(/(.{3}).*(@.*)/, '$1***$2'), // 이메일 마스킹
-      diagnosisId: diagnosisId,
       timestamp: new Date().toISOString()
     });
 
-    // 🛡️ 보안 검증: 해당 이메일이 실제 진단에 사용된 이메일인지 확인
+    // 🛡️ 이메일로 진단ID 찾기 및 검증
+    let foundDiagnosisId = '';
     try {
       const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
                      'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
 
-      const verifyPayload = {
-        type: 'verify_email_diagnosis',
-        action: 'verifyEmailForDiagnosis',
+      const findPayload = {
+        type: 'find_diagnosis_by_email',
+        action: 'findDiagnosisByEmail',
         email: email,
-        diagnosisId: diagnosisId,
         timestamp: new Date().toISOString()
       };
 
-      const verifyResponse = await fetch(gasUrl, {
+      const findResponse = await fetch(gasUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(verifyPayload),
+        body: JSON.stringify(findPayload),
       });
 
-      if (verifyResponse.ok) {
-        const verifyResult = await verifyResponse.json();
+      if (findResponse.ok) {
+        const findResult = await findResponse.json();
         
-        if (!verifyResult.success || !verifyResult.isValidEmail) {
+        if (findResult.success && findResult.diagnosisId) {
+          foundDiagnosisId = findResult.diagnosisId;
+          console.log('✅ 이메일로 진단ID 발견:', foundDiagnosisId);
+        } else {
           return NextResponse.json(
             { 
               success: false, 
@@ -119,22 +110,35 @@ export async function POST(request: NextRequest) {
             { status: 403 }
           );
         }
-
-        console.log('✅ 이메일 검증 성공 - 진단 신청 이메일 확인됨');
       } else {
-        console.warn('⚠️ 이메일 검증 API 오류, 기본 보안 검사로 진행');
+        console.warn('⚠️ 이메일로 진단ID 찾기 실패');
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: '이메일 검증 중 오류가 발생했습니다.',
+            code: 'EMAIL_VERIFICATION_ERROR'
+          },
+          { status: 500 }
+        );
       }
-    } catch (verifyError) {
-      console.warn('⚠️ 이메일 검증 중 오류:', verifyError);
-      // 검증 실패 시에도 기본 보안 검사로 진행
+    } catch (findError) {
+      console.error('❌ 이메일로 진단ID 찾기 중 오류:', findError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: '이메일 검증 중 오류가 발생했습니다.',
+          code: 'EMAIL_VERIFICATION_ERROR'
+        },
+        { status: 500 }
+      );
     }
 
     // 6자리 인증번호 생성 및 저장
     const authCode = generateAuthCode();
-    storeAuthCode(email, diagnosisId, authCode);
+    storeAuthCode(email, foundDiagnosisId, authCode);
 
     // 이메일 발송
-    const emailSent = await sendAuthCodeEmail(email, authCode, diagnosisId);
+    const emailSent = await sendAuthCodeEmail(email, authCode, foundDiagnosisId);
 
     if (emailSent) {
       console.log('✅ 인증번호 이메일 발송 성공');
@@ -142,6 +146,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: '인증번호가 이메일로 발송되었습니다.',
+        diagnosisId: foundDiagnosisId, // 발견된 진단ID 반환
         expiresIn: 600, // 10분 (초)
         timestamp: new Date().toISOString()
       });
@@ -152,6 +157,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: '인증번호가 생성되었습니다. 이메일 발송에 문제가 있을 경우 관리자에게 문의해주세요.',
+        diagnosisId: foundDiagnosisId, // 발견된 진단ID 반환
         warning: '이메일 발송에 일시적인 문제가 발생했을 수 있습니다.',
         expiresIn: 600,
         timestamp: new Date().toISOString()

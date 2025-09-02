@@ -3,6 +3,8 @@
  * 신청서 제출 → GAS 저장 → 보고서 생성 간 완벽한 동기화 보장
  */
 
+import { CacheManager } from './cache-manager';
+
 export class SyncManager {
   private static readonly MAX_WAIT_TIME = 300000; // 5분
   private static readonly INITIAL_RETRY_DELAY = 1000; // 1초
@@ -165,6 +167,15 @@ export class SyncManager {
     data?: any;
     error?: string;
   }> {
+    // 캐시 확인
+    const cacheKey = CacheManager.getGASDataKey(diagnosisId);
+    const cachedData = CacheManager.get(cacheKey);
+    
+    if (cachedData) {
+      console.log('📦 캐시된 데이터 사용:', diagnosisId);
+      return { success: true, data: cachedData };
+    }
+
     const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
                    'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
 
@@ -209,6 +220,9 @@ export class SyncManager {
           dataAge: `${Math.round(dataAge / (1000 * 60))}분`,
           acceptable: '24시간 이내'
         });
+        
+        // 캐시에 저장 (30분 TTL)
+        CacheManager.set(cacheKey, result.data, 30 * 60 * 1000);
         
         return { success: true, data: result.data };
       } else {

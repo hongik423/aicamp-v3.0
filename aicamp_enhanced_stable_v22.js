@@ -2743,6 +2743,11 @@ function doPost(e) {
           result = trackSyncStatus(requestData);
           break;
           
+        case 'find_diagnosis_by_email':
+          console.log('🔍 이메일로 진단ID 찾기 요청 처리 시작');
+          result = findDiagnosisByEmail(requestData);
+          break;
+          
         default:
           console.log(`⚠️ V22.1 알 수 없는 요청 타입 '${requestType}', AI 역량진단으로 안전하게 처리`);
           
@@ -3977,6 +3982,81 @@ function verifyDiagnosisExists(requestData) {
 }
 
 // �� V22.2 긴급 추가: 기존 AI 관련 함수들 모두 안전하게 처리
+/**
+ * 🔍 이메일로 진단ID 찾기 함수
+ */
+function findDiagnosisByEmail(requestData) {
+  try {
+    console.log('🔍 이메일로 진단ID 찾기 처리 시작');
+    
+    const { email } = requestData;
+    
+    if (!email) {
+      throw new Error('이메일이 필요합니다.');
+    }
+
+    const config = getEnvironmentConfig();
+    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    const mainSheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    
+    if (!mainSheet) {
+      throw new Error('메인 데이터 시트를 찾을 수 없습니다.');
+    }
+
+    const lastRow = mainSheet.getLastRow();
+    if (lastRow <= 1) {
+      return {
+        success: false,
+        error: '진단 데이터가 없습니다.'
+      };
+    }
+
+    // 이메일로 진단ID 검색
+    const dataRange = mainSheet.getRange(2, 1, lastRow - 1, mainSheet.getLastColumn());
+    const values = dataRange.getValues();
+    
+    let foundDiagnosisId = '';
+    
+    for (let i = 0; i < values.length; i++) {
+      const storedEmail = String(values[i][4]).trim(); // 이메일 (E열)
+      
+      // 이메일 매칭 (대소문자 구분 없이)
+      if (storedEmail.toLowerCase() === email.toLowerCase()) {
+        foundDiagnosisId = String(values[i][0]).trim(); // 진단ID (A열)
+        console.log('✅ 이메일로 진단ID 발견:', {
+          email: email.replace(/(.{3}).*(@.*)/, '$1***$2'),
+          diagnosisId: foundDiagnosisId,
+          rowIndex: i + 2
+        });
+        break;
+      }
+    }
+    
+    if (!foundDiagnosisId) {
+      return {
+        success: false,
+        error: '해당 이메일로 진단을 신청한 기록을 찾을 수 없습니다.'
+      };
+    }
+    
+    return {
+      success: true,
+      diagnosisId: foundDiagnosisId,
+      message: '진단ID를 성공적으로 찾았습니다.',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ 이메일로 진단ID 찾기 처리 실패:', error);
+    
+    return {
+      success: false,
+      error: error.message || '이메일로 진단ID 찾기 중 오류가 발생했습니다.',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
 /**
  * 📊 동기화 상태 추적 함수
  */

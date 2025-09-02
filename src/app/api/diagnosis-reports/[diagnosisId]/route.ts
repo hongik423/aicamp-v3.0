@@ -37,19 +37,37 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { diagnosisId } = await params;
     
-    console.log('🚀 V28.0 n8n 자동화 중심 고도화 보고서 조회 요청:', diagnosisId);
+    console.log('🛡️ 보고서 조회 요청 - 접근 권한 필수 확인:', diagnosisId);
     
-    // 🛡️ 보안 강화: 진단 ID 유효성 검사
-    if (!diagnosisId || diagnosisId.length < 10) {
-      console.warn('⚠️ 유효하지 않은 진단 ID:', diagnosisId);
+    // 🚨 치명적 오류 수정: 접근 권한 확인 없이 바로 진행 차단
+    if (!diagnosisId || typeof diagnosisId !== 'string' || diagnosisId.length < 10) {
+      console.error('❌ 유효하지 않은 진단 ID - 접근 차단:', diagnosisId);
       return NextResponse.json(
         { 
           success: false, 
-          error: '유효하지 않은 진단 ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.',
-          code: 'INVALID_DIAGNOSIS_ID',
-          receivedId: diagnosisId
+          error: '이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.',
+          code: 'REPORT_PREPARATION_IN_PROGRESS',
+          receivedId: diagnosisId,
+          message: '보고서 준비 중입니다'
         },
-        { status: 400 }
+        { status: 404 }
+      );
+    }
+    
+    // 🛡️ 접근 권한 필수 검증 - 세션 또는 인증 토큰 확인
+    const authHeader = request.headers.get('authorization');
+    const sessionAuth = request.headers.get('x-session-auth');
+    
+    if (!authHeader && !sessionAuth) {
+      console.error('❌ 접근 권한 없음 - 인증 필요:', diagnosisId);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: '이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.',
+          code: 'AUTHENTICATION_REQUIRED',
+          message: '보고서 준비 중입니다'
+        },
+        { status: 404 }
       );
     }
     

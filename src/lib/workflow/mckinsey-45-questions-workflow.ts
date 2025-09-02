@@ -638,15 +638,15 @@ export function calculateQualityMetrics(
   };
 }
 
-// AI 분석 기능 완전 제거됨
+// AICAMP 자체 분석 엔진 기반 시스템
 
 /**
- * 메인 워크플로우 실행 함수 (AI 통합)
+ * 메인 워크플로우 실행 함수 (AICAMP 자체 분석 엔진)
  */
 export async function executeLeeKyoJang45QuestionsWorkflow(
   request: LeeKyoJang45QuestionsRequest
 ): Promise<LeeKyoJang45QuestionsResult> {
-  console.log('🎯 45개 행동지표 기반 이교장 AI 워크플로우 시작:', request.companyName);
+  console.log('🎯 45개 행동지표 기반 AICAMP 자체 분석 워크플로우 시작:', request.companyName);
   
   // 1. 점수 분석 (총점은 0~225, 등급/성숙도/백분위는 percentage(0~100) 기준)
   const scoreAnalysis = analyze45QuestionsResponses(request.responses);
@@ -655,17 +655,17 @@ export async function executeLeeKyoJang45QuestionsWorkflow(
   const grade = determineGrade(percentageForGrading);
   const percentile = calculatePercentile(percentageForGrading, request.industry);
   
-  // 2. AI 분석 기능 완전 제거 - 기본 분석만 제공
-  const aiAnalysis = {
-    aiInsights: `AI 역량 점수 ${scoreAnalysis.totalScore}/225점 (${Math.round((scoreAnalysis.totalScore/225)*100)}%)을 기반으로 한 분석입니다. 현재 ${request.industry} 업종에서 ${scoreAnalysis.totalScore >= 180 ? '우수한' : scoreAnalysis.totalScore >= 135 ? '보통' : '개선이 필요한'} 수준입니다.`,
+  // 2. AICAMP 자체 분석 엔진 - 사실 기반 분석 제공
+  const analysisEngine = {
+    insights: `AI 역량 점수 ${scoreAnalysis.totalScore}/225점 (${Math.round((scoreAnalysis.totalScore/225)*100)}%)을 기반으로 한 분석입니다. 현재 ${request.industry} 업종에서 ${scoreAnalysis.totalScore >= 180 ? '우수한' : scoreAnalysis.totalScore >= 135 ? '보통' : '개선이 필요한'} 수준입니다.`,
     strategicRecommendations: `${request.companyName}의 AI 역량 향상을 위한 단계별 접근이 필요합니다. 우선순위는 ${scoreAnalysis.categoryScores.currentAI < 60 ? 'AI 도구 도입' : scoreAnalysis.categoryScores.organizationReadiness < 60 ? '조직 준비도 강화' : 'AI 전략 수립'}입니다.`,
     industryComparison: `${request.industry} 업계에서 AI 도입이 가속화되고 있으며, 현재 귀사의 수준은 ${percentile}% 수준입니다.`
   };
   
-  // 3. 강점/약점 분석 (기존 로직 + AI 인사이트 결합)
+  // 3. 강점/약점 분석 (기존 로직 + 자체 분석 엔진 결합)
   const { strengths, weaknesses } = analyzeStrengthsWeaknesses(scoreAnalysis.categoryScores, request.responses);
   
-  // 4. 맥킨지 스타일 권고사항 생성 (AI 강화)
+  // 4. 맥킨지 스타일 권고사항 생성 (자체 분석 엔진 기반)
   const recommendations = generateLeeKyoJangRecommendations(
     { ...scoreAnalysis, totalScore: scoreAnalysis.totalScore },
     request.industry,
@@ -683,7 +683,7 @@ export async function executeLeeKyoJang45QuestionsWorkflow(
   const qualityMetrics = calculateQualityMetrics(request.responses, {
     scoreAnalysis,
     recommendations,
-    aiAnalysis
+    analysisEngine
   });
   
   // 7. 최종 결과 구성 (AI 인사이트 통합)
@@ -709,9 +709,9 @@ export async function executeLeeKyoJang45QuestionsWorkflow(
       grade,
       maturityLevel,
       percentile,
-      // AI 분석 결과 추가
-      aiInsights: aiAnalysis.aiInsights,
-      industryComparison: aiAnalysis.industryComparison
+      // 자체 분석 엔진 결과 추가
+      aiInsights: analysisEngine.insights,
+      industryComparison: analysisEngine.industryComparison
     },
     timestamp: new Date().toISOString(),
     detailedAnalysis: {
@@ -730,29 +730,29 @@ export async function executeLeeKyoJang45QuestionsWorkflow(
         '하이브리드 AI 기술 변화 속도에 따른 적응 지연',
         '온디바이스 AI 보안 및 데이터 거버넌스 리스크'
       ],
-      // AI 전략 권고사항 추가
-      aiStrategicRecommendations: aiAnalysis.strategicRecommendations
+      // 자체 분석 엔진 전략 권고사항 추가
+      aiStrategicRecommendations: analysisEngine.strategicRecommendations
     },
     recommendations,
     roadmap,
     qualityMetrics,
-    // AI 분석 메타데이터 추가
+    // 자체 분석 엔진 메타데이터 추가
     aiAnalysisMetadata: {
-      model: 'Ollama GPT-OSS 20B + Intel AI Boost NPU',
-      analysisType: 'hybrid-ai-enhanced',
+      model: 'AICAMP 자체 분석 엔진',
+      analysisType: 'fact-based-analysis',
       processingTime: new Date().toISOString(),
       confidence: 0.95,
-      aiProvider: 'ollama-npu-hybrid'
+      aiProvider: 'aicamp-internal'
     }
   };
   
-  console.log('✅ 45개 행동지표 이교장 AI 워크플로우 완료:', {
+  console.log('✅ 45개 행동지표 AICAMP 자체 분석 워크플로우 완료:', {
     diagnosisId: result.diagnosisId,
     totalScore: result.scoreAnalysis.totalScore,
     grade: result.scoreAnalysis.grade,
     quality: result.qualityMetrics.overallQuality,
-    aiEnhanced: true,
-    model: 'Ollama GPT-OSS 20B + NPU'
+    analysisEngineUsed: true,
+    model: 'AICAMP 자체 분석 엔진'
   });
   
   return result;

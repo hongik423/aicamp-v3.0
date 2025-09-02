@@ -33,11 +33,21 @@ export class DiagnosisAccessController {
   static async verifyAccess(options: DiagnosisAccessOptions): Promise<DiagnosisAccessResult> {
     const { diagnosisId, skipRedirect = false, authToken, authMethod } = options;
     
-    console.log('🔐 통합 접근 권한 검증 시작:', diagnosisId);
+    console.log('🛡️ 필수 접근 권한 검증 시작 (치명적 오류 수정):', diagnosisId);
     
-    // 1단계: 진단ID 형식 검증
+    // 🚨 치명적 오류 수정: 접근 권한 확인 없이 바로 진행 차단
+    if (!diagnosisId || typeof diagnosisId !== 'string') {
+      console.error('❌ 진단ID가 유효하지 않음 - 접근 차단');
+      return {
+        isAuthorized: false,
+        error: '유효한 진단ID가 필요합니다.'
+      };
+    }
+    
+    // 1단계: 진단ID 형식 검증 (필수)
     const formatValidation = this.validateDiagnosisIdFormat(diagnosisId);
     if (!formatValidation.isValid) {
+      console.error('❌ 진단ID 형식 검증 실패 - 접근 차단:', formatValidation.error);
       return {
         isAuthorized: false,
         error: formatValidation.error

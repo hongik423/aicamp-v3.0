@@ -123,8 +123,35 @@ const WaitingSystemModal: React.FC<WaitingSystemModalProps> = ({
         setEstimatedTimeRemaining(prev => Math.max(prev - 1, 0));
       }, 1000);
 
-      // 실제 보고서 생성 상태 확인
+      // 🚨 치명적 오류 수정: 보고서 생성 상태 1회만 확인 - 무한 재시도 차단
+      let checkAttempts = 0;
+      const maxCheckAttempts = 3; // 최대 3회만 확인
+      
       checkInterval = setInterval(async () => {
+        checkAttempts++;
+        
+        if (checkAttempts > maxCheckAttempts) {
+          console.log('📋 보고서 준비 중 - 48시간 답변 메시지 표시');
+          
+          setSteps(prevSteps => prevSteps.map(step => ({
+            ...step,
+            status: 'completed',
+            progress: 100
+          })));
+          
+          setOverallProgress(100);
+          
+          // 48시간 답변 메시지와 함께 완료 처리
+          setTimeout(() => {
+            onComplete(`/diagnosis-results/${diagnosisId}?message=48hours`);
+          }, 1000);
+          
+          clearInterval(progressInterval);
+          clearInterval(timeInterval);
+          clearInterval(checkInterval);
+          return;
+        }
+        
         try {
           const checkResponse = await fetch(`/api/diagnosis-reports/${encodeURIComponent(diagnosisId)}`, {
             method: 'GET',
@@ -153,17 +180,13 @@ const WaitingSystemModal: React.FC<WaitingSystemModalProps> = ({
               clearInterval(timeInterval);
               clearInterval(checkInterval);
             }
-          } else if (checkResponse.status === 404 && retryCount < 15) {
-            setRetryCount(prev => prev + 1);
-            console.log(`🔄 보고서 확인 재시도 ${retryCount + 1}/15`);
-          } else if (retryCount >= 15) {
-            console.log('⚠️ 보고서 생성 시간이 예상보다 오래 걸리고 있습니다');
-            setIsRetrying(true);
+          } else {
+            console.log(`📋 보고서 확인 시도 ${checkAttempts}/${maxCheckAttempts} - 준비 중`);
           }
         } catch (error) {
-          console.log('🔄 보고서 상태 확인 중 오류, 재시도 중:', error);
+          console.log(`📋 보고서 상태 확인 오류 ${checkAttempts}/${maxCheckAttempts}:`, error);
         }
-      }, 2000);
+      }, 5000); // 5초 간격으로 확인
     };
 
     startProcessing();

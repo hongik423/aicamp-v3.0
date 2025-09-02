@@ -37,14 +37,14 @@ export default function ReportAccessPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  // 이메일 인증 상태
+  // 이메일 인증 상태 (진단ID 요구 제거)
   const [email, setEmail] = useState('');
-  const [authDiagnosisId, setAuthDiagnosisId] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [authStep, setAuthStep] = useState<'input' | 'verify'>('input');
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [countdown, setCountdown] = useState(0);
+  const [foundDiagnosisId, setFoundDiagnosisId] = useState('');
   
   // 최근 조회 진단ID
   const [recentIds, setRecentIds] = useState<string[]>([]);
@@ -58,7 +58,7 @@ export default function ReportAccessPage() {
       
       if (targetId) {
         setDiagnosisId(targetId);
-        setAuthDiagnosisId(targetId);
+        setFoundDiagnosisId(targetId);
         console.log('🎯 URL에서 대상 진단ID 설정:', targetId);
       }
       
@@ -92,10 +92,10 @@ export default function ReportAccessPage() {
     }
   };
 
-  // 🔐 이메일 인증번호 발송
+  // 🔐 이메일 인증번호 발송 (진단ID 요구 제거)
   const sendAuthCode = async () => {
-    if (!email.trim() || !authDiagnosisId.trim()) {
-      setAuthError('이메일과 진단ID를 모두 입력해주세요.');
+    if (!email.trim()) {
+      setAuthError('이메일을 입력해주세요.');
       return;
     }
 
@@ -116,8 +116,8 @@ export default function ReportAccessPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email.trim(),
-          diagnosisId: authDiagnosisId.trim()
+          email: email.trim()
+          // 진단ID 요구 제거
         }),
       });
 
@@ -126,6 +126,12 @@ export default function ReportAccessPage() {
       if (result.success) {
         setAuthStep('verify');
         setCountdown(300); // 5분
+        
+        // 발견된 진단ID 저장
+        if (result.diagnosisId) {
+          setFoundDiagnosisId(result.diagnosisId);
+          console.log('✅ 이메일로 진단ID 발견:', result.diagnosisId);
+        }
         
         // 카운트다운 시작
         const timer = setInterval(() => {
@@ -181,7 +187,7 @@ export default function ReportAccessPage() {
         body: JSON.stringify({
           email: email.trim(),
           code: authCode.trim(),
-          diagnosisId: authDiagnosisId.trim()
+          diagnosisId: foundDiagnosisId || '' // 발견된 진단ID 사용
         }),
       });
 
@@ -189,10 +195,16 @@ export default function ReportAccessPage() {
       
       if (result.success && result.token) {
         console.log('✅ 이메일 인증 성공');
-        saveRecentId(authDiagnosisId.trim());
+        const targetDiagnosisId = result.diagnosisId || foundDiagnosisId;
         
-        // 인증 토큰과 함께 보고서 페이지로 이동
-        router.push(`/diagnosis-results/${authDiagnosisId.trim()}?auth=email&token=${result.token}`);
+        if (targetDiagnosisId) {
+          saveRecentId(targetDiagnosisId);
+          
+          // 인증 토큰과 함께 보고서 페이지로 이동
+          router.push(`/diagnosis-results/${targetDiagnosisId}?auth=email&token=${result.token}`);
+        } else {
+          throw new Error('진단ID를 찾을 수 없습니다.');
+        }
         
       } else {
         throw new Error(result.error || '인증번호 검증에 실패했습니다.');
@@ -532,22 +544,7 @@ export default function ReportAccessPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      진단ID (선택사항)
-                      <span className="text-xs text-gray-500 ml-1">- 더 정확한 검증</span>
-                    </label>
-                    <div className="relative">
-                      <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        type="text"
-                        value={authDiagnosisId}
-                        onChange={(e) => setAuthDiagnosisId(e.target.value)}
-                        placeholder="DIAG_45Q_AI_... (선택사항)"
-                        className="pl-10 h-12"
-                      />
-                    </div>
-                  </div>
+                  {/* 진단ID 입력 필드 제거 - 이메일만으로 인증 */}
 
                   {authError && (
                     <Alert className="border-red-200 bg-red-50">

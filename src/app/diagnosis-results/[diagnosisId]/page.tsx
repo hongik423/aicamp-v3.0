@@ -105,10 +105,10 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     verifyAccess();
   }, [diagnosisId]);
 
-  // 인증 성공 시 보고서 로드
+  // 🛡️ 접근 권한 필수 확인 - 인증 성공 시에만 보고서 로드
   useEffect(() => {
     if (isAuthorized === true && diagnosisId) {
-      console.log('🔄 인증 성공, 보고서 로드 시작:', diagnosisId);
+      console.log('🔐 접근 권한 확인 완료, 보고서 로드 시작:', diagnosisId);
       
       const loadReport = async () => {
         try {
@@ -123,219 +123,48 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           
           setProcessingMessage('보고서 데이터를 조회하고 있습니다...');
           
-          while (retryCount < maxRetries) {
-            try {
-              console.log(`🔄 보고서 조회 시도 ${retryCount + 1}/${maxRetries}:`, diagnosisId);
-              
-              response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(diagnosisId)}`, {
-                method: 'GET',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                signal: AbortSignal.timeout(60000) // 60초로 최적화
-              });
-              
-              console.log(`📡 보고서 API 응답 ${retryCount + 1}/${maxRetries}:`, response.status, response.statusText);
-              
-              if (response.ok) {
-                break; // 성공하면 루프 탈출
-              } else if (response.status === 404) {
-                // 404 응답 본문 확인
-                const errorData = await response.json().catch(() => ({}));
-                
-                if (errorData.code === 'DIAGNOSIS_DATA_NOT_FOUND') {
-                  // 데이터가 실제로 존재하지 않는 경우 - 재시도 중단
-                  console.error('❌ 진단 데이터 부재 확인됨, 재시도 중단');
-                  throw new Error(errorData.error || '진단 데이터를 찾을 수 없습니다.');
-                } else if (retryCount < maxRetries - 1) {
-                  // 일시적 404일 수 있으므로 재시도
-                  throw new Error(`보고서 준비 중... (${retryCount + 1}/${maxRetries})`);
-                } else {
-                  // 최대 재시도 도달
-                  throw new Error('보고서 생성이 지연되고 있습니다. 잠시 후 다시 시도해주세요.');
-                }
-              } else {
-                // 404가 아닌 다른 오류는 즉시 처리
-                const errorText = await response.text().catch(() => '알 수 없는 오류');
-                throw new Error(`서버 오류 (${response.status}): ${errorText}`);
-              }
-              
-            } catch (fetchError: any) {
-              lastError = fetchError;
-              retryCount++;
-              console.warn(`⚠️ 보고서 로드 시도 ${retryCount}/${maxRetries} 실패:`, fetchError.message);
-              
-              if (retryCount >= maxRetries) {
-                throw fetchError;
-              }
-              
-              // 스마트 대기 시간 (지수 백오프)
-              const baseWait = 3000; // 3초 기본
-              const waitTime = Math.min(baseWait * Math.pow(1.5, retryCount - 1), 15000); // 최대 15초
-              setProcessingMessage(`보고서 준비 중... (${retryCount}/${maxRetries}) ${Math.ceil(waitTime/1000)}초 후 재시도`);
-              await new Promise(resolve => setTimeout(resolve, waitTime));
-            }
-          }
-
-          console.log('📡 사실기반 보고서 API 응답 상태:', response.status, response.statusText);
-
-          if (!response.ok) {
-            if (response.status === 404) {
-              // 404 오류 시 진단 ID 타임스탬프 확인
-              const timestampMatch = diagnosisId.match(/\d{13}/);
-              if (timestampMatch) {
-                const diagnosisTimestamp = parseInt(timestampMatch[0]);
-                const currentTime = Date.now();
-                const timeDiff = currentTime - diagnosisTimestamp;
-                const tenMinutes = 10 * 60 * 1000; // 10분
-                
-                if (timeDiff < tenMinutes) {
-                  console.log('🕐 최근 생성된 진단ID, 처리 중 상태로 전환:', diagnosisId);
-                  
-                  setIsProcessing(true);
-                  setProcessingMessage(`진단 결과를 처리하고 있습니다. (생성 후 ${Math.round(timeDiff / 1000)}초 경과)`);
-                  
-                  toast({
-                    title: "⏳ 진단 처리 중",
-                    description: "진단 결과를 처리하고 있습니다. 잠시 후 다시 시도해주세요.",
-                    variant: "default",
-                  });
-                  
-                  // 10초 후 자동 재시도
-                  setTimeout(() => {
-                    window.location.reload();
-                  }, 10000);
-                  
-                  return;
-                }
-              }
-              
-              throw new Error('해당 진단ID의 보고서를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.');
-            } else if (response.status === 503) {
-              // 시스템 업데이트 중 상태 처리
-              const errorResult = await response.json();
-              console.log('🔧 시스템 업데이트 중:', errorResult);
-              
-              setIsProcessing(true);
-              setProcessingMessage(errorResult.error || '시스템 업데이트 중입니다. 잠시 후 다시 시도해주세요.');
-              
-              toast({
-                title: "🔧 시스템 업데이트 중",
-                description: errorResult.error || "Google Apps Script 시스템을 업데이트하고 있습니다.",
-                variant: "default",
-              });
-              
-              // 30초 후 자동 재시도
-              setTimeout(() => {
-                window.location.reload();
-              }, 30000);
-              
-              return;
-            }
-            throw new Error(`보고서 로드 실패: ${response.status} ${response.statusText}`);
-          }
-
-          const responseText = await response.text();
-          if (!responseText) {
-            throw new Error('빈 응답을 받았습니다.');
-          }
-
-          let result;
+          // 🚨 치명적인 오류 수정: 무한 재시도 완전 차단 - 1회만 시도
           try {
-            result = JSON.parse(responseText);
-          } catch (parseError) {
-            console.error('❌ JSON 파싱 오류:', parseError);
-            throw new Error('서버 응답 형식이 올바르지 않습니다.');
-          }
-          
-          if (result.success && result.htmlReport) {
-            console.log('✅ 사실기반 35페이지 보고서 로드 성공');
-            setReportContent(result.htmlReport);
-            setReportInfo(result.reportInfo || {
-              diagnosisId: diagnosisId,
-              fileName: `AI역량진단보고서_${diagnosisId}.html`,
-              version: 'V27.0-FACT-BASED',
-              createdAt: new Date().toISOString()
-            });
-            setError('');
-          } else if (result.success && result.status === 'processing') {
-            // 처리 중 상태 처리
-            console.log('⏳ 진단 결과 처리 중:', result.message);
-            setError('');
-            setLoading(false);
+            console.log(`🔄 보고서 조회 1회 시도:`, diagnosisId);
             
-            // 처리 중 상태 설정
-            setIsProcessing(true);
-            setProcessingMessage(result.message || "진단 결과를 처리하고 있습니다. 잠시 후 다시 시도해주세요.");
-            
-            // 처리 중 메시지 표시
-            toast({
-              title: "⏳ 처리 중",
-              description: result.message || "진단 결과를 처리하고 있습니다.",
-              variant: "default",
+            response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(diagnosisId)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              signal: AbortSignal.timeout(30000) // 30초로 단축
             });
             
-            // 5초 후 자동 재시도
-            setTimeout(() => {
-              window.location.reload();
-            }, 5000);
+            console.log(`📡 보고서 API 응답:`, response.status, response.statusText);
             
-            return; // 오류로 처리하지 않음
-          } else {
-            throw new Error(result.error || '보고서를 생성할 수 없습니다.');
-          }
-          
-        } catch (error: any) {
-          console.error('❌ 사실기반 35페이지 보고서 로드 오류:', error);
-          
-          // 에러 타입별 맞춤 메시지 및 처리
-          let errorMessage = '사실기반 보고서 로드 중 오류가 발생했습니다.';
-          let showRetryButton = true;
-          let autoRetry = false;
-          
-          if (error.name === 'AbortError') {
-            errorMessage = 'GAS 데이터 조회 시간이 초과되었습니다. 네트워크 상태를 확인하고 잠시 후 다시 시도해주세요.';
-            autoRetry = true;
-          } else if (error.message?.includes('진단 데이터를 찾을 수 없습니다')) {
-            errorMessage = '해당 진단 ID의 데이터를 찾을 수 없습니다. 진단서 제출이 완료되었는지 확인해주세요.';
-            showRetryButton = false;
-          } else if (error.message?.includes('404') || error.message?.includes('찾을 수 없습니다')) {
-            errorMessage = '해당 진단ID의 실제 평가 데이터를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.';
-            showRetryButton = false;
-          } else if (error.message?.includes('500')) {
-            errorMessage = 'GAS 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-            autoRetry = true;
-          } else if (error.message?.includes('보고서 생성이 지연')) {
-            errorMessage = '보고서 생성이 지연되고 있습니다. 잠시 후 다시 시도해주세요.';
-            autoRetry = true;
-          }
-          
-          setError(errorMessage);
-          setShowRetryButton(showRetryButton);
-          
-          // 자동 재시도 로직 (특정 조건에서만)
-          if (autoRetry && showRetryButton) {
-            console.log('🔄 자동 재시도 예약됨 (30초 후)');
-            setProcessingMessage('30초 후 자동으로 다시 시도됩니다...');
-            
-            setTimeout(() => {
-              if (isAuthorized && diagnosisId) {
-                console.log('🔄 자동 재시도 시작');
-                setError('');
-                setProcessingMessage('');
-                setShowRetryButton(true);
-                loadReport();
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success && result.htmlReport) {
+                setReportContent(result.htmlReport);
+                setLoading(false);
+                return;
               }
-            }, 30000);
+            }
+            
+            // 성공하지 못한 경우 48시간 메시지 표시
+            console.log('📋 보고서 로드 실패 - 48시간 답변 메시지 표시');
+            setError('보고서 준비 중입니다');
+            setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
+            setLoading(false);
+            return;
+            
+          } catch (fetchError: any) {
+            // 네트워크 오류 시에도 48시간 메시지 표시
+            console.log('📋 네트워크 오류 - 48시간 답변 메시지 표시');
+            setError('보고서 준비 중입니다');
+            setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
+            setLoading(false);
+            return;
           }
-          
-          // 사용자 친화적 토스트 메시지
-          toast({
-            title: "보고서 로드 실패",
-            description: errorMessage,
-            variant: "destructive",
-          });
-          
+        } catch (err: any) {
+          console.error('❌ 보고서 로드 오류:', err);
+          setError('보고서 준비 중입니다');
+          setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
         } finally {
           setLoading(false);
         }
@@ -344,6 +173,24 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       loadReport();
     }
   }, [isAuthorized, diagnosisId, toast]);
+
+  // 🛡️ 치명적 오류 수정: 인증 실패 시 즉시 리다이렉트 (접근 권한 필수)
+  useEffect(() => {
+    if (isAuthorized === false) {
+      console.log('🚨 접근 권한 없음 - 인증 페이지로 리다이렉트');
+      router.push('/report-access');
+    }
+  }, [isAuthorized, router]);
+  
+  // 🎯 48시간 메시지 URL 파라미터 처리
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('message') === '48hours') {
+      setError('보고서 준비 중입니다');
+      setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
+      setLoading(false);
+    }
+  }, []);
 
   // 기존 리디렉션 로직은 통합 접근 권한 컨트롤러로 대체됨
 
