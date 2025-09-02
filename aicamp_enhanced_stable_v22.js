@@ -3273,6 +3273,14 @@ function queryDiagnosisById(requestData) {
           
           console.log(`🔍 V22.3 상세 데이터 검색 시작 - 대상: ${foundRow[2]} / ${foundRow[3]}`);
           console.log(`🔍 V22.3 검색할 진단 ID: ${diagnosisId}`);
+          console.log(`🔍 V22.3 상세 시트 데이터 행 수: ${detailValues.length}`);
+          
+          // 🔥 디버깅: 상세 시트의 첫 5개 진단ID 확인
+          console.log('🔍 V22.3 상세 시트 첫 5개 진단ID:');
+          for (let i = 0; i < Math.min(5, detailValues.length); i++) {
+            const detailId = String(detailValues[i][0]).trim();
+            console.log(`  행 ${i + 5}: ${detailId} (길이: ${detailId.length})`);
+          }
           
           // V22.3 진단ID 직접 매칭 (강화된 로직) + 형식 변환 매칭
           let detailMatchFound = false;
