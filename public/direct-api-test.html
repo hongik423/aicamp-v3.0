@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>직접 API 테스트 - GAS 0점 문제 진단</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        .button:hover {
+            background: #2563eb;
+        }
+        .button.danger {
+            background: #dc2626;
+        }
+        .result-box {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+        .error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+        .loading {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #d97706;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 직접 API 테스트 - GAS 0점 문제 진단</h1>
+        <p>simple-test.html 404 오류로 인한 대체 테스트 페이지</p>
+
+        <div>
+            <button class="button danger" onclick="testDiagnosisAPI()">
+                🚀 AI 진단 API 직접 테스트 (45문항)
+            </button>
+            <button class="button" onclick="clearResults()">결과 지우기</button>
+        </div>
+
+        <div id="results" class="result-box" style="display: none;"></div>
+    </div>
+
+    <script>
+        let testDiagnosisId = null;
+
+        function clearResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+
+        async function testDiagnosisAPI() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.className = 'result-box loading';
+            resultsDiv.innerHTML = '🔄 AI 진단 API 직접 테스트 시작...\n\n';
+
+            try {
+                // 🔥 정확히 45문항 테스트 데이터 생성
+                const testResponses = {};
+                for (let i = 1; i <= 45; i++) {
+                    // 3-5점 랜덤 점수 생성
+                    testResponses[`question_${i}`] = Math.floor(Math.random() * 3) + 3;
+                }
+
+                const testData = {
+                    companyName: '테스트기업_직접API',
+                    contactName: '김테스트_직접',
+                    contactEmail: 'direct-test@aicamp.club',
+                    contactPhone: '010-9999-8888',
+                    position: 'CTO',
+                    industry: 'IT/소프트웨어',
+                    employeeCount: '10명 미만',
+                    location: '서울특별시',
+                    privacyConsent: true,
+                    responses: testResponses,
+                    assessmentResponses: testResponses
+                };
+
+                resultsDiv.innerHTML += `📝 테스트 데이터 생성 완료:\n`;
+                resultsDiv.innerHTML += `- 회사명: ${testData.companyName}\n`;
+                resultsDiv.innerHTML += `- 담당자: ${testData.contactName}\n`;
+                resultsDiv.innerHTML += `- 이메일: ${testData.contactEmail}\n`;
+                resultsDiv.innerHTML += `- 45문항 점수: ${Object.keys(testResponses).length}개\n`;
+                resultsDiv.innerHTML += `- 첫 5개 점수: ${Object.entries(testResponses).slice(0, 5).map(([k,v]) => `${k}:${v}`).join(', ')}\n`;
+                resultsDiv.innerHTML += `- 마지막 5개 점수: ${Object.entries(testResponses).slice(-5).map(([k,v]) => `${k}:${v}`).join(', ')}\n\n`;
+
+                resultsDiv.innerHTML += '🚀 API 호출 시작...\n\n';
+
+                console.log('📝 직접 API 테스트 데이터:', testData);
+
+                const response = await fetch('/api/ai-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                resultsDiv.innerHTML += `📊 API 응답 상태: ${response.status} ${response.statusText}\n\n`;
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const result = await response.json();
+                
+                console.log('📊 API 응답 결과:', result);
+
+                if (result.success) {
+                    testDiagnosisId = result.diagnosisId;
+                    resultsDiv.className = 'result-box success';
+                    resultsDiv.innerHTML += `✅ AI 진단 API 테스트 성공!\n\n`;
+                    resultsDiv.innerHTML += `📋 결과 정보:\n`;
+                    resultsDiv.innerHTML += `- 진단 ID: ${result.diagnosisId}\n`;
+                    resultsDiv.innerHTML += `- 총점: ${result.scores?.total || 0}점\n`;
+                    resultsDiv.innerHTML += `- 백분율: ${result.scores?.percentage || 0}%\n`;
+                    resultsDiv.innerHTML += `- 등급: ${result.grade || 'N/A'}\n`;
+                    resultsDiv.innerHTML += `- 성숙도: ${result.maturityLevel || 'N/A'}\n`;
+                    resultsDiv.innerHTML += `- 버전: ${result.version}\n`;
+                    resultsDiv.innerHTML += `- 타임스탬프: ${result.timestamp}\n\n`;
+                    
+                    resultsDiv.innerHTML += `🎯 이제 Google Sheets에서 다음 진단ID로 데이터를 확인하세요:\n`;
+                    resultsDiv.innerHTML += `${result.diagnosisId}\n\n`;
+                    resultsDiv.innerHTML += `📊 점수가 0이 아닌 실제 값으로 저장되었는지 확인해주세요!`;
+                    
+                } else {
+                    resultsDiv.className = 'result-box error';
+                    resultsDiv.innerHTML += `❌ AI 진단 API 테스트 실패\n\n`;
+                    resultsDiv.innerHTML += `오류: ${result.error}\n`;
+                    resultsDiv.innerHTML += `상세: ${result.details || 'N/A'}\n`;
+                    resultsDiv.innerHTML += `재시도 가능: ${result.retryable ? 'YES' : 'NO'}\n`;
+                }
+
+            } catch (error) {
+                console.error('API 테스트 오류:', error);
+                resultsDiv.className = 'result-box error';
+                resultsDiv.innerHTML += `❌ API 테스트 실행 오류\n\n`;
+                resultsDiv.innerHTML += `오류 메시지: ${error.message}\n`;
+                resultsDiv.innerHTML += `오류 타입: ${error.name}\n\n`;
+                resultsDiv.innerHTML += `🔍 네트워크 탭에서 상세 오류를 확인해주세요.`;
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', () => {
+            console.log('🔧 직접 API 테스트 페이지 로드 완료');
+            console.log('서버 URL:', window.location.origin);
+        });
+    </script>
+</body>
+</html>
