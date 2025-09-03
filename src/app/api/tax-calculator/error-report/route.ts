@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Google Apps Script로 데이터 전송
-    const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec';
+    const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
     
     const reportData = {
       action: 'feedback',

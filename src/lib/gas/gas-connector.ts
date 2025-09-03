@@ -5,15 +5,16 @@
 
 // GAS URL 목록 (우선순위 순)
 const GAS_URLS = [
-  // 1순위: 환경변수에서 가져온 URL
+  // 🚨 V22.7 작동 확인된 URL만 사용 (404 오류 URL 완전 제거)
+  'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec',
+  
+  // 환경변수 URL (2순위)
   process.env.NEXT_PUBLIC_GAS_URL,
   process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL,
-  process.env.GOOGLE_APPS_SCRIPT_URL,
+  process.env.GOOGLE_APPS_SCRIPT_URL
   
-  // 2순위: 알려진 배포 URL들
-  'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec',
-  'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec',
-  'https://script.google.com/macros/s/AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj/exec'
+  // 404 오류 URL 완전 삭제: AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz
+  // 구버전 URL 완전 삭제: AKfycbxIRspmaBqr0tFEQ3Mp9hGIDh6uciIdPUekcezJtyhyumTzeqs6yuzba6u3sB1O5uSj
 ].filter(Boolean); // null/undefined 제거
 
 export interface GASResponse {

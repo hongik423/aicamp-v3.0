@@ -46,7 +46,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           success: false, 
           error: '유효하지 않은 진단ID입니다.',
           diagnosisId,
-          suggestion: '이메일로 받으신 정확한 진단ID를 확인해주세요.'
+          suggestion: '이메일로 받으신 정확한 진단ID를 확인해주세요.',
+          debug: {
+            receivedId: diagnosisId,
+            idLength: diagnosisId?.length || 0,
+            idType: typeof diagnosisId
+          }
         },
         { status: 400 }
       );

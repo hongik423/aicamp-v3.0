@@ -1022,7 +1022,7 @@ async function sendEmailNotification(params: any) {
     // Google Apps Script로 이메일 발송 요청
     const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
                   process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 
-                  'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec';
+                  'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
     
     const emailPayload = {
       type: 'send_email',
