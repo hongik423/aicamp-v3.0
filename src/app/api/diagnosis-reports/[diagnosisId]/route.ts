@@ -65,17 +65,57 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       console.log('🔄 진단 ID 정규화:', diagnosisId, '=>', normalizedDiagnosisId);
     }
 
-    // 🔥 실제 데이터 조회 (사실기반 1원칙)
-    console.log('🔥 실제 데이터 조회 시작:', normalizedDiagnosisId);
-    const result = await queryDiagnosisFromGAS(normalizedDiagnosisId);
+    // 🔥 V22.6 병렬 데이터 조회 시스템 (로컬 캐시 우선)
+    console.log('🔥 V22.6 병렬 데이터 조회 시작:', normalizedDiagnosisId);
     
-    if (!result.success || !result.data) {
+    let result: any = null;
+    let dataSource = '';
+    
+    // 1순위: 로컬 캐시 확인 (즉시 응답)
+    if (typeof global !== 'undefined' && global.localDiagnosisCache) {
+      const cachedData = global.localDiagnosisCache.get(normalizedDiagnosisId) || 
+                        global.localDiagnosisCache.get(diagnosisId);
+      
+      if (cachedData) {
+        console.log('✅ 로컬 캐시에서 데이터 조회 성공');
+        result = { success: true, data: cachedData };
+        dataSource = 'local-cache';
+      }
+    }
+    
+    // 2순위: GAS 조회 (캐시 없을 때만)
+    if (!result || !result.success) {
+      console.log('🔄 GAS에서 데이터 조회 시도');
+      
+      // 최근 제출 직후 GAS 반영 지연을 대비한 소프트 재시도(최대 3회, 1초 간격)
+      result = await queryDiagnosisFromGAS(normalizedDiagnosisId);
+      if (!result.success || !result.data) {
+        const maxAttempts = 3;
+        for (let attempt = 2; attempt <= maxAttempts; attempt++) {
+          console.log(`⏳ GAS 반영 대기 재시도 ${attempt}/${maxAttempts}:`, normalizedDiagnosisId);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          result = await queryDiagnosisFromGAS(normalizedDiagnosisId);
+          if (result.success && result.data) break;
+        }
+      }
+      
+      if (result.success && result.data) {
+        dataSource = 'gas-direct';
+        console.log('✅ GAS에서 데이터 조회 성공');
+      }
+    }
+
+    if (!result || !result.success || !result.data) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: '🔥 실제 진단 데이터를 찾을 수 없습니다.',
-          details: `사실기반 보고서 작성을 위해 실제 진단 데이터가 필요합니다.\n\n진단서 제출이 완료되었는지 확인해주세요.`,
-          diagnosisId: normalizedDiagnosisId
+          details:
+            `사실기반 보고서 작성을 위해 실제 진단 데이터가 필요합니다.\n\n` +
+            `- 진단서 제출 직후에는 최대 1~2분 반영 지연이 있을 수 있습니다.\n` +
+            `- 정확한 진단ID인지 확인 후 잠시 뒤 다시 시도해주세요.`,
+          diagnosisId: normalizedDiagnosisId,
+          checkedSources: ['local-cache', 'gas-direct']
         },
         { status: 404 }
       );
@@ -124,11 +164,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       message: '🔥 맥킨지급 24페이지 AI 역량진단 보고서 생성 성공 (n8n 기반 고몰입 조직 구축)',
       diagnosisId,
       htmlReport: htmlReport,
+      dataSource: dataSource, // 데이터 소스 정보 추가
       reportInfo: {
         diagnosisId,
         fileName: `AI역량진단보고서_${diagnosisData.companyInfo.name}_${diagnosisId}_McKinsey24페이지.html`,
         createdAt: new Date().toISOString(),
-        version: 'V28.0-MCKINSEY-24PAGE-N8N',
+        version: 'V28.0-MCKINSEY-24PAGE-N8N-PARALLEL',
         reportType: '맥킨지급_24페이지_n8n_고몰입',
         totalScore: diagnosisData.scores.total,
         grade: diagnosisData.grade,
@@ -138,7 +179,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         actualScoreReflected: true,
         pages: 24,
         factBasedSystem: true,
-        isVirtualData: false
+        isVirtualData: false,
+        dataSource: dataSource // 데이터 소스 추가
       }
     });
     
