@@ -127,17 +127,6 @@ export default function ConsultationRequestModal({
         // 상담 관련 정보
         consultationType: formData.consultationType,
         consultationArea: formData.consultationArea,
-        inquiryContent: formData.inquiryContent,
-        preferredTime: formData.preferredTime,
-        privacyConsent: formData.privacyConsent,
-        
-        // 진단 관련 추가 정보
-        diagnosisCompleted: !!diagnosisData,
-        diagnosisScore: diagnosisData?.overallScore || null,
-        primaryService: diagnosisData?.primaryService || null,
-        diagnosisId: diagnosisData?.id || null,
-        
-        // 상담 요청 상세 정보
         inquiryContent: `${formData.inquiryContent}
 
 [AI 진단 결과 연계 상담]
@@ -147,6 +136,14 @@ export default function ConsultationRequestModal({
 - 업계 성장률: ${diagnosisData?.industryGrowth ?? ''}
 
 상기 AI 진단 결과를 바탕으로 전문가 상담을 요청드립니다.`,
+        preferredTime: formData.preferredTime,
+        privacyConsent: formData.privacyConsent,
+        
+        // 진단 관련 추가 정보
+        diagnosisCompleted: !!diagnosisData,
+        diagnosisScore: diagnosisData?.overallScore || null,
+        primaryService: diagnosisData?.primaryService || null,
+        diagnosisId: diagnosisData?.id || null,
         
         submitDate: new Date().toISOString()
       };
