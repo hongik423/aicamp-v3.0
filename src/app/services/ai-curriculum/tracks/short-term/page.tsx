@@ -4,14 +4,13 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Clock, Users, Award, BookOpen, ChevronRight, Zap, Target, Calendar, DollarSign } from 'lucide-react';
+import { CheckCircle2, Clock, Users, Award, BookOpen, ChevronRight, Zap, Target, Calendar } from 'lucide-react';
 
 const shortTermCourses = [
   {
     id: 'ai-basics-1day',
     title: 'AI 기초 완성 1일 과정',
     duration: '8시간 (1일)',
-    price: '150,000원',
     target: 'AI 입문자, 임원진',
     description: 'AI의 기본 개념부터 비즈니스 활용까지 하루만에 완성',
     highlights: [
@@ -33,7 +32,6 @@ const shortTermCourses = [
     id: 'automation-2day',
     title: '업무 자동화 마스터 2일 과정',
     duration: '16시간 (2일)',
-    price: '280,000원',
     target: '실무진, 팀장급',
     description: '반복 업무를 AI로 자동화하는 실무 중심 집중 교육',
     highlights: [
@@ -52,7 +50,6 @@ const shortTermCourses = [
     id: 'chatbot-3day',
     title: 'AI 챗봇 구축 3일 과정',
     duration: '24시간 (3일)',
-    price: '420,000원',
     target: '개발자, 기획자',
     description: '코딩 없이 AI 챗봇을 구축하고 배포하는 실무 과정',
     highlights: [
@@ -72,7 +69,6 @@ const shortTermCourses = [
     id: 'data-analysis-2day',
     title: 'AI 데이터 분석 2일 과정',
     duration: '16시간 (2일)',
-    price: '320,000원',
     target: '분석가, 마케터',
     description: 'AI를 활용한 데이터 분석과 인사이트 도출 집중 교육',
     highlights: [
@@ -201,10 +197,6 @@ export default function ShortTermCoursePage() {
                     <Badge variant="secondary" className="mb-2">
                       {course.duration}
                     </Badge>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-orange-600">{course.price}</div>
-                      <div className="text-sm text-gray-500">1인 기준</div>
-                    </div>
                   </div>
                   <CardTitle className="text-2xl mb-2">{course.title}</CardTitle>
                   <CardDescription className="text-base">
@@ -265,14 +257,14 @@ export default function ShortTermCoursePage() {
             <h2 className="text-3xl font-bold mb-8 text-gray-900">특별 혜택</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="p-6 bg-blue-50 rounded-xl">
-                <DollarSign className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                <Clock className="w-12 h-12 text-blue-600 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-900">조기 등록 할인</h3>
-                <p className="text-gray-600">2주 전 등록 시 10% 할인</p>
+                <p className="text-gray-600">2주 전 등록 시 특별 할인</p>
               </div>
               <div className="p-6 bg-green-50 rounded-xl">
                 <Users className="w-12 h-12 text-green-600 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-900">단체 할인</h3>
-                <p className="text-gray-600">3명 이상 등록 시 15% 할인</p>
+                <p className="text-gray-600">3명 이상 등록 시 특별 할인</p>
               </div>
               <div className="p-6 bg-purple-50 rounded-xl">
                 <Award className="w-12 h-12 text-purple-600 mx-auto mb-4" />
