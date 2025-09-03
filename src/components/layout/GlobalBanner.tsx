@@ -44,36 +44,36 @@ export default function GlobalBanner() {
       <div
         className={`mx-auto max-w-screen-2xl m-2 pointer-events-auto shadow-lg border rounded-xl overflow-hidden`}
       >
-        <div className={`bg-gradient-to-r ${style} text-white p-3 sm:p-4 flex items-start gap-3`}>
-          <div className="mt-0.5 animate-pulse">
-            {Icon}
+        <div className={`bg-gradient-to-r ${style} text-white p-2 sm:p-3 flex items-center gap-2`}>
+          <div className="animate-pulse">
+            {React.cloneElement(Icon as React.ReactElement, { className: "w-4 h-4" })}
           </div>
-          <div className="flex-1">
-            <p className={`font-bold text-sm sm:text-base ${messageTextClass} drop-shadow-[0_1px_1px_rgba(0,0,0,0.75)]`}>{message}</p>
+          <div className="flex-1 min-w-0">
+            <p className={`font-medium text-xs sm:text-sm ${messageTextClass} drop-shadow-[0_1px_1px_rgba(0,0,0,0.75)] truncate`}>{message}</p>
             {subMessage && (
-              <p className={`text-xs sm:text-sm mt-0.5 ${subMessageTextClass} drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]`}>{subMessage}</p>
+              <p className={`text-[10px] sm:text-xs mt-0.5 ${subMessageTextClass} drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)] truncate`}>{subMessage}</p>
             )}
             {typeof progressPercent === 'number' && (
-              <div className="mt-2">
-                <div className="flex items-center justify-between text-[10px] sm:text-xs opacity-90 mb-1">
-                  <span>{stepLabel || '진행 중'}</span>
+              <div className="mt-1">
+                <div className="flex items-center justify-between text-[9px] sm:text-[10px] opacity-90 mb-0.5">
+                  <span className="truncate">{stepLabel || '진행 중'}</span>
                   <span>{Math.round(progressPercent)}%</span>
                 </div>
-                <Progress value={progressPercent} className="h-1.5" />
+                <Progress value={progressPercent} className="h-1" />
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 text-xs sm:text-sm opacity-90">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span>{typeof progressPercent === 'number' ? `${Math.round(progressPercent)}%` : '진행 중'}</span>
-            <Mail className="w-4 h-4" />
+          <div className="flex items-center gap-1 text-[10px] sm:text-xs opacity-90 shrink-0">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            <span className="hidden sm:inline">{typeof progressPercent === 'number' ? `${Math.round(progressPercent)}%` : '진행 중'}</span>
+            <Mail className="w-3 h-3" />
             <button
               onClick={handleClose}
-              className="ml-2 p-1 hover:bg-white/20 rounded-full transition-colors duration-200 group"
-              title="배너 닫기 (네비게이션 사용 가능)"
+              className="ml-1 p-0.5 hover:bg-white/20 rounded-full transition-colors duration-200 group"
+              title="배너 닫기"
               aria-label="배너 닫기"
             >
-              <X className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+              <X className="w-3 h-3 group-hover:scale-110 transition-transform duration-200" />
             </button>
           </div>
         </div>

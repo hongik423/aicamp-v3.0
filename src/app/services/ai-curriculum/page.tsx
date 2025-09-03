@@ -315,6 +315,16 @@ export default function AICurriculumPage() {
               </Button>
               <Button 
                 size="lg" 
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                asChild
+              >
+                <Link href="/services/ai-curriculum/tracks/short-term">
+                  <Clock className="mr-2 h-5 w-5" />
+                  단기 집중과정
+                </Link>
+              </Button>
+              <Button 
+                size="lg" 
                 variant="outline" 
                 className="border-2 border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-600 px-8 py-4 rounded-xl font-semibold transition-all duration-300"
                 asChild

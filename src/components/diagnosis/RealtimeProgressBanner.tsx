@@ -132,17 +132,17 @@ export default function RealtimeProgressBanner({
         className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg border-b"
       >
         <Card className="rounded-none border-0 border-b">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
-                  <Brain className="w-4 h-4 text-blue-600" />
+          <CardContent className="p-2 sm:p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full">
+                  <Brain className="w-3 h-3 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-medium text-sm text-gray-900">
                     {progressState.companyName} AI 역량진단 진행 중
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-gray-600 truncate max-w-[200px]">
                     진단ID: {progressState.diagnosisId}
                   </p>
                 </div>
@@ -161,16 +161,16 @@ export default function RealtimeProgressBanner({
             </div>
 
             {/* 전체 진행률 */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  전체 진행률: {Math.round(progressState.overallProgress)}%
+            <div className="mb-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium text-gray-700">
+                  진행률: {Math.round(progressState.overallProgress)}%
                 </span>
-                <Badge variant={hasError ? "destructive" : progressState.isCompleted ? "default" : "secondary"}>
-                  {hasError ? "오류 발생" : progressState.isCompleted ? "완료" : "진행 중"}
+                <Badge variant={hasError ? "destructive" : progressState.isCompleted ? "default" : "secondary"} className="text-xs px-2 py-0">
+                  {hasError ? "오류" : progressState.isCompleted ? "완료" : "진행 중"}
                 </Badge>
               </div>
-              <Progress value={progressState.overallProgress} className="h-2" />
+              <Progress value={progressState.overallProgress} className="h-1.5" />
             </div>
 
             {/* 오류 메시지 */}
