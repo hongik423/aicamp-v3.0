@@ -281,25 +281,12 @@ export default function MyDiagnosisPage() {
     }
   };
 
-  // 보고서 보기 (세션 인증 확인)
+  // 🔓 권한 완화: 보고서 보기 (진단ID만 확인)
   const handleViewReport = () => {
     if (reportInfo && diagnosisId) {
-      // 영속적 접근 권한 확인 후 이동 (진단ID 고유번호 기반)
-      const permanentAuthKey = `diagnosis_permanent_auth_${diagnosisId}`;
-      const sessionAuthKey = `diagnosis_auth_${diagnosisId}`;
-      const permanentAuth = localStorage.getItem(permanentAuthKey);
-      const sessionAuth = sessionStorage.getItem(sessionAuthKey);
-      
-      if (permanentAuth === 'authorized' || sessionAuth === 'authorized') {
-        console.log('✅ 영속적 접근 권한 확인 완료:', diagnosisId);
-        window.open(`/diagnosis-results/${diagnosisId}`, '_blank');
-      } else {
-        toast({
-          title: "⚠️ 인증 필요",
-          description: "보고서 조회를 다시 시도해주세요.",
-          variant: "destructive"
-        });
-      }
+      // 🔓 권한 완화: 진단ID만 일치하면 즉시 접근 허용
+      console.log('🔓 권한 완화 - 진단ID 확인 완료, 보고서 열기:', diagnosisId);
+      window.open(`/diagnosis-results/${diagnosisId}`, '_blank');
     }
   };
 

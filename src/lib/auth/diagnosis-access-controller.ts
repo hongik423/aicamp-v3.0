@@ -1,13 +1,13 @@
 /**
  * 진단 결과 접근 권한 통합 컨트롤러
- * 모든 진단 결과 페이지에서 사용할 표준 접근 권한 프로세스
+ * 🔓 권한 완화: 진단ID만 일치하면 누구든지 접근 가능
  */
 
 export interface DiagnosisAccessResult {
   isAuthorized: boolean;
   error?: string;
   redirectUrl?: string;
-  authMethod?: 'session' | 'diagnosis-id' | 'email-auth';
+  authMethod?: 'diagnosis-id-only';
   remainingTime?: number;
 }
 
@@ -24,18 +24,17 @@ export class DiagnosisAccessController {
   private static readonly SESSION_DURATION = 30 * 60 * 1000; // 30분
   
   /**
-   * 표준 접근 권한 검증 프로세스
-   * 1. 진단ID 형식 검증
-   * 2. 세션 인증 확인 (30분 유효)
-   * 3. 이메일 인증 토큰 확인
-   * 4. 진단ID 서버 검증
+   * 🔓 권한 완화된 접근 권한 검증 프로세스
+   * 진단ID만 일치하면 누구든지 접근 가능
+   * 1. 진단ID 형식 검증 (기본적인 형식만 확인)
+   * 2. 즉시 접근 허용 (추가 인증 불필요)
    */
   static async verifyAccess(options: DiagnosisAccessOptions): Promise<DiagnosisAccessResult> {
-    const { diagnosisId, skipRedirect = false, authToken, authMethod } = options;
+    const { diagnosisId, skipRedirect = false } = options;
     
-    console.log('🛡️ 필수 접근 권한 검증 시작 (치명적 오류 수정):', diagnosisId);
+    console.log('🔓 권한 완화된 접근 권한 검증 시작:', diagnosisId);
     
-    // 🚨 치명적 오류 수정: 접근 권한 확인 없이 바로 진행 차단
+    // 기본 진단ID 유효성 검사
     if (!diagnosisId || typeof diagnosisId !== 'string') {
       console.error('❌ 진단ID가 유효하지 않음 - 접근 차단');
       return {
@@ -44,7 +43,7 @@ export class DiagnosisAccessController {
       };
     }
     
-    // 1단계: 진단ID 형식 검증 (필수)
+    // 🔓 권한 완화: 진단ID 형식만 기본적으로 검증
     const formatValidation = this.validateDiagnosisIdFormat(diagnosisId);
     if (!formatValidation.isValid) {
       console.error('❌ 진단ID 형식 검증 실패 - 접근 차단:', formatValidation.error);
@@ -54,84 +53,44 @@ export class DiagnosisAccessController {
       };
     }
     
-    // 2단계: 세션 인증 확인 (30분 유효)
-    const sessionAuth = this.checkSessionAuth(diagnosisId);
-    if (sessionAuth.isValid) {
-      console.log('✅ 세션 인증 확인됨:', diagnosisId);
-      return {
-        isAuthorized: true,
-        authMethod: 'session',
-        remainingTime: sessionAuth.remainingTime
-      };
-    }
+    // 🔓 권한 완화: 진단ID만 일치하면 즉시 접근 허용
+    console.log('✅ 진단ID 검증 완료 - 접근 허용:', diagnosisId);
     
-    // 3단계: 이메일 인증 토큰 확인
-    if (authMethod === 'email' && authToken) {
-      const tokenAuth = this.verifyEmailAuthToken(authToken, diagnosisId);
-      if (tokenAuth.isValid) {
-        console.log('✅ 이메일 인증 토큰 확인됨:', diagnosisId);
-        // 세션에 인증 상태 저장
-        this.saveSessionAuth(diagnosisId);
-        return {
-          isAuthorized: true,
-          authMethod: 'email-auth'
-        };
-      }
-    }
-    
-    // 4단계: 진단ID 서버 검증
-    try {
-      const serverAuth = await this.verifyDiagnosisIdOnServer(diagnosisId);
-      if (serverAuth.isValid) {
-        console.log('✅ 서버 진단ID 검증 완료:', diagnosisId);
-        // 세션에 인증 상태 저장
-        this.saveSessionAuth(diagnosisId);
-        return {
-          isAuthorized: true,
-          authMethod: 'diagnosis-id'
-        };
-      }
-    } catch (error: any) {
-      console.error('❌ 서버 검증 실패:', error);
-    }
-    
-    // 5단계: 모든 검증 실패 시 리디렉션
-    if (!skipRedirect) {
-      const redirectUrl = `/report-access?target=${encodeURIComponent(diagnosisId)}`;
-      return {
-        isAuthorized: false,
-        error: '접근 권한이 필요합니다. 진단ID 또는 이메일 인증을 완료해주세요.',
-        redirectUrl
-      };
-    }
+    // 세션에 접근 상태 저장 (선택사항)
+    this.saveSessionAuth(diagnosisId);
     
     return {
-      isAuthorized: false,
-      error: '진단 결과에 접근할 권한이 없습니다.'
+      isAuthorized: true,
+      authMethod: 'diagnosis-id-only',
+      remainingTime: this.SESSION_DURATION
     };
   }
   
   /**
-   * 진단ID 형식 검증
+   * 🔓 권한 완화된 진단ID 형식 검증
+   * 기본적인 형식만 확인 (너무 엄격하지 않음)
    */
   private static validateDiagnosisIdFormat(diagnosisId: string): { isValid: boolean; error?: string } {
     if (!diagnosisId) {
       return { isValid: false, error: '진단ID가 제공되지 않았습니다.' };
     }
     
-    if (diagnosisId.length < 10) {
+    // 🔓 권한 완화: 최소 길이 요구사항 완화
+    if (diagnosisId.length < 5) {
       return { isValid: false, error: '진단ID가 너무 짧습니다.' };
     }
     
+    // 🔓 권한 완화: DIAG_ 접두사 요구사항 완화 (선택사항)
     if (!diagnosisId.startsWith('DIAG_')) {
-      return { isValid: false, error: '유효하지 않은 진단ID 형식입니다. DIAG_로 시작해야 합니다.' };
+      console.warn('⚠️ DIAG_ 접두사가 없는 진단ID 형식:', diagnosisId);
+      // 경고만 하고 계속 진행 (접근 차단하지 않음)
     }
     
     return { isValid: true };
   }
   
   /**
-   * 세션 인증 확인 (30분 유효)
+   * 세션 인증 확인 (30분 유효) - 선택사항
    */
   private static checkSessionAuth(diagnosisId: string): { isValid: boolean; remainingTime?: number } {
     if (typeof window === 'undefined') return { isValid: false };
@@ -159,7 +118,7 @@ export class DiagnosisAccessController {
   }
   
   /**
-   * 이메일 인증 토큰 검증
+   * 🔓 권한 완화: 이메일 인증 토큰 검증 - 선택사항
    */
   private static verifyEmailAuthToken(authToken: string, diagnosisId: string): { isValid: boolean; error?: string } {
     try {
@@ -179,35 +138,41 @@ export class DiagnosisAccessController {
   }
   
   /**
-   * 서버에서 진단ID 검증
+   * 🔓 권한 완화: 서버에서 진단ID 검증 - 선택사항
    */
   private static async verifyDiagnosisIdOnServer(diagnosisId: string): Promise<{ isValid: boolean; error?: string }> {
-    const response = await fetch('/api/diagnosis-auth', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        diagnosisId: diagnosisId,
-        accessType: 'user'
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`서버 검증 실패: ${response.status} ${response.statusText}`);
-    }
-    
-    const result = await response.json();
-    
-    if (result.success) {
+    try {
+      const response = await fetch('/api/diagnosis-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          diagnosisId: diagnosisId,
+          accessType: 'user'
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`서버 검증 실패: ${response.status} ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        return { isValid: true };
+      } else {
+        return { isValid: false, error: result.error || '진단ID 검증에 실패했습니다.' };
+      }
+    } catch (error) {
+      console.warn('⚠️ 서버 검증 실패 - 권한 완화로 인해 계속 진행:', error);
+      // 🔓 권한 완화: 서버 검증 실패해도 접근 허용
       return { isValid: true };
-    } else {
-      return { isValid: false, error: result.error || '진단ID 검증에 실패했습니다.' };
     }
   }
   
   /**
-   * 세션에 인증 상태 저장 (30분 유효)
+   * 세션에 인증 상태 저장 (30분 유효) - 선택사항
    */
   private static saveSessionAuth(diagnosisId: string): void {
     if (typeof window === 'undefined') return;
@@ -215,7 +180,7 @@ export class DiagnosisAccessController {
     sessionStorage.setItem(`diagnosis_auth_${diagnosisId}`, 'true');
     sessionStorage.setItem(`diagnosis_auth_time_${diagnosisId}`, Date.now().toString());
     
-    console.log('💾 세션 인증 상태 저장됨:', diagnosisId);
+    console.log('💾 세션 접근 상태 저장됨:', diagnosisId);
   }
   
   /**
@@ -231,8 +196,8 @@ export class DiagnosisAccessController {
   }
   
   /**
-   * 최근 조회한 진단ID 저장 (기본 저장 허용)
-   * 🚨 긴급 수정: 과도한 보안 차단 해제
+   * 최근 조회한 진단ID 저장 - 자유롭게 저장 허용
+   * 🔓 권한 완화: 인증 확인 없이 자유롭게 저장
    */
   static saveRecentDiagnosisId(diagnosisId: string): void {
     if (typeof window === 'undefined') return;
@@ -240,7 +205,7 @@ export class DiagnosisAccessController {
     try {
       console.log('💾 진단ID 저장:', diagnosisId);
       
-      // 🚨 긴급 수정: 인증 확인 없이 바로 저장 허용
+      // 🔓 권한 완화: 인증 확인 없이 바로 저장 허용
       const recent = JSON.parse(localStorage.getItem('aicamp_recent_diagnosis_ids') || '[]');
       const updated = [diagnosisId, ...recent.filter((id: string) => id !== diagnosisId)].slice(0, 5);
       

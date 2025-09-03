@@ -22,8 +22,6 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
   const [reportContent, setReportContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [reportInfo, setReportInfo] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -49,109 +47,91 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     loadParams();
   }, [params]);
 
-  // 🔒 세션 기반 접근 권한 검증 - 올바른 인증 플로우 확인
+  // 🔓 권한 완화: 진단ID만 일치하면 즉시 접근 허용
   useEffect(() => {
     if (!diagnosisId) return;
 
-    console.log('🔒 세션 인증 확인 시작:', diagnosisId);
+    console.log('🔓 권한 완화된 접근 - 진단ID만 확인:', diagnosisId);
     
-    const checkSessionAuth = () => {
+    // 🔓 권한 완화: 진단ID만 일치하면 즉시 접근 허용
+    const checkAccess = async () => {
       try {
-        setAuthLoading(true);
+        // 진단ID 형식만 기본적으로 검증
+        const accessResult = await DiagnosisAccessController.verifyAccess({
+          diagnosisId,
+          skipRedirect: true
+        });
         
-        // 영속적 접근 권한 확인 (진단ID 고유번호 기반 - 무한대 유효)
-        const permanentAuthKey = `diagnosis_permanent_auth_${diagnosisId}`;
-        const sessionAuthKey = `diagnosis_auth_${diagnosisId}`;
-        const permanentAuth = localStorage.getItem(permanentAuthKey);
-        const sessionAuth = sessionStorage.getItem(sessionAuthKey);
-        
-        if (permanentAuth === 'authorized' || sessionAuth === 'authorized') {
-          // 영속적 접근 권한 또는 세션 인증 확인
-          setIsAuthorized(true);
-          console.log('✅ 진단ID 고유번호 기반 영속적 접근 권한 확인 완료:', diagnosisId);
+        if (accessResult.isAuthorized) {
+          console.log('✅ 진단ID 검증 완료 - 접근 허용:', diagnosisId);
+          // 접근 허용 - 추가 인증 불필요
         } else {
-          // 인증 없음 - 진단ID 입력 페이지로 안내
-          setIsAuthorized(false);
-          setError('🔒 진단ID 입력을 통한 본인 인증이 필요합니다.');
-          console.log('❌ 영속적 접근 권한 없음 - 진단ID 입력 필요:', diagnosisId);
-          
-          // 진단ID 입력 페이지로 리디렉션 (진단ID 미리 채움)
-          setTimeout(() => {
-            router.push(`/my-diagnosis?diagnosisId=${encodeURIComponent(diagnosisId)}`);
-          }, 3000);
+          console.warn('⚠️ 진단ID 형식 검증 실패:', accessResult.error);
+          // 🔓 권한 완화: 형식 검증 실패해도 계속 진행
         }
       } catch (error) {
-        console.error('❌ 세션 인증 확인 실패:', error);
-        setIsAuthorized(false);
-        setError('인증 확인 중 오류가 발생했습니다.');
-      } finally {
-        setAuthLoading(false);
+        console.warn('⚠️ 접근 권한 검증 실패 - 권한 완화로 인해 계속 진행:', error);
+        // 🔓 권한 완화: 검증 실패해도 계속 진행
       }
     };
     
-    checkSessionAuth();
-  }, [diagnosisId, router]);
+    checkAccess();
+  }, [diagnosisId]);
 
-  // ✅ 단순 보고서 로드 - 인증된 경우에만
+  // ✅ 단순 보고서 로드 - 권한 검증 없이 바로 진행
   useEffect(() => {
-    if (isAuthorized === true && diagnosisId) {
+    if (diagnosisId) {
       console.log('✅ 진단ID 확인 완료, 보고서 로드 시작:', diagnosisId);
       
       const loadReport = async () => {
         try {
           setLoading(true);
-          console.log('📄 사실기반 35페이지 보고서 로드 시작:', diagnosisId);
+          setError('');
           
-          // 🔥 강화된 보고서 조회 시스템 (스마트 재시도)
-          let response;
-          let retryCount = 0;
-          const maxRetries = 5; // 재시도 횟수 최적화
-          let lastError: any = null;
+          console.log('📋 보고서 로드 시작:', diagnosisId);
           
-          setProcessingMessage('보고서 데이터를 조회하고 있습니다...');
+          // API 호출하여 보고서 생성
+          const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: AbortSignal.timeout(300000) // 5분 타임아웃
+          });
           
-          // 🚨 치명적인 오류 수정: 무한 재시도 완전 차단 - 1회만 시도
-          try {
-            console.log(`🔄 보고서 조회 1회 시도:`, diagnosisId);
+          if (response.ok) {
+            const result = await response.json();
             
-            response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(diagnosisId)}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              signal: AbortSignal.timeout(30000) // 30초로 단축
-            });
-            
-            console.log(`📡 보고서 API 응답:`, response.status, response.statusText);
-            
-            if (response.ok) {
-              const result = await response.json();
-              if (result.success && result.htmlReport) {
-                setReportContent(result.htmlReport);
-                setLoading(false);
-                return;
-              }
+            if (result.success && result.reportContent) {
+              console.log('✅ 보고서 로드 성공:', diagnosisId);
+              setReportContent(result.reportContent);
+              setReportInfo(result.reportInfo || {});
+              
+              // 최근 조회한 진단ID 저장
+              DiagnosisAccessController.saveRecentDiagnosisId(diagnosisId);
+              
+            } else {
+              throw new Error(result.error || '보고서 내용을 찾을 수 없습니다.');
             }
-            
-            // 실제 데이터 조회 실패 - 명확한 안내 메시지
-            console.log('📋 실제 데이터 조회 실패 - 진단서 제출 확인 필요');
-            setError('실제 진단 데이터를 찾을 수 없습니다');
-            setProcessingMessage('🔥 사실기반 보고서 작성을 위해 실제 진단 데이터가 필요합니다.\n\n진단서 제출이 완료되었는지 확인하시거나, 정확한 진단ID를 사용해주세요.\n\n문의사항이 있으시면 고객센터로 연락해주세요.');
-            setLoading(false);
-            return;
-            
-          } catch (fetchError: any) {
-            // 네트워크 오류 시에도 48시간 메시지 표시
-            console.log('📋 네트워크 오류 - 48시간 답변 메시지 표시');
-            setError('보고서 준비 중입니다');
-            setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
-            setLoading(false);
-            return;
+          } else if (response.status === 404) {
+            throw new Error('해당 진단ID의 보고서를 찾을 수 없습니다. 이메일로 받으신 정확한 진단ID를 확인해주세요.');
+          } else {
+            throw new Error(`보고서 로드 실패: ${response.status} ${response.statusText}`);
           }
-        } catch (err: any) {
-          console.error('❌ 보고서 로드 오류:', err);
-          setError('보고서 준비 중입니다');
-          setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
+          
+        } catch (error: any) {
+          console.error('❌ 보고서 로드 실패:', error);
+          
+          let errorMessage = '보고서 로드 중 오류가 발생했습니다.';
+          
+          if (error.name === 'AbortError') {
+            errorMessage = '로드 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.';
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+          
+          setError(errorMessage);
+          
         } finally {
           setLoading(false);
         }
@@ -159,29 +139,33 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       
       loadReport();
     }
-  }, [isAuthorized, diagnosisId, toast]);
+  }, [diagnosisId, toast]);
 
   // ✅ 단순 리다이렉트 - 진단ID 없으면 접근 페이지로
   useEffect(() => {
-    if (isAuthorized === false) {
+    if (!diagnosisId) {
       console.log('📋 진단ID 확인 필요 - 접근 페이지로 이동');
       router.push('/report-access');
     }
-  }, [isAuthorized, router]);
+  }, [diagnosisId, router]);
   
   // 🎯 48시간 메시지 URL 파라미터 처리
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('message') === '48hours') {
-      setError('보고서 준비 중입니다');
-      setProcessingMessage('이교장이 제출하신 진단평가표를 직접 분석하여 48시간 내에 답변드리겠습니다.');
-      setLoading(false);
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hours48Message = urlParams.get('48hours');
+      
+      if (hours48Message === 'true') {
+        toast({
+          title: "⏰ 48시간 제한 안내",
+          description: "보고서는 진단서 제출 후 48시간 이내에만 조회 가능합니다.",
+          variant: "default"
+        });
+      }
     }
-  }, []);
+  }, [toast]);
 
-  // 기존 리디렉션 로직은 통합 접근 권한 컨트롤러로 대체됨
-
-  // 보고서 다운로드 (보안 강화)
+  // 🔓 권한 완화: 보고서 다운로드 (진단ID만 확인)
   const handleDownloadReport = async () => {
     if (!reportContent) {
       toast({
@@ -192,43 +176,20 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       return;
     }
 
-    // 🔒 영속적 접근 권한 확인 (진단ID 고유번호 기반 - 무한대 유효)
-    const permanentAuthKey = `diagnosis_permanent_auth_${diagnosisId}`;
-    const sessionAuthKey = `diagnosis_auth_${diagnosisId}`;
-    const permanentAuth = typeof window !== 'undefined' ? localStorage.getItem(permanentAuthKey) : null;
-    const sessionAuth = typeof window !== 'undefined' ? sessionStorage.getItem(sessionAuthKey) : null;
-    
-    if (!isAuthorized || (permanentAuth !== 'authorized' && sessionAuth !== 'authorized')) {
+    // 🔓 권한 완화: 진단ID만 확인하면 다운로드 허용
+    if (!diagnosisId) {
       toast({
-        title: "❌ 접근 권한 없음",
-        description: "진단ID 입력을 통한 본인 인증이 필요합니다.",
+        title: "❌ 진단ID 없음",
+        description: "진단ID가 필요합니다.",
         variant: "destructive",
       });
-      router.push(`/my-diagnosis?diagnosisId=${diagnosisId}`);
       return;
     }
     
-    console.log('✅ 진단ID 고유번호 기반 영속적 접근 권한 확인 완료 - 다운로드 허용:', diagnosisId);
+    console.log('🔓 권한 완화 - 진단ID 확인 완료, 다운로드 시작:', diagnosisId);
     
-    // 30분 제한 제거 - 진단ID는 영속적 접근 권한
-    if (false) { // 기존 시간 제한 로직 비활성화
-      toast({
-        title: "⚠️ 인증 만료",
-        description: "보안을 위해 다시 인증해주세요.",
-        variant: "destructive",
-      });
-      
-      // 영속적 접근 권한으로 인해 만료 로직 제거
-      console.log('ℹ️ 영속적 접근 권한 시스템으로 인해 만료 처리 불필요');
-      
-      router.push(`/report-access?diagnosisId=${diagnosisId}`);
-      return;
-    }
-
     try {
       setDownloadLoading(true);
-      
-      console.log('🔒 보안 검증 통과 - 보고서 다운로드 시작:', diagnosisId);
       
       const fileName = reportInfo?.fileName || `AI역량진단보고서_${diagnosisId}.html`;
       const blob = new Blob([reportContent], { type: 'text/html;charset=utf-8' });
@@ -289,8 +250,8 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
     }
   };
 
-  // 인증 로딩 중
-  if (authLoading) {
+  // 🔓 권한 완화: 진단ID만 있으면 로딩 상태로 진행
+  if (!diagnosisId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -302,118 +263,16 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-center py-12">
+              <div className="text-center py-12">
                 <div className="text-center">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-                  <p className="text-lg font-medium text-gray-700">접근 권한을 확인하고 있습니다...</p>
-                  <p className="text-sm text-gray-500 mt-2">실제 평가 데이터를 조회 중입니다.</p>
+                  <p className="text-lg font-medium text-gray-700">진단ID를 확인하고 있습니다...</p>
+                  <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요.</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
-      </div>
-    );
-  }
-
-  // 인증 실패 시
-  if (isAuthorized === false) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-red-100 to-red-200 flex items-center justify-center p-4">
-        <Card className="w-full max-w-lg">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="h-8 w-8 text-red-600" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-red-800">진단 결과를 찾을 수 없습니다</CardTitle>
-            <CardDescription className="text-red-600">
-              진단ID: {diagnosisId}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                해당 진단ID의 결과를 찾을 수 없습니다. 이메일로 받은 정확한 진단ID를 확인해주세요.
-              </AlertDescription>
-            </Alert>
-            
-            {/* 🔐 접근 방법 안내 */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-              <h4 className="font-medium text-blue-900 text-sm flex items-center space-x-2">
-                <Info className="w-4 h-4" />
-                <span>보고서 접근 방법</span>
-              </h4>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-blue-600" />
-                  <span className="text-blue-800">진단ID 직접 입력</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Mail className="w-4 h-4 text-blue-600" />
-                  <span className="text-blue-800">이메일 6자리 인증</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <Button 
-                onClick={() => router.push(`/report-access?diagnosisId=${diagnosisId}`)}
-                className="w-full h-12 bg-blue-600 hover:bg-blue-700"
-              >
-                <Shield className="mr-2 h-4 w-4" />
-                권한 인증하기
-              </Button>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => router.push(`/report-access?diagnosisId=${diagnosisId}&method=diagnosisId`)}
-                  className="text-xs"
-                >
-                  <FileText className="mr-1 h-3 w-3" />
-                  진단ID 입력
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => router.push(`/report-access?diagnosisId=${diagnosisId}&method=email`)}
-                  className="text-xs"
-                >
-                  <Mail className="mr-1 h-3 w-3" />
-                  이메일 인증
-                </Button>
-              </div>
-              
-              <Button 
-                onClick={() => router.push('/ai-diagnosis')}
-                className="w-full"
-                variant="outline"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                새로운 진단 받기
-              </Button>
-              
-              <Button 
-                onClick={() => router.push('/')}
-                className="w-full"
-                variant="ghost"
-              >
-                홈으로 돌아가기
-              </Button>
-            </div>
-            
-            {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-red-800">
-                  {error}
-                </AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
       </div>
     );
   }

@@ -94,7 +94,7 @@ export default function DiagnosisReportsPage() {
     }
   };
 
-  // 진단ID 직접 조회 함수 (보안 강화)
+  // 🔓 권한 완화: 진단ID 직접 조회 함수 (진단ID만 확인)
   const handleDirectSearch = async () => {
     if (!directSearchId.trim()) {
       setDirectSearchError('진단ID를 입력해주세요.');
@@ -105,12 +105,12 @@ export default function DiagnosisReportsPage() {
     setDirectSearchError('');
 
     try {
-      console.log('🔍 보안 강화된 진단ID 조회 시작:', directSearchId);
+      console.log('🔓 권한 완화된 진단ID 조회 시작:', directSearchId);
       
-      // 진단ID 유효성 검사
+      // 🔓 권한 완화: 진단ID 유효성 검사 완화
       const cleanId = directSearchId.trim();
-      if (cleanId.length < 10) {
-        throw new Error('유효하지 않은 진단ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.');
+      if (cleanId.length < 5) {
+        throw new Error('진단ID가 너무 짧습니다. 최소 5자 이상 입력해주세요.');
       }
 
       // API로 해당 진단ID 존재 여부 확인 (올바른 엔드포인트 사용)
@@ -124,9 +124,9 @@ export default function DiagnosisReportsPage() {
         const result = await response.json();
         
         if (result.success) {
-          console.log('✅ 보안 검증 완료, 개별 보고서 조회 성공');
+          console.log('🔓 권한 완화 - 진단ID 확인 완료, 보고서 조회 성공');
           
-          // 세션에 인증 상태 저장 (순환 리디렉션 방지)
+          // 🔓 권한 완화: 세션 인증 상태 저장 (선택사항)
           if (typeof window !== 'undefined') {
             sessionStorage.setItem(`diagnosis_auth_${cleanId}`, 'true');
             sessionStorage.setItem(`diagnosis_auth_time_${cleanId}`, Date.now().toString());
@@ -134,7 +134,7 @@ export default function DiagnosisReportsPage() {
           
           toast({
             title: "✅ 진단보고서 조회 성공",
-            description: "본인의 보고서 페이지로 이동합니다.",
+            description: "보고서 페이지로 이동합니다.",
             variant: "default"
           });
           
@@ -156,7 +156,7 @@ export default function DiagnosisReportsPage() {
       }
 
     } catch (error: any) {
-      console.error('❌ 보안 강화된 진단ID 조회 실패:', error);
+      console.error('❌ 권한 완화된 진단ID 조회 실패:', error);
       
       let errorMessage = '보고서 조회 중 오류가 발생했습니다.';
       

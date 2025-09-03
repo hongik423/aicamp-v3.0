@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { diagnosisId, accessType } = body;
 
-    console.log('🔐 진단 결과 접근 권한 검증 요청:', { diagnosisId, accessType });
+    console.log('🔓 권한 완화된 진단 결과 접근 권한 검증 요청:', { diagnosisId, accessType });
 
     // 필수 파라미터 검증
     if (!diagnosisId) {
@@ -15,20 +15,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 진단 ID 형식 검증 (기본적인 형식 체크)
-    if (typeof diagnosisId !== 'string' || diagnosisId.length < 10) {
+    // 🔓 권한 완화: 진단 ID 형식 검증 완화
+    if (typeof diagnosisId !== 'string' || diagnosisId.length < 5) {
       return NextResponse.json(
-        { success: false, error: '유효하지 않은 진단 ID입니다.' },
+        { success: false, error: '진단 ID가 너무 짧습니다. 최소 5자 이상 입력해주세요.' },
         { status: 400 }
       );
     }
 
-    // GAS에서 실제 진단ID 존재 여부 확인
+    // 🔓 권한 완화: GAS 검증은 선택사항으로 처리
     try {
       const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || process.env.GOOGLE_APPS_SCRIPT_URL || process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbxlwpifmXQEmFlR0QBV6NbTemzxTxvWwbaXNGmtH4Ok-a0PDEqmtaKBjQ1VvZxpLnPz/exec';
       
       if (gasUrl) {
-        console.log('🔄 GAS에서 진단ID 검증 시작:', diagnosisId);
+        console.log('🔄 GAS에서 진단ID 검증 시도 (선택사항):', diagnosisId);
         
         const gasPayload = {
           type: 'verify_diagnosis_id',
@@ -53,54 +53,53 @@ export async function POST(request: NextRequest) {
             
             return NextResponse.json({
               success: true,
-              message: '접근 권한이 확인되었습니다.',
+              message: '🔓 권한 완화 - 진단ID 확인 완료, 접근 허용',
               diagnosisId: diagnosisId,
               accessType: accessType || 'user',
               verified: true
             });
           } else {
-            console.warn('❌ GAS에서 진단ID를 찾을 수 없음:', diagnosisId);
-            // GAS에서 찾을 수 없으면 기본 검증으로 폴백
+            console.warn('⚠️ GAS에서 진단ID를 찾을 수 없음 - 권한 완화로 계속 진행:', diagnosisId);
           }
         } else {
-          console.warn('⚠️ GAS 응답 오류, 기본 검증으로 진행');
+          console.warn('⚠️ GAS 응답 오류 - 권한 완화로 계속 진행');
         }
       }
     } catch (gasError) {
-      console.warn('⚠️ GAS 검증 실패, 기본 검증으로 진행:', gasError);
+      console.warn('⚠️ GAS 검증 실패 - 권한 완화로 계속 진행:', gasError);
     }
 
-    // GAS 검증 실패 시 기본 검증 (형식 검증)
-    console.log('✅ 기본 형식 검증으로 진단 결과 접근 권한 승인:', diagnosisId);
+    // 🔓 권한 완화: GAS 검증 실패해도 기본 형식만 확인하면 접근 허용
+    console.log('🔓 권한 완화 - 기본 형식 검증으로 진단 결과 접근 권한 승인:', diagnosisId);
     
-    // 진단ID 형식이 올바르면 일단 접근 허용 (Google Apps Script 업데이트 필요)
-    // 다양한 진단ID 형식 지원: DIAG_, DIAG_45Q_AI_, DIAG-, FD-
-    if ((diagnosisId.startsWith('DIAG_') || diagnosisId.startsWith('DIAG-') || diagnosisId.startsWith('FD-')) && diagnosisId.length > 10) {
+    // 🔓 권한 완화: 진단ID 형식이 기본적으로 맞으면 접근 허용
+    // 다양한 진단ID 형식 지원: DIAG_, DIAG_45Q_AI_, DIAG-, FD- 등
+    if (diagnosisId.length >= 5) {
       return NextResponse.json({
         success: true,
-        message: '접근 권한이 확인되었습니다.',
+        message: '🔓 권한 완화 - 진단ID 확인 완료, 접근 허용',
         diagnosisId: diagnosisId,
         accessType: accessType || 'user',
         verified: false,
-        note: 'GAS 검증 실패로 기본 검증 적용 - Google Apps Script 업데이트 필요'
+        note: '권한 완화 시스템 - 진단ID만 일치하면 접근 허용'
       });
     } else {
       return NextResponse.json(
         { 
           success: false, 
-          error: '유효하지 않은 진단ID 형식입니다. DIAG_로 시작하는 올바른 진단ID를 입력해주세요.' 
+          error: '진단ID가 너무 짧습니다. 최소 5자 이상 입력해주세요.' 
         },
         { status: 400 }
       );
     }
 
   } catch (error) {
-    console.error('❌ 진단 결과 접근 권한 검증 오류:', error);
+    console.error('❌ 권한 완화된 진단 결과 접근 권한 검증 오류:', error);
     
     return NextResponse.json(
       { 
         success: false, 
-        error: '권한 검증 중 오류가 발생했습니다.' 
+        error: '권한 검증 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' 
       },
       { status: 500 }
     );

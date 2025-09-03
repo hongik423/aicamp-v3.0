@@ -3189,35 +3189,38 @@ function getAllDiagnosisReports() {
  */
 function queryDiagnosisById(requestData) {
   try {
-    console.log('🔐 V22.2 보안 강화된 진단 ID 개별 조회:', requestData.diagnosisId);
+    console.log('🔓 V22.2 권한 완화된 진단 ID 개별 조회:', requestData.diagnosisId);
     
     if (!requestData.diagnosisId) {
       throw new Error('진단 ID가 필요합니다.');
     }
 
-    // 🛡️ V22.2 강화된 보안 검증: 진단ID 형식 및 길이 검사
+    // 🔓 V22.2 권한 완화: 진단ID 형식 및 길이 검사 완화
     const diagnosisId = String(requestData.diagnosisId).trim();
-    if (typeof diagnosisId !== 'string' || diagnosisId.length < 10) {
-      console.warn('⚠️ V22.2 유효하지 않은 진단ID 접근 시도:', diagnosisId);
-      throw new Error('유효하지 않은 진단ID입니다. 이메일로 받으신 정확한 진단ID를 입력해주세요.');
+    if (typeof diagnosisId !== 'string' || diagnosisId.length < 5) {
+      console.warn('⚠️ V22.2 진단ID가 너무 짧음:', diagnosisId);
+      throw new Error('진단ID가 너무 짧습니다. 최소 5자 이상 입력해주세요.');
     }
     
-    // V22.3 진단 ID 형식 검증 개선 - 더 유연한 검증
+    // 🔓 V22.3 권한 완화: 진단 ID 형식 검증 완화 - 모든 형식 허용
     const validFormats = [
       'DIAG_45Q_AI_',
       'DIAG_45Q_',
       'DIAG_',
-      'DIAG_AI_'
+      'DIAG_AI_',
+      'DIAG-',
+      'FD-',
+      'CUSTOM_'
     ];
     
     const isValidFormat = validFormats.some(format => diagnosisId.startsWith(format));
     if (!isValidFormat) {
-      console.warn('⚠️ V22.3 지원되지 않는 진단ID 형식:', diagnosisId);
+      console.warn('⚠️ V22.3 지원되지 않는 진단ID 형식이지만 권한 완화로 계속 진행:', diagnosisId);
       console.log('🔍 지원되는 형식들:', validFormats);
-      // 형식이 맞지 않아도 계속 진행 (데이터베이스에서 확인)
+      // 🔓 권한 완화: 형식이 맞지 않아도 계속 진행
     }
     
-    console.log('🔐 V22.2 진단 ID 검증 완료:', {
+    console.log('🔓 V22.2 권한 완화된 진단 ID 검증 완료:', {
       diagnosisId: diagnosisId,
       length: diagnosisId.length,
       format: diagnosisId.startsWith('DIAG_45Q_AI_'),
@@ -3225,12 +3228,12 @@ function queryDiagnosisById(requestData) {
       timestamp: new Date().toISOString()
     });
     
-    // 🔒 V22.3 보안 로그: 개별 조회 시도 기록
-    console.log('📋 V22.3 개별 진단ID 조회 보안 로그:', {
+    // 🔓 V22.3 권한 완화 로그: 개별 조회 시도 기록
+    console.log('📋 V22.3 개별 진단ID 조회 권한 완화 로그:', {
       diagnosisId: diagnosisId,
       timestamp: new Date().toISOString(),
       accessType: 'individual_query',
-      securityLevel: 'enhanced_v23',
+      securityLevel: 'relaxed_v23',
       formatValidated: isValidFormat
     });
     
