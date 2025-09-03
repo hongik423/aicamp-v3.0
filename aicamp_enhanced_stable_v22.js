@@ -3591,7 +3591,7 @@ function queryDiagnosisById(requestData) {
     console.log(`🔍 V22.3 진단 ID 검색 시작: ${diagnosisId}`);
     console.log(`📊 검색 대상 행 수: ${values.length}`);
     
-    // V22.3 개선된 매칭 로직 - 더 유연한 검색
+    // V22.7 강화된 매칭 로직 - 더 유연하고 정확한 검색
     for (let i = 0; i < values.length; i++) {
       const storedId = String(values[i][0]).trim();
       matchAttempts++;
@@ -3602,9 +3602,9 @@ function queryDiagnosisById(requestData) {
       // 2. 강화된 형식 변환 매칭 - 모든 가능한 형식 시도
       let convertedMatch = false;
       
-      // 기본 ID 추출 (prefix 제거)
-      const storedBaseId = storedId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_/, '');
-      const searchBaseId = diagnosisId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_/, '');
+      // 기본 ID 추출 (prefix 제거) - 더 포괄적인 패턴
+      const storedBaseId = storedId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_|^FD-|^CUSTOM_/, '');
+      const searchBaseId = diagnosisId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_|^FD-|^CUSTOM_/, '');
       
       // 기본 ID가 같으면 매칭 성공
       if (storedBaseId && searchBaseId && storedBaseId.toLowerCase() === searchBaseId.toLowerCase()) {

@@ -4,14 +4,14 @@ import { google } from 'googleapis';
 function getGoogleDriveClient() {
   // 환경변수 검증
   const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
-  const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+  const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || process.env.DRIVE_FOLDER_ID;
   
   if (!credentials) {
     throw new Error('GOOGLE_SERVICE_ACCOUNT_CREDENTIALS 환경변수가 설정되지 않았습니다.');
   }
   
   if (!folderId) {
-    throw new Error('GOOGLE_DRIVE_FOLDER_ID 환경변수가 설정되지 않았습니다.');
+    throw new Error('GOOGLE_DRIVE_FOLDER_ID 또는 DRIVE_FOLDER_ID 환경변수가 설정되지 않았습니다.');
   }
   
   let auth;
