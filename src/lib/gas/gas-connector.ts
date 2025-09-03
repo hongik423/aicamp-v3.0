@@ -123,7 +123,7 @@ export async function saveDiagnosisToGAS(diagnosisData: any): Promise<GASRespons
 export async function queryDiagnosisFromGAS(diagnosisId: string): Promise<GASResponse> {
   return await callGAS({
     type: 'query_diagnosis',
-    action: 'queryDiagnosisById',
+    action: 'query_diagnosis',
     diagnosisId: diagnosisId
   });
 }
