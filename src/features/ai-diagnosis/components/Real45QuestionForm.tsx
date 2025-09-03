@@ -1076,6 +1076,11 @@ const Real45QuestionForm: React.FC = () => {
             const { EnhancedReportStorageV24 } = await import('@/lib/diagnosis/enhanced-report-storage');
             
             // V23.0 DiagnosisData 형식으로 구성
+            // 등급 및 성숙도 계산
+            const percentage = Math.round((result.totalScore / 225) * 100);
+            const grade = percentage >= 90 ? 'S' : percentage >= 80 ? 'A' : percentage >= 70 ? 'B' : percentage >= 60 ? 'C' : percentage >= 50 ? 'D' : 'F';
+            const maturityLevel = percentage >= 90 ? 'AI 선도기업' : percentage >= 80 ? 'AI 활용기업' : percentage >= 70 ? 'AI 도입기업' : percentage >= 60 ? 'AI 관심기업' : percentage >= 50 ? 'AI 준비기업' : 'AI 미도입기업';
+            
             const diagnosisData = {
               diagnosisId,
               companyInfo: {
@@ -1088,7 +1093,7 @@ const Real45QuestionForm: React.FC = () => {
               responses: formState.answers,
               scores: {
                 total: result.totalScore,
-                percentage: Math.round((result.totalScore / 225) * 100),
+                percentage: percentage,
                 categoryScores: {
                   businessFoundation: result.categoryScores?.businessFoundation || 0,
                   currentAI: result.categoryScores?.currentAIUsage || 0,
@@ -1098,7 +1103,9 @@ const Real45QuestionForm: React.FC = () => {
                   humanResources: result.categoryScores?.executionCapability || 0
                 }
               },
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
+              grade: grade,
+              maturityLevel: maturityLevel
             };
 
             // V27.0 Ultimate 35페이지 HTML 보고서 생성

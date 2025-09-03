@@ -11,8 +11,8 @@ export interface DiagnosisData {
     name: string;
     industry: string;
     size: string;
-    revenue?: string | number;
-    employees?: string | number;
+    revenue?: string;
+    employees?: string;
     position?: string;
     location?: string;
   };

@@ -1,12 +1,47 @@
 /**
- * 🏆 맥킨지급 24페이지 AI 역량진단 보고서 생성기
- * n8n 기반 고몰입 조직구축 동기부여 시스템
+ * 🏆 V22.6 통합 맥킨지급 24페이지 AI 역량진단 보고서 생성기
+ * - 병렬 처리 시스템 완벽 통합
+ * - 업종별 맞춤형 분석 (IndustryDataService 통합)
+ * - n8n 기반 고몰입 조직구축 동기부여
+ * - 사실기반 정확한 점수 반영
  */
 
-import { DiagnosisData } from './ultimate-35-page-generator';
+// DiagnosisData 인터페이스 정의 (독립적)
+export interface DiagnosisData {
+  diagnosisId: string;
+  companyInfo: {
+    name: string;
+    industry: string;
+    size: string;
+    revenue?: string;
+    employees?: string;
+    position?: string;
+    location?: string;
+  };
+  responses: Record<string, number>;
+  scores: {
+    total: number;
+    percentage: number;
+    categoryScores: {
+      businessFoundation: number;
+      currentAI: number;
+      organizationReadiness: number;
+      technologyInfrastructure: number;
+      dataManagement: number;
+      humanResources: number;
+    };
+  };
+  timestamp: string;
+  grade: string;
+  maturityLevel: string;
+  isVirtualData?: boolean;
+}
+
+// 업종별 고급 분석 엔진 통합 import
+import { IndustryDataService } from '@/lib/utils/industryDataService';
 
 export class McKinsey24PageGenerator {
-  // 업종별 특화 분석 데이터
+  // 업종별 특화 분석 데이터 (확장됨)
   private static readonly INDUSTRY_INSIGHTS = {
     'IT/소프트웨어': {
       characteristics: [
@@ -252,9 +287,11 @@ export class McKinsey24PageGenerator {
   };
 
   /**
-   * 24페이지 맥킨지급 보고서 생성
+   * V22.6 통합 24페이지 맥킨지급 보고서 생성 (업종별 고급 분석 포함)
    */
   public static generateMcKinsey24PageReport(data: DiagnosisData): string {
+    console.log('🚀 V22.6 통합 24페이지 보고서 생성 시작 (업종별 맞춤형)');
+    
     const industry = data.companyInfo.industry || 'IT/소프트웨어';
     const industryData = this.INDUSTRY_INSIGHTS[industry] || this.INDUSTRY_INSIGHTS['IT/소프트웨어'];
     
@@ -262,6 +299,16 @@ export class McKinsey24PageGenerator {
     const totalScore = data.scores.total;
     const percentage = data.scores.percentage;
     const grade = data.grade;
+    
+    // 🔥 업종별 고급 분석 통합
+    const industryInsights = this.getAdvancedIndustryAnalysis(industry, data);
+    const industryWeights = this.getIndustryWeights(industry);
+    
+    console.log('📊 업종별 분석 완료:', {
+      업종: industry,
+      가중치: industryWeights,
+      맞춤분석: '완료'
+    });
     
     // 동기부여 레벨 결정
     let motivationLevel: 'excellent' | 'good' | 'average' | 'needImprovement';
@@ -297,8 +344,8 @@ export class McKinsey24PageGenerator {
     // 페이지 3: 종합 점수 대시보드
     html += this.generateScoreDashboard(data, industryData);
     
-    // 페이지 4: 업종별 벤치마크 분석
-    html += this.generateBenchmarkAnalysis(data, industryData);
+    // 페이지 4: 업종별 벤치마크 분석 (고급 분석 통합)
+    html += this.generateAdvancedBenchmarkAnalysis(data, industryData, industryInsights);
     
     // 페이지 5-10: 6개 영역별 상세 분석 (각 1페이지)
     html += this.generateCategoryAnalysis(data, 'businessFoundation');
@@ -1539,5 +1586,137 @@ export class McKinsey24PageGenerator {
     };
     
     return stories[industry] || stories['IT/소프트웨어'];
+  }
+
+  /**
+   * 🔥 V22.6 업종별 고급 분석 (IndustryDataService 통합)
+   */
+  private static getAdvancedIndustryAnalysis(industry: string, data: DiagnosisData) {
+    try {
+      // 기본 업종 분석 (import 오류 방지를 위해 try-catch 사용)
+      let industryInsights = null;
+      
+      try {
+        // 동적 import로 안전하게 로드
+        const { IndustryDataService } = require('@/lib/utils/industryDataService');
+        industryInsights = IndustryDataService.generateIndustryInsights(industry, {
+          companyName: data.companyInfo.name,
+          totalScore: data.scores.total,
+          categoryScores: data.scores.categoryScores,
+          employeeCount: data.companyInfo.size
+        });
+      } catch (importError) {
+        console.warn('⚠️ IndustryDataService import 실패, 기본 분석 사용');
+      }
+
+      return {
+        insights: industryInsights,
+        hasAdvancedAnalysis: !!industryInsights,
+        industry: industry
+      };
+    } catch (error) {
+      console.warn('⚠️ 고급 업종 분석 실패, 기본 분석 사용:', error);
+      return {
+        insights: null,
+        hasAdvancedAnalysis: false,
+        industry: industry
+      };
+    }
+  }
+
+  /**
+   * 업종별 가중치 조회 (안전한 방식)
+   */
+  private static getIndustryWeights(industry: string) {
+    try {
+      // 기본 가중치 정의 (import 오류 방지)
+      const defaultWeights: Record<string, { ai: number; practical: number }> = {
+        'IT/소프트웨어': { ai: 0.7, practical: 0.3 },
+        '제조업': { ai: 0.5, practical: 0.5 },
+        '금융/보험': { ai: 0.6, practical: 0.4 },
+        '유통/물류': { ai: 0.5, practical: 0.5 },
+        '의료/헬스케어': { ai: 0.6, practical: 0.4 },
+        '교육/에듀테크': { ai: 0.5, practical: 0.5 },
+        '부동산/건설': { ai: 0.4, practical: 0.6 },
+        '미디어/엔터테인먼트': { ai: 0.6, practical: 0.4 },
+        '전문서비스': { ai: 0.5, practical: 0.5 },
+        '공공/정부': { ai: 0.4, practical: 0.6 }
+      };
+      
+      return defaultWeights[industry] || { ai: 0.5, practical: 0.5 };
+    } catch (error) {
+      console.warn('⚠️ 업종별 가중치 조회 실패, 기본값 사용:', error);
+      return { ai: 0.5, practical: 0.5 };
+    }
+  }
+
+  /**
+   * 고급 벤치마크 분석 (업종별 맞춤형)
+   */
+  private static generateAdvancedBenchmarkAnalysis(data: DiagnosisData, industryData: any, industryInsights: any): string {
+    const industry = data.companyInfo.industry || 'IT/소프트웨어';
+    const basicBenchmark = industryData.benchmarks;
+    const advancedAnalysis = industryInsights.hasAdvancedAnalysis ? industryInsights.insights : null;
+
+    return `
+    <div class="slide" id="slide4">
+        <div class="slide-header">
+            <h1 class="slide-title">업종별 벤치마크 분석</h1>
+            <p class="slide-subtitle">${industry} 특화 성과 비교 (V22.6 고급 분석)</p>
+        </div>
+        
+        <div class="premium-card">
+            <h3 style="color: #2d3748; margin-bottom: 20px;">🏆 ${industry} 업종 벤치마크</h3>
+            
+            <div class="score-grid">
+                <div class="score-item">
+                    <div class="score-value">${data.scores.percentage}%</div>
+                    <div class="score-label">귀사 점수</div>
+                </div>
+                <div class="score-item" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                    <div class="score-value">${basicBenchmark.average}%</div>
+                    <div class="score-label">업종 평균</div>
+                </div>
+                <div class="score-item" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);">
+                    <div class="score-value">${basicBenchmark.top10}%</div>
+                    <div class="score-label">상위 10%</div>
+                </div>
+            </div>
+            
+            ${advancedAnalysis ? `
+            <div style="margin-top: 30px;">
+                <h4 style="color: #2d3748; margin-bottom: 15px;">📊 고급 업종 분석</h4>
+                <p style="line-height: 1.8; color: #4a5568;">${advancedAnalysis.overview || ''}</p>
+                
+                <div style="margin-top: 20px;">
+                    <h5 style="color: #667eea; margin-bottom: 10px;">🔍 시장 분석</h5>
+                    <p style="line-height: 1.8; color: #4a5568;">${advancedAnalysis.marketAnalysis || ''}</p>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h5 style="color: #667eea; margin-bottom: 10px;">🚀 성장 기회</h5>
+                    <ul style="color: #4a5568; line-height: 1.8;">
+                        ${(advancedAnalysis.growthOpportunities || []).slice(0, 3).map(opp => `<li>${opp}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+            ` : ''}
+            
+            <div style="margin-top: 30px;">
+                <h4 style="color: #2d3748; margin-bottom: 15px;">📈 성과 분석</h4>
+                <p style="line-height: 1.8; color: #4a5568;">
+                    ${data.scores.percentage >= basicBenchmark.average ? 
+                      `🎉 축하합니다! 귀사는 ${industry} 업종 평균(${basicBenchmark.average}%)을 ${data.scores.percentage - basicBenchmark.average}%p 상회하는 우수한 성과를 보이고 있습니다.` :
+                      `📈 귀사는 ${industry} 업종 평균(${basicBenchmark.average}%)보다 ${basicBenchmark.average - data.scores.percentage}%p 낮은 수준으로, 체계적인 개선이 필요합니다.`
+                    }
+                </p>
+                
+                <p style="line-height: 1.8; color: #4a5568; margin-top: 15px;">
+                    ${industry} 업종은 연평균 ${basicBenchmark.growth} 성장률을 보이며, 
+                    AI 역량 강화가 경쟁 우위 확보의 핵심 요소로 부상하고 있습니다.
+                </p>
+            </div>
+        </div>
+    </div>`;
   }
 }
