@@ -70,7 +70,8 @@ function getEnvironmentConfig() {
     CONSULTATION_SHEET_NAME: '상담신청_데이터',
     ENABLE_EMAIL: true,
     EMAIL_DEBUG: true,
-    GOOGLE_DRIVE_API_KEY: 'ae778d730df1a2a521474d8ae9e63c40720e72bc'
+    GOOGLE_DRIVE_FOLDER_ID: '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj',
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: 'aicamp-drive-service@aicamp-v3.iam.gserviceaccount.com'
   };
   
   try {
@@ -108,12 +109,12 @@ function getEnvironmentConfig() {
     
     // Google Drive API 키 설정
     try {
-      const driveApiKey = properties.getProperty('GOOGLE_DRIVE_API_KEY');
-      if (driveApiKey && typeof driveApiKey === 'string' && driveApiKey.trim().length > 0) {
-        resultConfig.GOOGLE_DRIVE_API_KEY = driveApiKey.trim();
-        console.log('✅ Google Drive API 키 설정 완료 (키 길이:', driveApiKey.length, ')');
+      const driveFolderId = properties.getProperty('GOOGLE_DRIVE_FOLDER_ID');
+      if (driveFolderId && typeof driveFolderId === 'string' && driveFolderId.trim().length > 0) {
+        resultConfig.GOOGLE_DRIVE_FOLDER_ID = driveFolderId.trim();
+        console.log('✅ Google Drive 폴더 ID 설정 완료:', driveFolderId);
       } else {
-        console.log('📝 Google Drive API 키: 기본값 사용 (ae778d730df1a2a521474d8ae9e63c40720e72bc)');
+        console.log('📝 Google Drive 폴더 ID: 기본값 사용 (1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj)');
       }
     } catch (keyError) {
       console.warn('⚠️ Google Drive API 키 설정 실패:', keyError.message);
@@ -3143,16 +3144,16 @@ function doPost(e) {
           console.log('🧪 통합 테스트 결과:', result ? result.success : 'null');
           break;
           
-        case 'setup_google_drive_api_key':
-          console.log('🔑 Google Drive API 키 설정');
-          result = setupGoogleDriveAPIKey();
-          console.log('🔑 API 키 설정 결과:', result ? result.success : 'null');
+        case 'setup_google_drive_folder_id':
+          console.log('📁 Google Drive 폴더 ID 설정');
+          result = setupGoogleDriveFolderId();
+          console.log('📁 폴더 ID 설정 결과:', result ? result.success : 'null');
           break;
           
-        case 'check_current_api_key':
-          console.log('🔍 현재 API 키 확인');
-          result = checkCurrentAPIKey();
-          console.log('🔍 API 키 확인 결과:', result ? result.success : 'null');
+        case 'check_current_folder_id':
+          console.log('🔍 현재 폴더 ID 확인');
+          result = checkCurrentFolderId();
+          console.log('🔍 폴더 ID 확인 결과:', result ? result.success : 'null');
           break;
           
         case 'send_auth_email':
@@ -5504,30 +5505,30 @@ function listGoogleDriveFiles(limit = 10) {
 }
 
 /**
- * V22.7 Google Drive API 키 설정 함수
+ * V22.7 Google Drive 폴더 ID 설정 함수
  */
-function setupGoogleDriveAPIKey() {
+function setupGoogleDriveFolderId() {
   try {
-    console.log('🔑 V22.7 Google Drive API 키 설정 시작');
+    console.log('📁 V22.7 Google Drive 폴더 ID 설정 시작');
     
-    const newApiKey = 'ae778d730df1a2a521474d8ae9e63c40720e72bc';
+    const defaultFolderId = '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj';
     
-    // PropertiesService를 사용하여 API 키 저장
+    // PropertiesService를 사용하여 폴더 ID 저장
     if (typeof PropertiesService !== 'undefined') {
       try {
         const properties = PropertiesService.getScriptProperties();
-        properties.setProperty('GOOGLE_DRIVE_API_KEY', newApiKey);
+        properties.setProperty('GOOGLE_DRIVE_FOLDER_ID', defaultFolderId);
         
-        console.log('✅ Google Drive API 키 설정 완료');
-        console.log('🔑 키 ID:', newApiKey);
+        console.log('✅ Google Drive 폴더 ID 설정 완료');
+        console.log('📁 폴더 ID:', defaultFolderId);
         console.log('📅 설정 시간:', new Date().toISOString());
         
         return {
           success: true,
-          message: 'Google Drive API 키 설정 완료',
-          keyId: newApiKey,
+          message: 'Google Drive 폴더 ID 설정 완료',
+          folderId: defaultFolderId,
           timestamp: new Date().toISOString(),
-          version: 'V22.7-API-KEY-SETUP'
+          version: 'V22.7-FOLDER-ID-SETUP'
         };
         
       } catch (propError) {
@@ -5535,7 +5536,7 @@ function setupGoogleDriveAPIKey() {
         return {
           success: false,
           error: `PropertiesService 오류: ${propError.message}`,
-          version: 'V22.7-API-KEY-SETUP'
+          version: 'V22.7-FOLDER-ID-SETUP'
         };
       }
     } else {
@@ -5544,52 +5545,52 @@ function setupGoogleDriveAPIKey() {
         success: false,
         error: 'PropertiesService를 사용할 수 없습니다.',
         fallback: '기본 설정값 사용',
-        version: 'V22.7-API-KEY-SETUP'
+        version: 'V22.7-FOLDER-ID-SETUP'
       };
     }
     
   } catch (error) {
-    console.error('❌ API 키 설정 실패:', error);
+    console.error('❌ 폴더 ID 설정 실패:', error);
     return {
       success: false,
       error: error.message,
-      version: 'V22.7-API-KEY-SETUP'
+      version: 'V22.7-FOLDER-ID-SETUP'
     };
   }
 }
 
 /**
- * V22.7 현재 설정된 API 키 확인
+ * V22.7 현재 설정된 폴더 ID 확인
  */
-function checkCurrentAPIKey() {
+function checkCurrentFolderId() {
   try {
-    console.log('🔍 V22.7 현재 API 키 확인');
+    console.log('🔍 V22.7 현재 폴더 ID 확인');
     
     const config = getEnvironmentConfig();
     
     return {
       success: true,
-      currentApiKey: config.GOOGLE_DRIVE_API_KEY,
-      keyLength: config.GOOGLE_DRIVE_API_KEY ? config.GOOGLE_DRIVE_API_KEY.length : 0,
-      isConfigured: !!config.GOOGLE_DRIVE_API_KEY,
+      currentFolderId: config.GOOGLE_DRIVE_FOLDER_ID,
+      folderIdLength: config.GOOGLE_DRIVE_FOLDER_ID ? config.GOOGLE_DRIVE_FOLDER_ID.length : 0,
+      isConfigured: !!config.GOOGLE_DRIVE_FOLDER_ID,
       timestamp: new Date().toISOString(),
-      version: 'V22.7-API-KEY-CHECK'
+      version: 'V22.7-FOLDER-ID-CHECK'
     };
     
   } catch (error) {
-    console.error('❌ API 키 확인 실패:', error);
+    console.error('❌ 폴더 ID 확인 실패:', error);
     return {
       success: false,
       error: error.message,
-      version: 'V22.7-API-KEY-CHECK'
+      version: 'V22.7-FOLDER-ID-CHECK'
     };
   }
 }
 
 console.log('🚀 V22.7 Google Drive 자동 저장 시스템 로드 완료 - AICAMP V3');
-console.log('📁 저장 대상 폴더 ID:', GOOGLE_DRIVE_FOLDER_ID);
+console.log('📁 저장 대상 폴더 ID: 1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj');
 console.log('📄 24페이지 보고서 자동 저장 활성화됨 (AICAMP_V3_24PAGE_REPORTS)');
-console.log('🔑 새 API 키 적용됨: ae778d730df1a2a521474d8ae9e63c40720e72bc');
+console.log('📁 올바른 폴더 ID 적용됨: 1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj');
 
 /**
  * V22.7 간단한 테스트 함수
