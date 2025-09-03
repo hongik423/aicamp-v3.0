@@ -1,22 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
-// Google Drive API 클라이언트 초기화 (OAuth 위임 방식)
 function getGoogleDriveClient() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      client_id: process.env.GOOGLE_CLIENT_ID,
-    },
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
-  });
+  // 환경변수 검증
+  const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
+  const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+  
+  if (!credentials) {
+    throw new Error('GOOGLE_SERVICE_ACCOUNT_CREDENTIALS 환경변수가 설정되지 않았습니다.');
+  }
+  
+  if (!folderId) {
+    throw new Error('GOOGLE_DRIVE_FOLDER_ID 환경변수가 설정되지 않았습니다.');
+  }
+  
+  let auth;
+  try {
+    const serviceAccount = JSON.parse(credentials);
+    auth = new google.auth.GoogleAuth({
+      credentials: serviceAccount,
+      scopes: ['https://www.googleapis.com/auth/drive.file'],
+    });
+  } catch (parseError) {
+    throw new Error(`Google 서비스 계정 인증 정보 파싱 실패: ${parseError}`);
+  }
 
   return google.drive({ version: 'v3', auth });
 }
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('📁 Google Drive 업로드 API 시작');
+    
     // Content-Type 확인 및 처리
     const contentType = request.headers.get('content-type');
     
@@ -53,7 +68,7 @@ export async function POST(request: NextRequest) {
     // 파일 메타데이터 설정
     const fileMetadata = {
       name: fileName,
-      parents: folderId ? [folderId] : undefined,
+      parents: folderId ? [folderId] : [process.env.GOOGLE_DRIVE_FOLDER_ID!],
       mimeType: file.type || 'application/octet-stream',
     };
 
@@ -63,12 +78,16 @@ export async function POST(request: NextRequest) {
       body: require('stream').Readable.from(buffer),
     };
 
+    console.log('📤 파일 업로드 시작:', fileName);
+
     // 파일 업로드
     const response = await drive.files.create({
       requestBody: fileMetadata,
       media: media,
       fields: 'id,name,size,webViewLink',
     });
+
+    console.log('✅ 파일 업로드 성공:', response.data.name);
 
     return NextResponse.json({
       success: true,
@@ -79,12 +98,31 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Google Drive 업로드 오류:', error);
+    console.error('❌ Google Drive 업로드 오류:', error);
+    
+    // 구체적인 오류 메시지 제공
+    let errorMessage = '파일 업로드에 실패했습니다.';
+    let errorDetails = '';
+    
+    if (error.message.includes('GOOGLE_SERVICE_ACCOUNT_CREDENTIALS')) {
+      errorMessage = 'Google 서비스 계정 인증 정보가 설정되지 않았습니다.';
+      errorDetails = '관리자에게 문의하세요.';
+    } else if (error.message.includes('GOOGLE_DRIVE_FOLDER_ID')) {
+      errorMessage = 'Google Drive 폴더 ID가 설정되지 않았습니다.';
+      errorDetails = '관리자에게 문의하세요.';
+    } else if (error.code === 401) {
+      errorMessage = 'Google API 인증에 실패했습니다.';
+      errorDetails = '서비스 계정 권한을 확인하세요.';
+    } else if (error.code === 403) {
+      errorMessage = 'Google Drive 접근 권한이 없습니다.';
+      errorDetails = '폴더 접근 권한을 확인하세요.';
+    }
     
     return NextResponse.json(
       { 
-        error: '파일 업로드에 실패했습니다.',
-        details: error.message 
+        error: errorMessage,
+        details: errorDetails || error.message,
+        code: error.code || 'UNKNOWN_ERROR'
       },
       { status: 500 }
     );

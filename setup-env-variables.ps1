@@ -1,141 +1,57 @@
-# AI Competency Diagnosis Report System V16.0 OLLAMA ULTIMATE Environment Variables Setup
-# ================================================================================
+# AICAMP V3.0 환경변수 설정 스크립트
+# PowerShell에서 실행하세요
 
-Write-Host "Setting up environment variables for Ollama 0.11.5 AI Diagnosis System..." -ForegroundColor Green
+Write-Host "🚀 AICAMP V3.0 환경변수 설정 시작" -ForegroundColor Green
 
-# .env.local 파일 생성
-$envContent = @"
-# 이교장의AI역량진단보고서 시스템 V16.0 OLLAMA ULTIMATE 환경변수
-# ================================================================================
+# Google Drive API 환경변수 설정
+Write-Host "📁 Google Drive API 환경변수 설정 중..." -ForegroundColor Yellow
 
-# OLLAMA 0.11.5 GPU 최적화 설정 (NVIDIA GPU + NPU 최대 활용)
-OLLAMA_API_URL=http://localhost:11434
-OLLAMA_MODEL=gpt-oss:20b
-OLLAMA_API_KEY=ollama_api_key_placeholder
-
-# GPU 최적화 환경변수 (고성능 NVIDIA GPU 활용)
-OLLAMA_NUM_GPU=-1
-OLLAMA_GPU_LAYERS=-1
-OLLAMA_FLASH_ATTENTION=1
-OLLAMA_NUM_THREAD=16
-OLLAMA_NUM_BATCH=2048
-OLLAMA_CONTEXT_SIZE=131072
-OLLAMA_USE_MLOCK=1
-OLLAMA_USE_MMAP=1
-OLLAMA_NUMA=1
-
-# Ollama 전용 시스템 (외부 클라우드 API 미사용)
-
-# Google Apps Script 설정 (필수)
-# 레거시 키(호환): 일부 스크립트에서 참조할 수 있음
-GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/AKfycbyVGnIRPm8vg6NKoABjJo6x3aUUTALKPcMuUTf0LfOgNlW-tOZ-Yt3BKz3vGGn_Ks0h/exec
-# 실제 앱에서 사용하는 키
-NEXT_PUBLIC_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/AKfycbyVGnIRPm8vg6NKoABjJo6x3aUUTALKPcMuUTf0LfOgNlW-tOZ-Yt3BKz3vGGn_Ks0h/exec
-NEXT_PUBLIC_GAS_URL=https://script.google.com/macros/s/AKfycbyVGnIRPm8vg6NKoABjJo6x3aUUTALKPcMuUTf0LfOgNlW-tOZ-Yt3BKz3vGGn_Ks0h/exec
-
-# Google Sheets 데이터베이스 (필수)
-# 레거시 키(호환)
-SPREADSHEET_ID=1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ
-# 실제 앱에서 사용하는 키
-NEXT_PUBLIC_GOOGLE_SHEETS_ID=1BXgOJFOy_dMaQo-Lfce5yV4zyvHbqPw03qNIMdPXHWQ
-
-# Google Drive 저장소 (참고)
-DRIVE_FOLDER_ID=1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj
-
-# 관리자 설정 (필수)
-ADMIN_EMAIL=hongik423@gmail.com
-
-# 도메인/베이스 URL 설정
-AICAMP_WEBSITE=aicamp.club
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-
-# AI 모델 설정
-AI_PROVIDER=ollama
-AI_MODEL_PRIMARY=gpt-oss:20b
-AI_MODEL_FALLBACK=none
-
-# N8N 워크플로우 자동화 설정
-N8N_BASE_URL=http://localhost:5678
-N8N_API_KEY=n8n_api_key_placeholder
-N8N_WEBHOOK_URL=http://localhost:5678/webhook/aicamp-diagnosis
-N8N_WORKFLOW_DATA_PROCESSING=workflow_data_processing
-N8N_WORKFLOW_AI_ANALYSIS=workflow_ai_analysis
-N8N_WORKFLOW_REPORT_GENERATION=workflow_report_generation
-N8N_WORKFLOW_QUALITY_ASSURANCE=workflow_quality_assurance
-N8N_WORKFLOW_EMAIL_DELIVERY=workflow_email_delivery
-
-# AI CAMP 교육 커리큘럼 설정
-AICAMP_CURRICULUM_API=http://localhost:3000/api/curriculum
-AICAMP_PROGRAM_MATCHER_ENABLED=true
-AICAMP_CUSTOM_RECOMMENDATIONS=true
-
-# 시스템 설정
-DEBUG_MODE=false
-ENVIRONMENT=production
-VERSION=V16.0-OLLAMA-ULTIMATE
-
-# 타임아웃 설정 (Ollama 최적화)
-TIMEOUT_OLLAMA=900000
-# GEMINI 제거됨
-TIMEOUT_EMAIL=180000
-TIMEOUT_SHEET=30000
-TIMEOUT_TOTAL=1200000
-
-# 재시도 설정
-MAX_RETRY_ATTEMPTS=3
-RETRY_DELAY_MS=2000
-
-# Next.js 설정
-NODE_ENV=development
-NEXT_TELEMETRY_DISABLED=1
-
-# 로그
-NEXT_PUBLIC_DEBUG=false
-NEXT_PUBLIC_LOG_LEVEL=error
+# 서비스 계정 인증 정보 (실제 값으로 교체 필요)
+# 개행문자를 올바르게 처리하기 위해 여기서는 예시만 제공
+$GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = @"
+{
+  "type": "service_account",
+  "project_id": "your-project-id",
+  "private_key_id": "key-id",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY\n-----END PRIVATE KEY-----\n",
+  "client_email": "your-service-account@your-project.iam.gserviceaccount.com",
+  "client_id": "client-id",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/your-service-account%40your-project.iam.gserviceaccount.com"
+}
 "@
 
-# .env.local 파일 생성
-try {
-    $envContent | Out-File -FilePath ".env.local" -Encoding UTF8 -Force
-    Write-Host ".env.local file created successfully!" -ForegroundColor Green
-} catch {
-    Write-Host "Failed to create .env.local file: $($_.Exception.Message)" -ForegroundColor Red
-    exit 1
-}
+# 환경변수 설정
+[Environment]::SetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_CREDENTIALS", $GOOGLE_SERVICE_ACCOUNT_CREDENTIALS, "User")
+[Environment]::SetEnvironmentVariable("GOOGLE_DRIVE_FOLDER_ID", "1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj", "User")
 
-# Environment variables validation
-Write-Host "`nValidating environment variables..." -ForegroundColor Yellow
+Write-Host "✅ Google Drive API 환경변수 설정 완료" -ForegroundColor Green
 
-$requiredVars = @(
-    "OLLAMA_API_URL",
-    "OLLAMA_MODEL", 
-    "NEXT_PUBLIC_GOOGLE_SCRIPT_URL",
-    "NEXT_PUBLIC_GAS_URL",
-    "NEXT_PUBLIC_GOOGLE_SHEETS_ID",
-    "ADMIN_EMAIL",
-    "N8N_BASE_URL",
-    "AI_PROVIDER"
-)
+# 기타 필요한 환경변수들
+Write-Host "🔧 기타 환경변수 설정 중..." -ForegroundColor Yellow
 
-$envVars = Get-Content ".env.local" | Where-Object { $_ -match "^[^#].*=" } | ForEach-Object {
-    $parts = $_ -split "=", 2
-    @{ Name = $parts[0]; Value = $parts[1] }
-}
+[Environment]::SetEnvironmentVariable("NEXT_PUBLIC_BASE_URL", "https://aicamp.club", "User")
+[Environment]::SetEnvironmentVariable("ADMIN_EMAIL", "hongik423@gmail.com", "User")
 
-foreach ($var in $requiredVars) {
-    $envVar = $envVars | Where-Object { $_.Name -eq $var }
-    if ($envVar -and $envVar.Value -and $envVar.Value -ne "your-*") {
-        Write-Host "✅ ${var}: Set" -ForegroundColor Green
-    } else {
-        Write-Host "⚠️ ${var}: Needs verification" -ForegroundColor Yellow
-    }
-}
+Write-Host "✅ 모든 환경변수 설정 완료" -ForegroundColor Green
+Write-Host ""
+Write-Host "📋 설정된 환경변수:" -ForegroundColor Cyan
+Write-Host "  - GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: Google 서비스 계정 인증 정보" -ForegroundColor White
+Write-Host "  - GOOGLE_DRIVE_FOLDER_ID: Google Drive 폴더 ID" -ForegroundColor White
+Write-Host "  - NEXT_PUBLIC_BASE_URL: 기본 URL" -ForegroundColor White
+Write-Host "  - ADMIN_EMAIL: 관리자 이메일" -ForegroundColor White
+Write-Host ""
+Write-Host "⚠️  중요: GOOGLE_SERVICE_ACCOUNT_CREDENTIALS를 실제 값으로 교체해야 합니다!" -ForegroundColor Red
+Write-Host "🔄 변경사항을 적용하려면 터미널을 재시작하거나 새 PowerShell 세션을 열어주세요." -ForegroundColor Yellow
 
-Write-Host "`nNext steps:" -ForegroundColor Cyan
-Write-Host "1. Verify actual API keys and settings in .env.local file" -ForegroundColor White
-Write-Host "2. Set the same environment variables in Vercel dashboard" -ForegroundColor White
-Write-Host "3. Set script properties in Google Apps Script" -ForegroundColor White
-Write-Host "4. Start development server with npm run dev" -ForegroundColor White
-
-Write-Host "`nEnvironment variables setup completed!" -ForegroundColor Green
-Write-Host "For detailed setup guide, see: ENV_VARIABLES_SETUP.md" -ForegroundColor Blue
+# 개행문자 처리 가이드
+Write-Host ""
+Write-Host "📝 개행문자 처리 가이드:" -ForegroundColor Cyan
+Write-Host "1. Google 서비스 계정 JSON 파일을 텍스트 에디터로 열기" -ForegroundColor White
+Write-Host "2. private_key 필드의 개행문자를 \n으로 변환" -ForegroundColor White
+Write-Host "3. 전체 JSON을 한 줄로 만들거나 PowerShell의 @"" 구문 사용" -ForegroundColor White
+Write-Host ""
+Write-Host "예시:" -ForegroundColor Yellow
+Write-Host 'private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSi...\n-----END PRIVATE KEY-----\n"' -ForegroundColor Gray

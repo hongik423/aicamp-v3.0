@@ -117,11 +117,22 @@ export default function ConsultationRequestModal({
 
       // 상담 신청 데이터에 진단 정보 추가
       const consultationData = {
-        ...formData,
-        submitDate: new Date().toISOString(),
+        // 기본 정보 (API 필드명과 일치)
+        company: formData.company,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        position: formData.position,
+        
+        // 상담 관련 정보
+        consultationType: formData.consultationType,
+        consultationArea: formData.consultationArea,
+        inquiryContent: formData.inquiryContent,
+        preferredTime: formData.preferredTime,
+        privacyConsent: formData.privacyConsent,
         
         // 진단 관련 추가 정보
-        diagnosisCompleted: true,
+        diagnosisCompleted: !!diagnosisData,
         diagnosisScore: diagnosisData?.overallScore || null,
         primaryService: diagnosisData?.primaryService || null,
         diagnosisId: diagnosisData?.id || null,
@@ -135,7 +146,9 @@ export default function ConsultationRequestModal({
 - 시장 위치: ${diagnosisData?.marketPosition ?? ''}
 - 업계 성장률: ${diagnosisData?.industryGrowth ?? ''}
 
-상기 AI 진단 결과를 바탕으로 전문가 상담을 요청드립니다.`
+상기 AI 진단 결과를 바탕으로 전문가 상담을 요청드립니다.`,
+        
+        submitDate: new Date().toISOString()
       };
 
       // 🔧 **실제 구글시트 연동 처리 (GitHub Pages 호환)**
