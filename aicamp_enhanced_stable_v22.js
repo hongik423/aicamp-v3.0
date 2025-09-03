@@ -3062,6 +3062,7 @@ function doPost(e) {
         case 'email_test':
         case 'test_email':
         case 'test-email':
+        case 'testemailsystem':
           console.log('📧 이메일 시스템 테스트 실행');
           result = testEmailSystem();
           break;
@@ -3069,6 +3070,7 @@ function doPost(e) {
         case 'email_diagnosis':
         case 'email-diagnosis':
         case 'diagnose_email':
+        case 'emergencyemailsystemdiagnosis':
           console.log('🚨 이메일 시스템 긴급 진단 실행');
           result = emergencyEmailSystemDiagnosis();
           break;
@@ -3076,6 +3078,7 @@ function doPost(e) {
         case 'data_save_test':
         case 'data-save-test':
         case 'test_data_save':
+        case 'testdatasavesystem':
           console.log('💾 데이터 저장 시스템 테스트 실행');
           result = testDataSaveSystem();
           break;
@@ -3258,18 +3261,7 @@ function doOptions(e) {
   
   return ContentService
     .createTextOutput('')
-    .setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-      'Access-Control-Max-Age': '86400',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block'
-    });
+    .setMimeType(ContentService.MimeType.TEXT);
 }
 
 /**
