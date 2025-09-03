@@ -1,39 +1,13 @@
 /**
- * V25.0 실제 점수 기반 정확한 보고서 생성 시스템
- * 0점 양호 평가 오류 완전 해결 - 이교장의AI상담
+ * 🚀 V22.6 고도화된 보고서 저장 및 관리 시스템
+ * - 병렬 처리 시스템 통합
+ * - 업종별 맞춤형 24페이지 보고서
+ * - Google Drive 업로드 및 공유 링크 생성
+ * - 로컬 스토리지 백업 시스템
+ * - McKinsey24PageGenerator 단일 엔진 사용 (혼란 방지)
  */
 
-// V27.0 Ultimate 간소화된 시스템 - DynamicReportEngine 의존성 제거
-
-export interface DiagnosisData {
-  diagnosisId: string;
-  companyInfo: {
-    name: string;
-    industry: string;
-    size: string;
-    revenue?: string;
-    employees?: string;
-    position?: string;
-    location?: string;
-  };
-  responses: Record<string, number>;
-  scores: {
-    total: number;
-    percentage: number;
-    categoryScores: {
-      businessFoundation: number;
-      currentAI: number;
-      organizationReadiness: number;
-      technologyInfrastructure: number;
-      dataManagement: number;
-      humanResources: number;
-    };
-  };
-  timestamp: string;
-  grade: string;
-  maturityLevel: string;
-  isVirtualData?: boolean;
-}
+import { DiagnosisData } from './mckinsey-24-page-generator';
 
 export interface ReportOptions {
   useAdvancedAnalysis: boolean;
@@ -66,6 +40,13 @@ export interface StorageResult {
   fileSize?: number;
   downloadUrl?: string;
   metadata?: ReportMetadata;
+  // 추가 속성들
+  driveWebViewLink?: string;
+  localStorageKey?: string;
+  googleDriveId?: string;
+  driveFileId?: string;
+  error?: string;
+  cleanupStorage?: (maxAge: number) => Promise<void>;
 }
 
 export class EnhancedReportStorageV24 {
@@ -73,11 +54,11 @@ export class EnhancedReportStorageV24 {
   private static readonly MAX_STORAGE_SIZE = 50 * 1024 * 1024; // 50MB
 
   /**
-   * V25.0 실제 점수 기반 정확한 보고서 생성 (0점 양호 오류 해결)
+   * V22.6 McKinsey 24페이지 보고서 생성 (업종별 맞춤형)
    */
   static async generateCompleteReport(data: DiagnosisData, options: ReportOptions): Promise<string> {
     try {
-      console.log('🚀 V25.0 실제 점수 기반 정확한 보고서 생성 시작 - 0점 양호 오류 해결');
+      console.log('🚀 V22.6 McKinsey 24페이지 보고서 생성 시작 - 업종별 맞춤형');
       console.log('📊 실제 점수 검증:', {
         총점: data.scores.total,
         백분율: data.scores.percentage,
@@ -104,7 +85,7 @@ export class EnhancedReportStorageV24 {
       return htmlReport;
       
     } catch (error) {
-      console.error('❌ V25.0 보고서 생성 실패:', error);
+      console.error('❌ V22.6 McKinsey 24페이지 보고서 생성 실패:', error);
       
       // 폴백도 24페이지 시스템 사용
       console.log('🔄 V22.6 McKinsey 24페이지 폴백 시스템 사용');
@@ -121,7 +102,7 @@ export class EnhancedReportStorageV24 {
     fileName: string
   ): Promise<StorageResult> {
     try {
-      console.log('🚀 V25.0 정확도 개선 보고서 생성:', diagnosisData.diagnosisId);
+      console.log('🚀 V22.6 정확도 개선 보고서 생성:', diagnosisData.diagnosisId);
       console.log('📊 점수 정확성 검증:', {
         입력총점: diagnosisData.scores?.total,
         입력백분율: diagnosisData.scores?.percentage,
@@ -142,18 +123,18 @@ export class EnhancedReportStorageV24 {
         maturityLevel: processedData.level || 'Basic',
         createdAt: new Date().toISOString(),
         fileSize: new Blob([htmlContent]).size,
-        version: 'V27.0-ULTIMATE-N8N-ENHANCED',
-        storageType: 'ultimate_n8n_score_based'
+        version: 'V22.6-MCKINSEY-24PAGE',
+        storageType: 'mckinsey_24page_score_based'
       };
       
       // 클라이언트 직접 저장
       const result = await this.storeReportDirect(fileName, htmlContent, metadata);
       
-      console.log('✅ V25.0 정확도 개선 보고서 생성 및 저장 완료:', result);
+      console.log('✅ V22.6 정확도 개선 보고서 생성 및 저장 완료:', result);
       return result;
       
     } catch (error: any) {
-      console.error('❌ V25.0 HTML 보고서 생성 실패:', error);
+      console.error('❌ V22.6 HTML 보고서 생성 실패:', error);
       return {
         success: false,
         message: `보고서 생성 실패: ${error.message}`,
@@ -163,7 +144,7 @@ export class EnhancedReportStorageV24 {
   }
 
   /**
-   * V27.0 Ultimate 35페이지 완전한 다중 슬라이드 보고서 생성
+   * V22.6 McKinsey 24페이지 보고서 생성 (폴백 시스템)
    */
   private static generateSimpleAccurateReport(data: DiagnosisData): string {
     const processedData = this.processDiagnosisData(data);
@@ -173,7 +154,7 @@ export class EnhancedReportStorageV24 {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${processedData.companyName} AI 역량진단 보고서 V27.0 Ultimate (${processedData.totalScore}점)</title>
+            <title>${processedData.companyName} AI 역량진단 보고서 V22.6 McKinsey 24페이지 (${processedData.totalScore}점)</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -610,8 +591,63 @@ export class EnhancedReportStorageV24 {
       return {
         success: false,
         message: `저장 실패: ${error.message}`,
-        diagnosisId: metadata.diagnosisId
+        diagnosisId: metadata.diagnosisId,
+        error: error.message
       };
+    }
+  }
+
+  /**
+   * 저장소 정리 (오래된 파일 제거)
+   */
+  static async cleanupStorage(maxAge: number = 24): Promise<void> {
+    try {
+      console.log('🧹 저장소 정리 시작 (최대 보관 기간:', maxAge, '시간)');
+      
+      // 로컬 스토리지 정리
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const keys = Object.keys(localStorage);
+        const now = Date.now();
+        const maxAgeMs = maxAge * 60 * 60 * 1000;
+        
+        let cleanedCount = 0;
+        for (const key of keys) {
+          if (key.startsWith(this.STORAGE_PREFIX)) {
+            try {
+              const item = localStorage.getItem(key);
+              if (item) {
+                const data = JSON.parse(item);
+                if (data.timestamp && (now - new Date(data.timestamp).getTime()) > maxAgeMs) {
+                  localStorage.removeItem(key);
+                  cleanedCount++;
+                }
+              }
+            } catch (error) {
+              // 손상된 데이터 제거
+              localStorage.removeItem(key);
+              cleanedCount++;
+            }
+          }
+        }
+        
+        console.log(`✅ 로컬 스토리지 정리 완료: ${cleanedCount}개 항목 제거`);
+      }
+      
+      // 메모리 캐시 정리
+      if (typeof global !== 'undefined' && global.localDiagnosisCache) {
+        const cacheSize = global.localDiagnosisCache.size;
+        if (cacheSize > this.MAX_STORAGE_SIZE / 1024) { // 50KB 초과 시
+          console.log('🧹 메모리 캐시 정리 시작');
+          // 간단한 정리: 절반 제거
+          const keys = Array.from(global.localDiagnosisCache.keys());
+          const keysToRemove = keys.slice(0, Math.floor(keys.length / 2));
+          keysToRemove.forEach(key => global.localDiagnosisCache.delete(key));
+          console.log(`✅ 메모리 캐시 정리 완료: ${keysToRemove.length}개 항목 제거`);
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ 저장소 정리 실패:', error);
     }
   }
 }

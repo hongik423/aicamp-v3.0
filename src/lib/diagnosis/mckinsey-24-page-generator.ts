@@ -1,9 +1,10 @@
 /**
  * 🏆 V22.6 통합 맥킨지급 24페이지 AI 역량진단 보고서 생성기
  * - 병렬 처리 시스템 완벽 통합
- * - 업종별 맞춤형 분석 (IndustryDataService 통합)
+ * - 업종별 맞춤형 분석 (IndustryDataService 완벽 통합)
  * - n8n 기반 고몰입 조직구축 동기부여
  * - 사실기반 정확한 점수 반영
+ * - 업종별 특화 벤치마크 및 솔루션
  */
 
 // DiagnosisData 인터페이스 정의 (독립적)
@@ -37,8 +38,27 @@ export interface DiagnosisData {
   isVirtualData?: boolean;
 }
 
-// 업종별 고급 분석 엔진 통합 import
-import { IndustryDataService } from '@/lib/utils/industryDataService';
+// 업종별 고급 분석 엔진 통합 import (안전한 방식)
+let IndustryDataService: any = null;
+
+// 동적 import를 위한 함수
+async function loadIndustryDataService() {
+  try {
+    const serviceModule = await import('@/lib/utils/industryDataService');
+    IndustryDataService = serviceModule.IndustryDataService;
+    console.log('✅ IndustryDataService 로드 성공');
+    return true;
+  } catch (importError) {
+    console.warn('⚠️ IndustryDataService 로드 실패, 기본 분석 사용:', importError);
+    IndustryDataService = null;
+    return false;
+  }
+}
+
+// 초기 로드 시도
+loadIndustryDataService().catch(() => {
+  console.warn('⚠️ IndustryDataService 초기 로드 실패');
+});
 
 export class McKinsey24PageGenerator {
   // 업종별 특화 분석 데이터 (확장됨)
@@ -60,7 +80,9 @@ export class McKinsey24PageGenerator {
         average: 75,
         top10: 90,
         growth: '+15% YoY'
-      }
+      },
+      aiFocus: 0.7,
+      practicalFocus: 0.3
     },
     '제조업': {
       characteristics: [
@@ -79,7 +101,9 @@ export class McKinsey24PageGenerator {
         average: 65,
         top10: 85,
         growth: '+12% YoY'
-      }
+      },
+      aiFocus: 0.5,
+      practicalFocus: 0.5
     },
     '서비스업': {
       characteristics: [
@@ -98,7 +122,9 @@ export class McKinsey24PageGenerator {
         average: 70,
         top10: 88,
         growth: '+18% YoY'
-      }
+      },
+      aiFocus: 0.6,
+      practicalFocus: 0.4
     },
     '금융업': {
       characteristics: [
@@ -117,7 +143,9 @@ export class McKinsey24PageGenerator {
         average: 80,
         top10: 95,
         growth: '+20% YoY'
-      }
+      },
+      aiFocus: 0.6,
+      practicalFocus: 0.4
     },
     '유통/소매업': {
       characteristics: [
@@ -136,7 +164,51 @@ export class McKinsey24PageGenerator {
         average: 68,
         top10: 86,
         growth: '+14% YoY'
-      }
+      },
+      aiFocus: 0.5,
+      practicalFocus: 0.5
+    },
+    '의료/헬스케어': {
+      characteristics: [
+        '환자 데이터 보안',
+        '의료 품질 향상',
+        '의료진 업무 효율성',
+        '원격 의료 서비스'
+      ],
+      n8nOpportunities: [
+        '환자 예약 자동화',
+        '의료 기록 관리',
+        '약물 상호작용 체크',
+        '의료진 스케줄링'
+      ],
+      benchmarks: {
+        average: 72,
+        top10: 89,
+        growth: '+16% YoY'
+      },
+      aiFocus: 0.6,
+      practicalFocus: 0.4
+    },
+    '교육/에듀테크': {
+      characteristics: [
+        '개인화 학습 경험',
+        '교육 효과 측정',
+        '온라인 학습 플랫폼',
+        '교사 업무 효율성'
+      ],
+      n8nOpportunities: [
+        '학습 진도 추적',
+        '과제 자동 채점',
+        '학생 피드백 수집',
+        '교육 콘텐츠 추천'
+      ],
+      benchmarks: {
+        average: 66,
+        top10: 84,
+        growth: '+13% YoY'
+      },
+      aiFocus: 0.5,
+      practicalFocus: 0.5
     }
   };
 
@@ -1589,61 +1661,103 @@ export class McKinsey24PageGenerator {
   }
 
   /**
-   * 🔥 V22.6 업종별 고급 분석 (IndustryDataService 통합)
+   * 🔥 V22.6 업종별 고급 분석 (IndustryDataService 완벽 통합)
    */
   private static getAdvancedIndustryAnalysis(industry: string, data: DiagnosisData) {
     try {
-      // 기본 업종 분석 (import 오류 방지를 위해 try-catch 사용)
-      let industryInsights = null;
+      console.log('🔍 업종별 고급 분석 시작:', industry);
       
+      // 기본 업종 데이터
+      const industryData = this.INDUSTRY_INSIGHTS[industry] || this.INDUSTRY_INSIGHTS['IT/소프트웨어'];
+      
+      // IndustryDataService 고급 분석 시도
+      let industryInsights = null;
       try {
-        // 동적 import로 안전하게 로드
-        const { IndustryDataService } = require('@/lib/utils/industryDataService');
-        industryInsights = IndustryDataService.generateIndustryInsights(industry, {
-          companyName: data.companyInfo.name,
-          totalScore: data.scores.total,
-          categoryScores: data.scores.categoryScores,
-          employeeCount: data.companyInfo.size
-        });
-      } catch (importError) {
-        console.warn('⚠️ IndustryDataService import 실패, 기본 분석 사용');
+        // IndustryDataService 고급 분석 시도 (안전한 방식)
+        if (IndustryDataService && typeof IndustryDataService.generateIndustryInsights === 'function') {
+          industryInsights = IndustryDataService.generateIndustryInsights(industry, {
+            companyName: data.companyInfo.name,
+            totalScore: data.scores.total,
+            categoryScores: data.scores.categoryScores,
+            employeeCount: data.companyInfo.size,
+            industry: industry,
+            revenue: data.companyInfo.revenue
+          });
+          
+          console.log('✅ IndustryDataService 고급 분석 완료:', industryInsights);
+        } else {
+          console.log('ℹ️ IndustryDataService 사용 불가, 기본 분석 사용');
+        }
+      } catch (serviceError) {
+        console.warn('⚠️ IndustryDataService 실행 오류, 기본 분석 사용:', serviceError);
       }
 
-      return {
-        insights: industryInsights,
+      // 기본 분석과 고급 분석 결합
+      const combinedAnalysis = {
+        ...industryData,
+        advancedInsights: industryInsights,
         hasAdvancedAnalysis: !!industryInsights,
-        industry: industry
+        industry: industry,
+        analysisLevel: industryInsights ? 'premium' : 'standard'
       };
+
+      console.log('🔍 업종별 통합 분석 완료:', {
+        업종: industry,
+        분석레벨: combinedAnalysis.analysisLevel,
+        고급분석: !!industryInsights
+      });
+
+      return combinedAnalysis;
     } catch (error) {
-      console.warn('⚠️ 고급 업종 분석 실패, 기본 분석 사용:', error);
+      console.warn('⚠️ 업종별 고급 분석 실패, 기본 분석 사용:', error);
       return {
+        ...this.INDUSTRY_INSIGHTS[industry] || this.INDUSTRY_INSIGHTS['IT/소프트웨어'],
         insights: null,
         hasAdvancedAnalysis: false,
-        industry: industry
+        industry: industry,
+        analysisLevel: 'basic'
       };
     }
   }
 
   /**
-   * 업종별 가중치 조회 (안전한 방식)
+   * 업종별 가중치 조회 (IndustryDataService 연동)
    */
   private static getIndustryWeights(industry: string) {
     try {
-      // 기본 가중치 정의 (import 오류 방지)
-      const defaultWeights: Record<string, { ai: number; practical: number }> = {
-        'IT/소프트웨어': { ai: 0.7, practical: 0.3 },
-        '제조업': { ai: 0.5, practical: 0.5 },
-        '금융/보험': { ai: 0.6, practical: 0.4 },
-        '유통/물류': { ai: 0.5, practical: 0.5 },
-        '의료/헬스케어': { ai: 0.6, practical: 0.4 },
-        '교육/에듀테크': { ai: 0.5, practical: 0.5 },
-        '부동산/건설': { ai: 0.4, practical: 0.6 },
-        '미디어/엔터테인먼트': { ai: 0.6, practical: 0.4 },
-        '전문서비스': { ai: 0.5, practical: 0.5 },
-        '공공/정부': { ai: 0.4, practical: 0.6 }
-      };
+      // IndustryDataService에서 가중치 조회 시도
+      let weights = null;
+      try {
+        // IndustryDataService에서 가중치 조회 시도 (안전한 방식)
+        if (IndustryDataService && typeof IndustryDataService.getIndustryWeights === 'function') {
+          weights = IndustryDataService.getIndustryWeights(industry);
+          console.log('✅ IndustryDataService 가중치 조회 완료:', weights);
+        } else {
+          console.log('ℹ️ IndustryDataService 가중치 조회 불가, 기본값 사용');
+        }
+      } catch (serviceError) {
+        console.warn('⚠️ IndustryDataService 가중치 조회 실패, 기본값 사용:', serviceError);
+      }
+
+      // 기본 가중치 (IndustryDataService 실패 시)
+      if (!weights) {
+        const defaultWeights: Record<string, { ai: number; practical: number }> = {
+          'IT/소프트웨어': { ai: 0.7, practical: 0.3 },
+          '제조업': { ai: 0.5, practical: 0.5 },
+          '금융/보험': { ai: 0.6, practical: 0.4 },
+          '유통/물류': { ai: 0.5, practical: 0.5 },
+          '의료/헬스케어': { ai: 0.6, practical: 0.4 },
+          '교육/에듀테크': { ai: 0.5, practical: 0.5 },
+          '부동산/건설': { ai: 0.4, practical: 0.6 },
+          '미디어/엔터테인먼트': { ai: 0.6, practical: 0.4 },
+          '전문서비스': { ai: 0.5, practical: 0.5 },
+          '공공/정부': { ai: 0.4, practical: 0.6 }
+        };
+        
+        weights = defaultWeights[industry] || { ai: 0.5, practical: 0.5 };
+      }
       
-      return defaultWeights[industry] || { ai: 0.5, practical: 0.5 };
+      return weights;
     } catch (error) {
       console.warn('⚠️ 업종별 가중치 조회 실패, 기본값 사용:', error);
       return { ai: 0.5, practical: 0.5 };
@@ -1651,12 +1765,13 @@ export class McKinsey24PageGenerator {
   }
 
   /**
-   * 고급 벤치마크 분석 (업종별 맞춤형)
+   * 고급 벤치마크 분석 (업종별 맞춤형 + IndustryDataService)
    */
   private static generateAdvancedBenchmarkAnalysis(data: DiagnosisData, industryData: any, industryInsights: any): string {
     const industry = data.companyInfo.industry || 'IT/소프트웨어';
     const basicBenchmark = industryData.benchmarks;
-    const advancedAnalysis = industryInsights.hasAdvancedAnalysis ? industryInsights.insights : null;
+    const advancedAnalysis = industryInsights.hasAdvancedAnalysis ? industryInsights.advancedInsights : null;
+    const weights = this.getIndustryWeights(industry);
 
     return `
     <div class="slide" id="slide4">
@@ -1683,9 +1798,23 @@ export class McKinsey24PageGenerator {
                 </div>
             </div>
             
+            <div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 12px;">
+                <h4 style="color: #2d3748; margin-bottom: 15px;">⚖️ 업종별 AI vs 실무 가중치</h4>
+                <div style="display: flex; gap: 20px; margin-top: 15px;">
+                    <div style="flex: 1; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #667eea;">${Math.round(weights.ai * 100)}%</div>
+                        <div style="color: #4a5568;">AI 기술 역량</div>
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #48bb78;">${Math.round(weights.practical * 100)}%</div>
+                        <div style="color: #4a5568;">실무 적용 역량</div>
+                    </div>
+                </div>
+            </div>
+            
             ${advancedAnalysis ? `
             <div style="margin-top: 30px;">
-                <h4 style="color: #2d3748; margin-bottom: 15px;">📊 고급 업종 분석</h4>
+                <h4 style="color: #2d3748; margin-bottom: 15px;">📊 IndustryDataService 고급 분석</h4>
                 <p style="line-height: 1.8; color: #4a5568;">${advancedAnalysis.overview || ''}</p>
                 
                 <div style="margin-top: 20px;">

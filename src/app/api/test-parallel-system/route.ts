@@ -151,7 +151,7 @@ async function testCacheSystem(diagnosisId?: string) {
     const syncResult = await ParallelSyncManager.syncDiagnosisData(testId);
     
     // 캐시 정리 테스트
-    const cleanedCount = ParallelSyncManager.cleanExpiredCache();
+    ParallelSyncManager.cleanupCache();
     
     const finalCacheStatus = ParallelSyncManager.getCacheStatus();
     
@@ -163,7 +163,7 @@ async function testCacheSystem(diagnosisId?: string) {
         finalStatus: finalCacheStatus,
         cacheHit: syncResult.cacheHit,
         queryTime: syncResult.syncTime,
-        cleanedItems: cleanedCount
+        cleanedItems: 'N/A (cleanupCache는 void 반환)'
       },
       performance: {
         totalTime: `${Date.now() - startTime}ms`,
@@ -204,7 +204,6 @@ async function testGASSystem(diagnosisId?: string) {
       testId,
       gasTest: {
         dataFound: syncResult.success,
-        attempts: syncResult.attempts,
         dataSource: syncResult.dataSource,
         queryTime: syncResult.syncTime
       },

@@ -47,9 +47,12 @@ export class ParallelSyncManager {
     const manager = ParallelSyncManager.getInstance();
 
     try {
+      console.log('🔄 ParallelSyncManager 동기화 시작:', diagnosisId);
+      
       // 1. 로컬 캐시 확인
       const cachedData = manager.getFromCache(diagnosisId);
       if (cachedData) {
+        console.log('✅ 로컬 캐시에서 데이터 조회 성공');
         return {
           success: true,
           data: cachedData,
@@ -60,10 +63,12 @@ export class ParallelSyncManager {
       }
 
       // 2. GAS에서 데이터 조회
+      console.log('🔄 GAS에서 데이터 조회 시도');
       const gasData = await manager.fetchFromGAS(diagnosisId);
       if (gasData) {
         // 캐시에 저장
         manager.setToCache(diagnosisId, gasData);
+        console.log('✅ GAS 데이터 조회 및 캐시 저장 성공');
         
         return {
           success: true,
@@ -74,6 +79,7 @@ export class ParallelSyncManager {
         };
       }
 
+      console.log('❌ GAS에서 데이터 조회 실패');
       return {
         success: false,
         dataSource: 'none',
@@ -83,6 +89,7 @@ export class ParallelSyncManager {
       };
 
     } catch (error: any) {
+      console.error('❌ ParallelSyncManager 동기화 오류:', error);
       return {
         success: false,
         dataSource: 'error',
@@ -94,53 +101,95 @@ export class ParallelSyncManager {
   }
 
   /**
-   * 캐시에서 데이터 조회
+   * 캐시에서 데이터 조회 (안전한 방식)
    */
   private getFromCache(key: string): any {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
+    try {
+      if (!key || typeof key !== 'string') {
+        console.warn('⚠️ 유효하지 않은 캐시 키:', key);
+        return null;
+      }
 
-    // 만료 확인
-    if (Date.now() > cached.expiry) {
-      this.cache.delete(key);
+      const cached = this.cache.get(key);
+      if (!cached) return null;
+
+      // 만료 확인
+      if (Date.now() > cached.expiry) {
+        console.log('🗑️ 만료된 캐시 항목 제거:', key);
+        this.cache.delete(key);
+        return null;
+      }
+
+      // 데이터 유효성 검증
+      if (!cached.data || typeof cached.data !== 'object') {
+        console.warn('⚠️ 유효하지 않은 캐시 데이터:', key);
+        this.cache.delete(key);
+        return null;
+      }
+
+      console.log('✅ 캐시에서 유효한 데이터 조회:', key);
+      return cached.data;
+    } catch (error) {
+      console.error('❌ 캐시 조회 오류:', error);
       return null;
     }
-
-    return cached.data;
   }
 
   /**
-   * 캐시에 데이터 저장
+   * 캐시에 데이터 저장 (안전한 방식)
    */
   private setToCache(key: string, data: any): void {
-    // 캐시 크기 제한 확인
-    if (this.cache.size >= this.MAX_CACHE_SIZE) {
-      // 가장 오래된 항목 제거
-      const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
-    }
+    try {
+      if (!key || typeof key !== 'string') {
+        console.warn('⚠️ 유효하지 않은 캐시 키:', key);
+        return;
+      }
 
-    this.cache.set(key, {
-      data,
-      expiry: Date.now() + this.CACHE_EXPIRY
-    });
+      if (!data || typeof data !== 'object') {
+        console.warn('⚠️ 유효하지 않은 캐시 데이터:', key);
+        return;
+      }
+
+      // 캐시 크기 제한 확인
+      if (this.cache.size >= this.MAX_CACHE_SIZE) {
+        // 가장 오래된 항목 제거
+        const oldestKey = this.cache.keys().next().value;
+        if (oldestKey) {
+          console.log('🗑️ 캐시 용량 초과로 오래된 항목 제거:', oldestKey);
+          this.cache.delete(oldestKey);
+        }
+      }
+
+      this.cache.set(key, {
+        data,
+        expiry: Date.now() + this.CACHE_EXPIRY
+      });
+
+      console.log('✅ 캐시에 데이터 저장 성공:', key);
+    } catch (error) {
+      console.error('❌ 캐시 저장 오류:', error);
+    }
   }
 
   /**
-   * GAS에서 데이터 조회 (동적 import)
+   * GAS에서 데이터 조회 (동적 import + 오류 처리 강화)
    */
   private async fetchFromGAS(diagnosisId: string): Promise<any> {
     try {
+      console.log('🔄 GAS 데이터 조회 시작:', diagnosisId);
+      
       const { queryDiagnosisFromGAS } = await import('@/lib/gas/gas-connector');
       const result = await queryDiagnosisFromGAS(diagnosisId);
       
       if (result.success && result.data) {
+        console.log('✅ GAS 데이터 조회 성공:', diagnosisId);
         return result.data;
+      } else {
+        console.log('❌ GAS 데이터 조회 실패:', result.error || '데이터 없음');
+        return null;
       }
-      
-      return null;
     } catch (error) {
-      console.error('GAS 데이터 조회 실패:', error);
+      console.error('❌ GAS 데이터 조회 오류:', error);
       return null;
     }
   }
