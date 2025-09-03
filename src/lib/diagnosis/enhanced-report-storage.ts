@@ -13,6 +13,8 @@ export interface DiagnosisData {
     size: string;
     revenue?: string | number;
     employees?: string | number;
+    position?: string;
+    location?: string;
   };
   responses: Record<string, number>;
   scores: {
@@ -28,6 +30,9 @@ export interface DiagnosisData {
     };
   };
   timestamp: string;
+  grade: string;
+  maturityLevel: string;
+  isVirtualData?: boolean;
 }
 
 export interface ReportOptions {
@@ -84,16 +89,16 @@ export class EnhancedReportStorageV24 {
         console.warn('⚠️ 0점 또는 점수 없음 감지 - 정확한 평가 적용');
       }
       
-      // V27.0 Ultimate 35페이지 보고서 생성
-      const { Ultimate35PageGenerator } = await import('./ultimate-35-page-generator');
-      const htmlReport = Ultimate35PageGenerator.generateUltimate35PageReport(data);
+      // V22.6 McKinsey 24페이지 보고서 생성 (업종별 맞춤형)
+      const { McKinsey24PageGenerator } = await import('./mckinsey-24-page-generator');
+      const htmlReport = McKinsey24PageGenerator.generateMcKinsey24PageReport(data);
       
-      console.log('✅ V27.0 Ultimate 35페이지 보고서 생성 완료 - 신뢰성 확보');
+      console.log('✅ V22.6 McKinsey 24페이지 보고서 생성 완료 - 업종별 맞춤형');
       console.log('🔍 생성된 보고서 검증:', {
         회사명: data.companyInfo.name,
         실제총점: data.scores.total,
         실제백분율: data.scores.percentage,
-        보고서버전: 'V27.0-ULTIMATE-35PAGE'
+        보고서버전: 'V22.6-MCKINSEY-24PAGE'
       });
       
       return htmlReport;
@@ -101,10 +106,10 @@ export class EnhancedReportStorageV24 {
     } catch (error) {
       console.error('❌ V25.0 보고서 생성 실패:', error);
       
-      // 폴백도 35페이지 시스템 사용
-      console.log('🔄 V27.0 Ultimate 35페이지 폴백 시스템 사용');
-      const { Ultimate35PageGenerator } = await import('./ultimate-35-page-generator');
-      return Ultimate35PageGenerator.generateUltimate35PageReport(data);
+      // 폴백도 24페이지 시스템 사용
+      console.log('🔄 V22.6 McKinsey 24페이지 폴백 시스템 사용');
+      const { McKinsey24PageGenerator } = await import('./mckinsey-24-page-generator');
+      return McKinsey24PageGenerator.generateMcKinsey24PageReport(data);
     }
   }
 
