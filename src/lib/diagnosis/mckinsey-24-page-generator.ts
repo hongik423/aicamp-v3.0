@@ -604,12 +604,18 @@ export class McKinsey24PageGenerator {
             <div class="chart-grid">
                 ${categories.map(cat => {
                     const detail = this.CATEGORY_DETAILS[cat];
-                    const score = data.scores.categoryScores[cat] || 0;
-                    const percentage = Math.round((score / 45) * 100);
+                    const averageScore = data.scores.categoryScores[cat] || 0;
+                    
+                    // 🔥 카테고리별 문항 수에 따른 총점 계산
+                    const questionCount = cat === 'humanResources' ? 5 : 8; // 실행역량만 5문항, 나머지는 8문항
+                    const maxScore = questionCount * 5; // 문항수 × 5점
+                    const totalScore = Math.round(averageScore * questionCount); // 평균점수 × 문항수 = 총점
+                    const percentage = Math.round((averageScore / 5) * 100);
+                    
                     return `
                         <div class="score-card score-${this.getScoreClass(percentage)}">
                             <div style="font-size: 48px;">${detail.icon}</div>
-                            <div class="score-value">${score}/45</div>
+                            <div class="score-value">${totalScore}/${maxScore}</div>
                             <div style="font-weight: 600;">${detail.name}</div>
                             <div style="color: #6b7280;">${percentage}%</div>
                         </div>
@@ -685,8 +691,13 @@ export class McKinsey24PageGenerator {
 
   private static generateCategoryAnalysis(data: DiagnosisData, category: string): string {
     const detail = this.CATEGORY_DETAILS[category];
-    const score = data.scores.categoryScores[category] || 0;
-    const percentage = Math.round((score / 45) * 100);
+    const averageScore = data.scores.categoryScores[category] || 0;
+    
+    // 🔥 카테고리별 문항 수에 따른 총점 계산
+    const questionCount = category === 'humanResources' ? 5 : 8; // 실행역량만 5문항, 나머지는 8문항
+    const maxScore = questionCount * 5; // 문항수 × 5점
+    const totalScore = Math.round(averageScore * questionCount); // 평균점수 × 문항수 = 총점
+    const percentage = Math.round((averageScore / 5) * 100);
     const pageNum = Object.keys(this.CATEGORY_DETAILS).indexOf(category) + 5;
     
     return `
@@ -698,8 +709,8 @@ export class McKinsey24PageGenerator {
             
             <div class="score-card score-${this.getScoreClass(percentage)}" style="max-width: 300px; margin: 0 auto;">
                 <div style="font-size: 64px;">${detail.icon}</div>
-                <div class="score-value">${score}/45점</div>
-                <div style="font-size: 24px; color: #6b7280;">${percentage}%</div>
+                <div class="score-value">${totalScore}/${maxScore}점</div>
+                <div style="font-size: 24px; color: #6b7280;">${percentage}% (평균 ${averageScore.toFixed(1)}점)</div>
             </div>
             
             <div class="insight-box">

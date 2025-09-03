@@ -826,11 +826,43 @@ function saveToDetailSheet(data, responses) {
         }
       }
     } else if (typeof responses === 'object') {
+      // V22.5 개선된 응답 데이터 처리: question_N 형식 지원
+      console.log('🔍 V22.5 응답 데이터 처리 시작:', Object.keys(responses).length, '개 키');
+      
       for (let i = 1; i <= 45; i++) {
-        const score = parseInt(responses[i] || responses[String(i)] || 0, 10);
+        // 다양한 키 형식 지원: i, String(i), question_i, `question_${i}`
+        const possibleKeys = [
+          i,
+          String(i), 
+          `question_${i}`,
+          `question${i}`,
+          `q${i}`,
+          `Q${i}`
+        ];
+        
+        let score = 0;
+        for (const key of possibleKeys) {
+          if (responses[key] !== undefined) {
+            score = parseInt(responses[key], 10);
+            break;
+          }
+        }
+        
         if (!isNaN(score) && score >= 1 && score <= 5) {
           responseArray[i-1] = score;
+          console.log(`✅ V22.5 문항 ${i}: ${score}점`);
+        } else if (score !== 0) {
+          console.warn(`⚠️ V22.5 문항 ${i}: 유효하지 않은 점수 ${score} (기본값 0 사용)`);
         }
+      }
+      
+      // V22.5 응답 데이터 검증
+      const validResponses = responseArray.filter(score => score > 0).length;
+      console.log(`📊 V22.5 유효한 응답: ${validResponses}/45개`);
+      
+      if (validResponses === 0) {
+        console.error('❌ V22.5 모든 응답이 0점 - 데이터 전송 문제 감지');
+        console.log('🔍 V22.5 원본 응답 데이터:', JSON.stringify(responses, null, 2));
       }
     }
     
@@ -2390,18 +2422,71 @@ function processDiagnosis(requestData) {
       category: false
     };
     
-    // 🔥 중복 저장 방지: 진단 ID 존재 여부 확인
-    console.log('🔍 V22.4 중복 저장 방지 - 진단 ID 존재 여부 확인:', diagnosisId);
+    // 🔥 V22.5 강화된 중복 저장 방지: 진단 ID 존재 여부 확인
+    console.log('🔍 V22.5 강화된 중복 저장 방지 - 진단 ID 존재 여부 확인:', diagnosisId);
+    
+    // 🚨 V22.5 동시 요청 방지: 임시 잠금 메커니즘
+    const lockKey = `PROCESSING_${diagnosisId}`;
+    const lockSheet = spreadsheet.getSheetByName('처리중_임시잠금') || spreadsheet.insertSheet('처리중_임시잠금');
+    
+    // 현재 처리 중인지 확인
+    const lockRange = lockSheet.getRange('A:B');
+    const lockValues = lockRange.getValues();
+    const currentTime = new Date().getTime();
+    
+    for (let i = 0; i < lockValues.length; i++) {
+      if (lockValues[i][0] === lockKey) {
+        const lockTime = new Date(lockValues[i][1]).getTime();
+        
+        // 5분 이내 잠금이면 대기
+        if (currentTime - lockTime < 300000) {
+          console.log('⏰ V22.5 동시 처리 방지: 다른 요청이 처리 중입니다. 잠시 대기...');
+          Utilities.sleep(2000); // 2초 대기
+          
+          // 대기 후 기존 데이터 확인
+          const existingData = queryDiagnosisById({ diagnosisId: diagnosisId });
+          if (existingData && existingData.success) {
+            console.log('✅ V22.5 대기 후 기존 데이터 반환');
+            return existingData;
+          }
+        } else {
+          // 오래된 잠금 제거
+          lockSheet.deleteRow(i + 1);
+        }
+        break;
+      }
+    }
+    
+    // 새 잠금 설정
+    lockSheet.appendRow([lockKey, new Date().toISOString()]);
+    
     const existingCheck = verifyDiagnosisId({ diagnosisId: diagnosisId });
     
     if (existingCheck && existingCheck.exists) {
-      console.log('⚠️ V22.4 중복 저장 방지: 이미 존재하는 진단 ID입니다:', diagnosisId);
+      console.log('⚠️ V22.5 중복 저장 방지: 이미 존재하는 진단 ID입니다:', diagnosisId);
       
-      // 기존 데이터 조회
+      // 기존 데이터 조회 및 점수 검증
       const existingData = queryDiagnosisById({ diagnosisId: diagnosisId });
-      if (existingData && existingData.success) {
-        console.log('✅ V22.4 기존 데이터 반환 (중복 저장 방지)');
-        return existingData;
+      if (existingData && existingData.success && existingData.data) {
+        const existingScore = Number(existingData.data.totalScore) || 0;
+        
+        // 기존 데이터에 유효한 점수가 있으면 반환 (0점 데이터 방지)
+        if (existingScore > 0) {
+          console.log('✅ V22.5 기존 유효 데이터 반환 (중복 저장 방지):', existingScore);
+          
+          // 잠금 해제
+          const lockValues = lockSheet.getRange('A:B').getValues();
+          for (let i = 0; i < lockValues.length; i++) {
+            if (lockValues[i][0] === lockKey) {
+              lockSheet.deleteRow(i + 1);
+              break;
+            }
+          }
+          
+          return existingData;
+        } else {
+          console.log('⚠️ V22.5 기존 데이터가 0점 - 새로운 데이터로 덮어쓰기 진행');
+        }
       }
     }
 
@@ -2516,11 +2601,47 @@ function processDiagnosis(requestData) {
       version: finalConfig ? finalConfig.VERSION : 'V22.2'
     };
     
+    // 🔓 V22.5 처리 완료 후 잠금 해제
+    try {
+      const lockKey = `PROCESSING_${diagnosisId}`;
+      const lockSheet = spreadsheet.getSheetByName('처리중_임시잠금');
+      if (lockSheet) {
+        const lockValues = lockSheet.getRange('A:B').getValues();
+        for (let i = 0; i < lockValues.length; i++) {
+          if (lockValues[i][0] === lockKey) {
+            lockSheet.deleteRow(i + 1);
+            console.log('🔓 V22.5 처리 완료 후 잠금 해제 성공');
+            break;
+          }
+        }
+      }
+    } catch (unlockError) {
+      console.warn('⚠️ V22.5 잠금 해제 실패 (무시):', unlockError.message);
+    }
+    
     console.log(`✅ AI 역량진단 처리 완료 (ID: ${diagnosisId})`);
     return result;
     
   } catch (error) {
     console.error('❌ AI 역량진단 처리 실패:', error);
+    
+    // 🔓 V22.5 오류 발생 시에도 잠금 해제
+    try {
+      const lockKey = `PROCESSING_${diagnosisId}`;
+      const lockSheet = spreadsheet.getSheetByName('처리중_임시잠금');
+      if (lockSheet) {
+        const lockValues = lockSheet.getRange('A:B').getValues();
+        for (let i = 0; i < lockValues.length; i++) {
+          if (lockValues[i][0] === lockKey) {
+            lockSheet.deleteRow(i + 1);
+            console.log('🔓 V22.5 오류 발생 시 잠금 해제 성공');
+            break;
+          }
+        }
+      }
+    } catch (unlockError) {
+      console.warn('⚠️ V22.5 오류 시 잠금 해제 실패 (무시):', unlockError.message);
+    }
     
     const errorConfig = getEnvironmentConfig();
     return {
@@ -2528,7 +2649,7 @@ function processDiagnosis(requestData) {
       error: error.message || '알 수 없는 오류가 발생했습니다',
       diagnosisId: diagnosisId,
       timestamp: new Date().toISOString(),
-      version: errorConfig ? errorConfig.VERSION : 'V22.1',
+      version: errorConfig ? errorConfig.VERSION : 'V22.5',
       errorType: error.name || 'UnknownError'
     };
   }

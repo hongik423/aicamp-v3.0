@@ -457,14 +457,14 @@ export class EnhancedReportStorageV24 {
         <div class="slide" id="slide${slideNum}">
             <div class="slide-header">
                 <h1 class="slide-title">📊 ${category.name} 상세 분석</h1>
-                <p class="slide-subtitle">실제 점수: ${category.score}/45점</p>
+                <p class="slide-subtitle">실제 점수: ${category.score}/5점</p>
             </div>
             
             <div class="premium-card">
                 <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 ${category.name} 평가 결과</h3>
                 <div style="background: #e6fffa; padding: 20px; border-radius: 12px;">
                     <p style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">
-                        실제 점수: ${category.score}/45점 (${Math.round((category.score / 45) * 100)}%)
+                        실제 점수: ${category.score}/5점 (${Math.round((category.score / 5) * 100)}%)
                     </p>
                     <p style="color: #4a5568; margin-top: 10px;">
                         ${category.name} 영역에서의 상세한 분석 결과입니다.

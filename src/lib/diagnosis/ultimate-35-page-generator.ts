@@ -448,14 +448,14 @@ export class Ultimate35PageGenerator {
         <div class="slide" id="slide3">
             <div class="slide-header">
                 <h1 class="slide-title">🏢 비즈니스 기반 상세 분석</h1>
-                <p class="slide-subtitle">실제 점수: ${categoryScores.businessFoundation}/45점</p>
+                <p class="slide-subtitle">실제 점수: ${Math.round(categoryScores.businessFoundation * 8)}/40점</p>
             </div>
 
             <div class="premium-card">
                 <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 비즈니스 기반 평가 결과</h3>
                 <div style="background: #e6fffa; padding: 20px; border-radius: 12px;">
                     <p style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">
-                        실제 점수: ${categoryScores.businessFoundation}/45점 (${businessFoundationPercentage}%)
+                        실제 점수: ${Math.round(categoryScores.businessFoundation * 8)}/40점 (${businessFoundationPercentage}%) - 평균 ${categoryScores.businessFoundation.toFixed(1)}점
                     </p>
                     <p style="color: #4a5568; margin-top: 10px;">
                         비즈니스 기반 영역에서의 상세한 분석 결과입니다.
@@ -478,14 +478,14 @@ export class Ultimate35PageGenerator {
         <div class="slide" id="slide4">
             <div class="slide-header">
                 <h1 class="slide-title">🤖 현재 AI 활용 상세 분석</h1>
-                <p class="slide-subtitle">실제 점수: ${categoryScores.currentAI}/45점</p>
+                <p class="slide-subtitle">실제 점수: ${Math.round(categoryScores.currentAI * 8)}/40점</p>
             </div>
 
             <div class="premium-card">
                 <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 현재 AI 활용 평가 결과</h3>
                 <div style="background: #e6fffa; padding: 20px; border-radius: 12px;">
                     <p style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">
-                        실제 점수: ${categoryScores.currentAI}/45점 (${currentAIPercentage}%)
+                        실제 점수: ${Math.round(categoryScores.currentAI * 8)}/40점 (${currentAIPercentage}%) - 평균 ${categoryScores.currentAI.toFixed(1)}점
                     </p>
                     <p style="color: #4a5568; margin-top: 10px;">
                         현재 AI 활용 영역에서의 상세한 분석 결과입니다.
@@ -508,14 +508,14 @@ export class Ultimate35PageGenerator {
         <div class="slide" id="slide5">
             <div class="slide-header">
                 <h1 class="slide-title">🏗️ 조직 준비도 상세 분석</h1>
-                <p class="slide-subtitle">실제 점수: ${categoryScores.organizationReadiness}/45점</p>
+                <p class="slide-subtitle">실제 점수: ${Math.round(categoryScores.organizationReadiness * 8)}/40점</p>
             </div>
 
             <div class="premium-card">
                 <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 조직 준비도 평가 결과</h3>
                 <div style="background: #e6fffa; padding: 20px; border-radius: 12px;">
                     <p style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">
-                        실제 점수: ${categoryScores.organizationReadiness}/45점 (${organizationReadinessPercentage}%)
+                        실제 점수: ${Math.round(categoryScores.organizationReadiness * 8)}/40점 (${organizationReadinessPercentage}%) - 평균 ${categoryScores.organizationReadiness.toFixed(1)}점
                     </p>
                     <p style="color: #4a5568; margin-top: 10px;">
                         조직 준비도 영역에서의 상세한 분석 결과입니다.
@@ -538,14 +538,14 @@ export class Ultimate35PageGenerator {
         <div class="slide" id="slide6">
             <div class="slide-header">
                 <h1 class="slide-title">🔧 기술 인프라 상세 분석</h1>
-                <p class="slide-subtitle">실제 점수: ${categoryScores.technologyInfrastructure}/45점</p>
+                <p class="slide-subtitle">실제 점수: ${Math.round(categoryScores.technologyInfrastructure * 8)}/40점</p>
             </div>
 
             <div class="premium-card">
                 <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 기술 인프라 평가 결과</h3>
                 <div style="background: #e6fffa; padding: 20px; border-radius: 12px;">
                     <p style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">
-                        실제 점수: ${categoryScores.technologyInfrastructure}/45점 (${techInfrastructurePercentage}%)
+                        실제 점수: ${Math.round(categoryScores.technologyInfrastructure * 8)}/40점 (${techInfrastructurePercentage}%) - 평균 ${categoryScores.technologyInfrastructure.toFixed(1)}점
                     </p>
                     <p style="color: #4a5568; margin-top: 10px;">
                         기술 인프라 영역에서의 상세한 분석 결과입니다.
@@ -568,14 +568,14 @@ export class Ultimate35PageGenerator {
         <div class="slide" id="slide7">
             <div class="slide-header">
                 <h1 class="slide-title">📊 데이터 관리 상세 분석</h1>
-                <p class="slide-subtitle">실제 점수: ${categoryScores.dataManagement}/45점</p>
+                <p class="slide-subtitle">실제 점수: ${Math.round(categoryScores.dataManagement * 8)}/40점</p>
             </div>
 
             <div class="premium-card">
                 <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 데이터 관리 평가 결과</h3>
                 <div style="background: #e6fffa; padding: 20px; border-radius: 12px;">
                     <p style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">
-                        실제 점수: ${categoryScores.dataManagement}/45점 (${dataManagementPercentage}%)
+                        실제 점수: ${Math.round(categoryScores.dataManagement * 8)}/40점 (${dataManagementPercentage}%) - 평균 ${categoryScores.dataManagement.toFixed(1)}점
                     </p>
                     <p style="color: #4a5568; margin-top: 10px;">
                         데이터 관리 영역에서의 상세한 분석 결과입니다.
@@ -598,14 +598,14 @@ export class Ultimate35PageGenerator {
         <div class="slide" id="slide8">
             <div class="slide-header">
                 <h1 class="slide-title">👥 인적 자원 상세 분석</h1>
-                <p class="slide-subtitle">실제 점수: ${categoryScores.humanResources}/45점</p>
+                <p class="slide-subtitle">실제 점수: ${Math.round(categoryScores.humanResources * 5)}/25점</p>
             </div>
 
             <div class="premium-card">
                 <h3 style="color: #2d3748; margin-bottom: 20px;">🎯 인적 자원 평가 결과</h3>
                 <div style="background: #e6fffa; padding: 20px; border-radius: 12px;">
                     <p style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">
-                        실제 점수: ${categoryScores.humanResources}/45점 (${humanResourcesPercentage}%)
+                        실제 점수: ${Math.round(categoryScores.humanResources * 5)}/25점 (${humanResourcesPercentage}%) - 평균 ${categoryScores.humanResources.toFixed(1)}점
                     </p>
                     <p style="color: #4a5568; margin-top: 10px;">
                         인적 자원 영역에서의 상세한 분석 결과입니다.
