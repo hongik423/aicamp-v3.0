@@ -136,6 +136,8 @@ async function processLocalDiagnosisData(data: DiagnosisRequest) {
  * 로컬 점수 계산 함수 (GAS와 동일한 로직)
  */
 function calculateLocalScores(responses: Record<string, number>) {
+  console.log('🔍 로컬 점수 계산 시작 - 응답 데이터:', responses);
+  
   // 카테고리별 문항 매핑
   const categoryMapping = {
     businessFoundation: [1, 2, 3, 4, 5, 6, 7, 8],
@@ -155,7 +157,14 @@ function calculateLocalScores(responses: Record<string, number>) {
     let validQuestions = 0;
     
     questionIds.forEach(questionNum => {
-      const score = Number(responses[`question_${questionNum}`] || responses[questionNum] || 0);
+      // 다양한 응답 필드명 패턴 지원 (q1, q2, ... / question_1, question_2, ... / 1, 2, ...)
+      const score = Number(
+        responses[`q${questionNum}`] || 
+        responses[`question_${questionNum}`] || 
+        responses[questionNum] || 
+        responses[`Q${questionNum}`] ||
+        0
+      );
       if (score >= 1 && score <= 5) {
         categorySum += score;
         validQuestions++;
@@ -187,13 +196,16 @@ function calculateLocalScores(responses: Record<string, number>) {
   else if (percentage >= 60) maturityLevel = 'AI 관심기업';
   else if (percentage >= 50) maturityLevel = 'AI 준비기업';
   
-  return {
+  const result = {
     totalScore,
     percentage,
     grade,
     maturityLevel,
     categoryScores
   };
+  
+  console.log('✅ 로컬 점수 계산 완료:', result);
+  return result;
 }
 
 /**
@@ -208,8 +220,29 @@ async function callGASDirectly(data: DiagnosisRequest) {
     const random = Math.random().toString(36).substring(2, 11);
     const diagnosisId = data.diagnosisId || `DIAG_45Q_AI_${timestamp}_${random}`;
     
-    // 응답 데이터 준비
-    const responses = data.responses || data.assessmentResponses || {};
+    // 응답 데이터 통합 처리 - 다양한 필드명 패턴 지원
+    let responses = {};
+    
+    // 1순위: responses 필드
+    if (data.responses && Object.keys(data.responses).length > 0) {
+      responses = data.responses;
+    }
+    // 2순위: assessmentResponses 필드
+    else if (data.assessmentResponses && Object.keys(data.assessmentResponses).length > 0) {
+      responses = data.assessmentResponses;
+    }
+    // 3순위: answers 필드
+    else if (data.answers && Object.keys(data.answers).length > 0) {
+      responses = data.answers;
+    }
+    
+    console.log('🔍 응답 데이터 통합 결과:', {
+      originalResponses: data.responses,
+      originalAssessmentResponses: data.assessmentResponses,
+      originalAnswers: data.answers,
+      unifiedResponses: responses,
+      responseCount: Object.keys(responses).length
+    });
     
     // 🚨 사실기반 1원칙: 응답 데이터가 없으면 오류 반환
     if (Object.keys(responses).length === 0) {
@@ -246,11 +279,11 @@ async function callGASDirectly(data: DiagnosisRequest) {
       responses: responses,
       assessmentResponses: responses,
       firstFewResponses: {
-        question_1: responses.question_1,
-        question_2: responses.question_2,
-        question_3: responses.question_3,
-        question_44: responses.question_44,
-        question_45: responses.question_45
+        q1: (responses as any).q1,
+        q2: (responses as any).q2,
+        q3: (responses as any).q3,
+        q44: (responses as any).q44,
+        q45: (responses as any).q45
       }
     });
     
