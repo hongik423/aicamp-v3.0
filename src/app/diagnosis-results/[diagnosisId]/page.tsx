@@ -141,37 +141,54 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
               // 🔥 24페이지 보고서 직접 생성
               const { McKinsey24PageGenerator } = await import('../../../lib/diagnosis/mckinsey-24-page-generator');
               
-              // 🔥 실제 GAS 데이터 구조에 맞춘 정확한 매핑
+              // 🔥 실제 GAS 데이터 구조에 맞춘 정확한 매핑 (강화)
               const diagnosisData = {
                 diagnosisId: gasResult.data.diagnosisId || diagnosisId,
                 companyInfo: {
-                  name: gasResult.data.companyName || gasResult.data.담당자명 || '기업명',
+                  name: gasResult.data.companyName || gasResult.data.담당자명 || gasResult.data.contactName || '기업명',
                   industry: gasResult.data.industry || gasResult.data.업종 || 'IT/소프트웨어',
                   size: gasResult.data.employeeCount || gasResult.data.직원수 || '중소기업',
                   position: gasResult.data.position || gasResult.data.직책 || '담당자',
                   location: gasResult.data.location || gasResult.data.소재지 || '서울'
                 },
-                responses: gasResult.data.responses || gasResult.data.assessmentResponses || gasResult.data.응답데이터 || {},
+                responses: gasResult.data.responses || gasResult.data.assessmentResponses || gasResult.data.응답데이터 || gasResult.data.questionResponses || {},
                 scores: {
-                  total: gasResult.data.totalScore || gasResult.data.총점 || 0,
-                  percentage: gasResult.data.percentage || gasResult.data.백분율 || 0,
+                  total: gasResult.data.totalScore || gasResult.data.총점 || gasResult.data.total || 0,
+                  percentage: gasResult.data.percentage || gasResult.data.백분율 || gasResult.data.percent || 0,
                   categoryScores: {
-                    businessFoundation: gasResult.data.categoryScores?.businessFoundation || gasResult.data.categoryScores?.비즈니스기반 || 0,
-                    currentAI: gasResult.data.categoryScores?.currentAI || gasResult.data.categoryScores?.현재AI활용 || 0,
-                    organizationReadiness: gasResult.data.categoryScores?.organizationReadiness || gasResult.data.categoryScores?.조직준비도 || 0,
-                    technologyInfrastructure: gasResult.data.categoryScores?.techInfrastructure || gasResult.data.categoryScores?.기술인프라 || 0,
-                    dataManagement: gasResult.data.categoryScores?.goalClarity || gasResult.data.categoryScores?.목표명확성 || 0,
-                    humanResources: gasResult.data.categoryScores?.executionCapability || gasResult.data.categoryScores?.실행역량 || 0
+                    businessFoundation: gasResult.data.categoryScores?.businessFoundation || gasResult.data.categoryScores?.비즈니스기반 || gasResult.data.businessFoundation || 0,
+                    currentAI: gasResult.data.categoryScores?.currentAI || gasResult.data.categoryScores?.현재AI활용 || gasResult.data.currentAI || 0,
+                    organizationReadiness: gasResult.data.categoryScores?.organizationReadiness || gasResult.data.categoryScores?.조직준비도 || gasResult.data.organizationReadiness || 0,
+                    technologyInfrastructure: gasResult.data.categoryScores?.techInfrastructure || gasResult.data.categoryScores?.기술인프라 || gasResult.data.techInfrastructure || 0,
+                    dataManagement: gasResult.data.categoryScores?.goalClarity || gasResult.data.categoryScores?.목표명확성 || gasResult.data.dataManagement || 0,
+                    humanResources: gasResult.data.categoryScores?.executionCapability || gasResult.data.categoryScores?.실행역량 || gasResult.data.humanResources || 0
                   }
                 },
-                timestamp: gasResult.data.timestamp || gasResult.data.진단일시 || new Date().toISOString(),
-                grade: gasResult.data.grade || gasResult.data.등급 || 'C',
-                maturityLevel: gasResult.data.maturityLevel || gasResult.data.성숙도단계 || 'AI 준비기업',
+                timestamp: gasResult.data.timestamp || gasResult.data.진단일시 || gasResult.data.createdAt || new Date().toISOString(),
+                grade: gasResult.data.grade || gasResult.data.등급 || gasResult.data.rank || 'C',
+                maturityLevel: gasResult.data.maturityLevel || gasResult.data.성숙도단계 || gasResult.data.level || 'AI 준비기업',
                 isVirtualData: false
               };
               
               console.log('🔍 GAS에서 받은 원본 데이터:', gasResult.data);
+              console.log('🔍 GAS 데이터 키 목록:', Object.keys(gasResult.data));
               console.log('🧹 매핑된 진단 데이터:', diagnosisData);
+              
+              // 🔥 데이터 매핑 검증
+              console.log('🔍 데이터 매핑 검증:', {
+                회사명: {
+                  원본: gasResult.data.companyName || gasResult.data.담당자명 || gasResult.data.contactName,
+                  매핑: diagnosisData.companyInfo.name
+                },
+                총점: {
+                  원본: gasResult.data.totalScore || gasResult.data.총점 || gasResult.data.total,
+                  매핑: diagnosisData.scores.total
+                },
+                응답데이터: {
+                  원본키: Object.keys(gasResult.data.responses || gasResult.data.assessmentResponses || gasResult.data.응답데이터 || gasResult.data.questionResponses || {}),
+                  매핑키: Object.keys(diagnosisData.responses)
+                }
+              });
               
               // 24페이지 보고서 생성
               const htmlReport = McKinsey24PageGenerator.generateMcKinsey24PageReport(diagnosisData);
