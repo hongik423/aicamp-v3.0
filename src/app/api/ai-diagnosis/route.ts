@@ -417,9 +417,9 @@ export async function POST(request: NextRequest) {
         로컬처리: localSuccess ? '✅ 성공' : '❌ 실패',
         처리시간: `${processingTime}ms`,
         GAS오류: gasResult.status === 'rejected' ? (gasResult.reason as Error)?.message : 
-                gasResult.status === 'fulfilled' && !gasResult.value?.success ? (gasResult.value as any)?.error : null,
+                gasResult.status === 'fulfilled' && !(gasResult.value as any)?.success ? (gasResult.value as any)?.error : null,
         로컬오류: localResult.status === 'rejected' ? (localResult.reason as Error)?.message : 
-                 localResult.status === 'fulfilled' && !localResult.value?.success ? (localResult.value as any)?.error : null
+                 localResult.status === 'fulfilled' && !(localResult.value as any)?.success ? (localResult.value as any)?.error : null
       });
       
       // 스마트 결과 선택 로직 (로컬 우선 → GAS 백업 → 장애 복구)
