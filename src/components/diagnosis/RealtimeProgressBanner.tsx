@@ -65,9 +65,10 @@ export default function RealtimeProgressBanner({
   onComplete,
   onError,
   onClose,
-  autoHideOnComplete = false, // 🔧 자동 숨김 비활성화 - 사용자가 수동으로 닫을 때까지 유지
-  autoHideDelay = 0 // 완료 후에도 자동으로 사라지지 않음
+  autoHideOnComplete = true, // 🔧 자동 숨김 활성화 - 10초 후 자동 사라짐
+  autoHideDelay = 10000 // 10초 후 자동으로 사라짐
 }: RealtimeProgressBannerProps) {
+  const [countdown, setCountdown] = useState<number>(10); // 🔥 10초 카운트다운
   const [progressState, setProgressState] = useState<DiagnosisProgressState | null>(null);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -113,11 +114,53 @@ export default function RealtimeProgressBanner({
     }
   }, [isVisible, diagnosisId, companyName, handleProgressUpdate]);
 
-  // 자동 숨김 처리 - 완전히 비활성화하여 지속 표시
+  // 🔥 10초 자동 사라짐 및 보고서 조회화면 연결
   useEffect(() => {
-    // autoHideOnComplete가 false이므로 자동 숨김 처리하지 않음
-    // 사용자가 수동으로 닫을 때까지 배너가 지속적으로 표시됨
-  }, [progressState?.isCompleted, autoHideOnComplete, autoHideDelay, onClose]);
+    if (autoHideOnComplete && progressState?.isCompleted && !hasError) {
+      // 카운트다운 시작
+      const countdownTimer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownTimer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      // 10초 후 자동 실행
+      const autoHideTimer = setTimeout(() => {
+        // 10초 후 자동으로 배너 숨김
+        if (onClose) {
+          onClose();
+        }
+        
+        // 보고서 조회화면으로 자동 연결
+        if (diagnosisId) {
+          const cleanDiagnosisId = diagnosisId.replace(/\s+/g, '');
+          const reportUrl = `/diagnosis-results/${cleanDiagnosisId}`;
+          
+          console.log('🚀 10초 후 자동 연결:', {
+            진단ID: diagnosisId,
+            공백제거ID: cleanDiagnosisId,
+            연결URL: reportUrl,
+            상태: '자동 연결 시작'
+          });
+          
+          // 새 탭에서 보고서 조회화면 열기
+          window.open(reportUrl, '_blank');
+          
+          // 또는 현재 탭에서 이동 (선택사항)
+          // window.location.href = reportUrl;
+        }
+      }, autoHideDelay);
+      
+      return () => {
+        clearInterval(countdownTimer);
+        clearTimeout(autoHideTimer);
+      };
+    }
+  }, [progressState?.isCompleted, hasError, autoHideOnComplete, autoHideDelay, onClose, diagnosisId]);
 
   // 진행 상태가 없으면 렌더링하지 않음
   if (!isVisible || !progressState) return null;
@@ -275,7 +318,7 @@ export default function RealtimeProgressBanner({
               })}
             </div>
 
-            {/* 완료 메시지 - 24시간 대기 강조 */}
+            {/* 완료 메시지 - 10초 후 자동 연결 안내 */}
             {progressState.isCompleted && !hasError && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -295,8 +338,27 @@ export default function RealtimeProgressBanner({
                     <p className="text-sm text-green-700 mb-2">
                       신청서 제출 시 이미 개인정보 동의를 완료하셨습니다. 이제 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.
                     </p>
-                    <div className="text-xs text-green-600 bg-green-100 p-2 rounded">
+                    <div className="text-xs text-green-600 bg-green-100 p-2 rounded mb-2">
                       <strong>📧 다음 단계:</strong> 24시간 내에 상세한 AI 역량진단보고서가 이메일로 발송됩니다.
+                    </div>
+                    <div className="text-xs text-blue-600 bg-blue-100 p-2 rounded mb-2">
+                      <strong>🚀 자동 연결:</strong> <span className="font-bold text-red-600">{countdown}</span>초 후 보고서 조회화면으로 자동 연결됩니다.
+                    </div>
+                    <div className="flex justify-center">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          if (diagnosisId) {
+                            const cleanDiagnosisId = diagnosisId.replace(/\s+/g, '');
+                            const reportUrl = `/diagnosis-results/${cleanDiagnosisId}`;
+                            window.open(reportUrl, '_blank');
+                          }
+                        }}
+                        className="text-xs bg-white hover:bg-blue-50"
+                      >
+                        🔗 지금 바로 보고서 조회하기
+                      </Button>
                     </div>
                   </div>
                 </div>
