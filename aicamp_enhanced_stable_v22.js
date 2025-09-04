@@ -2653,6 +2653,9 @@ function processDiagnosis(requestData) {
     // 🔥 V22.5 강화된 중복 저장 방지: 진단 ID 존재 여부 확인
     console.log('🔍 V22.5 강화된 중복 저장 방지 - 진단 ID 존재 여부 확인:', diagnosisId);
     
+    // SpreadsheetApp 접근을 위해 먼저 스프레드시트 객체 생성
+    const spreadsheet = SpreadsheetApp.openById(debugConfig.SPREADSHEET_ID);
+    
     // 🚨 V22.5 동시 요청 방지: 임시 잠금 메커니즘
     const lockKey = `PROCESSING_${diagnosisId}`;
     const lockSheet = spreadsheet.getSheetByName('처리중_임시잠금') || spreadsheet.insertSheet('처리중_임시잠금');
@@ -2883,7 +2886,8 @@ function processDiagnosis(requestData) {
     // 🔓 V22.5 처리 완료 후 잠금 해제
     try {
       const lockKey = `PROCESSING_${diagnosisId}`;
-      const lockSheet = spreadsheet.getSheetByName('처리중_임시잠금');
+      const unlockSpreadsheet = SpreadsheetApp.openById(debugConfig.SPREADSHEET_ID);
+      const lockSheet = unlockSpreadsheet.getSheetByName('처리중_임시잠금');
       if (lockSheet) {
         const lockValues = lockSheet.getRange('A:B').getValues();
         for (let i = 0; i < lockValues.length; i++) {
@@ -2907,7 +2911,8 @@ function processDiagnosis(requestData) {
     // 🔓 V22.5 오류 발생 시에도 잠금 해제
     try {
       const lockKey = `PROCESSING_${diagnosisId}`;
-      const lockSheet = spreadsheet.getSheetByName('처리중_임시잠금');
+      const errorUnlockSpreadsheet = SpreadsheetApp.openById(debugConfig.SPREADSHEET_ID);
+      const lockSheet = errorUnlockSpreadsheet.getSheetByName('처리중_임시잠금');
       if (lockSheet) {
         const lockValues = lockSheet.getRange('A:B').getValues();
         for (let i = 0; i < lockValues.length; i++) {
