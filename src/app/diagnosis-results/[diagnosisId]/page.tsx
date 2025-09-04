@@ -179,9 +179,6 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
             } else {
               throw new Error(gasResult.error || 'GAS에서 진단 데이터를 찾을 수 없습니다.');
             }
-          } else {
-            throw new Error(`GAS 데이터 조회 실패: ${gasResponse.status} ${gasResponse.statusText}`);
-          }
           
         } catch (error: any) {
           console.error('❌ 보고서 로드 실패:', error);
