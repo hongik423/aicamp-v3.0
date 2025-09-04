@@ -90,23 +90,45 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           
           console.log('📋 보고서 로드 시작:', diagnosisId);
           
-          // 🔥 24페이지 통일: GAS에서 직접 데이터 조회 후 로컬에서 24페이지 보고서 생성
-          const gasResponse = await fetch(`${process.env.NEXT_PUBLIC_GAS_URL}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              type: 'query_diagnosis',
-              diagnosisId: diagnosisId
-            }),
-            signal: AbortSignal.timeout(60000) // 1분 타임아웃
-          });
+          // 🔥 병렬식 즉시 조회: 로컬 캐시 우선 → GAS 조회 → 24페이지 보고서 생성
+          let gasResult = null;
           
-          if (gasResponse.ok) {
-            const gasResult = await gasResponse.json();
+          // 1순위: 로컬 캐시에서 즉시 조회 (병렬 처리 결과)
+          const cacheKey = `aicamp_diagnosis_${diagnosisId}`;
+          const cachedData = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
+          
+          if (cachedData) {
+            try {
+              const parsedCache = JSON.parse(cachedData);
+              console.log('⚡ 로컬 캐시에서 즉시 조회 성공:', diagnosisId);
+              gasResult = { success: true, data: parsedCache };
+            } catch (cacheError) {
+              console.warn('⚠️ 캐시 파싱 오류, GAS 조회로 진행');
+            }
+          }
+          
+          // 2순위: GAS에서 실시간 조회
+          if (!gasResult) {
+            const gasResponse = await fetch(`${process.env.NEXT_PUBLIC_GAS_URL}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'query_diagnosis',
+                diagnosisId: diagnosisId
+              }),
+              signal: AbortSignal.timeout(60000) // 1분 타임아웃
+            });
             
-            if (gasResult.success && gasResult.data) {
+            if (gasResponse.ok) {
+              gasResult = await gasResponse.json();
+            } else {
+              throw new Error(`GAS 데이터 조회 실패: ${gasResponse.status} ${gasResponse.statusText}`);
+            }
+          }
+          
+          if (gasResult && gasResult.success && gasResult.data) {
               console.log('✅ GAS에서 데이터 조회 성공:', diagnosisId);
               
               // 🔥 24페이지 보고서 직접 생성
