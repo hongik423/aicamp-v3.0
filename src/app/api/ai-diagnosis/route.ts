@@ -409,8 +409,8 @@ export async function POST(request: NextRequest) {
       const processingTime = Date.now() - processingStartTime;
       
       // 병렬 처리 결과 상세 분석
-      const gasSuccess = gasResult.status === 'fulfilled' && gasResult.value?.success;
-      const localSuccess = localResult.status === 'fulfilled' && localResult.value?.success;
+      const gasSuccess = gasResult.status === 'fulfilled' && (gasResult.value as any)?.success;
+      const localSuccess = localResult.status === 'fulfilled' && (localResult.value as any)?.success;
       
       console.log('📊 V22.6 병렬 처리 완료 결과:', {
         GAS저장: gasSuccess ? '✅ 성공' : '❌ 실패',
