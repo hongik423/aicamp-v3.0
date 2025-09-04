@@ -3394,21 +3394,10 @@ function doGet(e) {
       corsEnabled: true
     };
     
+    // GAS에서는 setHeaders 메서드가 없으므로 기본 응답만 반환
     return ContentService
       .createTextOutput(JSON.stringify(status, null, 2))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-        'Access-Control-Max-Age': '86400',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'X-XSS-Protection': '1; mode=block'
-      });
+      .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
     console.error('❌ 웹앱 GET 요청 처리 실패:', error);
@@ -3419,18 +3408,10 @@ function doGet(e) {
       timestamp: new Date().toISOString()
     };
     
+    // GAS에서는 setHeaders 메서드가 없으므로 기본 응답만 반환
     return ContentService
       .createTextOutput(JSON.stringify(errorResponse))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-        'Access-Control-Max-Age': '86400',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      });
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
