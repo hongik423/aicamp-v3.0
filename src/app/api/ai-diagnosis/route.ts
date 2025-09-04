@@ -1,5 +1,5 @@
 /**
- * 🔥 V22.4 AI 역량진단 API - 사실기반 GAS 직접 연결
+ * 🔥 V22.4 AI 역량진단 API - 사실기반 GAS 직접 연결 (FORCE UPDATE 2025.09.04)
  */
 
 import { NextRequest, NextResponse } from 'next/server';

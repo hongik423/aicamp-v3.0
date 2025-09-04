@@ -1,3 +1,4 @@
+// FORCE UPDATE 2025.09.04 - Google Drive API 수정
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
