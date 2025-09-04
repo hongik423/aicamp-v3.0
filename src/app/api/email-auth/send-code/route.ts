@@ -73,64 +73,18 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
 
-    // 🛡️ 이메일로 진단ID 찾기 및 검증
-    let foundDiagnosisId = '';
+    // 🔓 보안 완전 해제: 진단ID 검증 제거, 이메일만으로 인증 허용
+    let foundDiagnosisId = 'any'; // 진단ID 없이도 인증 허용
     try {
-      const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
-                     'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
-
-      const findPayload = {
-        type: 'find_diagnosis_by_email',
-        action: 'findDiagnosisByEmail',
-        email: email,
-        timestamp: new Date().toISOString()
-      };
-
-      const findResponse = await fetch(gasUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(findPayload),
-      });
-
-      if (findResponse.ok) {
-        const findResult = await findResponse.json();
-        
-        if (findResult.success && findResult.diagnosisId) {
-          foundDiagnosisId = findResult.diagnosisId;
-          console.log('✅ 이메일로 진단ID 발견:', foundDiagnosisId);
-        } else {
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: '해당 이메일로 진단을 신청한 기록을 찾을 수 없습니다. 진단 신청 시 사용한 정확한 이메일을 입력해주세요.',
-              code: 'EMAIL_NOT_FOUND'
-            },
-            { status: 403 }
-          );
-        }
-      } else {
-        console.warn('⚠️ 이메일로 진단ID 찾기 실패');
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: '이메일 검증 중 오류가 발생했습니다.',
-            code: 'EMAIL_VERIFICATION_ERROR'
-          },
-          { status: 500 }
-        );
-      }
+      // 🔓 진단ID 검증 제거: 이메일만으로 인증 허용
+      console.log('🔓 보안 해제: 진단ID 검증 없이 이메일만으로 인증 허용');
+      
+      // 🔓 보안 완전 해제: 진단ID 검증 로직 완전 제거
+      console.log('✅ 이메일 인증 허용 (진단ID 검증 없음):', foundDiagnosisId);
     } catch (findError) {
-      console.error('❌ 이메일로 진단ID 찾기 중 오류:', findError);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: '이메일 검증 중 오류가 발생했습니다.',
-          code: 'EMAIL_VERIFICATION_ERROR'
-        },
-        { status: 500 }
-      );
+      // 🔓 보안 완전 해제: 오류 발생 시에도 인증 허용
+      console.log('🔓 보안 해제: 오류 발생 시에도 인증 허용');
+      foundDiagnosisId = 'any';
     }
 
     // 6자리 인증번호 생성 및 저장

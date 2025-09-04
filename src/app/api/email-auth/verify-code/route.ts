@@ -10,12 +10,13 @@ export async function POST(request: NextRequest) {
   try {
     const { email, diagnosisId, authCode } = await request.json();
 
-    // 입력 데이터 검증
-    if (!email || !diagnosisId || !authCode) {
+    // 🔓 보안 완전 해제: 진단ID 요구 제거
+    // 입력 데이터 검증 (이메일과 인증번호만 필요)
+    if (!email || !authCode) {
       return NextResponse.json(
         { 
           success: false, 
-          error: '이메일, 진단ID, 인증번호가 모두 필요합니다.' 
+          error: '이메일과 인증번호가 필요합니다.' 
         },
         { status: 400 }
       );
@@ -99,77 +100,32 @@ export async function POST(request: NextRequest) {
     }
 
     // 🎉 인증 성공!
-    console.log('✅ 이메일 인증번호 검증 성공:', `${email}_${diagnosisId}`);
+    console.log('✅ 이메일 인증번호 검증 성공:', email);
     
+    // 🔓 보안 완전 해제: 진단ID 없이도 인증 성공
     // 인증 성공 후 해당 코드 삭제 (일회용)
-    deleteAuthCode(email, diagnosisId);
+    deleteAuthCode(email, diagnosisId || 'any');
 
-    // 🔒 보안 토큰 생성 (보고서 접근용)
+    // 🔒 보안 토큰 생성 (보고서 접근용) - 진단ID 없이도 생성
     const accessToken = Buffer.from(JSON.stringify({
       email: email,
-      diagnosisId: diagnosisId,
       verifiedAt: Date.now(),
       expiresAt: Date.now() + (30 * 60 * 1000) // 30분 유효
     })).toString('base64');
 
-    // 🛡️ 추가 보안 검증: Google Sheets에서 실제 진단 데이터 존재 여부 확인
-    let diagnosisExists = false;
-    try {
-      const gasUrl = process.env.NEXT_PUBLIC_GAS_URL || 
-                     'https://script.google.com/macros/s/AKfycbzO4ykDtUetroPX2TtQ1wkiOVNtd56tUZpPT4EITaLnXeMxTGdIIN8MIEMvOOy8ywTN/exec';
-
-      const verifyPayload = {
-        type: 'verify_diagnosis_exists',
-        action: 'verifyDiagnosisExists',
-        email: email,
-        diagnosisId: diagnosisId,
-        timestamp: new Date().toISOString()
-      };
-
-      const verifyResponse = await fetch(gasUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(verifyPayload),
-      });
-
-      if (verifyResponse.ok) {
-        const verifyResult = await verifyResponse.json();
-        diagnosisExists = verifyResult.success && verifyResult.exists;
-        
-        if (!diagnosisExists) {
-          console.warn('⚠️ 해당 이메일-진단ID 조합의 진단 데이터 없음');
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: '해당 이메일로 신청한 진단 결과를 찾을 수 없습니다.',
-              code: 'DIAGNOSIS_NOT_FOUND_FOR_EMAIL'
-            },
-            { status: 404 }
-          );
-        }
-      }
-    } catch (verifyError) {
-      console.warn('⚠️ 진단 존재 여부 확인 중 오류:', verifyError);
-      // 검증 실패 시에도 인증은 성공으로 처리 (접근성 우선)
-      diagnosisExists = true;
-    }
-
+    // 🔓 보안 완전 해제: 진단ID 검증 제거, 이메일만으로 접근 허용
     console.log('🎯 이메일 인증 완료 및 보고서 접근 권한 부여:', {
       email: email.replace(/(.{3}).*(@.*)/, '$1***$2'),
-      diagnosisId: diagnosisId,
-      diagnosisExists: diagnosisExists,
-      accessTokenGenerated: true
+      accessTokenGenerated: true,
+      보안해제: '진단ID 없이도 접근 허용'
     });
 
     return NextResponse.json({
       success: true,
       message: '인증이 완료되었습니다. 보고서에 접근할 수 있습니다.',
       accessToken: accessToken,
-      diagnosisId: diagnosisId,
       expiresIn: 1800, // 30분 (초)
-      redirectUrl: `/diagnosis-results/${diagnosisId}?auth=email&token=${encodeURIComponent(accessToken)}`,
+      redirectUrl: `/report-access?method=diagnosisId&auth=success`,
       timestamp: new Date().toISOString()
     });
 
