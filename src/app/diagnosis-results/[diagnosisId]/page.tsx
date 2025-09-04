@@ -36,8 +36,11 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
         const resolvedParams = await params;
         const id = resolvedParams.diagnosisId;
         if (id) {
-          setDiagnosisId(id);
-          console.log('📋 URL에서 받은 진단ID:', id);
+          // 🚨 진단ID 공백 제거 (GAS 매칭을 위해)
+          const cleanId = id.replace(/\s+/g, '');
+          setDiagnosisId(cleanId);
+          console.log('📋 URL에서 받은 진단ID (원본):', id);
+          console.log('🧹 공백 제거된 진단ID:', cleanId);
         }
       } catch (error) {
         console.error('❌ 파라미터 로드 실패:', error);
@@ -93,8 +96,9 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           // 🔥 병렬식 즉시 조회: 로컬 캐시 우선 → GAS 조회 → 24페이지 보고서 생성
           let gasResult = null;
           
-          // 1순위: 로컬 캐시에서 즉시 조회 (병렬 처리 결과)
-          const cacheKey = `aicamp_diagnosis_${diagnosisId}`;
+          // 1순위: 로컬 캐시에서 즉시 조회 (병렬 처리 결과, 공백 제거된 진단ID 사용)
+          const cleanDiagnosisId = diagnosisId.replace(/\s+/g, '');
+          const cacheKey = `aicamp_diagnosis_${cleanDiagnosisId}`;
           const cachedData = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
           
           if (cachedData) {
@@ -107,8 +111,11 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
             }
           }
           
-          // 2순위: GAS에서 실시간 조회
+          // 2순위: GAS에서 실시간 조회 (공백 제거된 진단ID 사용)
           if (!gasResult) {
+            const cleanDiagnosisId = diagnosisId.replace(/\s+/g, '');
+            console.log('🔍 GAS 조회 시 사용할 진단ID (공백제거):', cleanDiagnosisId);
+            
             const gasResponse = await fetch(`${process.env.NEXT_PUBLIC_GAS_URL}`, {
               method: 'POST',
               headers: {
@@ -116,7 +123,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
               },
               body: JSON.stringify({
                 type: 'query_diagnosis',
-                diagnosisId: diagnosisId
+                diagnosisId: cleanDiagnosisId
               }),
               signal: AbortSignal.timeout(60000) // 1분 타임아웃
             });
@@ -173,8 +180,8 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                 dataSource: 'GAS 직접 조회'
               });
               
-              // 최근 조회한 진단ID 저장
-              DiagnosisAccessController.saveRecentDiagnosisId(diagnosisId);
+              // 최근 조회한 진단ID 저장 (공백 제거된 버전)
+              DiagnosisAccessController.saveRecentDiagnosisId(cleanDiagnosisId);
               
             } else {
               throw new Error(gasResult.error || 'GAS에서 진단 데이터를 찾을 수 없습니다.');

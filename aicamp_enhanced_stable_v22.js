@@ -107,6 +107,51 @@ try {
 // ================================================================================
 
 /**
+ * 중복 진단 방지: 동일 이메일로 이미 진단이 완료된 경우 기존 ID 반환
+ */
+function checkExistingDiagnosis(userEmail) {
+  try {
+    if (!userEmail) return null;
+    
+    const config = getEnvironmentConfig();
+    const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    const mainSheet = spreadsheet.getSheetByName(config.MAIN_SHEET_NAME);
+    
+    if (!mainSheet) return null;
+    
+    const lastRow = mainSheet.getLastRow();
+    if (lastRow <= 1) return null;
+    
+    // 이메일 컬럼에서 동일 이메일 검색 (컬럼 인덱스 2)
+    const dataRange = mainSheet.getRange(2, 3, lastRow - 1, 1); // 3번째 컬럼 = 이메일
+    const emailValues = dataRange.getValues();
+    
+    for (let i = 0; i < emailValues.length; i++) {
+      const storedEmail = String(emailValues[i][0]).trim().toLowerCase();
+      if (storedEmail === userEmail.toLowerCase()) {
+        // 해당 행의 진단ID 반환 (1번째 컬럼)
+        const diagnosisIdCell = mainSheet.getRange(i + 2, 1);
+        const existingDiagnosisId = String(diagnosisIdCell.getValue()).trim();
+        
+        if (existingDiagnosisId && existingDiagnosisId.startsWith('DIAG_')) {
+          console.log('✅ 기존 사용자 진단 발견:', {
+            email: userEmail,
+            existingDiagnosisId: existingDiagnosisId,
+            row: i + 2
+          });
+          return { diagnosisId: existingDiagnosisId, row: i + 2 };
+        }
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('❌ 기존 진단 확인 중 오류:', error);
+    return null;
+  }
+}
+
+/**
  * 환경 설정 조회 (기본값 적용) - 안전한 버전
  */
 function getEnvironmentConfig() {
@@ -2489,17 +2534,30 @@ function processDiagnosis(requestData) {
     
     console.log(`✅ 45개 문항 모두 유효하게 응답됨`);
     
-    // 🚨 V22.2 진단 ID 생성 로직 통일 및 개선
+    // 🚨 V22.2 진단 ID 생성 로직 통일 및 개선 (중복 방지 강화)
     try {
+      // 중복 제출 방지: 동일 이메일로 이미 진단이 완료된 경우 기존 ID 재사용
+      const userEmail = requestData.email || requestData.userEmail || requestData.contactEmail;
+      if (userEmail) {
+        const existingDiagnosis = checkExistingDiagnosis(userEmail);
+        if (existingDiagnosis && existingDiagnosis.diagnosisId) {
+          diagnosisId = existingDiagnosis.diagnosisId;
+          console.log('✅ 기존 사용자 진단 ID 재사용 (중복 방지):', diagnosisId);
+          requestData.diagnosisId = diagnosisId;
+          // 🔓 중복 방지: 기존 ID 사용 시 즉시 반환하지 않고 계속 진행
+          console.log('🔓 중복 방지: 기존 ID 사용하지만 전체 프로세스 계속 진행');
+        }
+      }
+      
       if (!requestData.diagnosisId) {
         // V22.3 통일된 진단 ID 형식: DIAG_45Q_AI_[timestamp]_[random] (프론트엔드와 일치)
         const timestamp = Date.now();
-        const randomSuffix = Math.random().toString(36).substring(2, 11).toLowerCase();
+        const randomSuffix = Math.random().toString(36).substring(2, 11).toLowerCase().replace(/\s+/g, '');
         diagnosisId = `DIAG_45Q_AI_${timestamp}_${randomSuffix}`;
-        console.log('✅ V22.3 통일된 진단 ID 생성 (AI 포함):', diagnosisId);
+        console.log('✅ V22.3 통일된 진단 ID 생성 (AI 포함, 공백제거):', diagnosisId);
       } else {
         // 기존 진단 ID가 있으면 형식 검증 및 통일
-        const existingId = String(requestData.diagnosisId).trim();
+        const existingId = String(requestData.diagnosisId).trim().replace(/\s+/g, '');
         if (existingId.length >= 10 && existingId.startsWith('DIAG_')) {
                   // 모든 진단 ID를 DIAG_45Q_AI_ 형식으로 통일
         if (existingId.startsWith('DIAG_45Q_AI_')) {
@@ -2526,9 +2584,9 @@ function processDiagnosis(requestData) {
         } else {
           // 기존 ID가 유효하지 않으면 새로 생성
           const timestamp = Date.now();
-          const randomSuffix = Math.random().toString(36).substring(2, 11).toLowerCase();
+          const randomSuffix = Math.random().toString(36).substring(2, 11).toLowerCase().replace(/\s+/g, '');
           diagnosisId = `DIAG_45Q_AI_${timestamp}_${randomSuffix}`;
-          console.log('⚠️ 기존 진단 ID 형식 오류, 새로 생성 (AI 포함):', diagnosisId);
+          console.log('⚠️ 기존 진단 ID 형식 오류, 새로 생성 (AI 포함, 공백제거):', diagnosisId);
         }
       }
       requestData.diagnosisId = diagnosisId;
@@ -2546,7 +2604,7 @@ function processDiagnosis(requestData) {
       const timestamp = Date.now();
       diagnosisId = `DIAG_45Q_AI_${timestamp}_SAFE`;
       requestData.diagnosisId = diagnosisId;
-      console.warn('⚠️ 진단 ID 생성 오류, 안전한 기본 ID 사용 (AI 포함):', diagnosisId);
+      console.warn('⚠️ 진단 ID 생성 오류, 안전한 기본 ID 사용 (AI 포함, 공백제거):', diagnosisId);
     }
     
     // 2단계: 45문항 점수 계산 (프론트엔드에서 계산된 점수 우선 사용)
@@ -3653,61 +3711,65 @@ function queryDiagnosisById(requestData) {
       throw new Error('진단 데이터가 없습니다.');
     }
     
-    // V22.2 진단 ID로 데이터 검색 (강화된 매칭 로직)
+    // V22.2 진단 ID로 데이터 검색 (강화된 매칭 로직 + 공백 제거)
     const dataRange = mainSheet.getRange(2, 1, lastRow - 1, mainSheet.getLastColumn());
     const values = dataRange.getValues();
     
     let foundRow = null;
     let matchAttempts = 0;
     
-    console.log(`🔍 V22.3 진단 ID 검색 시작: ${diagnosisId}`);
+    // 🚨 진단ID 공백 제거 (매칭을 위해)
+    const cleanDiagnosisId = diagnosisId.replace(/\s+/g, '');
+    
+    console.log(`🔍 V22.3 진단 ID 검색 시작 (원본): ${diagnosisId}`);
+    console.log(`🧹 공백 제거된 진단 ID: ${cleanDiagnosisId}`);
     console.log(`📊 검색 대상 행 수: ${values.length}`);
     
-    // V22.7 강화된 매칭 로직 - 더 유연하고 정확한 검색
+    // V22.7 강화된 매칭 로직 - 더 유연하고 정확한 검색 (공백 제거 버전)
     for (let i = 0; i < values.length; i++) {
-      const storedId = String(values[i][0]).trim();
+      const storedId = String(values[i][0]).trim().replace(/\s+/g, '');
       matchAttempts++;
       
-      // 1. 정확한 매칭 (대소문자 구분 없이)
-      const exactMatch = storedId.toLowerCase() === diagnosisId.toLowerCase();
+      // 1. 정확한 매칭 (대소문자 구분 없이, 공백 제거)
+      const exactMatch = storedId.toLowerCase() === cleanDiagnosisId.toLowerCase();
       
       // 2. 강화된 형식 변환 매칭 - 모든 가능한 형식 시도
       let convertedMatch = false;
       
-      // 기본 ID 추출 (prefix 제거) - 더 포괄적인 패턴
+      // 기본 ID 추출 (prefix 제거) - 더 포괄적인 패턴 (공백 제거 버전)
       const storedBaseId = storedId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_|^FD-|^CUSTOM_/, '');
-      const searchBaseId = diagnosisId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_|^FD-|^CUSTOM_/, '');
+      const searchBaseId = cleanDiagnosisId.replace(/^DIAG_45Q_AI_|^DIAG_45Q_|^DIAG_AI_|^DIAG_|^FD-|^CUSTOM_/, '');
       
       // 기본 ID가 같으면 매칭 성공
       if (storedBaseId && searchBaseId && storedBaseId.toLowerCase() === searchBaseId.toLowerCase()) {
         convertedMatch = true;
         console.log('✅ V22.3 기본 ID 매칭 성공:', {
           stored: storedId,
-          search: diagnosisId,
+          search: cleanDiagnosisId,
           storedBase: storedBaseId,
           searchBase: searchBaseId
         });
       }
       
-      // 3. 부분 매칭 (타임스탬프 부분만 비교)
+      // 3. 부분 매칭 (타임스탬프 부분만 비교, 공백 제거 버전)
       let partialMatch = false;
       const timestampPattern = /\d{13,}/; // 13자리 이상의 숫자 (타임스탬프)
       const storedTimestamp = storedId.match(timestampPattern);
-      const searchTimestamp = diagnosisId.match(timestampPattern);
+      const searchTimestamp = cleanDiagnosisId.match(timestampPattern);
       
       if (storedTimestamp && searchTimestamp && storedTimestamp[0] === searchTimestamp[0]) {
         partialMatch = true;
         console.log('✅ V22.3 타임스탬프 매칭 성공:', {
           stored: storedId,
-          search: diagnosisId,
+          search: cleanDiagnosisId,
           timestamp: storedTimestamp[0]
         });
       }
       
-      // 4. 유사도 매칭 (80% 이상 일치)
+      // 4. 유사도 매칭 (80% 이상 일치, 공백 제거 버전)
       let similarityMatch = false;
-      if (storedId.length > 10 && diagnosisId.length > 10) {
-        const similarity = calculateSimilarity(storedId, diagnosisId);
+      if (storedId.length > 10 && cleanDiagnosisId.length > 10) {
+        const similarity = calculateSimilarity(storedId, cleanDiagnosisId);
         similarityMatch = similarity >= 0.8;
       }
       
@@ -3720,14 +3782,14 @@ function queryDiagnosisById(requestData) {
           foundRow = values[i];
           console.log(`✅ V22.3 메인 시트에서 진단 데이터 발견 (행 ${i + 2}):`, {
             storedId: storedId,
-            searchId: diagnosisId,
+            searchId: cleanDiagnosisId,
             matchType: exactMatch ? 'exact_case_insensitive' : 
                        convertedMatch ? 'converted_format_match' :
                        partialMatch ? 'timestamp_partial_match' : 'similarity_match',
             rowIndex: i + 2,
             totalScore: totalScore,
             hasValidScore: hasValidScore,
-            similarity: similarityMatch ? calculateSimilarity(storedId, diagnosisId) : null,
+            similarity: similarityMatch ? calculateSimilarity(storedId, cleanDiagnosisId) : null,
             replacedPrevious: foundRow ? true : false
           });
         } else {
@@ -3745,17 +3807,17 @@ function queryDiagnosisById(requestData) {
         }
       }
       
-      // 디버깅을 위한 상세 로그 (처음 5개만)
+      // 디버깅을 위한 상세 로그 (처음 5개만, 공백 제거 버전)
       if (i < 5) {
         console.log(`🔍 V22.3 진단ID 비교 (행 ${i + 2}):`, {
           stored: storedId,
-          search: diagnosisId,
+          search: cleanDiagnosisId,
           exactMatch: exactMatch,
           convertedMatch: convertedMatch,
           partialMatch: partialMatch,
           similarityMatch: similarityMatch,
           storedLength: storedId.length,
-          searchLength: diagnosisId.length
+          searchLength: cleanDiagnosisId.length
         });
       }
     }
@@ -3763,11 +3825,11 @@ function queryDiagnosisById(requestData) {
     console.log(`🔍 V22.3 진단 ID 검색 완료:`, {
       totalAttempts: matchAttempts,
       found: !!foundRow,
-      searchTarget: diagnosisId
+      searchTarget: cleanDiagnosisId
     });
     
     if (!foundRow) {
-      console.log('❌ V22.3 해당 진단ID의 데이터를 찾을 수 없음:', diagnosisId);
+      console.log('❌ V22.3 해당 진단ID의 데이터를 찾을 수 없음:', cleanDiagnosisId);
       
       // V22.3 디버깅을 위한 실제 저장된 ID들 로그 (최근 10개)
       console.log('🔍 V22.3 최근 저장된 진단 ID들 (디버깅용):');
@@ -3778,7 +3840,7 @@ function queryDiagnosisById(requestData) {
           
           // 검색 대상과의 유사도도 표시
           if (storedId.length > 10) {
-            const similarity = calculateSimilarity(storedId, diagnosisId);
+            const similarity = calculateSimilarity(storedId, cleanDiagnosisId);
             console.log(`    유사도: ${Math.round(similarity * 100)}%`);
           }
         }
@@ -3786,8 +3848,8 @@ function queryDiagnosisById(requestData) {
       
       // V22.3 디버깅을 위한 상세 로그
       console.log('🔍 V22.3 검색 실패 상세 정보:', {
-        searchTarget: diagnosisId,
-        searchTargetLength: diagnosisId.length,
+        searchTarget: cleanDiagnosisId,
+        searchTargetLength: cleanDiagnosisId.length,
         totalRows: values.length,
         mainSheetRows: lastRow,
         sampleStoredIds: values.slice(0, 10).map(row => String(row[0]).trim()),
