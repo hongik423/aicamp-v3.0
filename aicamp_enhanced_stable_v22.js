@@ -2534,9 +2534,9 @@ function processDiagnosis(requestData) {
     
     console.log(`✅ 45개 문항 모두 유효하게 응답됨`);
     
-    // 🚨 V22.2 진단 ID 생성 로직 통일 및 개선 (중복 방지 강화)
+    // 🚨 V22.8 진단 ID 생성 로직 완전 개선 (중복 방지 최강화)
     try {
-      // 중복 제출 방지: 동일 이메일로 이미 진단이 완료된 경우 기존 ID 재사용
+      // 🔥 중복 제출 완전 방지: 동일 이메일로 이미 진단이 완료된 경우 기존 ID 재사용
       const userEmail = requestData.email || requestData.userEmail || requestData.contactEmail;
       if (userEmail) {
         const existingDiagnosis = checkExistingDiagnosis(userEmail);
@@ -2544,8 +2544,15 @@ function processDiagnosis(requestData) {
           diagnosisId = existingDiagnosis.diagnosisId;
           console.log('✅ 기존 사용자 진단 ID 재사용 (중복 방지):', diagnosisId);
           requestData.diagnosisId = diagnosisId;
-          // 🔓 중복 방지: 기존 ID 사용 시 즉시 반환하지 않고 계속 진행
-          console.log('🔓 중복 방지: 기존 ID 사용하지만 전체 프로세스 계속 진행');
+          // 🔥 중복 제출 시 기존 데이터 업데이트만 수행하고 새 ID 생성 금지
+          console.log('🚫 중복 제출 감지: 새 진단ID 생성 금지, 기존 데이터 업데이트만 수행');
+          return {
+            success: true,
+            diagnosisId: diagnosisId,
+            message: '기존 진단 데이터가 업데이트되었습니다.',
+            isDuplicate: true,
+            existingData: existingDiagnosis
+          };
         }
       }
       

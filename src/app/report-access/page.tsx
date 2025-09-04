@@ -225,7 +225,7 @@ export default function ReportAccessPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // 진단ID 직접 접근
+  // 🔓 진단ID 직접 접근 - 보안 완전 해제
   const handleDiagnosisIdSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -234,16 +234,12 @@ export default function ReportAccessPage() {
       return;
     }
 
-    // 진단ID 형식 기본 검증
-    if (diagnosisId.length < 10) {
-      setError('유효하지 않은 진단ID 형식입니다.');
-      return;
-    }
-
-    console.log('✅ 진단ID 확인 - 바로 이동:', diagnosisId.trim());
+    // 🔓 보안 완전 해제: 진단ID만 있으면 즉시 접근 허용
+    console.log('🔓 보안 해제 - 진단ID만으로 즉시 접근:', diagnosisId.trim());
     
-    // 바로 보고서 페이지로 이동 - 단순하게!
-    router.push(`/diagnosis-results/${diagnosisId.trim()}`);
+    // 공백 제거 후 바로 보고서 페이지로 이동
+    const cleanDiagnosisId = diagnosisId.trim().replace(/\s+/g, '');
+    router.push(`/diagnosis-results/${cleanDiagnosisId}`);
   };
 
   return (
