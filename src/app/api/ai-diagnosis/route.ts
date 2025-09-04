@@ -6,6 +6,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { saveDiagnosisToGAS } from '@/lib/gas/gas-connector';
 import { ParallelSyncManager } from '@/lib/diagnosis/parallel-sync-manager';
 
+// Vercel 타임아웃 최적화 (60초)
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 interface DiagnosisRequest {
   companyName: string;
   contactName: string;
@@ -384,17 +388,23 @@ export async function POST(request: NextRequest) {
       
       const processingStartTime = Date.now();
       
-      // 병렬 처리: GAS 저장 + 로컬 보고서 엔진 동시 실행
-      const [gasResult, localResult] = await Promise.allSettled([
-        callGASDirectly(workflowRequest).catch(error => {
-          console.warn('⚠️ GAS 처리 중 오류 (병렬 처리 계속):', error.message);
-          return { success: false, error: error.message };
-        }),
-        processLocalDiagnosisData(workflowRequest).catch(error => {
-          console.warn('⚠️ 로컬 처리 중 오류 (병렬 처리 계속):', error.message);
-          return { success: false, error: error.message };
-        })
-      ]);
+          // 🚀 빠른 응답을 위한 최적화된 병렬 처리 (30초 타임아웃)
+    const [gasResult, localResult] = await Promise.allSettled([
+      Promise.race([
+        callGASDirectly(workflowRequest),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('GAS 호출 타임아웃 (30초)')), 30000))
+      ]).catch(error => {
+        console.warn('⚠️ GAS 처리 중 오류 (병렬 처리 계속):', error.message);
+        return { success: false, error: error.message };
+      }),
+      Promise.race([
+        processLocalDiagnosisData(workflowRequest),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('로컬 처리 타임아웃 (30초)')), 30000))
+      ]).catch(error => {
+        console.warn('⚠️ 로컬 처리 중 오류 (병렬 처리 계속):', error.message);
+        return { success: false, error: error.message };
+      })
+    ]);
       
       const processingTime = Date.now() - processingStartTime;
       

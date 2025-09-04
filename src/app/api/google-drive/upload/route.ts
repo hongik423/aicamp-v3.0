@@ -1,6 +1,10 @@
-// FORCE UPDATE 2025.09.04 - Google Drive API 수정
+// FORCE UPDATE 2025.09.04 - Google Drive API 수정 + 타임아웃 최적화
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
+
+// Vercel 타임아웃 최적화
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
 
 function getGoogleDriveClient() {
   // 환경변수 검증
