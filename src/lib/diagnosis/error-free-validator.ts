@@ -53,7 +53,7 @@ export class ErrorFreeValidator {
     },
     {
       stepId: 'report-generation',
-      stepName: '35페이지 보고서 생성',
+      stepName: '24페이지 보고서 생성',
       validationFunction: async () => await ErrorFreeValidator.validateReportGeneration(),
       requiredFields: ['htmlReport'],
       criticalChecks: ['HTML_VALID', 'PAGE_COUNT', 'CONTENT_COMPLETE'],
@@ -378,7 +378,7 @@ export class ErrorFreeValidator {
   }
 
   /**
-   * 35페이지 보고서 생성 검증
+   * 24페이지 보고서 생성 검증
    */
   private static async validateReportGeneration(): Promise<ValidationResult> {
     const { htmlReport, report_generation_result } = this.currentData;
@@ -403,12 +403,12 @@ export class ErrorFreeValidator {
       };
     }
 
-    // 35페이지 검증
+    // 24페이지 검증
     const slideCount = (report.match(/id="slide\d+"/g) || []).length;
-    if (slideCount < 35) {
+    if (slideCount < 24) {
       return {
         isValid: false,
-        errorMessage: `페이지 수 부족: ${slideCount}/35 페이지`,
+        errorMessage: `페이지 수 부족: ${slideCount}/24 페이지`,
         completionPercentage: 40,
         nextStepReady: false
       };
@@ -416,9 +416,9 @@ export class ErrorFreeValidator {
 
     // 필수 컨텐츠 검증
     const requiredContent = [
-      'totalSlides">35',
-      'V27.0 Ultimate',
-      'slide35',
+      'totalSlides">24',
+      'V22.7 AICAMP',
+      'slide24',
       'progress-fill',
       'presentation-controls'
     ];
@@ -437,7 +437,7 @@ export class ErrorFreeValidator {
     if (report.length < 50000) {
       return {
         isValid: false,
-        errorMessage: '보고서 크기가 너무 작습니다. 완전한 35페이지가 생성되지 않았을 수 있습니다.',
+        errorMessage: '보고서 크기가 너무 작습니다. 완전한 24페이지가 생성되지 않았을 수 있습니다.',
         completionPercentage: 85,
         nextStepReady: false
       };

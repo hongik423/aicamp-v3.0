@@ -90,33 +90,75 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
           
           console.log('📋 보고서 로드 시작:', diagnosisId);
           
-          // API 호출하여 보고서 생성
-          const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`, {
-            method: 'GET',
+          // 🔥 24페이지 통일: GAS에서 직접 데이터 조회 후 로컬에서 24페이지 보고서 생성
+          const gasResponse = await fetch(`${process.env.NEXT_PUBLIC_GAS_URL}`, {
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            signal: AbortSignal.timeout(300000) // 5분 타임아웃
+            body: JSON.stringify({
+              type: 'query_diagnosis',
+              diagnosisId: diagnosisId
+            }),
+            signal: AbortSignal.timeout(60000) // 1분 타임아웃
           });
           
-          if (response.ok) {
-            const result = await response.json();
+          if (gasResponse.ok) {
+            const gasResult = await gasResponse.json();
             
-            if (result.success && result.reportContent) {
-              console.log('✅ 보고서 로드 성공:', diagnosisId);
-              setReportContent(result.reportContent);
-              setReportInfo(result.reportInfo || {});
+            if (gasResult.success && gasResult.data) {
+              console.log('✅ GAS에서 데이터 조회 성공:', diagnosisId);
+              
+              // 🔥 24페이지 보고서 직접 생성
+              const { McKinsey24PageGenerator } = await import('../../../lib/diagnosis/mckinsey-24-page-generator');
+              
+              const diagnosisData = {
+                diagnosisId: gasResult.data.diagnosisId,
+                companyInfo: {
+                  name: gasResult.data.companyName || '기업명',
+                  industry: gasResult.data.industry || 'IT/소프트웨어',
+                  size: gasResult.data.employeeCount || '중소기업',
+                  position: gasResult.data.position || '담당자',
+                  location: gasResult.data.location || '서울'
+                },
+                responses: gasResult.data.responses || gasResult.data.assessmentResponses || {},
+                scores: {
+                  total: gasResult.data.totalScore || 0,
+                  percentage: gasResult.data.percentage || 0,
+                  categoryScores: {
+                    businessFoundation: gasResult.data.categoryScores?.businessFoundation || 0,
+                    currentAI: gasResult.data.categoryScores?.currentAI || 0,
+                    organizationReadiness: gasResult.data.categoryScores?.organizationReadiness || 0,
+                    technologyInfrastructure: gasResult.data.categoryScores?.techInfrastructure || 0,
+                    dataManagement: gasResult.data.categoryScores?.goalClarity || 0,
+                    humanResources: gasResult.data.categoryScores?.executionCapability || 0
+                  }
+                },
+                timestamp: gasResult.data.timestamp || new Date().toISOString(),
+                grade: gasResult.data.grade || 'C',
+                maturityLevel: gasResult.data.maturityLevel || 'AI 준비기업',
+                isVirtualData: false
+              };
+              
+              // 24페이지 보고서 생성
+              const htmlReport = McKinsey24PageGenerator.generateMcKinsey24PageReport(diagnosisData);
+              
+              setReportContent(htmlReport);
+              setReportInfo({
+                diagnosisId: diagnosisId,
+                pages: 24,
+                reportType: '24페이지 맥킨지급 보고서',
+                dataSource: 'GAS 직접 조회'
+              });
               
               // 최근 조회한 진단ID 저장
               DiagnosisAccessController.saveRecentDiagnosisId(diagnosisId);
               
             } else {
-              throw new Error(result.error || '보고서 내용을 찾을 수 없습니다.');
+              throw new Error(gasResult.error || 'GAS에서 진단 데이터를 찾을 수 없습니다.');
             }
-          } else if (response.status === 404) {
-            throw new Error('해당 진단ID의 보고서를 찾을 수 없습니다. 이메일로 받으신 정확한 진단ID를 확인해주세요.');
           } else {
-            throw new Error(`보고서 로드 실패: ${response.status} ${response.statusText}`);
+            throw new Error(`GAS 데이터 조회 실패: ${gasResponse.status} ${gasResponse.statusText}`);
           }
           
         } catch (error: any) {
@@ -402,7 +444,7 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
                     AI 역량진단 보고서
                   </CardTitle>
                   <CardDescription className="text-blue-100 mt-1">
-                    사실기반 35페이지 전문 분석 보고서
+                    사실기반 24페이지 전문 분석 보고서
                   </CardDescription>
                 </div>
                 <div className="text-right">
