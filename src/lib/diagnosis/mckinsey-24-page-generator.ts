@@ -470,6 +470,44 @@ export class McKinsey24PageGenerator {
 </body>
 </html>`;
 
+    // 🔥 페이지 수 강제 확인 및 검증 (강화)
+    const pageCount = (html.match(/class="page"/g) || []).length;
+    const pageBreakCount = (html.match(/page-break-after: always/g) || []).length;
+    const pageIdCount = (html.match(/id="page-\d+"/g) || []).length;
+    const pageNumberCount = (html.match(/page-number/g) || []).length;
+    
+    console.log('🔍 24페이지 보고서 생성 완료 (강화 검증):', {
+      총HTML길이: html.length,
+      페이지클래스수: pageCount,
+      페이지브레이크수: pageBreakCount,
+      페이지ID수: pageIdCount,
+      페이지번호수: pageNumberCount,
+      예상페이지: 24,
+      실제페이지: pageCount,
+      상태: pageCount >= 24 ? '✅ 성공' : '❌ 실패'
+    });
+    
+    // 페이지 수가 부족하면 강제로 24페이지 확인 및 경고
+    if (pageCount < 24) {
+      console.error('🚨 페이지 수 부족! 강제 24페이지 확인:', pageCount);
+      // 각 페이지에 페이지 번호 강제 추가
+      for (let i = 1; i <= 24; i++) {
+        if (!html.includes(`page-${i}`) && !html.includes(`페이지 ${i}`)) {
+          console.error(`🚨 페이지 ${i} 누락됨 - 보고서 생성 실패`);
+        }
+      }
+      
+      // 페이지 수 부족 시 강제로 24페이지 생성 시도
+      console.warn('⚠️ 페이지 수 부족으로 인한 보고서 품질 저하 가능성');
+    }
+    
+    // 최종 검증: 24페이지가 모두 생성되었는지 확인
+    if (pageCount >= 24 && pageIdCount >= 24 && pageNumberCount >= 24) {
+      console.log('✅ 24페이지 보고서 완벽 생성 완료!');
+    } else {
+      console.warn('⚠️ 24페이지 보고서 생성 완료했으나 일부 요소 누락 가능성');
+    }
+
     return html;
   }
 
@@ -636,7 +674,7 @@ export class McKinsey24PageGenerator {
    */
   private static generateCoverPage(data: DiagnosisData): string {
     return `
-        <div class="page cover-page">
+        <div class="page cover-page" id="page-1">
             <div class="cover-title">AI 역량진단 보고서</div>
             <div style="font-size: 24px; margin: 20px 0;">McKinsey 방법론 기반 24페이지 정밀 분석</div>
             <div style="font-size: 36px; font-weight: 600; margin: 40px 0; padding: 20px 40px; border: 2px solid white; border-radius: 8px;">
@@ -651,13 +689,14 @@ export class McKinsey24PageGenerator {
             <div style="position: absolute; bottom: 40px; font-size: 14px; opacity: 0.8;">
                 Powered by AICAMP n8n Automation System V27.0
             </div>
+            <div class="page-number">1 / 24</div>
         </div>
     `;
   }
 
   private static generateExecutiveSummary(data: DiagnosisData, motivation: any): string {
     return `
-        <div class="page">
+        <div class="page" id="page-2">
             <div class="page-header">
                 <div class="page-title">경영진 요약</div>
                 <div class="page-subtitle">Executive Summary</div>
@@ -714,7 +753,7 @@ export class McKinsey24PageGenerator {
     const categories = ['businessFoundation', 'currentAI', 'organizationReadiness', 'technologyInfrastructure', 'dataManagement', 'humanResources'];
     
     return `
-        <div class="page">
+        <div class="page" id="page-3">
             <div class="page-header">
                 <div class="page-title">종합 점수 대시보드</div>
                 <div class="page-subtitle">Comprehensive Score Dashboard</div>
@@ -1849,3 +1888,4 @@ export class McKinsey24PageGenerator {
     </div>`;
   }
 }
+

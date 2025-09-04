@@ -141,42 +141,72 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
               // 🔥 24페이지 보고서 직접 생성
               const { McKinsey24PageGenerator } = await import('../../../lib/diagnosis/mckinsey-24-page-generator');
               
+              // 🔥 실제 GAS 데이터 구조에 맞춘 정확한 매핑
               const diagnosisData = {
-                diagnosisId: gasResult.data.diagnosisId,
+                diagnosisId: gasResult.data.diagnosisId || diagnosisId,
                 companyInfo: {
-                  name: gasResult.data.companyName || '기업명',
-                  industry: gasResult.data.industry || 'IT/소프트웨어',
-                  size: gasResult.data.employeeCount || '중소기업',
-                  position: gasResult.data.position || '담당자',
-                  location: gasResult.data.location || '서울'
+                  name: gasResult.data.companyName || gasResult.data.담당자명 || '기업명',
+                  industry: gasResult.data.industry || gasResult.data.업종 || 'IT/소프트웨어',
+                  size: gasResult.data.employeeCount || gasResult.data.직원수 || '중소기업',
+                  position: gasResult.data.position || gasResult.data.직책 || '담당자',
+                  location: gasResult.data.location || gasResult.data.소재지 || '서울'
                 },
-                responses: gasResult.data.responses || gasResult.data.assessmentResponses || {},
+                responses: gasResult.data.responses || gasResult.data.assessmentResponses || gasResult.data.응답데이터 || {},
                 scores: {
-                  total: gasResult.data.totalScore || 0,
-                  percentage: gasResult.data.percentage || 0,
+                  total: gasResult.data.totalScore || gasResult.data.총점 || 0,
+                  percentage: gasResult.data.percentage || gasResult.data.백분율 || 0,
                   categoryScores: {
-                    businessFoundation: gasResult.data.categoryScores?.businessFoundation || 0,
-                    currentAI: gasResult.data.categoryScores?.currentAI || 0,
-                    organizationReadiness: gasResult.data.categoryScores?.organizationReadiness || 0,
-                    technologyInfrastructure: gasResult.data.categoryScores?.techInfrastructure || 0,
-                    dataManagement: gasResult.data.categoryScores?.goalClarity || 0,
-                    humanResources: gasResult.data.categoryScores?.executionCapability || 0
+                    businessFoundation: gasResult.data.categoryScores?.businessFoundation || gasResult.data.categoryScores?.비즈니스기반 || 0,
+                    currentAI: gasResult.data.categoryScores?.currentAI || gasResult.data.categoryScores?.현재AI활용 || 0,
+                    organizationReadiness: gasResult.data.categoryScores?.organizationReadiness || gasResult.data.categoryScores?.조직준비도 || 0,
+                    technologyInfrastructure: gasResult.data.categoryScores?.techInfrastructure || gasResult.data.categoryScores?.기술인프라 || 0,
+                    dataManagement: gasResult.data.categoryScores?.goalClarity || gasResult.data.categoryScores?.목표명확성 || 0,
+                    humanResources: gasResult.data.categoryScores?.executionCapability || gasResult.data.categoryScores?.실행역량 || 0
                   }
                 },
-                timestamp: gasResult.data.timestamp || new Date().toISOString(),
-                grade: gasResult.data.grade || 'C',
-                maturityLevel: gasResult.data.maturityLevel || 'AI 준비기업',
+                timestamp: gasResult.data.timestamp || gasResult.data.진단일시 || new Date().toISOString(),
+                grade: gasResult.data.grade || gasResult.data.등급 || 'C',
+                maturityLevel: gasResult.data.maturityLevel || gasResult.data.성숙도단계 || 'AI 준비기업',
                 isVirtualData: false
               };
+              
+              console.log('🔍 GAS에서 받은 원본 데이터:', gasResult.data);
+              console.log('🧹 매핑된 진단 데이터:', diagnosisData);
               
               // 24페이지 보고서 생성
               const htmlReport = McKinsey24PageGenerator.generateMcKinsey24PageReport(diagnosisData);
               
+              // 🔥 생성된 보고서 페이지 수 검증
+              const pageCount = (htmlReport.match(/class="page"/g) || []).length;
+              const pageIdCount = (htmlReport.match(/id="page-\d+"/g) || []).length;
+              const pageNumberCount = (htmlReport.match(/page-number/g) || []).length;
+              
+              console.log('🔍 생성된 보고서 검증:', {
+                진단ID: diagnosisId,
+                총HTML길이: htmlReport.length,
+                페이지클래스수: pageCount,
+                페이지ID수: pageIdCount,
+                페이지번호수: pageNumberCount,
+                예상페이지: 24,
+                실제페이지: pageCount,
+                상태: pageCount >= 24 ? '✅ 24페이지 성공' : '❌ 페이지 부족'
+              });
+              
+              // 페이지 수 부족 시 경고
+              if (pageCount < 24) {
+                console.error('🚨 24페이지 보고서 생성 실패! 실제 페이지 수:', pageCount);
+                toast({
+                  title: "⚠️ 보고서 생성 경고",
+                  description: `24페이지 중 ${pageCount}페이지만 생성되었습니다.`,
+                  variant: "destructive",
+                });
+              }
+              
               setReportContent(htmlReport);
               setReportInfo({
                 diagnosisId: diagnosisId,
-                pages: 24,
-                reportType: '24페이지 맥킨지급 보고서',
+                pages: pageCount, // 실제 생성된 페이지 수
+                reportType: pageCount >= 24 ? '24페이지 맥킨지급 보고서' : `${pageCount}페이지 맥킨지급 보고서`,
                 dataSource: 'GAS 직접 조회'
               });
               
