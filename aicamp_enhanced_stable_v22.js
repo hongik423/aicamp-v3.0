@@ -50,6 +50,59 @@
 console.log('🚀 V22.7 AICAMP 통합 시스템 - Google Drive 자동 저장 시스템 (2025.08.31 10:00) 로드 시작');
 
 // ================================================================================
+// 🛡️ GAS 환경 검증 시스템 (강화)
+// ================================================================================
+
+/**
+ * GAS 환경 검증 및 초기화
+ */
+function validateGASEnvironment() {
+  console.log('🔍 GAS 환경 검증 시작...');
+  
+  const environmentChecks = {
+    SpreadsheetApp: typeof SpreadsheetApp !== 'undefined',
+    PropertiesService: typeof PropertiesService !== 'undefined',
+    DriveApp: typeof DriveApp !== 'undefined',
+    GmailApp: typeof GmailApp !== 'undefined',
+    Logger: typeof Logger !== 'undefined',
+    console: typeof console !== 'undefined'
+  };
+  
+  console.log('📊 GAS 환경 검증 결과:', environmentChecks);
+  
+  // SpreadsheetApp 필수 검증
+  if (!environmentChecks.SpreadsheetApp) {
+    console.error('❌ SpreadsheetApp이 사용할 수 없습니다!');
+    console.error('📋 이 스크립트는 Google Apps Script 환경에서만 실행할 수 있습니다.');
+    throw new Error('SpreadsheetApp 사용 불가 - Google Apps Script 환경이 아닙니다');
+  }
+  
+  // 기타 서비스 검증
+  if (!environmentChecks.PropertiesService) {
+    console.warn('⚠️ PropertiesService를 사용할 수 없습니다. 기본 설정 사용');
+  }
+  
+  if (!environmentChecks.DriveApp) {
+    console.warn('⚠️ DriveApp을 사용할 수 없습니다. Google Drive 기능 제한');
+  }
+  
+  if (!environmentChecks.GmailApp) {
+    console.warn('⚠️ GmailApp을 사용할 수 없습니다. 이메일 발송 기능 제한');
+  }
+  
+  console.log('✅ GAS 환경 검증 완료');
+  return environmentChecks;
+}
+
+// 환경 검증 즉시 실행
+try {
+  validateGASEnvironment();
+} catch (error) {
+  console.error('❌ GAS 환경 검증 실패:', error.message);
+  // 환경 검증 실패 시에도 계속 진행 (기본 기능만 제한)
+}
+
+// ================================================================================
 // 🔧 환경 설정 관리 시스템 (확장)
 // ================================================================================
 
@@ -625,20 +678,37 @@ function saveToMainSheet(data, scoreData) {
       throw new Error('스프레드시트 ID가 설정되지 않았습니다');
     }
     
-    // SpreadsheetApp 사용 가능성 확인
+    // SpreadsheetApp 사용 가능성 확인 (강화)
     if (typeof SpreadsheetApp === 'undefined') {
       console.error('❌ SpreadsheetApp이 사용할 수 없습니다');
-      throw new Error('SpreadsheetApp 사용 불가');
+      console.error('📋 현재 실행 환경:', typeof global !== 'undefined' ? 'Node.js' : 'Unknown');
+      console.error('📋 SpreadsheetApp 타입:', typeof SpreadsheetApp);
+      throw new Error('SpreadsheetApp 사용 불가 - Google Apps Script 환경이 아닙니다');
+    }
+    
+    // SpreadsheetApp 메서드 사용 가능성 추가 검증
+    if (typeof SpreadsheetApp.openById !== 'function') {
+      console.error('❌ SpreadsheetApp.openById이 함수가 아닙니다');
+      console.error('📋 SpreadsheetApp.openById 타입:', typeof SpreadsheetApp.openById);
+      throw new Error('SpreadsheetApp.openById 메서드 사용 불가');
     }
     
     let spreadsheet;
     try {
       console.log('💾 스프레드시트 열기 시도:', config.SPREADSHEET_ID);
+      console.log('🔍 SpreadsheetApp 상태 확인:', {
+        isDefined: typeof SpreadsheetApp !== 'undefined',
+        openByIdType: typeof SpreadsheetApp.openById,
+        isFunction: typeof SpreadsheetApp.openById === 'function'
+      });
+      
       spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
       console.log('✅ 스프레드시트 열기 성공');
     } catch (sheetError) {
       console.error('❌ 스프레드시트 열기 실패:', sheetError);
       console.error('📄 스프레드시트 오류 스택:', sheetError.stack);
+      console.error('🔍 오류 타입:', typeof sheetError);
+      console.error('🔍 오류 메시지:', sheetError.message);
       throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
     }
     
@@ -1311,19 +1381,34 @@ function saveConsultationRequest(data) {
       throw new Error('스프레드시트 설정이 없습니다');
     }
     
-    // SpreadsheetApp 사용 가능성 확인
+    // SpreadsheetApp 사용 가능성 확인 (강화)
     if (typeof SpreadsheetApp === 'undefined') {
       console.error('❌ SpreadsheetApp이 사용할 수 없습니다');
-      throw new Error('SpreadsheetApp 사용 불가');
+      console.error('📋 현재 실행 환경:', typeof global !== 'undefined' ? 'Node.js' : 'Unknown');
+      throw new Error('SpreadsheetApp 사용 불가 - Google Apps Script 환경이 아닙니다');
+    }
+    
+    // SpreadsheetApp 메서드 사용 가능성 추가 검증
+    if (typeof SpreadsheetApp.openById !== 'function') {
+      console.error('❌ SpreadsheetApp.openById이 함수가 아닙니다');
+      throw new Error('SpreadsheetApp.openById 메서드 사용 불가');
     }
     
     let spreadsheet;
     try {
+      console.log('🔍 SpreadsheetApp 상태 확인:', {
+        isDefined: typeof SpreadsheetApp !== 'undefined',
+        openByIdType: typeof SpreadsheetApp.openById,
+        isFunction: typeof SpreadsheetApp.openById === 'function'
+      });
+      
       console.log('💾 상담신청 스프레드시트 열기 시도:', config.SPREADSHEET_ID);
       spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
       console.log('✅ 상담신청 스프레드시트 열기 성공');
     } catch (sheetError) {
       console.error('❌ 상담신청 스프레드시트 열기 실패:', sheetError);
+      console.error('🔍 오류 타입:', typeof sheetError);
+      console.error('🔍 오류 메시지:', sheetError.message);
       throw new Error(`스프레드시트 열기 실패: ${sheetError.message}`);
     }
     
@@ -4802,15 +4887,23 @@ function testDataSaveSystem() {
       CONSULTATION_SHEET_NAME: config?.CONSULTATION_SHEET_NAME
     };
     
-    // 2. SpreadsheetApp 사용 가능성 확인
+    // 2. SpreadsheetApp 사용 가능성 확인 (강화)
     testResults.results.spreadsheetApp = {
       available: typeof SpreadsheetApp !== 'undefined',
-      type: typeof SpreadsheetApp
+      type: typeof SpreadsheetApp,
+      openByIdAvailable: typeof SpreadsheetApp?.openById === 'function',
+      environment: typeof global !== 'undefined' ? 'Node.js' : 'GAS'
     };
     
-    // 3. 스프레드시트 접근 테스트
-    if (config && config.SPREADSHEET_ID && typeof SpreadsheetApp !== 'undefined') {
+    // 3. 스프레드시트 접근 테스트 (강화)
+    if (config && config.SPREADSHEET_ID && typeof SpreadsheetApp !== 'undefined' && typeof SpreadsheetApp.openById === 'function') {
       try {
+        console.log('🔍 SpreadsheetApp 상태 확인:', {
+          isDefined: typeof SpreadsheetApp !== 'undefined',
+          openByIdType: typeof SpreadsheetApp.openById,
+          isFunction: typeof SpreadsheetApp.openById === 'function'
+        });
+        
         const spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
         testResults.results.spreadsheetAccess = {
           success: true,
@@ -4818,15 +4911,28 @@ function testDataSaveSystem() {
           sheetsCount: spreadsheet.getSheets().length
         };
       } catch (accessError) {
+        console.error('❌ 스프레드시트 접근 테스트 실패:', accessError);
+        console.error('🔍 오류 타입:', typeof accessError);
+        console.error('🔍 오류 메시지:', accessError.message);
+        
         testResults.results.spreadsheetAccess = {
           success: false,
-          error: accessError.message
+          error: accessError.message,
+          errorType: typeof accessError,
+          stack: accessError.stack
         };
       }
     } else {
+      const missingRequirements = [];
+      if (!config) missingRequirements.push('config');
+      if (!config?.SPREADSHEET_ID) missingRequirements.push('SPREADSHEET_ID');
+      if (typeof SpreadsheetApp === 'undefined') missingRequirements.push('SpreadsheetApp');
+      if (typeof SpreadsheetApp?.openById !== 'function') missingRequirements.push('SpreadsheetApp.openById');
+      
       testResults.results.spreadsheetAccess = {
         success: false,
-        error: '스프레드시트 접근 조건 불충족'
+        error: '스프레드시트 접근 조건 불충족',
+        missingRequirements: missingRequirements
       };
     }
     
