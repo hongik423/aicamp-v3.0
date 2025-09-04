@@ -4,10 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { McKinsey24PageGenerator, DiagnosisData } from '@/lib/diagnosis/mckinsey-24-page-generator';
-import { queryDiagnosisFromGAS } from '@/lib/gas/gas-connector';
-import { getGasUrl } from '@/lib/config/env';
-import { ParallelSyncManager } from '@/lib/diagnosis/parallel-sync-manager';
+import { McKinsey24PageGenerator, DiagnosisData } from '../../../../lib/diagnosis/mckinsey-24-page-generator';
+import { queryDiagnosisFromGAS } from '../../../../lib/gas/gas-connector';
+import { getGasUrl } from '../../../../lib/config/env';
+import { ParallelSyncManager } from '../../../../lib/diagnosis/parallel-sync-manager';
 
 // 등급 계산 함수
 function calculateGrade(percentage: number): string {
