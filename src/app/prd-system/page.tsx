@@ -33,7 +33,8 @@ import {
   Globe,
   Lightbulb,
   Rocket,
-  Star
+  Star,
+  Search
 } from 'lucide-react';
 
 export default function PRDSystemPage() {
