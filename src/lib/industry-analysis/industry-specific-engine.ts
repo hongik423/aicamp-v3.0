@@ -69,7 +69,7 @@ export class IndustrySpecificEngine {
    * 업종별 AI 활용 사례 (완전 구현)
    */
   private static getIndustryAIUseCases(industry: IndustryType, employeeCount: EmployeeRange): AIUseCase[] {
-    const useCaseDatabase: Record<IndustryType, AIUseCase[]> = {
+    const useCaseDatabase: Partial<Record<IndustryType, AIUseCase[]>> = {
       [IndustryType.MANUFACTURING]: [
         {
           id: 'mfg_quality_control',
@@ -596,7 +596,7 @@ export class IndustrySpecificEngine {
    * 업종별 벤치마크 데이터
    */
   private static getIndustryBenchmarks(industry: IndustryType): BenchmarkMetrics {
-    const benchmarkDatabase: Record<IndustryType, BenchmarkMetrics> = {
+    const benchmarkDatabase: Partial<Record<IndustryType, BenchmarkMetrics>> = {
       [IndustryType.MANUFACTURING]: {
         industryAverage: 65,
         topQuartile: 82,
@@ -696,7 +696,7 @@ export class IndustrySpecificEngine {
    * 업종별 AI 도구 추천
    */
   private static getIndustryAITools(industry: IndustryType, scores: CalculatedScores): AIToolRecommendation[] {
-    const toolDatabase: Record<IndustryType, AIToolRecommendation[]> = {
+    const toolDatabase: Partial<Record<IndustryType, AIToolRecommendation[]>> = {
       [IndustryType.MANUFACTURING]: [
         {
           id: 'mfg_tool_1',
@@ -1041,7 +1041,7 @@ export class IndustrySpecificEngine {
    * 업종별 구현 우선순위
    */
   private static getIndustryPriorities(industry: IndustryType, scores: CalculatedScores): Priority[] {
-    const priorityDatabase: Record<IndustryType, Priority[]> = {
+    const priorityDatabase: Partial<Record<IndustryType, Priority[]>> = {
       [IndustryType.MANUFACTURING]: [
         {
           id: 'mfg_priority_1',
@@ -1246,12 +1246,12 @@ export class IndustrySpecificEngine {
     results: string[];
     timeline: string;
   }> {
-    const successStories: Record<IndustryType, Array<{
+    const successStories: Partial<Record<IndustryType, Array<{
       companyName: string;
       description: string;
       results: string[];
       timeline: string;
-    }>> = {
+    }>>> = {
       [IndustryType.MANUFACTURING]: [
         {
           companyName: '삼성전자',
@@ -1397,7 +1397,7 @@ export class IndustrySpecificEngine {
       expectedOutcome: string;
     }>;
   } {
-    const roadmaps: Record<IndustryType, any> = {
+    const roadmaps: Partial<Record<IndustryType, any>> = {
       [IndustryType.MANUFACTURING]: {
         phases: [
           {
@@ -1507,13 +1507,13 @@ export class IndustrySpecificEngine {
     probability: 'low' | 'medium' | 'high';
     mitigation: string[];
   }> {
-    const riskFactors: Record<IndustryType, Array<{
+    const riskFactors: Partial<Record<IndustryType, Array<{
       category: string;
       risk: string;
       impact: 'low' | 'medium' | 'high' | 'critical';
       probability: 'low' | 'medium' | 'high';
       mitigation: string[];
-    }>> = {
+    }>>> = {
       [IndustryType.MANUFACTURING]: [
         {
           category: '기술적 위험',
@@ -1581,13 +1581,13 @@ export class IndustrySpecificEngine {
     content: string[];
     target: string;
   }> {
-    const curriculums: Record<IndustryType, Array<{
+    const curriculums: Partial<Record<IndustryType, Array<{
       level: 'basic' | 'intermediate' | 'advanced';
       title: string;
       duration: string;
       content: string[];
       target: string;
-    }>> = {
+    }>>> = {
       [IndustryType.MANUFACTURING]: [
         {
           level: 'basic',
