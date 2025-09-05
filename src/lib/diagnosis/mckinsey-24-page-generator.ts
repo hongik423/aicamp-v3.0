@@ -212,120 +212,129 @@ export class McKinsey24PageGenerator {
     }
   };
 
-  // 6개 영역별 상세 평가 기준
+  // 6개 영역별 상세 평가 기준 (실제 45문항 기반)
   private static readonly CATEGORY_DETAILS = {
     businessFoundation: {
-      name: '비즈니스 기반',
+      name: '사업 기반',
       icon: '🏢',
       questions: [
-        'AI 비전 및 전략 수립 수준',
-        '경영진 AI 리더십',
-        'AI 투자 계획 및 예산',
-        'AI 거버넌스 체계',
-        '변화 관리 준비도',
-        'AI 성과 측정 체계',
-        'AI 리스크 관리'
+        '핵심 사업 모델과 수익 구조 명확성',
+        '경쟁 우위 차별화 요소',
+        '고객 니즈와 시장 변화 반영',
+        '성과(KPI) 측정·관리 체계',
+        '재무 건전성과 자금 운용',
+        '기업 전반적 안정성',
+        '향후 성장 잠재력과 확장 계획',
+        '브랜드 인지도/신뢰도'
       ],
       n8nSolutions: [
-        'KPI 대시보드 자동화',
-        '경영 보고서 자동 생성',
-        '시장 동향 자동 수집',
-        '경쟁사 분석 자동화'
+        '사업 성과 대시보드 자동화',
+        '경쟁사 분석 자동 수집',
+        '고객 피드백 실시간 분석',
+        'KPI 모니터링 자동화',
+        '재무 보고서 자동 생성'
       ]
     },
     currentAI: {
       name: '현재 AI 활용',
       icon: '🤖',
       questions: [
-        'AI 도구 활용 현황',
-        'AI 프로젝트 경험',
-        'AI 성과 및 효과',
-        'AI 활용 범위',
-        'AI 시스템 통합 수준',
-        'AI 모델 성능',
-        'AI 운영 체계'
+        'ChatGPT 등 생성형 AI 실무 활용',
+        '업무 전반 AI 도구 체계적 활용',
+        '생성형 AI 활용 가이드/정책',
+        '정기적인 AI 교육/학습 프로그램',
+        'AI/자동화 투자 계획과 우선순위',
+        'AI 도입 성과 KPI 측정/관리',
+        'AI 윤리/법규 준수 및 거버넌스',
+        'AI/데이터 품질 및 보안 관리'
       ],
       n8nSolutions: [
-        'ChatGPT API 통합',
-        'AI 모델 파이프라인',
-        '자동 학습 시스템',
-        'AI 성과 모니터링'
+        'ChatGPT API 자동화 워크플로우',
+        'AI 도구 통합 관리 시스템',
+        'AI 교육 프로그램 자동화',
+        'AI 성과 측정 대시보드',
+        'AI 거버넌스 자동 모니터링'
       ]
     },
     organizationReadiness: {
       name: '조직 준비도',
       icon: '👥',
       questions: [
-        '조직 문화 개방성',
-        '변화 수용성',
-        '협업 체계',
-        'AI 인식 수준',
-        '학습 문화',
-        '혁신 지원 체계',
-        '실패 허용 문화'
+        '조직의 디지털 전환 준비도',
+        '변화 관리 역량과 경험',
+        '조직문화 혁신/학습/공유 중심',
+        '리더십 AI 도입 지원',
+        '직원들의 AI 역량',
+        '교육/훈련 체계 운영',
+        '협업/지식공유 문화와 도구',
+        '실험/파일럿 장려 제도'
       ],
       n8nSolutions: [
-        '직원 피드백 자동 수집',
-        '교육 프로그램 관리',
-        '협업 도구 자동화',
-        '혁신 아이디어 관리'
+        '디지털 전환 진행도 자동 추적',
+        '변화 관리 프로세스 자동화',
+        '혁신 아이디어 수집 시스템',
+        'AI 교육 진도 관리 자동화',
+        '협업 도구 통합 관리'
       ]
     },
     technologyInfrastructure: {
       name: '기술 인프라',
       icon: '💻',
       questions: [
-        '클라우드 인프라',
-        '데이터 저장 체계',
-        'API 아키텍처',
-        '보안 시스템',
-        '모니터링 체계',
-        '개발 환경',
-        '시스템 통합성'
+        '클라우드/온프레미스 인프라',
+        '데이터 저장/관리 인프라',
+        '보안 시스템 구축',
+        '네트워크 성능/안정성',
+        'IT 시스템 현대화 수준',
+        'API 연동/통합 환경',
+        '모니터링/관리 도구',
+        '확장성/유연성 확보'
       ],
       n8nSolutions: [
-        '인프라 모니터링 자동화',
-        '보안 알림 시스템',
-        'API 상태 체크',
-        '백업 자동화'
+        '클라우드 인프라 자동 모니터링',
+        '데이터 백업/복구 자동화',
+        '보안 위협 탐지 자동화',
+        '네트워크 성능 최적화',
+        'API 상태 실시간 모니터링'
       ]
     },
     dataManagement: {
       name: '데이터 관리',
       icon: '📊',
       questions: [
-        '데이터 품질',
-        '데이터 거버넌스',
-        '데이터 수집 체계',
-        '데이터 분석 역량',
-        '데이터 보안',
-        '데이터 활용도',
-        '데이터 통합성'
+        '데이터 품질 관리 체계',
+        '데이터 거버넌스 정책',
+        '데이터 수집/저장 체계',
+        '데이터 분석/활용 역량',
+        '데이터 보안/개인정보 보호',
+        '데이터 활용도/가치 창출',
+        '데이터 통합/연동 수준',
+        '데이터 라이프사이클 관리'
       ],
       n8nSolutions: [
-        '데이터 파이프라인 자동화',
-        '데이터 품질 체크',
-        'ETL 프로세스 자동화',
-        '데이터 리포트 생성'
+        '데이터 품질 자동 검증',
+        '데이터 거버넌스 자동 모니터링',
+        '데이터 수집 파이프라인 자동화',
+        '데이터 분석 리포트 자동 생성',
+        '데이터 보안 위협 탐지 자동화'
       ]
     },
     humanResources: {
       name: '인적 자원',
       icon: '🎓',
       questions: [
-        'AI 전문 인력',
-        'AI 교육 수준',
-        'AI 역량 개발',
-        '외부 전문가 활용',
-        'AI 팀 구성',
-        '인재 확보 전략',
-        '역량 평가 체계'
+        'AI 전문 인력 보유',
+        'AI 교육/훈련 수준',
+        'AI 역량 개발 계획',
+        '외부 전문가/컨설팅 활용',
+        'AI 전담팀 구성'
       ],
       n8nSolutions: [
-        '교육 일정 자동화',
-        '역량 평가 시스템',
-        '인재 풀 관리',
-        '멘토링 매칭 시스템'
+        'AI 인재 채용 자동화',
+        '교육 프로그램 관리 시스템',
+        '역량 평가 자동화',
+        '전문가 매칭 플랫폼',
+        'AI 팀 성과 추적 시스템'
       ]
     }
   };
@@ -392,6 +401,10 @@ export class McKinsey24PageGenerator {
         responses[`question_${i}`] = 3; // 기본값 3점
       }
     }
+    
+    // 🔥 응답 데이터 검증 및 정규화
+    const validatedResponses = this.validateAndNormalizeResponses(responses);
+    data.responses = validatedResponses;
     
     // 🔥 업종별 고급 분석 통합
     const industryInsights = this.getAdvancedIndustryAnalysis(industry, data);
@@ -785,18 +798,22 @@ export class McKinsey24PageGenerator {
                     const detail = this.CATEGORY_DETAILS[cat];
                     const averageScore = data.scores.categoryScores[cat] || 0;
                     
-                    // 🔥 카테고리별 문항 수에 따른 총점 계산
+                    // 🔥 카테고리별 문항 수에 따른 총점 계산 (45문항 기준)
                     const questionCount = cat === 'humanResources' ? 5 : 8; // 실행역량만 5문항, 나머지는 8문항
                     const maxScore = questionCount * 5; // 문항수 × 5점
                     const totalScore = Math.round(averageScore * questionCount); // 평균점수 × 문항수 = 총점
                     const percentage = Math.round((averageScore / 5) * 100);
                     
+                    // 🔥 실제 응답 데이터 기반 점수 계산
+                    const actualScore = this.calculateCategoryScoreFromResponses(data.responses, cat);
+                    const actualPercentage = Math.round((actualScore / 5) * 100);
+                    
                     return `
-                        <div class="score-card score-${this.getScoreClass(percentage)}">
+                        <div class="score-card score-${this.getScoreClass(actualPercentage)}">
                             <div style="font-size: 48px;">${detail.icon}</div>
-                            <div class="score-value">${totalScore}/${maxScore}</div>
+                            <div class="score-value">${Math.round(actualScore * questionCount)}/${maxScore}</div>
                             <div style="font-weight: 600;">${detail.name}</div>
-                            <div style="color: #6b7280;">${percentage}%</div>
+                            <div style="color: #6b7280;">${actualPercentage}%</div>
                         </div>
                     `;
                 }).join('')}
@@ -875,40 +892,78 @@ export class McKinsey24PageGenerator {
     // 🔥 카테고리별 문항 수에 따른 총점 계산
     const questionCount = category === 'humanResources' ? 5 : 8; // 실행역량만 5문항, 나머지는 8문항
     const maxScore = questionCount * 5; // 문항수 × 5점
-    const totalScore = Math.round(averageScore * questionCount); // 평균점수 × 문항수 = 총점
-    const percentage = Math.round((averageScore / 5) * 100);
+    
+    // 🔥 실제 응답 데이터 기반 점수 계산
+    const actualScore = this.calculateCategoryScoreFromResponses(data.responses, category);
+    const actualTotalScore = Math.round(actualScore * questionCount);
+    const actualPercentage = Math.round((actualScore / 5) * 100);
+    
+    // 🔥 사실기반 분석 생성
+    const factBasedAnalysis = this.generateFactBasedAnalysis(data, category);
+    
     const pageNum = Object.keys(this.CATEGORY_DETAILS).indexOf(category) + 5;
     
     return `
         <div class="page">
             <div class="page-header">
                 <div class="page-title">${detail.icon} ${detail.name} 상세 분석</div>
-                <div class="page-subtitle">${category} Analysis</div>
+                <div class="page-subtitle">실제 제출 데이터 기반 사실기반 분석</div>
             </div>
             
-            <div class="score-card score-${this.getScoreClass(percentage)}" style="max-width: 300px; margin: 0 auto;">
+            <div class="score-card score-${this.getScoreClass(actualPercentage)}" style="max-width: 300px; margin: 0 auto;">
                 <div style="font-size: 64px;">${detail.icon}</div>
-                <div class="score-value">${totalScore}/${maxScore}점</div>
-                <div style="font-size: 24px; color: #6b7280;">${percentage}% (평균 ${averageScore.toFixed(1)}점)</div>
+                <div class="score-value">${actualTotalScore}/${maxScore}점</div>
+                <div style="font-size: 24px; color: #6b7280;">${actualPercentage}% (평균 ${actualScore.toFixed(1)}점)</div>
             </div>
             
             <div class="insight-box">
-                <h3>📋 평가 항목 분석</h3>
+                <h3>📋 실제 평가 항목 분석</h3>
                 <ul>
-                    ${detail.questions.map(q => `<li>${q}</li>`).join('')}
+                    ${detail.questions.map((q, index) => {
+                      const questionNum = category === 'humanResources' ? 41 + index : 
+                                        category === 'dataManagement' ? 33 + index :
+                                        category === 'technologyInfrastructure' ? 25 + index :
+                                        category === 'organizationReadiness' ? 17 + index :
+                                        category === 'currentAI' ? 9 + index : 1 + index;
+                      const score = data.responses[`question_${questionNum}`] || 0;
+                      const scoreClass = score >= 4 ? 'color: #059669;' : score <= 2 ? 'color: #dc2626;' : 'color: #6b7280;';
+                      return `<li style="${scoreClass}">${q} <strong>(${score}점)</strong></li>`;
+                    }).join('')}
                 </ul>
             </div>
             
-            <div class="n8n-solution">
-                <h3>🚀 n8n 자동화 솔루션</h3>
+            ${factBasedAnalysis.strengths.length > 0 ? `
+            <div class="insight-box" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-color: #22c55e;">
+                <h3>💪 강점 영역</h3>
                 <ul>
-                    ${detail.n8nSolutions.map(s => `<li>⚡ ${s}</li>`).join('')}
+                    ${factBasedAnalysis.strengths.map(s => `<li>✅ ${s}</li>`).join('')}
+                </ul>
+            </div>
+            ` : ''}
+            
+            ${factBasedAnalysis.weaknesses.length > 0 ? `
+            <div class="insight-box" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b;">
+                <h3>⚠️ 개선 필요 영역</h3>
+                <ul>
+                    ${factBasedAnalysis.weaknesses.map(w => `<li>🔧 ${w}</li>`).join('')}
+                </ul>
+            </div>
+            ` : ''}
+            
+            <div class="n8n-solution">
+                <h3>🚀 맞춤형 n8n 자동화 솔루션</h3>
+                <ul>
+                    ${factBasedAnalysis.n8nSolutions.map(s => `<li>⚡ ${s}</li>`).join('')}
                 </ul>
             </div>
             
             <div class="motivation-box">
-                <h3>💡 개선 방향</h3>
-                <p>${this.getCategoryImprovement(category, percentage)}</p>
+                <h3>💡 구체적 개선 방향</h3>
+                <ul>
+                    ${factBasedAnalysis.recommendations.map(r => `<li>📋 ${r}</li>`).join('')}
+                </ul>
+                ${factBasedAnalysis.recommendations.length === 0 ? 
+                  `<p>현재 ${detail.name} 영역에서 우수한 성과를 보이고 있습니다. 다른 영역과의 시너지 창출에 집중하세요.</p>` : ''}
             </div>
             
             <div class="page-number">${pageNum} / 24</div>
@@ -917,43 +972,42 @@ export class McKinsey24PageGenerator {
   }
 
   private static generateSWOTAnalysis(data: DiagnosisData): string {
+    // 🔥 실제 제출 데이터 기반 SWOT 분석
+    const factBasedSWOT = this.generateFactBasedSWOT(data);
+    
     return `
         <div class="page">
             <div class="page-header">
                 <div class="page-title">SWOT 분석</div>
-                <div class="page-subtitle">Strengths, Weaknesses, Opportunities, Threats</div>
+                <div class="page-subtitle">실제 제출 데이터 기반 사실기반 SWOT</div>
             </div>
             
             <div class="chart-grid">
                 <div style="background: #dcfce7; padding: 25px; border-radius: 12px; border-left: 4px solid #22c55e;">
                     <h3 style="color: #16a34a;">💪 강점 (Strengths)</h3>
                     <ul style="margin-top: 15px;">
-                        ${this.getStrengths(data).map(s => `<li>${s}</li>`).join('')}
+                        ${factBasedSWOT.strengths.map(s => `<li>✅ ${s}</li>`).join('')}
                     </ul>
                 </div>
                 
                 <div style="background: #fef3c7; padding: 25px; border-radius: 12px; border-left: 4px solid #f59e0b;">
                     <h3 style="color: #d97706;">⚠️ 약점 (Weaknesses)</h3>
                     <ul style="margin-top: 15px;">
-                        ${this.getWeaknesses(data).map(w => `<li>${w}</li>`).join('')}
+                        ${factBasedSWOT.weaknesses.map(w => `<li>🔧 ${w}</li>`).join('')}
                     </ul>
                 </div>
                 
                 <div style="background: #dbeafe; padding: 25px; border-radius: 12px; border-left: 4px solid #3b82f6;">
                     <h3 style="color: #1d4ed8;">🚀 기회 (Opportunities)</h3>
                     <ul style="margin-top: 15px;">
-                        <li>n8n 자동화를 통한 즉각적인 효율성 향상</li>
-                        <li>AI 기술 도입으로 경쟁 우위 확보</li>
-                        <li>정부 지원 프로그램 활용 가능</li>
+                        ${factBasedSWOT.opportunities.map(o => `<li>🎯 ${o}</li>`).join('')}
                     </ul>
                 </div>
                 
                 <div style="background: #fee2e2; padding: 25px; border-radius: 12px; border-left: 4px solid #ef4444;">
                     <h3 style="color: #dc2626;">⚡ 위협 (Threats)</h3>
                     <ul style="margin-top: 15px;">
-                        <li>경쟁사의 빠른 AI 도입</li>
-                        <li>AI 기술 변화 속도</li>
-                        <li>전문 인력 확보 경쟁</li>
+                        ${factBasedSWOT.threats.map(t => `<li>⚠️ ${t}</li>`).join('')}
                     </ul>
                 </div>
             </div>
@@ -1822,6 +1876,193 @@ export class McKinsey24PageGenerator {
       console.warn('⚠️ 업종별 가중치 조회 실패, 기본값 사용:', error);
       return { ai: 0.5, practical: 0.5 };
     }
+  }
+
+  /**
+   * 실제 제출된 평가 데이터 기반 사실기반 SWOT 분석
+   */
+  private static generateFactBasedSWOT(data: DiagnosisData): {
+    strengths: string[];
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
+  } {
+    const responses = data.responses;
+    const industry = data.companyInfo.industry || 'IT/소프트웨어';
+    
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
+    const opportunities: string[] = [];
+    const threats: string[] = [];
+    
+    // 각 카테고리별 점수 분석
+    const categories = ['businessFoundation', 'currentAI', 'organizationReadiness', 'technologyInfrastructure', 'dataManagement', 'humanResources'];
+    
+    categories.forEach(category => {
+      const categoryScore = this.calculateCategoryScoreFromResponses(responses, category);
+      const categoryDetail = this.CATEGORY_DETAILS[category];
+      
+      if (categoryScore >= 4) {
+        strengths.push(`${categoryDetail.name}: ${categoryScore.toFixed(1)}점 (우수한 역량 보유)`);
+      } else if (categoryScore <= 2) {
+        weaknesses.push(`${categoryDetail.name}: ${categoryScore.toFixed(1)}점 (개선 시급)`);
+      }
+    });
+    
+    // 업종별 기회 요소
+    const industryData = this.INDUSTRY_INSIGHTS[industry] || this.INDUSTRY_INSIGHTS['IT/소프트웨어'];
+    opportunities.push(...industryData.n8nOpportunities.slice(0, 3));
+    opportunities.push('정부 지원 프로그램 활용 가능');
+    opportunities.push('AI 기술 도입으로 경쟁 우위 확보');
+    
+    // 위협 요소
+    threats.push('경쟁사의 빠른 AI 도입');
+    threats.push('AI 기술 변화 속도');
+    threats.push('전문 인력 확보 경쟁');
+    threats.push('AI 도입 실패 시 기회비용 증가');
+    
+    return {
+      strengths: strengths.length > 0 ? strengths : ['AI 도입 의지와 관심'],
+      weaknesses: weaknesses.length > 0 ? weaknesses : ['체계적인 AI 도입 계획 필요'],
+      opportunities,
+      threats
+    };
+  }
+
+  /**
+   * 실제 제출된 평가 데이터 기반 사실기반 분석
+   */
+  private static generateFactBasedAnalysis(data: DiagnosisData, category: string): {
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+    n8nSolutions: string[];
+  } {
+    const responses = data.responses;
+    const categoryQuestionMapping = {
+      businessFoundation: [1, 2, 3, 4, 5, 6, 7, 8],
+      currentAI: [9, 10, 11, 12, 13, 14, 15, 16],
+      organizationReadiness: [17, 18, 19, 20, 21, 22, 23, 24],
+      technologyInfrastructure: [25, 26, 27, 28, 29, 30, 31, 32],
+      dataManagement: [33, 34, 35, 36, 37, 38, 39, 40],
+      humanResources: [41, 42, 43, 44, 45]
+    };
+    
+    const questionNumbers = categoryQuestionMapping[category] || [];
+    const categoryDetail = this.CATEGORY_DETAILS[category];
+    
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
+    const recommendations: string[] = [];
+    
+    // 각 문항별 점수 분석
+    questionNumbers.forEach((questionNum, index) => {
+      const questionKey = `question_${questionNum}`;
+      const score = responses[questionKey] || 0;
+      const questionText = categoryDetail.questions[index] || `문항 ${questionNum}`;
+      
+      if (score >= 4) {
+        strengths.push(`${questionText}: ${score}점 (우수)`);
+      } else if (score <= 2) {
+        weaknesses.push(`${questionText}: ${score}점 (개선 필요)`);
+        recommendations.push(`${questionText} 개선을 위한 구체적 실행 계획 수립 필요`);
+      }
+    });
+    
+    // 점수 기반 맞춤형 n8n 솔루션 추천
+    const averageScore = this.calculateCategoryScoreFromResponses(responses, category);
+    let n8nSolutions: string[] = [];
+    
+    if (averageScore >= 4) {
+      n8nSolutions = categoryDetail.n8nSolutions.slice(0, 3); // 상위 3개 솔루션
+    } else if (averageScore >= 3) {
+      n8nSolutions = categoryDetail.n8nSolutions.slice(0, 4); // 상위 4개 솔루션
+    } else {
+      n8nSolutions = categoryDetail.n8nSolutions; // 모든 솔루션
+    }
+    
+    return {
+      strengths,
+      weaknesses,
+      recommendations,
+      n8nSolutions
+    };
+  }
+
+  /**
+   * 카테고리별 실제 응답 데이터 기반 점수 계산
+   */
+  private static calculateCategoryScoreFromResponses(responses: Record<string, number>, category: string): number {
+    // 카테고리별 문항 매핑 (45문항 기준)
+    const categoryQuestionMapping = {
+      businessFoundation: [1, 2, 3, 4, 5, 6, 7, 8], // 8문항
+      currentAI: [9, 10, 11, 12, 13, 14, 15, 16], // 8문항
+      organizationReadiness: [17, 18, 19, 20, 21, 22, 23, 24], // 8문항
+      technologyInfrastructure: [25, 26, 27, 28, 29, 30, 31, 32], // 8문항
+      dataManagement: [33, 34, 35, 36, 37, 38, 39, 40], // 8문항
+      humanResources: [41, 42, 43, 44, 45] // 5문항
+    };
+    
+    const questionNumbers = categoryQuestionMapping[category] || [];
+    if (questionNumbers.length === 0) {
+      console.warn(`⚠️ 카테고리 ${category}에 대한 문항 매핑이 없습니다.`);
+      return 3; // 기본값
+    }
+    
+    // 해당 카테고리의 문항들 점수 합계
+    let totalScore = 0;
+    let validCount = 0;
+    
+    questionNumbers.forEach(questionNum => {
+      const questionKey = `question_${questionNum}`;
+      const score = responses[questionKey];
+      
+      if (score !== undefined && score !== null && !isNaN(score)) {
+        totalScore += score;
+        validCount++;
+      }
+    });
+    
+    // 평균 점수 계산
+    const averageScore = validCount > 0 ? totalScore / validCount : 3;
+    
+    console.log(`📊 ${category} 카테고리 점수 계산:`, {
+      문항수: questionNumbers.length,
+      유효응답수: validCount,
+      총점: totalScore,
+      평균점수: averageScore.toFixed(2)
+    });
+    
+    return averageScore;
+  }
+
+  /**
+   * 응답 데이터 검증 및 정규화
+   */
+  private static validateAndNormalizeResponses(responses: Record<string, number>): Record<string, number> {
+    const validatedResponses: Record<string, number> = {};
+    
+    // 45문항에 대한 응답 데이터 정규화
+    for (let i = 1; i <= 45; i++) {
+      const questionKey = `question_${i}`;
+      let value = responses[questionKey];
+      
+      // 값이 없거나 유효하지 않은 경우 기본값 설정
+      if (value === undefined || value === null || isNaN(value)) {
+        value = 3; // 기본값 3점
+      }
+      
+      // 값 범위 제한 (1-5점)
+      value = Math.max(1, Math.min(5, Math.round(value)));
+      validatedResponses[questionKey] = value;
+    }
+    
+    console.log('✅ 응답 데이터 검증 완료:', {
+      총문항: Object.keys(validatedResponses).length,
+      평균점수: (Object.values(validatedResponses).reduce((a, b) => a + b, 0) / 45).toFixed(2)
+    });
+    
+    return validatedResponses;
   }
 
   /**
