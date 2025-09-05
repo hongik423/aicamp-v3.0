@@ -35,6 +35,7 @@ import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerCon
 // import AICampContentGuide from '@/components/layout/AICampContentGuide'; // BannerController에서 관리
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
 // import BookPromotionBanner from '@/components/layout/BookPromotionBanner'; // BannerController에서 관리
+import PRDSystemBanner from '@/components/layout/PRDSystemBanner';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
