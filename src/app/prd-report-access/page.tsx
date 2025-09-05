@@ -51,10 +51,6 @@ export default function PRDReportAccessPage() {
   const router = useRouter();
   const { toast } = useToast();
   
-  // ================================================================================
-  // 📋 상태 관리
-  // ================================================================================
-  
   const [accessState, setAccessState] = useState<DiagnosisAccessState>({
     diagnosisId: '',
     email: '',
@@ -70,13 +66,7 @@ export default function PRDReportAccessPage() {
     date: string;
   }>>([]);
   
-  // ================================================================================
-  // 📋 이벤트 핸들러
-  // ================================================================================
-  
-  /**
-   * 진단ID 검증 및 보고서 조회
-   */
+  // 진단ID 검증 및 보고서 조회
   const handleDiagnosisIdSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -100,13 +90,6 @@ export default function PRDReportAccessPage() {
     try {
       console.log('🔍 PRD 기반 진단ID 검증 시작:', trimmedId);
       
-      // 1단계: 진단ID 형식 검증
-      const formatValidation = validateDiagnosisIdFormat(trimmedId);
-      if (!formatValidation.isValid) {
-        throw new Error(formatValidation.errorMessage);
-      }
-      
-      // 2단계: 서버에서 보고서 조회
       const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(trimmedId)}`, {
         method: 'GET',
         headers: {
@@ -119,26 +102,8 @@ export default function PRDReportAccessPage() {
       if (result.success && result.htmlReport) {
         console.log('✅ PRD 기반 보고서 조회 성공');
         
-        // 최근 조회 목록에 추가
-        addToRecentDiagnoses({
-          diagnosisId: trimmedId,
-          companyName: result.reportInfo?.companyName || '회사명',
-          date: new Date().toLocaleDateString('ko-KR')
-        });
-        
-        // 보고서 데이터 설정
-        setAccessState(prev => ({
-          ...prev,
-          step: 'report',
-          reportData: result,
-          isLoading: false
-        }));
-        
-        toast({
-          title: "보고서 조회 성공",
-          description: "24페이지 AI 역량진단 보고서를 확인하세요",
-          duration: 3000
-        });
+        // 성공 시 기존 보고서 페이지로 리다이렉트
+        router.push(`/diagnosis-results/${trimmedId}`);
         
       } else {
         throw new Error(result.error || '보고서를 찾을 수 없습니다');
@@ -163,9 +128,7 @@ export default function PRDReportAccessPage() {
     }
   };
   
-  /**
-   * 이메일 인증 방식
-   */
+  // 이메일 인증 방식
   const handleEmailVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -186,7 +149,6 @@ export default function PRDReportAccessPage() {
     try {
       console.log('📧 이메일 기반 진단ID 조회 시작');
       
-      // 이메일로 진단ID 찾기 API 호출
       const response = await fetch('/api/find-diagnosis-by-email', {
         method: 'POST',
         headers: {
@@ -197,24 +159,14 @@ export default function PRDReportAccessPage() {
       
       const result = await response.json();
       
-      if (result.success && result.diagnosisId) {
+      if (result.success && result.data?.diagnosisId) {
         console.log('✅ 이메일 기반 진단ID 조회 성공');
         
-        // 자동으로 진단ID 설정하고 보고서 조회
-        setAccessState(prev => ({
-          ...prev,
-          diagnosisId: result.diagnosisId,
-          isVerifying: false
-        }));
-        
-        // 자동으로 보고서 조회 실행
-        setTimeout(() => {
-          const event = new Event('submit') as any;
-          handleDiagnosisIdSubmit(event);
-        }, 500);
+        // 자동으로 보고서 페이지로 이동
+        router.push(`/diagnosis-results/${result.data.diagnosisId}`);
         
       } else {
-        throw new Error(result.error || '해당 이메일로 진단한 기록을 찾을 수 없습니다');
+        throw new Error(result.error?.message || '해당 이메일로 진단한 기록을 찾을 수 없습니다');
       }
       
     } catch (error: any) {
@@ -228,74 +180,7 @@ export default function PRDReportAccessPage() {
     }
   };
   
-  /**
-   * 보고서 다운로드
-   */
-  const handleDownloadReport = () => {
-    if (!accessState.reportData?.htmlReport) return;
-    
-    try {
-      const blob = new Blob([accessState.reportData.htmlReport], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `AI역량진단보고서_${accessState.diagnosisId}_${new Date().toISOString().slice(0, 10)}.html`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: "다운로드 완료",
-        description: "보고서가 성공적으로 다운로드되었습니다",
-        duration: 3000
-      });
-      
-    } catch (error) {
-      console.error('❌ 보고서 다운로드 실패:', error);
-      toast({
-        title: "다운로드 실패",
-        description: "보고서 다운로드 중 오류가 발생했습니다",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  /**
-   * 새 창에서 보고서 열기
-   */
-  const handleOpenInNewWindow = () => {
-    if (!accessState.reportData?.htmlReport) return;
-    
-    try {
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(accessState.reportData.htmlReport);
-        newWindow.document.close();
-        
-        toast({
-          title: "새 창 열기 완료",
-          description: "새 창에서 보고서를 확인하세요",
-          duration: 3000
-        });
-      }
-    } catch (error) {
-      console.error('❌ 새 창 열기 실패:', error);
-    }
-  };
-  
-  /**
-   * 최근 조회 목록에 추가
-   */
-  const addToRecentDiagnoses = (diagnosis: { diagnosisId: string; companyName: string; date: string }) => {
-    const updated = [diagnosis, ...recentDiagnoses.filter(d => d.diagnosisId !== diagnosis.diagnosisId)].slice(0, 5);
-    setRecentDiagnoses(updated);
-    localStorage.setItem('recentDiagnoses', JSON.stringify(updated));
-  };
-  
-  /**
-   * 최근 조회 목록 로드
-   */
+  // 최근 조회 목록 로드
   useEffect(() => {
     try {
       const saved = localStorage.getItem('recentDiagnoses');
@@ -307,14 +192,7 @@ export default function PRDReportAccessPage() {
     }
   }, []);
   
-  // ================================================================================
-  // 📋 렌더링 함수들
-  // ================================================================================
-  
-  /**
-   * 진단ID 입력 화면
-   */
-  const renderInputScreen = () => (
+  return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
@@ -452,7 +330,7 @@ export default function PRDReportAccessPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {recentDiagnoses.map((diagnosis, index) => (
+                  {recentDiagnoses.map((diagnosis) => (
                     <div 
                       key={diagnosis.diagnosisId}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer"
@@ -498,207 +376,4 @@ export default function PRDReportAccessPage() {
       </div>
     </div>
   );
-  
-  /**
-   * 검증 중 화면
-   */
-  const renderVerifyingScreen = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-      <Card className="max-w-md mx-auto">
-        <CardContent className="pt-6 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-          </div>
-          <h2 className="text-xl font-semibold mb-4">보고서 조회 중</h2>
-          <p className="text-gray-600 mb-6">
-            진단ID를 검증하고 24페이지 보고서를 생성하고 있습니다
-          </p>
-          <div className="space-y-2 text-sm text-gray-500">
-            <p>✓ 진단ID 형식 검증 완료</p>
-            <p>✓ 데이터베이스 조회 중...</p>
-            <p>⏳ 보고서 생성 중...</p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-  
-  /**
-   * 24페이지 보고서 화면
-   */
-  const renderReportScreen = () => {
-    if (!accessState.reportData) return null;
-    
-    const reportInfo = accessState.reportData.reportInfo || {};
-    
-    return (
-      <div className="min-h-screen bg-white">
-        {/* 보고서 헤더 */}
-        <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setAccessState(prev => ({ ...prev, step: 'input' }))}
-                >
-                  <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
-                  뒤로
-                </Button>
-                
-                <div>
-                  <h1 className="text-xl font-semibold">AI 역량진단 보고서</h1>
-                  <p className="text-sm text-gray-600">
-                    {reportInfo.companyName || '회사명'} • 진단ID: {accessState.diagnosisId}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleOpenInNewWindow}
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  새 창
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownloadReport}
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  다운로드
-                </Button>
-                
-                <Button
-                  size="sm"
-                  onClick={() => window.print()}
-                >
-                  <Printer className="w-4 h-4 mr-2" />
-                  인쇄
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* 보고서 정보 패널 */}
-        <div className="bg-blue-50 border-b">
-          <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="flex items-center space-x-2">
-                <Building2 className="w-4 h-4 text-blue-600" />
-                <div>
-                  <p className="text-xs text-gray-600">회사명</p>
-                  <p className="text-sm font-medium">{reportInfo.companyName || '회사명'}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <BarChart3 className="w-4 h-4 text-green-600" />
-                <div>
-                  <p className="text-xs text-gray-600">총점</p>
-                  <p className="text-sm font-medium">
-                    {reportInfo.totalScore || 0}점 ({reportInfo.percentage || 0}%)
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Shield className="w-4 h-4 text-purple-600" />
-                <div>
-                  <p className="text-xs text-gray-600">등급</p>
-                  <p className="text-sm font-medium">{reportInfo.grade || 'F'}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-orange-600" />
-                <div>
-                  <p className="text-xs text-gray-600">생성일</p>
-                  <p className="text-sm font-medium">
-                    {new Date().toLocaleDateString('ko-KR')}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* 24페이지 보고서 내용 */}
-        <div className="container mx-auto px-4 py-8">
-          <div 
-            className="report-content bg-white"
-            dangerouslySetInnerHTML={{ __html: accessState.reportData.htmlReport }}
-          />
-        </div>
-        
-        {/* 하단 액션 버튼 */}
-        <div className="sticky bottom-0 bg-white border-t shadow-lg">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex justify-center space-x-4">
-              <Button
-                variant="outline"
-                onClick={handleDownloadReport}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                PDF 다운로드
-              </Button>
-              
-              <Button
-                onClick={() => window.location.href = '/consultation'}
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                전문가 상담 신청
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-  
-  // ================================================================================
-  // 📋 메인 렌더링
-  // ================================================================================
-  
-  // 단계별 조건부 렌더링
-  switch (accessState.step) {
-    case 'verifying':
-      return renderVerifyingScreen();
-    case 'report':
-      return renderReportScreen();
-    default:
-      return renderInputScreen();
-  }
-}
-
-// ================================================================================
-// 🎯 유틸리티 함수들
-// ================================================================================
-
-/**
- * 진단ID 형식 검증
- */
-function validateDiagnosisIdFormat(diagnosisId: string): { isValid: boolean; errorMessage?: string } {
-  if (!diagnosisId || diagnosisId.length < 10) {
-    return { isValid: false, errorMessage: '진단ID가 너무 짧습니다. 최소 10자 이상 입력해주세요.' };
-  }
-  
-  // 기본적인 형식 검증
-  const validPrefixes = ['DIAG_', 'DIAG-', 'TEST_'];
-  const hasValidPrefix = validPrefixes.some(prefix => diagnosisId.startsWith(prefix));
-  
-  if (!hasValidPrefix) {
-    return { 
-      isValid: false, 
-      errorMessage: '진단ID 형식이 올바르지 않습니다. DIAG_ 또는 TEST_로 시작해야 합니다.' 
-    };
-  }
-  
-  return { isValid: true };
 }

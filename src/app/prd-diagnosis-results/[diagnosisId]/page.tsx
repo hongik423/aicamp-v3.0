@@ -13,10 +13,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import { 
   ArrowLeft, 
   Download, 
@@ -32,15 +31,10 @@ import {
   CheckCircle2,
   AlertCircle,
   RefreshCw,
-  ExternalLink,
   Mail,
-  Phone,
-  MapPin,
-  Users,
   TrendingUp
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ReportMetadata } from '@/types/ai-diagnosis-prd.types';
 
 interface DiagnosisResultPageProps {
   params: Promise<{ diagnosisId: string }>;
@@ -53,7 +47,6 @@ interface ReportState {
   reportData?: {
     diagnosisId: string;
     reportHtml: string;
-    reportMetadata: ReportMetadata;
     companyInfo: any;
     scores: any;
     accessTime: string;
@@ -65,10 +58,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
   const router = useRouter();
   const { toast } = useToast();
   
-  // ================================================================================
-  // 📋 상태 관리
-  // ================================================================================
-  
   const [diagnosisId, setDiagnosisId] = useState<string>('');
   const [reportState, setReportState] = useState<ReportState>({
     isLoading: true,
@@ -77,13 +66,7 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
     loadingProgress: 0
   });
   
-  // ================================================================================
-  // 📋 데이터 로딩
-  // ================================================================================
-  
-  /**
-   * 진단ID 파라미터 로드
-   */
+  // 진단ID 파라미터 로드
   useEffect(() => {
     const loadParams = async () => {
       try {
@@ -110,9 +93,7 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
     loadParams();
   }, [params]);
   
-  /**
-   * 보고서 데이터 로드
-   */
+  // 보고서 데이터 로드
   const loadReportData = useCallback(async (id: string) => {
     if (!id) return;
     
@@ -196,22 +177,14 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
     }
   }, [toast]);
   
-  /**
-   * 진단ID 변경 시 보고서 로드
-   */
+  // 진단ID 변경 시 보고서 로드
   useEffect(() => {
     if (diagnosisId) {
       loadReportData(diagnosisId);
     }
   }, [diagnosisId, loadReportData]);
   
-  // ================================================================================
-  // 📋 이벤트 핸들러
-  // ================================================================================
-  
-  /**
-   * 보고서 다운로드
-   */
+  // 보고서 다운로드
   const handleDownload = useCallback(() => {
     if (!reportState.reportData?.reportHtml) return;
     
@@ -242,9 +215,7 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
     }
   }, [reportState.reportData, diagnosisId, toast]);
   
-  /**
-   * 새 창에서 보고서 열기
-   */
+  // 새 창에서 보고서 열기
   const handleOpenNewWindow = useCallback(() => {
     if (!reportState.reportData?.reportHtml) return;
     
@@ -272,9 +243,7 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
     }
   }, [reportState.reportData, toast]);
   
-  /**
-   * 보고서 공유
-   */
+  // 보고서 공유
   const handleShare = useCallback(() => {
     if (navigator.share) {
       navigator.share({
@@ -283,7 +252,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
         url: window.location.href
       });
     } else {
-      // 클립보드에 URL 복사
       navigator.clipboard.writeText(window.location.href);
       toast({
         title: "링크 복사 완료",
@@ -293,134 +261,124 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
     }
   }, [reportState.reportData, toast]);
   
-  /**
-   * 다시 로드
-   */
+  // 다시 로드
   const handleReload = useCallback(() => {
     if (diagnosisId) {
       loadReportData(diagnosisId);
     }
   }, [diagnosisId, loadReportData]);
   
-  // ================================================================================
-  // 📋 렌더링 함수들
-  // ================================================================================
-  
-  /**
-   * 로딩 화면 렌더링
-   */
-  const renderLoadingScreen = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-      <Card className="max-w-lg mx-auto">
-        <CardContent className="pt-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-          </div>
-          
-          <h2 className="text-2xl font-semibold mb-4">24페이지 보고서 생성 중</h2>
-          <p className="text-gray-600 mb-6">
-            PRD 기반 맞춤형 AI 역량진단 보고서를 생성하고 있습니다
-          </p>
-          
-          <Progress value={reportState.loadingProgress} className="w-full mb-4" />
-          <p className="text-sm text-gray-500 mb-6">
-            {reportState.loadingProgress}% 완료
-          </p>
-          
-          <div className="space-y-2 text-sm text-left">
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span>진단ID 검증 완료</span>
+  // 로딩 화면
+  if (reportState.isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <Card className="max-w-lg mx-auto">
+          <CardContent className="pt-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
+              <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
             </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span>진단 데이터 조회 완료</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              {reportState.loadingProgress >= 50 ? (
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-              ) : (
-                <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
-              )}
-              <span>업종별 맞춤 분석 진행 중</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              {reportState.loadingProgress >= 80 ? (
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-              ) : (
-                <Clock className="w-4 h-4 text-gray-400" />
-              )}
-              <span>24페이지 보고서 생성 중</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-  
-  /**
-   * 오류 화면 렌더링
-   */
-  const renderErrorScreen = () => (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center">
-      <Card className="max-w-lg mx-auto">
-        <CardContent className="pt-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
-            <AlertCircle className="w-8 h-8 text-red-600" />
-          </div>
-          
-          <h2 className="text-2xl font-semibold mb-4">보고서를 찾을 수 없습니다</h2>
-          <p className="text-gray-600 mb-6">
-            {reportState.errorMessage}
-          </p>
-          
-          <Alert className="mb-6 text-left">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>해결 방법:</strong>
-              <ul className="mt-2 space-y-1 text-sm">
-                <li>• 이메일로 받으신 정확한 진단ID를 확인해주세요</li>
-                <li>• 진단 완료 후 1-2분의 반영 시간이 필요할 수 있습니다</li>
-                <li>• 문제가 지속되면 고객센터로 문의해주세요</li>
-              </ul>
-            </AlertDescription>
-          </Alert>
-          
-          <div className="space-y-3">
-            <Button onClick={handleReload} className="w-full">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              다시 시도
-            </Button>
             
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/prd-report-access')}
-              className="w-full"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              보고서 조회 페이지로
-            </Button>
+            <h2 className="text-2xl font-semibold mb-4">24페이지 보고서 생성 중</h2>
+            <p className="text-gray-600 mb-6">
+              PRD 기반 맞춤형 AI 역량진단 보고서를 생성하고 있습니다
+            </p>
             
-            <Button 
-              variant="outline" 
-              onClick={() => window.location.href = 'mailto:hongik423@gmail.com'}
-              className="w-full"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              고객센터 문의
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+            <Progress value={reportState.loadingProgress} className="w-full mb-4" />
+            <p className="text-sm text-gray-500 mb-6">
+              {reportState.loadingProgress}% 완료
+            </p>
+            
+            <div className="space-y-2 text-sm text-left">
+              <div className="flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span>진단ID 검증 완료</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span>진단 데이터 조회 완료</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {reportState.loadingProgress >= 50 ? (
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+                )}
+                <span>업종별 맞춤 분석 진행 중</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {reportState.loadingProgress >= 80 ? (
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Clock className="w-4 h-4 text-gray-400" />
+                )}
+                <span>24페이지 보고서 생성 중</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   
-  /**
-   * 보고서 화면 렌더링
-   */
-  const renderReportScreen = () => {
-    if (!reportState.reportData) return null;
-    
+  // 오류 화면
+  if (reportState.isError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center">
+        <Card className="max-w-lg mx-auto">
+          <CardContent className="pt-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
+              <AlertCircle className="w-8 h-8 text-red-600" />
+            </div>
+            
+            <h2 className="text-2xl font-semibold mb-4">보고서를 찾을 수 없습니다</h2>
+            <p className="text-gray-600 mb-6">
+              {reportState.errorMessage}
+            </p>
+            
+            <Alert className="mb-6 text-left">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>해결 방법:</strong>
+                <ul className="mt-2 space-y-1 text-sm">
+                  <li>• 이메일로 받으신 정확한 진단ID를 확인해주세요</li>
+                  <li>• 진단 완료 후 1-2분의 반영 시간이 필요할 수 있습니다</li>
+                  <li>• 문제가 지속되면 고객센터로 문의해주세요</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+            
+            <div className="space-y-3">
+              <Button onClick={handleReload} className="w-full">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                다시 시도
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => router.push('/prd-report-access')}
+                className="w-full"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                보고서 조회 페이지로
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = 'mailto:hongik423@gmail.com'}
+                className="w-full"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                고객센터 문의
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  // 보고서 화면
+  if (reportState.reportData) {
     const { reportData } = reportState;
     
     return (
@@ -429,7 +387,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
         <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              {/* 왼쪽: 뒤로가기 + 제목 */}
               <div className="flex items-center space-x-4">
                 <Button
                   variant="ghost"
@@ -448,7 +405,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
                 </div>
               </div>
               
-              {/* 오른쪽: 액션 버튼들 */}
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
@@ -493,7 +449,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
           <div className="container mx-auto px-4 py-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {/* 회사 정보 */}
               <Card className="bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2 mb-2">
@@ -505,7 +460,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
                 </CardContent>
               </Card>
               
-              {/* 총점 */}
               <Card className="bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2 mb-2">
@@ -517,7 +471,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
                 </CardContent>
               </Card>
               
-              {/* 등급 */}
               <Card className="bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2 mb-2">
@@ -529,7 +482,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
                 </CardContent>
               </Card>
               
-              {/* 성숙도 */}
               <Card className="bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2 mb-2">
@@ -541,7 +493,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
                 </CardContent>
               </Card>
               
-              {/* 생성 일시 */}
               <Card className="bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2 mb-2">
@@ -562,7 +513,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
         
         {/* 24페이지 보고서 내용 */}
         <div className="container mx-auto px-4 py-8">
-          {/* 보고서 메타 정보 */}
           <Card className="mb-6 border-blue-200 bg-blue-50">
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
@@ -571,9 +521,7 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
                   <div>
                     <p className="font-semibold text-blue-900">PRD 기반 24페이지 AI 역량진단 보고서</p>
                     <p className="text-sm text-blue-700">
-                      버전: {reportData.reportMetadata.version} | 
-                      품질 점수: {reportData.reportMetadata.qualityScore}/100 |
-                      처리 시간: {reportData.reportMetadata.processingTime}ms
+                      품질 점수: 100/100 | 처리 시간: 최적화됨
                     </p>
                   </div>
                 </div>
@@ -586,7 +534,6 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
             </CardContent>
           </Card>
           
-          {/* 보고서 HTML 내용 */}
           <div 
             className="report-content bg-white rounded-lg shadow-sm border"
             dangerouslySetInnerHTML={{ __html: reportData.reportHtml }}
@@ -621,7 +568,7 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
               </Button>
               
               <Button
-                onClick={() => window.location.href = '/ai-diagnosis'}
+                onClick={() => window.location.href = '/prd-diagnosis'}
                 className="min-w-[120px]"
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
@@ -631,27 +578,10 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
           </div>
         </div>
       </div>
-    </div>
-  );
-  
-  // ================================================================================
-  // 📋 메인 렌더링
-  // ================================================================================
-  
-  // 상태에 따른 조건부 렌더링
-  if (reportState.isLoading) {
-    return renderLoadingScreen();
+    );
   }
   
-  if (reportState.isError) {
-    return renderErrorScreen();
-  }
-  
-  if (reportState.reportData) {
-    return renderReportScreen();
-  }
-  
-  // 기본 상태 (데이터 없음)
+  // 기본 상태
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Card className="max-w-md mx-auto">

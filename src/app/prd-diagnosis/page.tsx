@@ -417,32 +417,4 @@ export default function PRDDiagnosisPage() {
   return renderIntroSection();
 }
 
-// ================================================================================
-// 📋 메타데이터 (SEO 최적화)
-// ================================================================================
-
-export const metadata = {
-  title: 'AI 역량진단 | AICAMP',
-  description: '15분 진단으로 24페이지 맞춤형 AI 역량진단 보고서를 받아보세요. PRD 기반 전문가급 분석.',
-  keywords: 'AI 역량진단, AI 컨설팅, 디지털 전환, AI 도입, 기업 AI',
-  openGraph: {
-    title: 'AI 역량진단 | AICAMP',
-    description: '15분 진단으로 24페이지 맞춤형 AI 역량진단 보고서를 받아보세요',
-    type: 'website',
-    url: 'https://aicamp.club/prd-diagnosis',
-    images: [
-      {
-        url: '/images/ai-diagnosis-og.png',
-        width: 1200,
-        height: 630,
-        alt: 'AICAMP AI 역량진단'
-      }
-    ]
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'AI 역량진단 | AICAMP',
-    description: '15분 진단으로 24페이지 맞춤형 AI 역량진단 보고서를 받아보세요',
-    images: ['/images/ai-diagnosis-twitter.png']
-  }
-};
+// SEO 메타데이터는 별도 metadata.ts 파일에서 관리
