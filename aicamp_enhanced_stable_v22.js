@@ -5938,6 +5938,7 @@ function runGoogleDriveIntegrationTest() {
     
   } catch (error) {
     console.error('❌ Google Drive 통합 테스트 실패:', error);
+ 
     return {
       success: false,
       error: error.message,

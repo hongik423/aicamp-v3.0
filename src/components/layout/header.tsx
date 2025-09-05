@@ -195,7 +195,7 @@ export default function Header() {
             </Link>
             
             <Link
-              href="/my-diagnosis"
+              href="/prd-report-access"
               className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-purple-300/30`}
             >
               <FileText className="w-4 h-4 mr-1" />
@@ -294,7 +294,7 @@ export default function Header() {
             </Link>
             
             <Link
-              href="/my-diagnosis"
+              href="/prd-report-access"
               className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-purple-300/30`}
             >
               <FileText className="w-4 h-4 mr-1" />
@@ -432,7 +432,7 @@ export default function Header() {
 
               {/* 보고서조회 버튼 - 개별 신청자 중심 몰입감 있는 UX */}
               <Link
-                href="/my-diagnosis"
+                href="/prd-report-access"
                 onClick={() => {
                   setIsMenuOpen(false);
                 }}

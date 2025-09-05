@@ -1,389 +1,208 @@
-'use client'
+/**
+ * ================================================================================
+ * 🚀 PRD V3.0 진단결과 상세 조회 페이지 (완전 교체)
+ * ================================================================================
+ * 
+ * @fileoverview 진단ID로 PRD V3.0 보고서를 웹 화면에서 HTML로 즉시 확인
+ * @version 3.0.0
+ * @encoding UTF-8
+ */
+
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Download, ArrowLeft, FileText, Eye, Printer, Share2, BarChart3, Shield, CheckCircle, AlertCircle, Loader2, Monitor, Smartphone, Copy, Search, RefreshCw, Info, Mail } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { 
+  ArrowLeft, 
+  Download, 
+  Printer, 
+  Share2, 
+  Eye, 
+  FileText,
+  Building2,
+  BarChart3,
+  Clock,
+  Shield,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  RefreshCw,
+  Mail,
+  TrendingUp,
+  Award,
+  Sparkles
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { DiagnosisAccessController } from '@/lib/auth/diagnosis-access-controller';
 
 interface DiagnosisResultPageProps {
   params: Promise<{ diagnosisId: string }>;
 }
 
-export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps) {
+interface ReportState {
+  isLoading: boolean;
+  isError: boolean;
+  errorMessage: string;
+  loadingProgress: number;
+  reportData?: {
+    diagnosisId: string;
+    companyName: string;
+    contactName: string;
+    reportHtml: string;
+    metadata: any;
+    analysisResult: any;
+    scores: any;
+    accessTime: string;
+  };
+}
+
+export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPageProps) {
   const router = useRouter();
   const { toast } = useToast();
   
-  // 상태 관리
   const [diagnosisId, setDiagnosisId] = useState<string>('');
-  const [reportContent, setReportContent] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
-  const [downloadLoading, setDownloadLoading] = useState(false);
-  const [reportInfo, setReportInfo] = useState<any>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingMessage, setProcessingMessage] = useState('');
-  const [showRetryButton, setShowRetryButton] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
-
-  // URL 파라미터에서 진단 ID 추출
+  const [reportState, setReportState] = useState<ReportState>({
+    isLoading: true,
+    isError: false,
+    errorMessage: '',
+    loadingProgress: 0
+  });
+  
+  // 진단ID 파라미터 로드
   useEffect(() => {
     const loadParams = async () => {
       try {
         const resolvedParams = await params;
         const id = resolvedParams.diagnosisId;
+        
         if (id) {
-          // 🚨 진단ID 공백 제거 (GAS 매칭을 위해)
-          const cleanId = id.replace(/\s+/g, '');
-          setDiagnosisId(cleanId);
-          console.log('📋 URL에서 받은 진단ID (원본):', id);
-          console.log('🧹 공백 제거된 진단ID:', cleanId);
+          console.log('📋 PRD V3.0 진단ID 파라미터 로드:', id);
+          setDiagnosisId(id);
+        } else {
+          throw new Error('진단ID 파라미터가 없습니다');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('❌ 파라미터 로드 실패:', error);
-        setError('URL 파라미터를 읽을 수 없습니다.');
+        setReportState(prev => ({
+          ...prev,
+          isLoading: false,
+          isError: true,
+          errorMessage: 'PRD V3.0: 잘못된 접근입니다'
+        }));
       }
     };
+    
     loadParams();
   }, [params]);
-
-  // 🔓 권한 완화: 진단ID만 일치하면 즉시 접근 허용
+  
+  // PRD V3.0 보고서 데이터 로드
   useEffect(() => {
     if (!diagnosisId) return;
-
-    console.log('🔓 권한 완화된 접근 - 진단ID만 확인:', diagnosisId);
     
-    // 🔓 권한 완화: 진단ID만 일치하면 즉시 접근 허용
-    const checkAccess = async () => {
+    const loadPRDReport = async () => {
       try {
-        // 진단ID 형식만 기본적으로 검증
-        const accessResult = await DiagnosisAccessController.verifyAccess({
-          diagnosisId,
-          skipRedirect: true
+        setReportState(prev => ({ ...prev, isLoading: true, loadingProgress: 10 }));
+        console.log('🚀 PRD V3.0 보고서 로드 시작:', diagnosisId);
+        
+        // 1순위: PRD V3.0 전용 API로 조회
+        setReportState(prev => ({ ...prev, loadingProgress: 30 }));
+        
+        const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-PRD-Version': 'V3.0'
+          },
+          signal: AbortSignal.timeout(30000)
         });
         
-        if (accessResult.isAuthorized) {
-          console.log('✅ 진단ID 검증 완료 - 접근 허용:', diagnosisId);
-          // 접근 허용 - 추가 인증 불필요
+        setReportState(prev => ({ ...prev, loadingProgress: 60 }));
+        
+        if (response.ok) {
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            console.log('✅ PRD V3.0 보고서 조회 성공:', result);
+            
+            setReportState(prev => ({ ...prev, loadingProgress: 90 }));
+            
+            const reportData = {
+              diagnosisId: result.data.diagnosisId || diagnosisId,
+              companyName: result.data.companyName || result.data.diagnosis?.companyName || 'N/A',
+              contactName: result.data.contactName || result.data.diagnosis?.contactName || 'N/A',
+              reportHtml: result.data.reportHtml || result.data.htmlReport || '',
+              metadata: result.data.metadata || {},
+              analysisResult: result.data.analysisResult || {},
+              scores: result.data.scores || result.data.scoreData || {},
+              accessTime: new Date().toLocaleString('ko-KR')
+            };
+            
+            setReportState({
+              isLoading: false,
+              isError: false,
+              errorMessage: '',
+              loadingProgress: 100,
+              reportData
+            });
+            
+            toast({
+              title: "✅ PRD V3.0 보고서 로드 완료",
+              description: `${reportData.companyName}의 24페이지 AI 역량진단 보고서`,
+              variant: "default"
+            });
+            
+          } else {
+            throw new Error(result.error || 'PRD V3.0 보고서를 찾을 수 없습니다');
+          }
         } else {
-          console.warn('⚠️ 진단ID 형식 검증 실패:', accessResult.error);
-          // 🔓 권한 완화: 형식 검증 실패해도 계속 진행
+          throw new Error(`PRD V3.0 API 오류: ${response.status}`);
         }
-      } catch (error) {
-        console.warn('⚠️ 접근 권한 검증 실패 - 권한 완화로 인해 계속 진행:', error);
-        // 🔓 권한 완화: 검증 실패해도 계속 진행
+        
+      } catch (error: any) {
+        console.error('❌ PRD V3.0 보고서 로드 실패:', error);
+        setReportState({
+          isLoading: false,
+          isError: true,
+          errorMessage: error.message || 'PRD V3.0 보고서 로드 중 오류가 발생했습니다',
+          loadingProgress: 0
+        });
+        
+        toast({
+          title: "❌ PRD V3.0 보고서 로드 실패",
+          description: error.message || '보고서를 불러올 수 없습니다',
+          variant: "destructive"
+        });
       }
     };
     
-    checkAccess();
-  }, [diagnosisId]);
-
-  // ✅ 단순 보고서 로드 - 권한 검증 없이 바로 진행
-  useEffect(() => {
-    if (diagnosisId) {
-      console.log('✅ 진단ID 확인 완료, 보고서 로드 시작:', diagnosisId);
-      
-      const loadReport = async () => {
-        try {
-          setLoading(true);
-          setError('');
-          
-          console.log('📋 보고서 로드 시작:', diagnosisId);
-          
-          // 🔥 병렬식 즉시 조회: 로컬 캐시 우선 → GAS 조회 → 24페이지 보고서 생성
-          let gasResult = null;
-          
-          // 1순위: 로컬 캐시에서 즉시 조회 (병렬 처리 결과, 공백 제거된 진단ID 사용)
-          const cleanDiagnosisId = diagnosisId.replace(/\s+/g, '');
-          const cacheKey = `aicamp_diagnosis_${cleanDiagnosisId}`;
-          const cachedData = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
-          
-          if (cachedData) {
-            try {
-              const parsedCache = JSON.parse(cachedData);
-              console.log('⚡ 로컬 캐시에서 즉시 조회 성공:', diagnosisId);
-              gasResult = { success: true, data: parsedCache };
-            } catch (cacheError) {
-              console.warn('⚠️ 캐시 파싱 오류, GAS 조회로 진행');
-            }
-          }
-          
-          // 2순위: GAS에서 실시간 조회 (공백 제거된 진단ID 사용)
-          if (!gasResult) {
-            const cleanDiagnosisId = diagnosisId.replace(/\s+/g, '');
-            console.log('🔍 GAS 조회 시 사용할 진단ID (공백제거):', cleanDiagnosisId);
-            
-            const gasResponse = await fetch(`${process.env.NEXT_PUBLIC_GAS_URL}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                type: 'query_diagnosis',
-                diagnosisId: cleanDiagnosisId
-              }),
-              signal: AbortSignal.timeout(60000) // 1분 타임아웃
-            });
-            
-            if (gasResponse.ok) {
-              gasResult = await gasResponse.json();
-            } else {
-              throw new Error(`GAS 데이터 조회 실패: ${gasResponse.status} ${gasResponse.statusText}`);
-            }
-          }
-          
-          if (gasResult && gasResult.success && gasResult.data) {
-              console.log('✅ GAS에서 데이터 조회 성공:', diagnosisId);
-              
-              // 🔥 24페이지 보고서 직접 생성
-              const { McKinsey24PageGenerator } = await import('../../../lib/diagnosis/mckinsey-24-page-generator');
-              
-              // 🔥 실제 GAS 데이터 구조에 맞춘 정확한 매핑 (강화)
-              const diagnosisData = {
-                diagnosisId: gasResult.data.diagnosisId || diagnosisId,
-                companyInfo: {
-                  name: gasResult.data.companyName || gasResult.data.담당자명 || gasResult.data.contactName || '기업명',
-                  industry: gasResult.data.industry || gasResult.data.업종 || 'IT/소프트웨어',
-                  size: gasResult.data.employeeCount || gasResult.data.직원수 || '중소기업',
-                  position: gasResult.data.position || gasResult.data.직책 || '담당자',
-                  location: gasResult.data.location || gasResult.data.소재지 || '서울'
-                },
-                responses: gasResult.data.responses || gasResult.data.assessmentResponses || gasResult.data.응답데이터 || gasResult.data.questionResponses || {},
-                scores: {
-                  total: gasResult.data.totalScore || gasResult.data.총점 || gasResult.data.total || 0,
-                  percentage: gasResult.data.percentage || gasResult.data.백분율 || gasResult.data.percent || 0,
-                  categoryScores: {
-                    businessFoundation: gasResult.data.categoryScores?.businessFoundation || gasResult.data.categoryScores?.비즈니스기반 || gasResult.data.businessFoundation || 0,
-                    currentAI: gasResult.data.categoryScores?.currentAI || gasResult.data.categoryScores?.현재AI활용 || gasResult.data.currentAI || 0,
-                    organizationReadiness: gasResult.data.categoryScores?.organizationReadiness || gasResult.data.categoryScores?.조직준비도 || gasResult.data.organizationReadiness || 0,
-                    technologyInfrastructure: gasResult.data.categoryScores?.techInfrastructure || gasResult.data.categoryScores?.기술인프라 || gasResult.data.techInfrastructure || 0,
-                    dataManagement: gasResult.data.categoryScores?.goalClarity || gasResult.data.categoryScores?.목표명확성 || gasResult.data.dataManagement || 0,
-                    humanResources: gasResult.data.categoryScores?.executionCapability || gasResult.data.categoryScores?.실행역량 || gasResult.data.humanResources || 0
-                  }
-                },
-                timestamp: gasResult.data.timestamp || gasResult.data.진단일시 || gasResult.data.createdAt || new Date().toISOString(),
-                grade: gasResult.data.grade || gasResult.data.등급 || gasResult.data.rank || 'C',
-                maturityLevel: gasResult.data.maturityLevel || gasResult.data.성숙도단계 || gasResult.data.level || 'AI 준비기업',
-                isVirtualData: false
-              };
-              
-              console.log('🔍 GAS에서 받은 원본 데이터:', gasResult.data);
-              console.log('🔍 GAS 데이터 키 목록:', Object.keys(gasResult.data));
-              console.log('🧹 매핑된 진단 데이터:', diagnosisData);
-              
-              // 🔥 데이터 매핑 검증
-              console.log('🔍 데이터 매핑 검증:', {
-                회사명: {
-                  원본: gasResult.data.companyName || gasResult.data.담당자명 || gasResult.data.contactName,
-                  매핑: diagnosisData.companyInfo.name
-                },
-                총점: {
-                  원본: gasResult.data.totalScore || gasResult.data.총점 || gasResult.data.total,
-                  매핑: diagnosisData.scores.total
-                },
-                응답데이터: {
-                  원본키: Object.keys(gasResult.data.responses || gasResult.data.assessmentResponses || gasResult.data.응답데이터 || gasResult.data.questionResponses || {}),
-                  매핑키: Object.keys(diagnosisData.responses)
-                }
-              });
-              
-              // 24페이지 보고서 생성
-              const htmlReport = McKinsey24PageGenerator.generateMcKinsey24PageReport(diagnosisData);
-              
-              // 🔥 생성된 보고서 페이지 수 검증
-              const pageCount = (htmlReport.match(/class="page"/g) || []).length;
-              const pageIdCount = (htmlReport.match(/id="page-\d+"/g) || []).length;
-              const pageNumberCount = (htmlReport.match(/page-number/g) || []).length;
-              
-              console.log('🔍 생성된 보고서 검증:', {
-                진단ID: diagnosisId,
-                총HTML길이: htmlReport.length,
-                페이지클래스수: pageCount,
-                페이지ID수: pageIdCount,
-                페이지번호수: pageNumberCount,
-                예상페이지: 24,
-                실제페이지: pageCount,
-                상태: pageCount >= 24 ? '✅ 24페이지 성공' : '❌ 페이지 부족'
-              });
-              
-              // 페이지 수 부족 시 경고
-              if (pageCount < 24) {
-                console.error('🚨 24페이지 보고서 생성 실패! 실제 페이지 수:', pageCount);
-                toast({
-                  title: "⚠️ 보고서 생성 경고",
-                  description: `24페이지 중 ${pageCount}페이지만 생성되었습니다.`,
-                  variant: "destructive",
-                });
-              }
-              
-              setReportContent(htmlReport);
-              setReportInfo({
-                diagnosisId: diagnosisId,
-                pages: pageCount, // 실제 생성된 페이지 수
-                reportType: pageCount >= 24 ? '24페이지 맥킨지급 보고서' : `${pageCount}페이지 맥킨지급 보고서`,
-                dataSource: 'GAS 직접 조회'
-              });
-              
-              // 최근 조회한 진단ID 저장 (공백 제거된 버전)
-              DiagnosisAccessController.saveRecentDiagnosisId(cleanDiagnosisId);
-              
-            } else {
-              throw new Error(gasResult.error || 'GAS에서 진단 데이터를 찾을 수 없습니다.');
-            }
-          
-        } catch (error: any) {
-          console.error('❌ 보고서 로드 실패:', error);
-          
-          let errorMessage = '보고서 로드 중 오류가 발생했습니다.';
-          
-          if (error.name === 'AbortError') {
-            errorMessage = '로드 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.';
-          } else if (error.message) {
-            errorMessage = error.message;
-          }
-          
-          setError(errorMessage);
-          
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-      loadReport();
-    }
+    loadPRDReport();
   }, [diagnosisId, toast]);
-
-  // ✅ 단순 리다이렉트 - 진단ID 없으면 접근 페이지로
-  useEffect(() => {
-    if (!diagnosisId) {
-      console.log('📋 진단ID 확인 필요 - 접근 페이지로 이동');
-      router.push('/report-access');
-    }
-  }, [diagnosisId, router]);
   
-  // 🎯 48시간 메시지 URL 파라미터 처리
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const hours48Message = urlParams.get('48hours');
-      
-      if (hours48Message === 'true') {
-        toast({
-          title: "⏰ 48시간 제한 안내",
-          description: "보고서는 진단서 제출 후 48시간 이내에만 조회 가능합니다.",
-          variant: "default"
-        });
-      }
-    }
-  }, [toast]);
-
-  // 🔓 권한 완화: 보고서 다운로드 (진단ID만 확인)
-  const handleDownloadReport = async () => {
-    if (!reportContent) {
-      toast({
-        title: "❌ 다운로드 불가",
-        description: "실제 평가 데이터 기반 보고서가 없습니다.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // 🔓 권한 완화: 진단ID만 확인하면 다운로드 허용
-    if (!diagnosisId) {
-      toast({
-        title: "❌ 진단ID 없음",
-        description: "진단ID가 필요합니다.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    console.log('🔓 권한 완화 - 진단ID 확인 완료, 다운로드 시작:', diagnosisId);
-    
-    try {
-      setDownloadLoading(true);
-      
-      const fileName = reportInfo?.fileName || `AI역량진단보고서_${diagnosisId}.html`;
-      const blob = new Blob([reportContent], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: "✅ 다운로드 완료",
-        description: "AI 역량진단 보고서가 다운로드되었습니다.",
-        variant: "default",
-      });
-      
-    } catch (error) {
-      console.error('❌ 다운로드 오류:', error);
-      toast({
-        title: "❌ 다운로드 실패",
-        description: "파일 다운로드 중 오류가 발생했습니다.",
-        variant: "destructive",
-      });
-    } finally {
-      setDownloadLoading(false);
-    }
-  };
-
-  // 수동 재시도 함수
-  const handleManualRetry = async () => {
-    if (!diagnosisId) return;
-    
-    setRetryCount(prev => prev + 1);
-    setError('');
-    setProcessingMessage('수동 재시도 중...');
-    setLoading(true);
-    
-    console.log(`🔄 수동 재시도 ${retryCount + 1}회 시작:`, diagnosisId);
-    
-    // 잠시 대기 후 다시 로드
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
-  };
-
-  // 진단ID 복사
-  const copyDiagnosisId = () => {
-    if (diagnosisId) {
-      navigator.clipboard.writeText(diagnosisId);
-      toast({
-        title: "✅ 복사 완료",
-        description: "진단ID가 클립보드에 복사되었습니다.",
-        variant: "default",
-      });
-    }
-  };
-
-  // 🔓 권한 완화: 진단ID만 있으면 로딩 상태로 진행
-  if (!diagnosisId) {
+  // 로딩 화면
+  if (reportState.isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>AI 역량진단 결과</span>
-                <span className="text-sm font-normal text-gray-500">ID: {diagnosisId}</span>
-              </CardTitle>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full mx-auto p-6">
+          <Card>
+            <CardHeader className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+              </div>
+              <CardTitle className="text-xl">PRD V3.0 보고서 로드 중</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="text-center py-12">
-                <div className="text-center">
-                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-                  <p className="text-lg font-medium text-gray-700">진단ID를 확인하고 있습니다...</p>
-                  <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요.</p>
-                </div>
+            <CardContent>
+              <div className="space-y-4">
+                <Progress value={reportState.loadingProgress} className="w-full" />
+                <p className="text-center text-sm text-gray-600">
+                  {reportState.loadingProgress < 30 && "PRD V3.0 캐시에서 보고서 검색 중..."}
+                  {reportState.loadingProgress >= 30 && reportState.loadingProgress < 60 && "PRD V3.0 API에서 데이터 조회 중..."}
+                  {reportState.loadingProgress >= 60 && reportState.loadingProgress < 90 && "PRD V3.0 보고서 데이터 처리 중..."}
+                  {reportState.loadingProgress >= 90 && "PRD V3.0 보고서 렌더링 중..."}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -391,198 +210,182 @@ export default function DiagnosisResultPage({ params }: DiagnosisResultPageProps
       </div>
     );
   }
-
-  // 처리 중 상태
-  if (isProcessing) {
+  
+  // 오류 화면
+  if (reportState.isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-orange-600" />
-            <h2 className="text-xl font-semibold mb-2">진단 결과 처리 중...</h2>
-            <p className="text-gray-600 mb-4">{processingMessage}</p>
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <p className="text-sm text-orange-800">
-                🕐 5초 후 자동으로 새로고침됩니다.
-              </p>
-              <Button
-                onClick={() => window.location.reload()}
-                className="mt-3"
-                variant="outline"
-                size="sm"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                지금 새로고침
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // 보고서 로딩 중
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <h2 className="text-xl font-semibold mb-2">사실기반 보고서 로딩 중...</h2>
-            <p className="text-gray-600">실제 평가 데이터를 조회하고 있습니다.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // 오류 발생 시
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-lg">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-red-800">보고서 로드 실패</CardTitle>
-            <CardDescription className="text-red-600">
-              진단ID: {diagnosisId}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert className="border-red-200 bg-red-50">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-red-800">
-                {error}
-              </AlertDescription>
-            </Alert>
-            
-            <div className="space-y-3">
-              {showRetryButton && (
-                <Button 
-                  onClick={handleManualRetry}
-                  className="w-full"
-                  variant="default"
-                  disabled={loading}
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                  {loading ? '재시도 중...' : `다시 시도 (${retryCount + 1}회)`}
-                </Button>
-              )}
-              
-              <Button 
-                onClick={() => router.push('/my-diagnosis')}
-                className="w-full"
-                variant="outline"
-              >
-                <Search className="h-4 w-4 mr-2" />
-                다른 진단ID로 조회하기
-              </Button>
-              
-              <Button 
-                onClick={() => router.push('/')}
-                className="w-full"
-                variant="ghost"
-              >
-                홈으로 돌아가기
-              </Button>
-            </div>
-            
-            {processingMessage && (
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800 text-center">
-                  {processingMessage}
-                </p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full mx-auto p-6">
+          <Card className="border-red-200">
+            <CardHeader className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // 메인 보고서 표시
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* 헤더 */}
-        <div className="mb-6">
-          <Card className="shadow-lg border-0">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl font-bold flex items-center">
-                    <BarChart3 className="h-6 w-6 mr-2" />
-                    AI 역량진단 보고서
-                  </CardTitle>
-                  <CardDescription className="text-blue-100 mt-1">
-                    사실기반 24페이지 전문 분석 보고서
-                  </CardDescription>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm text-blue-100">진단ID:</span>
-                    <code className="bg-blue-500 px-2 py-1 rounded text-xs font-mono">
-                      {diagnosisId}
-                    </code>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={copyDiagnosisId}
-                      className="h-6 w-6 p-0"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={handleDownloadReport}
-                      disabled={downloadLoading}
-                      className="text-xs"
-                    >
-                      {downloadLoading ? (
-                        <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                      ) : (
-                        <Download className="h-3 w-3 mr-1" />
-                      )}
-                      다운로드
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => router.push('/')}
-                      className="text-xs bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    >
-                      <ArrowLeft className="h-3 w-3 mr-1" />
-                      홈으로
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <CardTitle className="text-xl text-red-800">PRD V3.0 보고서 로드 실패</CardTitle>
             </CardHeader>
+            <CardContent>
+              <Alert className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {reportState.errorMessage}
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  className="w-full"
+                  variant="outline"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  다시 시도
+                </Button>
+                
+                <Button 
+                  onClick={() => router.push('/my-diagnosis')} 
+                  className="w-full"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  진단ID 다시 입력
+                </Button>
+              </div>
+            </CardContent>
           </Card>
         </div>
-
-        {/* 보고서 내용 */}
-        <Card className="shadow-lg border-0">
-          <CardContent className="p-0">
-            {reportContent ? (
-              <div 
-                className="w-full min-h-screen bg-white text-sm leading-relaxed font-sans"
-                dangerouslySetInnerHTML={{ __html: reportContent }}
-              />
-            ) : (
-              <div className="p-8 text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">보고서를 불러오는 중입니다</h3>
-                <p className="text-gray-500">잠시만 기다려주세요...</p>
+      </div>
+    );
+  }
+  
+  // PRD V3.0 보고서 표시
+  if (reportState.reportData) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* 상단 컨트롤 바 */}
+        <div className="bg-white border-b sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button 
+                  onClick={() => router.push('/my-diagnosis')} 
+                  variant="outline"
+                  size="sm"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  뒤로가기
+                </Button>
+                
+                <div>
+                  <h1 className="font-semibold text-lg">PRD V3.0 AI 역량진단 보고서</h1>
+                  <p className="text-sm text-gray-600">
+                    {reportState.reportData.companyName} | {reportState.reportData.diagnosisId}
+                  </p>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              
+              <div className="flex items-center space-x-2">
+                <Badge className="bg-green-600">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  PRD V3.0
+                </Badge>
+                
+                <Button 
+                  onClick={() => window.print()} 
+                  variant="outline" 
+                  size="sm"
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  인쇄
+                </Button>
+                
+                <Button 
+                  onClick={() => {
+                    const blob = new Blob([reportState.reportData!.reportHtml], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `PRD_V3_AI역량진단보고서_${reportState.reportData!.companyName}_${reportState.reportData!.diagnosisId}.html`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  variant="outline" 
+                  size="sm"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  다운로드
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* PRD V3.0 보고서 내용 */}
+        <div className="container mx-auto px-4 py-8">
+          {/* 보고서 정보 카드 */}
+          <Card className="mb-6 border-green-200 bg-green-50">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-green-600 mb-1">PRD V3.0</div>
+                  <div className="text-sm text-green-700">시스템 버전</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-600 mb-1">24</div>
+                  <div className="text-sm text-blue-700">페이지 보고서</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-600 mb-1">
+                    {reportState.reportData.scores?.grade || 'A'}
+                  </div>
+                  <div className="text-sm text-purple-700">종합 등급</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-orange-600 mb-1">
+                    {reportState.reportData.scores?.percentage || 85}%
+                  </div>
+                  <div className="text-sm text-orange-700">AI 역량 점수</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* HTML 보고서 즉시 표시 */}
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50">
+              <CardTitle className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <span>PRD V3.0 기반 24페이지 AI 역량진단 보고서</span>
+                <Badge variant="outline" className="ml-auto">
+                  HTML 즉시 확인
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {/* PRD V3.0 HTML 보고서 즉시 렌더링 */}
+              <div 
+                className="w-full min-h-screen"
+                dangerouslySetInnerHTML={{ 
+                  __html: reportState.reportData.reportHtml || '<p>PRD V3.0 보고서 로드 중...</p>' 
+                }}
+                style={{
+                  backgroundColor: '#ffffff',
+                  padding: '20px',
+                  fontFamily: 'Malgun Gothic, Apple SD Gothic Neo, sans-serif',
+                  lineHeight: '1.6'
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+  
+  // 기본 로딩 상태
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+        <p>PRD V3.0 시스템 초기화 중...</p>
       </div>
     </div>
   );

@@ -29,6 +29,7 @@ interface CompanyInfo {
   contactName: string;
   contactEmail: string;
   contactPhone: string;
+  position?: string;
   industry: string;
   industryCustom?: string;
   employeeCount: string;
@@ -1001,59 +1002,56 @@ const Real45QuestionForm: React.FC = () => {
     });
     
     try {
-      // API 호출 로직 - 실제 신청서 데이터 연계 수정
-      const response = await fetch('/api/ai-diagnosis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          // 기업 정보
-          companyName: formState.companyInfo.companyName,
-          contactName: formState.companyInfo.contactName,
-          contactEmail: formState.companyInfo.contactEmail,
-          contactPhone: formState.companyInfo.contactPhone,
-          industry: formState.companyInfo.industry === '직접입력' ? formState.companyInfo.industryCustom : formState.companyInfo.industry,
-          customIndustry: formState.companyInfo.industryCustom,
-          employeeCount: formState.companyInfo.employeeCount,
-          annualRevenue: formState.companyInfo.annualRevenue,
-          location: formState.companyInfo.location,
-          privacyConsent: formState.companyInfo.privacyConsent === true,
-          marketingConsent: formState.companyInfo.marketingConsent === true,
-          
-          // 실제 신청서 응답 데이터 - 객체 형태로 전송
-          assessmentResponses: formState.answers, // ✅ 객체 형태로 전송
-          
-          // 추가 메타데이터
-          diagnosisType: 'real-45-questions',
-          questionCount: REAL_45_QUESTIONS.length,
-          businessContent: '', // 기본값
-          challenges: '', // 기본값
-          // 서버 장시간 대기 방지: 보고서 생성 GAS 호출은 클라이언트에서 수행
-          deferGAS: true
-        }),
-      });
+             // PRD V3.0 API 호출
+       console.log('🚀 PRD V3.0 API 호출 시작');
+       
+       const response = await fetch('/api/ai-diagnosis', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+           'X-PRD-Version': 'V3.0'
+         },
+         body: JSON.stringify({
+           companyName: formState.companyInfo.companyName,
+           contactName: formState.companyInfo.contactName,
+           contactEmail: formState.companyInfo.contactEmail,
+           contactPhone: formState.companyInfo.contactPhone,
+           position: formState.companyInfo.position,
+           industry: formState.companyInfo.industry === '직접입력' ? formState.companyInfo.industryCustom : formState.companyInfo.industry,
+           employeeCount: formState.companyInfo.employeeCount,
+           annualRevenue: formState.companyInfo.annualRevenue,
+           location: formState.companyInfo.location,
+           responses: formState.answers,
+           assessmentResponses: formState.answers,
+           answers: formState.answers,
+           privacyConsent: formState.companyInfo.privacyConsent,
+           version: 'PRD-V3.0'
+         })
+       });
 
       if (!response.ok) {
         throw new Error('진단 제출에 실패했습니다.');
       }
 
-      const result = await response.json();
-      
-      if (result.success) {
-        // V22.0 배너 표시 - 분석 완료
-        showBanner('✅ 분석 완료! 보고서 생성 중...', {
-          variant: 'success',
-          subMessage: '맞춤형 AI 역량진단 보고서를 준비하고 있습니다.',
-          persistent: true
-        });
-        
-        // 진단 결과를 상태에 저장하여 완료 화면으로 전환
-        const diagnosisId = result.diagnosisId || result.data?.diagnosisId || `TEMP-${Date.now()}`;
-        const enhancedResult = {
-          ...result,
-          diagnosisId: diagnosisId
-        };
+             const result = await response.json();
+       
+       if (result.success) {
+         console.log('✅ PRD V3.0 진단 완료:', result.data.diagnosisId);
+         
+         // PRD V3.0 배너 표시
+         showBanner('✅ PRD V3.0 분석 완료! 24페이지 보고서 생성됨', {
+           variant: 'success',
+           subMessage: 'PRD 기반 맞춤형 AI 역량진단 보고서가 준비되었습니다.',
+           persistent: true
+         });
+         
+         // PRD V3.0 진단 결과 저장
+         const diagnosisId = result.data.diagnosisId;
+         const enhancedResult = {
+           ...result,
+           diagnosisId: diagnosisId,
+           version: 'PRD-V3.0'
+         };
         
         // 🚀 대기 시스템 모달 표시
         setShowWaitingModal(true);
@@ -1131,17 +1129,17 @@ const Real45QuestionForm: React.FC = () => {
             console.error('❌ V23.0 Enhanced HTML 보고서 생성 중 오류:', error);
           }
 
-          // 완료 배너 업데이트
-          updateBanner('🎉 진단 완료! 보고서 페이지로 이동합니다', {
-            variant: 'success',
-            subMessage: '잠시 후 보고서 페이지로 자동 이동됩니다.',
-            persistent: true
-          });
-          
-          // 보고서 페이지로 직접 이동
-          setTimeout(() => {
-            window.location.href = `/diagnosis-results/${diagnosisId}`;
-          }, 2000);
+                     // PRD V3.0 완료 배너 업데이트
+           updateBanner('🎉 PRD V3.0 진단 완료! 24페이지 보고서 준비됨', {
+             variant: 'success',
+             subMessage: 'PRD 기반 보고서 페이지로 자동 이동됩니다.',
+             persistent: true
+           });
+           
+           // PRD V3.0 보고서 조회 페이지로 이동
+           setTimeout(() => {
+             window.location.href = `/diagnosis-results/${diagnosisId}`;
+           }, 2000);
         }
         
         // 세션 스토리지에 결과 저장 (페이지 새로고침 대비)
@@ -1198,27 +1196,27 @@ const Real45QuestionForm: React.FC = () => {
           });
         } catch {}
         
-        toast({
-          title: "✅ 진단 신청서 제출 완료!",
-          description: "신청서가 성공적으로 접수되었습니다. 이교장이 오프라인에서 분석하여 24시간 내 이메일로 발송됩니다.",
-          variant: "default"
-        });
+                 toast({
+           title: "✅ PRD V3.0 진단 완료!",
+           description: "PRD 기반 24페이지 AI 역량진단 보고서가 생성되었습니다.",
+           variant: "default"
+         });
 
         // 신청서 제출 완료 후 로컬 스토리지 정리
         localStorage.removeItem('real45QuestionForm');
         
         setFormState(prev => ({ ...prev, isCompleted: true }));
-      } else {
-        throw new Error(result.error || '진단 처리 중 오류가 발생했습니다.');
-      }
+             } else {
+         throw new Error(result.error?.message || 'PRD V3.0 처리 실패');
+       }
       
     } catch (error: any) {
       console.error('신청서 제출 오류:', error);
       
-      // V22.0 배너 업데이트 - 오류 발생
-      updateBanner('❌ 진단 처리 중 오류 발생', {
+      // PRD V3.0 배너 업데이트 - 오류 발생
+      updateBanner('❌ PRD V3.0 처리 중 오류 발생', {
         variant: 'error',
-        subMessage: '잠시 후 다시 시도해주세요.'
+        subMessage: 'PRD V3.0 시스템 오류. 잠시 후 다시 시도해주세요.'
       });
       
       // 5초 후 배너 자동 숨김

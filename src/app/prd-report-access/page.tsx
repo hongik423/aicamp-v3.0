@@ -90,6 +90,7 @@ export default function PRDReportAccessPage() {
     try {
       console.log('🔍 PRD 기반 진단ID 검증 시작:', trimmedId);
       
+      // 기존 검증된 API 사용 (오류 해결)
       const response = await fetch(`/api/diagnosis-reports/${encodeURIComponent(trimmedId)}`, {
         method: 'GET',
         headers: {
@@ -97,16 +98,27 @@ export default function PRDReportAccessPage() {
         }
       });
       
-      const result = await response.json();
-      
-      if (result.success && result.htmlReport) {
-        console.log('✅ PRD 기반 보고서 조회 성공');
+      if (response.ok) {
+        const result = await response.json();
         
-        // 성공 시 기존 보고서 페이지로 리다이렉트
-        router.push(`/diagnosis-results/${trimmedId}`);
-        
+        if (result.success && result.htmlReport) {
+          console.log('✅ 기존 API 보고서 조회 성공 - PRD 페이지로 리다이렉트');
+          
+          // 성공 시 기존 보고서 페이지로 리다이렉트
+          router.push(`/diagnosis-results/${trimmedId}`);
+        } else {
+          throw new Error(result.error || '보고서를 찾을 수 없습니다');
+        }
+      } else if (response.status === 404) {
+        throw new Error('해당 진단ID의 보고서를 찾을 수 없습니다. 정확한 진단ID를 확인해주세요.');
       } else {
-        throw new Error(result.error || '보고서를 찾을 수 없습니다');
+        // HTML 응답인 경우 (JSON 파싱 오류 방지)
+        const responseText = await response.text();
+        if (responseText.includes('<!DOCTYPE')) {
+          throw new Error('서버에서 HTML 응답을 받았습니다. 진단ID를 다시 확인해주세요.');
+        } else {
+          throw new Error(`서버 오류: ${response.status}`);
+        }
       }
       
     } catch (error: any) {
@@ -180,17 +192,35 @@ export default function PRDReportAccessPage() {
     }
   };
   
-  // 최근 조회 목록 로드
+  // URL 파라미터에서 diagnosisId 자동 로드 및 즉시 보고서 조회
   useEffect(() => {
     try {
+      // URL 파라미터에서 diagnosisId 확인
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlDiagnosisId = urlParams.get('diagnosisId');
+      
+      if (urlDiagnosisId) {
+        console.log('📋 URL에서 진단ID 자동 로드 및 즉시 조회:', urlDiagnosisId);
+        setAccessState(prev => ({ 
+          ...prev, 
+          diagnosisId: urlDiagnosisId 
+        }));
+        
+        // 즉시 보고서 조회 실행
+        setTimeout(() => {
+          router.push(`/diagnosis-results/${urlDiagnosisId}`);
+        }, 100);
+      }
+      
+      // 최근 조회 목록 로드
       const saved = localStorage.getItem('recentDiagnoses');
       if (saved) {
         setRecentDiagnoses(JSON.parse(saved));
       }
     } catch (error) {
-      console.warn('최근 조회 목록 로드 실패:', error);
+      console.warn('초기화 실패:', error);
     }
-  }, []);
+  }, [router]);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
