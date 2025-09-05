@@ -20,15 +20,11 @@ export default function AIDiagnosisPage() {
   const router = useRouter();
   
   useEffect(() => {
-    // PRD 기반 AI 역량진단 시스템으로 자동 리다이렉트
-    console.log('🔄 PRD 기반 AI 역량진단 시스템으로 리다이렉트');
+    // 사용자 편의성 개선: 바로 PRD 진단 시스템으로 리다이렉트 (안내 화면 없음)
+    console.log('🚀 사용자 편의성 개선: 바로 PRD 진단 시스템으로 이동');
     
-    // 2초 후 리다이렉트
-    const timer = setTimeout(() => {
-      router.push('/prd-diagnosis');
-    }, 3000);
-    
-    return () => clearTimeout(timer);
+    // 즉시 리다이렉트 (안내 화면 제거)
+    router.push('/prd-diagnosis');
   }, [router]);
   
   return (

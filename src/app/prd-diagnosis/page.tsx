@@ -28,7 +28,8 @@ import {
   TrendingUp,
   Shield,
   Award,
-  Building2
+  Building2,
+  FileText
 } from 'lucide-react';
 
 interface DiagnosisPageState {
@@ -101,9 +102,24 @@ export default function PRDDiagnosisPage() {
           <p className="text-xl text-gray-600 mb-2">
             PRD 기반 전문가급 AI 역량 분석
           </p>
-          <p className="text-lg text-gray-500">
+          <p className="text-lg text-gray-500 mb-8">
             15분 진단으로 24페이지 맞춤형 보고서를 받아보세요
           </p>
+          
+          {/* 🚀 사용자 편의성 개선: 상단에 즉시 시작 버튼 추가 */}
+          <div className="mb-12">
+            <Button
+              onClick={handleStartDiagnosis}
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-16 py-6 text-xl font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            >
+              <Brain className="w-8 h-8 mr-4" />
+              AI 역량진단 시작하기
+            </Button>
+            <p className="text-sm text-gray-500 mt-4">
+              ⏱️ 예상 소요 시간: 약 15분 | 📋 24페이지 전문가급 보고서 제공
+            </p>
+          </div>
         </div>
         
         {/* 핵심 특징 */}
@@ -264,19 +280,40 @@ export default function PRDDiagnosisPage() {
           </CardContent>
         </Card>
         
-        {/* 시작 버튼 */}
+        {/* 시작 버튼 (하단 강화) */}
         <div className="text-center">
-          <Button
-            onClick={handleStartDiagnosis}
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg font-semibold rounded-xl"
-          >
-            <Brain className="w-6 h-6 mr-3" />
-            AI 역량진단 시작하기
-          </Button>
-          <p className="text-sm text-gray-500 mt-4">
-            ⏱️ 예상 소요 시간: 약 15분
-          </p>
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-8 mb-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              🚀 지금 바로 시작하세요!
+            </h3>
+            <p className="text-lg text-gray-600 mb-6">
+              15분 투자로 24페이지 전문가급 AI 역량 분석을 받아보세요
+            </p>
+            
+            <Button
+              onClick={handleStartDiagnosis}
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-16 py-6 text-xl font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            >
+              <Brain className="w-8 h-8 mr-4" />
+              AI 역량진단 시작하기
+            </Button>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-sm text-gray-600">
+              <div className="flex items-center justify-center">
+                <Clock className="w-4 h-4 mr-2 text-blue-500" />
+                <span>15분 소요</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <FileText className="w-4 h-4 mr-2 text-green-500" />
+                <span>24페이지 보고서</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <Award className="w-4 h-4 mr-2 text-purple-500" />
+                <span>전문가급 분석</span>
+              </div>
+            </div>
+          </div>
         </div>
         
         {/* 기술 스택 정보 */}
