@@ -27,7 +27,8 @@ import {
   Clock,
   TrendingUp,
   Shield,
-  Award
+  Award,
+  Building2
 } from 'lucide-react';
 
 interface DiagnosisPageState {
