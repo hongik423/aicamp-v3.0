@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AICAMP V22 전체 워크플로우 테스트</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .step {
+            margin: 30px 0;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            background: #f8fafc;
+        }
+        .step h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #2563eb;
+        }
+        .success {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+        .error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+        .loading {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #d97706;
+        }
+        .result-box {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AICAMP V22 전체 워크플로우 무오류 시스템 테스트</h1>
+        <p>실제 GAS 워크플로우와 연동된 완전한 AI 역량진단 시스템 테스트</p>
+
+        <!-- Step 1: 진단 신청 -->
+        <div class="step" id="step1">
+            <h3>1단계: AI 역량진단 신청 (실제 데이터 생성)</h3>
+            
+            <div class="form-group">
+                <label for="companyName">회사명</label>
+                <input type="text" id="companyName" value="테스트기업" />
+            </div>
+            
+            <div class="form-group">
+                <label for="contactName">담당자명</label>
+                <input type="text" id="contactName" value="김테스트" />
+            </div>
+            
+            <div class="form-group">
+                <label for="contactEmail">이메일</label>
+                <input type="email" id="contactEmail" value="test@aicamp.club" />
+            </div>
+            
+            <div class="form-group">
+                <label for="contactPhone">연락처</label>
+                <input type="text" id="contactPhone" value="010-1234-5678" />
+            </div>
+            
+            <div class="form-group">
+                <label for="position">직책</label>
+                <input type="text" id="position" value="CTO" />
+            </div>
+            
+            <div class="form-group">
+                <label for="industry">업종</label>
+                <select id="industry">
+                    <option value="IT/소프트웨어">IT/소프트웨어</option>
+                    <option value="제조업">제조업</option>
+                    <option value="서비스업">서비스업</option>
+                    <option value="금융업">금융업</option>
+                    <option value="유통/소매업">유통/소매업</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="employeeCount">직원수</label>
+                <select id="employeeCount">
+                    <option value="10명 미만">10명 미만</option>
+                    <option value="10-50명">10-50명</option>
+                    <option value="50-100명">50-100명</option>
+                    <option value="100-500명">100-500명</option>
+                    <option value="500명 이상">500명 이상</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">소재지</label>
+                <input type="text" id="location" value="서울특별시" />
+            </div>
+            
+            <button class="button" onclick="generateTestScores()">45문항 점수 자동 생성</button>
+            <button class="button" onclick="submitDiagnosis()">진단 신청 제출</button>
+            
+            <div id="step1-result" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- Step 2: 진단 결과 조회 -->
+        <div class="step" id="step2">
+            <h3>2단계: 진단 결과 조회 (진단 ID 기반)</h3>
+            
+            <div class="form-group">
+                <label for="queryDiagnosisId">진단 ID</label>
+                <input type="text" id="queryDiagnosisId" placeholder="Step 1에서 생성된 진단 ID 입력" />
+            </div>
+            
+            <button class="button" onclick="queryDiagnosis()">진단 데이터 조회</button>
+            
+            <div id="step2-result" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- Step 3: 24페이지 보고서 생성 -->
+        <div class="step" id="step3">
+            <h3>3단계: 맥킨지급 24페이지 보고서 생성</h3>
+            
+            <button class="button" onclick="generateReport()">24페이지 보고서 생성</button>
+            <button class="button" onclick="viewReport()" style="background: #22c55e;">보고서 보기</button>
+            
+            <div class="progress-bar" id="progress-bar" style="display: none;">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            
+            <div id="step3-result" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- 전체 워크플로우 테스트 -->
+        <div class="step">
+            <h3>🎯 전체 워크플로우 자동 테스트</h3>
+            <button class="button" onclick="runFullWorkflow()" style="background: #dc2626; font-size: 16px; padding: 15px 30px;">
+                🚀 전체 워크플로우 실행
+            </button>
+            
+            <div id="workflow-progress" style="margin-top: 20px; display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="workflow-progress-fill"></div>
+                </div>
+                <div id="workflow-status" style="margin-top: 10px; font-weight: 600;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDiagnosisId = null;
+        let generatedReport = null;
+
+        // 45문항 테스트 점수 자동 생성
+        function generateTestScores() {
+            const responses = {};
+            
+            // 각 카테고리별로 점수 생성 (실제 응답 형태로)
+            const categories = [
+                'businessFoundation', 'currentAI', 'organizationReadiness',
+                'technologyInfrastructure', 'dataManagement', 'humanResources'
+            ];
+            
+            // 🔥 사실기반 1원칙: 정확히 45문항 생성
+            for (let i = 1; i <= 45; i++) {
+                // 1-5점 랜덤 점수 생성 (현실적인 분포)
+                const score = Math.floor(Math.random() * 3) + 3; // 3-5점 위주
+                responses[`question_${i}`] = score;
+            }
+            
+            console.log('✅ 45문항 테스트 점수 생성:', responses);
+            
+            // 총점 계산
+            const totalScore = Object.values(responses).reduce((sum, score) => sum + score, 0);
+            const percentage = Math.round((totalScore / 225) * 100);
+            
+            document.getElementById('step1-result').innerHTML = `
+                <div class="success">
+                    ✅ 45문항 테스트 점수 생성 완료<br>
+                    총점: ${totalScore}/225점 (${percentage}%)<br>
+                    문항 수: ${Object.keys(responses).length}개
+                </div>
+            `;
+            document.getElementById('step1-result').style.display = 'block';
+            
+            // 전역 변수에 저장
+            window.testResponses = responses;
+        }
+
+        // 진단 신청 제출
+        async function submitDiagnosis() {
+            try {
+                if (!window.testResponses) {
+                    alert('먼저 45문항 점수를 생성해주세요.');
+                    return;
+                }
+
+                const resultDiv = document.getElementById('step1-result');
+                resultDiv.className = 'result-box loading';
+                resultDiv.innerHTML = '🔄 진단 신청 처리 중... (GAS V22 워크플로우 실행)';
+                resultDiv.style.display = 'block';
+
+                // 진단 ID 생성
+                const timestamp = Date.now();
+                const random = Math.floor(Math.random() * 10000);
+                currentDiagnosisId = `DIAG_45Q_AI_${timestamp}_${random}`;
+
+                const formData = {
+                    diagnosisId: currentDiagnosisId,
+                    companyName: document.getElementById('companyName').value,
+                    contactName: document.getElementById('contactName').value,
+                    contactEmail: document.getElementById('contactEmail').value,
+                    contactPhone: document.getElementById('contactPhone').value,
+                    position: document.getElementById('position').value,
+                    industry: document.getElementById('industry').value,
+                    employeeCount: document.getElementById('employeeCount').value,
+                    annualRevenue: '',
+                    location: document.getElementById('location').value,
+                    responses: window.testResponses,
+                    assessmentResponses: window.testResponses,
+                    privacyConsent: true
+                };
+
+                console.log('📝 진단 신청 데이터:', formData);
+
+                const response = await fetch('/api/ai-diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData),
+                    signal: AbortSignal.timeout(120000) // 2분
+                });
+
+                const result = await response.json();
+
+                console.log('📊 진단 신청 응답:', result);
+                
+                if (result.success) {
+                    resultDiv.className = 'result-box success';
+                    resultDiv.innerHTML = `
+                        ✅ 진단 신청 성공!<br>
+                        진단 ID: <strong>${result.diagnosisId || result.data?.diagnosisId || currentDiagnosisId}</strong><br>
+                        총점: ${result.scores?.total || result.data?.scoreData?.totalScore || 0}점<br>
+                        등급: ${result.grade || result.data?.scoreData?.grade || 'N/A'}<br>
+                        성숙도: ${result.maturityLevel || result.data?.scoreData?.maturityLevel || 'N/A'}
+                    `;
+                    
+                    // Step 2에 진단 ID 자동 입력
+                    const finalDiagnosisId = result.diagnosisId || result.data?.diagnosisId || currentDiagnosisId;
+                    document.getElementById('queryDiagnosisId').value = finalDiagnosisId;
+                    currentDiagnosisId = finalDiagnosisId;
+                } else {
+                    resultDiv.className = 'result-box error';
+                    resultDiv.innerHTML = `❌ 진단 신청 실패: ${result.error}<br>상세: ${result.details || 'N/A'}`;
+                    console.error('진단 신청 실패 상세:', result);
+                }
+
+            } catch (error) {
+                console.error('진단 신청 오류:', error);
+                const resultDiv = document.getElementById('step1-result');
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `❌ 진단 신청 오류: ${error.message}`;
+            }
+        }
+
+        // 진단 데이터 조회
+        async function queryDiagnosis() {
+            try {
+                const diagnosisId = document.getElementById('queryDiagnosisId').value;
+                if (!diagnosisId) {
+                    alert('진단 ID를 입력해주세요.');
+                    return;
+                }
+
+                const resultDiv = document.getElementById('step2-result');
+                resultDiv.className = 'result-box loading';
+                resultDiv.innerHTML = '🔄 진단 데이터 조회 중... (GAS V22에서 실제 데이터 조회)';
+                resultDiv.style.display = 'block';
+
+                const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: AbortSignal.timeout(120000) // 2분
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    resultDiv.className = 'result-box success';
+                    resultDiv.innerHTML = `
+                        ✅ 진단 데이터 조회 성공!<br>
+                        진단 ID: ${result.diagnosisId}<br>
+                        보고서 타입: ${result.reportInfo.reportType}<br>
+                        페이지 수: ${result.reportInfo.pages}페이지<br>
+                        버전: ${result.reportInfo.version}<br>
+                        사실기반: ${result.reportInfo.factBasedSystem ? '✅' : '❌'}<br>
+                        가상데이터: ${result.reportInfo.isVirtualData ? '❌' : '✅'}
+                    `;
+                    
+                    // 보고서 데이터 저장
+                    generatedReport = result.htmlReport;
+                    currentDiagnosisId = diagnosisId;
+                } else {
+                    resultDiv.className = 'result-box error';
+                    resultDiv.innerHTML = `❌ 진단 데이터 조회 실패: ${result.error}`;
+                }
+
+            } catch (error) {
+                console.error('진단 조회 오류:', error);
+                const resultDiv = document.getElementById('step2-result');
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `❌ 진단 조회 오류: ${error.message}`;
+            }
+        }
+
+        // 24페이지 보고서 생성
+        async function generateReport() {
+            try {
+                const diagnosisId = currentDiagnosisId || document.getElementById('queryDiagnosisId').value;
+                if (!diagnosisId) {
+                    alert('먼저 진단 데이터를 조회해주세요.');
+                    return;
+                }
+
+                const resultDiv = document.getElementById('step3-result');
+                resultDiv.className = 'result-box loading';
+                resultDiv.innerHTML = '🔄 맥킨지급 24페이지 보고서 생성 중... (약 30초 소요)';
+                resultDiv.style.display = 'block';
+
+                // 진행률 표시
+                const progressBar = document.getElementById('progress-bar');
+                const progressFill = document.getElementById('progress-fill');
+                progressBar.style.display = 'block';
+                
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 2;
+                    progressFill.style.width = Math.min(progress, 90) + '%';
+                }, 500);
+
+                const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: AbortSignal.timeout(120000) // 2분
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    resultDiv.className = 'result-box success';
+                    resultDiv.innerHTML = `
+                        ✅ 맥킨지급 24페이지 보고서 생성 성공!<br>
+                        파일명: ${result.reportInfo.fileName}<br>
+                        총점: ${result.reportInfo.totalScore}점<br>
+                        등급: ${result.reportInfo.grade}<br>
+                        성숙도: ${result.reportInfo.maturityLevel}<br>
+                        업종: ${result.reportInfo.industry}<br>
+                        생성 시간: ${new Date(result.reportInfo.createdAt).toLocaleString('ko-KR')}
+                    `;
+                    
+                    // 보고서 데이터 저장
+                    generatedReport = result.htmlReport;
+                } else {
+                    resultDiv.className = 'result-box error';
+                    resultDiv.innerHTML = `❌ 보고서 생성 실패: ${result.error}`;
+                }
+
+            } catch (error) {
+                console.error('보고서 생성 오류:', error);
+                const resultDiv = document.getElementById('step3-result');
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = `❌ 보고서 생성 오류: ${error.message}`;
+            }
+        }
+
+        // 보고서 보기 (새 창에서 열기)
+        function viewReport() {
+            if (!generatedReport) {
+                alert('먼저 보고서를 생성해주세요.');
+                return;
+            }
+
+            try {
+                // Blob을 사용하여 HTML 파일 생성
+                const blob = new Blob([generatedReport], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                // 새 창에서 열기
+                const newWindow = window.open(url, '_blank');
+                
+                // 메모리 정리 (5초 후)
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 5000);
+                
+                console.log('✅ 24페이지 보고서 새 창에서 열기 성공');
+                
+            } catch (error) {
+                console.error('보고서 열기 오류:', error);
+                alert('보고서 열기 오류: ' + error.message);
+            }
+        }
+
+        // 전체 워크플로우 자동 실행
+        async function runFullWorkflow() {
+            try {
+                console.log('🚀 전체 워크플로우 자동 실행 시작');
+                
+                const progressDiv = document.getElementById('workflow-progress');
+                const statusDiv = document.getElementById('workflow-status');
+                const progressFill = document.getElementById('workflow-progress-fill');
+                
+                progressDiv.style.display = 'block';
+                
+                // Step 1: 점수 생성
+                statusDiv.innerHTML = '1/4: 45문항 점수 생성 중...';
+                progressFill.style.width = '25%';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                generateTestScores();
+                
+                // Step 2: 진단 신청
+                statusDiv.innerHTML = '2/4: 진단 신청 제출 중...';
+                progressFill.style.width = '50%';
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                await submitDiagnosis();
+                
+                // Step 3: 데이터 조회
+                statusDiv.innerHTML = '3/4: 진단 데이터 조회 중...';
+                progressFill.style.width = '75%';
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                await queryDiagnosis();
+                
+                // Step 4: 보고서 생성
+                statusDiv.innerHTML = '4/4: 24페이지 보고서 생성 중...';
+                progressFill.style.width = '100%';
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                await generateReport();
+                
+                statusDiv.innerHTML = '✅ 전체 워크플로우 완료! 보고서 보기 버튼을 클릭하세요.';
+                
+                console.log('✅ 전체 워크플로우 자동 실행 완료');
+                
+            } catch (error) {
+                console.error('전체 워크플로우 오류:', error);
+                document.getElementById('workflow-status').innerHTML = `❌ 워크플로우 오류: ${error.message}`;
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', () => {
+            console.log('🎯 AICAMP V22 전체 워크플로우 테스트 시스템 로드 완료');
+            console.log('서버 URL:', window.location.origin);
+        });
+    </script>
+</body>
+</html>

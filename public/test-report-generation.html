@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보고서 생성 테스트</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        .button:hover {
+            background: #2563eb;
+        }
+        .button.success {
+            background: #22c55e;
+        }
+        .button.danger {
+            background: #dc2626;
+        }
+        .result-box {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+        .error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+        .loading {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #d97706;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 보고서 생성 테스트 - GAS 데이터 조회 및 24페이지 보고서 생성</h1>
+        <p>GAS에 저장된 실제 데이터로 24페이지 보고서 생성 테스트</p>
+
+        <div class="form-group">
+            <label for="diagnosisId">진단 ID (GAS에 저장된 실제 ID)</label>
+            <input type="text" id="diagnosisId" value="DIAG_45Q_AI_1756819191368_4nux2pbcr" placeholder="진단 ID 입력">
+        </div>
+
+        <div>
+            <button class="button danger" onclick="testReportGeneration()">
+                🚀 24페이지 보고서 생성 테스트
+            </button>
+            <button class="button success" onclick="openReport()" style="display: none;" id="openReportBtn">
+                📖 보고서 열기
+            </button>
+            <button class="button" onclick="clearResults()">결과 지우기</button>
+        </div>
+
+        <div id="results" class="result-box" style="display: none;"></div>
+    </div>
+
+    <script>
+        let generatedReport = null;
+
+        function clearResults() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('openReportBtn').style.display = 'none';
+            generatedReport = null;
+        }
+
+        async function testReportGeneration() {
+            const diagnosisId = document.getElementById('diagnosisId').value.trim();
+            
+            if (!diagnosisId) {
+                alert('진단 ID를 입력해주세요.');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.className = 'result-box loading';
+            resultsDiv.innerHTML = `🔄 보고서 생성 테스트 시작...\n진단 ID: ${diagnosisId}\n\n`;
+
+            try {
+                console.log('🔧 보고서 생성 테스트 시작:', diagnosisId);
+
+                const response = await fetch(`/api/diagnosis-reports/${diagnosisId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: AbortSignal.timeout(120000) // 2분
+                });
+
+                resultsDiv.innerHTML += `📊 API 응답 상태: ${response.status} ${response.statusText}\n\n`;
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const result = await response.json();
+                
+                console.log('📊 보고서 생성 결과:', result);
+
+                if (result.success) {
+                    resultsDiv.className = 'result-box success';
+                    resultsDiv.innerHTML += `✅ 24페이지 보고서 생성 성공!\n\n`;
+                    resultsDiv.innerHTML += `📋 보고서 정보:\n`;
+                    resultsDiv.innerHTML += `- 진단 ID: ${result.diagnosisId}\n`;
+                    resultsDiv.innerHTML += `- 파일명: ${result.reportInfo?.fileName}\n`;
+                    resultsDiv.innerHTML += `- 보고서 타입: ${result.reportInfo?.reportType}\n`;
+                    resultsDiv.innerHTML += `- 페이지 수: ${result.reportInfo?.pages}페이지\n`;
+                    resultsDiv.innerHTML += `- 총점: ${result.reportInfo?.totalScore}점\n`;
+                    resultsDiv.innerHTML += `- 등급: ${result.reportInfo?.grade}\n`;
+                    resultsDiv.innerHTML += `- 성숙도: ${result.reportInfo?.maturityLevel}\n`;
+                    resultsDiv.innerHTML += `- 업종: ${result.reportInfo?.industry}\n`;
+                    resultsDiv.innerHTML += `- 버전: ${result.reportInfo?.version}\n`;
+                    resultsDiv.innerHTML += `- 사실기반: ${result.reportInfo?.factBasedSystem ? '✅' : '❌'}\n`;
+                    resultsDiv.innerHTML += `- 가상데이터: ${result.reportInfo?.isVirtualData ? '❌' : '✅'}\n`;
+                    resultsDiv.innerHTML += `- HTML 길이: ${result.htmlReport?.length || 0} bytes\n`;
+                    resultsDiv.innerHTML += `- 생성 시간: ${result.reportInfo?.createdAt}\n\n`;
+                    
+                    if (result.htmlReport) {
+                        generatedReport = result.htmlReport;
+                        document.getElementById('openReportBtn').style.display = 'inline-block';
+                        resultsDiv.innerHTML += `🎉 보고서가 성공적으로 생성되었습니다!\n`;
+                        resultsDiv.innerHTML += `"📖 보고서 열기" 버튼을 클릭하여 확인하세요.`;
+                    }
+                    
+                } else {
+                    resultsDiv.className = 'result-box error';
+                    resultsDiv.innerHTML += `❌ 보고서 생성 실패\n\n`;
+                    resultsDiv.innerHTML += `오류: ${result.error}\n`;
+                    resultsDiv.innerHTML += `상세: ${result.details || 'N/A'}\n`;
+                    resultsDiv.innerHTML += `오류 타입: ${result.errorType || 'N/A'}\n`;
+                    resultsDiv.innerHTML += `오류 스택: ${result.errorStack || 'N/A'}\n`;
+                }
+
+            } catch (error) {
+                console.error('보고서 생성 테스트 오류:', error);
+                resultsDiv.className = 'result-box error';
+                resultsDiv.innerHTML += `❌ 보고서 생성 테스트 실행 오류\n\n`;
+                resultsDiv.innerHTML += `오류 메시지: ${error.message}\n`;
+                resultsDiv.innerHTML += `오류 타입: ${error.name}\n\n`;
+                resultsDiv.innerHTML += `🔍 네트워크 탭에서 상세 오류를 확인해주세요.`;
+            }
+        }
+
+        function openReport() {
+            if (!generatedReport) {
+                alert('생성된 보고서가 없습니다.');
+                return;
+            }
+
+            try {
+                // Blob을 사용하여 HTML 파일 생성
+                const blob = new Blob([generatedReport], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                // 새 창에서 열기
+                const newWindow = window.open(url, '_blank');
+                
+                // 메모리 정리 (5초 후)
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 5000);
+                
+                console.log('✅ 24페이지 보고서 새 창에서 열기 성공');
+                
+            } catch (error) {
+                console.error('보고서 열기 오류:', error);
+                alert('보고서 열기 오류: ' + error.message);
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', () => {
+            console.log('🔧 보고서 생성 테스트 페이지 로드 완료');
+            console.log('서버 URL:', window.location.origin);
+        });
+    </script>
+</body>
+</html>

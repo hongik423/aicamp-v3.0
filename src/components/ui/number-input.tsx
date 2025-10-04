@@ -1,0 +1,560 @@
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Input } from './input';
+import { Label } from './label';
+import { Badge } from './badge';
+
+interface NumberInputProps {
+  label?: string;
+  value: number;
+  onChange: (value: number) => void;
+  placeholder?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  disabled?: boolean;
+  className?: string;
+  suffix?: string;
+  prefix?: string;
+  required?: boolean;
+  error?: string;
+  helpText?: string;
+  
+  // 🔧 기존 세금계산기 호환성을 위한 추가 props
+  limit?: number;                    // max와 동일한 기능
+  unit?: string;                     // suffix와 동일한 기능  
+  info?: string;                     // helpText와 동일한 기능
+  helpMessage?: string;              // helpText와 동일한 기능
+  dependentValue?: number;           // 동적 계산을 위한 값
+  dynamicInfo?: (value: number, dependentValue?: number) => string;  // 동적 정보 생성
+  requiredMessage?: string;          // 커스텀 필수 메시지
+}
+
+// 🔧 개선된 유틸리티 함수들
+const formatNumberDisplay = (num: number): string => {
+  if (num === 0) return '';
+  // 소수점 자리수 유지하면서 천단위 구분
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 10
+  }).format(num);
+};
+
+const parseNumberInput = (input: string): number => {
+  if (!input || input.trim() === '') return 0;
+  // 숫자, 쉼표, 소수점 허용, 다른 문자 제거
+  const cleaned = input.replace(/[^\d,\.]/g, '').replace(/,/g, '');
+  if (!cleaned) return 0;
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
+};
+
+const isValidNumberInput = (input: string): boolean => {
+  // 빈 문자열은 유효
+  if (!input || input.trim() === '') return true;
+  // 숫자, 쉼표, 소수점만 허용 (소수점은 최대 1개)
+  const dotCount = (input.match(/\./g) || []).length;
+  return /^[\d,\.]*$/.test(input) && dotCount <= 1;
+};
+
+export function NumberInput({
+  label,
+  value,
+  onChange,
+  placeholder = "숫자를 입력하세요",
+  min = 0,
+  max,
+  step = 1,
+  disabled = false,
+  className = "",
+  suffix,
+  prefix,
+  required = false,
+  error,
+  helpText,
+  
+  // 🔧 기존 호환성 props
+  limit,
+  unit,
+  info,
+  helpMessage,
+  dependentValue,
+  dynamicInfo,
+  requiredMessage
+}: NumberInputProps) {
+  const [displayValue, setDisplayValue] = useState<string>('');
+  const [isFocused, setIsFocused] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
+  const [dynamicMessage, setDynamicMessage] = useState('');
+  const [hasWarning, setHasWarning] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [hasRecentChange, setHasRecentChange] = useState(false);
+  const [isUserTyping, setIsUserTyping] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // 🔧 props 통합 (기존 호환성)
+  const finalMax = max ?? limit;
+  const finalSuffix = suffix ?? unit;
+  const finalHelpText = helpText ?? helpMessage ?? info;
+  const finalError = error;
+  
+  // 🔴 필수 필드 상태 계산
+  const isCompleted = value > 0 && !hasWarning && !finalError;
+  const hasError = !!finalError;
+  const isRequiredAndEmpty = required && value === 0;
+
+  // 🔧 외부 value 변경 시에만 displayValue 업데이트 (사용자 입력 중이 아닐 때만)
+  useEffect(() => {
+    // 사용자가 입력 중이거나 포커스 중이거나 IME 입력 중일 때는 업데이트 하지 않음
+    if (!isFocused && !isComposing && !isUserTyping) {
+      const formattedValue = formatNumberDisplay(value);
+      setDisplayValue(formattedValue);
+    }
+  }, [value, isFocused, isComposing, isUserTyping]);
+
+  // 🔧 컴포넌트 마운트 시 초기값 설정
+  useEffect(() => {
+    const formattedValue = formatNumberDisplay(value);
+    setDisplayValue(formattedValue);
+  }, []);
+
+  // 🔧 동적 정보 업데이트
+  useEffect(() => {
+    if (dynamicInfo) {
+      setDynamicMessage(dynamicInfo(value, dependentValue));
+    }
+  }, [dynamicInfo, value, dependentValue]);
+
+  // 🔥 최근 변경 표시 효과
+  useEffect(() => {
+    if (value > 0) {
+      setHasRecentChange(true);
+      const timer = setTimeout(() => setHasRecentChange(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [value]);
+
+  // 🔥 사용자 입력 상태 관리
+  useEffect(() => {
+    if (isUserTyping) {
+      const timer = setTimeout(() => setIsUserTyping(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isUserTyping]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
+    // 🔥 사용자가 입력 중임을 표시
+    setIsUserTyping(true);
+    
+    // 🔥 IME 입력 중에는 displayValue만 업데이트
+    if (isComposing) {
+      setDisplayValue(inputValue);
+      return;
+    }
+
+    // 🔥 유효하지 않은 문자 입력 시 무시
+    if (!isValidNumberInput(inputValue)) {
+      return;
+    }
+
+    // 🔥 displayValue는 즉시 업데이트 (사용자 입력 피드백)
+    setDisplayValue(inputValue);
+    
+    // 🔥 숫자 값 파싱 및 onChange 호출
+    const numericValue = parseNumberInput(inputValue);
+    
+    // 범위 체크
+    let finalValue = numericValue;
+    let warning = false;
+    
+    // 최소값 체크 (0이 아닌 경우에만)
+    if (min !== undefined && numericValue < min && numericValue !== 0) {
+      warning = true;
+      // 입력 중에는 강제로 변경하지 않음
+    }
+    
+    // 최대값 체크
+    if (finalMax !== undefined && numericValue > finalMax) {
+      finalValue = finalMax;
+      warning = true;
+      // 최대값 초과 시에만 즉시 수정
+      setDisplayValue(formatNumberDisplay(finalValue));
+    }
+    
+    setHasWarning(warning);
+    
+    // 🔥 onChange 호출
+    onChange(finalValue);
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true);
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 150);
+    
+    // 포커스 시 쉼표 제거하여 편집하기 쉽게 만들기
+    const rawNumber = parseNumberInput(displayValue);
+    if (rawNumber > 0) {
+      // 쉼표만 제거하고 다른 포맷은 유지
+      const unformattedValue = displayValue.replace(/,/g, '');
+      setDisplayValue(unformattedValue);
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    setIsUserTyping(false);
+    
+    // 🔥 블러 시 포맷팅 적용 및 범위 재검증
+    const numericValue = parseNumberInput(displayValue);
+    
+    // 범위 체크 후 최종 값 결정
+    let finalValue = numericValue;
+    let warning = false;
+    
+    if (min !== undefined && numericValue < min && numericValue !== 0) {
+      finalValue = min;
+      warning = true;
+    }
+    if (finalMax !== undefined && numericValue > finalMax) {
+      finalValue = finalMax;
+      warning = true;
+    }
+    
+    setHasWarning(warning);
+    
+    // 포맷팅된 값으로 표시
+    if (finalValue !== 0) {
+      setDisplayValue(formatNumberDisplay(finalValue));
+    } else {
+      setDisplayValue('');
+    }
+    
+    // 값이 변경되었으면 onChange 호출
+    if (finalValue !== numericValue) {
+      onChange(finalValue);
+    }
+  };
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+  const handleMouseDown = () => {
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 150);
+  };
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+    setIsUserTyping(true);
+  };
+
+  const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
+    setIsComposing(false);
+    // 컴포지션 종료 후 즉시 처리
+    setTimeout(() => {
+      handleInputChange(e as any);
+    }, 0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 🔥 입력 중임을 표시
+    setIsUserTyping(true);
+    
+    // 🔥 Ctrl/Cmd 조합키는 모두 허용
+    if (e.ctrlKey || e.metaKey) {
+      return;
+    }
+
+    // 🔥 음수 입력 방지 (min이 0 이상인 경우)
+    if (min !== undefined && min >= 0 && e.key === '-') {
+      e.preventDefault();
+      return;
+    }
+
+    // 🔥 허용되는 키 목록
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End', 'PageUp', 'PageDown'
+    ];
+    
+    const isNumber = /^[0-9]$/.test(e.key);
+    const isDot = e.key === '.' || e.key === ',';
+
+    // 소수점 입력 처리
+    if (isDot) {
+      const currentValue = displayValue;
+      const dotCount = (currentValue.match(/\./g) || []).length;
+      // 이미 소수점이 있으면 차단
+      if (dotCount >= 1) {
+        e.preventDefault();
+        return;
+      }
+      // 쉼표는 소수점으로 변환
+      if (e.key === ',') {
+        e.preventDefault();
+        const target = e.target as HTMLInputElement;
+        const start = target.selectionStart || 0;
+        const end = target.selectionEnd || 0;
+        const newValue = currentValue.substring(0, start) + '.' + currentValue.substring(end);
+        setDisplayValue(newValue);
+        // 커서 위치 조정
+        setTimeout(() => {
+          target.setSelectionRange(start + 1, start + 1);
+        }, 0);
+        return;
+      }
+    }
+
+    // 허용되지 않는 키 차단
+    if (!allowedKeys.includes(e.key) && !isNumber && !isDot) {
+      e.preventDefault();
+      return;
+    }
+
+    // Enter 키 처리
+    if (e.key === 'Enter') {
+      inputRef.current?.blur();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setIsUserTyping(true);
+    
+    const pastedText = e.clipboardData.getData('text');
+    
+    // 붙여넣기된 텍스트에서 숫자와 소수점만 추출
+    const numbersOnly = pastedText.replace(/[^\d\.]/g, '');
+    // 소수점이 여러 개 있으면 첫 번째만 유지
+    const dotIndex = numbersOnly.indexOf('.');
+    const cleanedText = dotIndex >= 0 
+      ? numbersOnly.substring(0, dotIndex + 1) + numbersOnly.substring(dotIndex + 1).replace(/\./g, '')
+      : numbersOnly;
+    
+    if (cleanedText) {
+      const numericValue = parseFloat(cleanedText) || 0;
+      
+      // 범위 체크
+      let finalValue = numericValue;
+      if (min !== undefined && numericValue < min) finalValue = min;
+      if (finalMax !== undefined && numericValue > finalMax) finalValue = finalMax;
+      
+      setDisplayValue(finalValue.toString());
+      onChange(finalValue);
+    }
+  };
+
+  return (
+    <div className={`space-y-2 ${className}`}>
+      {/* 🔴 개선된 라벨 */}
+      {label && (
+        <div className="flex items-center gap-2">
+          <Label 
+            htmlFor={label.replace(/\s/g, '')} 
+            className={`
+              text-sm font-medium flex items-center gap-2 transition-colors duration-200
+              ${required && !isCompleted ? 'text-red-700 font-semibold' : 
+                required && isCompleted ? 'text-green-700 font-semibold' : 
+                'text-gray-700'}
+              ${isFocused ? 'text-blue-700' : ''}
+            `}
+          >
+            <span>{label}</span>
+            
+            {required && (
+              <div className="flex items-center gap-1">
+                <span className="text-red-500 text-lg font-bold">*</span>
+                <Badge variant="outline" className="text-xs bg-red-100 text-red-700 border-red-300 px-1 py-0">
+                  필수
+                </Badge>
+              </div>
+            )}
+            
+            {required && isCompleted && (
+              <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                ✅ 완료
+              </Badge>
+            )}
+            
+            {hasError && (
+              <Badge variant="destructive" className="text-xs">
+                ⚠️ 오류
+              </Badge>
+            )}
+          </Label>
+          
+          {/* 🔧 한도 표시 (기존 호환성) */}
+          {finalMax && (
+            <Badge variant="outline" className="text-xs">
+              한도: {formatNumberDisplay(finalMax)}{finalSuffix || '원'}
+            </Badge>
+          )}
+          
+          {/* 🔧 도움말 표시 */}
+          {finalHelpText && (
+            <Badge variant="secondary" className="text-xs">
+              💡 도움말
+            </Badge>
+          )}
+        </div>
+      )}
+      
+      {/* 🔴 개선된 입력 필드 */}
+      <div className="relative group">
+        {prefix && (
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm z-10">
+            {prefix}
+          </span>
+        )}
+        
+        <Input
+          ref={inputRef}
+          id={label?.replace(/\s/g, '')}
+          type="text"
+          inputMode="numeric"
+          value={displayValue}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseDown={handleMouseDown}
+          placeholder={required ? `${placeholder} (필수)` : placeholder}
+          disabled={disabled}
+          autoComplete="off"
+          spellCheck="false"
+          title={label}
+          aria-label={label}
+          aria-required={required}
+          aria-invalid={hasError}
+          className={`
+            w-full px-4 py-3 text-base border-2 rounded-xl
+            transition-all duration-200 ease-in-out
+            ${disabled 
+              ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed' 
+              : hasError 
+                ? 'border-red-500 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500/20' 
+                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-blue-500 focus:ring-blue-500/20'
+            }
+            ${prefix ? 'pl-16' : ''}
+            ${suffix ? 'pr-16' : ''}
+            text-gray-700 dark:text-gray-200
+          `}
+        />
+        
+        {finalSuffix && (
+          <span className={`
+            absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm z-10
+            transition-colors duration-200
+            ${isFocused ? 'text-blue-600' : ''}
+          `}>
+            {finalSuffix}
+          </span>
+        )}
+        
+        {required && !isCompleted && (
+          <div className="absolute -right-2 -top-2">
+            <span className={`
+              inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full
+              transition-transform duration-200
+              ${isHovered ? 'scale-110' : ''}
+            `}>
+              !
+            </span>
+          </div>
+        )}
+        
+        {required && isCompleted && (
+          <div className="absolute -right-2 -top-2">
+            <span className={`
+              inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-green-500 rounded-full
+              transition-transform duration-200
+              ${isHovered ? 'scale-110' : ''}
+              ${hasRecentChange ? 'animate-bounce' : ''}
+            `}>
+              ✓
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* 🔧 한도 초과 경고 (기존 호환성) */}
+      {hasWarning && finalMax && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
+          <p className="text-sm text-orange-600">
+            ⚠️ 한도 초과로 {formatNumberDisplay(finalMax)}{finalSuffix || '원'}로 자동 조정되었습니다.
+          </p>
+        </div>
+      )}
+
+      {/* 🔴 오류 메시지 */}
+      {finalError && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          <div className="flex items-start gap-2">
+            <span className="text-red-500 font-bold">⚠️</span>
+            <span>{finalError}</span>
+            {required && finalError.includes('필수') && (
+              <Badge variant="destructive" className="text-xs ml-2">
+                REQUIRED
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 🔴 필수 필드 오류 메시지 */}
+      {required && isRequiredAndEmpty && !finalError && (
+        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+          <div className="flex items-start gap-2">
+            <span className="text-red-500 font-bold">⚠️</span>
+            <span>{requiredMessage || `${label}은(는) 필수 입력 항목입니다.`}</span>
+            <Badge variant="destructive" className="text-xs ml-2">
+              REQUIRED
+            </Badge>
+          </div>
+        </div>
+      )}
+
+      {/* 🔴 필수 필드 완료 안내 */}
+      {required && isCompleted && (
+        <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+          <div className="flex items-start gap-2">
+            <span className="text-green-500 font-bold">✅</span>
+            <span>{label} 입력이 완료되었습니다.</span>
+          </div>
+        </div>
+      )}
+
+      {/* 🔧 동적 정보 표시 */}
+      {dynamicMessage && (
+        <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+          <div className="flex items-start gap-2">
+            <span className="text-blue-500 font-bold">💡</span>
+            <span>{dynamicMessage}</span>
+          </div>
+        </div>
+      )}
+
+      {/* 🔧 도움말 정보 */}
+      {finalHelpText && (
+        <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-200">
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 font-bold">💡</span>
+            <span>{finalHelpText}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default NumberInput; 

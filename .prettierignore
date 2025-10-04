@@ -1,0 +1,7 @@
+﻿docs/
+docs/legacy/
+public/
+docs/*.js
+docs/**/*.js
+docs/**/*.html
+gas-*.js
