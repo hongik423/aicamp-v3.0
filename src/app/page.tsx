@@ -30,12 +30,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import Head from 'next/head';
 import AICampChatInterface from '@/components/chatbot/AICampChatInterface';
 import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerController';
 // import AICampContentGuide from '@/components/layout/AICampContentGuide'; // BannerController에서 관리
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
 // import BookPromotionBanner from '@/components/layout/BookPromotionBanner'; // BannerController에서 관리
 import PRDSystemBanner from '@/components/layout/PRDSystemBanner';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
 const services = [
@@ -274,12 +276,35 @@ export default function Home() {
     document.body.style.height = 'auto';
     document.body.style.pointerEvents = 'auto';
     
+    // runtime.lastError 방지를 위한 전역 에러 핸들러
+    const handleError = (event: ErrorEvent) => {
+      if (event.message?.includes('message port closed')) {
+        console.warn('Message port closed error handled:', event);
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason?.message?.includes('message port closed')) {
+        console.warn('Message port closed promise rejection handled:', event);
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
     // 컴포넌트 언마운트 시 정리
     return () => {
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.height = '';
       document.body.style.pointerEvents = '';
+      
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
 
@@ -294,7 +319,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-white">
       {/* 애플스토어 스타일 Hero Section */}
       <section className="py-20 lg:py-32 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
         {/* 배경 패턴 */}
@@ -1534,6 +1560,7 @@ AI CAMP 교장에게 바로 문의하기
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
