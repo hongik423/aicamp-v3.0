@@ -400,7 +400,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 5단계: 진단 ID 생성
     const diagnosisId = generatePRDDiagnosisId();
     
-    // 6단계: GAS 데이터 저장 (PRD 형식)
+    // 6단계: GAS 데이터 저장 (PRD 형식) - 보고서 HTML 포함
     console.log('💾 PRD V3.0 GAS 데이터 저장 중...');
     const gasData = {
       diagnosisId,
@@ -422,6 +422,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         maturityLevel: analysisResult.overallScore.maturityLevel,
         categoryScores: analysisResult.overallScore.categoryScores
       },
+      reportHtml: reportResult.data!.reportHtml, // 보고서 HTML 포함
+      reportMetadata: reportResult.data!.metadata, // 보고서 메타데이터 포함
       type: 'prd-diagnosis',
       action: 'processPRDDiagnosis',
       version: 'PRD-V3.0'

@@ -3199,6 +3199,14 @@ function doPost(e) {
           console.log('✅ PRD V3.0 진단 처리 완료:', result ? result.success : 'null');
           break;
           
+        case 'query_diagnosis':
+        case 'query-diagnosis':
+        case 'get_diagnosis':
+          console.log('🔍 PRD V3.0 진단 조회 시작');
+          result = queryPRDDiagnosis(requestData);
+          console.log('✅ PRD V3.0 진단 조회 완료:', result ? result.success : 'null');
+          break;
+          
         case 'diagnosis':
         case 'ai-diagnosis':
         case 'ai_diagnosis':
@@ -6022,6 +6030,8 @@ function processPRDDiagnosis(data) {
       location: data.location || 'SEOUL',
       responses: data.responses || data.assessmentResponses || data.answers || {},
       scoreData: data.scoreData || {},
+      reportHtml: data.reportHtml || '', // 보고서 HTML 저장
+      reportMetadata: data.reportMetadata || {}, // 보고서 메타데이터 저장
       version: data.version || 'PRD-V3.0',
       timestamp: new Date().toISOString()
     };
@@ -6041,6 +6051,9 @@ function processPRDDiagnosis(data) {
     // 45문항 상세 데이터 저장
     const detailSheetResult = saveToDetailSheet(normalizedData, normalizedData.responses);
     
+    // 보고서 HTML 저장 (새로운 시트에 저장)
+    const reportSheetResult = saveReportToSheet(normalizedData);
+    
     // 이메일 발송
     const emailResult = sendPRDDiagnosisEmail(normalizedData);
     
@@ -6048,6 +6061,7 @@ function processPRDDiagnosis(data) {
       diagnosisId: normalizedData.diagnosisId,
       mainSheetSaved: mainSheetResult,
       detailSheetSaved: detailSheetResult,
+      reportSheetSaved: reportSheetResult,
       emailSent: emailResult.success
     });
     
@@ -6068,6 +6082,176 @@ function processPRDDiagnosis(data) {
     
   } catch (error) {
     console.error('❌ PRD V3.0 진단 데이터 처리 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      version: 'PRD-V3.0',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * PRD V3.0 보고서 HTML 저장
+ */
+function saveReportToSheet(data) {
+  try {
+    console.log('📄 PRD V3.0 보고서 HTML 저장 시작');
+    
+    const config = getEnvironmentConfig();
+    if (!config || !config.SPREADSHEET_ID) {
+      console.error('❌ 보고서 저장: 스프레드시트 설정이 없습니다');
+      return false;
+    }
+    
+    // SpreadsheetApp 사용 가능성 확인
+    if (typeof SpreadsheetApp === 'undefined') {
+      console.error('❌ SpreadsheetApp이 사용할 수 없습니다');
+      return false;
+    }
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (error) {
+      console.error('❌ 스프레드시트 열기 실패:', error);
+      return false;
+    }
+    
+    // 보고서 시트 가져오기 또는 생성
+    let reportSheet;
+    try {
+      reportSheet = spreadsheet.getSheetByName('PRD_Reports');
+      if (!reportSheet) {
+        reportSheet = spreadsheet.insertSheet('PRD_Reports');
+        // 헤더 행 추가
+        reportSheet.getRange(1, 1, 1, 4).setValues([['진단ID', '회사명', '보고서HTML', '생성일시']]);
+        reportSheet.getRange(1, 1, 1, 4).setFontWeight('bold');
+      }
+    } catch (error) {
+      console.error('❌ 보고서 시트 접근 실패:', error);
+      return false;
+    }
+    
+    // 보고서 데이터 저장
+    const reportData = [
+      data.diagnosisId,
+      data.companyName,
+      data.reportHtml || '보고서 생성 중...',
+      new Date().toISOString()
+    ];
+    
+    try {
+      reportSheet.appendRow(reportData);
+      console.log('✅ PRD V3.0 보고서 HTML 저장 완료');
+      return true;
+    } catch (error) {
+      console.error('❌ 보고서 데이터 추가 실패:', error);
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('❌ PRD V3.0 보고서 저장 실패:', error);
+    return false;
+  }
+}
+
+/**
+ * PRD V3.0 진단 조회
+ */
+function queryPRDDiagnosis(data) {
+  try {
+    console.log('🔍 PRD V3.0 진단 조회 시작');
+    console.log('📊 조회 요청 데이터:', {
+      diagnosisId: data.diagnosisId,
+      type: data.type,
+      action: data.action
+    });
+    
+    if (!data.diagnosisId) {
+      console.error('❌ PRD V3.0 조회: 진단ID가 없습니다');
+      throw new Error('PRD V3.0 진단ID가 필요합니다');
+    }
+    
+    const config = getEnvironmentConfig();
+    if (!config || !config.SPREADSHEET_ID) {
+      console.error('❌ PRD V3.0 조회: 스프레드시트 설정이 없습니다');
+      throw new Error('스프레드시트 설정이 없습니다');
+    }
+    
+    // SpreadsheetApp 사용 가능성 확인
+    if (typeof SpreadsheetApp === 'undefined') {
+      console.error('❌ SpreadsheetApp이 사용할 수 없습니다');
+      throw new Error('SpreadsheetApp 사용 불가');
+    }
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+    } catch (error) {
+      console.error('❌ 스프레드시트 열기 실패:', error);
+      throw new Error('스프레드시트 열기 실패');
+    }
+    
+    // 보고서 시트에서 조회
+    let reportSheet;
+    try {
+      reportSheet = spreadsheet.getSheetByName('PRD_Reports');
+      if (!reportSheet) {
+        console.error('❌ PRD_Reports 시트가 없습니다');
+        throw new Error('PRD_Reports 시트가 없습니다');
+      }
+    } catch (error) {
+      console.error('❌ 보고서 시트 접근 실패:', error);
+      throw new Error('보고서 시트 접근 실패');
+    }
+    
+    // 진단ID로 검색
+    const dataRange = reportSheet.getDataRange();
+    const values = dataRange.getValues();
+    
+    let foundRow = null;
+    for (let i = 1; i < values.length; i++) { // 헤더 행 제외
+      if (values[i][0] === data.diagnosisId) {
+        foundRow = values[i];
+        break;
+      }
+    }
+    
+    if (!foundRow) {
+      console.log('❌ PRD V3.0 조회: 진단ID를 찾을 수 없습니다:', data.diagnosisId);
+      return {
+        success: false,
+        error: '해당 진단ID의 보고서를 찾을 수 없습니다',
+        diagnosisId: data.diagnosisId
+      };
+    }
+    
+    // 조회된 데이터 구성
+    const reportData = {
+      diagnosisId: foundRow[0],
+      companyName: foundRow[1],
+      reportHtml: foundRow[2],
+      createdAt: foundRow[3],
+      version: 'PRD-V3.0'
+    };
+    
+    console.log('✅ PRD V3.0 진단 조회 성공:', {
+      diagnosisId: reportData.diagnosisId,
+      companyName: reportData.companyName,
+      hasReportHtml: !!reportData.reportHtml
+    });
+    
+    return {
+      success: true,
+      data: reportData,
+      message: 'PRD V3.0 진단 조회 완료',
+      version: 'PRD-V3.0',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ PRD V3.0 진단 조회 실패:', error);
     return {
       success: false,
       error: error.message,
