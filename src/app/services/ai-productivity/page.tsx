@@ -580,7 +580,7 @@ export default function AIProductivityPage() {
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-orange-600 mb-2">100%</div>
-                      <div className="text-sm text-gray-700">해외 사업<br />확장 지원</div>
+                      <div className="text-sm text-gray-700">사업<br />확장 지원</div>
                     </div>
                   </div>
                 </CardContent>
@@ -1031,8 +1031,8 @@ export default function AIProductivityPage() {
                 <Card className="p-6 border-2 border-green-200 bg-green-50 text-center">
                   <CardContent className="p-0">
                     <div className="text-4xl font-bold text-green-600 mb-2">100%</div>
-                    <div className="text-sm font-medium text-green-800">해외 사업 확장 지원</div>
-                    <div className="text-xs text-green-600 mt-1">글로벌 경쟁력 확보</div>
+                    <div className="text-sm font-medium text-green-800">사업 확장 지원</div>
+                    <div className="text-xs text-green-600 mt-1">경쟁력 확보</div>
                   </CardContent>
                 </Card>
               </div>

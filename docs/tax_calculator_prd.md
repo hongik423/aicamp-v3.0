@@ -1600,7 +1600,7 @@ interface StockTransferInput extends TaxCalculationInput {
   transferorAge?: number;               // 양도자 나이
   transfereeAge?: number;               // 양수자 나이
   relationship?: string;                // 양도자-양수자 관계
-  transfereeResidence: 'domestic' | 'foreign'; // 양수자 거주지
+  transfereeResidence: 'domestic' | 'nonresident'; // 양수자 거주지
   
   // 세무 정보
   hasOtherCapitalGains: boolean;        // 기타 양도소득 존재 여부
@@ -1823,7 +1823,7 @@ class StockDividendTaxCalculator {
   }
 
   private static getWithholdingRate(dividendType: string, residence: string): number {
-    if (residence === 'foreign') {
+    if (residence === 'nonresident') {
       return 0.22; // 비거주자: 22%
     }
     
@@ -2099,7 +2099,7 @@ const StockTransferCalculator: React.FC<StockTransferCalculatorProps> = ({ onCal
           "general": 0.14,
           "smallCompany": 0.09
         },
-        "foreign": 0.22
+        "nonresident": 0.22
       }
     }
   }

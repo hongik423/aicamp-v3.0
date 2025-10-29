@@ -58,7 +58,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
       {
         title: '글로벌 콘텐츠',
         description: '다국어 자막 및 더빙 작업 부담',
-        impact: '해외 진출 제한'
+        impact: '시장 확장 제한'
       }
     ],
     curriculum: {
@@ -166,7 +166,7 @@ export const mediaContentCaseDetails: { [key: string]: SuccessCaseDetail } = {
         ],
         results: [
           '15개 언어 실시간 자막',
-          '해외 시청자 500% 증가',
+          '시청자 500% 증가',
           'Netflix 콘텐츠 공급'
         ]
       }

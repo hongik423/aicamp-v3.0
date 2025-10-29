@@ -439,15 +439,6 @@ export class CapitalGainsTaxCalculator {
       };
     }
 
-    // 외국인 비과세
-    if (input.isForeignerExemption) {
-      return {
-        isExempt: true,
-        exemptionType: '외국인비과세',
-        exemptionAmount: transferIncome,
-        reason: '외국인 비과세 해당'
-      };
-    }
 
     return {
       isExempt: false,

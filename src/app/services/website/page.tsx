@@ -242,12 +242,12 @@ export default function WebsitePage() {
       stage: 'Step 4',
       period: '10년 이상',
       title: '글로벌 디지털 플랫폼',
-      target: '해외 매출 50% + 업계 표준',
+      target: '매출 50% + 업계 표준',
       investment: '1억원 이상',
       monthlyRevenue: '8,000만원 이상',
       recoveryPeriod: '36개월',
       features: [
-        { name: '글로벌 다국어', effect: '해외 매출 50%' },
+        { name: '다국어 지원', effect: '매출 50%' },
         { name: '블록체인 연동', effect: '신뢰성 극대화' },
         { name: '메타버스 진출', effect: '미래 시장 선점' },
         { name: '업계 표준화', effect: '시장 주도권 확보' }

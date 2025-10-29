@@ -394,7 +394,7 @@ export const aiMachineLearningCase: SuccessCaseDetail = {
     },
     {
       metric: '비즈니스 확장',
-      achievement: '해외 진출 5개국, 글로벌 매출 300% 증가'
+      achievement: '시장 확장 5개국, 매출 300% 증가'
     }
   ],
 

@@ -76,7 +76,7 @@ export const STOCK_TRANSFER_TAX_RATES_2024 = {
       general: 0.14,        // 14%
       smallCompany: 0.09    // 9%
     },
-    foreign: 0.22          // 22%
+    nonresident: 0.22      // 22%
   },
 
   // 할증세율
@@ -380,7 +380,7 @@ export class StockCapitalGainsTaxCalculator {
       risks.push('특수관계인 증여의제 위험');
     }
 
-    if (input.transfereeResidence === 'foreign') {
+    if (input.transfereeResidence === 'nonresident') {
       risks.push('국외거주자 세무 신고 의무');
     }
 

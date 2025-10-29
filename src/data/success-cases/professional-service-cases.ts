@@ -261,7 +261,7 @@ export const professionalServiceCaseDetails: { [key: string]: SuccessCaseDetail 
     implementationTimeline: '12개월',
     successFactors: [ '표준화/거버넌스', '법률 도메인 프롬프트 자산', '합동 운영체계' ],
     testimonial: { quote: '계약 검토와 실사가 자동화되며 변호사들이 전략 자문에 집중할 수 있었습니다.', author: '김정훈', position: '시니어 파트너', company: '김앤장 법률사무소' },
-    followUpResults: [ { metric: '재계약률', achievement: '전년 대비 28% 증가' }, { metric: '해외 자문 매출', achievement: '42% 성장' } ],
+    followUpResults: [ { metric: '재계약률', achievement: '전년 대비 28% 증가' }, { metric: '자문 매출', achievement: '42% 성장' } ],
     tags: ['리걸테크', '계약분석', '판례검색', 'AI실사'],
     featured: true
   },

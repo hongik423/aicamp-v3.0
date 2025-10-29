@@ -483,7 +483,7 @@ export default function Home() {
                 {/* 핵심 특징 - 간결하게 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {[
-                    { title: "국내 최초 한글판", desc: "해외 자료 의존 탈피" },
+                    { title: "국내 최초 한글판", desc: "체계적 실무 가이드" },
                     { title: "실무 즉시 적용", desc: "중소기업 환경 최적화" },
                     { title: "AI Agent 구축", desc: "초간단부터 심화까지" },
                     { title: "전문가 3인 집필", desc: "박사·경영지도사·CMC" }
@@ -631,7 +631,7 @@ export default function Home() {
                 <h4 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 px-2">이 책의 핵심 특징</h4>
                 
                 {[
-                  { icon: Target, title: "국내 최초 한글판", desc: "해외 자료 의존에서 벗어난 체계적 실무 가이드" },
+                  { icon: Target, title: "국내 최초 한글판", desc: "체계적 실무 가이드" },
                   { icon: Zap, title: "실무 즉시 적용", desc: "중소기업·스타트업 환경에 최적화된 사례 중심" },
                   { icon: Cpu, title: "AI Agent 구축", desc: "초간단 AI 에이전트부터 심화 프로젝트까지" },
                   { icon: CheckCircle, title: "전문가 3인 집필", desc: "컨설팅학 박사·경영지도사·CMC 컨설턴트" }

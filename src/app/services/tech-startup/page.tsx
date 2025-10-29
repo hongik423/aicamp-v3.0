@@ -214,9 +214,9 @@ export default function TechStartupPage() {
       stage: 'Step 4',
       period: '10년 이상',
       title: '지속 혁신으로 미래 개척',
-      target: '글로벌 진출 및 혁신 생태계 구축',
-      keyActions: ['사업구조 재편', '사내벤처 운영', '글로벌 진출'],
-      funding: ['지주회사 체제', '스케일업 금융', '해외 진출 지원'],
+      target: '혁신 생태계 구축',
+      keyActions: ['사업구조 재편', '사내벤처 운영', '시장 확장'],
+      funding: ['지주회사 체제', '스케일업 금융', '시장 확장 지원'],
       icon: Globe,
       color: 'from-red-500 to-pink-600'
     }
@@ -344,7 +344,7 @@ export default function TechStartupPage() {
       patents: '4건',
       revenue: '대기업 파트너십 체결',
       valuation: '2026년 코스닥 상장 목표',
-      jobs: '해외 진출 동남아 3개국'
+      jobs: '시장 확장 3개국'
     }
   ];
 

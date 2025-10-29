@@ -1863,16 +1863,6 @@ export default function CapitalGainsTaxCalculatorComponent() {
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id="foreignerExemption"
-                            checked={inputs.isForeignerExemption}
-                            onCheckedChange={(checked) => updateInput('isForeignerExemption', checked)}
-                          />
-                          <Label htmlFor="foreignerExemption" className="text-xs">
-                            외국인 비과세 대상
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
                             id="foreclosure"
                             checked={inputs.isForeclosure}
                             onCheckedChange={(checked) => updateInput('isForeclosure', checked)}

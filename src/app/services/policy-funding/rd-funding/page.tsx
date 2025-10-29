@@ -544,7 +544,7 @@ export default function RDFundingPage() {
                 </div>
                 <h3 className="font-semibold mb-2">인력 지원</h3>
                 <ul className="text-sm space-y-1">
-                  <li>• 연구개발 인력 파견</li>
+                  <li>• 연구개발 인력 지원</li>
                   <li>• 기술지도 및 컨설팅</li>
                   <li>• 연구개발 전문가 멘토링</li>
                   <li>• 교육 및 훈련 프로그램</li>

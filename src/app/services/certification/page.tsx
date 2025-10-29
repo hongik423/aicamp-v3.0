@@ -80,7 +80,7 @@ const certificationServices = [
     icon: Star,
     price: '800만원',
     duration: '3-4개월',
-    benefits: ['정책자금 우대금리', '온라인 판로개척', '해외진출 지원'],
+    benefits: ['정책자금 우대금리', '온라인 판로개척', '정부지원 확보'],
     features: [
       'R&D 투자 최적화',
       '지식재산권 전략',
@@ -97,7 +97,7 @@ const certificationServices = [
     icon: Globe,
     price: '1,500만원',
     duration: '4-6개월',
-    benefits: ['대기업 납품 자격', '해외진출 기반', '품질 신뢰도 제고'],
+    benefits: ['대기업 납품 자격', '품질 신뢰도 제고', '경쟁력 강화'],
     features: [
       'ISO 9001 품질경영',
       'ISO 14001 환경경영',
@@ -114,7 +114,7 @@ const certificationServices = [
     icon: Shield,
     price: '3,000만원',
     duration: '6-8개월',
-    benefits: ['대기업 파트너십', '해외진출 필수', 'ESG 투자 유치'],
+    benefits: ['대기업 파트너십', 'ESG 투자 유치', '지속가능 경영'],
     features: [
       '탄소중립 실행계획',
       '사회적 책임 경영',
@@ -144,9 +144,9 @@ const growthStages = [
   {
     stage: 'Step 3',
     period: '7-10년',
-    title: '글로벌 진출 국제 인증',
+    title: '국제 표준 인증',
     certifications: ['ISO 전영역', 'ESG 인증'],
-    effect: '해외 진출 + 대기업 파트너십'
+    effect: '대기업 파트너십 + 경쟁력 강화'
   },
   {
     stage: 'Step 4',

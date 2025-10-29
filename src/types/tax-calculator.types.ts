@@ -170,7 +170,6 @@ export interface CapitalGainsTaxInput {
   
   // 특수상황
   isNonResident: boolean;                  // 비거주자 여부
-  isForeignerExemption: boolean;           // 외국인 비과세 대상
   isForeclosure: boolean;                  // 경매/공매 여부
   
   // 기타
@@ -766,9 +765,6 @@ export interface WithholdingTaxCalculationOptions {
   // 근로소득 간이세액표 사용 여부
   useSimplifiedTable?: boolean;
   
-  // 외국인 여부 (세율 차등 적용)
-  isForeigner?: boolean;
-  
   // 비거주자 여부
   isNonResident?: boolean;
   
@@ -1012,7 +1008,7 @@ export interface StockTransferInput {
   transferorAge?: number;
   transfereeAge?: number;
   relationship?: 'spouse' | 'lineal_descendant' | 'lineal_ascendant' | 'sibling' | 'other';
-  transfereeResidence: 'domestic' | 'foreign';
+  transfereeResidence: 'domestic' | 'nonresident';
   
   // 세무 정보
   hasOtherCapitalGains: boolean;

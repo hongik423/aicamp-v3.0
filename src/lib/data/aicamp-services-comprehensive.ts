@@ -301,7 +301,7 @@ export const AICAMP_COMPREHENSIVE_SERVICES: Record<string, ServiceDetail> = {
     targetAudience: [
       '세제혜택 필요 기업',
       '품질 시스템 구축 기업',
-      '해외 진출 계획 기업',
+      '성장 계획 기업',
       '공공입찰 참여 기업'
     ],
     keyFeatures: [
@@ -337,7 +337,7 @@ export const AICAMP_COMPREHENSIVE_SERVICES: Record<string, ServiceDetail> = {
     benefits: [
       '연간 5천만원 세제혜택',
       '공공입찰 가점 확보',
-      '해외 진출 신뢰도 향상',
+      '시장 신뢰도 향상',
       '품질 시스템 체계화',
       '조직 운영 효율성 개선'
     ],

@@ -53,7 +53,7 @@ interface FormData extends Partial<StockTransferInput> {
   familyShareholdingRatio: number;
   holdingYears: number;
   relationship?: 'spouse' | 'lineal_descendant' | 'lineal_ascendant' | 'sibling' | 'other';
-  transfereeResidence: 'domestic' | 'foreign';
+  transfereeResidence: 'domestic' | 'nonresident';
   isStartupStock: boolean;
   isSmallMediumStock: boolean;
   hasOtherCapitalGains: boolean;
@@ -216,27 +216,6 @@ const sampleCases = {
     qualifiesForTaxIncentive: false
   },
 
-  foreignInvestor: {
-    companyName: '(주)글로벌테크',
-    stockType: 'listed' as const,
-    transferType: 'sale' as const,
-    stockQuantity: 100000,
-    pricePerShare: 15000,
-    acquisitionPrice: 1200000000,
-    transferPrice: 1500000000,
-    transferExpenses: 15000000,
-    totalSharesOutstanding: 50000000,
-    totalOwnedShares: 100000,
-    spouseShareholdingRatio: 0,
-    linealRelativeShareholdingRatio: 0,
-    holdingYears: 1.8,
-    transfereeResidence: 'foreign' as const,
-    isStartupStock: false,
-    isSmallMediumStock: false,
-    hasOtherCapitalGains: false,
-    otherIncomeAmount: 0,
-    qualifiesForTaxIncentive: false
-  },
 
   pensionAccount: {
     companyName: 'KODEX 200',
@@ -1019,9 +998,9 @@ export default function StockTransferTaxCalculator() {
         try {
           const foreignScenario = {
             ...inputData,
-            transfereeResidence: 'foreign' as const
+            transfereeResidence: 'nonresident' as const
           };
-          scenarios.foreign = calculateStockTransferTax(foreignScenario);
+          scenarios.nonresident = calculateStockTransferTax(foreignScenario);
         } catch (error) {
           console.log('비거주자 시나리오 계산 실패:', error);
         }
@@ -1500,7 +1479,7 @@ export default function StockTransferTaxCalculator() {
                     📊 비교모드 활성화
                   </Badge>
                 )}
-                {formData.transfereeResidence === 'foreign' && (
+                {formData.transfereeResidence === 'nonresident' && (
                   <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
                     🌏 비거주자 과세
                   </Badge>
@@ -1959,15 +1938,6 @@ export default function StockTransferTaxCalculator() {
                               <div className="text-xs text-gray-600 mt-1">CB 전환 후 매도</div>
                             </Button>
                             
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => loadSampleCase('foreignInvestor')}
-                              className="h-auto p-3 text-left flex-col items-start"
-                            >
-                              <div className="font-medium text-xs">🌏 외국인 투자자</div>
-                              <div className="text-xs text-gray-600 mt-1">해외 거주자 매도</div>
-                            </Button>
                             
                             <Button 
                               variant="outline" 
@@ -3066,10 +3036,10 @@ export default function StockTransferTaxCalculator() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="domestic">🇰🇷 국내 거주자</SelectItem>
-                                  <SelectItem value="foreign">🌍 해외 거주자 (비거주자)</SelectItem>
+                                  <SelectItem value="nonresident">🌍 비거주자</SelectItem>
                                 </SelectContent>
                               </Select>
-                              {formData.transfereeResidence === 'foreign' && (
+                              {formData.transfereeResidence === 'nonresident' && (
                                 <div className="p-2 bg-orange-50 rounded text-xs text-orange-700">
                                   ⚠️ 비거주자는 별도 세율 및 원천징수 적용
                                 </div>
@@ -3629,7 +3599,7 @@ export default function StockTransferTaxCalculator() {
                         <h4 className="font-semibold text-purple-700 mb-2">⚙️ 4단계: 특례설정</h4>
                         <ul className="text-sm text-purple-600 space-y-1">
                           <li>• <strong>세제혜택:</strong> 벤처/중소기업</li>
-                          <li>• <strong>거주자구분:</strong> 국내/해외</li>
+                          <li>• <strong>거주자구분:</strong> 국내/비거주자</li>
                           <li>• <strong>추가옵션:</strong> 기타소득, 연령</li>
                           <li>• <strong>과세방법:</strong> 분리/종합과세</li>
                         </ul>

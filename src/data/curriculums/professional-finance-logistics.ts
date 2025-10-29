@@ -84,7 +84,7 @@ export const professionalCurriculum: IndustryCurriculum = {
         { time: '4교시', topic: '인재 전략', description: 'AI 시대 인재 확보 및 육성' },
         { time: '5교시', topic: '파트너십 전략', description: '기술 기업과의 협업 모델' },
         { time: '6교시', topic: '리스크 관리', description: 'AI 도입 리스크와 대응' },
-        { time: '7교시', topic: '글로벌 트렌드', description: '해외 선진 사례 분석' },
+        { time: '7교시', topic: '산업 트렌드', description: '선진 사례 분석' },
         { time: '8교시', topic: '전략 수립 워크숍', description: '우리 조직 AI 비전 수립' }
       ],
       outcomes: [

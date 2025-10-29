@@ -58,7 +58,7 @@ const INDUSTRY_DATABASE: Record<string, IndustryTrendData> = {
     opportunities: [
       '정부 스마트제조 혁신 지원사업',
       '탄소중립 관련 세제혜택',
-      '해외시장 진출 기회 확대',
+      '시장 진출 기회 확대',
       'K-뉴딜 제조업 디지털화 지원',
       '산업용 AI 솔루션 활용',
       '친환경 제품 수요 증가'
