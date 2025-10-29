@@ -120,6 +120,15 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/_next/static/css/(.*)',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/css',
+          },
+        ],
+      },
     ];
   },
   
