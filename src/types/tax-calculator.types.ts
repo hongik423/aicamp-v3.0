@@ -170,6 +170,7 @@ export interface CapitalGainsTaxInput {
   
   // 특수상황
   isNonResident: boolean;                  // 비거주자 여부
+  isForeignerExemption: boolean;           // 외국인 비과세 여부
   isForeclosure: boolean;                  // 경매/공매 여부
   
   // 기타
