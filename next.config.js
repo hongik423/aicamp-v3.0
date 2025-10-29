@@ -33,8 +33,8 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react'],
     // preload 최적화
     optimizeCss: true,
-    // 번들 분석 비활성화
-    bundlePagesRouterDependencies: false,
+    // 번들 분석 비활성화 (Next.js 14에서 제거된 옵션)
+    // bundlePagesRouterDependencies: false,
   },
   
   // 웹팩 설정 최적화

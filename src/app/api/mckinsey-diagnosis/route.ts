@@ -17,7 +17,7 @@ const GAS_DEPLOYMENT_URL = process.env.GAS_DEPLOYMENT_URL || '';
 const DRIVE_FOLDER_ID = '1tUFDQ_neV85vIC4GebhtQ2VpghhGP5vj';
 
 // 타임아웃 설정 (Vercel Pro 최대 800초)
-export const maxDuration = 800;
+export const maxDuration = 300; // Vercel Hobby 플랜 최대값
 export const dynamic = 'force-dynamic';
 
 /**
