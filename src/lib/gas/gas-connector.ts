@@ -110,6 +110,12 @@ export async function callGAS(payload: GASPayload): Promise<GASResponse> {
  * 진단 데이터 저장
  */
 export async function saveDiagnosisToGAS(diagnosisData: any): Promise<GASResponse> {
+  // PRD V3.0 데이터인 경우 해당 타입과 액션 사용
+  if (diagnosisData.type === 'prd-diagnosis' && diagnosisData.action === 'processPRDDiagnosis') {
+    return await callGAS(diagnosisData);
+  }
+  
+  // 기존 형식 호환성 유지
   return await callGAS({
     type: 'diagnosis',
     action: 'processDiagnosis',

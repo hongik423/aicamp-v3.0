@@ -3180,6 +3180,25 @@ function doPost(e) {
     
     try {
       switch (requestType) {
+        case 'prd-diagnosis':
+        case 'prd_diagnosis':
+        case 'processprddiagnosis':
+          console.log('🚀 PRD V3.0 진단 처리 시작');
+          console.log('📊 PRD V3.0 요청 데이터 검증:', {
+            diagnosisId: requestData.diagnosisId,
+            companyName: requestData.companyName,
+            contactName: requestData.contactName,
+            contactEmail: requestData.contactEmail,
+            version: requestData.version,
+            type: requestData.type,
+            action: requestData.action,
+            응답수: requestData.responses ? Object.keys(requestData.responses).length : 
+                   requestData.assessmentResponses ? Object.keys(requestData.assessmentResponses).length : 0
+          });
+          result = processPRDDiagnosis(requestData);
+          console.log('✅ PRD V3.0 진단 처리 완료:', result ? result.success : 'null');
+          break;
+          
         case 'diagnosis':
         case 'ai-diagnosis':
         case 'ai_diagnosis':
@@ -5945,5 +5964,163 @@ function runGoogleDriveIntegrationTest() {
       version: 'V22.7-INTEGRATION-TEST',
       timestamp: new Date().toISOString()
     };
+  }
+}
+
+// ================================================================================
+// 🆕 PRD V3.0 진단 처리 시스템
+// ================================================================================
+
+/**
+ * PRD V3.0 진단 데이터 처리
+ */
+function processPRDDiagnosis(data) {
+  try {
+    console.log('🚀 PRD V3.0 진단 데이터 처리 시작');
+    console.log('📊 PRD V3.0 입력 데이터:', {
+      hasData: !!data,
+      diagnosisId: data?.diagnosisId,
+      companyName: data?.companyName,
+      contactEmail: data?.contactEmail,
+      version: data?.version,
+      type: data?.type,
+      action: data?.action
+    });
+    
+    // 입력 데이터 검증
+    if (!data || typeof data !== 'object') {
+      console.error('❌ PRD V3.0: 데이터 객체가 유효하지 않습니다:', data);
+      throw new Error('PRD V3.0 데이터 객체가 유효하지 않습니다');
+    }
+    
+    if (!data.diagnosisId) {
+      console.error('❌ PRD V3.0: 진단ID가 없습니다');
+      throw new Error('PRD V3.0 진단ID가 필요합니다');
+    }
+    
+    if (!data.companyName) {
+      console.error('❌ PRD V3.0: 회사명이 없습니다');
+      throw new Error('PRD V3.0 회사명이 필요합니다');
+    }
+    
+    if (!data.contactEmail) {
+      console.error('❌ PRD V3.0: 연락처 이메일이 없습니다');
+      throw new Error('PRD V3.0 연락처 이메일이 필요합니다');
+    }
+    
+    // PRD V3.0 데이터 정규화
+    const normalizedData = {
+      diagnosisId: data.diagnosisId,
+      companyName: data.companyName,
+      contactName: data.contactName || '',
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone || '',
+      position: data.position || '',
+      industry: data.industry || 'IT/소프트웨어',
+      employeeCount: data.employeeCount || 'E11_TO_50',
+      annualRevenue: data.annualRevenue || 'R100M_TO_1B',
+      location: data.location || 'SEOUL',
+      responses: data.responses || data.assessmentResponses || data.answers || {},
+      scoreData: data.scoreData || {},
+      version: data.version || 'PRD-V3.0',
+      timestamp: new Date().toISOString()
+    };
+    
+    console.log('📋 PRD V3.0 정규화된 데이터:', {
+      diagnosisId: normalizedData.diagnosisId,
+      companyName: normalizedData.companyName,
+      contactEmail: normalizedData.contactEmail,
+      responsesCount: Object.keys(normalizedData.responses).length,
+      hasScoreData: !!normalizedData.scoreData,
+      version: normalizedData.version
+    });
+    
+    // 메인 시트에 저장
+    const mainSheetResult = saveToMainSheet(normalizedData, normalizedData.scoreData);
+    
+    // 45문항 상세 데이터 저장
+    const detailSheetResult = saveToDetailSheet(normalizedData, normalizedData.responses);
+    
+    // 이메일 발송
+    const emailResult = sendPRDDiagnosisEmail(normalizedData);
+    
+    console.log('✅ PRD V3.0 진단 데이터 처리 완료:', {
+      diagnosisId: normalizedData.diagnosisId,
+      mainSheetSaved: mainSheetResult,
+      detailSheetSaved: detailSheetResult,
+      emailSent: emailResult.success
+    });
+    
+    return {
+      success: true,
+      message: 'PRD V3.0 진단 데이터 처리 완료',
+      data: {
+        diagnosisId: normalizedData.diagnosisId,
+        companyName: normalizedData.companyName,
+        contactEmail: normalizedData.contactEmail,
+        mainSheetSaved: mainSheetResult,
+        detailSheetSaved: detailSheetResult,
+        emailSent: emailResult.success
+      },
+      version: 'PRD-V3.0',
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('❌ PRD V3.0 진단 데이터 처리 실패:', error);
+    return {
+      success: false,
+      error: error.message,
+      version: 'PRD-V3.0',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
+ * PRD V3.0 진단 이메일 발송
+ */
+function sendPRDDiagnosisEmail(data) {
+  try {
+    console.log('📧 PRD V3.0 진단 이메일 발송 시작');
+    
+    const emailSubject = `[AICAMP] PRD V3.0 AI 역량진단 완료 - ${data.companyName}`;
+    const emailBody = `
+안녕하세요 ${data.contactName || '고객'}님,
+
+PRD V3.0 기반 AI 역량진단이 완료되었습니다.
+
+📊 진단 정보:
+- 진단ID: ${data.diagnosisId}
+- 회사명: ${data.companyName}
+- 업종: ${data.industry}
+- 총점: ${data.scoreData?.totalScore || 'N/A'}
+- 등급: ${data.scoreData?.grade || 'N/A'}
+- 성숙도: ${data.scoreData?.maturityLevel || 'N/A'}
+
+📋 보고서 조회:
+- 진단 결과: https://aicamp.club/diagnosis-results/${data.diagnosisId}
+- PRD 보고서: https://aicamp.club/prd-diagnosis-results/${data.diagnosisId}
+
+감사합니다.
+AICAMP 팀
+    `.trim();
+    
+    // 이메일 발송 (기존 시스템 활용)
+    const emailResult = sendEmail({
+      to: data.contactEmail,
+      subject: emailSubject,
+      body: emailBody,
+      diagnosisId: data.diagnosisId,
+      companyName: data.companyName,
+      contactName: data.contactName
+    });
+    
+    console.log('✅ PRD V3.0 진단 이메일 발송 완료');
+    return emailResult;
+    
+  } catch (error) {
+    console.error('❌ PRD V3.0 진단 이메일 발송 실패:', error);
+    return { success: false, error: error.message };
   }
 }
