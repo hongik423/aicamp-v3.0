@@ -21,7 +21,7 @@ import { NetworkStatus } from '@/components/ui/mobile-loading';
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
-  preload: true, // preload 활성화하여 경고 해결
+  preload: false, // preload 비활성화하여 경고 해결
   variable: '--font-inter',
   fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 });
@@ -346,32 +346,21 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                // 폰트 프리로드 최적화
+                // 폰트 로딩 최적화 (preload 경고 방지)
                 function optimizeFontLoading() {
-                  // Inter 폰트 즉시 사용하여 프리로드 경고 방지
-                  const style = document.createElement('style');
-                  style.textContent = 'body{font-family:Inter,system-ui,-apple-system,sans-serif}';
-                  document.head.appendChild(style);
-                  
-                  // 프리로드된 폰트 강제 사용하여 경고 방지
-                  const testElement = document.createElement('span');
-                  testElement.style.cssText = 'font-family:Inter;opacity:0;position:absolute;pointer-events:none;font-display:swap';
-                  testElement.textContent = 'Font Loading Test';
-                  document.body.appendChild(testElement);
-                  
-                  // 폰트 로드 완료 후 정리
+                  // 폰트 로드 상태 확인
                   if (document.fonts && document.fonts.ready) {
                     document.fonts.ready.then(() => {
-                      if (testElement.parentNode) {
-                        document.body.removeChild(testElement);
-                      }
+                      // 폰트 로드 완료 후 스타일 적용
+                      const style = document.createElement('style');
+                      style.textContent = 'body{font-family:Inter,system-ui,-apple-system,sans-serif}';
+                      document.head.appendChild(style);
                     });
                   } else {
-                    requestAnimationFrame(() => {
-                      if (testElement.parentNode) {
-                        document.body.removeChild(testElement);
-                      }
-                    });
+                    // 폰트 API가 없는 경우 즉시 적용
+                    const style = document.createElement('style');
+                    style.textContent = 'body{font-family:Inter,system-ui,-apple-system,sans-serif}';
+                    document.head.appendChild(style);
                   }
                 }
                 

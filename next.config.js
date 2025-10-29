@@ -31,6 +31,10 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@prisma/client'],
     // preload 경고 해결
     optimizePackageImports: ['lucide-react'],
+    // preload 최적화
+    optimizeCss: true,
+    // 번들 분석 비활성화
+    bundlePagesRouterDependencies: false,
   },
   
   // 웹팩 설정 최적화
@@ -38,6 +42,32 @@ const nextConfig = {
     // 개발 환경에서 소스맵 최적화
     if (dev) {
       config.devtool = 'eval-source-map';
+    }
+    
+    // preload 경고 해결을 위한 최적화
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          minSize: 20000,
+          maxSize: 244000,
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+              priority: 10,
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              priority: 5,
+            },
+          },
+        },
+      };
     }
     
     // ES 모듈 호환성 문제 해결
@@ -60,29 +90,6 @@ const nextConfig = {
       },
     };
     
-    // 번들 크기 최적화 (안정화)
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-              priority: 10,
-            },
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              priority: 5,
-            },
-          },
-        },
-      };
-    }
     
     return config;
   },
