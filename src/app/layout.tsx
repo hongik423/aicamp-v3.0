@@ -21,7 +21,7 @@ import { NetworkStatus } from '@/components/ui/mobile-loading';
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
-  preload: false, // preload 경고 방지를 위해 비활성화
+  preload: true, // preload 활성화하여 경고 해결
   variable: '--font-inter',
   fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 });
@@ -127,13 +127,14 @@ const registerServiceWorkerSafely = () => {
         message.includes('content.js') ||
         message.includes('runtime.lastError') ||
         message.includes('The message port closed') ||
-
+        message.includes('message port closed') ||
         message.includes('Failed to load resource') ||
         message.includes('401') ||
         message.includes('403') ||
         message.includes('개인정보 동의') ||
         message.includes('privacyConsent') ||
-        message.includes('message port closed')) {
+        message.includes('Unchecked runtime.lastError') ||
+        message.includes('message port closed before a response was received')) {
       return; // 🛡️ 확장 프로그램, 개인정보 관련 오류는 무시
     }
     originalConsoleWarn.apply(console, args);
@@ -147,6 +148,7 @@ const registerServiceWorkerSafely = () => {
         message.includes('content.js') ||
         message.includes('runtime.lastError') ||
         message.includes('The message port closed') ||
+        message.includes('message port closed') ||
         message.includes('installHook.js') ||
         message.includes('messageListener') ||
         message.includes('Invalid target origin') ||
@@ -159,7 +161,8 @@ const registerServiceWorkerSafely = () => {
         message.includes('해당 진단ID의 보고서를 생성할 수 없습니다') ||
         message.includes('개인정보 동의') ||
         message.includes('privacyConsent') ||
-        message.includes('message port closed')) {
+        message.includes('Unchecked runtime.lastError') ||
+        message.includes('message port closed before a response was received')) {
       return; // 🛡️ 확장 프로그램, 개인정보, 보고서 관련 오류는 무시
     }
     originalConsoleError.apply(console, args);
@@ -185,6 +188,8 @@ const registerServiceWorkerSafely = () => {
         errorMessage.includes('해당 진단ID의 보고서를 생성할 수 없습니다') ||
         errorMessage.includes('개인정보 동의') ||
         errorMessage.includes('privacyConsent') ||
+        errorMessage.includes('Unchecked runtime.lastError') ||
+        errorMessage.includes('message port closed before a response was received') ||
         errorSource.includes('chrome-extension://') ||
         errorSource.includes('content.js') ||
         errorSource.includes('installHook.js')) {
@@ -212,7 +217,9 @@ const registerServiceWorkerSafely = () => {
         reason.includes('사실기반 35페이지 보고서 로드 오류') ||
         reason.includes('해당 진단ID의 보고서를 생성할 수 없습니다') ||
         reason.includes('개인정보 동의') ||
-        reason.includes('privacyConsent'))) {
+        reason.includes('privacyConsent') ||
+        reason.includes('Unchecked runtime.lastError') ||
+        reason.includes('message port closed before a response was received'))) {
       event.preventDefault();
       return false;
     }
@@ -346,12 +353,26 @@ export default function RootLayout({
                   style.textContent = 'body{font-family:Inter,system-ui,-apple-system,sans-serif}';
                   document.head.appendChild(style);
                   
-                  // 프리로드된 폰트 강제 사용
+                  // 프리로드된 폰트 강제 사용하여 경고 방지
                   const testElement = document.createElement('span');
-                  testElement.style.cssText = 'font-family:Inter;opacity:0;position:absolute;pointer-events:none';
-                  testElement.textContent = '.';
+                  testElement.style.cssText = 'font-family:Inter;opacity:0;position:absolute;pointer-events:none;font-display:swap';
+                  testElement.textContent = 'Font Loading Test';
                   document.body.appendChild(testElement);
-                  requestAnimationFrame(() => document.body.removeChild(testElement));
+                  
+                  // 폰트 로드 완료 후 정리
+                  if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(() => {
+                      if (testElement.parentNode) {
+                        document.body.removeChild(testElement);
+                      }
+                    });
+                  } else {
+                    requestAnimationFrame(() => {
+                      if (testElement.parentNode) {
+                        document.body.removeChild(testElement);
+                      }
+                    });
+                  }
                 }
                 
                 // DOM 로드 즉시 실행
@@ -374,7 +395,9 @@ export default function RootLayout({
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
                       msg.includes('The message port closed') ||
-
+                      msg.includes('message port closed') ||
+                      msg.includes('Unchecked runtime.lastError') ||
+                      msg.includes('message port closed before a response was received') ||
                       msg.includes('Failed to load resource') ||
                       msg.includes('401') ||
                       msg.includes('403') ||
@@ -395,7 +418,9 @@ export default function RootLayout({
                       msg.includes('Extension context') ||
                       msg.includes('chrome-extension://') ||
                       msg.includes('The message port closed') ||
-
+                      msg.includes('message port closed') ||
+                      msg.includes('Unchecked runtime.lastError') ||
+                      msg.includes('message port closed before a response was received') ||
                       msg.includes('Failed to load resource') ||
                       msg.includes('401') ||
                       msg.includes('403') ||
