@@ -62,6 +62,18 @@ const errorPatterns = [
   'Hr.handleSubFrameNavigationComplete',
   'Hr.onNavigateComplete',
   'Gr.onNavigateComplete',
+  'chrome.webNavigation',
+  'webNavigation.onCompleted',
+  'webNavigation.onBeforeNavigate',
+  'webNavigation.onNavigateComplete',
+  'chrome.tabs.onUpdated',
+  'chrome.tabs.onActivated',
+  'Invalid tabId',
+  'tabId parameter',
+  'tabs.get callback',
+  'chrome-extension://',
+  'extension context',
+  'extension invalidated',
   
   // PostMessage 관련 오류
   'Invalid target origin',
@@ -223,24 +235,26 @@ const errorPatterns = [
       chrome.runtime.sendMessage = function() {};
       chrome.runtime.connect = function() {};
       
-      // Chrome tabs API 오류 차단 (background.js 오류 해결)
+      // Chrome tabs API 오류 차단 (background.js 오류 해결) - 강화된 버전
       if (chrome.tabs) {
         const originalTabsGet = chrome.tabs.get;
         chrome.tabs.get = function(tabId, callback) {
           try {
-            // tabId 유효성 검사 및 오류 방지
-            if (typeof tabId !== 'number' || tabId < 0) {
+            // tabId 유효성 검사 및 오류 방지 강화
+            if (typeof tabId !== 'number' || tabId < 0 || !Number.isInteger(tabId)) {
+              console.log('🔇 Invalid tabId 차단:', tabId);
               if (callback) {
                 setTimeout(() => callback({}), 0);
               }
-              return;
+              return Promise.resolve({});
             }
             return originalTabsGet.call(this, tabId, callback);
           } catch (error) {
-            // tabs.get 오류 무시
+            console.log('🔇 tabs.get 오류 차단:', error.message);
             if (callback) {
               setTimeout(() => callback({}), 0);
             }
+            return Promise.resolve({});
           }
         };
         
@@ -250,11 +264,56 @@ const errorPatterns = [
           try {
             return originalTabsQuery.call(this, queryInfo, callback);
           } catch (error) {
+            console.log('🔇 tabs.query 오류 차단:', error.message);
             if (callback) {
               setTimeout(() => callback([]), 0);
             }
+            return Promise.resolve([]);
           }
         };
+
+        // tabs.onUpdated 이벤트 차단
+        if (chrome.tabs.onUpdated) {
+          chrome.tabs.onUpdated.addListener = function() {
+            console.log('🔇 tabs.onUpdated 리스너 차단');
+            return {};
+          };
+        }
+
+        // tabs.onActivated 이벤트 차단
+        if (chrome.tabs.onActivated) {
+          chrome.tabs.onActivated.addListener = function() {
+            console.log('🔇 tabs.onActivated 리스너 차단');
+            return {};
+          };
+        }
+      }
+
+      // Chrome webNavigation API 오류 차단 (background.js 오류 해결)
+      if (chrome.webNavigation) {
+        const originalWebNavOnCompleted = chrome.webNavigation.onCompleted;
+        if (originalWebNavOnCompleted) {
+          chrome.webNavigation.onCompleted.addListener = function() {
+            console.log('🔇 webNavigation.onCompleted 리스너 차단');
+            return {};
+          };
+        }
+
+        const originalWebNavOnBeforeNavigate = chrome.webNavigation.onBeforeNavigate;
+        if (originalWebNavOnBeforeNavigate) {
+          chrome.webNavigation.onBeforeNavigate.addListener = function() {
+            console.log('🔇 webNavigation.onBeforeNavigate 리스너 차단');
+            return {};
+          };
+        }
+
+        const originalWebNavOnNavigateComplete = chrome.webNavigation.onNavigateComplete;
+        if (originalWebNavOnNavigateComplete) {
+          chrome.webNavigation.onNavigateComplete.addListener = function() {
+            console.log('🔇 webNavigation.onNavigateComplete 리스너 차단');
+            return {};
+          };
+        }
       }
     } catch (e) {
       // Chrome API 접근 오류 무시
@@ -403,4 +462,5 @@ const errorPatterns = [
   console.log('🛡️ Background.js 오류 차단 활성화');
   console.log('🛡️ Chrome 확장 프로그램 오류 차단 활성화');
   
+})();
 })();

@@ -373,9 +373,10 @@ export default function RootLayout({
                   optimizeFontLoading();
                 }
                 
-                // 🛡️ React Hydration 오류 방지 강화
+                // 🛡️ React Hydration 오류 방지 강화 + Chrome Extension 오류 차단
                 window.addEventListener('error', function(e) {
                   const msg = e.message || '';
+                  const source = e.filename || '';
                   if (msg.includes('Minified React error #418') || 
                       msg.includes('Minified React error #423') ||
                       msg.includes('Hydration failed') ||
@@ -393,14 +394,43 @@ export default function RootLayout({
                       msg.includes('401') ||
                       msg.includes('403') ||
                       msg.includes('개인정보 동의') ||
-                      msg.includes('privacyConsent')) {
+                      msg.includes('privacyConsent') ||
+                      msg.includes('background.js') ||
+                      msg.includes('Error in invocation of tabs.get') ||
+                      msg.includes('Value must be at least 0') ||
+                      msg.includes('handleSubFrameNavigationComplete') ||
+                      msg.includes('onNavigateComplete') ||
+                      msg.includes('tabs.get(integer tabId') ||
+                      msg.includes('tabId: Value must be at least 0') ||
+                      msg.includes('TypeError: Error in invocation') ||
+                      msg.includes('Hr.handleSubFrameNavigationComplete') ||
+                      msg.includes('Hr.onNavigateComplete') ||
+                      msg.includes('Gr.onNavigateComplete') ||
+                      msg.includes('chrome.webNavigation') ||
+                      msg.includes('webNavigation.onCompleted') ||
+                      msg.includes('webNavigation.onBeforeNavigate') ||
+                      msg.includes('webNavigation.onNavigateComplete') ||
+                      msg.includes('chrome.tabs.onUpdated') ||
+                      msg.includes('chrome.tabs.onActivated') ||
+                      msg.includes('Invalid tabId') ||
+                      msg.includes('tabId parameter') ||
+                      msg.includes('tabs.get callback') ||
+                      msg.includes('extension context') ||
+                      msg.includes('extension invalidated') ||
+                      source.includes('chrome-extension://') ||
+                      source.includes('background.js') ||
+                      source.includes('content.js') ||
+                      source.includes('installHook.js')) {
                     e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                     return false;
                   }
                 }, true);
                 
                 window.addEventListener('unhandledrejection', function(e) {
                   const msg = (e.reason && e.reason.message) || '';
+                  const stack = (e.reason && e.reason.stack) || '';
                   if (msg.includes('Minified React error #418') || 
                       msg.includes('Minified React error #423') ||
                       msg.includes('Hydration failed') ||
@@ -416,8 +446,36 @@ export default function RootLayout({
                       msg.includes('401') ||
                       msg.includes('403') ||
                       msg.includes('개인정보 동의') ||
-                      msg.includes('privacyConsent')) {
+                      msg.includes('privacyConsent') ||
+                      msg.includes('background.js') ||
+                      msg.includes('Error in invocation of tabs.get') ||
+                      msg.includes('Value must be at least 0') ||
+                      msg.includes('handleSubFrameNavigationComplete') ||
+                      msg.includes('onNavigateComplete') ||
+                      msg.includes('tabs.get(integer tabId') ||
+                      msg.includes('tabId: Value must be at least 0') ||
+                      msg.includes('TypeError: Error in invocation') ||
+                      msg.includes('Hr.handleSubFrameNavigationComplete') ||
+                      msg.includes('Hr.onNavigateComplete') ||
+                      msg.includes('Gr.onNavigateComplete') ||
+                      msg.includes('chrome.webNavigation') ||
+                      msg.includes('webNavigation.onCompleted') ||
+                      msg.includes('webNavigation.onBeforeNavigate') ||
+                      msg.includes('webNavigation.onNavigateComplete') ||
+                      msg.includes('chrome.tabs.onUpdated') ||
+                      msg.includes('chrome.tabs.onActivated') ||
+                      msg.includes('Invalid tabId') ||
+                      msg.includes('tabId parameter') ||
+                      msg.includes('tabs.get callback') ||
+                      msg.includes('extension context') ||
+                      msg.includes('extension invalidated') ||
+                      stack.includes('chrome-extension://') ||
+                      stack.includes('background.js') ||
+                      stack.includes('content.js') ||
+                      stack.includes('installHook.js')) {
                     e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                     return false;
                   }
                 }, true);
@@ -433,6 +491,37 @@ export default function RootLayout({
                     }
                     return originalPostMessage.call(this, message, targetOrigin, transfer);
                   };
+                }
+                
+                // 🛡️ Chrome 확장 프로그램 API 완전 무력화
+                if (typeof chrome !== 'undefined' && chrome.runtime) {
+                  try {
+                    // Chrome runtime API 무력화
+                    chrome.runtime.lastError = null;
+                    chrome.runtime.onConnect = { addListener: function() {} };
+                    chrome.runtime.onMessage = { addListener: function() {} };
+                    chrome.runtime.sendMessage = function() { return Promise.resolve(); };
+                    chrome.runtime.connect = function() { return { onMessage: { addListener: function() {} } }; };
+                    
+                    // Chrome tabs API 무력화
+                    if (chrome.tabs) {
+                      chrome.tabs.get = function() { return Promise.resolve({}); };
+                      chrome.tabs.query = function() { return Promise.resolve([]); };
+                      chrome.tabs.onUpdated = { addListener: function() {} };
+                      chrome.tabs.onActivated = { addListener: function() {} };
+                    }
+                    
+                    // Chrome webNavigation API 무력화
+                    if (chrome.webNavigation) {
+                      chrome.webNavigation.onCompleted = { addListener: function() {} };
+                      chrome.webNavigation.onBeforeNavigate = { addListener: function() {} };
+                      chrome.webNavigation.onNavigateComplete = { addListener: function() {} };
+                    }
+                    
+                    console.log('🛡️ Chrome 확장 프로그램 API 무력화 완료');
+                  } catch (e) {
+                    // Chrome API 접근 오류 무시
+                  }
                 }
               })();
             `
