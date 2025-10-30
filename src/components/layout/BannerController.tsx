@@ -68,7 +68,7 @@ export const hideBanner = (id: string) => {
 
 const BannerController: React.FC = () => {
   // 배너 설정을 상수로 분리하여 중복 제거 (스마트 표시 모드)
-  const BANNER_CONFIG = [
+  const BANNER_CONFIG: BannerState[] = [
     {
       id: 'content-guide',
       component: AICampContentGuide,
