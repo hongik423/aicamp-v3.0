@@ -5,6 +5,7 @@
 
 import { CallAIParams } from './ai-provider.types';
 import { HybridAIResponse, OllamaStatus, ServiceStatus } from './hybrid-ai-provider.types';
+import { hostStatusMonitor } from '@/lib/monitoring/host-status-monitor';
 
 export class HybridAIProvider {
   private static instance: HybridAIProvider;
@@ -128,12 +129,17 @@ export class HybridAIProvider {
   private generateFallbackResponse(prompt: string): string {
     console.log('⚠️ 로컬 Ollama 서버를 사용할 수 없습니다. 기본 응답을 생성합니다.');
     
+    // 호스트 상태 확인
+    const hostStatus = hostStatusMonitor.getUserFriendlyStatus();
+    const downtimeInfo = hostStatus.downtimeDuration ? ` (중단 시간: ${hostStatus.downtimeDuration})` : '';
+    
     if (prompt.includes('AI 역량진단') || prompt.includes('진단 보고서')) {
       return `안녕하세요! AI 역량진단 서비스입니다.
 
-현재 로컬 AI 서버가 연결되지 않아 기본 응답을 제공합니다.
+현재 호스트 컴퓨터 서버가 연결되지 않아 기본 응답을 제공합니다.
 
 🔧 **서비스 상태**
+- 호스트 컴퓨터: 연결 불가${downtimeInfo}
 - 로컬 Ollama 서버: 연결 불가
 - AI 모델: phi3:mini (오프라인)
 - 대체 모드: 활성화
@@ -151,18 +157,25 @@ export class HybridAIProvider {
 - Ollama 서버가 실행 중인지 확인해주세요
 - 네트워크 연결 상태를 점검해주세요
 
-더 정확한 진단을 위해서는 로컬 AI 서버 연결이 필요합니다.`;
+${hostStatus.showEmailRequest ? `
+🚨 **서버 사용 신청**
+호스트 컴퓨터 서버가 장시간 중단된 경우, 서버 관리자에게 사용 신청을 할 수 있습니다.
+- 이메일: hongik423@gmail.com
+- 신청 페이지: /server-downtime
+` : ''}
+
+더 정확한 진단을 위해서는 호스트 컴퓨터 서버 연결이 필요합니다.`;
     }
     
     if (prompt.includes('챗봇') || prompt.includes('상담')) {
       return `안녕하세요! AI 챗봇 상담 서비스입니다.
 
-현재 로컬 AI 서버가 연결되지 않아 기본 상담을 제공합니다.
+현재 호스트 컴퓨터 서버가 연결되지 않아 기본 상담을 제공합니다.
 
 🤖 **AI 챗봇 상담 안내**
 - 서비스: AI 역량진단 및 상담
 - 모델: phi3:mini (오프라인)
-- 상태: 대체 모드
+- 상태: 대체 모드${downtimeInfo ? ` (중단 시간: ${downtimeInfo})` : ''}
 
 💬 **상담 가능 분야**
 1. AI 도입 전략 수립
@@ -176,18 +189,33 @@ export class HybridAIProvider {
 - Ollama 서버 실행 상태 점검
 - 네트워크 연결 상태 확인
 
-더 정확한 AI 상담을 위해서는 로컬 AI 서버 연결이 필요합니다.`;
+${hostStatus.showEmailRequest ? `
+🚨 **서버 사용 신청**
+호스트 컴퓨터 서버가 장시간 중단된 경우, 서버 관리자에게 사용 신청을 할 수 있습니다.
+- 이메일: hongik423@gmail.com
+- 신청 페이지: /server-downtime
+` : ''}
+
+더 정확한 AI 상담을 위해서는 호스트 컴퓨터 서버 연결이 필요합니다.`;
     }
     
     return `안녕하세요! AI 상담 서비스입니다.
 
-현재 로컬 AI 서버가 연결되지 않아 기본 응답을 제공합니다.
+현재 호스트 컴퓨터 서버가 연결되지 않아 기본 응답을 제공합니다.
 
 🔧 **서비스 상태**
+- 호스트 컴퓨터: 연결 불가${downtimeInfo}
 - 로컬 AI 서버: 연결 불가
 - 대체 모드: 활성화
 
-더 정확한 AI 응답을 위해서는 로컬 AI 서버 연결이 필요합니다.
+${hostStatus.showEmailRequest ? `
+🚨 **서버 사용 신청**
+호스트 컴퓨터 서버가 장시간 중단된 경우, 서버 관리자에게 사용 신청을 할 수 있습니다.
+- 이메일: hongik423@gmail.com
+- 신청 페이지: /server-downtime
+` : ''}
+
+더 정확한 AI 응답을 위해서는 호스트 컴퓨터 서버 연결이 필요합니다.
 
 호스트 컴퓨터의 전원과 Ollama 서버 실행 상태를 확인해주세요.`;
   }

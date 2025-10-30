@@ -37,6 +37,7 @@ import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerCon
 import BookPromotionModal from '@/components/layout/BookPromotionModal';
 // import BookPromotionBanner from '@/components/layout/BookPromotionBanner'; // BannerController에서 관리
 import PRDSystemBanner from '@/components/layout/PRDSystemBanner';
+import ServerStatusBanner from '@/components/layout/ServerStatusBanner';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
@@ -321,6 +322,9 @@ export default function Home() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-white">
+      {/* 서버 상태 배너 */}
+      <ServerStatusBanner />
+      
       {/* 애플스토어 스타일 Hero Section */}
       <section className="py-20 lg:py-32 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
         {/* 배경 패턴 */}
