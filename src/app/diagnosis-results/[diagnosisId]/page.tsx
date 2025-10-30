@@ -71,6 +71,8 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
     errorMessage: '',
     loadingProgress: 0
   });
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [retrySeconds, setRetrySeconds] = useState(10);
   
   // 진단ID 파라미터 로드
   useEffect(() => {
@@ -158,6 +160,50 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
           } else {
             throw new Error(result.error || 'PRD V3.0 보고서를 찾을 수 없습니다');
           }
+        } else if (response.status === 404) {
+          // 보고서 미생성 상태: 폴링으로 재시도
+          setIsProcessing(true);
+          setReportState(prev => ({ ...prev, isLoading: false }));
+          let attempts = 0;
+          const maxAttempts = 90; // 15분 (10초 간격)
+          const interval = setInterval(async () => {
+            attempts++;
+            try {
+              const r = await fetch(`/api/diagnosis-reports/${diagnosisId}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'X-PRD-Version': 'V3.0' },
+                signal: AbortSignal.timeout(25000)
+              });
+              if (r.ok) {
+                clearInterval(interval);
+                setIsProcessing(false);
+                const result = await r.json();
+                if (result.success && result.data) {
+                  const reportData = {
+                    diagnosisId: result.data.diagnosisId || diagnosisId,
+                    companyName: result.data.companyName || result.data.diagnosis?.companyName || 'N/A',
+                    contactName: result.data.contactName || result.data.diagnosis?.contactName || 'N/A',
+                    reportHtml: result.data.reportHtml || result.data.htmlReport || '',
+                    metadata: result.data.metadata || {},
+                    analysisResult: result.data.analysisResult || {},
+                    scores: result.data.scores || result.data.scoreData || {},
+                    accessTime: new Date().toLocaleString('ko-KR')
+                  };
+                  setReportState({ isLoading: false, isError: false, errorMessage: '', loadingProgress: 100, reportData });
+                  toast({ title: '보고서 생성 완료', description: '자동으로 결과 페이지를 표시합니다.' });
+                }
+              } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                setIsProcessing(false);
+                setReportState({ isLoading: false, isError: true, errorMessage: '보고서 생성이 지연되고 있습니다. 잠시 후 다시 시도해주세요.', loadingProgress: 0 });
+              } else {
+                setRetrySeconds((prev) => (prev <= 1 ? 10 : prev - 1));
+              }
+            } catch {
+              // 네트워크 일시 오류는 다음 시도
+            }
+          }, 10000);
+          return;
         } else {
           throw new Error(`PRD V3.0 API 오류: ${response.status}`);
         }
@@ -204,6 +250,30 @@ export default function PRDDiagnosisResultPage({ params }: DiagnosisResultPagePr
                   {reportState.loadingProgress >= 90 && "PRD V3.0 보고서 렌더링 중..."}
                 </p>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // 생성 대기 화면 (폴링 중)
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full mx-auto p-6">
+          <Card>
+            <CardHeader className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4">
+                <Loader2 className="w-8 h-8 text-yellow-600 animate-spin" />
+              </div>
+              <CardTitle className="text-xl">보고서 생성 중입니다</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-center text-sm text-gray-700 mb-4">
+                제출하신 데이터를 바탕으로 고품질 PRD V3.0 보고서를 생성하고 있어요. 최대 10~15분이 걸릴 수 있습니다.
+              </p>
+              <div className="text-center text-xs text-gray-500">자동으로 새로고침됩니다…</div>
             </CardContent>
           </Card>
         </div>

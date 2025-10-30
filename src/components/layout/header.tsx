@@ -4,8 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-import { Badge } from '@/components/ui/badge';
-import { hideAllBanners } from '@/components/layout/BannerController';
+// 단색 톤 집중형 네비게이션: 배너 연동 제거, 배지 사용 제거
 import { 
   Menu, 
   X,
@@ -175,7 +174,7 @@ export default function Header() {
                   unoptimized
                 />
               </div>
-              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 bg-clip-text text-transparent whitespace-nowrap drop-shadow-sm">AICAMP</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900 whitespace-nowrap">AICAMP</span>
             </Link>
           </div>
 
@@ -183,12 +182,7 @@ export default function Header() {
           <div className="hidden lg:flex items-center ml-4 xl:ml-6 2xl:ml-8 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-blue-300/30`}
-              onClick={() => {
-                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                hideAllBanners();
-                console.log('헤더 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
-              }}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold bg-gray-900 text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors whitespace-nowrap`}
             >
               <BarChart3 className="w-4 h-4 mr-1" />
               <span>AI역량진단</span>
@@ -196,7 +190,7 @@ export default function Header() {
             
             <Link
               href="/prd-report-access"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-purple-300/30`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors whitespace-nowrap`}
             >
               <FileText className="w-4 h-4 mr-1" />
               <span>보고서조회</span>
@@ -205,12 +199,7 @@ export default function Header() {
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
               href="/consultation"
-              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap animate-pulse border-2 border-white/30`}
-              onClick={() => {
-                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                hideAllBanners();
-                console.log('헤더 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
-              }}
+              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-md font-bold bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors whitespace-nowrap`}
             >
               <span className="font-black">상담신청</span>
 
@@ -219,7 +208,7 @@ export default function Header() {
             {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
             <button
               onClick={() => setIsCurriculumPanelOpen(true)}
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors whitespace-nowrap`}
               title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
@@ -236,25 +225,13 @@ export default function Header() {
                 <div key={item.href} className="relative group flex-shrink-0">
                   <Link
                     href={item.href}
-                    className={`inline-flex items-center ${getNavTextSizeClasses(navTextSize)} rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${
+                    className={`inline-flex items-center ${getNavTextSizeClasses(navTextSize)} rounded-md font-medium transition-colors whitespace-nowrap px-2 py-1 ${
                       (item as any).highlight 
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-md hover:shadow-lg hover:scale-105 px-3 py-2' 
-                        : item.isSpecial 
-                          ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 bg-blue-50/50 px-2 py-1 border border-blue-200 hover:border-blue-300'
-                          : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:scale-105'
+                        ? 'text-white bg-gray-900 hover:bg-gray-800' 
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
                     <span className="truncate">{item.label}</span>
-                    {(item as any).badge && (
-                      <Badge variant="secondary" className="ml-1 text-xs bg-blue-100 text-blue-600 flex-shrink-0">
-                        {(item as any).badge}
-                      </Badge>
-                    )}
-                    {(item as any).highlight && (
-                      <span className="ml-1 text-xs bg-white/20 px-1 rounded text-white">
-                        NEW
-                      </span>
-                    )}
                   </Link>
                 </div>
               ))}
@@ -270,7 +247,7 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 hover:from-blue-700 hover:to-green-600 transition-all whitespace-nowrap animate-pulse`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors whitespace-nowrap`}
             >
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>이교장의AI상담</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI상담</span>
@@ -281,12 +258,7 @@ export default function Header() {
           <div className="hidden md:flex lg:hidden items-center ml-6 flex-shrink-0 gap-2">
             <Link
               href="/ai-diagnosis"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-blue-300/30`}
-              onClick={() => {
-                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                hideAllBanners();
-                console.log('헤더 태블릿 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
-              }}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold bg-gray-900 text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors whitespace-nowrap`}
             >
               <BarChart3 className="w-4 h-4 mr-1" />
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>AI역량진단</span>
@@ -295,7 +267,7 @@ export default function Header() {
             
             <Link
               href="/prd-report-access"
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap border border-purple-300/30`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors whitespace-nowrap`}
             >
               <FileText className="w-4 h-4 mr-1" />
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>보고서조회</span>
@@ -305,12 +277,7 @@ export default function Header() {
             {/* 상담신청 버튼 - 격을 높인 디자인 */}
             <Link
               href="/consultation"
-              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white hover:from-orange-600 hover:via-red-600 hover:to-pink-700 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 whitespace-nowrap border-2 border-white/30`}
-              onClick={() => {
-                // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                hideAllBanners();
-                console.log('헤더 태블릿 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
-              }}
+              className={`inline-flex items-center ${buttonSize === 'xs' ? 'px-2 py-1' : buttonSize === 'sm' ? 'px-3 py-2' : 'px-4 py-2.5'} rounded-md font-bold bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors whitespace-nowrap`}
             >
               <span className="font-black">상담신청</span>
             </Link>
@@ -318,7 +285,7 @@ export default function Header() {
             {/* n8n커리큘럼 버튼 - 텍스트 변경 */}
             <button
               onClick={() => setIsCurriculumPanelOpen(true)}
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 whitespace-nowrap`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors whitespace-nowrap`}
               title="n8n 커리큘럼 보기"
             >
               <BookOpen className="w-4 h-4 mr-1" />
@@ -367,7 +334,7 @@ export default function Header() {
                   if (btn) btn.click();
                 }
               }}
-              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg hover:shadow-xl hover:scale-105 transition-all whitespace-nowrap animate-pulse`}
+              className={`inline-flex items-center ${getButtonSizeClasses(buttonSize)} rounded-md font-semibold text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors whitespace-nowrap`}
             >
               <span className={buttonSize === 'xs' ? 'hidden' : 'inline'}>이교장의AI상담</span>
               <span className={buttonSize === 'xs' ? 'inline' : 'hidden'}>AI상담</span>
@@ -406,7 +373,7 @@ export default function Header() {
                     if (btn) btn.click();
                   }
                 }}
-                className="w-full mb-3 inline-flex items-center justify-center px-5 py-4 rounded-2xl text-lg font-bold text-white bg-gradient-to-r from-blue-600 via-purple-500 to-green-500 shadow-lg active:shadow-xl hover:from-blue-700 hover:to-green-600 transform active:scale-95 transition-all duration-200 animate-pulse touch-manipulation"
+                className="w-full mb-3 inline-flex items-center justify-center px-5 py-4 rounded-md text-lg font-bold text-white bg-gray-900 hover:bg-gray-800 active:shadow-sm transform active:scale-95 transition-colors touch-manipulation"
               >
                 <span className="mr-2">💬</span>
                 이교장의AI상담 바로가기
@@ -418,11 +385,8 @@ export default function Header() {
                 href="/ai-diagnosis"
                 onClick={() => {
                   setIsMenuOpen(false);
-                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                  hideAllBanners();
-                  console.log('헤더 모바일 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
                 }}
-                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2 border-2 border-blue-300/30"
+                className="flex items-center justify-between px-4 py-3 rounded-md font-medium bg-gray-900 text-white hover:bg-gray-800 transition-colors touch-manipulation active:scale-95 mb-2"
               >
                 <span className="text-base font-medium flex items-center">
                   <BarChart3 className="w-4 h-4 mr-2" />
@@ -436,7 +400,7 @@ export default function Header() {
                 onClick={() => {
                   setIsMenuOpen(false);
                 }}
-                className="flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-2 border-2 border-purple-300/30"
+                className="flex items-center justify-between px-4 py-3 rounded-md font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 transition-colors touch-manipulation active:scale-95 mb-2"
               >
                 <span className="text-base font-medium flex items-center">
                   <FileText className="w-4 h-4 mr-2" />
@@ -449,11 +413,8 @@ export default function Header() {
                 href="/consultation"
                 onClick={() => {
                   setIsMenuOpen(false);
-                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                  hideAllBanners();
-                  console.log('헤더 모바일 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
                 }}
-                className="flex items-center justify-between px-5 py-4 rounded-2xl font-black bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 touch-manipulation active:scale-95 mb-3 animate-pulse border-2 border-white/40"
+                className="flex items-center justify-between px-5 py-4 rounded-md font-black bg-blue-600 text-white hover:bg-blue-700 transition-colors touch-manipulation active:scale-95 mb-3"
               >
                 <span className="text-lg font-black">🔥 상담신청</span>
 
@@ -465,7 +426,7 @@ export default function Header() {
                   setIsMenuOpen(false);
                   setIsCurriculumPanelOpen(true);
                 }}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation active:scale-95 mb-4"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-md font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 transition-colors touch-manipulation active:scale-95 mb-4"
               >
                 <span className="text-base font-medium flex items-center">
                   <BookOpen className="w-4 h-4 mr-2" />
@@ -486,14 +447,9 @@ export default function Header() {
                     onClick={() => {
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 transition-all duration-200 touch-manipulation active:scale-95"
+                    className="flex items-center justify-between px-4 py-3 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors touch-manipulation active:scale-95"
                   >
                     <span className="text-base font-medium">{item.label}</span>
-                    {(item as any).badge && (
-                      <Badge variant="secondary" className="text-xs ml-2 bg-blue-100 text-blue-600">
-                        {(item as any).badge}
-                      </Badge>
-                    )}
                   </Link>
                 ))}
                 
@@ -508,10 +464,10 @@ export default function Header() {
                     onClick={() => {
                       setIsMenuOpen(false);
                     }}
-                    className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200 touch-manipulation active:scale-95 ${
+                    className={`flex items-center justify-between px-4 py-3 rounded-md font-medium transition-colors touch-manipulation active:scale-95 ${
                       (item as any).highlight 
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg border-2 border-purple-300/30' 
-                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100'
+                        ? 'text-white bg-gray-900' 
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
@@ -519,18 +475,7 @@ export default function Header() {
                       {(item as any).highlight && <FileText className="w-4 h-4 mr-2" />}
                       {item.label}
                     </span>
-                    <div className="flex items-center gap-2">
-                      {(item as any).badge && (
-                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-600">
-                          {(item as any).badge}
-                        </Badge>
-                      )}
-                      {(item as any).highlight && (
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                          NEW
-                        </span>
-                      )}
-                    </div>
+                    <div className="flex items-center gap-2" />
                   </Link>
                 ))}
               </div>

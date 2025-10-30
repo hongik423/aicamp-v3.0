@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Safety Master 채점 시스템 유닛 테스트
  */

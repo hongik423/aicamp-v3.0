@@ -58,7 +58,7 @@ export async function processDiagnosisForm(data: any) {
       enhancementDirection
     });
 
-    // 6. Ollama GPT-OSS 20B AI 보고서 생성 - 필수 실행
+    // 6. Ollama phi3:mini AI 보고서 생성 - 필수 실행
     let aiReport = null;
     console.log('🚀 Ollama GPT-OSS 20B 보고서 생성 시작');
     
@@ -73,7 +73,7 @@ export async function processDiagnosisForm(data: any) {
         executionRoadmap
       });
 
-      const responseText = await callAI({ prompt: aiPrompt, system: '당신은 "이교장의AI상담" 시스템의 Ollama GPT-OSS 20B 전용 분석가입니다. JSON만 반환하세요.' });
+      const responseText = await callAI({ prompt: aiPrompt, system: '당신은 "이교장의AI상담" 시스템의 Ollama phi3:mini 전용 분석가입니다. JSON만 반환하세요.' });
       try {
         const parsed = JSON.parse(responseText);
         aiReport = parsed;

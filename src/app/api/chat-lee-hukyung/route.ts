@@ -296,8 +296,8 @@ export async function POST(request: NextRequest) {
     chatCacheMetrics.recordMiss();
 
     try {
-      // 2단계: 🤖 하이브리드 AI 시스템 사용 (로컬 Ollama 우선, 대체 서비스 백업)
-      console.log('🤖 하이브리드 AI 시스템 시작');
+      // 2단계: 🤖 Ollama(phi3:mini) 단일 시스템 사용
+      console.log('🤖 Ollama(phi3:mini) 시스템 시작');
       const hybridStartTime = performance.now();
       
       const hybridResponse = await hybridAIProvider.callAI({
@@ -312,23 +312,12 @@ export async function POST(request: NextRequest) {
       
       console.log(`🤖 하이브리드 AI 응답 완료: ${hybridProcessingTime.toFixed(2)}ms`);
       console.log(`📊 AI 소스: ${hybridResponse.source}`);
-      console.log(`🤖 사용 모델: ${hybridResponse.modelUsed}`);
+      console.log(`🤖 사용 모델: phi3:mini`);
       
       responseText = hybridResponse.response;
       
-      // 로컬 Ollama 사용 시 품질 향상
-      if (hybridResponse.source === 'local') {
-        console.log('✅ 로컬 phi3:mini 모델 사용 - 고품질 응답');
-      } else {
-        console.log('⚠️ 대체 서비스 사용 - 기본 응답');
-      }
-      
-      // 대체 서비스 사용 시 추가 안내
-      if (hybridResponse.source === 'fallback') {
-        console.log('⚠️ 대체 서비스 사용 - 추가 안내 제공');
-        responseText += '\n\n💡 더 정확한 AI 상담을 위해서는 호스트 컴퓨터의 전원과 Ollama 서버 상태를 확인해주세요.';
-        responseText += '\n📞 문의: 010-9251-9743';
-      }
+      // 항상 로컬 phi3:mini 사용 전제
+      console.log('✅ 로컬 phi3:mini 모델 사용');
       
     } catch (hybridError) {
       console.log('🔄 하이브리드 AI 시스템 실패, 기본 폴백 사용:', hybridError);

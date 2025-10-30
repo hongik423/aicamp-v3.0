@@ -272,23 +272,23 @@ export default function AICurriculumPage() {
       {/* 애플 스타일 히어로 섹션 */}
       <section className="relative bg-white py-20 lg:py-32 overflow-hidden">
         {/* 배경 그라데이션 */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/30"></div>
+        <div className="absolute inset-0 bg-gray-50"></div>
         
         {/* 플로팅 요소들 */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-100/20 rounded-full blur-xl"></div>
-        <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-100/20 rounded-full blur-xl"></div>
-        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-green-100/20 rounded-full blur-lg"></div>
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gray-100 rounded-full blur-xl"></div>
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-gray-100 rounded-full blur-xl"></div>
+        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-gray-100 rounded-full blur-lg"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             {/* 미니멀 배지 */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-8">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
               AI CAMP 교육 프로그램
             </div>
             
             {/* 메인 타이틀 - 애플 스타일 */}
-            <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight">
+            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
               기업체 AI & n8n
               <br className="hidden sm:block" />
               자동화 교육
@@ -305,7 +305,7 @@ export default function AICurriculumPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 size="lg" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-md font-semibold"
                 asChild
               >
                 <Link href="/consultation">
@@ -315,7 +315,7 @@ export default function AICurriculumPage() {
               </Button>
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-gray-100 text-gray-900 hover:bg-gray-200 px-8 py-4 rounded-md font-semibold"
                 asChild
               >
                 <Link href="/services/ai-curriculum/tracks/short-term">
@@ -352,32 +352,32 @@ export default function AICurriculumPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* 특징 카드들 - 애플 스타일 */}
-            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all">
+              <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Target className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">부서별 맞춤형</h3>
               <p className="text-gray-600 text-sm leading-relaxed">7개 부서별 특화된 교육 커리큘럼으로 실무에 최적화</p>
             </div>
             
-            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all">
+              <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Zap className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">실무 중심</h3>
               <p className="text-gray-600 text-sm leading-relaxed">즉시 적용 가능한 자동화 실습과 실제 사례 중심</p>
             </div>
             
-            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all">
+              <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Users className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">입문/심화 과정</h3>
               <p className="text-gray-600 text-sm leading-relaxed">수준별 체계적인 교육 프로그램으로 단계적 성장</p>
             </div>
             
-            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all">
+              <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Award className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">수료증 발급</h3>
@@ -405,8 +405,8 @@ export default function AICurriculumPage() {
             {trackData.map((track) => (
               <Link key={track.id} href={`/services/ai-curriculum/tracks/${track.id}`}>
                 <div className="group bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:border-blue-200 transition-all duration-500 transform hover:scale-105 cursor-pointer h-full">
-                  {/* 그라데이션 헤더 */}
-                  <div className={`h-1 w-full bg-gradient-to-r ${track.color} rounded-full mb-6`} />
+                  {/* 단색 헤더 라인 */}
+                  <div className={`h-1 w-full bg-gray-900 rounded-full mb-6`} />
                   
                   {/* 트랙 정보 */}
                   <div className="mb-6">
@@ -428,7 +428,7 @@ export default function AICurriculumPage() {
                   <ul className="space-y-3 mb-6">
                     {track.highlights.map((highlight, idx) => (
                       <li key={idx} className="flex items-start gap-3 text-sm">
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-gray-700 leading-relaxed">{highlight}</span>
                       </li>
                     ))}
@@ -569,7 +569,7 @@ export default function AICurriculumPage() {
       </section>
 
       {/* CTA 섹션 */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-20 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-6">
             우리 회사에 맞는 AI 교육을 시작하세요

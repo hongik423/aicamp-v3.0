@@ -41,13 +41,13 @@ export default function FactoryAuctionPage() {
               공장 경매 투자부터 운영까지, 전문가가 함께합니다
             </p>
             <div className="flex flex-wrap justify-center gap-2 mt-4">
-              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+              <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                 경매 분석
               </Badge>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                 투자 컨설팅
               </Badge>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                 운영 지원
               </Badge>
             </div>
@@ -157,7 +157,7 @@ export default function FactoryAuctionPage() {
               ].map((item, index) => (
                 <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <item.icon className="w-8 h-8 text-blue-600" />
                     </div>
                     <div className="text-2xl font-bold text-blue-600 mb-2">
@@ -177,7 +177,7 @@ export default function FactoryAuctionPage() {
 
           {/* 주의사항 */}
           <div className="mb-16">
-            <Card className="bg-yellow-50 border-yellow-200">
+            <Card className="bg-gray-50 border-gray-200">
               <CardHeader>
                 <CardTitle className="flex items-center text-yellow-800">
                   <AlertTriangle className="w-6 h-6 mr-2" />
@@ -203,7 +203,7 @@ export default function FactoryAuctionPage() {
 
           {/* CTA 섹션 */}
           <div className="text-center">
-            <Card className="bg-gradient-to-r from-orange-600 to-blue-600 text-white">
+            <Card className="bg-gray-900 text-white">
               <CardContent className="p-12">
                 <h3 className="text-2xl font-bold mb-4">
                   공장경매 투자, 혼자 하지 마세요
@@ -215,7 +215,7 @@ export default function FactoryAuctionPage() {
                   <Button 
                     size="lg" 
                     variant="secondary"
-                    className="bg-white text-blue-600 hover:bg-gray-100"
+                    className="bg白 text-gray-900 hover:bg-gray-100"
                     asChild
                   >
                     <Link href="/consultation">
@@ -226,7 +226,7 @@ export default function FactoryAuctionPage() {
                   <Button 
                     size="lg" 
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-blue-600"
+                    className="border-white text-white hover:bg-white hover:text-gray-900"
                     asChild
                   >
                     <Link href="/ai-diagnosis">

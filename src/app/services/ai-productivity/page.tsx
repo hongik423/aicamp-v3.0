@@ -43,36 +43,32 @@ export default function AIProductivityPage() {
     description: "Apple Store 수준의 사용자 경험과 100% 무료 지원의 정부 프로그램으로 업무 효율성 40% 향상을 실현하는 전문 맞춤형 컨설팅",
     stats: [
       {
-        value: "100%",
-        label: "정부 무료 지원",
-        description: "20~99인 기업 완전 무료",
+        value: '',
+        label: "정부 지원 가치",
+        description: "적합 기업 무상 지원",
         icon: Award,
-        color: "text-green-600",
-        trend: "NEW"
+        color: "text-green-600"
       },
       {
-        value: "40%",
-        label: "업무 효율성 향상",
-        description: "AI 기술 융합 혁신 달성",
+        value: '',
+        label: "효율 향상 가치",
+        description: "AI 융합으로 업무 최적화",
         icon: TrendingUp,
-        color: "text-blue-600",
-        trend: "+40%"
+        color: "text-blue-600"
       },
       {
-        value: "20주",
-        label: "단계별 프로그램",
-        description: "심화형 10~20주 과정",
+        value: '',
+        label: "체계적 커리큘럼",
+        description: "진단→전문→심화 단계",
         icon: Clock,
-        color: "text-purple-600",
-        trend: "체계적"
+        color: "text-purple-600"
       },
       {
-        value: "5단계",
-        label: "AI 혁신 과정",
-        description: "근로시간~조직문화 개선",
+        value: '',
+        label: "조직 혁신 과정",
+        description: "근로시간·업무·문화 개선",
         icon: Settings,
-        color: "text-orange-600",
-        trend: "완성형"
+        color: "text-orange-600"
       }
     ],
     primaryCTA: {
@@ -212,7 +208,7 @@ export default function AIProductivityPage() {
                 }`}
               >
                 {activeTab !== tab.id && (
-                  <span className="absolute inset-0 bg-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="absolute inset-0 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                 )}
                 <span className="relative">
                   {tab.label}
@@ -238,7 +234,7 @@ export default function AIProductivityPage() {
                   기업 규모별 지원 혜택
                 </h3>
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card className="p-4 border-2 border-green-200 bg-green-50">
+                  <Card className="p-4 border-2 border-gray-200 bg-gray-50">
                     <CardHeader className="p-0 pb-3">
                       <CardTitle className="text-lg text-green-700">20~99인 기업</CardTitle>
                     </CardHeader>
@@ -251,7 +247,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
                   
-                  <Card className="p-4 border-2 border-blue-200 bg-blue-50">
+                  <Card className="p-4 border-2 border-gray-200 bg-gray-50">
                     <CardHeader className="p-0 pb-3">
                       <CardTitle className="text-lg text-blue-700">100인 이상</CardTitle>
                     </CardHeader>
@@ -264,7 +260,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
                   
-                  <Card className="p-4 border-2 border-purple-200 bg-purple-50">
+                  <Card className="p-4 border-2 border-gray-200 bg-gray-50">
                     <CardHeader className="p-0 pb-3">
                       <CardTitle className="text-lg text-purple-700">300인 이상</CardTitle>
                     </CardHeader>
@@ -300,7 +296,7 @@ export default function AIProductivityPage() {
                 
                 {/* 주요 AI 융합 영역 (1-3분야) */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-blue-600">1. 근로시간 분야 (AI 활용)</CardTitle>
                     </CardHeader>
@@ -314,7 +310,7 @@ export default function AIProductivityPage() {
                           <span className="text-blue-500 mr-2 text-xs">•</span>
                           <strong>근무체계 개편</strong> (일가정양립 포함) [심화형]
                         </li>
-                        <li className="bg-blue-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-blue-800 text-xs">AI 혁신 기능:</strong>
                           <div className="text-xs text-blue-700 mt-1 space-y-1">
                             <div>• 스마트 근태 관리 자동화</div>
@@ -327,7 +323,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-purple-600">2. 임금체계 분야 (AI 분석)</CardTitle>
                     </CardHeader>
@@ -341,7 +337,7 @@ export default function AIProductivityPage() {
                           <span className="text-purple-500 mr-2 text-xs">•</span>
                           <strong>임금체계 재설계</strong> [심화형]
                         </li>
-                        <li className="bg-purple-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-purple-800 text-xs">AI 분석 기능:</strong>
                           <div className="text-xs text-purple-700 mt-1 space-y-1">
                             <div>• 임금 격차 AI 분석</div>
@@ -354,7 +350,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-green-50 to-teal-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-green-600">3. 근로자참여·협력 분야</CardTitle>
                     </CardHeader>
@@ -368,7 +364,7 @@ export default function AIProductivityPage() {
                           <span className="text-green-500 mr-2 text-xs">•</span>
                           <strong>인사평가제도</strong> [심화형]
                         </li>
-                        <li className="bg-green-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-green-800 text-xs">AI 혁신 영역:</strong>
                           <div className="text-xs text-green-700 mt-1 space-y-1">
                             <div>• 다면평가 시스템</div>
@@ -384,7 +380,7 @@ export default function AIProductivityPage() {
 
                 {/* 조직관리 및 평가 분야 (4-6분야) */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-orange-50 to-yellow-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-orange-600">4. 직장문화 분야</CardTitle>
                     </CardHeader>
@@ -398,7 +394,7 @@ export default function AIProductivityPage() {
                           <span className="text-orange-500 mr-2 text-xs">•</span>
                           <strong>복리후생제도</strong> [전문형]
                         </li>
-                        <li className="bg-orange-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-orange-800 text-xs">디지털 교육:</strong>
                           <div className="text-xs text-orange-700 mt-1 space-y-1">
                             <div>• AI 맞춤형 학습 시스템</div>
@@ -410,7 +406,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-red-50 to-pink-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-red-600">5. 직무역량 분야</CardTitle>
                     </CardHeader>
@@ -424,7 +420,7 @@ export default function AIProductivityPage() {
                           <span className="text-red-500 mr-2 text-xs">•</span>
                           <strong>안전보건관리체계</strong> [심화형]
                         </li>
-                        <li className="bg-red-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-red-800 text-xs">스마트 안전:</strong>
                           <div className="text-xs text-red-700 mt-1 space-y-1">
                             <div>• IoT·AI 안전관리</div>
@@ -436,7 +432,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-indigo-600">6. 조직관리·평가 분야</CardTitle>
                     </CardHeader>
@@ -458,7 +454,7 @@ export default function AIProductivityPage() {
                           <span className="text-indigo-500 mr-2 text-xs">•</span>
                           <strong>업무관리체계</strong> [심화형]
                         </li>
-                        <li className="bg-indigo-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-indigo-800 text-xs">디지털 혁신:</strong>
                           <div className="text-xs text-indigo-700 mt-1 space-y-1">
                             <div>• AI 챗봇 소통 시스템</div>
@@ -474,7 +470,7 @@ export default function AIProductivityPage() {
 
                 {/* 나머지 3개 분야 (7-9분야) */}
                 <div className="grid md:grid-cols-3 gap-6">
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-teal-50 to-cyan-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-teal-600">7. 차별개선·원하청상생</CardTitle>
                     </CardHeader>
@@ -488,7 +484,7 @@ export default function AIProductivityPage() {
                           <span className="text-teal-500 mr-2 text-xs">•</span>
                           <strong>사내하도급 근로자 보호</strong> [전문형]
                         </li>
-                        <li className="bg-teal-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-teal-800 text-xs">공정성 확보:</strong>
                           <div className="text-xs text-teal-700 mt-1 space-y-1">
                             <div>• 차별 실태 진단</div>
@@ -500,7 +496,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-cyan-50 to-blue-50">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-cyan-600">8. 공정채용 분야</CardTitle>
                     </CardHeader>
@@ -514,7 +510,7 @@ export default function AIProductivityPage() {
                           <span className="text-cyan-500 mr-2 text-xs">•</span>
                           <strong>채용제도 마련 및 운영</strong> [심화형]
                         </li>
-                        <li className="bg-cyan-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-cyan-800 text-xs">AI 채용 시스템:</strong>
                           <div className="text-xs text-cyan-700 mt-1 space-y-1">
                             <div>• AI 기반 서류심사</div>
@@ -526,7 +522,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-pink-50 to-rose-50 border-2 border-pink-200">
+                  <Card className="p-6 border-0 shadow-lg bg-gray-50 border border-gray-200">
                     <CardHeader className="p-0 pb-4">
                       <CardTitle className="text-lg text-pink-600">9. 장년친화 분야 ★</CardTitle>
                     </CardHeader>
@@ -536,7 +532,7 @@ export default function AIProductivityPage() {
                           <span className="text-pink-500 mr-2 text-xs">•</span>
                           <strong>장년친화 인사제도</strong> [심화형/특화]
                         </li>
-                        <li className="bg-pink-100 p-3 rounded-lg mt-3">
+                        <li className="bg-gray-100 p-3 rounded-lg mt-3">
                           <strong className="text-pink-800 text-xs">2025년 특화 과제:</strong>
                           <div className="text-xs text-pink-700 mt-1 space-y-1">
                             <div>• 고령화 대응 계속 고용</div>
@@ -555,7 +551,7 @@ export default function AIProductivityPage() {
               </div>
 
               {/* 적용 성과 사례 */}
-              <Card className="p-8 border-0 shadow-lg bg-gradient-to-r from-yellow-50 to-orange-50">
+              <Card className="p-8 border-0 shadow-lg bg-gray-50">
                 <CardHeader className="pb-6">
                   <CardTitle className="text-2xl text-orange-600 text-center">
                     (주)AAA에너지관리IT기업 적용 성과
@@ -614,7 +610,7 @@ export default function AIProductivityPage() {
                 </h3>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <Card className="p-5 border-2 border-green-200 bg-green-50">
+                  <Card className="p-5 border-2 border-gray-200 bg-gray-50">
                     <CardHeader className="p-0 pb-3">
                       <CardTitle className="text-lg text-green-700 text-center">🔍 진단 컨설팅</CardTitle>
                     </CardHeader>
@@ -629,13 +625,13 @@ export default function AIProductivityPage() {
                           <p className="text-xs text-green-700">법·제도 안내 및 정부지원사업 연계</p>
                         </div>
                         <div className="text-center mt-3">
-                          <Badge variant="outline" className="bg-green-100 text-green-800">10월 16일 마감</Badge>
+                          <Badge variant="outline" className="bg-gray-100 text-gray-800">10월 16일 마감</Badge>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="p-5 border-2 border-blue-200 bg-blue-50">
+                  <Card className="p-5 border-2 border-gray-200 bg-gray-50">
                     <CardHeader className="p-0 pb-3">
                       <CardTitle className="text-lg text-blue-700 text-center">🔧 전문 컨설팅</CardTitle>
                     </CardHeader>
@@ -650,13 +646,13 @@ export default function AIProductivityPage() {
                           <p className="text-xs text-blue-700">기존 제도 재편 및 고도화</p>
                         </div>
                         <div className="text-center mt-3">
-                          <Badge variant="outline" className="bg-blue-100 text-blue-800">8월 28일 마감</Badge>
+                          <Badge variant="outline" className="bg-gray-100 text-gray-800">8월 28일 마감</Badge>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="p-5 border-2 border-purple-200 bg-purple-50">
+                  <Card className="p-5 border-2 border-gray-200 bg-gray-50">
                     <CardHeader className="p-0 pb-3">
                       <CardTitle className="text-lg text-purple-700 text-center">🎯 특화 컨설팅</CardTitle>
                     </CardHeader>
@@ -671,13 +667,13 @@ export default function AIProductivityPage() {
                           <p className="text-xs text-purple-700">고령화 대응 계속 고용</p>
                         </div>
                         <div className="text-center mt-3">
-                          <Badge variant="outline" className="bg-red-100 text-red-800">7월 3일 마감</Badge>
+                          <Badge variant="outline" className="bg-gray-100 text-gray-800">7월 3일 마감</Badge>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="p-5 border-2 border-orange-200 bg-orange-50">
+                  <Card className="p-5 border-2 border-gray-200 bg-gray-50">
                     <CardHeader className="p-0 pb-3">
                       <CardTitle className="text-lg text-orange-700 text-center">⚡ AI 융합형</CardTitle>
                     </CardHeader>
@@ -692,7 +688,7 @@ export default function AIProductivityPage() {
                           <p className="text-xs text-orange-700">실제 기업 적용 성과 검증</p>
                         </div>
                         <div className="text-center mt-3">
-                          <Badge variant="outline" className="bg-orange-100 text-orange-800">지금 신청</Badge>
+                          <Badge variant="outline" className="bg-gray-100 text-gray-800">지금 신청</Badge>
                         </div>
                       </div>
                     </CardContent>
@@ -707,7 +703,7 @@ export default function AIProductivityPage() {
                 </h3>
                 
                 <div className="grid md:grid-cols-2 gap-8">
-                  <Card className="p-6 border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+                <Card className="p-6 border-2 border-blue-200 bg-gray-50">
                     <CardHeader className="pb-4">
                       <CardTitle className="text-xl text-blue-600 text-center">
                         🏠 일가정양립 여건 조성 특화
@@ -725,7 +721,7 @@ export default function AIProductivityPage() {
                             <li>• 성과 중심 평가 체계 구축</li>
                           </ul>
                         </div>
-                        <div className="bg-blue-100 p-3 rounded-lg text-center">
+                        <div className="bg-gray-100 p-3 rounded-lg text-center">
                           <span className="text-xs font-bold text-blue-800">10주~20주 집중 지원</span>
                           <div className="text-xs text-blue-700 mt-1">요구사항 2번 해당</div>
                         </div>
@@ -733,7 +729,7 @@ export default function AIProductivityPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="p-6 border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50">
+                <Card className="p-6 border-2 border-pink-200 bg-gray-50">
                     <CardHeader className="pb-4">
                       <CardTitle className="text-xl text-pink-600 text-center">
                         👥 장년친화 고용 지원 특화
@@ -847,7 +843,7 @@ export default function AIProductivityPage() {
                     <CardContent className="p-8">
                       <div className="flex items-start gap-8">
                         <div className="flex-shrink-0">
-                          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600 text-white rounded-2xl flex items-center justify-center font-bold text-lg shadow-lg">
+                          <div className="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-bold text-lg shadow-lg">
                             {item.week}
                           </div>
                         </div>
@@ -865,7 +861,7 @@ export default function AIProductivityPage() {
                             {item.topics.map((topic, idx) => (
                               <div key={idx} className="bg-white border border-gray-200 rounded-lg p-3 hover:border-purple-300 transition-colors">
                                 <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
+                                  <div className="w-2 h-2 bg-gray-900 rounded-full"></div>
                                   <span className="text-sm font-medium text-gray-700">{topic}</span>
                                 </div>
                               </div>
@@ -1182,7 +1178,7 @@ export default function AIProductivityPage() {
               </div>
 
               {/* 추천 신청 전략 */}
-              <Card className="p-8 border-2 border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
+              <Card className="p-8 border-2 border-gray-200 bg-gray-50">
                 <CardHeader className="pb-6">
                   <CardTitle className="text-2xl text-orange-600 text-center">
                     💡 추천 신청 전략
@@ -1234,7 +1230,7 @@ export default function AIProductivityPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-blue-600">
+      <section className="py-16 bg-gray-900">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto text-white">
             <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4">
@@ -1283,7 +1279,7 @@ export default function AIProductivityPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
-                className="bg-white text-purple-600 hover:bg-gray-50 px-8 py-4 font-bold"
+                className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 font-bold"
                 onClick={() => window.open('https://www.kwpi.or.kr', '_blank')}
               >
                 <Rocket className="w-5 h-5 mr-2" />
@@ -1292,7 +1288,7 @@ export default function AIProductivityPage() {
               <Button 
                 variant="outline"
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4"
+                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4"
                 onClick={() => router.push('/consultation')}
               >
                 <Brain className="w-5 h-5 mr-2" />

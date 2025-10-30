@@ -106,18 +106,19 @@ export async function POST(request: NextRequest) {
     // 인증 성공 후 해당 코드 삭제 (일회용)
     deleteAuthCode(email, diagnosisId || 'any');
 
-    // 🔒 보안 토큰 생성 (보고서 접근용) - 진단ID 없이도 생성
+    // 🔒 보고서 접근 토큰 생성: 이메일 + 진단ID + 만료 시간 바인딩
+    const boundDiagnosisId = diagnosisId || 'unknown';
     const accessToken = Buffer.from(JSON.stringify({
       email: email,
+      diagnosisId: boundDiagnosisId,
       verifiedAt: Date.now(),
       expiresAt: Date.now() + (30 * 60 * 1000) // 30분 유효
     })).toString('base64');
 
-    // 🔓 보안 완전 해제: 진단ID 검증 제거, 이메일만으로 접근 허용
     console.log('🎯 이메일 인증 완료 및 보고서 접근 권한 부여:', {
       email: email.replace(/(.{3}).*(@.*)/, '$1***$2'),
-      accessTokenGenerated: true,
-      보안해제: '진단ID 없이도 접근 허용'
+      hasDiagnosisId: !!diagnosisId,
+      accessTokenGenerated: true
     });
 
     return NextResponse.json({

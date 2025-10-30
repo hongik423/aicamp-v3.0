@@ -22,6 +22,27 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const diagnosisId = resolvedParams.diagnosisId;
     
     console.log('🔍 PRD V3.0 보고서 조회 시작:', diagnosisId);
+
+    // 🔒 선택적 접근 토큰 검증 (있으면 강제 검증)
+    const token = request.headers.get('x-access-token');
+    if (token) {
+      try {
+        const decoded = JSON.parse(Buffer.from(token, 'base64').toString('utf-8')) as {
+          email: string;
+          diagnosisId?: string;
+          verifiedAt: number;
+          expiresAt: number;
+        };
+        if (!decoded || !decoded.expiresAt || Date.now() > decoded.expiresAt) {
+          return NextResponse.json({ success: false, error: '접근 토큰이 만료되었습니다.' }, { status: 401 });
+        }
+        if (decoded.diagnosisId && decoded.diagnosisId !== diagnosisId) {
+          return NextResponse.json({ success: false, error: '해당 보고서에 대한 접근 권한이 없습니다.' }, { status: 403 });
+        }
+      } catch {
+        return NextResponse.json({ success: false, error: '유효하지 않은 접근 토큰입니다.' }, { status: 401 });
+      }
+    }
     
     // 1순위: PRD V3.0 글로벌 캐시에서 조회
     if (typeof global !== 'undefined' && global.prdDiagnosisCache) {

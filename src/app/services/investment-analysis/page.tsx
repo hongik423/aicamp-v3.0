@@ -13,7 +13,11 @@ import {
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import InvestmentAnalysisTool from '@/components/investment-analysis/InvestmentAnalysisTool';
-import { hideAllBanners } from '@/components/layout/BannerController';
+
+// 배너 숨김 헬퍼 (안전한 무동작 처리)
+const hideAllBanners = (): void => {
+  // 의도적으로 빈 구현: 외부 배너 시스템이 없는 경우 참조 오류 방지
+};
 
 export default function InvestmentAnalysisPage() {
   const [showAnalysisTool, setShowAnalysisTool] = useState(true); // 기본값을 true로 변경하여 바로 사용 가능
@@ -363,9 +367,8 @@ export default function InvestmentAnalysisPage() {
                   size="lg" 
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
                   onClick={() => {
-                    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                    // 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기 (있다면)
                     hideAllBanners();
-                    console.log('투자분석 페이지 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
                   }}
                 >
                   <MessageCircle className="mr-3 h-6 w-6" />
@@ -390,9 +393,8 @@ export default function InvestmentAnalysisPage() {
                 variant="outline" 
                 className="border-purple-200 hover:bg-purple-50"
                 onClick={() => {
-                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
+                  // 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기 (있다면)
                   hideAllBanners();
-                  console.log('투자분석 페이지 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
                   window.location.href = '/ai-diagnosis';
                 }}
               >

@@ -29,15 +29,10 @@ import {
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import HeroSection from '@/components/ui/hero-section';
 import Image from 'next/image';
 import Head from 'next/head';
 import AICampChatInterface from '@/components/chatbot/AICampChatInterface';
-import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerController';
-// import AICampContentGuide from '@/components/layout/AICampContentGuide'; // BannerController에서 관리
-import BookPromotionModal from '@/components/layout/BookPromotionModal';
-// import BookPromotionBanner from '@/components/layout/BookPromotionBanner'; // BannerController에서 관리
-import PRDSystemBanner from '@/components/layout/PRDSystemBanner';
-import ServerStatusBanner from '@/components/layout/ServerStatusBanner';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // 서비스 데이터 - 애플스토어 스타일로 업데이트
@@ -322,83 +317,21 @@ export default function Home() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-white">
-      {/* 서버 상태 배너 */}
-      <ServerStatusBanner />
       
-      {/* 애플스토어 스타일 Hero Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
-        {/* 배경 패턴 */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400 rounded-full blur-xl"></div>
-          <div className="absolute top-40 right-20 w-48 h-48 bg-purple-400 rounded-full blur-xl"></div>
-          <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-green-400 rounded-full blur-xl"></div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
-            {/* 상단 배지 */}
-            <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-xl rounded-full border border-gray-200/50 shadow-sm mb-8">
-              <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
-              <span className="font-semibold text-gray-800">프리미엄 비즈니스 혁신 프레임워크</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold leading-tight tracking-tight mb-6">
-              <span className="block text-gray-900">기업 성장의 새로운 차원을</span>
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                경험하세요
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed" 
-               style={{ animationDelay: '0.2s' }}>
-              <strong className="text-gray-800">혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신</strong> - 
-              6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-                 style={{ animationDelay: '0.4s' }}>
-              <Link href="/services">
-                <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
-                  사업분석 시작하기
-                </button>
-              </Link>
-              
-              <Link href="/ai-diagnosis">
-                <button 
-                  className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                  onClick={() => {
-                    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                    hideAllBanners();
-                    console.log('홈페이지 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
-                  }}
-                >
-                  AI역량진단
-                </button>
-              </Link>
-              
-              <Link href="/prd-report-access">
-                <button className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  보고서 조회 (PRD)
-                </button>
-              </Link>
-              
-              <Link href="/consultation">
-                <button 
-                  className="px-8 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                  onClick={() => {
-                    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                    hideAllBanners();
-                    console.log('홈페이지 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
-                  }}
-                >
-                  전문가 상담 신청
-                </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 공통 오버레이 히어로 섹션 */}
+      <HeroSection
+        badge={{ icon: FileText, text: '프리미엄 비즈니스 혁신 프레임워크' }}
+        title={"기업 성장의 새로운 차원을"}
+        subtitle={"경험하세요"}
+        description={"혁신 AI, 스마트 투자, 기술창업, 프리미엄 인증, 디지털 혁신 — 6대 영역 통합 솔루션으로 차원이 다른 비즈니스 성과를 만나보세요"}
+        stats={[
+          { value: '', label: '의미 중심 가치', description: '비즈니스 임팩트 우선', icon: TrendingUp, color: 'text-green-500' },
+          { value: '', label: '시간 절감 가치', description: '업무 자동화 효과', icon: Clock, color: 'text-blue-500' },
+          { value: '', label: '사례 기반 신뢰', description: '산업별 성공사례', icon: FileText, color: 'text-indigo-500' }
+        ]}
+        primaryCTA={{ text: '사업분석 시작하기', href: '/services' }}
+        secondaryCTA={{ text: 'AI역량진단', href: '/ai-diagnosis' }}
+      />
 
       {/* n8n 책자 홍보 섹션 - 모바일 최적화 */}
       <section className="py-12 sm:py-20 lg:py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">

@@ -32,6 +32,7 @@ import {
   Cpu
 } from 'lucide-react';
 import Header from '../../components/layout/header';
+import HeroSection from '../../components/ui/hero-section';
 import { getSessionLeaderImage } from '../../lib/utils';
 
 export default function CenterLeaderPage() {
@@ -41,7 +42,22 @@ export default function CenterLeaderPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Header />
       
-      {/* Hero Section */}
+      {/* Hero Section (Unified) */}
+      <HeroSection
+        badge={{ icon: FileText, text: 'AI CAMP CEO' }}
+        title={"홍용기 대표이사"}
+        subtitle={"컨설팅학 박사 · CMC"}
+        description={"데이터와 AI 기반의 체계적 컨설팅으로 기업의 혁신성장을 이끌겠습니다."}
+        stats={[
+          { value: '', label: '학술 전문성', description: '컨설팅학 박사', icon: FileText, color: 'text-yellow-300' },
+          { value: '', label: '공인 자격', description: '국제공인컨설턴트 CMC', icon: Award, color: 'text-blue-300' },
+          { value: '', label: '해외 경험', description: '요르단 ODA 프로젝트', icon: Shield, color: 'text-indigo-300' }
+        ]}
+        primaryCTA={{ text: '무료 상담 신청', href: '/consultation' }}
+        secondaryCTA={{ text: '서비스 둘러보기', href: '/services' }}
+      />
+      {/* Disabled legacy Hero Section (compile guard) */}
+      {false && (
       <section className="relative bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         
@@ -164,7 +180,7 @@ export default function CenterLeaderPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section>)}
 
       {/* 이후경 교장 프로필 섹션 */}
       <section className="py-20 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 text-white relative overflow-hidden">

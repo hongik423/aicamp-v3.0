@@ -28,6 +28,7 @@ import { Progress } from '@/components/ui/progress';
 import { SuccessCaseDetail } from '@/types/success-case.types';
 import EnhancedAIProgramShowcase from '@/components/programs/EnhancedAIProgramShowcase';
 import { getNormalizedBenchmarks } from '@/lib/utils/benchmarkNormalization';
+import { getBenchmarkBackground } from '@/lib/benchmark-images';
 
 interface SuccessCaseDetailPageProps {
   caseData: SuccessCaseDetail;
@@ -86,7 +87,7 @@ export default function SuccessCaseDetailPage({
       <div className="relative bg-gradient-to-r from-blue-600 to-blue-800 overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src={caseData.heroImage}
+            src={caseData.heroImage || getBenchmarkBackground(caseData.subIndustry || caseData.industry || caseData.title)}
             alt={caseData.title}
             fill
             className="object-cover"

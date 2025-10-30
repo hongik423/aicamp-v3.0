@@ -45,11 +45,11 @@ export default function AIDiagnosisPage() {
   // 소개 화면 렌더링
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-12">
           {/* 🚀 사용자 편의성 개선: 상단에 즉시 시작 버튼 */}
           <div className="text-center mb-8">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 mb-12 text-white">
+            <div className="rounded-3xl p-8 mb-12 bg-gray-900 text-white">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-6">
                 <Brain className="w-10 h-10 text-white" />
               </div>
@@ -64,7 +64,7 @@ export default function AIDiagnosisPage() {
               <Button
                 onClick={handleStartDiagnosis}
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50 px-16 py-6 text-xl font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                className="bg-white text-gray-900 hover:bg-gray-100 px-16 py-6 text-xl font-bold rounded-md"
               >
                 <Brain className="w-8 h-8 mr-4" />
                 AI 역량진단 시작하기
@@ -212,7 +212,7 @@ export default function AIDiagnosisPage() {
           
           {/* 하단 강화된 시작 버튼 */}
           <div className="text-center">
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-3xl p-8 mb-8">
+            <div className="bg-gray-50 rounded-3xl p-8 mb-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 🚀 지금 바로 시작하세요!
               </h3>
@@ -223,7 +223,7 @@ export default function AIDiagnosisPage() {
               <Button
                 onClick={handleStartDiagnosis}
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-16 py-6 text-xl font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                className="bg-gray-900 hover:bg-gray-800 text-white px-16 py-6 text-xl font-bold rounded-md"
               >
                 <Brain className="w-8 h-8 mr-4" />
                 AI 역량진단 시작하기

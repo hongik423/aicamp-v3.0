@@ -60,36 +60,28 @@ export default function TechStartupPage() {
     description: "Apple Store 수준의 사용자 경험과 Business Model Zen 프레임워크 기반 기술사업화 전주기 지원으로 평균 5억원 자금을 확보하고 성공적인 기술창업을 실현하세요",
     stats: [
       {
-        value: "95%",
-        label: "창업 성공률",
-        description: "체계적 준비로 성공률 극대화",
+        label: "성공 가능성 강화",
+        description: "체계적 준비·리스크 최소화",
         icon: Target,
-        color: "text-green-600",
-        trend: "+15%"
+        color: "text-green-600"
       },
       {
-        value: "5억원",
-        label: "평균 자금 확보",
-        description: "정부지원 3억 + 민간투자 2억",
+        label: "자금 조달 전략",
+        description: "정부·민간 복합 구조 설계",
         icon: DollarSign,
-        color: "text-blue-600",
-        trend: "↑"
+        color: "text-blue-600"
       },
       {
-        value: "4.2건",
-        label: "특허 출원",
-        description: "핵심 기술 IP 포트폴리오 구축",
+        label: "IP 보호 체계",
+        description: "핵심 특허 포트폴리오 구축",
         icon: Shield,
-        color: "text-purple-600",
-        trend: "+3"
+        color: "text-purple-600"
       },
       {
-        value: "40%",
-        label: "세액공제 최대",
-        description: "연구개발비 세제 혜택 활용",
+        label: "세제 혜택 활용",
+        description: "R&D 비용 공제 구조 설계",
         icon: Award,
-        color: "text-orange-600",
-        trend: "MAX"
+        color: "text-orange-600"
       }
     ],
     primaryCTA: {
@@ -379,7 +371,7 @@ export default function TechStartupPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-4">
                 <Star className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">서비스 핵심 가치</span>
               </div>
@@ -395,7 +387,7 @@ export default function TechStartupPage() {
               {coreValues.map((value, index) => (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden">
                   <CardContent className="p-0">
-                    <div className={`h-24 bg-gradient-to-r ${value.color} flex items-center justify-center relative overflow-hidden`}>
+                    <div className={`h-24 bg-gray-900 text-white flex items-center justify-center relative overflow-hidden`}>
                       <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300"></div>
                       <value.icon className="w-10 h-10 text-white relative z-10" />
                     </div>
@@ -410,9 +402,9 @@ export default function TechStartupPage() {
             </div>
 
             {/* 세무사 관점의 차별화 포인트 */}
-            <div className="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 md:p-8 border border-blue-200">
+            <div className="mt-12 bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center mr-3">
                   <Lightbulb className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">세무사 시각에서 주목할 포인트</h3>
@@ -445,7 +437,7 @@ export default function TechStartupPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-4">
                 <TrendingUp className="w-5 h-5 text-green-600" />
                 <span className="text-sm font-medium text-green-800">성장 4단계별 맞춤 전략</span>
               </div>
@@ -462,7 +454,7 @@ export default function TechStartupPage() {
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden">
                   <CardContent className="p-0">
                     <div className="grid lg:grid-cols-4 gap-0">
-                      <div className={`bg-gradient-to-r ${stage.color} p-6 flex flex-col justify-center items-center text-white relative overflow-hidden`}>
+                      <div className={`bg-gray-900 text-white p-6 flex flex-col justify-center items-center relative overflow-hidden`}>
                         <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300"></div>
                         <stage.icon className="w-12 h-12 mb-3 relative z-10" />
                         <div className="text-lg font-bold mb-1 relative z-10">{stage.stage}</div>
@@ -496,7 +488,7 @@ export default function TechStartupPage() {
                             <div className="space-y-2">
                               {stage.funding.map((fund, idx) => (
                                 <div key={idx} className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                                  <div className="w-2 h-2 bg-gray-500 rounded-full flex-shrink-0"></div>
                                   <span className="text-sm text-gray-700">{fund}</span>
                                 </div>
                               ))}
@@ -514,11 +506,11 @@ export default function TechStartupPage() {
       </section>
 
       {/* Business Model Zen Framework */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-purple-100 px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-4">
                 <Brain className="w-5 h-5 text-purple-600" />
                 <span className="text-sm font-medium text-purple-800">Business Model Zen 프레임워크</span>
               </div>
@@ -534,7 +526,7 @@ export default function TechStartupPage() {
               {bmzFramework.map((stage, index) => (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 relative overflow-hidden">
                   <CardContent className="p-0">
-                    <div className={`h-20 bg-gradient-to-r ${stage.color} flex items-center justify-center relative`}>
+                    <div className={`h-20 bg-gray-900 text-white flex items-center justify-center relative`}>
                       <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300"></div>
                       <stage.icon className="w-8 h-8 text-white relative z-10" />
                     </div>
@@ -545,14 +537,14 @@ export default function TechStartupPage() {
                       <div className="space-y-1">
                         {stage.details.map((detail, idx) => (
                           <div key={idx} className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
                             <span className="text-xs text-gray-600">{detail}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                     {index < bmzFramework.length - 1 && (
-                      <div className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center z-10 lg:block hidden">
+                      <div className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center z-10 lg:block hidden">
                         <ChevronRight className="w-4 h-4 text-white" />
                       </div>
                     )}
@@ -569,7 +561,7 @@ export default function TechStartupPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-orange-100 px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-4">
                 <Settings className="w-5 h-5 text-orange-600" />
                 <span className="text-sm font-medium text-orange-800">전문가 수준의 실행 프로세스</span>
               </div>
@@ -605,7 +597,7 @@ export default function TechStartupPage() {
                         <div className="space-y-2">
                           {phase.activities.map((activity, idx) => (
                             <div key={idx} className="flex items-start gap-2">
-                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mt-2 flex-shrink-0"></div>
                               <span className="text-sm text-gray-700">{activity}</span>
                             </div>
                           ))}
@@ -636,11 +628,11 @@ export default function TechStartupPage() {
       </section>
 
       {/* 정부 R&D 및 정책자금 최적화 */}
-      <section className="py-16 bg-gradient-to-br from-green-50 to-blue-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-4">
                 <Building2 className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">정부 R&D 및 정책자금 최적화</span>
               </div>
@@ -688,7 +680,7 @@ export default function TechStartupPage() {
             {/* 정책금융 최적 조합 */}
             <div className="bg-white rounded-2xl p-6 md:p-8 shadow-xl border border-blue-100">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center mr-4 text-white">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -697,25 +689,25 @@ export default function TechStartupPage() {
                 </div>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4">
+                <div className="bg-gray-50 rounded-xl p-4">
                   <div className="text-sm font-medium text-blue-800 mb-1">1단계</div>
                   <div className="text-xs text-blue-600 mb-2">중진공 창업자금</div>
                   <div className="font-bold text-blue-900">1억원</div>
                   <div className="text-xs text-blue-700">무이자 3년</div>
                 </div>
-                <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-4">
+                <div className="bg-gray-50 rounded-xl p-4">
                   <div className="text-sm font-medium text-green-800 mb-1">2단계</div>
                   <div className="text-xs text-green-600 mb-2">기보/신보 보증부 대출</div>
                   <div className="font-bold text-green-900">5억원</div>
                   <div className="text-xs text-green-700">보증 지원</div>
                 </div>
-                <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-4">
+                <div className="bg-gray-50 rounded-xl p-4">
                   <div className="text-sm font-medium text-purple-800 mb-1">3단계</div>
                   <div className="text-xs text-purple-600 mb-2">성장사다리펀드</div>
                   <div className="font-bold text-purple-900">10억원</div>
                   <div className="text-xs text-purple-700">투자 지원</div>
                 </div>
-                <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4">
+                <div className="bg-gray-50 rounded-xl p-4">
                   <div className="text-sm font-medium text-orange-800 mb-1">4단계</div>
                   <div className="text-xs text-orange-600 mb-2">산업은행 성장금융</div>
                   <div className="font-bold text-orange-900">30억원</div>
@@ -732,7 +724,7 @@ export default function TechStartupPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-4">
                 <BarChart3 className="w-5 h-5 text-green-600" />
                 <span className="text-sm font-medium text-green-800">성과 측정 및 ROI 분석</span>
               </div>
@@ -798,11 +790,11 @@ export default function TechStartupPage() {
       </section>
 
       {/* 고객 사례 */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-purple-100 px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full mb-4">
                 <Users className="w-5 h-5 text-purple-600" />
                 <span className="text-sm font-medium text-purple-800">고객 사례 및 실증 데이터</span>
               </div>
@@ -817,7 +809,7 @@ export default function TechStartupPage() {
             <div className="grid lg:grid-cols-2 gap-8">
               {successCases.map((case_, index) => (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                  <CardHeader className="bg-gray-900 text-white">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                         <Building2 className="w-6 h-6 text-white" />
@@ -870,7 +862,7 @@ export default function TechStartupPage() {
       </section>
 
       {/* 상담 및 문의 CTA */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-16 bg-gray-900">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto text-white">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -883,7 +875,7 @@ export default function TechStartupPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button 
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4"
                 onClick={() => router.push('/consultation')}
               >
                 <Phone className="w-5 h-5 mr-2" />
@@ -893,7 +885,7 @@ export default function TechStartupPage() {
               <Button 
                 variant="outline"
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4"
+                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4"
                 onClick={() => router.push('/ai-diagnosis')}
               >
                 <Brain className="w-5 h-5 mr-2" />

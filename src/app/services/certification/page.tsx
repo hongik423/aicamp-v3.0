@@ -217,7 +217,7 @@ export default function CertificationPage() {
         label: "누적 인증 기업",
         description: "검증된 전문성과 신뢰도",
         icon: Building,
-        color: "text-green-600",
+        color: "text-gray-700",
         trend: "+156"
       },
       {
@@ -225,7 +225,7 @@ export default function CertificationPage() {
         label: "평균 세제 혜택",
         description: "연간 세제혜택 및 정부지원",
         icon: DollarSign,
-        color: "text-blue-600",
+        color: "text-gray-700",
         trend: "연간"
       },
       {
@@ -233,7 +233,7 @@ export default function CertificationPage() {
         label: "인증 성공률",
         description: "체계적 준비로 성공률 극대화",
         icon: Target,
-        color: "text-purple-600",
+        color: "text-gray-700",
         trend: "+2%"
       },
       {
@@ -241,7 +241,7 @@ export default function CertificationPage() {
         label: "고객 만족도",
         description: "전문가 수준의 서비스 품질",
         icon: Star,
-        color: "text-orange-600",
+        color: "text-gray-700",
         trend: "만족"
       }
     ],
@@ -297,11 +297,11 @@ export default function CertificationPage() {
             {growthStages.map((stage, index) => (
               <div key={index} className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
                 <div className="flex items-center mb-6">
-                  <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xl mr-4">
+                  <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center text-white font-black text-xl mr-4">
                     {index + 1}
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-blue-600 mb-1">{stage.stage}</div>
+                    <div className="text-sm font-medium text-gray-700 mb-1">{stage.stage}</div>
                     <div className="text-sm text-gray-500">{stage.period}</div>
                   </div>
                 </div>
@@ -321,9 +321,9 @@ export default function CertificationPage() {
                   </div>
                 </div>
                 
-                <div className="bg-blue-50 p-4 rounded-2xl">
-                  <h4 className="text-sm font-semibold text-blue-900 mb-2">기대 효과</h4>
-                  <p className="text-blue-800 font-medium">{stage.effect}</p>
+                <div className="bg-gray-50 p-4 rounded-2xl">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">기대 효과</h4>
+                  <p className="text-gray-700 font-medium">{stage.effect}</p>
                 </div>
               </div>
             ))}
@@ -358,10 +358,10 @@ export default function CertificationPage() {
                 </div>
                 
                 <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mr-4">
+                  <div className="w-12 h-12 bg-gray-900 rounded-2xl flex items-center justify-center mr-4">
                     <service.icon className="w-6 h-6 text-white" />
                   </div>
-                  <div className="text-sm font-medium text-blue-600">{service.subtitle}</div>
+                  <div className="text-sm font-medium text-gray-700">{service.subtitle}</div>
                 </div>
                 
                 <h3 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">
@@ -384,7 +384,7 @@ export default function CertificationPage() {
                   <div className="space-y-3">
                     {service.benefits.map((benefit, idx) => (
                       <div key={idx} className="flex items-center">
-                        <CheckCircle className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 text-gray-700 mr-3 flex-shrink-0" />
                         <span className="text-gray-700">{benefit}</span>
                       </div>
                     ))}
@@ -392,7 +392,7 @@ export default function CertificationPage() {
                 </div>
 
                 <Link href="/consultation">
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                  <Button className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 text-lg rounded-md font-medium">
                     상담 신청하기
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
@@ -431,13 +431,13 @@ export default function CertificationPage() {
                     <tr key={index} className={`border-b border-gray-100 ${item.highlight ? 'bg-blue-50' : ''}`}>
                       <td className="py-6 px-4">
                         <div className="flex items-center">
-                          {item.highlight && <Star className="w-5 h-5 text-blue-600 mr-2" />}
+                    {item.highlight && <Star className="w-5 h-5 text-gray-700 mr-2" />}
                           <span className="font-semibold text-gray-900">{item.type}</span>
                         </div>
                       </td>
                       <td className="text-center py-6 px-4 font-medium text-gray-700">{item.effect}</td>
                       <td className="text-center py-6 px-4">
-                        <span className="font-bold text-blue-600 text-lg">{item.roi}</span>
+                  <span className="font-bold text-gray-900 text-lg">{item.roi}</span>
                       </td>
                       <td className="text-center py-6 px-4 font-medium text-gray-700">{item.period}</td>
                     </tr>
@@ -450,7 +450,7 @@ export default function CertificationPage() {
       </section>
 
       {/* Apple Store 스타일 CTA 섹션 */}
-      <section className="py-32 bg-blue-600">
+      <section className="py-32 bg-gray-900">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-5xl font-black text-white mb-6 tracking-tight">
             지금 시작하세요
@@ -463,13 +463,13 @@ export default function CertificationPage() {
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link href="/ai-diagnosis">
-              <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+              <Button className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg rounded-md font-medium">
                 <Sparkles className="w-5 h-5 mr-2" />
                 무료 진단 받기
               </Button>
             </Link>
             <Link href="/consultation">
-              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg rounded-full font-medium transition-all duration-200">
+              <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg rounded-md font-medium">
                 <Phone className="w-5 h-5 mr-2" />
                 전문가 상담
               </Button>

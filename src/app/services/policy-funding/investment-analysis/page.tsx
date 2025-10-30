@@ -23,7 +23,7 @@ export default function InvestmentAnalysisPage() {
         {/* 헤더 */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-4">
-            <Calculator className="h-8 w-8 text-blue-600" />
+            <Calculator className="h-8 w-8 text-gray-900" />
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">AI투자재무타당성분석기</h1>
             <Badge variant="outline" className="ml-0 sm:ml-2 mt-2 sm:mt-0">AI 분석도구</Badge>
           </div>
@@ -31,8 +31,8 @@ export default function InvestmentAnalysisPage() {
         </div>
 
         {/* 사용 안내 */}
-        <Alert className="mb-8 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300">
-          <Zap className="h-6 w-6 text-blue-600" />
+        <Alert className="mb-8 bg-gray-50 border-2 border-gray-200">
+          <Zap className="h-6 w-6 text-gray-700" />
           <AlertDescription className="text-base sm:text-lg">
             <strong className="text-blue-900 text-lg sm:text-xl">✨ AI투자재무타당성분석기를 바로 사용하실 수 있습니다!</strong>
             <br />
@@ -88,8 +88,8 @@ export default function InvestmentAnalysisPage() {
         </Card>
 
         {/* 전문가 상담 혜택 */}
-        <Card className="mb-8 border-2 border-blue-200">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
+        <Card className="mb-8 border-2 border-gray-200">
+          <CardHeader className="bg-gray-50">
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Star className="h-6 w-6 text-yellow-500" />
               전문가 상담을 통한 추가 혜택
@@ -99,8 +99,8 @@ export default function InvestmentAnalysisPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Calculator className="h-5 w-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Calculator className="h-5 w-5 text-gray-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">맞춤형 투자 전략 수립</h4>
@@ -109,8 +109,8 @@ export default function InvestmentAnalysisPage() {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Shield className="h-5 w-5 text-green-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Shield className="h-5 w-5 text-gray-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">1:1 맞춤형 분석 가이드</h4>
@@ -119,8 +119,8 @@ export default function InvestmentAnalysisPage() {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Brain className="h-5 w-5 text-purple-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Brain className="h-5 w-5 text-gray-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">AI 분석 결과 해석 지원</h4>
@@ -131,8 +131,8 @@ export default function InvestmentAnalysisPage() {
               
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-5 w-5 text-orange-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-5 w-5 text-gray-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">맞춤형 투자 전략 수립</h4>
@@ -141,8 +141,8 @@ export default function InvestmentAnalysisPage() {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <TrendingUp className="h-5 w-5 text-teal-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="h-5 w-5 text-gray-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">정책자금 연계 컨설팅</h4>
@@ -151,8 +151,8 @@ export default function InvestmentAnalysisPage() {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Phone className="h-5 w-5 text-pink-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Phone className="h-5 w-5 text-gray-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">지속적인 사후 관리</h4>
@@ -166,7 +166,7 @@ export default function InvestmentAnalysisPage() {
               <Link href="/consultation">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6"
+                  className="bg-gray-900 hover:bg-gray-800 text-lg px-8 py-6"
                 >
                   지금 바로 상담 신청하기
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -190,8 +190,8 @@ export default function InvestmentAnalysisPage() {
           <CardContent>
             <div className="grid md:grid-cols-5 gap-4">
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-blue-600 font-bold text-lg">1</span>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-gray-700 font-bold text-lg">1</span>
                 </div>
                 <h3 className="font-semibold mb-2">마이크로 투자</h3>
                 <Badge variant="outline" className="mb-2">25억원 미만</Badge>
@@ -199,8 +199,8 @@ export default function InvestmentAnalysisPage() {
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-green-600 font-bold text-lg">2</span>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-gray-700 font-bold text-lg">2</span>
                 </div>
                 <h3 className="font-semibold mb-2">소규모 투자</h3>
                 <Badge variant="outline" className="mb-2">25~50억원</Badge>
@@ -208,8 +208,8 @@ export default function InvestmentAnalysisPage() {
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-yellow-600 font-bold text-lg">3</span>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-gray-700 font-bold text-lg">3</span>
                 </div>
                 <h3 className="font-semibold mb-2">중규모 투자</h3>
                 <Badge variant="outline" className="mb-2">50~75억원</Badge>
@@ -217,8 +217,8 @@ export default function InvestmentAnalysisPage() {
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-orange-600 font-bold text-lg">4</span>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-gray-700 font-bold text-lg">4</span>
                 </div>
                 <h3 className="font-semibold mb-2">대규모 투자</h3>
                 <Badge variant="outline" className="mb-2">75~100억원</Badge>
@@ -226,8 +226,8 @@ export default function InvestmentAnalysisPage() {
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-purple-600 font-bold text-lg">5</span>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-gray-700 font-bold text-lg">5</span>
                 </div>
                 <h3 className="font-semibold mb-2">메가 투자</h3>
                 <Badge variant="outline" className="mb-2">100억원 이상</Badge>
@@ -251,8 +251,8 @@ export default function InvestmentAnalysisPage() {
                 <h3 className="font-semibold mb-3">재무 지표 (4개)</h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-blue-600 font-bold text-sm">1</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-gray-700 font-bold text-sm">1</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">NPV (순현재가치)</h4>
@@ -261,8 +261,8 @@ export default function InvestmentAnalysisPage() {
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-green-600 font-bold text-sm">2</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-gray-700 font-bold text-sm">2</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">IRR (내부수익률)</h4>
@@ -271,8 +271,8 @@ export default function InvestmentAnalysisPage() {
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-purple-600 font-bold text-sm">3</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-gray-700 font-bold text-sm">3</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">DSCR (원리금상환능력)</h4>
@@ -281,8 +281,8 @@ export default function InvestmentAnalysisPage() {
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-orange-600 font-bold text-sm">4</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-gray-700 font-bold text-sm">4</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">회수기간 (Payback Period)</h4>
@@ -341,9 +341,9 @@ export default function InvestmentAnalysisPage() {
         </Card>
 
         {/* 강화된 CTA - 전문가 상담 안내 */}
-        <div className="text-center py-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-2xl border border-blue-100">
+        <div className="text-center py-12 bg-gray-50 rounded-2xl border border-gray-200">
           <div className="max-w-3xl mx-auto px-6">
-            <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <TrendingUp className="w-4 h-4" />
               AI투자분석기 이용 중 → 전문가 상담 가능
             </div>
@@ -360,7 +360,7 @@ export default function InvestmentAnalysisPage() {
               <Link href="/consultation">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 text-lg rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+                  className="bg-gray-900 hover:bg-gray-800 text-white font-semibold py-4 px-8 text-lg rounded-md"
                 >
                   <MessageCircle className="mr-3 h-6 w-6" />
                   💬 전문가 무료 상담 신청하기
@@ -373,13 +373,13 @@ export default function InvestmentAnalysisPage() {
             
             {/* 보조 CTA */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" variant="outline" asChild className="border-blue-200 hover:bg-blue-50">
+              <Button size="lg" variant="outline" asChild className="border-gray-300 hover:bg-gray-50">
                 <Link href="/services/policy-funding">
                   <DollarSign className="mr-2 h-5 w-5" />
                   정책자금 안내 보기
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="border-purple-200 hover:bg-purple-50">
+              <Button size="lg" variant="outline" asChild className="border-gray-300 hover:bg-gray-50">
                 <Link href="/ai-diagnosis">
                   <Zap className="mr-2 h-5 w-5" />
                   AI역량진단 받기
@@ -392,8 +392,8 @@ export default function InvestmentAnalysisPage() {
               <h3 className="font-bold text-gray-900 mb-4">📋 AI 투자분석 활용 프로세스</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold">1</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <span className="text-gray-700 font-bold">1</span>
                   </div>
                   <div>
                     <div className="font-semibold">즉시 분석</div>
@@ -401,8 +401,8 @@ export default function InvestmentAnalysisPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <span className="text-orange-600 font-bold">2</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <span className="text-gray-700 font-bold">2</span>
                   </div>
                   <div>
                     <div className="font-semibold">결과 확인</div>
@@ -410,8 +410,8 @@ export default function InvestmentAnalysisPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 font-bold">3</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <span className="text-gray-700 font-bold">3</span>
                   </div>
                   <div>
                     <div className="font-semibold">전문가 상담</div>

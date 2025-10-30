@@ -5,24 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-manipulation select-none",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-manipulation select-none",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 active:scale-95",
+        // 단색 톤 일관화: 기본(짙은 회색), 보조(연한 회색), 외곽선, 파괴적, 고스트, 링크
+        default: "bg-gray-900 text-white hover:bg-gray-800",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80 active:scale-95",
+          "bg-red-600 text-white hover:bg-red-700",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent/80 active:scale-95",
+          "border border-gray-300 bg-white text-gray-900 hover:bg-gray-100",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70 active:scale-95",
-        ghost: "hover:bg-accent hover:text-accent-foreground active:bg-accent/80 active:scale-95",
-        link: "text-primary underline-offset-4 hover:underline active:text-primary/80",
+          "bg-gray-100 text-gray-900 hover:bg-gray-200",
+        ghost: "text-gray-700 hover:text-gray-900 hover:bg-gray-100",
+        link: "text-blue-600 underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2 min-h-[44px] min-w-[44px]",
-        sm: "h-9 rounded-xl px-3 min-h-[40px] min-w-[40px]",
-        lg: "h-11 rounded-xl px-8 min-h-[48px] min-w-[48px]",
+        sm: "h-9 rounded-md px-3 min-h-[40px] min-w-[40px]",
+        lg: "h-11 rounded-md px-8 min-h-[48px] min-w-[48px]",
         icon: "h-10 w-10 min-h-[44px] min-w-[44px]",
       },
     },
@@ -48,9 +49,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       buttonVariants({ variant, size, className }),
       // 터치 최적화
       "relative overflow-hidden",
-      // 터치 피드백 효과
-      "before:absolute before:inset-0 before:bg-white/20 before:opacity-0 before:transition-opacity before:duration-150",
-      "active:before:opacity-100",
+      // 미세한 터치 피드백 (과도한 애니메이션 제거)
+      "before:absolute before:inset-0 before:bg-black/5 before:opacity-0 before:transition-opacity before:duration-150 active:before:opacity-100",
       // WebKit 최적화
       "-webkit-tap-highlight-color: transparent",
       "touch-action: manipulation",
@@ -69,8 +69,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onTouchStart={(e) => {
           // 터치 시작 시 시각적 피드백
           const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'scale(0.98)';
-          target.style.transition = 'transform 0.1s ease';
+          target.style.transform = 'none';
+          target.style.transition = 'none';
           
           // 모바일 진동 피드백 (지원하는 디바이스에서)
           if (navigator.vibrate && typeof navigator.vibrate === 'function') {
@@ -85,7 +85,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onTouchEnd={(e) => {
           // 터치 종료 시 원래 크기로
           const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'scale(1)';
+          target.style.transform = 'none';
           
           // 원래 onTouchEnd 호출
           if (props.onTouchEnd && typeof props.onTouchEnd === 'function') {
@@ -95,7 +95,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onTouchCancel={(e) => {
           // 터치 취소 시 원래 크기로
           const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'scale(1)';
+          target.style.transform = 'none';
           
           // 원래 onTouchCancel 호출
           if (props.onTouchCancel && typeof props.onTouchCancel === 'function') {

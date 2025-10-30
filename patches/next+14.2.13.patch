@@ -1,0 +1,19 @@
+diff --git a/node_modules/next/dist/build/index.js b/node_modules/next/dist/build/index.js
+--- a/node_modules/next/dist/build/index.js
++++ b/node_modules/next/dist/build/index.js
+@@ -332,7 +332,7 @@
+     if (isGenerateMode) {
+         return await _fs.promises.readFile(_path.default.join(distDir, "BUILD_ID"), "utf8");
+     }
+-    return await nextBuildSpan.traceChild("generate-buildid").traceAsyncFn(()=>(0, _generatebuildid.generateBuildId)(config.generateBuildId, _indexcjs.nanoid));
++    return await nextBuildSpan.traceChild("generate-buildid").traceAsyncFn(()=>(0, _generatebuildid.generateBuildId)(config.generateBuildId || (async ()=> null), _indexcjs.nanoid));
+ }
+diff --git a/node_modules/next/dist/build/index.js b/node_modules/next/dist/build/index.js
+index 1234567..89abcde 100644
+--- a/node_modules/next/dist/build/index.js
++++ b/node_modules/next/dist/build/index.js
+@@
+-                buildId = await nextBuildSpan.traceChild("generate-buildid").traceAsyncFn(()=> (0, _generatebuildid.generateBuildId)(config.generateBuildId, _indexcjs.nanoid));
++                // Hotfix: guard when config.generateBuildId is undefined
++                buildId = await nextBuildSpan.traceChild("generate-buildid").traceAsyncFn(()=> (0, _generatebuildid.generateBuildId)(config.generateBuildId || (async ()=> null), _indexcjs.nanoid));
+

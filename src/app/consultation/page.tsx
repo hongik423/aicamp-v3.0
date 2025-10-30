@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { hideAllBanners, disableAllBanners } from '@/components/layout/BannerController';
+ 
 import { 
   Phone, 
   Mail, 
@@ -39,7 +39,7 @@ export default function ConsultationPage() {
   const { toast } = useToast();
   const [persistentNoticeOpen, setPersistentNoticeOpen] = useState(false);
 
-  // 페이지 로드 시 배너 숨김 처리
+  // 페이지 로드 시 기본 화면 상태 정리
   useEffect(() => {
     // 페이지 스크롤 활성화
     document.body.style.overflow = 'auto';
@@ -51,12 +51,6 @@ export default function ConsultationPage() {
     
     // 페이지 로드 시 상단으로 스크롤
     window.scrollTo(0, 0);
-    
-    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 모든 배너 숨기기
-    hideAllBanners();
-    console.log('상담신청 페이지 로드 - 배너 숨김 처리 완료');
-    
-    console.log('상담신청 페이지 로드 - 스크롤 활성화');
     
     // 컴포넌트 언마운트 시 정리
     return () => {
@@ -93,12 +87,6 @@ export default function ConsultationPage() {
     
     // 페이지 로드 시 상단으로 스크롤
     window.scrollTo(0, 0);
-    
-    // 🎯 사용자가 신청서 작성에 집중할 수 있도록 모든 배너 숨기기
-    hideAllBanners();
-    console.log('상담신청 페이지 로드 - 배너 숨김 처리 완료');
-    
-    console.log('상담신청 페이지 로드 - 스크롤 활성화');
     
     // 컴포넌트 언마운트 시 정리
     return () => {
@@ -158,32 +146,12 @@ export default function ConsultationPage() {
 
     try {
       if (!isFormValid) {
-        console.log('폼 검증 실패:', {
-          consultationType: formData.consultationType,
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          company: formData.company,
-          privacyConsent: formData.privacyConsent
-        });
         throw new Error('VALIDATION_ERROR');
       }
 
       // 🛡️ 개인정보 동의 재확인 (더 명확한 검증)
-      console.log('🛡️ 개인정보 동의 상태 상세 확인:', {
-        privacyConsent: formData.privacyConsent,
-        type: typeof formData.privacyConsent,
-        strictCheck: formData.privacyConsent === true,
-        booleanCheck: Boolean(formData.privacyConsent),
-        isExactlyTrue: formData.privacyConsent === true
-      });
       
       if (formData.privacyConsent !== true) {
-        console.error('🛡️ 개인정보 동의 상태 확인 실패:', {
-          value: formData.privacyConsent,
-          type: typeof formData.privacyConsent,
-          reason: '정확히 true가 아님'
-        });
         toast({
           variant: "destructive",
           title: "🛡️ 개인정보 동의 필요",
@@ -194,8 +162,6 @@ export default function ConsultationPage() {
         setPersistentNoticeOpen(false);
         return;
       }
-      
-      console.log('✅ 개인정보 동의 검증 통과:', formData.privacyConsent);
 
       const consultationData = {
         ...formData,
@@ -224,8 +190,6 @@ export default function ConsultationPage() {
         timestamp: Date.now()
       };
 
-      console.log('📤 Google Apps Script 데이터 전송:', postData);
-
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 600000); // 10분까지 대기 (프록시가 13.3분 처리)
@@ -244,7 +208,6 @@ export default function ConsultationPage() {
 
         if (response.ok) {
           const responseText = await response.text();
-          console.log('Google Apps Script 응답:', responseText);
           let parsed: any = null;
           try { parsed = JSON.parse(responseText); } catch {}
 
@@ -262,13 +225,7 @@ export default function ConsultationPage() {
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        if (errorMessage.includes('aborted')) {
-          console.warn('Google Apps Script 타임아웃, 백업 시스템 시도');
-        } else if (errorMessage.includes('CORS')) {
-          console.warn('Google Apps Script CORS 오류, 백업 시스템 시도');
-        } else {
-          console.warn('Google Apps Script 실패, 백업 시스템 시도:', errorMessage);
-        }
+        // 백업 경로로 전환
       }
 
       // 메일 발송 시도 2: API Route 백업
@@ -303,18 +260,13 @@ export default function ConsultationPage() {
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        if (errorMessage.includes('aborted')) {
-          console.warn('⚠️ API 백업 타임아웃:', errorMessage);
-        } else {
-          console.warn('⚠️ API 백업도 실패:', errorMessage);
-        }
+        // 백업 경로 실패 처리
       }
 
       // 모든 방법 실패 시
       throw new Error('ALL_METHODS_FAILED');
 
     } catch (error) {
-      console.error('❌ 상담 신청 오류:', error);
       
       let errorTitle = "상담 신청 처리 중 오류가 발생했습니다";
       let errorDescription = "잠시 후 다시 시도해 주세요";
@@ -423,7 +375,7 @@ export default function ConsultationPage() {
       </section>
 
       {/* 🎯 메인 콘텐츠 - 폼 중심, 모바일 최적화 */}
-      <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-auto">
+      <main className="min-h-screen bg-white overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             
@@ -676,37 +628,16 @@ export default function ConsultationPage() {
                     <div className="pt-2 sm:pt-4">
                       <button
                         type="submit"
-                        disabled={!isFormValid || isSubmitting || !isOnline}
                         className={`
                           w-full h-14 sm:h-16 text-base sm:text-lg font-semibold rounded-xl transition-all duration-300 touch-manipulation
                           ${isFormValid && !isSubmitting && isOnline
-                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-[0.98]'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? ''
+                            : 'pointer-events-none opacity-50'
                           }
                         `}
+                        disabled={!isFormValid || isSubmitting || !isOnline}
                       >
-                        {isSubmitting ? (
-                          <div className="flex items-center justify-center gap-3">
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            상담 신청 처리 중...
-                          </div>
-                        ) : !isOnline ? (
-                          <div className="flex items-center justify-center gap-3">
-                            <WifiOff className="w-5 h-5" />
-                            네트워크 연결을 확인해주세요
-                          </div>
-                        ) : !isFormValid ? (
-                          <div className="flex items-center justify-center gap-3">
-                            <AlertCircle className="w-5 h-5" />
-                            필수 정보를 입력해주세요
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center gap-3">
-                            <CheckCircle className="w-5 h-5" />
-                            상담 신청하기
-                            <ArrowRight className="w-5 h-5" />
-                          </div>
-                        )}
+                        <Button variant="default" className="w-full">{isSubmitting ? '제출 중…' : '상담신청 제출'}</Button>
                       </button>
 
                       {/* 재시도 안내 */}
@@ -834,7 +765,7 @@ export default function ConsultationPage() {
       </main>
 
       {/* 간단한 CTA */}
-      <section className="bg-gradient-to-r from-blue-50 to-indigo-50 py-12">
+      <section className="bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
             성장의 기회를 놓치지 마세요

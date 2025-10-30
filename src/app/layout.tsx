@@ -1,20 +1,15 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import '../styles/mobile-optimization.css';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import Providers from './providers';
-import GlobalBanner from '@/components/layout/GlobalBanner';
-
-// import N8nCurriculumBanner from '@/components/layout/N8nCurriculumBanner';
-// import AutoShowBanners from '@/components/layout/AutoShowBanners';
-
 import FloatingChatbot from '@/components/layout/floating-chatbot';
 import ServiceWorkerRegister from '@/components/service-worker-register';
 import ErrorShield from '@/components/ErrorShield';
 import ChromeExtensionErrorSuppressor from '@/components/ChromeExtensionErrorSuppressor';
-import BannerController from '@/components/layout/BannerController';
 import { AccessibilityControls } from '@/components/ui/accessibility-controls';
 import { NetworkStatus } from '@/components/ui/mobile-loading';
 
@@ -327,14 +322,14 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-navbutton-color" content="#3b82f6" />
         
-        {/* 오류 차단 스크립트 - 최우선 로드 (중복 방지) */}
-        <script 
-          src="/suppress-errors.js" 
-          suppressHydrationWarning
-          id="suppress-errors-script"
-          async
-          defer
-        />
+        {/* 오류 차단 스크립트 - 배포 안전성 위해 선택적 로드 */}
+        {process.env.NEXT_PUBLIC_ENABLE_ERROR_SUPPRESSOR === '1' && (
+          <Script
+            id="suppress-errors-script"
+            src="/suppress-errors.js"
+            strategy="afterInteractive"
+          />
+        )}
         
 
         
@@ -575,11 +570,6 @@ export default function RootLayout({
           {/* 접근성 컨트롤 */}
           <AccessibilityControls />
           
-          {/* V22.0 글로벌 알림 배너 시스템 */}
-          <GlobalBanner />
-          
-          {/* 기존 배너들을 BannerController로 통합 관리 */}
-          <BannerController />
           
           <div className="min-h-screen flex flex-col">
             <Header />

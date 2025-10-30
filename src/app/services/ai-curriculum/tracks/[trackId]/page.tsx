@@ -984,7 +984,7 @@ export default function TrackDetailPage() {
   return (
     <main className="min-h-screen bg-white">
       {/* 히어로 섹션 */}
-      <section className={`relative bg-gradient-to-br ${track.color} text-white py-20 overflow-hidden`}>
+      <section className={`relative bg-gray-900 text-white py-20 overflow-hidden`}>
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 relative z-10">
           <Link 
@@ -1042,7 +1042,7 @@ export default function TrackDetailPage() {
             {track.benefits.map((benefit, idx) => (
               <Card key={idx} className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
-                  <CheckCircle2 className={`w-12 h-12 mx-auto mb-4 text-${track.color.split('-')[1]}-600`} />
+                  <CheckCircle2 className={`w-12 h-12 mx-auto mb-4 text-gray-700`} />
                   <p className="font-medium">{benefit}</p>
                 </CardContent>
               </Card>
@@ -1063,7 +1063,7 @@ export default function TrackDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 mb-4">{case_.result}</p>
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${track.bgColor}`}>
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10`}>
                     <TrendingUp className="w-4 h-4" />
                     <span className="font-semibold">{case_.metric}</span>
                   </div>
@@ -1075,7 +1075,7 @@ export default function TrackDetailPage() {
       </section>
 
       {/* CEO 전략적 가치 */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-16 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">CEO 전략적 가치</h2>
           <p className="text-xl mb-4 max-w-4xl mx-auto">
@@ -1310,7 +1310,7 @@ export default function TrackDetailPage() {
       </section>
 
       {/* CTA 섹션 */}
-      <section className={`py-20 bg-gradient-to-r ${track.color} text-white`}>
+      <section className={`py-20 bg-gray-900 text-white`}>
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-6">
             {track.title} 교육을 시작하세요

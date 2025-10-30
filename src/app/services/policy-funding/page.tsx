@@ -191,7 +191,7 @@ export default function PolicyFundingPage() {
   const [selectedFunding, setSelectedFunding] = useState('운전자금');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <motion.div 
@@ -201,7 +201,7 @@ export default function PolicyFundingPage() {
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Building2 className="h-10 w-10 text-blue-600" />
+            <Building2 className="h-10 w-10 text-gray-900" />
             <h1 className="text-4xl font-bold text-gray-900">
               듀얼브레인 정책자금 통합 컨설팅
             </h1>
@@ -212,7 +212,7 @@ export default function PolicyFundingPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             {benefits.map((benefit, index) => (
               <Badge key={index} variant="secondary" className="px-4 py-2">
-                <benefit.icon className="h-4 w-4 mr-2" />
+                <benefit.icon className="h-4 w-4 mr-2 text-gray-700" />
                 {benefit.text}
               </Badge>
             ))}
@@ -249,10 +249,10 @@ export default function PolicyFundingPage() {
               {/* 운전자금 탭 */}
               <TabsContent value="운전자금" className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="border-green-200">
-                    <CardHeader className="bg-green-50">
-                      <CardTitle className="flex items-center gap-2 text-green-700">
-                        <CreditCard className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <CreditCard className="h-5 w-5 text-gray-700" />
                         운전자금 특징
                       </CardTitle>
                     </CardHeader>
@@ -260,7 +260,7 @@ export default function PolicyFundingPage() {
                       <ul className="space-y-3">
                         {fundingTypes[1].features?.map((feature, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -268,10 +268,10 @@ export default function PolicyFundingPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-green-200">
-                    <CardHeader className="bg-green-50">
-                      <CardTitle className="flex items-center gap-2 text-green-700">
-                        <FileText className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <FileText className="h-5 w-5 text-gray-700" />
                         지원 요건
                       </CardTitle>
                     </CardHeader>
@@ -279,7 +279,7 @@ export default function PolicyFundingPage() {
                       <ul className="space-y-3">
                         {fundingTypes[1].requirements?.map((req, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <Shield className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <Shield className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                             <span>{req}</span>
                           </li>
                         ))}
@@ -322,10 +322,10 @@ export default function PolicyFundingPage() {
               {/* 창업자금 탭 */}
               <TabsContent value="창업자금" className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="border-purple-200">
-                    <CardHeader className="bg-purple-50">
-                      <CardTitle className="flex items-center gap-2 text-purple-700">
-                        <Lightbulb className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <Lightbulb className="h-5 w-5 text-gray-700" />
                         창업자금 특징
                       </CardTitle>
                     </CardHeader>
@@ -333,7 +333,7 @@ export default function PolicyFundingPage() {
                       <ul className="space-y-3">
                         {fundingTypes[2].features?.map((feature, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                            <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -341,10 +341,10 @@ export default function PolicyFundingPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-purple-200">
-                    <CardHeader className="bg-purple-50">
-                      <CardTitle className="flex items-center gap-2 text-purple-700">
-                        <FileText className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <FileText className="h-5 w-5 text-gray-700" />
                         지원 요건
                       </CardTitle>
                     </CardHeader>
@@ -352,7 +352,7 @@ export default function PolicyFundingPage() {
                       <ul className="space-y-3">
                         {fundingTypes[2].requirements?.map((req, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <Shield className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                            <Shield className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                             <span>{req}</span>
                           </li>
                         ))}
@@ -395,10 +395,10 @@ export default function PolicyFundingPage() {
               {/* R&D자금 탭 */}
               <TabsContent value="R&D자금" className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="border-orange-200">
-                    <CardHeader className="bg-orange-50">
-                      <CardTitle className="flex items-center gap-2 text-orange-700">
-                        <Beaker className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <Beaker className="h-5 w-5 text-gray-700" />
                         R&D자금 특징
                       </CardTitle>
                     </CardHeader>
@@ -406,7 +406,7 @@ export default function PolicyFundingPage() {
                       <ul className="space-y-3">
                         {fundingTypes[3].features?.map((feature, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                            <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -414,10 +414,10 @@ export default function PolicyFundingPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-orange-200">
-                    <CardHeader className="bg-orange-50">
-                      <CardTitle className="flex items-center gap-2 text-orange-700">
-                        <FileText className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <FileText className="h-5 w-5 text-gray-700" />
                         지원 요건
                       </CardTitle>
                     </CardHeader>
@@ -425,7 +425,7 @@ export default function PolicyFundingPage() {
                       <ul className="space-y-3">
                         {fundingTypes[3].requirements?.map((req, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <Shield className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                            <Shield className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                             <span>{req}</span>
                           </li>
                         ))}
@@ -468,58 +468,58 @@ export default function PolicyFundingPage() {
               {/* 시설자금 탭 */}
               <TabsContent value="시설자금" className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="border-blue-200">
-                    <CardHeader className="bg-blue-50">
-                      <CardTitle className="flex items-center gap-2 text-blue-700">
-                        <Factory className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <Factory className="h-5 w-5 text-gray-700" />
                         시설자금 특징
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
                       <ul className="space-y-3">
                         <li className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>토지 및 건물 구입자금</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>생산설비 및 시설 구축</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>사업장 이전 및 확장</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>자동화 설비 도입</span>
                         </li>
                       </ul>
                     </CardContent>
                   </Card>
 
-                  <Card className="border-blue-200">
-                    <CardHeader className="bg-blue-50">
-                      <CardTitle className="flex items-center gap-2 text-blue-700">
-                        <FileText className="h-5 w-5" />
+                  <Card className="border-gray-200">
+                    <CardHeader className="bg-gray-50">
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <FileText className="h-5 w-5 text-gray-700" />
                         지원 요건
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
                       <ul className="space-y-3">
                         <li className="flex items-start gap-2">
-                          <Shield className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <Shield className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>중소기업 또는 중견기업</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <Shield className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <Shield className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>사업계획서 및 투자계획서</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <Shield className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <Shield className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>환경영향평가 (필요시)</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <Shield className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <Shield className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
                           <span>담보 또는 보증 가능</span>
                         </li>
                       </ul>
@@ -638,7 +638,7 @@ export default function PolicyFundingPage() {
 
         {/* CTA Section */}
         <motion.div 
-          className="text-center py-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl"
+          className="text-center py-12 bg-gray-50 rounded-2xl border border-gray-200"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -648,7 +648,7 @@ export default function PolicyFundingPage() {
             운전자금, 창업자금, R&D자금 모든 상담이 무료입니다
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+            <Button size="lg" className="bg-gray-900 hover:bg-gray-800">
               <Link href="/consultation" className="flex items-center gap-2">
                 <Phone className="h-5 w-5" />
                 무료 상담 신청

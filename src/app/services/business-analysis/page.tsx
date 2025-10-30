@@ -69,36 +69,28 @@ export default function BusinessAnalysisPage() {
     description: "Apple Store 수준의 사용자 경험과 95% 성공률의 전문성을 결합한 토털 솔루션으로 정책자금 확보의 새로운 기준을 제시합니다",
     stats: [
       {
-        value: "95%",
-        label: "정책자금 선정 성공률",
-        description: "업계 평균 30% 대비 3배 성과",
+        label: "선정 가능성 강화",
+        description: "정합성·타당성 중심 전략",
         icon: Target,
-        color: "text-green-600",
-        trend: "+12%"
+        color: "text-green-600"
       },
       {
-        value: "25일",
-        label: "평균 처리기간",
-        description: "업계 최단 처리시간 달성",
+        label: "처리 효율 우선",
+        description: "프로세스 최적화 기반",
         icon: Clock,
-        color: "text-blue-600",
-        trend: "-60%"
+        color: "text-blue-600"
       },
       {
-        value: "4.2억원",
-        label: "평균 확보 금액",
-        description: "최대 150억원까지 확보",
+        label: "자금 조달 최적화",
+        description: "다원화된 확보 경로 설계",
         icon: DollarSign,
-        color: "text-purple-600",
-        trend: "+8%"
+        color: "text-purple-600"
       },
       {
-        value: "800+",
-        label: "누적 성공 사례",
-        description: "검증된 전문성과 신뢰도",
+        label: "검증된 레퍼런스",
+        description: "사례 기반 신뢰 확보",
         icon: Award,
-        color: "text-orange-600",
-        trend: "+156"
+        color: "text-orange-600"
       }
     ],
     primaryCTA: {
@@ -308,7 +300,7 @@ export default function BusinessAnalysisPage() {
                 {processSteps.map((step, index) => (
                   <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <CardContent className="p-6">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                         <step.icon className="w-8 h-8 text-white" />
                       </div>
                       <h3 className="font-bold text-gray-900 mb-2 text-sm">{step.title}</h3>
@@ -322,7 +314,7 @@ export default function BusinessAnalysisPage() {
                 ))}
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
+              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                   실제 기업 적용 결과
                 </h3>
@@ -422,8 +414,8 @@ export default function BusinessAnalysisPage() {
                 {features.map((feature, index) => (
                   <Card key={index} className="text-center p-6 border-0 shadow-lg">
                     <CardContent className="p-0">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <feature.icon className="w-8 h-8 text-blue-600" />
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <feature.icon className="w-8 h-8 text-gray-700" />
                       </div>
                       <h3 className="text-lg font-bold text-gray-900 mb-3">{feature.title}</h3>
                       <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
@@ -445,7 +437,7 @@ export default function BusinessAnalysisPage() {
                     <CardContent className="p-6">
                       <div className="flex items-start gap-6">
                         <div className="flex-shrink-0">
-                          <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                          <div className="w-12 h-12 bg-gray-900 text-white rounded-full flex items-center justify-center font-bold">
                             {index + 1}
                           </div>
                         </div>
@@ -510,7 +502,7 @@ export default function BusinessAnalysisPage() {
               <div className="grid lg:grid-cols-5 gap-6 mb-16">
                 <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                       <Briefcase className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="font-bold text-gray-900 mb-2">1단계</h3>
@@ -525,7 +517,7 @@ export default function BusinessAnalysisPage() {
 
                 <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                       <Activity className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="font-bold text-gray-900 mb-2">2단계</h3>
@@ -540,7 +532,7 @@ export default function BusinessAnalysisPage() {
 
                 <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                       <GitGraph className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="font-bold text-gray-900 mb-2">3단계</h3>
@@ -555,7 +547,7 @@ export default function BusinessAnalysisPage() {
 
                 <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                       <Code className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="font-bold text-gray-900 mb-2">4단계</h3>
@@ -570,7 +562,7 @@ export default function BusinessAnalysisPage() {
 
                 <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-teal-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                       <Award className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="font-bold text-gray-900 mb-2">5단계</h3>
@@ -591,12 +583,12 @@ export default function BusinessAnalysisPage() {
                 </h3>
                 <div className="grid lg:grid-cols-3 gap-8">
                   {/* BM Zen Starter */}
-                  <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300">
+                  <Card className="border-2 border-gray-200 hover:border-gray-300 transition-all duration-300">
                     <CardHeader className="text-center pb-4">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
-                        <Rocket className="w-8 h-8 text-blue-600" />
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
+                        <Rocket className="w-8 h-8 text-gray-900" />
                       </div>
-                      <CardTitle className="text-xl text-blue-600">BM Zen Starter</CardTitle>
+                      <CardTitle className="text-xl text-gray-900">BM Zen Starter</CardTitle>
                       <p className="text-gray-600 text-sm">Step 1-2 기업 대상</p>
                     </CardHeader>
                     <CardContent>
@@ -607,27 +599,27 @@ export default function BusinessAnalysisPage() {
                         <h4 className="font-bold text-gray-900 mb-2">주요 서비스</h4>
                         <ul className="space-y-2 text-sm text-gray-600">
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             BM Zen 프레임워크 기반 종합 진단
                           </li>
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             기본 AI 도구 도입 (ChatGPT, Claude)
                           </li>
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             핵심 프로세스 3개 영역 최적화
                           </li>
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             생산성 20% 이상 향상 보장
                           </li>
                         </ul>
                       </div>
                       
-                      <div className="bg-blue-50 rounded-lg p-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">150%</div>
+                          <div className="text-2xl font-bold text-gray-900">150%</div>
                           <div className="text-sm text-gray-600">예상 6개월 ROI</div>
                         </div>
                       </div>
@@ -635,18 +627,18 @@ export default function BusinessAnalysisPage() {
                   </Card>
 
                   {/* BM Zen Professional */}
-                  <Card className="border-2 border-purple-300 relative shadow-xl scale-105">
+                  <Card className="border-2 border-gray-300 relative shadow-xl scale-105">
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2">
+                      <Badge className="bg-gray-900 text-white px-4 py-2">
                         <Star className="w-4 h-4 mr-1" />
                         추천
                       </Badge>
                     </div>
                     <CardHeader className="text-center pb-4">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mx-auto mb-4">
-                        <Award className="w-8 h-8 text-purple-600" />
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
+                        <Award className="w-8 h-8 text-gray-900" />
                       </div>
-                      <CardTitle className="text-xl text-purple-600">BM Zen Professional</CardTitle>
+                      <CardTitle className="text-xl text-gray-900">BM Zen Professional</CardTitle>
                       <p className="text-gray-600 text-sm">Step 2-3 기업 대상</p>
                     </CardHeader>
                     <CardContent>
@@ -675,9 +667,9 @@ export default function BusinessAnalysisPage() {
                         </ul>
                       </div>
                       
-                      <div className="bg-purple-50 rounded-lg p-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">290%</div>
+                          <div className="text-2xl font-bold text-gray-900">290%</div>
                           <div className="text-sm text-gray-600">실제 6개월 ROI</div>
                           <div className="text-xs text-gray-500 mt-1">한국정밀기계 사례</div>
                         </div>
@@ -686,12 +678,12 @@ export default function BusinessAnalysisPage() {
                   </Card>
 
                   {/* BM Zen Enterprise */}
-                  <Card className="border-2 border-yellow-200 hover:border-yellow-300 transition-all duration-300">
+                  <Card className="border-2 border-gray-200 hover:border-gray-300 transition-all duration-300">
                     <CardHeader className="text-center pb-4">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4">
-                        <Building2 className="w-8 h-8 text-yellow-600" />
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
+                        <Building2 className="w-8 h-8 text-gray-900" />
                       </div>
-                      <CardTitle className="text-xl text-yellow-600">BM Zen Enterprise</CardTitle>
+                      <CardTitle className="text-xl text-gray-900">BM Zen Enterprise</CardTitle>
                       <p className="text-gray-600 text-sm">Step 3-4 기업 대상</p>
                     </CardHeader>
                     <CardContent>
@@ -702,27 +694,27 @@ export default function BusinessAnalysisPage() {
                         <h4 className="font-bold text-gray-900 mb-2">주요 서비스</h4>
                         <ul className="space-y-2 text-sm text-gray-600">
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             전사적 AI 생태계 구축
                           </li>
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             예측 분석 및 의사결정 지원
                           </li>
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             글로벌 확장 대응 시스템
                           </li>
                           <li className="flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             생산성 60% 이상 향상 보장
                           </li>
                         </ul>
                       </div>
                       
-                      <div className="bg-yellow-50 rounded-lg p-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-yellow-600">680%</div>
+                          <div className="text-2xl font-bold text-gray-900">680%</div>
                           <div className="text-sm text-gray-600">예상 12개월 ROI</div>
                         </div>
                       </div>
@@ -732,35 +724,35 @@ export default function BusinessAnalysisPage() {
               </div>
 
               {/* 특별 혜택 */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 border border-green-100">
+              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                   특별 혜택 및 보장 서비스
                 </h3>
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle className="w-8 h-8 text-green-600" />
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="w-8 h-8 text-gray-900" />
                     </div>
                     <h4 className="font-bold text-gray-900 mb-2">무료 사전 진단</h4>
                     <p className="text-sm text-gray-600">사전 진단 및 기본 리포트 무료 제공</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Shield className="w-8 h-8 text-blue-600" />
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-8 h-8 text-gray-900" />
                     </div>
                     <h4 className="font-bold text-gray-900 mb-2">성과 보장</h4>
                     <p className="text-sm text-gray-600">목표 미달 시 서비스 비용 50% 환불</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <DollarSign className="w-8 h-8 text-purple-600" />
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <DollarSign className="w-8 h-8 text-gray-900" />
                     </div>
                     <h4 className="font-bold text-gray-900 mb-2">정부 지원 연계</h4>
                     <p className="text-sm text-gray-600">스마트공장, 디지털 뉴딜 등 지원금 최대 활용</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Calendar className="w-8 h-8 text-orange-600" />
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Calendar className="w-8 h-8 text-gray-900" />
                     </div>
                     <h4 className="font-bold text-gray-900 mb-2">분할 결제</h4>
                     <p className="text-sm text-gray-600">성과 연동 분할 결제 (초기 30% → 성과 달성 시 70%)</p>
@@ -773,7 +765,7 @@ export default function BusinessAnalysisPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-16 bg-gray-900">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto text-white">
             <h2 className="text-3xl font-bold mb-4">
@@ -802,7 +794,7 @@ export default function BusinessAnalysisPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-4"
+                className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4"
                 onClick={() => router.push('/consultation')}
               >
                 <Users className="w-5 h-5 mr-2" />
@@ -811,7 +803,7 @@ export default function BusinessAnalysisPage() {
               <Button 
                 variant="outline"
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4"
+                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4"
                 onClick={() => router.push('/ai-diagnosis')}
               >
                 <Brain className="w-5 h-5 mr-2" />

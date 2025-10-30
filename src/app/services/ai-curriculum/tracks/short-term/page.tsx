@@ -110,21 +110,15 @@ const benefits = [
 
 export default function ShortTermCoursePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen bg-white">
       {/* 히어로 섹션 */}
-      <section className="py-20 bg-gradient-to-r from-orange-500 to-red-500 text-white">
+      <section className="py-20 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <Badge className="mb-6 bg-white/20 text-white border-white/30 px-4 py-2 text-sm font-medium">
               🚀 단기 집중과정
             </Badge>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              AI 역량을
-              <br className="hidden sm:block" />
-              <span className="bg-gradient-to-r from-yellow-300 to-orange-200 bg-clip-text text-transparent">
-                빠르게 습득하세요
-              </span>
-            </h1>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">AI 역량을 빠르게 습득하세요</h1>
             <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">
               1-3일 단기 집중 교육으로
               <br className="hidden sm:block" />
@@ -135,7 +129,7 @@ export default function ShortTermCoursePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 size="lg" 
-                className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-md font-semibold"
                 asChild
               >
                 <Link href="/consultation">
@@ -167,7 +161,7 @@ export default function ShortTermCoursePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gray-900 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                   <benefit.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-gray-900">{benefit.title}</h3>

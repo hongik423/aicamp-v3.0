@@ -717,10 +717,10 @@ function generatePRDDiagnosisId(): string {
   return `PRD_V3_${timestamp}_${randomSuffix}`;
 }
 
-// Ollama GPT-OSS 20B 기반 AI 역량 분석 수행
+// Ollama phi3:mini 기반 AI 역량 분석 수행
 async function performOllamaAnalysis(userData: UserInputData): Promise<AnalysisResult> {
   try {
-    console.log('🤖 Ollama GPT-OSS 20B AI 역량 분석 시작...');
+    console.log('🤖 Ollama phi3:mini AI 역량 분석 시작...');
     
     // 점수 계산
     const scores = calculateScores(userData.assessmentScores);

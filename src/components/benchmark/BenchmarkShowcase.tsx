@@ -36,6 +36,7 @@ import {
 import { SuccessCaseDetail } from '@/types/success-case.types';
 import { getNormalizedBenchmarks, parsePercentToNumber } from '@/lib/utils/benchmarkNormalization';
 import ErrorBoundary from '@/components/ui/error-boundary';
+import { getBenchmarkBackground, getBenchmarkImage } from '@/lib/benchmark-images';
 
 interface BenchmarkShowcaseProps {
   onCaseSelect?: (caseData: SuccessCaseDetail) => void;
@@ -147,27 +148,22 @@ export default function BenchmarkShowcase({
     return 'text-gray-600';
   };
 
-  // 이미지 로딩 오류 처리 함수
+  // 이미지 로딩 오류 처리 함수 (picsum.photos로 통일된 대체)
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, caseData: any) => {
-    console.warn(`이미지 로딩 실패: ${caseData.title}`);
     const target = e.target as HTMLImageElement;
-    
+    const seed = encodeURIComponent((caseData as any).subIndustry || caseData.industry || caseData.title || 'aicamp-benchmark');
+
     if (!target.dataset.fallbackAttempted) {
-      // 첫 번째 대체: via.placeholder.com 사용
       target.dataset.fallbackAttempted = 'true';
-      const industryText = (caseData as any).subIndustry || caseData.industry || 'AI 벤치마크';
-      target.src = `https://via.placeholder.com/1200x800/3B82F6/FFFFFF?text=${encodeURIComponent(industryText)}`;
-    } else if (!target.dataset.secondFallbackAttempted) {
-      // 두 번째 대체: 다른 placeholder 서비스
-      target.dataset.secondFallbackAttempted = 'true';
-      target.src = `https://dummyimage.com/1200x800/3B82F6/FFFFFF&text=${encodeURIComponent(caseData.title)}`;
-    } else {
-      // 세 번째 실패 시 CSS 대체 요소 표시
-      target.style.display = 'none';
-      const fallbackDiv = target.nextElementSibling as HTMLElement;
-      if (fallbackDiv) {
-        fallbackDiv.style.display = 'flex';
-      }
+      target.src = `https://picsum.photos/seed/${seed}/1200/800`;
+      return;
+    }
+
+    // 최종 실패 시 CSS 대체 요소 표시
+    target.style.display = 'none';
+    const fallbackDiv = target.nextElementSibling as HTMLElement;
+    if (fallbackDiv) {
+      fallbackDiv.style.display = 'flex';
     }
   };
 
@@ -179,7 +175,7 @@ export default function BenchmarkShowcase({
         {/* 배경 이미지 + 오버레이 */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=1920&auto=format&fit=crop"
+            src={getBenchmarkBackground('benchmark-hero')}
             alt="AI 벤치마크 배경"
             className="w-full h-full object-cover"
           />
@@ -362,7 +358,7 @@ export default function BenchmarkShowcase({
                         </div>
                         
                         <img
-                          src={(caseData as any).heroImage || (caseData as any).image || `https://picsum.photos/seed/${encodeURIComponent((caseData as any).subIndustry || caseData.industry || caseData.title)}/1200/800`}
+                          src={(caseData as any).heroImage || (caseData as any).image || getBenchmarkImage((caseData as any).subIndustry || caseData.industry || caseData.title)}
                           alt={caseData.title}
                           className="w-full h-48 object-cover rounded-t-lg relative z-10"
                           onLoad={(e) => {

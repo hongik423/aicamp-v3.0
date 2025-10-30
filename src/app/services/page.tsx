@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { hideAllBanners } from '@/components/layout/BannerController';
+ 
 import { 
   Brain, 
   BarChart3, 
@@ -150,7 +150,7 @@ export default async function ServicesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
@@ -158,7 +158,7 @@ export default async function ServicesPage() {
             <Stethoscope className="h-4 w-4" />
             AICAMP 서비스
           </div>
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-4 text-gray-900">
             비즈니스 성장을 위한
             <br />
             전문 컨설팅 서비스
@@ -178,46 +178,11 @@ export default async function ServicesPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
+        <div className="text-center bg-gray-900 rounded-xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-4">
-            🤖 Ollama GPT-OSS 20B AI 역량진단으로 시작하세요!
+            지금 바로 전문가와 상담하세요
           </h2>
-          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            100% 온디바이스 Ollama GPT-OSS 20B로 기업의 AI 활용도를 정밀 분석하고, 
-            맞춤형 AI 도입 전략을 제공받으세요.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/ai-diagnosis">
-              <Button 
-                size="lg" 
-                variant="secondary" 
-                className="text-blue-600 hover:text-blue-700"
-                onClick={() => {
-                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                  hideAllBanners();
-                  console.log('서비스 페이지 AI역량진단 버튼 클릭 - 배너 숨김 처리 완료');
-                }}
-              >
-                <Brain className="mr-2 h-5 w-5" />
-                Ollama AI 진단 시작
-              </Button>
-            </Link>
-            <Link href="/consultation">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-white border-white hover:bg-white hover:text-blue-600"
-                onClick={() => {
-                  // 🎯 사용자가 신청서 작성에 집중할 수 있도록 배너 숨기기
-                  hideAllBanners();
-                  console.log('서비스 페이지 상담신청 버튼 클릭 - 배너 숨김 처리 완료');
-                }}
-              >
-                <BarChart3 className="mr-2 h-5 w-5" />
-                전문가 상담신청
-              </Button>
-            </Link>
-          </div>
+          <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">무료 상담 신청</Button>
         </div>
       </div>
     </div>

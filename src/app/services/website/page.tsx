@@ -400,7 +400,7 @@ export default function WebsitePage() {
               {coreValues.map((value, index) => (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden">
                   <CardContent className="p-0">
-                    <div className={`h-24 bg-gradient-to-r ${value.color} flex items-center justify-center relative overflow-hidden`}>
+            <div className={`h-24 bg-gray-900 text-white flex items-center justify-center relative overflow-hidden`}>
                       <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300"></div>
                       <value.icon className="w-10 h-10 text-white relative z-10" />
                     </div>
@@ -420,7 +420,7 @@ export default function WebsitePage() {
       </section>
 
       {/* Business Model Zen Framework */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-purple-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -440,7 +440,7 @@ export default function WebsitePage() {
               {bmzFramework.map((stage, index) => (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 relative overflow-hidden">
                   <CardContent className="p-0">
-                    <div className={`h-20 bg-gradient-to-r ${stage.color} flex items-center justify-center relative`}>
+                    <div className={`h-20 bg-gray-900 text-white flex items-center justify-center relative`}>
                       <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300"></div>
                       <stage.icon className="w-8 h-8 text-white relative z-10" />
                     </div>
@@ -458,7 +458,7 @@ export default function WebsitePage() {
                       </div>
                     </div>
                     {index < bmzFramework.length - 1 && (
-                      <div className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10 lg:block hidden">
+                      <div className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center z-10 lg:block hidden">
                         <ChevronRight className="w-4 h-4 text-white" />
                       </div>
                     )}
@@ -514,7 +514,7 @@ export default function WebsitePage() {
                             </div>
                           </div>
                           
-                          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-4">
+                        <div className="bg-gray-50 rounded-xl p-4">
                             <h4 className="font-bold text-gray-900 mb-3 text-center">투자 및 수익 분석</h4>
                             <div className="space-y-3">
                               <div>
@@ -543,7 +543,7 @@ export default function WebsitePage() {
       </section>
 
       {/* AI 챗봇 임베디드 시스템 상세 */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-indigo-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -562,7 +562,7 @@ export default function WebsitePage() {
             <div className="space-y-8">
               {chatbotFeatures.map((category, index) => (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
+                  <CardHeader className="bg-gray-900 text-white">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                         <category.icon className="w-6 h-6 text-white" />
@@ -621,8 +621,8 @@ export default function WebsitePage() {
               {performanceMetrics.map((metric, index) => (
                 <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-0">
                   <CardContent className="p-6 text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <metric.icon className="w-8 h-8 text-purple-600" />
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <metric.icon className="w-8 h-8 text-gray-700" />
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">{metric.metric}</h3>
                     <div className="space-y-2">
@@ -637,7 +637,7 @@ export default function WebsitePage() {
             </div>
 
             {/* AI 챗봇 특화 효과 */}
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 md:p-8 border border-purple-200">
+            <div className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200">
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">AI 챗봇 특화 효과</h3>
                 <p className="text-gray-600">24시간 자동 응대 시스템의 핵심 성과</p>
@@ -670,7 +670,7 @@ export default function WebsitePage() {
       </section>
 
       {/* 성공 사례 */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-purple-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -689,7 +689,7 @@ export default function WebsitePage() {
             <div className="grid lg:grid-cols-2 gap-8">
               {successCases.map((case_, index) => (
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
+                  <CardHeader className="bg-gray-900 text-white">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                         <case_.icon className="w-6 h-6 text-white" />
@@ -768,7 +768,7 @@ export default function WebsitePage() {
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-orange-100 to-yellow-100 rounded-2xl p-6 border border-orange-200">
+            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 mb-4">💎 성과 보장 제도</h3>
               <div className="grid md:grid-cols-3 gap-4 text-sm">
                 <div>
@@ -790,7 +790,7 @@ export default function WebsitePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-indigo-600">
+      <section className="py-16 bg-gray-900">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto text-white">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -822,7 +822,7 @@ export default function WebsitePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button 
                 size="lg"
-                className="bg-white text-purple-600 hover:bg-gray-50 px-8 py-4 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4"
                 onClick={() => window.location.href = 'https://aicamp.club/consultation'}
               >
                 <Phone className="w-5 h-5 mr-2" />
@@ -832,7 +832,7 @@ export default function WebsitePage() {
               <Button 
                 variant="outline"
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4"
+                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4"
                 onClick={() => router.push('/ai-diagnosis')}
               >
                 <Search className="w-5 h-5 mr-2" />

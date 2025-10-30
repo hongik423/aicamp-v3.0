@@ -27,11 +27,11 @@ export default function ReportAccessPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <Card className="max-w-md mx-auto">
         <CardContent className="pt-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-6">
+            <Loader2 className="w-8 h-8 text-gray-700 animate-spin" />
         </div>
 
           <h2 className="text-2xl font-semibold mb-4">시스템 업데이트</h2>
@@ -39,9 +39,9 @@ export default function ReportAccessPage() {
             PRD 기반 새로운 보고서 조회 시스템으로 이동하고 있습니다
           </p>
           
-          <div className="flex items-center justify-center space-x-2 text-blue-600">
+          <div className="flex items-center justify-center space-x-2 text-gray-700">
             <span className="text-sm">PRD 기반 시스템으로 이동 중</span>
-            <ArrowRight className="w-4 h-4 animate-pulse" />
+            <ArrowRight className="w-4 h-4" />
                   </div>
 
           <div className="mt-6 text-xs text-gray-500">

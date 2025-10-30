@@ -99,7 +99,7 @@ export default function DiagnosisResultPage() {
   // 유효한 세션이 없는 경우 진단 시작 페이지로 안내
   if (!isLoading && !hasValidSession) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      <div className="min-h-screen bg-white">
         <div className="flex items-center justify-center min-h-[60vh] px-4">
           <Card className="w-full max-w-md border-orange-200">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -112,10 +112,7 @@ export default function DiagnosisResultPage() {
                 새로운 진단을 시작하거나 진단ID로 결과를 조회하세요.
               </p>
               <div className="flex gap-3">
-                <Button
-                  onClick={() => router.push('/ai-diagnosis')}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
+                <Button onClick={() => router.push('/ai-diagnosis')}>
                   <Brain className="w-4 h-4 mr-2" />
                   새 진단 시작
                 </Button>
@@ -136,7 +133,7 @@ export default function DiagnosisResultPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-lg text-gray-600">보고서를 생성하고 있습니다...</p>
@@ -147,7 +144,7 @@ export default function DiagnosisResultPage() {
 
   if (!result) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Card className="max-w-md w-full">
           <CardContent className="text-center p-8">
             <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
@@ -191,7 +188,7 @@ export default function DiagnosisResultPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -216,7 +213,7 @@ export default function DiagnosisResultPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+          <Card className="mb-8 bg-gray-900 text-white">
             <CardContent className="p-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
@@ -367,7 +364,7 @@ export default function DiagnosisResultPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Card className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+          <Card className="bg-gray-900 text-white">
             <CardContent className="text-center p-8">
               <h2 className="text-2xl font-bold mb-4">
                 🚀 AI 혁신의 여정을 시작하세요!
@@ -377,16 +374,13 @@ export default function DiagnosisResultPage() {
                 지금 바로 AICAMP와 함께 미래를 만들어가세요.
               </p>
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button
-                  onClick={() => router.push('/consultation')}
-                  className="bg-white text-purple-600 hover:bg-gray-100"
-                >
+                <Button onClick={() => router.push('/consultation')} className="bg-white text-gray-900 hover:bg-gray-100">
                   📞 전문가 상담 신청
                 </Button>
                 <Button
                   onClick={() => router.push('/report-access')}
                   variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-purple-600"
+                  className="border-white text-white hover:bg-white hover:text-gray-900"
                 >
                   📧 상세 보고서 조회
                 </Button>

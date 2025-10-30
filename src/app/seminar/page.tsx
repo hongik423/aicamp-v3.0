@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/header';
+import HeroSection from '@/components/ui/hero-section';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,7 +34,8 @@ import {
   CheckCircle,
   ArrowRight,
   ExternalLink,
-  Phone
+  Phone,
+  FileText
 } from 'lucide-react';
 
 // 세미나 데이터 타입 정의
@@ -239,84 +241,19 @@ export default function SeminarPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       <Header />
       
-      {/* 🎬 Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20"></div>
-        
-        <div className="relative max-w-7xl mx-auto px-6 py-24">
-          <div className="text-center">
-            {/* 상단 배지 */}
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 rounded-full mb-8">
-              <Youtube className="w-5 h-5 text-red-400" />
-              <span className="text-sm font-medium">Live Streaming on YouTube</span>
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            </div>
-            
-            {/* 메인 타이틀 */}
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                AI CAMP
-              </span>
-              <br />
-              <span className="text-3xl md:text-4xl font-light text-white">세미나 영상</span>
-            </h1>
-            
-            {/* 서브 타이틀 */}
-            <p className="text-xl md:text-2xl font-light max-w-3xl mx-auto mb-12 leading-relaxed">
-              <span className="text-white">25년 경험의 전문가와 함께하는</span>
-              <br />
-              <span className="font-semibold text-yellow-300">실무 중심 온라인 교육</span>
-            </p>
-            
-            {/* 통계 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-12">
-              {[
-                { label: '총 시청시간', value: '1,250시간', icon: Clock },
-                { label: '구독자', value: '12,500명', icon: Users },
-                { label: '영상 수', value: '85개', icon: Play },
-                { label: '평균 만족도', value: '4.9/5', icon: Star }
-              ].map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                    <stat.icon className="w-8 h-8 text-yellow-300" />
-                  </div>
-                  <div className="text-2xl font-bold mb-1">{stat.value}</div>
-                  <div className="text-sm opacity-80">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-            
-            {/* CTA 버튼들 */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold shadow-2xl hover:shadow-red-500/25 transition-all duration-300 hover:scale-105"
-                onClick={() => window.open('https://www.youtube.com/channel/UCmCTUihEcCGhI0WJXlRfqRA', '_blank')}
-              >
-                <Youtube className="w-6 h-6 mr-3" />
-                유튜브 채널 보기
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </Button>
-              
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
-                onClick={toggleSubscription}
-              >
-                <Bell className={`w-6 h-6 mr-3 ${isSubscribed ? 'text-yellow-300' : ''}`} />
-                {isSubscribed ? '구독중' : '구독하기'}
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        {/* 떠다니는 도형들 */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-white/5 rounded-full animate-bounce"></div>
-        <div className="absolute bottom-20 right-10 w-16 h-16 bg-yellow-300/10 rounded-full animate-pulse"></div>
-        <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-purple-400/10 rounded-full animate-ping"></div>
-      </section>
+      <HeroSection
+        badge={{ icon: Youtube, text: 'YouTube Live / 녹화 다시보기' }}
+        title={"AI CAMP 세미나"}
+        subtitle={"실무 중심 온라인 교육"}
+        description={"25년 현장 경험의 전문가들과 함께 최신 AI/자동화 실무를 배우세요."}
+        stats={[
+          { value: '', label: '학습 가치 강화', description: '실무 중심 콘텐츠', icon: Calendar, color: 'text-blue-400' },
+          { value: '', label: '콘텐츠 다양성', description: '강의/세미나 큐레이션', icon: FileText, color: 'text-indigo-400' },
+          { value: '', label: '만족도 신뢰성', description: '피드백 기반 개선', icon: Calendar, color: 'text-green-400' }
+        ]}
+        primaryCTA={{ text: '세미나 일정 보기', href: '#schedule' }}
+        secondaryCTA={{ text: '영상 다시보기', href: '#videos' }}
+      />
 
       {/* 🔍 검색 및 필터 */}
       <section className="py-12 bg-white/50 backdrop-blur-sm border-b border-gray-200/50">
