@@ -3,7 +3,7 @@
  * Vercel (서버리스) + 로컬 Ollama (phi3:mini) 하이브리드 시스템
  */
 
-import { CallAIParams } from './ai-provider.types';
+import { CallAIParams } from './hybrid-ai-provider.types';
 import { HybridAIResponse, OllamaStatus, ServiceStatus } from './hybrid-ai-provider.types';
 import { hostStatusMonitor } from '@/lib/monitoring/host-status-monitor';
 

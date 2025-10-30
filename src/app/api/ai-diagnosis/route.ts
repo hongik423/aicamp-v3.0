@@ -749,7 +749,7 @@ async function performOllamaAnalysis(userData: UserInputData): Promise<AnalysisR
     // AI 응답 파싱
     let analysisData;
     try {
-      analysisData = JSON.parse(aiResponse);
+      analysisData = JSON.parse(aiResponse.response);
     } catch (error) {
       console.warn('AI 응답 파싱 실패, 기본 분석 수행:', error);
       analysisData = generateFallbackAnalysis(scores);
@@ -856,7 +856,7 @@ async function generateOllamaReport(userData: UserInputData, analysisResult: Ana
     return {
       success: true,
       data: {
-        reportHtml: aiResponse,
+        reportHtml: aiResponse.response,
         metadata: {
           reportId: `report_${Date.now()}`,
           diagnosisId: `diag_${Date.now()}`,
