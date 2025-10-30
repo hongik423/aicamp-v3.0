@@ -75,7 +75,7 @@
     "@types/node": "^22.10.9",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.7",
-    "@vercel/node": "^3.0.0",
+    "@vercel/node": "^5.5.2",
     "autoprefixer": "^10.4.21",
     "axios": "^1.11.0",
     "canvas-confetti": "^1.9.3",
