@@ -6,7 +6,6 @@ const nextConfig = {
   // Vercel 배포 최적화
   output: 'standalone',
   
-  
   // ESLint 플러그인 완전 비활성화
   eslint: {
     ignoreDuringBuilds: true,
@@ -26,7 +25,7 @@ const nextConfig = {
     } : false,
   },
   
-  // 실험적 기능
+  // 실험적 기능 (Next.js 13 호환성)
   experimental: {
     // 서버 컴포넌트 최적화
     serverComponentsExternalPackages: ['@prisma/client'],
@@ -34,44 +33,18 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react'],
     // preload 최적화
     optimizeCss: true,
-    // 번들 분석 비활성화 (Next.js 14에서 제거된 옵션)
-    // bundlePagesRouterDependencies: false,
+    // Next.js 13 호환성
+    esmExternals: 'loose',
   },
   
-  // 웹팩 설정 최적화
+  // 웹팩 설정 단순화
   webpack: (config, { dev, isServer }) => {
     // 개발 환경에서 소스맵 최적화
     if (dev) {
       config.devtool = 'eval-source-map';
     }
     
-    // preload 경고 해결을 위한 최적화
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          minSize: 20000,
-          maxSize: 244000,
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-              priority: 10,
-            },
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              priority: 5,
-            },
-          },
-        },
-      };
-    }
-    
-    // ES 모듈 호환성 문제 해결
+    // Worker 오류 방지를 위한 설정
     config.resolve = {
       ...config.resolve,
       fallback: {
@@ -88,9 +61,10 @@ const nextConfig = {
         assert: false,
         os: false,
         path: false,
+        worker_threads: false,
+        child_process: false,
       },
     };
-    
     
     return config;
   },

@@ -137,6 +137,8 @@ export default function ServerStatusBanner() {
             <button
               onClick={checkServerStatus}
               className="inline-flex items-center px-2 py-1.5 text-xs font-medium bg-white/20 hover:bg-white/30 rounded-md transition-colors"
+              title="서버 상태 새로고침"
+              aria-label="서버 상태 새로고침"
             >
               <RefreshCw className="w-3 h-3" />
             </button>
@@ -144,6 +146,8 @@ export default function ServerStatusBanner() {
             <button
               onClick={handleDismiss}
               className="inline-flex items-center px-2 py-1.5 text-xs font-medium bg-white/20 hover:bg-white/30 rounded-md transition-colors"
+              title="알림 닫기"
+              aria-label="알림 닫기"
             >
               <X className="w-3 h-3" />
             </button>

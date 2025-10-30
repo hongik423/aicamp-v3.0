@@ -484,6 +484,7 @@ input, textarea, select,
     html {
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
     
     /* 모바일 입력 필드 확대 방지 */
