@@ -229,91 +229,61 @@ const errorPatterns = [
         configurable: true
       });
       
-      // Chrome API 메서드들 무력화
-      chrome.runtime.onConnect.addListener = function() {};
-      chrome.runtime.onMessage.addListener = function() {};
-      chrome.runtime.sendMessage = function() {};
-      chrome.runtime.connect = function() {};
+      // Chrome API 메서드들 완전 무력화
+      chrome.runtime.onConnect = { addListener: function() { return {}; } };
+      chrome.runtime.onMessage = { addListener: function() { return {}; } };
+      chrome.runtime.sendMessage = function() { return Promise.resolve(); };
+      chrome.runtime.connect = function() { 
+        return { 
+          onMessage: { addListener: function() { return {}; } },
+          postMessage: function() {},
+          disconnect: function() {}
+        }; 
+      };
       
-      // Chrome tabs API 오류 차단 (background.js 오류 해결) - 강화된 버전
+      // Chrome tabs API 완전 무력화 (background.js 오류 해결)
       if (chrome.tabs) {
-        const originalTabsGet = chrome.tabs.get;
+        // tabs.get 완전 무력화
         chrome.tabs.get = function(tabId, callback) {
-          try {
-            // tabId 유효성 검사 및 오류 방지 강화
-            if (typeof tabId !== 'number' || tabId < 0 || !Number.isInteger(tabId)) {
-              console.log('🔇 Invalid tabId 차단:', tabId);
-              if (callback) {
-                setTimeout(() => callback({}), 0);
-              }
-              return Promise.resolve({});
-            }
-            return originalTabsGet.call(this, tabId, callback);
-          } catch (error) {
-            console.log('🔇 tabs.get 오류 차단:', error.message);
-            if (callback) {
-              setTimeout(() => callback({}), 0);
-            }
-            return Promise.resolve({});
+          console.log('🔇 tabs.get 호출 차단:', tabId);
+          if (callback) {
+            setTimeout(() => callback({}), 0);
           }
+          return Promise.resolve({});
         };
         
-        // 다른 tabs API 메서드들도 안전하게 래핑
-        const originalTabsQuery = chrome.tabs.query;
+        // 모든 tabs API 완전 무력화
         chrome.tabs.query = function(queryInfo, callback) {
-          try {
-            return originalTabsQuery.call(this, queryInfo, callback);
-          } catch (error) {
-            console.log('🔇 tabs.query 오류 차단:', error.message);
-            if (callback) {
-              setTimeout(() => callback([]), 0);
-            }
-            return Promise.resolve([]);
+          console.log('🔇 tabs.query 호출 차단');
+          if (callback) {
+            setTimeout(() => callback([]), 0);
           }
+          return Promise.resolve([]);
         };
 
-        // tabs.onUpdated 이벤트 차단
-        if (chrome.tabs.onUpdated) {
-          chrome.tabs.onUpdated.addListener = function() {
-            console.log('🔇 tabs.onUpdated 리스너 차단');
-            return {};
-          };
-        }
-
-        // tabs.onActivated 이벤트 차단
-        if (chrome.tabs.onActivated) {
-          chrome.tabs.onActivated.addListener = function() {
-            console.log('🔇 tabs.onActivated 리스너 차단');
-            return {};
-          };
-        }
+        chrome.tabs.onUpdated = { addListener: function() { return {}; } };
+        chrome.tabs.onActivated = { addListener: function() { return {}; } };
+        chrome.tabs.onCreated = { addListener: function() { return {}; } };
+        chrome.tabs.onRemoved = { addListener: function() { return {}; } };
+        chrome.tabs.onMoved = { addListener: function() { return {}; } };
+        chrome.tabs.onAttached = { addListener: function() { return {}; } };
+        chrome.tabs.onDetached = { addListener: function() { return {}; } };
+        chrome.tabs.onHighlighted = { addListener: function() { return {}; } };
+        chrome.tabs.onReplaced = { addListener: function() { return {}; } };
       }
 
-      // Chrome webNavigation API 오류 차단 (background.js 오류 해결)
+      // Chrome webNavigation API 완전 무력화
       if (chrome.webNavigation) {
-        const originalWebNavOnCompleted = chrome.webNavigation.onCompleted;
-        if (originalWebNavOnCompleted) {
-          chrome.webNavigation.onCompleted.addListener = function() {
-            console.log('🔇 webNavigation.onCompleted 리스너 차단');
-            return {};
-          };
-        }
-
-        const originalWebNavOnBeforeNavigate = chrome.webNavigation.onBeforeNavigate;
-        if (originalWebNavOnBeforeNavigate) {
-          chrome.webNavigation.onBeforeNavigate.addListener = function() {
-            console.log('🔇 webNavigation.onBeforeNavigate 리스너 차단');
-            return {};
-          };
-        }
-
-        const originalWebNavOnNavigateComplete = chrome.webNavigation.onNavigateComplete;
-        if (originalWebNavOnNavigateComplete) {
-          chrome.webNavigation.onNavigateComplete.addListener = function() {
-            console.log('🔇 webNavigation.onNavigateComplete 리스너 차단');
-            return {};
-          };
-        }
+        chrome.webNavigation.onCompleted = { addListener: function() { return {}; } };
+        chrome.webNavigation.onBeforeNavigate = { addListener: function() { return {}; } };
+        chrome.webNavigation.onNavigateComplete = { addListener: function() { return {}; } };
+        chrome.webNavigation.onCommitted = { addListener: function() { return {}; } };
+        chrome.webNavigation.onDOMContentLoaded = { addListener: function() { return {}; } };
+        chrome.webNavigation.onErrorOccurred = { addListener: function() { return {}; } };
+        chrome.webNavigation.onCreatedNavigationTarget = { addListener: function() { return {}; } };
+        chrome.webNavigation.onReferenceFragmentUpdated = { addListener: function() { return {}; } };
+        chrome.webNavigation.onTabReplaced = { addListener: function() { return {}; } };
+        chrome.webNavigation.onHistoryStateUpdated = { addListener: function() { return {}; } };
       }
     } catch (e) {
       // Chrome API 접근 오류 무시
@@ -462,5 +432,4 @@ const errorPatterns = [
   console.log('🛡️ Background.js 오류 차단 활성화');
   console.log('🛡️ Chrome 확장 프로그램 오류 차단 활성화');
   
-})();
 })();

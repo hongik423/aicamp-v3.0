@@ -496,31 +496,70 @@ export default function RootLayout({
                 // 🛡️ Chrome 확장 프로그램 API 완전 무력화
                 if (typeof chrome !== 'undefined' && chrome.runtime) {
                   try {
-                    // Chrome runtime API 무력화
-                    chrome.runtime.lastError = null;
-                    chrome.runtime.onConnect = { addListener: function() {} };
-                    chrome.runtime.onMessage = { addListener: function() {} };
+                    // Chrome runtime API 완전 무력화
+                    Object.defineProperty(chrome.runtime, 'lastError', {
+                      get: function() { return null; },
+                      configurable: true
+                    });
+                    
+                    chrome.runtime.onConnect = { addListener: function() { return {}; } };
+                    chrome.runtime.onMessage = { addListener: function() { return {}; } };
                     chrome.runtime.sendMessage = function() { return Promise.resolve(); };
-                    chrome.runtime.connect = function() { return { onMessage: { addListener: function() {} } }; };
+                    chrome.runtime.connect = function() { 
+                      return { 
+                        onMessage: { addListener: function() { return {}; } },
+                        postMessage: function() {},
+                        disconnect: function() {}
+                      }; 
+                    };
                     
-                    // Chrome tabs API 무력화
+                    // Chrome tabs API 완전 무력화
                     if (chrome.tabs) {
-                      chrome.tabs.get = function() { return Promise.resolve({}); };
-                      chrome.tabs.query = function() { return Promise.resolve([]); };
-                      chrome.tabs.onUpdated = { addListener: function() {} };
-                      chrome.tabs.onActivated = { addListener: function() {} };
+                      chrome.tabs.get = function(tabId, callback) {
+                        console.log('🔇 tabs.get 호출 차단:', tabId);
+                        if (callback) {
+                          setTimeout(() => callback({}), 0);
+                        }
+                        return Promise.resolve({});
+                      };
+                      
+                      chrome.tabs.query = function(queryInfo, callback) {
+                        console.log('🔇 tabs.query 호출 차단');
+                        if (callback) {
+                          setTimeout(() => callback([]), 0);
+                        }
+                        return Promise.resolve([]);
+                      };
+                      
+                      chrome.tabs.onUpdated = { addListener: function() { return {}; } };
+                      chrome.tabs.onActivated = { addListener: function() { return {}; } };
+                      chrome.tabs.onCreated = { addListener: function() { return {}; } };
+                      chrome.tabs.onRemoved = { addListener: function() { return {}; } };
+                      chrome.tabs.onMoved = { addListener: function() { return {}; } };
+                      chrome.tabs.onAttached = { addListener: function() { return {}; } };
+                      chrome.tabs.onDetached = { addListener: function() { return {}; } };
+                      chrome.tabs.onHighlighted = { addListener: function() { return {}; } };
+                      chrome.tabs.onReplaced = { addListener: function() { return {}; } };
                     }
                     
-                    // Chrome webNavigation API 무력화
+                    // Chrome webNavigation API 완전 무력화
                     if (chrome.webNavigation) {
-                      chrome.webNavigation.onCompleted = { addListener: function() {} };
-                      chrome.webNavigation.onBeforeNavigate = { addListener: function() {} };
-                      chrome.webNavigation.onNavigateComplete = { addListener: function() {} };
+                      chrome.webNavigation.onCompleted = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onBeforeNavigate = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onNavigateComplete = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onCommitted = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onDOMContentLoaded = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onErrorOccurred = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onCreatedNavigationTarget = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onReferenceFragmentUpdated = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onTabReplaced = { addListener: function() { return {}; } };
+                      chrome.webNavigation.onHistoryStateUpdated = { addListener: function() { return {}; } };
                     }
                     
-                    console.log('🛡️ Chrome 확장 프로그램 API 무력화 완료');
+                    console.log('🛡️ Chrome 확장 프로그램 API 완전 무력화 완료');
                   } catch (e) {
                     // Chrome API 접근 오류 무시
+                    console.log('🔇 Chrome API 무력화 중 오류 무시:', e.message);
                   }
                 }
               })();
