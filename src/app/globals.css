@@ -3,7 +3,6 @@
    ============================================ */
 
 /* 폰트 임포트 - 최상단에 위치 (성능 최적화) */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 
 /* Tailwind CSS 지시어 */
 @tailwind base;

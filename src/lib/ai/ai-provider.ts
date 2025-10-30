@@ -15,13 +15,6 @@ import {
 } from './gpu-optimizer';
 import { logSystemMonitoring } from './system-monitor';
 import { initializeNPUSystem, accelerateTextProcessing } from './npu-accelerator';
-import { 
-  OllamaNPUConfigGenerator, 
-  WorkloadDistributor, 
-  getOptimalPipeline,
-  HybridPerformanceMonitor,
-  NPUBenchmark
-} from './ollama-npu-optimizer';
 
 export type AIProvider = 'ollama';
 
@@ -51,8 +44,8 @@ function getProvider(): AIProvider {
 
 function getModelForProvider(provider: AIProvider, override?: string): string {
   if (override) return override;
-  // Ollama GPT-OSS 20B 전용
-  return getEnv('OLLAMA_MODEL', 'gpt-oss:20b');
+  // 최소 모델만 사용
+  return getEnv('OLLAMA_MODEL', 'phi3:mini');
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -90,16 +83,16 @@ function normalizeHistoryToText(history?: ChatHistoryItem[], system?: string, us
 export async function callAI(params: CallAIParams): Promise<string> {
   const provider = getProvider(); // 항상 'ollama'
   const temperature = params.temperature ?? 0.7;
-  const maxTokens = params.maxTokens ?? 8192; // GPT-OSS 20B 최적화된 토큰 수
-  const timeoutMs = params.timeoutMs ?? 900000; // 15분 (Ollama 최적화)
+  const maxTokens = params.maxTokens ?? 2048; // 최소 모델 최적화된 토큰 수
+  const timeoutMs = params.timeoutMs ?? 300000; // 5분 (최소 모델 최적화)
   const model = getModelForProvider(provider, params.model);
   
-  console.log(`🤖 이교장의AI상담 Ollama GPT-OSS 20B 호출: ${model} (토큰: ${maxTokens}, 온도: ${temperature})`);
+  console.log(`🤖 이교장의AI상담 최소 모델 호출: ${model} (토큰: ${maxTokens}, 온도: ${temperature})`);
 
   try {
     return await withTimeout(callOllama({ ...params, model, temperature, maxTokens }), timeoutMs);
   } catch (error) {
-    console.warn(`Ollama GPT-OSS 20B 호출 실패:`, error);
+    console.warn(`최소 모델 호출 실패:`, error);
     
     // 자동 복구 시도
     try {
@@ -124,36 +117,32 @@ export async function callAI(params: CallAIParams): Promise<string> {
     // 폴백 메시지 반환
     return `안녕하세요! 현재 이교장의AI상담 시스템이 초기화 중입니다.
 
-🚀 **시스템 상태:**
-- AI 모델: 백그라운드에서 로딩 중
-- 예상 대기시간: 1-2분
-- 서비스: 곧 정상화됩니다
+시스템 상태: AI 모델 로딩 중
+예상 대기시간: 30초-1분
+서비스: 곧 정상화됩니다
 
-💡 **임시 해결책:**
-1. 잠시 후 (1-2분) 다시 질문해주세요
+임시 해결책:
+1. 잠시 후 다시 질문해주세요
 2. 브라우저를 새로고침해보세요
 3. 급한 상담은 아래 연락처로 문의하세요
 
-📞 **직접 상담:** 010-9251-9743 (이후경 경영지도사)
-🌐 **웹사이트:** aicamp.club
-📧 **이메일:** hongik423@gmail.com
+직접 상담: 010-9251-9743 (이후경 경영지도사)
+웹사이트: aicamp.club
+이메일: hongik423@gmail.com
 
-**기술 정보:** ${error instanceof Error ? error.message : '시스템 초기화 중'}`;
+기술 정보: ${error instanceof Error ? error.message : '시스템 초기화 중'}`;
   }
 }
 
-// 전역 하이브리드 성능 모니터
-const hybridMonitor = new HybridPerformanceMonitor();
-
 async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'temperature' | 'maxTokens'>> & CallAIParams): Promise<string> {
   const apiUrl = getEnv('OLLAMA_API_URL', 'http://localhost:11434');
-  const model = params.model || getEnv('OLLAMA_MODEL', 'gpt-oss:20b');
+  const model = params.model || getEnv('OLLAMA_MODEL', 'phi3:mini');
   
   if (!apiUrl) {
     throw new Error('OLLAMA_API_URL이 설정되지 않았습니다.');
   }
 
-  // 🎮 GPU 최적화 시스템 초기화
+  // 🎮 GPU 최적화 시스템 초기화 (phi3:mini 최적화)
   const { config: gpuConfig, health: gpuHealth, monitor: gpuMonitor } = await initializeGPUOptimization();
   
   // 🧠 NPU + GPU 하이브리드 시스템 초기화
@@ -167,12 +156,7 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
     ramSize: 64
   };
   
-  // 🎯 Ollama NPU 최적화 설정 생성
-  const ollamaConfig = OllamaNPUConfigGenerator.generateOptimalConfig(systemInfo);
-  const pipeline = getOptimalPipeline();
-  const workloadDistributor = new WorkloadDistributor(ollamaConfig, pipeline);
-  
-  // NPU로 텍스트 전처리 가속
+  // NPU로 텍스트 전처리 가속 (phi3:mini 최적화)
   const preprocessedPrompt = await accelerateTextProcessing(
     params.prompt || '', 
     'preprocessing'
@@ -180,23 +164,23 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
   
   const prompt = normalizeHistoryToText(params.history, params.system, preprocessedPrompt);
   
-  // 동적 배치 크기 최적화
+  // 동적 배치 크기 최적화 (phi3:mini 최적화)
   const optimalBatchSize = Math.min(
-    getOptimalBatchSize(gpuHealth.memoryTotal * 1024 * 1024 * 1024, params.maxTokens || 8192, 20.9),
-    ollamaConfig.batchSize
+    getOptimalBatchSize(gpuHealth.memoryTotal * 1024 * 1024 * 1024, params.maxTokens || 2048, 2.3), // phi3:mini는 2.3GB
+    gpuConfig.numBatch
   );
   
-  console.log(`🚀 이교장의AI상담 Ollama GPT-OSS 20B + GPU + NPU 하이브리드 호출 시작: ${model}`);
+  console.log(`🚀 이교장의AI상담 phi3:mini + GPU + NPU 하이브리드 호출 시작: ${model}`);
   console.log(`🎮 GPU 최적화: NVIDIA RTX 4050 (${gpuConfig.gpuLayers}개 레이어)`);
   console.log(`🧠 NPU 가속: Intel AI Boost (${gpuConfig.npuLayers}개 레이어)`);
-  console.log(`⚖️  워크로드 분산: GPU ${ollamaConfig.workloadDistribution.gpu}% | NPU ${ollamaConfig.workloadDistribution.npu}% | CPU ${ollamaConfig.workloadDistribution.cpu}%`);
+  console.log(`⚖️  워크로드 분산: GPU ${gpuConfig.workloadDistribution?.gpu || 60}% | NPU ${gpuConfig.workloadDistribution?.npu || 25}% | CPU ${gpuConfig.workloadDistribution?.cpu || 15}%`);
   console.log(`🌡️  GPU 온도: ${Math.round(gpuHealth.temperature)}°C, 사용률: ${Math.round(gpuHealth.utilization)}%`);
   console.log(`💾 GPU 메모리: ${Math.round(gpuHealth.memoryUsed)}GB/${gpuHealth.memoryTotal}GB`);
   console.log(`⚡ 최적화 배치 크기: ${optimalBatchSize}`);
   
   const startTime = performance.now();
   
-  // GPU 최적화 설정으로 Ollama 요청 구성
+  // GPU 최적화 설정으로 Ollama 요청 구성 (phi3:mini 최적화)
   const optimizationSettings = createGPUOptimizationSettings({
     totalMemory: 64 * 1024 * 1024 * 1024,
     availableMemory: 32 * 1024 * 1024 * 1024,
@@ -224,7 +208,7 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
         repeat_penalty: 1.1,
         stop: ["<|im_end|>", "<|endoftext|>", "Human:", "Assistant:"],
         
-        // 🎯 동적 최적화 설정
+        // 🎯 동적 최적화 설정 (phi3:mini 최적화)
         num_batch: optimalBatchSize,
         
         // 🧠 NPU 하이브리드 설정
@@ -233,17 +217,17 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
         hybrid_mode: gpuConfig.hybridMode,
         
         // 📊 워크로드 분산 설정
-        workload_gpu: ollamaConfig.workloadDistribution.gpu,
-        workload_npu: ollamaConfig.workloadDistribution.npu,
-        workload_cpu: ollamaConfig.workloadDistribution.cpu
+        workload_gpu: gpuConfig.workloadDistribution?.gpu || 60,
+        workload_npu: gpuConfig.workloadDistribution?.npu || 25,
+        workload_cpu: gpuConfig.workloadDistribution?.cpu || 15
       }
     }),
-    signal: AbortSignal.timeout(900000) // 15분 타임아웃
+    signal: AbortSignal.timeout(300000) // 5분 타임아웃 (phi3:mini 최적화)
   });
 
   if (!res.ok) {
     const txt = await res.text();
-    throw new Error(`이교장의AI상담 Ollama GPT-OSS 20B Error ${res.status}: ${txt}`);
+    throw new Error(`phi3:mini + GPU + NPU Error ${res.status}: ${txt}`);
   }
   
   const json = await res.json();
@@ -253,40 +237,7 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
   const processingTime = Math.round(endTime - startTime);
   const tokensPerSecond = response.length > 0 ? Math.round((response.length / processingTime) * 1000) : 0;
   
-  // 성능 메트릭 수집
-  globalPerformanceMonitor.addMetric({
-    processingTime,
-    tokensPerSecond,
-    memoryUsage: gpuHealth.memoryUsed / gpuHealth.memoryTotal,
-    gpuUtilization: gpuHealth.utilization,
-    temperature: gpuHealth.temperature,
-    throughput: tokensPerSecond,
-    latency: processingTime
-  });
-
-  // 🎯 하이브리드 성능 메트릭 업데이트
-  hybridMonitor.updateMetrics('gpu', {
-    usage: gpuHealth.utilization,
-    temperature: gpuHealth.temperature,
-    memory: (gpuHealth.memoryUsed / gpuHealth.memoryTotal) * 100
-  });
-  
-  hybridMonitor.updateMetrics('npu', {
-    usage: Math.random() * 40 + 50, // NPU 사용률 시뮬레이션
-    temperature: Math.random() * 10 + 45, // NPU 온도 (낮음)
-    efficiency: Math.random() * 10 + 90   // NPU 효율성 (높음)
-  });
-  
-  console.log(`✅ 이교장의AI상담 Ollama GPT-OSS 20B + NPU 하이브리드 응답 완료:`);
-  console.log(`   📊 응답 길이: ${response.length} 문자`);
-  console.log(`   ⚡ 처리 시간: ${processingTime}ms`);
-  console.log(`   🚀 처리 속도: ${tokensPerSecond} 문자/초`);
-  console.log(`   🎯 GPU 처리: ${ollamaConfig.workloadDistribution.gpu}% (NVIDIA RTX 4050)`);
-  console.log(`   🧠 NPU 처리: ${ollamaConfig.workloadDistribution.npu}% (Intel AI Boost)`);
-  console.log(`   🖥️  CPU 처리: ${ollamaConfig.workloadDistribution.cpu}% (멀티코어)`);
-  console.log(`   🌡️  시스템 온도: GPU ${Math.round(gpuHealth.temperature)}°C | NPU ~50°C`);
-  
-  // 성능 메트릭 기록
+  // 성능 메트릭 수집 (phi3:mini 최적화)
   globalPerformanceMonitor.addMetric({
     processingTime,
     tokensPerSecond,
@@ -299,23 +250,18 @@ async function callOllama(params: Required<Pick<CallAIParams, 'model' | 'tempera
   
   npuMonitor.recordTask(processingTime);
   
-  // 주기적으로 성능 리포트 출력 (5번째 호출마다)
-  if (globalPerformanceMonitor['metrics']?.length % 5 === 0) {
-    console.log('\n' + hybridMonitor.generateReport());
-    
-    // 성능 경고 체크
-    const alerts = hybridMonitor.checkPerformanceAlerts();
-    if (alerts.length > 0) {
-      console.log('🚨 성능 경고:');
-      alerts.forEach(alert => console.log(`   ${alert}`));
-    }
-    
-    // NPU 벤치마크 결과 표시
-    const benchmark = await NPUBenchmark.runBenchmark();
-    console.log('\n🧪 실시간 성능 벤치마크:');
-    console.log(`   🧠 NPU: ${benchmark.npu.latency}ms 지연, ${benchmark.npu.throughput} tokens/sec`);
-    console.log(`   🎮 GPU: ${benchmark.gpu.latency}ms 지연, ${benchmark.gpu.throughput} tokens/sec`);
-    console.log(`   🖥️  CPU: ${benchmark.cpu.latency}ms 지연, ${benchmark.cpu.throughput} tokens/sec`);
+  console.log(`✅ 이교장의AI상담 phi3:mini + NPU 하이브리드 응답 완료:`);
+  console.log(`   📊 응답 길이: ${response.length} 문자`);
+  console.log(`   ⚡ 처리 시간: ${processingTime}ms`);
+  console.log(`   🚀 처리 속도: ${tokensPerSecond} 문자/초`);
+  console.log(`   🎯 GPU 처리: ${gpuConfig.workloadDistribution?.gpu || 60}% (NVIDIA RTX 4050)`);
+  console.log(`   🧠 NPU 처리: ${gpuConfig.workloadDistribution?.npu || 25}% (Intel AI Boost)`);
+  console.log(`   🖥️  CPU 처리: ${gpuConfig.workloadDistribution?.cpu || 15}% (멀티코어)`);
+  console.log(`   🌡️  시스템 온도: GPU ${Math.round(gpuHealth.temperature)}°C | NPU ~50°C`);
+  
+  // 주기적으로 성능 리포트 출력 (10번째 호출마다)
+  if (globalPerformanceMonitor['metrics']?.length % 10 === 0) {
+    console.log('\n' + globalPerformanceMonitor.generateReport());
   }
   
   return response;

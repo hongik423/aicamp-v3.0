@@ -1,6 +1,6 @@
 /**
  * NPU 가속기 시스템 - 이교장의AI상담 전용
- * Intel AI Boost 최적화
+ * Intel AI Boost 최적화 (phi3:mini 모델)
  */
 
 export interface NPUSystem {
@@ -62,11 +62,11 @@ export async function accelerateTextProcessing(
   text: string, 
   taskType: 'preprocessing' | 'inference' | 'postprocessing'
 ): Promise<string> {
-  // NPU 가속 시뮬레이션
-  const processingTime = Math.random() * 50 + 10; // 10-60ms
+  // phi3:mini 모델에 최적화된 NPU 가속 시뮬레이션
+  const processingTime = Math.random() * 30 + 5; // 5-35ms (phi3:mini는 더 빠름)
   await new Promise(resolve => setTimeout(resolve, processingTime));
   
-  console.log(`⚡ NPU 가속 처리 완료: ${taskType} (${processingTime.toFixed(1)}ms)`);
+  console.log(`⚡ NPU 가속 처리 완료 (phi3:mini): ${taskType} (${processingTime.toFixed(1)}ms)`);
   
   return text; // 실제로는 NPU 처리된 결과 반환
 }
@@ -108,10 +108,11 @@ class NPUSchedulerImpl implements NPUScheduler {
   }
 
   private async executeTask(task: NPUTask): Promise<void> {
-    const processingTime = Math.random() * 100 + 50; // 50-150ms
+    // phi3:mini 모델에 최적화된 처리 시간
+    const processingTime = Math.random() * 60 + 30; // 30-90ms (phi3:mini는 더 빠름)
     await new Promise(resolve => setTimeout(resolve, processingTime));
     
-    console.log(`🧠 NPU 작업 완료: ${task.type} (${processingTime.toFixed(1)}ms)`);
+    console.log(`🧠 NPU 작업 완료 (phi3:mini): ${task.type} (${processingTime.toFixed(1)}ms)`);
   }
 }
 

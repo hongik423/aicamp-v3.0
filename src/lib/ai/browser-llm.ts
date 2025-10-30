@@ -22,18 +22,18 @@ export class BrowserLLM {
   private isInitializing = false;
   private config: BrowserLLMConfig;
 
-  // 사용 가능한 모델 목록 (Ollama 기반)
+  // 사용 가능한 모델 목록 (Ollama 기반) - phi3:mini 최적화
   static readonly AVAILABLE_MODELS = {
     'primary': {
-      model: "gpt-oss:20b",
-      displayName: "GPT-OSS 20B (Ollama)",
-      ramRequired: 16,
-      description: "고성능 AI 분석 및 상담"
+      model: "phi3:mini",
+      displayName: "Phi-3 Mini (Ollama)",
+      ramRequired: 4,
+      description: "최적화된 AI 분석 및 상담"
     },
     'fallback': {
-      model: "llama2:7b",
-      displayName: "Llama 2 7B (Ollama)",
-      ramRequired: 8,
+      model: "phi3:mini",
+      displayName: "Phi-3 Mini (Ollama)",
+      ramRequired: 4,
       description: "빠른 응답, 일반적인 대화"
     }
   } as const;
@@ -41,8 +41,8 @@ export class BrowserLLM {
   constructor(config: BrowserLLMConfig) {
     this.config = {
       temperature: 0.7,
-      maxTokens: 512,
-      contextLength: 2048,
+      maxTokens: 1024, // phi3:mini에 최적화된 토큰 수
+      contextLength: 4096, // phi3:mini에 최적화된 컨텍스트
       ...config
     };
   }
@@ -51,7 +51,7 @@ export class BrowserLLM {
    * 사용자 환경에 최적화된 모델 자동 선택
    */
   static selectOptimalModel(): string {
-    // 브라우저 메모리 정보 (GB)
+    // 브라우저 메모리 정보 (GB) - phi3:mini는 4GB면 충분
     const deviceMemory = (navigator as any).deviceMemory || 4;
     
     // GPU 정보 확인 (WebGL)
@@ -61,7 +61,8 @@ export class BrowserLLM {
     
     console.log(`🖥️ 디바이스 메모리: ${deviceMemory}GB, GPU 지원: ${hasGPU}`);
     
-    if (deviceMemory >= 16 && hasGPU) {
+    // phi3:mini는 4GB 이상이면 모두 사용 가능
+    if (deviceMemory >= 4) {
       return BrowserLLM.AVAILABLE_MODELS.primary.model;
     } else {
       return BrowserLLM.AVAILABLE_MODELS.fallback.model;
@@ -489,7 +490,7 @@ export function getGlobalBrowserLLM(): BrowserLLM {
     globalBrowserLLM = new BrowserLLM({
       model: optimalModel,
       temperature: 0.8,
-      maxTokens: 800,
+      maxTokens: 1024, // phi3:mini 최적화
       contextLength: 4096
     });
   }

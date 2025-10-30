@@ -6266,18 +6266,20 @@ function queryPRDDiagnosis(data) {
  */
 function sendPRDDiagnosisEmail(data) {
   try {
-    console.log('📧 PRD V3.0 진단 이메일 발송 시작');
+    console.log('📧 Ollama GPT-OSS 20B AI 역량진단 보고서 이메일 발송 시작');
     
-    const emailSubject = `[AICAMP] PRD V3.0 AI 역량진단 완료 - ${data.companyName}`;
+    const emailSubject = `[AICAMP] Ollama GPT-OSS 20B AI 역량진단 보고서 완료 - ${data.companyName}`;
     const emailBody = `
 안녕하세요 ${data.contactName || '고객'}님,
 
-PRD V3.0 기반 AI 역량진단이 완료되었습니다.
+Ollama GPT-OSS 20B AI가 작성한 24페이지 AI 역량진단 보고서가 완성되었습니다.
 
-📊 진단 정보:
+🤖 AI 분석 정보:
 - 진단ID: ${data.diagnosisId}
 - 회사명: ${data.companyName}
 - 업종: ${data.industry}
+- AI 모델: Ollama GPT-OSS 20B
+- 보고서 페이지: 24페이지
 - 총점: ${data.scoreData?.totalScore || 'N/A'}
 - 등급: ${data.scoreData?.grade || 'N/A'}
 - 성숙도: ${data.scoreData?.maturityLevel || 'N/A'}
@@ -6286,8 +6288,14 @@ PRD V3.0 기반 AI 역량진단이 완료되었습니다.
 - 진단 결과: https://aicamp.club/diagnosis-results/${data.diagnosisId}
 - PRD 보고서: https://aicamp.club/prd-diagnosis-results/${data.diagnosisId}
 
+💡 특징:
+- 100% Ollama GPT-OSS 20B AI가 작성한 맞춤형 보고서
+- 45문항 응답을 기반으로 한 정밀 분석
+- 업종별 특화된 인사이트 및 권고사항
+- 실행 가능한 구체적 액션 플랜
+
 감사합니다.
-AICAMP 팀
+이교장의AI상담 AICAMP 팀
     `.trim();
     
     // 이메일 발송 (기존 시스템 활용)

@@ -6,6 +6,7 @@ const nextConfig = {
   // Vercel 배포 최적화
   output: 'standalone',
   
+  
   // ESLint 플러그인 완전 비활성화
   eslint: {
     ignoreDuringBuilds: true,

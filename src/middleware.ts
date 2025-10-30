@@ -3,17 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
-  // Service Worker 요청 처리
-  if (pathname === '/sw.js') {
-    const response = NextResponse.next();
-    response.headers.set('Service-Worker-Allowed', '/');
-    response.headers.set('Content-Type', 'application/javascript');
-    response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
-    return response;
-  }
-  
-
-  
   // API 라우트에 대해서만 CORS 헤더 추가
   if (pathname.startsWith('/api/')) {
     const response = NextResponse.next();
@@ -47,13 +36,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
-  // 기본 응답 + COOP/COEP 헤더 주입 (브라우저 온디바이스 AI용 cross-origin isolation)
-  const response = NextResponse.next();
-  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
-  response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
-  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
-  response.headers.set('Origin-Agent-Cluster', '?1');
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {

@@ -1,7 +1,7 @@
 /**
  * GPU 최적화 시스템 - 이교장의AI상담 전용
  * NVIDIA GPU + NPU 최대 성능 활용
- * Ollama GPT-OSS 20B 전용 최적화
+ * phi3:mini 모델 최적화
  */
 
 export interface GPUOptimizationConfig {
@@ -48,65 +48,73 @@ export function generateOptimalConfig(
   resources: SystemResources,
   taskComplexity: 'simple' | 'medium' | 'complex' = 'medium'
 ): GPUOptimizationConfig {
+  // phi3:mini 모델에 최적화된 설정
   const baseConfig: GPUOptimizationConfig = {
     numGpu: -1, // 모든 GPU 활용
-    numThread: Math.min(resources.cpuCores, 32),
-    numBatch: 2048,
-    contextSize: 131072, // 최대 컨텍스트
+    numThread: Math.min(resources.cpuCores, 16), // phi3:mini는 더 적은 스레드로 충분
+    numBatch: 512, // phi3:mini에 최적화된 배치 크기
+    contextSize: 32768, // phi3:mini 최적 컨텍스트 크기
     useMlock: true,
     useMmap: true,
     numa: true,
     flashAttention: true,
     lowVram: false,
-    gpuLayers: 32,
-    npuLayers: resources.hasNPU ? 8 : 0,
+    gpuLayers: 20, // phi3:mini에 최적화된 GPU 레이어
+    npuLayers: resources.hasNPU ? 6 : 0, // NPU 레이어 조정
     hybridMode: resources.hasNPU
   };
 
-  // GPU 메모리 기반 조정
+  // GPU 메모리 기반 조정 (phi3:mini 최적화)
   if (resources.gpuMemory) {
-    if (resources.gpuMemory < 8) {
-      // 8GB 미만: 보수적 설정
-      baseConfig.gpuLayers = 16;
-      baseConfig.numBatch = 1024;
-      baseConfig.contextSize = 65536;
+    if (resources.gpuMemory < 4) {
+      // 4GB 미만: 최소 설정
+      baseConfig.gpuLayers = 8;
+      baseConfig.numBatch = 256;
+      baseConfig.contextSize = 16384;
       baseConfig.lowVram = true;
-      baseConfig.workloadDistribution = { gpu: 50, npu: 40, cpu: 10 };
+      baseConfig.workloadDistribution = { gpu: 40, npu: 30, cpu: 30 };
+    } else if (resources.gpuMemory < 8) {
+      // 4-8GB: 보수적 설정
+      baseConfig.gpuLayers = 12;
+      baseConfig.numBatch = 384;
+      baseConfig.contextSize = 24576;
+      baseConfig.lowVram = true;
+      baseConfig.workloadDistribution = { gpu: 50, npu: 35, cpu: 15 };
     } else if (resources.gpuMemory >= 16) {
-      // 16GB 이상: 공격적 설정
-      baseConfig.gpuLayers = 40;
-      baseConfig.numBatch = 4096;
-      baseConfig.contextSize = 131072;
-      baseConfig.workloadDistribution = { gpu: 80, npu: 15, cpu: 5 };
+      // 16GB 이상: 최대 성능 설정
+      baseConfig.gpuLayers = 28;
+      baseConfig.numBatch = 768;
+      baseConfig.contextSize = 49152;
+      baseConfig.workloadDistribution = { gpu: 70, npu: 20, cpu: 10 };
     } else {
       // 8-16GB: 균형 설정
-      baseConfig.gpuLayers = 24;
-      baseConfig.numBatch = 2048;
-      baseConfig.contextSize = 98304;
-      baseConfig.workloadDistribution = { gpu: 65, npu: 25, cpu: 10 };
+      baseConfig.gpuLayers = 20;
+      baseConfig.numBatch = 512;
+      baseConfig.contextSize = 32768;
+      baseConfig.workloadDistribution = { gpu: 60, npu: 25, cpu: 15 };
     }
   }
 
-  // 작업 복잡도에 따른 조정
+  // 작업 복잡도에 따른 조정 (phi3:mini 최적화)
   switch (taskComplexity) {
     case 'simple':
-      baseConfig.numBatch = 1024;
-      baseConfig.contextSize = 32768;
-      baseConfig.gpuLayers = Math.max(8, baseConfig.gpuLayers - 8);
+      baseConfig.numBatch = 256;
+      baseConfig.contextSize = 16384;
+      baseConfig.gpuLayers = Math.max(6, baseConfig.gpuLayers - 4);
       break;
     case 'complex':
-      baseConfig.numBatch = 4096;
-      baseConfig.contextSize = 131072;
-      baseConfig.numThread = Math.min(resources.cpuCores * 2, 64);
-      baseConfig.gpuLayers = Math.min(40, baseConfig.gpuLayers + 8);
+      baseConfig.numBatch = 768;
+      baseConfig.contextSize = 49152;
+      baseConfig.numThread = Math.min(resources.cpuCores * 2, 32);
+      baseConfig.gpuLayers = Math.min(28, baseConfig.gpuLayers + 4);
       break;
   }
 
-  // NPU 활용 최적화
+  // NPU 활용 최적화 (phi3:mini 최적화)
   if (resources.hasNPU) {
-    baseConfig.numThread = Math.min(resources.cpuCores * 3, 96); // NPU 병렬 처리
+    baseConfig.numThread = Math.min(resources.cpuCores * 2, 48); // phi3:mini에 최적화된 스레드
     baseConfig.hybridMode = true;
-    console.log('🧠 NPU 감지: 병렬 처리 최적화 활성화');
+    console.log('🧠 NPU 감지: phi3:mini 병렬 처리 최적화 활성화');
   }
 
   return baseConfig;
@@ -282,7 +290,7 @@ export function getOptimalBatchSize(
  */
 export function createGPUOptimizationSettings(
   systemInfo: SystemResources,
-  modelName: string = 'gpt-oss:20b'
+  modelName: string = 'phi3:mini'
 ): Record<string, any> {
   const config = generateOptimalConfig(systemInfo, 'medium');
   
@@ -291,13 +299,13 @@ export function createGPUOptimizationSettings(
     model: modelName,
     stream: false,
     
-    // 성능 최적화 옵션
+    // 성능 최적화 옵션 (phi3:mini 최적화)
     options: {
       // GPU 설정
       num_gpu: config.gpuLayers > 0 ? 1 : 0,
       gpu_layers: config.gpuLayers,
       
-      // 컨텍스트 및 배치 설정
+      // 컨텍스트 및 배치 설정 (phi3:mini 최적화)
       num_ctx: config.contextSize,
       num_batch: config.numBatch,
       num_thread: config.numThread,
@@ -319,7 +327,7 @@ export function createGPUOptimizationSettings(
       // 하이브리드 처리 설정
       hybrid_mode: config.hybridMode,
       
-      // 품질 설정
+      // 품질 설정 (phi3:mini 최적화)
       temperature: 0.7,
       top_k: 40,
       top_p: 0.95,
