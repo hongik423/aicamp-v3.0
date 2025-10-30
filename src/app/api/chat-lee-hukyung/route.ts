@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateEnhancedResponse } from '@/lib/ai/enhanced-fallback-system';
+import { hybridAIProvider } from '@/lib/ai/hybrid-ai-provider';
 
 export const dynamic = 'force-dynamic';
 
@@ -295,27 +296,42 @@ export async function POST(request: NextRequest) {
     chatCacheMetrics.recordMiss();
 
     try {
-      // 2단계: 🚀 완벽한 챗봇 답변 시스템 사용
-      console.log('🚀 완벽한 챗봇 답변 시스템 시작');
-      const enhancedStartTime = performance.now();
+      // 2단계: 🤖 하이브리드 AI 시스템 사용 (로컬 Ollama 우선, 대체 서비스 백업)
+      console.log('🤖 하이브리드 AI 시스템 시작');
+      const hybridStartTime = performance.now();
       
-      enhancedResponse = await generateEnhancedResponse(message, sessionId);
+      const hybridResponse = await hybridAIProvider.callAI({
+        prompt: message,
+        system: SYSTEM_PROMPT,
+        temperature: 0.8,
+        maxTokens: 1024
+      });
       
-      const enhancedEndTime = performance.now();
-      const enhancedProcessingTime = enhancedEndTime - enhancedStartTime;
+      const hybridEndTime = performance.now();
+      const hybridProcessingTime = hybridEndTime - hybridStartTime;
       
-      console.log(`🚀 완벽한 챗봇 답변 완료: ${enhancedProcessingTime.toFixed(2)}ms (품질: ${enhancedResponse.qualityMetrics.overallScore.toFixed(1)}점)`);
+      console.log(`🤖 하이브리드 AI 응답 완료: ${hybridProcessingTime.toFixed(2)}ms`);
+      console.log(`📊 AI 소스: ${hybridResponse.source}`);
+      console.log(`🤖 사용 모델: ${hybridResponse.modelUsed}`);
       
-      responseText = enhancedResponse.answer;
+      responseText = hybridResponse.response;
       
-      // 품질 점수에 따른 응답 개선
-      if (enhancedResponse.qualityMetrics.overallScore < 80) {
-        console.log(`🔄 품질 개선 적용: ${enhancedResponse.qualityMetrics.overallScore.toFixed(1)}점`);
-        responseText = enhancedResponse.answer + '\n\n💡 더 자세한 정보가 필요하시면 언제든 연락주세요: 010-9251-9743';
+      // 로컬 Ollama 사용 시 품질 향상
+      if (hybridResponse.source === 'local') {
+        console.log('✅ 로컬 phi3:mini 모델 사용 - 고품질 응답');
+      } else {
+        console.log('⚠️ 대체 서비스 사용 - 기본 응답');
       }
       
-    } catch (enhancedError) {
-      console.log('🔄 고도화된 시스템 실패, 기본 폴백 사용:', enhancedError);
+      // 대체 서비스 사용 시 추가 안내
+      if (hybridResponse.source === 'fallback') {
+        console.log('⚠️ 대체 서비스 사용 - 추가 안내 제공');
+        responseText += '\n\n💡 더 정확한 AI 상담을 위해서는 호스트 컴퓨터의 전원과 Ollama 서버 상태를 확인해주세요.';
+        responseText += '\n📞 문의: 010-9251-9743';
+      }
+      
+    } catch (hybridError) {
+      console.log('🔄 하이브리드 AI 시스템 실패, 기본 폴백 사용:', hybridError);
       isFromFallback = true;
       responseText = generateQuickFallback(message);
     }

@@ -26,6 +26,7 @@ import {
 // import { PRDReportGenerator } from '@/lib/report-engine/prd-report-generator';
 import { saveDiagnosisToGAS } from '@/lib/gas/gas-connector';
 import { callAI } from '@/lib/ai/ai-provider';
+import { hybridAIProvider } from '@/lib/ai/hybrid-ai-provider';
 
 // 카테고리 점수를 CategoryScore 배열로 변환하는 함수
 function convertToCategoryScores(scores: any): CategoryScore[] {
@@ -727,10 +728,12 @@ async function performOllamaAnalysis(userData: UserInputData): Promise<AnalysisR
     // Ollama GPT-OSS 20B 분석 프롬프트 생성
     const analysisPrompt = generateAnalysisPrompt(userData, scores);
     
-    // Ollama GPT-OSS 20B 호출
-    const aiResponse = await callAI({
+    // 하이브리드 AI 시스템 호출 (로컬 Ollama 우선, 대체 서비스 백업)
+    console.log('🤖 하이브리드 AI 시스템 호출: AI 역량 분석');
+    
+    const aiResponse = await hybridAIProvider.callAI({
       prompt: analysisPrompt,
-      system: `당신은 "이교장의AI상담" 시스템의 Ollama GPT-OSS 20B 전용 AI 역량 분석 전문가입니다. 
+      system: `당신은 "이교장의AI상담" 시스템의 phi3:mini 전용 AI 역량 분석 전문가입니다. 
       
       📋 분석 원칙:
       - 45문항 응답을 기반으로 정확한 AI 역량 평가
@@ -827,10 +830,12 @@ async function generateOllamaReport(userData: UserInputData, analysisResult: Ana
     // 보고서 생성 프롬프트
     const reportPrompt = generateReportPrompt(userData, analysisResult);
     
-    // Ollama GPT-OSS 20B 호출
-    const aiResponse = await callAI({
+    // 하이브리드 AI 시스템 호출 (로컬 Ollama 우선, 대체 서비스 백업)
+    console.log('🤖 하이브리드 AI 시스템 호출: 보고서 생성');
+    
+    const aiResponse = await hybridAIProvider.callAI({
       prompt: reportPrompt,
-      system: `당신은 "이교장의AI상담" 시스템의 Ollama GPT-OSS 20B 전용 보고서 작성 전문가입니다.
+      system: `당신은 "이교장의AI상담" 시스템의 phi3:mini 전용 보고서 작성 전문가입니다.
       
       📋 보고서 작성 원칙:
       - 24페이지 구조의 전문적인 AI 역량진단 보고서 작성
