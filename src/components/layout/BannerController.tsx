@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import AICampContentGuide from './AICampContentGuide';
-import BookPromotionBanner from './BookPromotionBanner';
-import N8nCurriculumBanner from './N8nCurriculumBanner';
+// BookPromotionBanner, N8nCurriculumBanner 제거됨
 
 interface BannerState {
   id: string;
@@ -79,27 +78,6 @@ const BannerController: React.FC = () => {
       isVisible: false,
       autoHide: true,
       showOnce: false // 🎯 재접속 시 다시 표시되도록 변경
-    },
-    {
-      id: 'book-promotion',
-      component: BookPromotionBanner,
-      priority: 2,
-      delay: 5000, // 5초 지연으로 증가
-      duration: 10000, // 10초간 표시로 증가
-      isActive: true,
-      isVisible: false,
-      autoHide: true,
-      showOnce: false // 🎯 재접속 시 다시 표시되도록 변경
-    },
-    {
-      id: 'n8n-curriculum',
-      component: N8nCurriculumBanner,
-      priority: 3,
-      delay: 7000, // 7초 지연으로 증가
-      isActive: true,
-      isVisible: false,
-      autoHide: true,
-      showOnce: false // 🎯 재접속 시 다시 표시되도록 변경
     }
   ];
 
@@ -123,6 +101,7 @@ const BannerController: React.FC = () => {
         
         // localStorage의 배너 관련 기록도 초기화 (재접속 시 배너 복구)
         localStorage.removeItem('banner-content-guide-viewed');
+        // 제거된 배너 키 정리 (존재해도 무해)
         localStorage.removeItem('banner-book-promotion-viewed');
         localStorage.removeItem('banner-n8n-curriculum-viewed');
         localStorage.removeItem('banners-disabled-for-session');
