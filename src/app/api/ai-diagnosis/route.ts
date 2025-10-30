@@ -27,6 +27,7 @@ import {
 import { saveDiagnosisToGAS } from '@/lib/gas/gas-connector';
 import { callAI } from '@/lib/ai/ai-provider';
 import { hybridAIProvider } from '@/lib/ai/hybrid-ai-provider';
+import { generateStandardDiagnosisId, normalizeDiagnosisId } from '@/lib/ids/diagnosis-id';
 
 // 카테고리 점수를 CategoryScore 배열로 변환하는 함수
 function convertToCategoryScores(scores: any): CategoryScore[] {
@@ -518,13 +519,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       throw new Error(`Ollama GPT-OSS 20B 보고서 생성 실패: ${reportResult.error?.message}`);
     }
     
-    // 5단계: 진단 ID 생성
-    const diagnosisId = generatePRDDiagnosisId();
+    // 5단계: 진단 ID 생성 (표준 유틸 적용)
+    const diagnosisId = generateStandardDiagnosisId('PRD_V3');
     
     // 6단계: GAS 데이터 저장 (PRD 형식) - 보고서 HTML 포함
     console.log('💾 PRD V3.0 GAS 데이터 저장 중...');
     const gasData = {
-      diagnosisId,
+      diagnosisId: normalizeDiagnosisId(diagnosisId, 'PRD_V3'),
       companyName: userData.basicInfo.companyName,
       contactName: userData.basicInfo.contactPerson,
       contactEmail: userData.basicInfo.email,
@@ -590,8 +591,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         version: 'PRD-V3.0-Ollama',
         gasStored: gasResult.success,
         cacheStored: true,
-        accessUrl: `/diagnosis-results/${diagnosisId}`,
-        prdAccessUrl: `/prd-diagnosis-results/${diagnosisId}`,
+      accessUrl: `/diagnosis-results/${normalizeDiagnosisId(diagnosisId, 'PRD_V3')}`,
+      prdAccessUrl: `/prd-diagnosis-results/${normalizeDiagnosisId(diagnosisId, 'PRD_V3')}`,
         aiModel: 'Ollama GPT-OSS 20B',
         reportPages: 24,
         totalScore: analysisResult.overallScore.total,
@@ -611,7 +612,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     
     console.log('✅ PRD V3.0 완전한 AI 역량진단 워크플로우 완료', {
       requestId,
-      diagnosisId,
+      diagnosisId: normalizeDiagnosisId(diagnosisId, 'PRD_V3'),
       processingTime: `${processingTime}ms`,
       qualityScore: reportResult.data!.metadata.qualityScore,
       gasStored: gasResult.success
