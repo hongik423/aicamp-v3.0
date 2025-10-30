@@ -1,10 +1,14 @@
 // 🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 V23.1 Enhanced
 (function() {
-  // 중복 로딩 방지
+  // 중복 로딩 방지 (강화)
   if (window.AICAMP_ERROR_SUPPRESSION_LOADED) {
+    console.log('🛡️ 오류 차단 시스템이 이미 활성화되어 있습니다.');
     return;
   }
   window.AICAMP_ERROR_SUPPRESSION_LOADED = true;
+  
+  // 로딩 시간 기록
+  window.AICAMP_ERROR_SUPPRESSION_LOADED_AT = Date.now();
   
   console.log('🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 활성화');
 
@@ -45,6 +49,19 @@ const errorPatterns = [
   'chrome.sessions',
   'chrome.topSites',
   'chrome.webRequest',
+  
+  // Background.js 관련 오류 (새로 추가)
+  'background.js',
+  'Error in invocation of tabs.get',
+  'Value must be at least 0',
+  'handleSubFrameNavigationComplete',
+  'onNavigateComplete',
+  'tabs.get(integer tabId',
+  'tabId: Value must be at least 0',
+  'TypeError: Error in invocation',
+  'Hr.handleSubFrameNavigationComplete',
+  'Hr.onNavigateComplete',
+  'Gr.onNavigateComplete',
   
   // PostMessage 관련 오류
   'Invalid target origin',
@@ -205,6 +222,40 @@ const errorPatterns = [
       chrome.runtime.onMessage.addListener = function() {};
       chrome.runtime.sendMessage = function() {};
       chrome.runtime.connect = function() {};
+      
+      // Chrome tabs API 오류 차단 (background.js 오류 해결)
+      if (chrome.tabs) {
+        const originalTabsGet = chrome.tabs.get;
+        chrome.tabs.get = function(tabId, callback) {
+          try {
+            // tabId 유효성 검사 및 오류 방지
+            if (typeof tabId !== 'number' || tabId < 0) {
+              if (callback) {
+                setTimeout(() => callback({}), 0);
+              }
+              return;
+            }
+            return originalTabsGet.call(this, tabId, callback);
+          } catch (error) {
+            // tabs.get 오류 무시
+            if (callback) {
+              setTimeout(() => callback({}), 0);
+            }
+          }
+        };
+        
+        // 다른 tabs API 메서드들도 안전하게 래핑
+        const originalTabsQuery = chrome.tabs.query;
+        chrome.tabs.query = function(queryInfo, callback) {
+          try {
+            return originalTabsQuery.call(this, queryInfo, callback);
+          } catch (error) {
+            if (callback) {
+              setTimeout(() => callback([]), 0);
+            }
+          }
+        };
+      }
     } catch (e) {
       // Chrome API 접근 오류 무시
     }
@@ -330,7 +381,26 @@ const errorPatterns = [
     // 페이지 언로드 시 오류 핸들러 정리
   });
   
+  // 추가적인 오류 차단 (Promise 기반)
+  const originalPromise = window.Promise;
+  if (originalPromise) {
+    const originalThen = originalPromise.prototype.then;
+    originalPromise.prototype.then = function(onFulfilled, onRejected) {
+      const wrappedOnRejected = function(reason) {
+        if (shouldSuppressError(reason?.message || reason)) {
+          return; // 오류 무시
+        }
+        if (onRejected) {
+          return onRejected.call(this, reason);
+        }
+      };
+      return originalThen.call(this, onFulfilled, wrappedOnRejected);
+    };
+  }
+  
   // 초기화 완료 표시
   console.log('🛡️ 이교장의AI역량진단보고서 오류 차단 시스템 활성화');
+  console.log('🛡️ Background.js 오류 차단 활성화');
+  console.log('🛡️ Chrome 확장 프로그램 오류 차단 활성화');
   
 })();

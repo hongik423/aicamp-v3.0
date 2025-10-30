@@ -332,6 +332,8 @@ export default function RootLayout({
           src="/suppress-errors.js" 
           suppressHydrationWarning
           id="suppress-errors-script"
+          async
+          defer
         />
         
 
